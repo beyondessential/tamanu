@@ -1,66 +1,22 @@
 import React from 'react';
-import { Box, styled } from '@mui/material';
 import { toast } from 'react-toastify';
 
-import { BaseModal } from '../BaseModal';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
-import { ConfirmCancelRow } from '../ButtonRow';
+import { BaseModal } from '../../BaseModal';
+import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { PatientNameDisplay } from '../PatientNameDisplay';
-import { formatDateRange } from '../../utils/dateTime';
-import { useAppointmentMutation } from '../../api/mutations';
+import { PatientNameDisplay } from '../../PatientNameDisplay';
+import { formatDateRange } from '../../../utils/dateTime';
+import { useLocationBookingMutation } from '../../../api/mutations';
 import { useQueryClient } from '@tanstack/react-query';
-
-const FlexCol = styled(Box)`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FlexRow = styled(Box)`
-  display: flex;
-  flex-direction: row;
-`;
-
-const Label = styled(`span`)`
-  font-weight: 400;
-  font-color: ${Colors.midText};
-`;
-
-const Value = styled(`span`)`
-  font-weight: 500;
-`;
-
-const DetailDisplay = ({ label, value }) => (
-  <FlexCol>
-    <Label>{label}</Label>
-    <Value>{value ?? '—'}</Value>
-  </FlexCol>
-);
-
-const AppointmentDetailsContainer = styled(FlexRow)`
-  font-size: 0.875rem;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  padding-block: 1.5rem;
-`;
-
-const AppointmentDetailsColumn = styled(FlexCol)`
-  padding-inline: 1.5rem;
-  gap: 1.25rem;
-  width: 50%;
-`;
-
-const BottomModalContainer = styled(Box)`
-  padding-block: 2rem;
-  padding-inline: 2.5rem;
-  border-block-start: 1px solid ${Colors.outline};
-  background-color: ${Colors.background};
-`;
-
-const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  margin-top: 0;
-`;
+import {
+  AppointmentDetailsColumn,
+  AppointmentDetailsColumnLeft,
+  AppointmentDetailsContainer,
+  BottomModalContainer,
+  DetailDisplay,
+  FlexCol,
+  StyledConfirmCancelRow,
+} from './BaseModalComponents';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const {
@@ -75,7 +31,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
 
   return (
     <AppointmentDetailsContainer>
-      <AppointmentDetailsColumn sx={{ borderInlineEnd: `1px solid ${Colors.outline}` }}>
+      <AppointmentDetailsColumnLeft>
         <DetailDisplay
           label={
             <TranslatedText
@@ -110,7 +66,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           label={<TranslatedText stringId="general.date.label" fallback="Date" />}
           value={formatDateRange(startTime, endTime)}
         />
-      </AppointmentDetailsColumn>
+      </AppointmentDetailsColumnLeft>
       <AppointmentDetailsColumn>
         <DetailDisplay
           label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
@@ -153,10 +109,10 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
   </BottomModalContainer>
 );
 
-export const CancelBookingModal = ({ appointment, open, onClose }) => {
+export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useAppointmentMutation(
+  const { mutateAsync: cancelBooking } = useLocationBookingMutation(
     { isEdit: true },
     {
       onSuccess: () => {

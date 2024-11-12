@@ -9,7 +9,7 @@ import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
-import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
+import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -133,7 +133,7 @@ export const LocationBookingsView = () => {
         open={isDrawerOpen}
         onClose={closeBookingForm}
       />
-      <CancelBookingModal
+      <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
