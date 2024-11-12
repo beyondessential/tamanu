@@ -4,7 +4,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { formatDateRange } from '@tamanu/shared/utils/dateTime';
+import { formatDateTimeRange } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentMutation } from '../../api/mutations';
 import { Colors } from '../../constants';
@@ -109,7 +109,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         />
         <DetailDisplay
           label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          value={formatDateRange(startTime, endTime)}
+          value={formatDateTimeRange(startTime, endTime)}
         />
       </AppointmentDetailsColumn>
       <AppointmentDetailsColumn>
