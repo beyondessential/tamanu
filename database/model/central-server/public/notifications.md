@@ -27,7 +27,7 @@ When the notification was created
 {% enddocs %}
  
 {% docs notifications__patient_id %}
-TODO
+Related patient of the notification
 {% enddocs %}
 
 {% docs notifications__metadata %}
