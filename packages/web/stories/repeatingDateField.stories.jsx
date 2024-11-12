@@ -12,7 +12,8 @@ export default {
 };
 
 const Template = args => {
-  const [value, setValue] = useState(startOfDay(new Date('2024-11-20')));
+  const [value, setValue] = useState(startOfDay(new Date('2024-11-24')));
+  console.log(value);
   const handleChange = e => {
     setValue(e.target.value);
   };

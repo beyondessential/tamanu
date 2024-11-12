@@ -8,7 +8,6 @@ import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
 import {
-  addWeeks,
   format,
   add,
   addMonths,
@@ -111,12 +110,15 @@ const getRepeatText = (reportUnit, value) => {
     });
     const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
     const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
+    const arr = ['first', 'second', 'third', 'fourth'];
+    const arrTest = [...arr.slice(0, sameDay.length - 1), 'last'];
+    console.log(arrTest);
     if (sameDay.length === nOfWeek + 1) {
       text += 'last';
     } else if (nOfWeek === 0) {
       text += 'first';
     } else {
-      text += ['second', 'third', 'fourth'][nOfWeek];
+      text += ['first', 'second', 'third', 'fourth'][nOfWeek];
     }
 
     return `${text} ${format(value, 'EEEE')}`;
