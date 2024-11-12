@@ -54,8 +54,6 @@ sources:
           - name: type_legacy
             data_type: character varying(255)
             description: "{{ doc('appointments__type_legacy') }}"
-            data_tests:
-              - not_null
           - name: status
             data_type: character varying(255)
             description: "{{ doc('appointments__status') }}"

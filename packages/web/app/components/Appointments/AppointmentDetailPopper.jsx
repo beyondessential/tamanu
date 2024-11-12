@@ -102,6 +102,15 @@ const AppointmentStatusGrid = styled(Box)`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
+  .MuiPaper-root {
+    box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
+    width: 3.625rem;
+  }
+
+  .MuiPopper-root {
+    width: 3.625rem;
+  }
+
   svg {
     font-size: 0.875rem;
   }
@@ -131,7 +140,7 @@ const ControlsRow = ({ onClose, onCancel, onEdit }) => {
 
   return (
     <ControlsContainer>
-      <StyledMenuButton actions={actions} />
+      <StyledMenuButton actions={actions} placement="bottom-start" />
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
