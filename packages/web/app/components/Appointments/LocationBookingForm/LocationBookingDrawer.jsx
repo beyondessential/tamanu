@@ -177,10 +177,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       }
     };
 
-    console.log('----------values and errors-----------')
-    console.log(values)
-    console.log(errors)
-
     return (
       <FormGrid columns={1}>
         <CloseDrawerIcon onClick={warnAndResetForm} />

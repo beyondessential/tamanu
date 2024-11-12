@@ -39,6 +39,7 @@ export const LocationInput = React.memo(
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
+
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
         return {
