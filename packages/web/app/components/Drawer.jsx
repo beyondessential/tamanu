@@ -1,36 +1,37 @@
+import { Drawer as MuiDrawer } from '@mui/material/Drawer';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Drawer as MuiDrawer } from '@mui/material';
 
-import { BodyText, Heading4 } from './Typography';
 import { Colors } from '../constants';
-import { TOP_BAR_HEIGHT } from './TopBar';
 import { ClearIcon } from './Icons';
+import { TOP_BAR_HEIGHT } from './TopBar';
+import { BodyText, Heading4 } from './Typography';
 
 const Container = styled.div`
-  width: 20.625rem;
-  padding: 1rem;
-  padding-top: 0;
   background-color: ${Colors.background};
+  inline-size: 20.625rem;
   overflow-y: auto;
+  padding-block: 0 1rem;
+  padding-inline: 1rem;
   position: relative;
 `;
 
 const Title = styled(Heading4)`
-  font-size: 1rem;
-  position: sticky;
-  z-index: 1;
   background-color: ${Colors.background};
   border-bottom: 1px ${Colors.outline} solid;
-  padding: 1rem 1rem 0.313rem 1rem;
+  font-size: 1rem;
+  inset-block-start: 0;
   margin: 0 -1rem 9px;
-  top: 0;
+  padding-block: 1rem 0.313rem;
+  padding-inline: 1rem;
+  position: sticky;
+  z-index: 1;
 `;
 
 const Description = styled(BodyText)`
-  font-size: 0.688rem;
   color: ${Colors.midText};
-  margin-bottom: 1rem;
+  font-size: 0.688rem;
+  margin-block-end: 1rem;
 `;
 
 const StyledDrawer = styled(MuiDrawer)`
@@ -42,9 +43,9 @@ const StyledDrawer = styled(MuiDrawer)`
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
-  position: absolute;
   inset-block-start: 1rem;
   inset-inline-end: 1rem;
+  position: absolute;
 `;
 
 export const Drawer = ({
@@ -70,7 +71,7 @@ export const Drawer = ({
       onClose={onClose}
     >
       <Container columns={1}>
-        <div ref={topRef} aria-hidden></div>
+        <div ref={topRef} aria-hidden />
         <Title>
           {title}
           <CloseDrawerIcon onClick={onClose} />
