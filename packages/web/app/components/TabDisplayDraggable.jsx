@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
 import { Box, Tabs } from '@material-ui/core';
-import { Colors } from '../constants';
-
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import clsx from 'clsx';
+import cn from 'classnames';
+import { Colors } from '../constants';
 
 const TabBar = styled.div`
   display: flex;
@@ -124,7 +122,7 @@ export const TabDisplayDraggable = React.memo(
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         onClick={() => render && onTabSelect(key)}
-                        className={clsx({
+                        className={cn({
                           selected: currentTabData?.key === key,
                           isDragging: snapshot.isDragging,
                         })}
@@ -150,7 +148,6 @@ export const TabDisplayDraggable = React.memo(
                       left: placeholderProps.clientX + placeholderProps.clientWidth / 2,
                       transform: 'translateY(-50%)',
                       height: '50%',
-                      background: 'red',
                       width: '2px',
                       backgroundColor: Colors.primary,
                       borderRadius: '16px',

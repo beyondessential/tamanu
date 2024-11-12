@@ -56,7 +56,6 @@
     "bulma": "^0.7.1",
     "chance": "^1.1.8",
     "classnames": "^2.2.5",
-    "clsx": "^2.1.1",
     "comlink": "^4.4.1",
     "connected-react-router": "^6.9.3",
     "cronstrue": "^2.50.0",

@@ -9,7 +9,7 @@ export const useUserPreferencesMutation = () => {
 
   return useMutation({
     mutationKey: ['userPreferences'],
-    mutationFn: async newUserPreferences => {
+    mutationFn: newUserPreferences => {
       return api.post(`user/userPreferences`, {
         ...newUserPreferences,
       });
@@ -26,7 +26,7 @@ export const useReorderEncounterTabs = () => {
   const { currentUser } = useAuth();
 
   return useMutation({
-    mutationFn: async encounterTabOrders => {
+    mutationFn: encounterTabOrders => {
       return api.post(`user/userPreferences/reorderEncounterTab`, {
         encounterTabOrders,
       });
