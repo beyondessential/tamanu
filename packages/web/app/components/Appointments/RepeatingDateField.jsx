@@ -46,9 +46,10 @@ const getRepeatText = (reportUnit, value) => {
   }
   if (reportUnit === REPEAT_INTERVAL_UNITS.MONTH) {
     const weekOfMonth = Math.ceil(value.getDate() / 7);
-    return `on the ${weekOfMonth}${
-      weekOfMonth === 1 ? 'st' : weekOfMonth === 2 ? 'nd' : 'th'
-    } ${format(value, 'EEEE')}`;
+    return `on the ${['first', 'second', 'third', 'fourth', 'fifth'][weekOfMonth - 1]} ${format(
+      value,
+      'EEEE',
+    )}`;
   }
 };
 
@@ -57,9 +58,8 @@ export const RepeatingDateField = ({ value, onChange }) => {
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
   return (
     <Container>
-      <Box display="flex" gap="0.5rem">
+      <Box display="flex" gap="0.5rem" height="100%">
         <StyledNumberInput
-          style={{ height: 117 }}
           value={repeatN}
           min={0}
           onChange={e => setRepeatN(e.target.value)}
