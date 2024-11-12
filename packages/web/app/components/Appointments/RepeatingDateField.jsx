@@ -38,7 +38,7 @@ const StyledNumberInput = styled(NumberInput)`
 
 const StyledSelectInput = styled(SelectInput)`
   & .MuiFormControl-root {
-    > div > div {
+    > div > div:first-of-type {
       font-size: 12px;
       min-height: 0;
       padding-top: 9px;
