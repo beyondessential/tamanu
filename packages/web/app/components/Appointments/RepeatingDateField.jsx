@@ -110,13 +110,13 @@ const getRepeatText = (reportUnit, value) => {
       end: endOfMonth(value, 1),
     });
     const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
-    const nOfWeek = sameDay.findIndex(day => isSameDay(day, value)) + 1;
-    if (sameDay.length === nOfWeek) {
+    const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
+    if (sameDay.length === nOfWeek + 1) {
       text += 'last';
-    } else if (nOfWeek === 1) {
+    } else if (nOfWeek === 0) {
       text += 'first';
     } else {
-      text += ['second', 'third', 'fourth'][nOfWeek - 1];
+      text += ['second', 'third', 'fourth'][nOfWeek];
     }
 
     return `${text} ${format(value, 'EEEE')}`;
