@@ -9,6 +9,7 @@ import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
 import { addWeeks, format } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { FormControl, FormLabel } from '@material-ui/core';
 
 const Container = styled('div')`
   width: 100%;
@@ -28,6 +29,9 @@ const StyledNumberInput = styled(NumberInput)`
   & .MuiInputBase-input {
     font-size: 12px;
     padding-block: 12px;
+    &.Mui-disabled {
+      background-color: ${Colors.background};
+    }
   }
 `;
 
@@ -55,7 +59,9 @@ const StyledRadio = styled(Radio)`
 const StyledFormControlLabel = styled(FormControlLabel)`
   &.MuiFormControlLabel-root {
     margin-left: 0;
+    margin-right: 0;
     & .MuiTypography-root {
+      width: 40px;
       margin-left: 0.5rem;
       font-size: 12px;
       color: ${Colors.darkText};
@@ -65,8 +71,22 @@ const StyledFormControlLabel = styled(FormControlLabel)`
 
 const StyledDateInput = styled(DateInput)`
   & .MuiInputBase-input {
+    padding-block: 10px;
+    padding-inline: 13px 10px;
     font-size: 12px;
+    &.Mui-disabled {
+      background-color: ${Colors.background};
+    }
   }
+`;
+
+const StyledFormLabel = styled(FormLabel)`
+  font-size: 12px;
+  font-weight: 500;
+`;
+
+const StyledRadioGroup = styled(RadioGroup)`
+  gap: 10px;
 `;
 
 const getRepeatText = (reportUnit, value) => {
@@ -117,26 +137,37 @@ export const RepeatingDateField = ({ value, onChange }) => {
           {getRepeatText(repeatUnit, value)}
         </SmallBodyText>
       </Box>
-      <RadioGroup value={repeatType} onChange={e => setRepeatType(e.target.value)} name="repeats">
-        <Box display="flex" alignItems="center" gap="10px">
-          <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
-          <StyledDateInput
-            value={repeatType === 'on' && repeatDate}
-            onChange={e => setRepeatDate(e.target.value)}
-            disabled={repeatType !== 'on'}
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap="10px">
-          <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
-          <StyledNumberInput
-            value={repeatType === 'after' && repeatAfter}
-            onChange={e => setRepeatAfter(e.target.value)}
-            min={0}
-            disabled={repeatType !== 'after'}
-          />
-          <SmallBodyText>occurrences</SmallBodyText>
-        </Box>
-      </RadioGroup>
+      <FormControl sx={{ m: 3 }} variant="standard">
+        <StyledFormLabel id="ends-radio">Ends</StyledFormLabel>
+        <StyledRadioGroup
+          aria-labelledby="ends-radio"
+          value={repeatType}
+          onChange={e => setRepeatType(e.target.value)}
+          name="repeats"
+        >
+          <Box display="flex" alignItems="center" gap="10px">
+            <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
+            <StyledDateInput
+              value={repeatType === 'on' && repeatDate}
+              onChange={e => setRepeatDate(e.target.value)}
+              disabled={repeatType !== 'on'}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap="10px">
+            <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
+            <StyledNumberInput
+              sx={{
+                width: '60px',
+              }}
+              value={repeatType === 'after' && repeatAfter}
+              onChange={e => setRepeatAfter(e.target.value)}
+              min={0}
+              disabled={repeatType !== 'after'}
+            />
+            <SmallBodyText color="textTertiary">occurrences</SmallBodyText>
+          </Box>
+        </StyledRadioGroup>
+      </FormControl>
     </Container>
   );
 };
