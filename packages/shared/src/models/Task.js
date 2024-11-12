@@ -301,11 +301,16 @@ export class Task extends Model {
   static async onEncounterDischarged(encounterId) {
     const { models } = this.sequelize;
 
+    const encounter = await models.Encounter.findByPk(encounterId);
+    if (!encounter.endTime) {
+      return;
+    }
+
     // delete all future tasks of this encounter
     const taskDeletionReason = await models.ReferenceData.findByPk(
       TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
     );
-    const endTime = getCurrentDateTimeString();
+    const endTime = encounter.endTime;
 
     await models.Task.update(
       {
