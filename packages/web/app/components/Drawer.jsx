@@ -1,4 +1,4 @@
-import { Drawer as MuiDrawer } from '@mui/material/Drawer';
+import MuiDrawer from '@mui/material/Drawer';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -10,18 +10,21 @@ import { BodyText, Heading4 } from './Typography';
 const Container = styled.div`
   background-color: ${Colors.background};
   inline-size: 20.625rem;
+  min-block-size: 100%;
   overflow-y: auto;
   padding-block: 0 1rem;
   padding-inline: 1rem;
   position: relative;
 `;
 
+// TODO: Fix semantics
 const Title = styled(Heading4)`
   background-color: ${Colors.background};
-  border-bottom: 1px ${Colors.outline} solid;
+  border-bottom: max(0.0625rem, 1px) ${Colors.outline} solid;
   font-size: 1rem;
   inset-block-start: 0;
-  margin: 0 -1rem 9px;
+  margin-block: 0 0.5625rem;
+  margin-inline: -1rem;
   padding-block: 1rem 0.313rem;
   padding-inline: 1rem;
   position: sticky;
