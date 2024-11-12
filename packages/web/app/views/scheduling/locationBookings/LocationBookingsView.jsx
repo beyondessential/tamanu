@@ -6,34 +6,19 @@ import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
-import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
   }
 `;
-
-// BEGIN PLACEHOLDERS
-
-const Placeholder = styled.div`
-  background-color: oklch(0% 0 0 / 3%);
-  max-block-size: 100%;
-  border: 1px solid oklch(0% 0 0 / 15%);
-  border-radius: 0.2rem;
-  color: oklch(0% 0 0 / 55%);
-  display: grid;
-  font-size: 1rem;
-  padding: 0.5rem;
-  place-items: center;
-  text-align: center;
-`;
-
-// END PLACEHOLDERS
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -47,11 +32,6 @@ const Wrapper = styled(PageContainer)`
   display: grid;
   grid-template-rows: auto 1fr;
   max-block-size: 100%;
-`;
-
-const Filters = styled('search')`
-  display: flex;
-  gap: 1rem;
 `;
 
 const NewBookingButton = styled(Button)`
@@ -112,6 +92,9 @@ export const LocationBookingsView = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
+
+  const { filters, handleFilterChange } = useLocationBooking();
+
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
@@ -129,19 +112,16 @@ export const LocationBookingsView = () => {
   const locationsQuery = useLocationsQuery({
     facilityId,
     bookableOnly: true,
+    locationGroupIds: filters.locationGroupIds,
   });
+
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <Filters>
-          <Placeholder>Search</Placeholder>
-          <Placeholder>Area</Placeholder>
-          <Placeholder>Clinician</Placeholder>
-          <Placeholder>Type</Placeholder>
-        </Filters>
+        <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText

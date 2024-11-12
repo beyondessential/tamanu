@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
+import { useLocationBooking } from '../../../contexts/LocationBooking';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
@@ -85,21 +86,38 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
+  const { filters } = useLocationBooking();
+
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
-  const appointments =
-    useAppointmentsQuery({
-      after: displayedDates[0],
-      before: endOfDay(displayedDates[displayedDates.length - 1]),
-      locationId: '',
-      all: true,
-    }).data?.data ?? [];
+
+  const { data: appointmentsData = [] } = useAppointmentsQuery({
+    after: displayedDates[0],
+    before: endOfDay(displayedDates[displayedDates.length - 1]),
+    all: true,
+    locationId: '',
+    clinicianId: filters.clinicianId,
+    bookingTypeId: filters.bookingTypeId,
+    patientNameOrId: filters.patientNameOrId,
+  });
+
+  const appointments = appointmentsData.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;
 
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  return locations?.map(location => (
+  const areFiltersActive = Object.values(filters).some(
+    filter => filter !== null && filter.length > 0,
+  );
+
+  const filteredLocations = areFiltersActive
+    ? locations.filter(location => appointmentsByLocation[location.id])
+    : locations;
+
+  if (filteredLocations.length === 0) return <EmptyStateRow />;
+
+  return filteredLocations?.map(location => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}
