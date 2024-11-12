@@ -25,8 +25,9 @@ const Carousel = styled.div`
   border-radius: 0.2rem;
   margin: 1rem;
   overflow: scroll;
+
   overscroll-behavior: contain;
-  scroll-snap-type: both mandatory;
+  scroll-snap-type: both proximity;
 
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
