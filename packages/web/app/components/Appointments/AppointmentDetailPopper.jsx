@@ -13,13 +13,13 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
-import { formatDateTimeRange } from '@tamanu/shared/utils/dateTime';
 
 import { isSameDay } from 'date-fns';
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { Colors } from '../../constants';
 import { reloadPatient } from '../../store';
+import { formatDateTimeRange } from '../../utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { MenuButton } from '../MenuButton';
 import { getPatientNameAsString } from '../PatientNameDisplay';
