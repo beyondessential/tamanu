@@ -27,6 +27,7 @@ import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
+import { useLocationBooking } from '../../../contexts/LocationBooking';
 
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
@@ -131,7 +132,7 @@ const validationSchema = yup.object({
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
-  const { updateSelectedCell } = useLocationBookings();
+  const { updateSelectedLocation, clearSelectedCell } = useLocationBooking();
   const isEdit = !!initialValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
@@ -195,8 +196,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
+      clearSelectedCell();
       onClose();
-      updateSelectedCell(null)
       resetForm();
     };
 
@@ -215,7 +216,10 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           name="locationId"
           component={LocalisedLocationField}
           required
-          onChange={() => resetFieldsAfter('locationId')}
+          onChange={(e) => {
+            resetFieldsAfter('locationId');
+            updateSelectedLocation(e.target.value)
+          }}
         />
         <Field
           name="overnight"

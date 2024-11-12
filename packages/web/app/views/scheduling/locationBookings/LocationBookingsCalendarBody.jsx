@@ -19,7 +19,7 @@ export const BookingsCell = ({
 }) => {
   const {
     selectedCell: { date: selectedDate, locationId: selectedLocationId },
-  } = useLocationBookings();
+  } = useLocationBooking();
 
   return (
     <CarouselGrid.Cell

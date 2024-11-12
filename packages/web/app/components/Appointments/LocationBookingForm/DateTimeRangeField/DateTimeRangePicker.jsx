@@ -5,6 +5,7 @@ import React from 'react';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
+import { useLocationBooking } from '../../../../contexts/LocationBooking';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
@@ -16,6 +17,7 @@ export const DateTimeRangePicker = ({
   ...props
 }) => {
   const { values, errors } = useFormikContext();
+  const { updateSelectedDate } = useLocationBooking();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -36,6 +38,9 @@ export const DateTimeRangePicker = ({
         label={datePickerLabel}
         name={datePickerName}
         required={required}
+        onChange={e => {
+          updateSelectedDate(e.target.value)
+        }}
         {...props}
       />
       <TimeSlotPicker

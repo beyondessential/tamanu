@@ -10,12 +10,32 @@ export const LocationBookingProvider = ({ children }) => {
     bookingTypeId: [],
   });
 
+  const [selectedCell, setSelectedCell] = useState({ date: null, locationId: null });
+
+  const updateSelectedLocation = locationId => {
+    setSelectedCell(prev => ({ ...prev, locationId }));
+  };
+  const updateSelectedDate = date => {
+    setSelectedCell(prev => ({ ...prev, date }));
+  };
+
+  const clearSelectedCell = () => setSelectedCell({ date: null, locationId: null });
+
   const handleFilterChange = useCallback(values => {
     setFilters(values);
   }, []);
 
   return (
-    <LocationBookingContext.Provider value={{ filters, handleFilterChange }}>
+    <LocationBookingContext.Provider
+      value={{
+        filters,
+        handleFilterChange,
+        selectedCell,
+        updateSelectedLocation,
+        updateSelectedDate,
+        clearSelectedCell,
+      }}
+    >
       {children}
     </LocationBookingContext.Provider>
   );

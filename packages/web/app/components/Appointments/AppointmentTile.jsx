@@ -13,6 +13,7 @@ import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
 } from './appointmentStatusIndicators';
+import { ThemedTooltip } from '../Tooltip';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected = false }) =>
