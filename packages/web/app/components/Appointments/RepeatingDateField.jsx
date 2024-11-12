@@ -8,6 +8,7 @@ import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
 import { format } from 'date-fns';
+import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 const Container = styled('div')`
   width: 100%;
@@ -40,6 +41,28 @@ const StyledSelectInput = styled(SelectInput)`
   }
 `;
 
+const StyledRadio = styled(Radio)`
+  &.MuiRadio-root {
+    color: ${Colors.primary};
+    padding: 2px;
+  }
+  & svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+`;
+
+const StyledFormControlLabel = styled(FormControlLabel)`
+  &.MuiFormControlLabel-root {
+    margin-left: 0;
+    & .MuiTypography-root {
+      margin-left: 0.5rem;
+      font-size: 12px;
+      color: ${Colors.darkText};
+    }
+  }
+`;
+
 const getRepeatText = (reportUnit, value) => {
   if (reportUnit === REPEAT_INTERVAL_UNITS.WEEK) {
     return `on a ${format(value, 'EEEE')}`;
@@ -56,6 +79,7 @@ const getRepeatText = (reportUnit, value) => {
 export const RepeatingDateField = ({ value, onChange }) => {
   const [repeatN, setRepeatN] = useState(1);
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
+  const [repeatType, setRepeatType] = useState('on');
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -84,6 +108,15 @@ export const RepeatingDateField = ({ value, onChange }) => {
           {getRepeatText(repeatUnit, value)}
         </SmallBodyText>
       </Box>
+      <RadioGroup value={repeatType} onChange={e => setRepeatType(e.target.value)} name="repeats">
+        <Box display="flex" alignItems="center">
+          <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
+          <SmallBodyText>hello</SmallBodyText>
+        </Box>
+        <Box display="flex" alignItems="center">
+          <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
+        </Box>
+      </RadioGroup>
     </Container>
   );
 };
