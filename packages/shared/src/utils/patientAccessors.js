@@ -16,8 +16,7 @@ export const getDobWithAge = ({ dateOfBirth }, { getTranslation }) => {
   const dob = formatShort(dateOfBirth);
   const age = ageInYears(dateOfBirth);
 
-  // TODO
-  return `${dob} (${age} years)`;
+  return `${dob} (${age} ${getTranslation('dateTime.unit.years', 'years')})`;
 };
 
 export const getDateOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {

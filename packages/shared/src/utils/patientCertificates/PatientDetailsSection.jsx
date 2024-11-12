@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import { getDOB, getSex, getVillageName } from '../patientAccessors';
+import { getDob, getSex, getVillageName } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const patientFields = getTranslation => [
@@ -25,7 +25,7 @@ const patientFields = getTranslation => [
   {
     key: 'dateOfBirth',
     label: getTranslation('pdf.vaccineCertificate.patientDetails.dob', 'DOB'),
-    accessor: getDOB,
+    accessor: getDob,
   },
   {
     key: 'villageName',
