@@ -7,7 +7,16 @@ import { TranslatedEnum, TranslatedText } from '../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
-import { addWeeks, format, add } from 'date-fns';
+import {
+  addWeeks,
+  format,
+  add,
+  addMonths,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
+  isSameDay,
+} from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
 
@@ -95,11 +104,22 @@ const getRepeatText = (reportUnit, value) => {
     return `on a ${format(value, 'EEEE')}`;
   }
   if (reportUnit === REPEAT_INTERVAL_UNITS.MONTH) {
-    const weekOfMonth = Math.ceil(value.getDate() / 7);
-    return `on the ${['first', 'second', 'third', 'fourth', 'fifth'][weekOfMonth - 1]} ${format(
-      value,
-      'EEEE',
-    )}`;
+    let text = `on the `;
+    const weeksInMonth = eachDayOfInterval({
+      start: startOfMonth(value),
+      end: endOfMonth(value, 1),
+    });
+    const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
+    const nOfWeek = sameDay.findIndex(day => isSameDay(day, value)) + 1;
+    if (sameDay.length === nOfWeek) {
+      text += 'last';
+    } else if (nOfWeek === 1) {
+      text += 'first';
+    } else {
+      text += ['second', 'third', 'fourth'][nOfWeek - 1];
+    }
+
+    return `${text} ${format(value, 'EEEE')}`;
   }
 };
 
@@ -107,7 +127,7 @@ export const RepeatingDateField = ({ value, onChange }) => {
   const [repeatN, setRepeatN] = useState(1);
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
   const [repeatType, setRepeatType] = useState('on');
-  const [repeatDate, setRepeatDate] = useState(addWeeks(value, 6));
+  const [repeatDate, setRepeatDate] = useState(addMonths(value, 6));
   const [repeatAfter, setRepeatAfter] = useState(2);
 
   console.log(add(value, { [`${repeatUnit}s`]: repeatN }));
