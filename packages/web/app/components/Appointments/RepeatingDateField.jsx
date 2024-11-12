@@ -2,12 +2,12 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Colors } from '../../constants';
-import { NumberInput, SelectInput } from '../Field';
+import { DateInput, NumberInput, SelectInput } from '../Field';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
-import { format } from 'date-fns';
+import { addWeeks, format } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 const Container = styled('div')`
@@ -63,6 +63,12 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
+const StyledDateInput = styled(DateInput)`
+  & .MuiInputBase-input {
+    font-size: 12px;
+  }
+`;
+
 const getRepeatText = (reportUnit, value) => {
   if (reportUnit === REPEAT_INTERVAL_UNITS.WEEK) {
     return `on a ${format(value, 'EEEE')}`;
@@ -80,6 +86,9 @@ export const RepeatingDateField = ({ value, onChange }) => {
   const [repeatN, setRepeatN] = useState(1);
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
   const [repeatType, setRepeatType] = useState('on');
+  const [repeatDate, setRepeatDate] = useState(addWeeks(value, 6));
+  const [repeatAfter, setRepeatAfter] = useState(2);
+
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -109,12 +118,23 @@ export const RepeatingDateField = ({ value, onChange }) => {
         </SmallBodyText>
       </Box>
       <RadioGroup value={repeatType} onChange={e => setRepeatType(e.target.value)} name="repeats">
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems="center" gap="10px">
           <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
-          <SmallBodyText>hello</SmallBodyText>
+          <StyledDateInput
+            value={repeatType === 'on' && repeatDate}
+            onChange={e => setRepeatDate(e.target.value)}
+            disabled={repeatType !== 'on'}
+          />
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems="center" gap="10px">
           <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
+          <StyledNumberInput
+            value={repeatType === 'after' && repeatAfter}
+            onChange={e => setRepeatAfter(e.target.value)}
+            min={0}
+            disabled={repeatType !== 'after'}
+          />
+          <SmallBodyText>occurrences</SmallBodyText>
         </Box>
       </RadioGroup>
     </Container>
