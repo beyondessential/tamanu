@@ -70,11 +70,11 @@ export const Drawer = ({
       onClose={onClose}
     >
       <Container columns={1}>
+        <div ref={topRef} aria-hidden></div>
         <Title>
           {title}
           <CloseDrawerIcon onClick={onClose} />
         </Title>
-        <div ref={topRef} aria-hidden></div>
         <Description>{description}</Description>
         {children}
       </Container>
