@@ -4,10 +4,10 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { formatDateTimeRange } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentMutation } from '../../api/mutations';
 import { Colors } from '../../constants';
+import { formatDateTimeRange } from '../../utils/dateTime';
 import { BaseModal } from '../BaseModal';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { PatientNameDisplay } from '../PatientNameDisplay';
