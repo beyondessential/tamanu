@@ -13,5 +13,5 @@ Comma-separated.
 {% enddocs %}
 
 {% docs user_preferences__encounter_tab_orders %}
-TODO
+Stores the tab encounter order that the user has adjusted
 {% enddocs %}
