@@ -41,7 +41,7 @@ const partialAppointment = {
   clinician: fakePractitioner(),
   location: { name: 'Bed 1', id: 'bed1' },
   locationGroup: { name: 'Ward 1', id: 'ward1' },
-  type: { name: 'Standard', id: 'standard' },
+  appointmentType: { name: 'Standard', id: 'standard' },
 };
 
 const partialConfirmedAppt = {

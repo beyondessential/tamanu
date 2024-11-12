@@ -25,15 +25,16 @@ const Carousel = styled.div`
   border-radius: 0.2rem;
   margin: 1rem;
   overflow: scroll;
+
   overscroll-behavior: contain;
-  scroll-snap-type: both mandatory;
+  scroll-snap-type: both proximity;
 
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
   }
 `;
 
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
@@ -49,6 +50,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) =>
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       </CarouselGrid.Root>
     </Carousel>

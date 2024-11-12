@@ -16,7 +16,7 @@ export class Appointment extends Model {
           allowNull: false,
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
-        typeLegacy: Sequelize.STRING,
+        typeLegacy: { type: Sequelize.STRING, allowNull: true },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

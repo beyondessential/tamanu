@@ -59,7 +59,6 @@ const HeadCellText = styled(BodyText)`
 `;
 
 const AppointmentColumnWrapper = styled(Box)`
-  overflow: auto;
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
@@ -120,15 +119,7 @@ export const HeadCell = ({ title, count }) => (
   </HeadCellWrapper>
 );
 
-const AppointmentCell = ({ appointments = [] }) => (
-  <AppointmentColumnWrapper>
-    {appointments.map(a => (
-      <AppointmentTile key={a.id} appointment={a} />
-    ))}
-  </AppointmentColumnWrapper>
-);
-
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
+export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer }) => {
   const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
@@ -161,13 +152,17 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
     );
   }
   return (
-    <Box display="flex" width="100%">
+    <Box display="flex" width="100%" overflow="auto">
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
-            <AppointmentCell appointments={appointments} />
+            <AppointmentColumnWrapper>
+              {appointments.map(a => (
+                <AppointmentTile key={a.id} appointment={a} onEdit={() => onOpenDrawer(a)} />
+              ))}
+            </AppointmentColumnWrapper>
           </ColumnWrapper>
         );
       })}

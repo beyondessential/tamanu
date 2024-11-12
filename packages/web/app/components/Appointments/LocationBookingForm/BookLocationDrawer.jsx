@@ -1,14 +1,11 @@
-import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -22,19 +19,12 @@ import {
   LocalisedLocationField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
-import { ClearIcon } from '../../Icons/ClearIcon';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
-
-const Container = styled.div`
-  width: 330px;
-  padding: 1rem;
-  background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
-`;
+import { useTranslation } from '../../../contexts/Translation';
+import { Drawer } from '../../Drawer';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -46,17 +36,22 @@ const OvernightIcon = styled(Brightness2Icon)`
   left: 145px;
 `;
 
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
-`;
-
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
+    // Add 1 pixel to allow border to show
+    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
+    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
+  }
+`;
+
+// A bit blunt but the base form fields are going to have their size tweaked in a
+// later card so this is a bridging solution just for this form
+const StyledFormGrid = styled(FormGrid)`
+  .label-field,
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label,
+  div {
+    font-size: 12px;
   }
 `;
 
@@ -96,8 +91,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ editMode }) =>
-  editMode ? (
+const SuccessMessage = ({ isEdit = false }) =>
+  isEdit ? (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyEdited"
       fallback="Booking successfully edited"
@@ -110,15 +105,17 @@ const SuccessMessage = ({ editMode }) =>
   );
 
 const validationSchema = yup.object({
-  locationId: yup.string().required(),
-  startTime: yup.string().required(),
-  endTime: yup.string().required(),
-  patientId: yup.string().required(),
-  bookingTypeId: yup.string().required(),
+  locationId: yup.string().required('*Required'),
+  date: yup.string().required('*Required'),
+  startTime: yup.string().required('*Required'),
+  endTime: yup.string().required('*Required'),
+  patientId: yup.string().required('*Required'),
+  bookingTypeId: yup.string().required('*Required'),
 });
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
-  const editMode = !!initialBookingValues.id;
+export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
+  const { getTranslation } = useTranslation();
+  const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -135,11 +132,11 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
 
   const queryClient = useQueryClient();
   const { mutateAsync: handleSubmit } = useLocationBookingMutation(
-    { editMode },
+    { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
-        closeDrawer();
+        onClose();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
@@ -164,91 +161,117 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
-      closeDrawer();
+      onClose();
       resetForm();
     };
 
     return (
-      <FormGrid columns={1}>
-        <CloseDrawerIcon onClick={warnAndResetForm} />
-        <Field
-          enableLocationStatus={false}
-          name="locationId"
-          component={LocalisedLocationField}
-          required
-          onChange={() => {
-            setFieldValue('overnight', null);
-            setFieldValue('date', null);
-            setFieldValue('startTime', null);
-            setFieldValue('endTime', null);
-          }}
-        />
-        <OvernightStayField>
+      <>
+        <StyledFormGrid nested columns={1}>
           <Field
-            name="overnight"
-            label={
-              <TranslatedText
-                stringId="location.form.overnightStay.label"
-                fallback="Overnight stay"
-              />
-            }
-            component={CheckField}
-            disabled={!values.locationId}
+            enableLocationStatus={false}
+            name="locationId"
+            component={LocalisedLocationField}
+            required
+            onChange={() => {
+              if (values.overnight) {
+                setFieldValue('overnight', null);
+              }
+              if (values.startTime) {
+                setFieldValue('startTime', null);
+                setFieldValue('endTime', null);
+              }
+            }}
           />
-          <OvernightIcon fontSize="small" />
-        </OvernightStayField>
-        <Field
-          name="date"
-          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          component={DateField}
-          required
-        />
-        <BookingTimeField key={values.date} disabled={!values.date} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          required
-        />
-        <Field
-          name="bookingTypeId"
-          label={
-            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-          }
-          component={DynamicSelectField}
-          suggester={bookingTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
-      </FormGrid>
+          <OvernightStayField>
+            <Field
+              name="overnight"
+              label={
+                <TranslatedText
+                  stringId="location.form.overnightStay.label"
+                  fallback="Overnight stay"
+                />
+              }
+              component={CheckField}
+              disabled={!values.locationId}
+            />
+            <OvernightIcon fontSize="small" />
+          </OvernightStayField>
+          <Field
+            name="date"
+            label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+            component={DateField}
+            required
+          />
+          <BookingTimeField key={values.date} disabled={!values.date} />
+          <Field
+            name="patientId"
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            component={AutocompleteField}
+            suggester={patientSuggester}
+            required
+            placeholder={getTranslation(
+              'general.patient.search.placeholder',
+              'Search patient name or ID',
+            )}
+          />
+          <Field
+            name="bookingTypeId"
+            label={
+              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+            }
+            component={DynamicSelectField}
+            suggester={bookingTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+        </StyledFormGrid>
+      </>
     );
   };
 
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-      <Container columns={1}>
-        <BookLocationHeader />
-        <Form
-          onSubmit={async values => handleSubmit(values)}
-          suppressErrorDialog
-          validationSchema={validationSchema}
-          initialValues={initialBookingValues}
-          enableReinitialize
-          render={renderForm}
+    <StyledDrawer
+      variant="persistent"
+      anchor="right"
+      PaperProps={{
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        className: APPOINTMENT_DRAWER_CLASS,
+      }}
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+      }
+      description={
+        <TranslatedText
+          stringId="locationBooking.form.new.description"
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
         />
-        <WarningModal
-          open={warningModalOpen}
-          setShowWarningModal={setShowWarningModal}
-          resolveFn={resolveFn}
-        />
-      </Container>
+      }
+    >
+      <Form
+        onSubmit={async (values, { resetForm }) => {
+          handleSubmit(values);
+          resetForm();
+        }}
+        suppressErrorDialog
+        validationSchema={validationSchema}
+        initialValues={initialValues}
+        enableReinitialize
+        render={renderForm}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
     </StyledDrawer>
   );
 };

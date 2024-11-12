@@ -5,6 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export const appointments = express.Router();
 
@@ -43,6 +44,7 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
 };
 
 appointments.post('/$', simplePost('Appointment'));
+appointments.put('/:id', simplePut('Appointment'));
 
 const searchableFields = [
   'startTime',
@@ -152,6 +154,7 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
+        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
         startTime: startTimeQuery,
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,

@@ -9,19 +9,27 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
+export const BookingsCell = ({
+  appointments,
+  date,
+  location,
+  openBookingForm,
+  openCancelModal,
+}) => (
   <CarouselGrid.Cell
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      openBookingForm({ date: toDateTimeString(date), locationId: location.id });
     }}
   >
     {appointments?.map(a => (
       <AppointmentTile
         className="appointment-tile"
-        openBookingForm={openBookingForm}
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        onCancel={() => openCancelModal(a)}
         appointment={a}
         key={a.id}
       />
@@ -29,7 +37,13 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
+export const BookingsRow = ({
+  appointments,
+  dates,
+  location,
+  openBookingForm,
+  openCancelModal,
+}) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -48,6 +62,7 @@ export const BookingsRow = ({ appointments, dates, location, openBookingForm }) 
           key={d.valueOf()}
           location={location}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       ))}
     </CarouselGrid.Row>
@@ -70,6 +85,7 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
+  openCancelModal,
 }) => {
   const { filters } = useLocationBooking();
 
@@ -109,6 +125,7 @@ export const LocationBookingsCalendarBody = ({
       key={location.code}
       location={location}
       openBookingForm={openBookingForm}
+      openCancelModal={openCancelModal}
     />
   ));
 };
