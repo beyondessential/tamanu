@@ -6,6 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import { differenceInHours, parseISO } from 'date-fns';
 
 import {
   BodyText,
@@ -52,10 +53,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      width: 15px;
-    }
-    &:nth-child(2) {
-      padding-left: 0px;
+      ${p => p.$canDoAction ? `width: 15px;` : ''}
     }
   }
   .MuiTableCell-body {
@@ -66,16 +64,21 @@ const StyledTable = styled(DataFetchingTable)`
     &:last-child {
       padding-right: 0px;
     }
-    &:first-child,
-    &:nth-child(2) {
+    &:first-child {
       padding-left: 0px;
+    }
+    &:nth-child(2) {
+      ${p => p.$canDoAction ? `padding-left: 0px;` : ''}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    transition: all 250ms;
     &:hover {
-      box-shadow: 10px 10px 15px 0px rgba(0, 0, 0, 0.1);
+      box-shadow: ${props =>
+        props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
+    position: relative;
     max-height: 42px;
   }
   .MuiFormControlLabel-root {
@@ -90,6 +93,7 @@ const StyledTable = styled(DataFetchingTable)`
       white-space: nowrap;
       min-width: 188px;
     }
+    &:nth-child(2),
     &:nth-child(3) {
       position: relative;
     }
@@ -114,7 +118,7 @@ const StatusTodo = styled.div`
   border-radius: 50%;
 `;
 
-const StyledBulkActions = styled.div`
+const StyledActionsRow = styled.div`
   display: flex;
   gap: 15px;
   padding-right: 10px;
@@ -294,13 +298,19 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => {
+const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+
+const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
+  const status = row?.status || rows[0]?.status;
+
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
+  const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
+
   return (
-    <StyledBulkActions>
+    <StyledActionsRow>
       {status !== TASK_STATUSES.COMPLETED && canWrite && (
         <TableTooltip
           title={
@@ -329,7 +339,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
           </IconButton>
         </TableTooltip>
       )}
-      {status !== TASK_STATUSES.TODO && canWrite && (
+      {status !== TASK_STATUSES.TODO && canWrite && !isTaskOverdue && (
         <TableTooltip
           title={
             <TranslatedText
@@ -354,13 +364,13 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
           </IconButton>
         </TableTooltip>
       )}
-    </StyledBulkActions>
+    </StyledActionsRow>
   );
 };
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
-  const { note, status } = row;
+  const { note } = row;
 
   return (
     <Box display="flex" alignItems="center">
@@ -378,7 +388,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
+        <ActionsRow row={row} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
@@ -416,6 +426,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
+  const canDoAction = canWrite || canDelete;
 
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
@@ -515,6 +526,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
+
   const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
@@ -533,18 +545,15 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (canWrite || canDelete) && (
+      {selectedRows.length > 0 && canDoAction && (
         <div>
           <StyledDivider />
-          <BulkActions
-            status={selectedRows[0].status}
-            handleActionModalOpen={handleActionModalOpen}
-          />
+          <ActionsRow rows={selectedRows} handleActionModalOpen={handleActionModalOpen} />
         </div>
       )}
       <StyledTable
         endpoint={`encounter/${encounterId}/tasks`}
-        columns={[selectableColumn, ...COLUMNS]}
+        columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
         noDataMessage={<NoDataMessage />}
         allowExport={false}
         onMouseEnterRow={handleMouseEnterRow}
@@ -554,6 +563,8 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
         defaultRowsPerPage={25}
+        disableHoverEffect={!canDoAction}
+        $canDoAction={canDoAction}
       />
     </div>
   );

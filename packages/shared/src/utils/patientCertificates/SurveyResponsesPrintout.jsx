@@ -11,7 +11,12 @@ import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
-import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
+import {
+  convertBinaryToYesNo,
+  getResultName,
+  getSurveyAnswerRows,
+  separateColorText,
+} from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '../dateTime';
 
@@ -36,7 +41,7 @@ const pageStyles = StyleSheet.create({
     paddingBottom: 4,
     borderBottom: '0.5px solid black',
     marginBottom: 8,
-    alignSelf: 'flex-end'
+    alignSelf: 'flex-end',
   },
   itemText: {
     fontSize: 9,
@@ -48,7 +53,7 @@ const pageStyles = StyleSheet.create({
     borderBottom: '2px solid black',
     height: 2,
     width: '100%',
-    marginTop: '-6px'
+    marginTop: '-6px',
   },
   resultBox: {
     paddingTop: 7,
@@ -72,6 +77,14 @@ const ResultBox = ({ resultText, resultName }) => (
 
 const getAnswers = ({ answer, type }) => {
   switch (type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
+      const { strippedResultText } = separateColorText(answer);
+      return strippedResultText;
+    }
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
+      return convertBinaryToYesNo(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
+      return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return 'Image file - Refer to Tamanu to view';
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
@@ -88,9 +101,7 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-        {getAnswers({ answer, type })}
-      </Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type })}</Text>
     </View>
   );
 };
@@ -101,7 +112,7 @@ const ResponsesGroup = ({ rows }) => {
       {rows.map(row => (
         <ResponseItem key={row.id} row={row} />
       ))}
-      <View style={pageStyles.boldDivider}/>
+      <View style={pageStyles.boldDivider} />
     </View>
   );
 };
@@ -136,7 +147,7 @@ const SurveyResponsesPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body}>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={!isReferral ? "Program form" : "Referral"}
+          documentName={!isReferral ? 'Program form' : 'Referral'}
           documentSubname={surveyResponse.title}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
@@ -145,7 +156,7 @@ const SurveyResponsesPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle={!isReferral ? "Program form" : "Referral"}
+            certificateTitle={!isReferral ? 'Program form' : 'Referral'}
             certificateSubtitle={surveyResponse.title}
             letterheadConfig={certificateData}
           />

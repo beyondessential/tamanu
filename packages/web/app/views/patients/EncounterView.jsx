@@ -30,17 +30,20 @@ import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
+import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
-const getEnableTasking = (getSetting, ability) =>
-  getSetting('features.enableTasking') && ability.can('list', 'Tasking');
 
 const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
-    render: props => <TasksPane {...props} />,
-    condition: (getSetting, ability) => getEnableTasking(getSetting, ability),
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Tasking">
+        <TasksPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
+    condition: getSetting => getSetting('features.enableTasking'),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
@@ -89,9 +92,12 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <EncounterInvoicingPane {...props} />,
-    condition: (getSetting, ability) =>
-      getSetting('features.enableInvoicing') && ability.can('read', 'Invoice'),
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Invoice">
+        <EncounterInvoicingPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
+    condition: getSetting => getSetting('features.enableInvoicing'),
   },
 ];
 
@@ -139,12 +145,12 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getSetting } = useSettings();
-  const { facilityId, ability } = useAuth();
+  const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
 
-  const defaultTab = getEnableTasking(getSetting, ability)
+  const defaultTab = getSetting('features.enableTasking')
     ? ENCOUNTER_TAB_NAMES.TASKS
     : ENCOUNTER_TAB_NAMES.VITALS;
   const [currentTab, setCurrentTab] = useState(query.get('tab') || defaultTab);
@@ -156,7 +162,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting, ability));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting));
 
   return (
     <GridColumnContainer>

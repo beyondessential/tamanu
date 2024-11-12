@@ -59,7 +59,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
         <TranslatedText
           stringId="welcome.title"
           fallback="Welcome, :displayName!"
-          replacements={{ displayName: user.displayName }}
+          replacements={{ displayName: user?.displayName }}
         />
       </StyledText>
       <StyledView marginTop={screenPercentageToDP('7.17', Orientation.Height)}>

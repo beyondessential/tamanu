@@ -1,0 +1,1 @@
+../../central-server/public/lab_test_panel_lab_test_types.md

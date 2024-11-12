@@ -77,17 +77,12 @@ const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
 const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
 const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
 
-const DetailsRow = ({ name, value, getTranslation }) => {
-  const label =
-    getTranslation(`general.localisedField.${name}.label.short`) ||
-    getTranslation(`general.localisedField.${name}.label`);
-  return (
-    <InfoRow>
-      <DetailsKey>{`${label}: `}</DetailsKey>
-      <DetailsValue>{value}</DetailsValue>
-    </InfoRow>
-  );
-};
+const DetailsRow = ({ value, label }) => (
+  <InfoRow>
+    <DetailsKey>{`${label}: `}</DetailsKey>
+    <DetailsValue>{value}</DetailsValue>
+  </InfoRow>
+);
 
 const PatientPhoto = ({ patientImageData }) => {
   return (
@@ -104,7 +99,7 @@ const IDCardPrintoutComponent = ({
   patientImageData,
   cardDimensions,
   measures,
-  getLocalisation,
+  getTranslation,
 }) => {
   const pageStyles = StyleSheet.create({
     card: {
@@ -127,26 +122,25 @@ const IDCardPrintoutComponent = ({
             <PatientPhoto patientImageData={patientImageData} />
             <Details>
               <DetailsRow
-                name="displayId"
                 value={patient.displayId}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.displayId.label.short', 'NHN')}
               />
               <DetailsRow
-                name="lastName"
                 value={patient.lastName}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.lastName.label', 'Last name')}
               />
               <DetailsRow
-                name="firstName"
                 value={patient.firstName}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.firstName.label', 'First name')}
               />
               <DetailsRow
-                name="dateOfBirth"
                 value={getDOB(patient)}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
               />
-              <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
+              <DetailsRow
+                value={getSex(patient)}
+                label={getTranslation('general.localisedField.sex.label', 'Sex')}
+              />
             </Details>
           </MainContainer>
           <BarcodeRow>
