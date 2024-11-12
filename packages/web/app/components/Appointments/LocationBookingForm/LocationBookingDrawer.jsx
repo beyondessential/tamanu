@@ -9,6 +9,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
+import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -22,16 +23,28 @@ import {
   LocalisedLocationField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
-import { ClearIcon } from '../../Icons/ClearIcon';
+import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
-import { DateTimeRangeField } from './DateTimeRangeField/DateTimeRangeField';
+import { DateTimeRangeField } from './DateTimeRangeField';
 
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
+const StyledDrawer = styled(Drawer)`
+  .MuiPaper-root {
+    // Add 1 pixel to allow border to show
+    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
+    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
+  }
+`;
+
+// A bit blunt but the base form fields are going to have their size tweaked in a
+// later card so this is a bridging solution just for this form
+const StyledFormGrid = styled(FormGrid)`
+  .label-field,
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label,
+  div {
+    font-size: 0.75rem;
+  }
 `;
 
 const OvernightStayLabel = styled.span`
@@ -89,16 +102,17 @@ const SuccessMessage = ({ isEdit = false }) =>
   );
 
 const validationSchema = yup.object({
-  locationId: yup.string().required(),
-  overnight: yup.boolean().required(),
-  startTime: yup.date().required(),
-  endTime: yup.date().required(),
-  patientId: yup.string().required(),
-  bookingTypeId: yup.string().required(),
+  locationId: yup.string().required('*Required'),
+  date: yup.string().required('*Required'),
+  startTime: yup.date().required('*Required'),
+  endTime: yup.date().required('*Required'),
+  patientId: yup.string().required('*Required'),
+  bookingTypeId: yup.string().required('*Required'),
   clinicianId: yup.string(),
 });
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
+  const { getTranslation } = useTranslation();
   const isEdit = !!initialValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
@@ -143,6 +157,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     },
   );
 
+  const handleSubmit = async (
+    { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
+    { resetForm },
+  ) => {
+    putOrPostBooking({
+      locationId,
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(endTime),
+      patientId,
+      bookingTypeId,
+      clinicianId,
+    });
+    resetForm();
+  };
+
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
@@ -160,73 +189,63 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <FormGrid columns={1}>
-        <CloseDrawerIcon onClick={warnAndResetForm} />
-        <Field
-          enableLocationStatus={false}
-          name="locationId"
-          component={LocalisedLocationField}
-          required
-          onChange={() => resetFieldsAfter('locationId')}
-        />
-        <Field
-          name="overnight"
-          label={
-            <OvernightStayLabel>
-              <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
-              <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
-            </OvernightStayLabel>
-          }
-          component={CheckField}
-          onChange={() => resetFieldsAfter('overnight')}
-        />
-        <DateTimeRangeField required separate={values.overnight} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          required
-        />
-        <Field
-          name="bookingTypeId"
-          label={
-            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-          }
-          component={DynamicSelectField}
-          suggester={bookingTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
-      </FormGrid>
+      <>
+        <StyledFormGrid nested columns={1}>
+          <Field
+            enableLocationStatus={false}
+            name="locationId"
+            component={LocalisedLocationField}
+            required
+            onChange={() => resetFieldsAfter('locationId')}
+          />
+          <Field
+            name="overnight"
+            label={
+              <OvernightStayLabel>
+                <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
+                <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
+              </OvernightStayLabel>
+            }
+            component={CheckField}
+            onChange={() => resetFieldsAfter('overnight')}
+          />
+          <DateTimeRangeField required separate={values.overnight} />
+          <Field
+            component={AutocompleteField}
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            name="patientId"
+            placeholder={getTranslation(
+              'general.patient.search.placeholder',
+              'Search patient name or ID',
+            )}
+            required
+            suggester={patientSuggester}
+          />
+          <Field
+            name="bookingTypeId"
+            label={
+              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+            }
+            component={DynamicSelectField}
+            suggester={bookingTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+        </StyledFormGrid>
+      </>
     );
   };
 
-  const handleSubmit = async ({
-    locationId,
-    startTime,
-    endTime,
-    patientId,
-    bookingTypeId,
-    clinicianId,
-  }) =>
-    putOrPostBooking({
-      locationId,
-      startTime: toDateTimeString(startTime),
-      endTime: toDateTimeString(endTime),
-      patientId,
-      bookingTypeId,
-      clinicianId,
-    });
-
   return (
-    <Drawer
+    <StyledDrawer
+      variant="persistent"
+      anchor="right"
       PaperProps={{
         // Used to exclude the drawer from click away listener on appointment detail popper
         className: APPOINTMENT_DRAWER_CLASS,
@@ -256,6 +275,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
       />
-    </Drawer>
+    </StyledDrawer>
   );
 };

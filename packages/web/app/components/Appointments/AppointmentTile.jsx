@@ -1,13 +1,12 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { isSameDay, parseISO } from 'date-fns';
+import { format, isSameDay, parseISO } from 'date-fns';
 import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
-import { formatTime } from '../DateDisplay';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 import {
@@ -16,7 +15,7 @@ import {
 } from './appointmentStatusIndicators';
 
 const Wrapper = styled.div`
-  ${({ $color = Colors.blue, $selected }) =>
+  ${({ $color = Colors.blue, $selected = false }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
       --bg-darker: oklch(from ${$color} l c h / 20%);
@@ -32,7 +31,7 @@ const Wrapper = styled.div`
 
       ${$selected &&
         css`
-          border: 1px solid ${$color};
+          border: max(0.0625rem, 1px) solid ${$color};
           background-color: var(--bg-darker);
         `}
     `}
@@ -57,6 +56,9 @@ const Wrapper = styled.div`
 
 const Label = styled.span`
   padding-inline-start: 0.3125rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   ${props =>
     props.$strikethrough &&
@@ -65,7 +67,9 @@ const Label = styled.span`
     `}
 `;
 
-const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(date)}</time>;
+const Timestamp = ({ date }) => (
+  <time dateTime={date.toISOString()}>{format(date, 'h:mmaaa')}</time>
+);
 
 const IconGroup = styled.div`
   align-items: center;
@@ -90,46 +94,54 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
   const isHighPriority = false; // TODO
   const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
+  const tileText = (
+    <>
+      <Timestamp date={startTime} /> {getPatientNameAsString(patient)}
+    </>
+  );
+
   return (
-    <Wrapper
-      $color={APPOINTMENT_STATUS_COLORS[localStatus]}
-      $selected={open}
-      tabIndex={0}
-      ref={ref}
-      onClick={() => setOpen(true)}
-      {...props}
-    >
-      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={startTime} /> {getPatientNameAsString(patient)}
-      </Label>
-      <IconGroup>
-        {isHighPriority && (
-          <HighPriorityIcon
-            aria-label="High priority"
-            aria-hidden={undefined}
-            htmlColor={Colors.alert}
-            style={{ fontSize: 15 }}
-          />
-        )}
-        {isOvernight && (
-          <OvernightIcon
-            aria-label="Overnight booking"
-            aria-hidden={undefined}
-            htmlColor="#326699"
-            style={{ fontSize: 15 }}
-          />
-        )}
-        <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
-      </IconGroup>
-      <AppointmentDetailPopper
-        open={open}
-        onClose={() => setOpen(false)}
-        anchorEl={ref.current}
-        appointment={appointment}
-        onEdit={onEdit}
-        onCancel={onCancel}
-        onStatusChange={setLocalStatus}
-      />
-    </Wrapper>
+    <ThemedTooltip title={tileText}>
+      <Wrapper
+        $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+        $selected={open}
+        tabIndex={0}
+        ref={ref}
+        onClick={() => setOpen(true)}
+        {...props}
+      >
+        <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+          {tileText}
+        </Label>
+        <IconGroup>
+          {isHighPriority && (
+            <HighPriorityIcon
+              aria-label="High priority"
+              aria-hidden={undefined}
+              htmlColor={Colors.alert}
+              style={{ fontSize: 15 }}
+            />
+          )}
+          {isOvernight && (
+            <OvernightIcon
+              aria-label="Overnight booking"
+              aria-hidden={undefined}
+              htmlColor="#326699"
+              style={{ fontSize: 15 }}
+            />
+          )}
+          <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
+        </IconGroup>
+        <AppointmentDetailPopper
+          open={open}
+          onClose={() => setOpen(false)}
+          anchorEl={ref.current}
+          appointment={appointment}
+          onEdit={onEdit}
+          onCancel={onCancel}
+          onStatusChange={setLocalStatus}
+        />
+      </Wrapper>
+    </ThemedTooltip>
   );
 };
