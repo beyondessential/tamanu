@@ -22,6 +22,8 @@ export const BookingsCell = ({
       // Open form for creating new booking
       openBookingForm({ startTime: date, locationId });
     }}
+    // TODO: probably best to use context once that has been added 
+    // $selected={locationId === selectedLocationId}
   >
     {appointments?.map(a => (
       <AppointmentTile
