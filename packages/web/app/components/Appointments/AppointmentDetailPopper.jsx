@@ -12,19 +12,19 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
+import { formatDateTimeRange } from '@tamanu/shared/utils/dateTime';
 
+import { isSameDay } from 'date-fns';
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { Colors } from '../../constants';
 import { reloadPatient } from '../../store';
-import { formatDateTimeRange } from '../../utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { MenuButton } from '../MenuButton';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
-import { isSameDay } from 'date-fns';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms

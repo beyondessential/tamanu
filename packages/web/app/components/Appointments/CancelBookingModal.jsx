@@ -1,16 +1,17 @@
-import React from 'react';
 import { Box, styled } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
+import React from 'react';
 import { toast } from 'react-toastify';
 
-import { BaseModal } from '../BaseModal';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
-import { ConfirmCancelRow } from '../ButtonRow';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { PatientNameDisplay } from '../PatientNameDisplay';
-import { formatDateRange } from '../../utils/dateTime';
+import { formatDateRange } from '@tamanu/shared/utils/dateTime';
+
 import { useAppointmentMutation } from '../../api/mutations';
-import { useQueryClient } from '@tanstack/react-query';
+import { Colors } from '../../constants';
+import { BaseModal } from '../BaseModal';
+import { ConfirmCancelRow } from '../ButtonRow';
+import { PatientNameDisplay } from '../PatientNameDisplay';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -22,12 +23,12 @@ const FlexRow = styled(Box)`
   flex-direction: row;
 `;
 
-const Label = styled(`span`)`
+const Label = styled('span')`
   font-weight: 400;
   font-color: ${Colors.midText};
 `;
 
-const Value = styled(`span`)`
+const Value = styled('span')`
   font-weight: 500;
 `;
 
