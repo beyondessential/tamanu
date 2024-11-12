@@ -223,17 +223,19 @@ const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
   return (
     <Text style={textStyles.tableCellFooter}>
-      {`${
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN
-          ? `${getTranslation('general.lastUpdated.label', 'Last updated')}: `
-          : ''
-      }${note.author?.displayName || ''}${
-        note.onBehalfOf
-          ? ` ${getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-              changeOnBehalfOfName: note.onBehalfOf.displayName,
-            })}`
-          : ''
-      }`}
+      {[
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN &&
+          `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
+        note.author?.displayName,
+        note.onBehalfOf &&
+          getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+            changeOnBehalfOfName: note.onBehalfOf.displayName,
+          }),
+        formatShort(note.date),
+        getDisplayDate(note.date, 'h:mma'),
+      ]
+        .filter(Boolean)
+        .join(' ')}
       {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
     </Text>
   );
