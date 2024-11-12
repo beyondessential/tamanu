@@ -1,12 +1,6 @@
 import React from 'react';
-import { toast } from 'react-toastify';
 import { BaseModal } from '../../BaseModal';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { formatDateRange } from '../../../utils/dateTime';
-import { useLocationBookingMutation } from '../../../api/mutations';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -16,21 +10,27 @@ import {
   DetailDisplay,
   StyledConfirmCancelRow,
 } from './BaseModalComponents';
+import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppointmentMutation } from '../../../api/mutations';
+import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import { PatientNameDisplay } from '../../PatientNameDisplay';
+import { formatDateRange } from '../../../utils/dateTime';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const {
-    locationGroup,
-    location,
-    patient,
-    bookingType,
-    clinician,
-    startTime,
-    endTime,
-  } = appointment;
+  const { patient, startTime, endTime, locationGroup, clinician, appointmentType } = appointment;
 
   return (
     <AppointmentDetailsContainer>
       <AppointmentDetailsColumnLeft>
+        <DetailDisplay
+          label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
+          value={<PatientNameDisplay patient={patient} />}
+        />
+        <DetailDisplay
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          value={formatDateRange(startTime, endTime)}
+        />
         <DetailDisplay
           label={
             <TranslatedText
@@ -40,46 +40,17 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={location?.locationGroup?.name || locationGroup?.name}
-              value={location?.locationGroup?.id || locationGroup?.id}
+              fallback={locationGroup?.name}
+              value={locationGroup?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION_GROUP}
             />
           }
         />
-        <DetailDisplay
-          label={
-            <TranslatedText
-              stringId="general.localisedField.locationId.label"
-              fallback="Location"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              fallback={location?.name ?? '—'}
-              value={location?.id}
-              category={OTHER_REFERENCE_TYPES.LOCATION}
-            />
-          }
-        />
-        <DetailDisplay
-          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          value={formatDateRange(startTime, endTime)}
-        />
       </AppointmentDetailsColumnLeft>
       <AppointmentDetailsColumn>
         <DetailDisplay
-          label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
-          value={<PatientNameDisplay patient={patient} />}
-        />
-        <DetailDisplay
-          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
-          value={
-            <TranslatedReferenceData
-              value={bookingType.id}
-              fallback={bookingType.name}
-              category="bookingType"
-            />
-          }
+          label={<TranslatedText stringId="general.patientId.label" fallback="Patient ID" />}
+          value={patient?.displayId}
         />
         <DetailDisplay
           label={
@@ -90,6 +61,16 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={clinician?.displayName}
         />
+        <DetailDisplay
+          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          value={
+            <TranslatedReferenceData
+              value={appointmentType?.id}
+              fallback={appointmentType?.name}
+              category="appointmentType"
+            />
+          }
+        />
       </AppointmentDetailsColumn>
     </AppointmentDetailsContainer>
   );
@@ -98,27 +79,25 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
 const BottomModalContent = ({ cancelBooking, onClose }) => (
   <BottomModalContainer>
     <StyledConfirmCancelRow
+      confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+      cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
       onConfirm={cancelBooking}
       onCancel={onClose}
-      cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
-      confirmText={
-        <TranslatedText stringId="scheduling.action.cancelBooking" fallback="Cancel booking" />
-      }
     />
   </BottomModalContainer>
 );
 
-export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
+export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useLocationBookingMutation(
+  const { mutateAsync: cancelBooking } = useAppointmentMutation(
     { isEdit: true },
     {
       onSuccess: () => {
         toast.success(
           <TranslatedText
-            stringId="scheduling.success.cancelBooking"
-            fallback="Booking cancelled successfully"
+            stringId="appointment.success.cancelAppointment"
+            fallback="Appointment cancelled successfully"
           />,
         );
         queryClient.invalidateQueries('appointments');
@@ -127,8 +106,8 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
       onError: () => {
         toast.error(
           <TranslatedText
-            stringId="scheduling.error.cancelBooking"
-            fallback="Error cancelling booking"
+            stringId="appointment.error.cancelAppointment"
+            fallback="Error cancelling appointment"
           />,
         );
       },
@@ -137,12 +116,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
 
   return (
     <BaseModal
-      title={
-        <TranslatedText
-          stringId="locationBooking.action.cancel"
-          fallback="Cancel location booking"
-        />
-      }
+      title={<TranslatedText stringId="appointment.action.cancel" fallback="Cancel appointment" />}
       fixedBottomRow // Ensures that bottom modal content can place a border across entire modal
       bottomRowContent={
         <BottomModalContent

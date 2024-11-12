@@ -57,12 +57,16 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
   margin-top: 0;
 `;
 
+const BodyContainer = styled(FlexCol)`
+  gap: 1.75rem;
+`;
+
 export {
-  FlexCol,
   DetailDisplay,
   AppointmentDetailsContainer,
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
   BottomModalContainer,
   StyledConfirmCancelRow,
+  BodyContainer,
 };
