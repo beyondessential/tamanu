@@ -15,7 +15,7 @@ export const DateTimeRangePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { values } = useFormikContext();
+  const { values, errors } = useFormikContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -24,6 +24,8 @@ export const DateTimeRangePicker = ({
   const isValidDate = isValid(date);
 
   const locationId = values.locationId;
+
+  const isDisabled = disabled || !hasSelectedLocation || !isValidDate
 
   return (
     <>
@@ -38,10 +40,11 @@ export const DateTimeRangePicker = ({
       />
       <TimeSlotPicker
         date={isValidDate ? date : null}
-        disabled={disabled || !hasSelectedLocation || !isValidDate}
+        disabled={isDisabled}
         key={`${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
+        $error={!isDisabled && (errors.startTime || errors.endTime)}
         variant="range"
       />
     </>

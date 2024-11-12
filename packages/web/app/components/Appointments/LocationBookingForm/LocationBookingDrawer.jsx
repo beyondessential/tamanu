@@ -89,13 +89,31 @@ const SuccessMessage = ({ isEdit = false }) =>
   );
 
 const validationSchema = yup.object({
-  locationId: yup.string().required(),
-  overnight: yup.boolean().required(),
-  startTime: yup.date().required(),
-  endTime: yup.date().required(),
-  patientId: yup.string().required(),
-  bookingTypeId: yup.string().required(),
+  locationId: yup.string().required('*Required'),
+  overnight: yup.boolean().required('*Required'),
+  startTime: yup.date().required('*Required'),
+  endTime: yup.date().required('*Required'),
+  patientId: yup.string().required('*Required'),
+  bookingTypeId: yup.string().required('*Required'),
   clinicianId: yup.string(),
+
+  // GUI form values
+  date: yup.string().when('overnight', {
+    is: false,
+    then: yup.string().required('*Required'),
+    otherwise: yup.string().nullable(),
+  }),
+
+  startDate: yup.string().when('overnight', {
+    is: true,
+    then: yup.string().required('*Required'),
+    otherwise: yup.string().nullable(),
+  }),
+  endDate: yup.string().when('overnight', {
+    is: true,
+    then: yup.string().required('*Required'),
+    otherwise: yup.string().nullable(),
+  }),
 });
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
@@ -143,7 +161,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     },
   );
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
+  const renderForm = ({ values, errors, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -158,6 +176,10 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         setFieldValue(field, null);
       }
     };
+
+    console.log('----------values and errors-----------')
+    console.log(values)
+    console.log(errors)
 
     return (
       <FormGrid columns={1}>
@@ -203,7 +225,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           component={AutocompleteField}
           suggester={clinicianSuggester}
         />
-        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+        <FormSubmitCancelRow onCancel={warnAndResetForm} />
       </FormGrid>
     );
   };
@@ -250,6 +272,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
+        validateOnChange
       />
       <WarningModal
         open={warningModalOpen}

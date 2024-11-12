@@ -30,10 +30,11 @@ import {
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
 } from './util';
+import { FormHelperText } from '@material-ui/core';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  border: max(0.0625rem, 1px) solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
   padding-block: 0.75rem;
   padding-inline: 1rem;
 
@@ -64,6 +65,7 @@ export const TimeSlotPicker = ({
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
+    errors
   } = useFormikContext();
 
   const initialTimeRange = useMemo(() => {
@@ -290,7 +292,6 @@ export const TimeSlotPicker = ({
           break;
       }
 
-
       return !bookedIntervals.some(bookedInterval =>
         areIntervalsOverlapping(targetSelection, bookedInterval),
       );
@@ -356,6 +357,7 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
+      <FormHelperText error>{(errors.startTime || errors.endTime) && "*Required"}</FormHelperText>
     </OuterLabelFieldWrapper>
   );
 };
