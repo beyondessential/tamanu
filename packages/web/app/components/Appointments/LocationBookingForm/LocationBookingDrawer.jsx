@@ -189,56 +189,54 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <>
-        <StyledFormGrid nested columns={1}>
-          <Field
-            enableLocationStatus={false}
-            name="locationId"
-            component={LocalisedLocationField}
-            required
-            onChange={() => resetFieldsAfter('locationId')}
-          />
-          <Field
-            name="overnight"
-            label={
-              <OvernightStayLabel>
-                <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
-                <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
-              </OvernightStayLabel>
-            }
-            component={CheckField}
-            onChange={() => resetFieldsAfter('overnight')}
-          />
-          <DateTimeRangeField required separate={values.overnight} />
-          <Field
-            component={AutocompleteField}
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-            name="patientId"
-            placeholder={getTranslation(
-              'general.patient.search.placeholder',
-              'Search patient name or ID',
-            )}
-            required
-            suggester={patientSuggester}
-          />
-          <Field
-            name="bookingTypeId"
-            label={
-              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-            }
-            component={DynamicSelectField}
-            suggester={bookingTypeSuggester}
-            required
-          />
-          <Field
-            name="clinicianId"
-            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-            component={AutocompleteField}
-            suggester={clinicianSuggester}
-          />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
-        </StyledFormGrid>
-      </>
+      <StyledFormGrid nested columns={1}>
+        <Field
+          enableLocationStatus={false}
+          name="locationId"
+          component={LocalisedLocationField}
+          required
+          onChange={() => resetFieldsAfter('locationId')}
+        />
+        <Field
+          name="overnight"
+          label={
+            <OvernightStayLabel>
+              <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
+              <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
+            </OvernightStayLabel>
+          }
+          component={CheckField}
+          onChange={() => resetFieldsAfter('overnight')}
+        />
+        <DateTimeRangeField required separate={values.overnight} />
+        <Field
+          component={AutocompleteField}
+          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+          name="patientId"
+          placeholder={getTranslation(
+            'general.patient.search.placeholder',
+            'Search patient name or ID',
+          )}
+          required
+          suggester={patientSuggester}
+        />
+        <Field
+          name="bookingTypeId"
+          label={
+            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+          }
+          component={DynamicSelectField}
+          suggester={bookingTypeSuggester}
+          required
+        />
+        <Field
+          name="clinicianId"
+          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+          component={AutocompleteField}
+          suggester={clinicianSuggester}
+        />
+        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+      </StyledFormGrid>
     );
   };
 
