@@ -15,7 +15,7 @@ export const DateTimeRangePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { values } = useFormikContext();
+  const { setFieldValue, values } = useFormikContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -25,6 +25,9 @@ export const DateTimeRangePicker = ({
 
   const locationId = values.locationId;
 
+  /** Keep synchronised with start date field for overnight bookings */
+  const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
+
   return (
     <>
       <Field
@@ -33,6 +36,7 @@ export const DateTimeRangePicker = ({
         helperText={dateFieldHelperText}
         label={datePickerLabel}
         name={datePickerName}
+        onChange={flushChangeToStartDateField}
         required={required}
         {...props}
       />

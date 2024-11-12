@@ -25,9 +25,8 @@ const DateTimePicker = ({
   const date = dateFieldValue ? new Date(dateFieldValue) : null;
   const isValidDate = isValid(date);
 
-  const handleDateChange = async e => {
-    await setFieldValue(datePickerName, new Date(e.target.value)); // TODO: Doesn’t work
-  };
+  /** Keep synchronised with date field for non-overnight bookings */
+  const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
 
   return (
     <>
@@ -37,7 +36,7 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={isValid(minDate) ? toDateString(minDate) : null}
         name={datePickerName}
-        onChange={handleDateChange}
+        onChange={flushChangeToDateField}
         required={required}
       />
       <TimeSlotPicker
