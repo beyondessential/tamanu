@@ -126,7 +126,6 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
         onClose={() => setOpen(false)}
         anchorEl={ref.current}
         appointment={appointment}
-        isOvernight={isOvernight}
         onEdit={onEdit}
         onCancel={onCancel}
         onStatusChange={setLocalStatus}

@@ -14,6 +14,7 @@ import {
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
+import { getDateDisplay } from '@tamanu/web-frontend/app/components';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -254,4 +255,24 @@ export const formatLong = date =>
 export const isStartOfThisWeek = date => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
   return isSameDay(date, startOfThisWeek);
+};
+
+export const formatDateTimeRange = (start, end) => {
+  const formattedStart = getDateDisplay(start, {
+    showDate: true,
+    showTime: true,
+  });
+
+  if (!end) return formattedStart;
+
+  const doesSpanMultipleDays = !isSameDay(parseISO(start), parseISO(end));
+  const formattedEnd = getDateDisplay(end, {
+    showDate: doesSpanMultipleDays,
+    showTime: true,
+  });
+
+  // eslint-disable-next-line no-irregular-whitespace
+  return `${formattedStart} – ${formattedEnd}`;
+  //                        ^ en dash
+  //                       ^ nonbreaking space
 };
