@@ -24,8 +24,8 @@ const FlexRow = styled(Box)`
 `;
 
 const Label = styled('span')`
+  color: ${Colors.midText};
   font-weight: 400;
-  font-color: ${Colors.midText};
 `;
 
 const Value = styled('span')`
