@@ -71,7 +71,7 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
         {printedBy && (
           <>
             <ValueText> |</ValueText>
-            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}: </LabelText>
+            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}:</LabelText>{' '}
             <ValueText>{printedBy}</ValueText>
           </>
         )}
