@@ -59,3 +59,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in location_groups."
             data_tests:
               - not_null
+          - name: is_bookable
+            data_type: boolean
+            description: "{{ doc('location_groups__is_bookable') }}"
+            data_tests:
+              - not_null

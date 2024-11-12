@@ -73,11 +73,16 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
-  const { patient, startTime: startTimeStr, endTime: endTimeStr, appointmentStatus } = appointment;
+export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => {
+  const {
+    patient,
+    startTime: startTimeStr,
+    endTime: endTimeStr,
+    status: appointmentStatus,
+  } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
-  const [localStatus, setLocalStatus] = useState(status);
+  const [localStatus, setLocalStatus] = useState(appointmentStatus);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
@@ -121,8 +126,8 @@ export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
         onClose={() => setOpen(false)}
         anchorEl={ref.current}
         appointment={appointment}
-        isOvernight={isOvernight}
         onEdit={onEdit}
+        onCancel={onCancel}
         onStatusChange={setLocalStatus}
       />
     </Wrapper>
