@@ -10,7 +10,7 @@ import { CancelBookingModal } from '../../../components/Appointments/CancelBooki
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
-import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 
@@ -93,7 +93,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, handleFilterChange } = useLocationBooking();
+  const { filters, setFilters } = useLocationBookingsContext();
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
@@ -121,7 +121,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={handleFilterChange} />
+        <CalendarSearchBar onFilterChange={setFilters} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText

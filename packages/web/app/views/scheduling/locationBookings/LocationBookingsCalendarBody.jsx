@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
-import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
@@ -86,9 +86,9 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const { filters } = useLocationBooking();
+  const { data: locations = [], isLoading: locationsAreLoading } = locationsQuery;
 
-  const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
+  const { filters } = useLocationBookingsContext();
 
   const { data: appointmentsData = [] } = useAppointmentsQuery({
     after: displayedDates[0],
@@ -100,11 +100,10 @@ export const LocationBookingsCalendarBody = ({
     patientNameOrId: filters.patientNameOrId,
   });
 
-  const appointments = appointmentsData.data ?? [];
-
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations?.length === 0) return <EmptyStateRow />;
+  if (locations.length === 0) return <EmptyStateRow />;
 
+  const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const areFiltersActive = Object.values(filters).some(
