@@ -15,27 +15,33 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
-}) => (
-  <CarouselGrid.Cell
-    onClick={e => {
-      if (e.target.closest('.appointment-tile')) return;
-      // Open form for creating new booking
-      openBookingForm({ startTime: date, locationId });
-    }}
-    // TODO: probably best to use context once that has been added 
-    // $selected={locationId === selectedLocationId}
-  >
-    {appointments?.map(a => (
-      <AppointmentTile
-        appointment={a}
-        className="appointment-tile"
-        key={a.id}
-        onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
-      />
-    ))}
-  </CarouselGrid.Cell>
-);
+}) => {
+  const {
+    selectedCell: { date: selectedDate, locationId: selectedLocationId },
+  } = useLocationBookings();
+
+  return (
+    <CarouselGrid.Cell
+      onClick={e => {
+        if (e.target.closest('.appointment-tile')) return;
+        // Open form for creating new booking
+        openBookingForm({ startTime: date, locationId });
+      }}
+      // TODO: probably best to use context once that has been added
+      $selected={locationId === selectedLocationId && date === selectedDate}
+    >
+      {appointments?.map(a => (
+        <AppointmentTile
+          appointment={a}
+          className="appointment-tile"
+          key={a.id}
+          onCancel={() => openCancelModal(a)}
+          onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        />
+      ))}
+    </CarouselGrid.Cell>
+  );
+};
 
 export const BookingsRow = ({
   appointments,

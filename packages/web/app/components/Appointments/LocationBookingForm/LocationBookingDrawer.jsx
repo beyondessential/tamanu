@@ -131,6 +131,7 @@ const validationSchema = yup.object({
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
+  const { updateSelectedCell } = useLocationBookings();
   const isEdit = !!initialValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
@@ -195,6 +196,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
+      updateSelectedCell(null)
       resetForm();
     };
 
