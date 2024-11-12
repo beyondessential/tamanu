@@ -19,7 +19,7 @@ const Template = args => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box width="300px" backgroundColor={Colors.background}>
+      <Box width="312px" backgroundColor={Colors.background}>
         <RepeatingDateField {...args} value={value} onChange={handleChange} />
       </Box>
     </LocalizationProvider>

@@ -28,7 +28,8 @@ const StyledNumberInput = styled(NumberInput)`
   }
   & .MuiInputBase-input {
     font-size: 12px;
-    padding-block: 12px;
+    padding-block: 10px;
+    padding-inline: 13px 10px;
     &.Mui-disabled {
       background-color: ${Colors.background};
     }
@@ -37,8 +38,11 @@ const StyledNumberInput = styled(NumberInput)`
 
 const StyledSelectInput = styled(SelectInput)`
   & .MuiFormControl-root {
-    & div {
+    > div > div {
       font-size: 12px;
+      min-height: 0;
+      padding-top: 9px;
+      padding-bottom: 7px;
     }
     width: 108px;
     margin-block-start: 23px;
