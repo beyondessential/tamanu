@@ -55,12 +55,12 @@ const AppointmentDetailsColumn = styled(FlexCol)`
 const BottomModalContainer = styled(Box)`
   padding-block: 2rem;
   padding-inline: 2.5rem;
-  border-block-start: 1px solid ${Colors.outline};
+  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
   background-color: ${Colors.background};
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  margin-top: 0;
+  margin-block-start: 0;
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
