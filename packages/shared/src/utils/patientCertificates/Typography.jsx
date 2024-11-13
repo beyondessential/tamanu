@@ -57,7 +57,7 @@ export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style
 export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => (
   <Text
     {...props}
-    style={[styles.p, { marginTop: mt, marginBottom: mb, fontSize }, style]}
+    style={{ marginTop: mt, marginBottom: mb, fontSize, ...style, ...styles.p }}
     bold={bold}
   />
 );
