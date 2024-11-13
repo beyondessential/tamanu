@@ -115,8 +115,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isEdit = !!initialValues.id;
 
-  const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
-
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
@@ -180,12 +178,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       resetForm();
     };
 
-    /** Resets fields which appear strictly after the sentinel field in the form. */
-    const resetFieldsAfter = sentinel => {
-      for (const field of resettableFieldsReversed) {
-        if (field === sentinel) return;
-        setFieldValue(field, null);
-      }
+    const resetFields = fields => {
+      for (const field of fields) setFieldValue(field, null);
     };
 
     return (
@@ -195,7 +189,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           name="locationId"
           component={LocalisedLocationField}
           required
-          onChange={() => resetFieldsAfter('locationId')}
+          onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
         />
         <Field
           name="overnight"
@@ -206,7 +200,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             </OvernightStayLabel>
           }
           component={CheckField}
-          onChange={() => resetFieldsAfter('overnight')}
+          onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
         />
         <DateTimeRangeField required separate={values.overnight} />
         <Field
