@@ -98,7 +98,7 @@ const isFromBackend = ({ config, dataElement }): Boolean => {
   return false;
 };
 
-const renderAnswer = (question, answer): ReactElement => {
+export const renderAnswer = (question, answer): ReactElement => {
   if (isFromBackend(question)) {
     return <BackendAnswer question={question} answer={answer} />;
   }
