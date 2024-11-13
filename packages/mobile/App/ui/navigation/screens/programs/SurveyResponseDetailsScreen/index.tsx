@@ -10,6 +10,7 @@ import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
+import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
@@ -65,8 +66,6 @@ function getAnswerText(question, answer): string | number {
       return JSON.parse(answer).join(', ');
     case FieldTypes.GEOLOCATE:
       return answer || 'N/A';
-    case FieldTypes.SURVEY_ANSWER:
-      return answer || 'N/A';
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;
@@ -109,6 +108,8 @@ const renderAnswer = (question, answer): ReactElement => {
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.SURVEY_ANSWER:
+      return <SurveyAnswerResult question={question} answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
