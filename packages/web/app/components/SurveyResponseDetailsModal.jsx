@@ -21,19 +21,6 @@ const TableContainer = styled.div`
   overflow: auto;
 `;
 
-const convertBinaryToYesNo = value => {
-  switch (value) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return value;
-  }
-};
-
 const PrintButton = styled(Button)`
   position: absolute;
   right: 70px;
@@ -64,8 +51,6 @@ const COLUMNS = [
           return parseFloat(answer).toFixed(1);
         case 'Photo':
           return <ViewPhotoLink imageId={answer} />;
-        case 'Checkbox':
-          return convertBinaryToYesNo(answer);
         case 'SubmissionDate':
           return <DateDisplay date={answer} />;
         case 'Date':

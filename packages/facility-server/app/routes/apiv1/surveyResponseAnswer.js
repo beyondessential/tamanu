@@ -7,17 +7,9 @@ import {
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
+import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
 export const surveyResponseAnswer = express.Router();
-
-function getNameColumnForModel(modelName) {
-  switch (modelName) {
-    case 'User':
-      return 'displayName';
-    default:
-      return 'name';
-  }
-}
 
 surveyResponseAnswer.get(
   '/latest-answer/:dataElementCode',
@@ -44,6 +36,13 @@ surveyResponseAnswer.get(
         {
           model: models.ProgramDataElement,
           where: { code: dataElementCode },
+          include: [
+            {
+              model: models.SurveyScreenComponent,
+              as: 'surveyScreenComponent',
+              include: models.SurveyScreenComponent.getListReferenceAssociations(true),
+            },
+          ],
         },
       ],
       order: [['surveyResponse', 'startTime', 'DESC']],
@@ -53,28 +52,13 @@ surveyResponseAnswer.get(
       throw new NotFoundError('No answer found');
     }
 
-    try {
-      const dataElement = await models.ProgramDataElement.findByPk(answer.dataElementId);
-      if (dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE) {
-        const autocompleteComponent = await models.SurveyScreenComponent.findOne({
-          where: {
-            dataElementId: dataElement.id,
-          },
-          paranoid: false,
-        });
-
-        const autocompleteConfig = JSON.parse(autocompleteComponent.config);
-        const modelName = autocompleteConfig.source;
-        const fullLinkedAnswer = await models[modelName].findOne({
-          where: { id: answer.body },
-        });
-
-        const displayAnswer = fullLinkedAnswer[getNameColumnForModel(modelName)];
-        answer.dataValues.displayAnswer = displayAnswer;
-      }
-    } catch {
-      // ignore
-    }
+    const transformedAnswers = await transformAnswers(
+      models,
+      [answer],
+      [answer.ProgramDataElement.surveyScreenComponent],
+      { notTransformDate: true }
+    );
+    answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
 
     res.send(answer);
   }),

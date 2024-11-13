@@ -12,7 +12,6 @@ import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import {
-  convertBinaryToYesNo,
   getResultName,
   getSurveyAnswerRows,
   separateColorText,
@@ -81,8 +80,6 @@ const getAnswers = ({ answer, type }) => {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
     }
-    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
-      return convertBinaryToYesNo(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
