@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer/lib/react-pdf.min';
 import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';

@@ -107,7 +107,7 @@ const getDateTitleArray = date => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { translations, storedLanguage } = useTranslation();
+  const { translations, storedLanguage, getTranslation } = useTranslation();
   const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
@@ -284,7 +284,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return [
       {
         key: 'measure',
-        title: 'Measure',
+        title: getTranslation('vitals.table.column.measure', 'Measure'),
         accessor: ({ value }) => value,
         style: { width: 140 },
       },
