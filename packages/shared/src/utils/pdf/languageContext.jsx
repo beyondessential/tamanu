@@ -10,29 +10,6 @@ import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
 
-// Manually register Helvetica due to issue with in-built font load in react-pdf
-Font.register({
-  family: 'Helvetica-override',
-  src: path.join(baseDir, 'Helvetica-Regular.ttf'),
-});
-
-Font.register({
-  family: 'Helvetica-Bold-override',
-  src: path.join(baseDir, 'Helvetica-Bold.ttf'),
-});
-
-Font.register({
-  family: 'Helvetica-BoldOblique-override',
-  src: path.join(baseDir, 'Helvetica-BoldOblique.ttf'),
-  fontStyle: 'italic',
-});
-
-Font.register({
-  family: 'Helvetica-Oblique-override',
-  src: path.join(baseDir, 'Helvetica-Oblique.ttf'),
-  fontStyle: 'italic',
-});
-
 // body font
 Font.register({
   family: FONT.BATTAMBANG,
@@ -97,8 +74,6 @@ export const withLanguageContext = Component => props => {
               newStyles.fontWeight = 500;
             }
           }
-        } else if (newStyles.fontFamily?.startsWith(/Helvetica.*/)) {
-          newStyles.fontFamily += '-override';
         }
         return newStyles;
       },

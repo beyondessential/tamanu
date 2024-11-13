@@ -103,7 +103,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.36.0",
     "@opentelemetry/resources": "^1.9.1",
     "@opentelemetry/semantic-conventions": "^1.9.1",
-    "@react-pdf/renderer": "^3.4.4",
+    "@react-pdf/renderer": "^4.0.0",
     "@tamanu/constants": "*",
     "@tamanu/settings": "*",
     "bcrypt": "^5.1.1",
