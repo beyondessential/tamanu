@@ -1,6 +1,6 @@
 import mitt from 'mitt';
-import { getUniqueId } from 'react-native-device-info';
-import { readConfig } from '../config';
+import { v4 as uuidv4 } from 'uuid';
+import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
@@ -60,9 +60,14 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  connect(host: string): void {
+  async connect(host: string): void {
     this.host = host;
-    this.deviceId = `mobile-${getUniqueId()}`;
+    this.deviceId = await readConfig('deviceId');
+
+    if (!this.deviceId) {
+      this.deviceId = `mobile-${uuidv4()}`;
+      await writeConfig('deviceId', this.deviceId);
+    }
   }
 
   async fetch(
