@@ -273,6 +273,17 @@ taskRoutes.put(
             taskId: newId,
           })),
         );
+
+        if (task.isRepeatingTask() && !task.parentTaskId) {
+          await req.models.Task.update(
+            { parentTaskId: newId },
+            {
+              where: {
+                parentTaskId: task.id,
+              },
+            },
+          );
+        }
       }
     });
 
