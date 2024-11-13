@@ -107,7 +107,7 @@ const getDateTitleArray = date => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { translations } = useTranslation();
+  const { translations, storedLanguage } = useTranslation();
   const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
@@ -318,6 +318,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={imagingRequests}
+          language={storedLanguage}
           notes={displayNotes}
           discharge={discharge}
           village={village}
