@@ -90,6 +90,7 @@ appointments.get(
         order = 'ASC',
         orderBy = 'startTime',
         patientNameOrId,
+        includeCancelled = false,
         ...queries
       },
     } = req;
@@ -154,8 +155,8 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
         startTime: startTimeQuery,
+        ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
       },
