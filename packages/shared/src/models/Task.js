@@ -298,14 +298,14 @@ export class Task extends Model {
     }
   }
 
-  static async onEncounterDischarged(encounterId) {
+  static async onEncounterDischarged(encounter) {
     const { models } = this.sequelize;
+    const encounterId = encounter.id;
+    const endTime = encounter.endDate;
 
-    // delete all future tasks of this encounter
     const taskDeletionReason = await models.ReferenceData.findByPk(
       TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
     );
-    const endTime = getCurrentDateTimeString();
 
     await models.Task.update(
       {
