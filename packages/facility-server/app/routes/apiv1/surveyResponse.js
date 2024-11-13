@@ -40,7 +40,7 @@ surveyResponse.get(
       where: { responseId: params.id },
     });
 
-    const autocompleteComponentMap = getAutocompleteComponentMap(components);
+    const autocompleteComponentMap = await getAutocompleteComponentMap(models, components);
 
     // Transform Autocomplete answers from: { body: ReferenceData.id } to: { body: ReferenceData.name, originalBody: ReferenceData.id }
     const transformedAnswers = await Promise.all(

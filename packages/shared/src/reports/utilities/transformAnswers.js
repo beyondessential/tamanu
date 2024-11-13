@@ -1,6 +1,7 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -59,17 +60,50 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
 };
 
 // Logic duplicated in packages/mobile/App/ui/navigation/screens/programs/SurveyResponseDetailsScreen/index.tsx
-const isAutocomplete = ({ config, dataElement }) => dataElement.type === 'Autocomplete' ||
- (config && JSON.parse(config).writeToPatient?.fieldType === 'Autocomplete');
+const isAutocomplete = ({ config, dataElement }) =>
+  dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE ||
+  (config &&
+    JSON.parse(config).writeToPatient?.fieldType === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE);
 
-export const getAutocompleteComponentMap = surveyComponents => {
+export const getAutocompleteComponentMap = async (models, surveyComponents) => {
+  // Get all survey answer components with config and type from source
+  const surveyAnswerComponents = await Promise.all(
+    surveyComponents
+      .filter(c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER)
+      .map(async c => {
+        const config = JSON.parse(c.config);
+        const ssc = await models.SurveyScreenComponent.findOne({
+          include: [
+            {
+              model: models.ProgramDataElement,
+              as: 'dataElement',
+              where: {
+                code: config.source || config.Source,
+              },
+            },
+          ],
+        });
+        return {
+          ...c,
+          lookupSurveyScreenComponent: ssc,
+        };
+      }),
+  );
+  const surveyAnswerAutocompleteComponents = surveyAnswerComponents
+    .filter(c => isAutocomplete(c.lookupSurveyScreenComponent))
+    .map(c => [
+      c.dataElementId,
+      c.lookupSurveyScreenComponent.config ? JSON.parse(c.lookupSurveyScreenComponent.config) : {},
+    ]);
+
   const autocompleteComponents = surveyComponents
-    .filter(isAutocomplete)
+    .filter(c => isAutocomplete(c))
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
     ]);
-  return new Map(autocompleteComponents);
+
+  return new Map([...autocompleteComponents, ...surveyAnswerAutocompleteComponents]);
 };
 
 export const transformAnswers = async (
@@ -78,7 +112,7 @@ export const transformAnswers = async (
   surveyComponents,
   transformConfig = {},
 ) => {
-  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
+  const autocompleteComponentMap = await getAutocompleteComponentMap(surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   // Some questions in the front end are not answered but still record the answer as empty string in the database
