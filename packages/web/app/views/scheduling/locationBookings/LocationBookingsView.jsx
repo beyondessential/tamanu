@@ -1,6 +1,5 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
-import { isSameDay, isValid, startOfDay } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -13,6 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { appointmentToFormFields } from './util';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -53,40 +53,6 @@ const EmptyStateLabel = styled(Typography).attrs({
   }
 `;
 
-const appointmentToFormFields = appointment => {
-  if (!appointment) return {};
-
-  const { bookingTypeId, clinicianId, id, locationId, patientId } = appointment;
-  const startTime = appointment.startTime ? new Date(appointment.startTime) : null;
-  const endTime = appointment.endTime ? new Date(appointment.endTime) : null;
-
-  const startIsValidDate = isValid(startTime);
-  const endIsValidDate = isValid(endTime);
-
-  const startDate = startIsValidDate ? startOfDay(startTime) : null;
-  const endDate = endIsValidDate ? startOfDay(endTime) : null;
-  const overnight = endIsValidDate && !isSameDay(startDate, endDate);
-
-  return {
-    // Semantically significant values
-    locationId,
-    patientId,
-    startTime,
-    endTime,
-    bookingTypeId,
-    clinicianId,
-
-    // Only for user input purposes
-    overnight,
-    date: startDate,
-    startDate,
-    endDate,
-
-    // Determines whether location booking drawer should open in CREATE or EDIT mode
-    id,
-  };
-};
-
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -99,8 +65,8 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = appointment => {
-    setSelectedAppointment(appointmentToFormFields(appointment));
+  const openBookingForm = prepopulationValues => {
+    setSelectedAppointment(prepopulationValues);
     setIsDrawerOpen(true);
   };
 
