@@ -7,7 +7,6 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TabDisplay } from '../../components/TabDisplay';
 import { useApi } from '../../api';
 import {
   DocumentsPane,
@@ -31,6 +30,9 @@ import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
+import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
+import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
+import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -126,7 +128,7 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
-const StyledTabDisplay = styled(TabDisplay)`
+const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -149,20 +151,65 @@ export const EncounterView = () => {
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
+  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const { mutate: reorderEncounterTabs } = useReorderEncounterTabs();
 
-  const defaultTab = getSetting('features.enableTasking')
-    ? ENCOUNTER_TAB_NAMES.TASKS
-    : ENCOUNTER_TAB_NAMES.VITALS;
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || defaultTab);
+  const [currentTab, setCurrentTab] = useState(query.get('tab'));
+  const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || patient.death;
+
+  const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
 
-  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
+  useEffect(() => {
+    if (!userPreferences?.encounterTabOrders) return;
+    const newTabs = visibleTabs.sort((a, b) => {
+      const aOrder = userPreferences?.encounterTabOrders[a.key] || 0;
+      const bOrder = userPreferences?.encounterTabOrders[b.key] || 0;
+      return aOrder - bOrder;
+    });
+    setTabs([...newTabs]);
+    if (!currentTab) {
+      setCurrentTab(visibleTabs[0].key);
+    }
+  }, [userPreferences?.encounterTabOrders]);
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting));
+  useEffect(() => {
+    if (!currentTab) {
+      setCurrentTab(visibleTabs[0].key);
+    }
+  }, [isLoadingUserPreferences]);
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  const handleDragEnd = result => {
+    if (!result.destination) {
+      return;
+    }
+
+    const currentVisibleTabs = visibleTabs;
+    const newTabs = reorder(currentVisibleTabs, result.source.index, result.destination.index);
+    setTabs(newTabs);
+
+    const newTabOrders = newTabs.reduce((curr, tab, index) => {
+      curr[tab.key] = index + 1;
+      return curr;
+    }, {});
+    reorderEncounterTabs(newTabOrders, {
+      onError: () => setTabs(currentVisibleTabs),
+    });
+  };
+
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   return (
     <GridColumnContainer>
@@ -202,13 +249,14 @@ export const EncounterView = () => {
       />
       <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
       <ContentPane>
-        <StyledTabDisplay
+        <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
           patient={patient}
           disabled={disabled}
+          handleDragEnd={handleDragEnd}
         />
       </ContentPane>
     </GridColumnContainer>
