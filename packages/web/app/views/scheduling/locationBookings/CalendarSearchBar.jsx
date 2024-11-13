@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { styled } from '@mui/material';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
+import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -13,18 +14,28 @@ const SearchBar = styled('search')`
 
 const FormListener = ({ onFilterChange }) => {
   const { values } = useFormikContext();
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
+    // Skip the first render to prevent overwriting database values
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     onFilterChange(values);
   }, [values, onFilterChange]);
+
+  return null;
 };
 
 export const CalendarSearchBar = ({ initialFilters, onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
+  const { data: userPreferences } = useUserPreferencesQuery();
+
   return (
     <Form
-      initialValues={initialFilters}
+      initialValues={{ ...userPreferences?.locationBookingFilters, patientNameOrId: '' }}
       onSubmit={async () => {}}
       render={({ clearForm }) => (
         <>

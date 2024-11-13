@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
@@ -12,6 +12,8 @@ import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBooking } from '../../../contexts/LocationBooking';
 import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
+import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
+import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -58,7 +60,19 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, handleFilterChange } = useLocationBooking();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { filters, setFilters } = useLocationBooking();
+
+  const handleFilterChange = useCallback(
+    values => {
+      console.log('values', values);
+      setFilters(values);
+      // eslint-disable-next-line no-unused-vars
+      const { patientNameOrId, ...locationBookingFilters } = values;
+      mutateUserPreferences({ locationBookingFilters });
+    },
+    [setFilters, mutateUserPreferences],
+  );
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);

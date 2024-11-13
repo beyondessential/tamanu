@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 
 const LocationBookingContext = createContext();
 
@@ -10,12 +12,8 @@ export const LocationBookingProvider = ({ children }) => {
     bookingTypeId: [],
   });
 
-  const handleFilterChange = useCallback(values => {
-    setFilters(values);
-  }, []);
-
   return (
-    <LocationBookingContext.Provider value={{ filters, handleFilterChange }}>
+    <LocationBookingContext.Provider value={{ filters, setFilters }}>
       {children}
     </LocationBookingContext.Provider>
   );
