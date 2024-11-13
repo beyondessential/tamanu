@@ -50,7 +50,7 @@ const convertBinaryToYesNo = answer => {
   }
 };
 
-const convertDateAnswer = (answer, { dateFormat = 'dd/MM/yyyy', notTransformDate = false }) => {
+const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate = false }) => {
   if (notTransformDate) return answer;
   if (isISOString(answer)) {
     return format(answer, dateFormat);
