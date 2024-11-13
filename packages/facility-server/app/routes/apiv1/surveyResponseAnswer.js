@@ -59,6 +59,7 @@ surveyResponseAnswer.get(
       { notTransformDate: true }
     );
     answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
+    answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
 
     res.send(answer);
   }),

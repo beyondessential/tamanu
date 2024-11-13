@@ -148,6 +148,7 @@ export const transformAnswers = async (
     const responseEndTime = answer.surveyResponse?.endTime;
     const { dataElementId } = answer;
     let type = dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type;
+    let sourceType;
     const componentConfig = autocompleteComponentMap.get(dataElementId);
 
     // If the answer is a survey answer, we need to look up the type from the soruce survey components
@@ -164,10 +165,16 @@ export const transformAnswers = async (
           },
         ],
       });
-      type = ssc.dataElement.dataValues.type ?? type;
+      sourceType = ssc.dataElement.dataValues.type;
     }
 
-    const body = await getAnswerBody(models, componentConfig, type, answer.body, transformConfig);
+    const body = await getAnswerBody(
+      models,
+      componentConfig,
+      sourceType || type,
+      answer.body,
+      transformConfig,
+    );
     const answerObject = {
       id: answer.id,
       surveyId,
@@ -176,6 +183,7 @@ export const transformAnswers = async (
       responseEndTime,
       dataElementId,
       body,
+      sourceType,
     };
     transformedAnswers.push(answerObject);
   }

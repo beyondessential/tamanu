@@ -31,11 +31,15 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map(answer => ({
-        ...answer.dataValues,
-        originalBody: answer.body,
-        body: transformedAnswers.find(a => a.id === answer.id)?.body,
-      })),
+      answers: answers.map(answer => {
+        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+        return {
+          ...answer.dataValues,
+          originalBody: answer.body,
+          body: transformedAnswer?.body,
+          sourceType: transformedAnswer?.sourceType,
+        };
+      }),
     });
   }),
 );

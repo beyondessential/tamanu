@@ -19,12 +19,14 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
+      const sourceType = answerObject?.sourceType;
       return {
         id,
         type,
         answer,
         name,
         screenIndex,
+        sourceType,
       };
     })
     .filter(r => r.answer !== undefined);

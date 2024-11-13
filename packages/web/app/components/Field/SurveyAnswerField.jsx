@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLatestAnswerForPatient } from '../../api/queries/useLatestAnswerForPatient';
+import { SurveyAnswerResult } from '../SurveyAnswerResult';
 
 const Container = styled.div`
   display: flex;
@@ -28,7 +29,9 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   return (
     <Container>
       <div>{label}</div>
-      <div>{surveyResponseAnswer || 'Answer not submitted'}</div>
+      <div>
+        <SurveyAnswerResult answer={surveyResponseAnswer} type={answer?.ProgramDataElement?.type} />
+      </div>
     </Container>
   );
 };
