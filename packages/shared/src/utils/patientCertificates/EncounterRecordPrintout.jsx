@@ -350,7 +350,7 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'location',
-        title: getTranslation('general.localisedField.locationId', 'Location'),
+        title: getTranslation('general.localisedField.locationId.label', 'Location'),
         accessor: ({ newLocation }) => startCase(newLocation),
         style: { width: '35%' },
       },
