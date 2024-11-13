@@ -236,7 +236,6 @@ const NoteFooter = ({ note }) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
     </Text>
   );
 };
