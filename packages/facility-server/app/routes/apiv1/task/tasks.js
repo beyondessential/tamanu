@@ -253,6 +253,7 @@ taskRoutes.put(
     if (!tasks.every(task => allowedStatuses.includes(task.status)))
       throw new ForbiddenError(`Task is not in ${allowedStatuses.join(', ')} status`);
 
+    const updateParentIdList = [];
     await req.db.transaction(async () => {
       for (const task of tasks) {
         //delete the selected task
@@ -272,6 +273,21 @@ taskRoutes.put(
             designationId: designation.id,
             taskId: newId,
           })),
+        );
+
+        if (task.isRepeatingTask() && !task.parentTaskId) {
+          updateParentIdList.push({ newId: newId, oldId: task.id });
+        }
+      }
+
+      for (const { newId, oldId } of updateParentIdList) {
+        await req.models.Task.update(
+          { parentTaskId: newId },
+          {
+            where: {
+              parentTaskId: oldId,
+            },
+          },
         );
       }
     });
