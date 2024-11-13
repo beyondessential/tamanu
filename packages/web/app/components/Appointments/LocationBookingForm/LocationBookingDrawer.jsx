@@ -28,7 +28,10 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
 
-const StyledDrawer = styled(Drawer)`
+const StyledDrawer = styled(Drawer).attrs({
+  anchor: 'right',
+  variant: 'persistent',
+})`
   .MuiPaper-root {
     // Add 1 pixel to allow border to show
     block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
@@ -236,8 +239,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
   return (
     <StyledDrawer
-      variant="persistent"
-      anchor="right"
       PaperProps={{
         // Used to exclude the drawer from click away listener on appointment detail popper
         className: APPOINTMENT_DRAWER_CLASS,
