@@ -209,7 +209,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={() => resetFieldsAfter('locationId')}
+            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
           />
           <Field
             name="overnight"
