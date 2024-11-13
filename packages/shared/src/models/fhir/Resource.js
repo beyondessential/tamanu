@@ -157,7 +157,15 @@ export class FhirResource extends Model {
   }
 
   static async resolveUpstreams() {
-    await this.sequelize.query('CALL fhir.resolve_upstreams()');
+    const unresolvedResources = await this.findAll({
+      where: {
+        resolved: false,
+      },
+    });
+
+    for (const unresolvedResource of unresolvedResources) {
+      await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+    }
   }
 
   // take a FhirResource and save it into Tamanu
