@@ -23,7 +23,7 @@ export const DateTimeRangePicker = ({
   const date = dateFieldValue ? new Date(dateFieldValue) : null; // Not using parseISO in case it’s already a date object
   const isValidDate = isValid(date);
 
-  const locationId = values.locationId;
+  const { id: appointmentId, locationId } = values;
 
   /** Keep synchronised with start date field for overnight bookings */
   const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
@@ -43,7 +43,8 @@ export const DateTimeRangePicker = ({
       <TimeSlotPicker
         date={isValidDate ? date : null}
         disabled={disabled || !hasSelectedLocation || !isValidDate}
-        key={`${locationId}_${dateFieldValue}`}
+        // Changes to any of these require state to refresh
+        key={`${appointmentId}_${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
         variant="range"
