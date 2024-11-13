@@ -203,7 +203,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
           />
-          <BookingTimeField key={values.date} disabled={!values.date} />
+          <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
           <Field
             name="patientId"
             label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
