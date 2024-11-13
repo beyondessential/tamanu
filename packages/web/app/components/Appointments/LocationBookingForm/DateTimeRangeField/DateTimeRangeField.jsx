@@ -8,11 +8,11 @@ import { DateTimeRangePicker } from './DateTimeRangePicker';
 
 export const DateTimeRangeField = ({ disabled, required, separate = false, ...props }) => {
   const {
-    values: { startDate },
+    values: { locationId, startDate },
   } = useFormikContext();
 
   if (separate) {
-    const doDisableEndPicker = disabled || !startDate;
+    const doDisableEndPicker = disabled || !locationId || !startDate;
     return (
       <>
         <StartDateTimePicker disabled={disabled} required={required} />
