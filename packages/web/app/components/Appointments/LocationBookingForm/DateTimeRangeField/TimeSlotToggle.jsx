@@ -36,7 +36,7 @@ const Toggle = styled(ToggleButton)`
     padding: 0.25rem;
     text-transform: none;
     touch-action: manipulation;
-    transition: background-color 100ms ease, border-color 100ms ease;
+    transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
       background-color: oklch(from ${Colors.primary} l c h / 10%);
@@ -59,7 +59,8 @@ const Toggle = styled(ToggleButton)`
     &:disabled,
     &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
-      background-color: ${Colors.background};
+      color: ${Colors.midText};
+      background-color: ${Colors.transparent};
       cursor: not-allowed;
     }
 
@@ -96,8 +97,6 @@ const BookedToggle = styled(Toggle).attrs({
 })`
   // (0,6,0) to override styling of disabled Toggle
   &&&&&& {
-    color: ${Colors.midText};
-
     background-color: oklch(from ${Colors.alert} l c h / 10%);
     @supports not (color: oklch(from black l c h)) {
       background-color: ${Colors.alert}1a;
