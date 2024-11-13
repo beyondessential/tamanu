@@ -166,7 +166,25 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <>
+      <StyledDrawer
+        variant="persistent"
+        anchor="right"
+        PaperProps={{
+          // Used to exclude the drawer from click away listener on appointment detail popper
+          className: APPOINTMENT_DRAWER_CLASS,
+        }}
+        open={open}
+        onClose={warnAndResetForm}
+        title={
+          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+        }
+        description={
+          <TranslatedText
+            stringId="locationBooking.form.new.description"
+            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+          />
+        }
+      >
         <StyledFormGrid nested columns={1}>
           <Field
             enableLocationStatus={false}
@@ -232,30 +250,12 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
         </StyledFormGrid>
-      </>
+      </StyledDrawer>
     );
   };
 
   return (
-    <StyledDrawer
-      variant="persistent"
-      anchor="right"
-      PaperProps={{
-        // Used to exclude the drawer from click away listener on appointment detail popper
-        className: APPOINTMENT_DRAWER_CLASS,
-      }}
-      open={open}
-      onClose={onClose}
-      title={
-        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
-      }
-      description={
-        <TranslatedText
-          stringId="locationBooking.form.new.description"
-          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-        />
-      }
-    >
+    <>
       <Form
         onSubmit={async (values, { resetForm }) => {
           handleSubmit(values);
@@ -272,6 +272,6 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
       />
-    </StyledDrawer>
+    </>
   );
 };
