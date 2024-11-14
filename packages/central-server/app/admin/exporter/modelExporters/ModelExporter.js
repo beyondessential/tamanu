@@ -1,4 +1,5 @@
 import { startCase } from 'lodash';
+import { Model } from 'sequelize';
 
 const METADATA_COLUMNS = [
   'createdAt',
@@ -47,7 +48,8 @@ export class ModelExporter {
   }
 
   getHeadersFromData(data) {
-    return Object.keys(data[0].dataValues);
+    const row = data.length <= 0 ? {} : data[0] instanceof Model ? data[0].dataValues : data[0];
+    return Object.keys(row);
   }
 
   customHiddenColumns() {
