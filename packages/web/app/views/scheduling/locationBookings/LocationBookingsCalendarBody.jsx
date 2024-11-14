@@ -8,7 +8,7 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
-import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { useLocationBooking } from '../../../contexts/LocationBookings';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const BookingsCell = ({

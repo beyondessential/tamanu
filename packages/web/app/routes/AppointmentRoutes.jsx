@@ -2,7 +2,7 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { LocationBookingsView, OutpatientAppointmentsView } from '../views/scheduling';
-import { LocationBookingProvider } from '../contexts/LocationBooking';
+import { LocationBookingProvider } from '../contexts/LocationBookings';
 
 export const AppointmentRoutes = React.memo(({ match }) => (
   <Switch>
