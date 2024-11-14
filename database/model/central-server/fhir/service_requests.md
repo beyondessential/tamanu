@@ -86,7 +86,3 @@ For imaging, this may be orientation notes or other clinically-relevant annotati
 {% docs fhir__service_requests__specimen %}
 Reference to an optional specimen attachment.
 {% enddocs %}
-
-{% docs fhir__service_requests__is_live %}
-TODO
-{% enddocs %}

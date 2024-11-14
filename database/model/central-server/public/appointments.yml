@@ -51,11 +51,17 @@ sources:
               - relationships:
                   to: source('tamanu', 'locations')
                   field: id
-          - name: type_legacy
+          - name: type
             data_type: character varying(255)
-            description: "{{ doc('appointments__type_legacy') }}"
+            description: "{{ doc('appointments__type') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - Standard
+                    - Emergency
+                    - Specialist
+                    - Other
           - name: status
             data_type: character varying(255)
             description: "{{ doc('appointments__status') }}"
@@ -85,9 +91,3 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in appointments."
             data_tests:
               - not_null
-          - name: booking_type_id
-            data_type: character varying(255)
-            description: "{{ doc('appointments__booking_type_id') }}"
-          - name: appointment_type_id
-            data_type: character varying(255)
-            description: "{{ doc('appointments__appointment_type_id') }}"

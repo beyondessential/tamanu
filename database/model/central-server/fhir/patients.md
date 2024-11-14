@@ -60,7 +60,3 @@ A record that:
 If enabled, the ethnicity of the patient, as per the New Zealand FHIR ethnicity extension or
 derivations thereof: <https://build.fhir.org/ig/HL7NZ/nzbase/branches/master/StructureDefinition-nz-ethnicity.html>.
 {% enddocs %}
-
-{% docs fhir__patients__is_live %}
-TODO
-{% enddocs %}

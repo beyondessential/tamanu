@@ -25,7 +25,7 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) that get the notif
 {% docs notifications__created_time %}
 When the notification was created
 {% enddocs %}
-
+ 
 {% docs notifications__patient_id %}
 Related patient of the notification
 {% enddocs %}

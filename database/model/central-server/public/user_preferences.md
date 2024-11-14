@@ -12,10 +12,6 @@ In the Vitals views, graphs can be filtered. This is remembered per user.
 Comma-separated.
 {% enddocs %}
 
-{% docs user_preferences__clinician_dashboard_tasking_table_filter %}
-TODO
-{% enddocs %}
-
 {% docs user_preferences__encounter_tab_orders %}
 Stores the tab encounter order that the user has adjusted
 {% enddocs %}

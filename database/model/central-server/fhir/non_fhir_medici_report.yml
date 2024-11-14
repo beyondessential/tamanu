@@ -134,8 +134,3 @@ sources:
           - name: notes
             data_type: jsonb
             description: "{{ doc('fhir__non_fhir_medici_report__notes') }}"
-          - name: is_live
-            data_type: boolean
-            description: "{{ doc('fhir__non_fhir_medici_report__is_live') }}"
-            data_tests:
-              - not_null
