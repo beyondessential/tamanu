@@ -131,12 +131,7 @@ export const PatientLabTestsTable = React.memo(
         ? [
             {
               key: 'testCategory.id',
-              title: (
-                <TranslatedText
-                  stringId="patient.lab.results.table.column.testCategory"
-                  fallback="Test category"
-                />
-              ),
+              title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
               accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
               sortable: false,
             },

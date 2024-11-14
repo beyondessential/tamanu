@@ -264,7 +264,7 @@ const EncounterOverview = ({
       <TextInput
         label={
           <TranslatedText
-            stringId="discharge.encounterReason.label"
+            stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
           />
         }

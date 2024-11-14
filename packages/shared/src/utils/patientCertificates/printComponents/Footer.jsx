@@ -2,6 +2,7 @@ import { StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 import { formatShort, getCurrentDateString } from '../../dateTime';
 import { Text } from '../../pdf/Text';
+import { useLanguageContext } from '../../pdf/languageContext';
 
 const styles = StyleSheet.create({
   footer: {
@@ -52,22 +53,25 @@ const ValueText = ({ children, ...props }) => (
 );
 
 export const Footer = ({ printDate, printFacility, printedBy, style }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
-        <LabelText>Print date: </LabelText>
+        <LabelText>{getTranslation('pdf.footer.printDate.label', 'Print date')}: </LabelText>
         <ValueText>{formatShort(printDate || getCurrentDateString())} </ValueText>
         {printFacility && (
           <>
             <ValueText> |</ValueText>
-            <LabelText>Print facility: </LabelText>
+            <LabelText>
+              {getTranslation('pdf.footer.printFacility.label', 'Print facility')}:{' '}
+            </LabelText>
             <ValueText>{printFacility} </ValueText>
           </>
         )}
         {printedBy && (
           <>
             <ValueText> |</ValueText>
-            <LabelText>Printed by: </LabelText>
+            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}:</LabelText>{' '}
             <ValueText>{printedBy}</ValueText>
           </>
         )}
@@ -75,7 +79,12 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
       <View style={styles.footerRightContent}>
         <Text
           style={styles.valueText}
-          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
+          render={({ pageNumber, totalPages }) =>
+            getTranslation('pdf.pagination', ':currentPage of :totalPages', {
+              currentPage: pageNumber,
+              totalPages,
+            })
+          }
         />
       </View>
     </View>

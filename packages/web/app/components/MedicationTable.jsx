@@ -35,22 +35,20 @@ const MEDICATION_COLUMNS = [
   },
   {
     key: 'prescription',
-    title: (
-      <TranslatedText stringId="medication.table.column.instructions" fallback="Instructions" />
-    ),
+    title: <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
   },
   {
     key: 'route',
-    title: <TranslatedText stringId="medication.table.column.route" fallback="Route" />,
+    title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
   },
   {
     key: 'endDate',
-    title: <TranslatedText stringId="medication.table.column.endDate" fallback="End date" />,
+    title: <TranslatedText stringId="medication.endDate.label" fallback="End date" />,
     accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
   {
     key: 'prescriber',
-    title: <TranslatedText stringId="medication.table.column.prescriber" fallback="Prescriber" />,
+    title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
