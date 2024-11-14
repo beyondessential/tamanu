@@ -1,6 +1,6 @@
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import {
-  addMilliseconds as addMs,
+  addMilliseconds,
   areIntervalsOverlapping,
   endOfDay,
   isSameDay,
@@ -127,7 +127,7 @@ export const TimeSlotPicker = ({
     }
   };
 
-  const endOfSlotStartingAt = slotStartTime => addMs(slotStartTime, slotDurationMs);
+  const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
 
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
@@ -161,7 +161,7 @@ export const TimeSlotPicker = ({
         if (selectedToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
           const startOfLatestSlot = new Date(newToggles.at(-1));
-          const newEnd = addMs(startOfLatestSlot, slotDurationMs);
+          const newEnd = endOfSlotStartingAt(startOfLatestSlot);
           const newTimeRange = { start: newStart, end: newEnd };
           const newSelection = timeSlots
             .filter(s => areIntervalsOverlapping(s, newTimeRange))
