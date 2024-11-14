@@ -108,9 +108,10 @@ export const TimeSlotPicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: dateIsValid && !!values.locationId },
+    { enabled: !!values.locationId && dateIsValid },
   );
 
+  const isTodaysBookingsQueryDualPurpose = variant !== 'range';
   const { data: potentiallyClashingBookings } = useAppointmentsQuery(
     {
       after: isValid(values.startTime) ? values.startTime : null,
@@ -120,9 +121,9 @@ export const TimeSlotPicker = ({
     },
     {
       enabled:
-        variant !== 'range' && // For non-overnight bookings, piggyback off `todaysBookings` and save the API call
+        isTodaysBookingsQueryDualPurpose && // For non-overnight bookings, piggyback off `todaysBookings`
+        !!values.locationId &&
         dateIsValid &&
-        !!values.locationId,
     },
   );
 
@@ -277,12 +278,11 @@ export const TimeSlotPicker = ({
     [todaysBookings?.data, initialTimeRange],
   );
 
-  const clashIntervals =
-    variant === 'range'
-      ? todaysBookedIntervals
-      : potentiallyClashingBookings?.data
-          .map(appointmentToInterval)
-          .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
+  const clashIntervals = isTodaysBookingsQueryDualPurpose
+    ? todaysBookedIntervals
+    : potentiallyClashingBookings?.data
+        .map(appointmentToInterval)
+        .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
