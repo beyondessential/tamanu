@@ -75,14 +75,12 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, type }) => {
-  switch (type) {
+const getAnswers = ({ answer, sourceType, type }) => {
+  switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
     }
-    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
-      return convertBinaryToYesNo(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
@@ -97,11 +95,11 @@ const getAnswers = ({ answer, type }) => {
 };
 
 const ResponseItem = ({ row }) => {
-  const { name, answer, type } = row;
+  const { name, answer, type, sourceType } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type, sourceType })}</Text>
     </View>
   );
 };

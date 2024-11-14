@@ -50,7 +50,7 @@ export const globalSettings = {
       description: 'Toggle features on/off',
       properties: {
         mandateSpecimenType: {
-          description: '_',
+          description: 'Make specimen type a required field when creating a new lab request',
           type: yup.boolean(),
           defaultValue: false,
         },
