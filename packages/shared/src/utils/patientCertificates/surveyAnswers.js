@@ -11,19 +11,6 @@ const shouldShow = component => {
   }
 };
 
-export const convertBinaryToYesNo = value => {
-  switch (value) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return value;
-  }
-};
-
 export const getSurveyAnswerRows = ({ components, answers }) =>
   components
     .filter(shouldShow)
