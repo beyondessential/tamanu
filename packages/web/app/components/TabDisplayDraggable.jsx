@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Box, Tabs } from '@material-ui/core';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -76,47 +76,13 @@ export const TabDisplayDraggable = ({
   ...tabProps
 }) => {
   const currentTabData = tabs.find(t => t.key === currentTab);
-  const [placeholderProps, setPlaceholderProps] = useState();
 
   const onDragEnd = result => {
-    setPlaceholderProps();
     handleDragEnd(result);
   };
 
-  const onDragUpdate = update => {
-    if (!update?.destination) {
-      setPlaceholderProps();
-      return;
-    }
-
-    const draggableId = update.draggableId;
-    const sourceIndex = update.source.index;
-    const destinationIndex = update.destination.index;
-
-    const domQuery = `[data-rbd-drag-handle-draggable-id='${draggableId}']`;
-    const draggedDOM = document.querySelector(domQuery);
-
-    if (!draggedDOM) {
-      return;
-    }
-    const { clientHeight, clientWidth } = draggedDOM;
-
-    const clientX = [...draggedDOM.parentNode.children]
-      .slice(0, destinationIndex + (sourceIndex < destinationIndex ? 1 : 0))
-      .filter(element => element !== draggedDOM)
-      .reduce((total, element) => {
-        return total + element.clientWidth;
-      }, 0);
-
-    setPlaceholderProps({
-      clientHeight,
-      clientWidth,
-      clientX,
-    });
-  };
-
   return (
-    <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <TabBar className={className}>
         <Droppable droppableId="droppable" direction="horizontal">
           {provided => (
@@ -152,21 +118,6 @@ export const TabDisplayDraggable = ({
                 </Draggable>
               ))}
               {provided.placeholder}
-
-              {placeholderProps && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: placeholderProps.clientX + placeholderProps.clientWidth / 2,
-                    transform: 'translateY(-50%)',
-                    height: '50%',
-                    width: '2px',
-                    backgroundColor: Colors.primary,
-                    borderRadius: '16px',
-                  }}
-                />
-              )}
             </TabContainer>
           )}
         </Droppable>
