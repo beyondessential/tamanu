@@ -62,7 +62,7 @@ export const TimeSlotPicker = ({
   ...props
 }) => {
   const {
-    initialValues: { overnight, startTime: initialStart, endTime: initialEnd },
+    initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
   } = useFormikContext();
