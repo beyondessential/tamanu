@@ -100,31 +100,17 @@ export const TimeSlotPicker = ({
   const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
+  const getEarliestRelevantTime = () => min([startOfDay(date), values.startTime].filter(isValid));
+  const getLatestRelevantTime = () => max([endOfDay(date), values.endTime].filter(isValid));
 
-  const { data: todaysBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
+  const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
-      after: dateIsValid ? startOfDay(date) : null,
-      before: dateIsValid ? endOfDay(date) : null,
+      after: getEarliestRelevantTime(),
+      before: getLatestRelevantTime(),
       all: true,
       locationId: values.locationId,
     },
     { enabled: !!values.locationId && dateIsValid },
-  );
-
-  const isTodaysBookingsQueryDualPurpose = variant !== 'range';
-  const { data: potentiallyClashingBookings } = useAppointmentsQuery(
-    {
-      after: isValid(values.startTime) ? values.startTime : null,
-      before: dateIsValid ? endOfDay(date) : null,
-      all: true,
-      locationId: values.locationId,
-    },
-    {
-      enabled:
-        isTodaysBookingsQueryDualPurpose && // For non-overnight bookings, piggyback off `todaysBookings`
-        !!values.locationId &&
-        dateIsValid,
-    },
   );
 
   const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
@@ -278,19 +264,13 @@ export const TimeSlotPicker = ({
     }
   };
 
-  const todaysBookedIntervals = useMemo(
+  const bookedIntervals = useMemo(
     () =>
-      todaysBookings?.data
+      existingBookings?.data
         .map(appointmentToInterval)
         .filter(interval => !isEqual(interval, initialTimeRange)) ?? [], // Ignore the booking currently being modified
-    [todaysBookings?.data, initialTimeRange],
+    [existingBookings?.data, initialTimeRange],
   );
-
-  const clashIntervals = isTodaysBookingsQueryDualPurpose
-    ? todaysBookedIntervals
-    : potentiallyClashingBookings?.data
-        .map(appointmentToInterval)
-        .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
@@ -321,9 +301,9 @@ export const TimeSlotPicker = ({
           break;
       }
 
-      return !clashIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
+      return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
-    [clashIntervals, date, values.startTime, values.endTime, variant],
+    [bookedIntervals, date, values.startTime, values.endTime, variant],
   );
 
   return (
@@ -334,7 +314,7 @@ export const TimeSlotPicker = ({
         ) : (
           timeSlots.map(timeSlot => {
             const isBooked =
-              todaysBookedIntervals.some(bookedInterval =>
+              bookedIntervals.some(bookedInterval =>
                 areIntervalsOverlapping(timeSlot, bookedInterval),
               ) ?? false;
 
