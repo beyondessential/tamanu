@@ -8,7 +8,7 @@ export const DataItem = ({ label, value, fontSize = 9 }) => {
       <P style={{ marginVertical: 3 }} fontSize={fontSize} bold>
         {label}:{' '}
       </P>
-      <P style={{ marginVertical: 3.7 }} fontSize={fontSize}>
+      <P style={{ marginVertical: 3 }} fontSize={fontSize}>
         {value}
       </P>
     </Row>
