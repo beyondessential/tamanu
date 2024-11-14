@@ -193,7 +193,7 @@ const AppointmentTypeDisplay = ({ appointmentType, isHighPriority }) => (
               aria-label="High priority"
               aria-hidden={undefined}
               htmlColor={Colors.alert}
-              sx={{ fontSize: 15 }}
+              style={{ fontSize: 15 }}
             />
             <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
           </FlexRow>
