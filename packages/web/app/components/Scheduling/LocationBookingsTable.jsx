@@ -13,16 +13,30 @@ import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from '../Appointments/CancelModal/CancelLocationBookingModal';
+import { useTableSorting } from '../Table/useTableSorting';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
   padding: 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
+  position: sticky;
+  top: 0;
+  background-color: ${Colors.white};
+  z-index: 1;
 `;
 
 const StyledTable = styled(Table)`
+  max-height: 186px;
   padding: 0 20px;
+  thead {
+    tr {
+      position: sticky;
+      top: 55px;
+      background-color: ${Colors.white};
+      z-index: 1;
+    }
+  }
   .MuiTableCell-head {
     background-color: ${Colors.white};
     padding-top: 8px;
@@ -113,11 +127,17 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 };
 
 export const LocationBookingsTable = ({ patient }) => {
+  const { orderBy, order, onChangeOrderBy } = useTableSorting({
+    initialSortKey: 'startTime',
+    initialSortDirection: 'asc',
+  });
   const appointments =
     useAppointmentsQuery({
       locationId: '',
       all: true,
       patientId: patient?.id,
+      orderBy,
+      order,
     }).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -138,30 +158,32 @@ export const LocationBookingsTable = ({ patient }) => {
   
   const COLUMNS = [
     {
-      key: 'date',
+      key: 'startTime',
       title: <TranslatedText stringId="patient.bookings.table.column.date" fallback="Date" />,
       maxWidth: 200,
       accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
     },
     {
-      key: 'location.name',
+      key: 'location',
       title: <TranslatedText stringId="patient.bookings.table.column.area" fallback="Area" />,
-      //accessor: ({ location }) => 'AGCFJ - Adult General ClinicAGCFJ - Adult General ClinicAGCFJ - Adult General ClinicAGCFJ - Adult General ClinicAGCFJ - Adult General ClinicAGCFJ - Adult General Clinic',
+      accessor: ({ location }) => location?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={190} />,
     },
     {
-      key: 'location.locationGroup.name',
+      key: 'locationGroup',
       title: <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />,
+      accessor: ({ location }) => location?.locationGroup?.name,
       sortable: false,
     },
     {
-      key: 'bookingType.name',
+      key: 'bookingType',
       title: (
         <TranslatedText
           stringId="patient.bookings.table.column.bookingType"
           fallback="Booking type"
         />
       ),
+      accessor: ({ bookingType }) => bookingType?.name,
     },
     {
       key: '',
@@ -180,7 +202,7 @@ export const LocationBookingsTable = ({ patient }) => {
         data={appointments}
         columns={COLUMNS}
         noDataMessage={
-          <TranslatedText stringId="patient.bookings.table.noData" fallback="No invoices found" />
+          <TranslatedText stringId="patient.bookings.table.noData" fallback="No location bookings" />
         }
         allowExport={false}
         TableHeader={
@@ -189,6 +211,9 @@ export const LocationBookingsTable = ({ patient }) => {
           </TableTitle>
         }
         onClickRow={handleRowClick}
+        orderBy={orderBy}
+        order={order}
+        onChangeOrderBy={onChangeOrderBy}
       />
       <CancelLocationBookingModal
         appointment={selectedAppointment}
