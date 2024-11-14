@@ -46,7 +46,7 @@
     "@bugsnag/plugin-express": "^7.19.0",
     "@opentelemetry/api": "^1.4.0",
     "@peculiar/webcrypto": "^1.3.3",
-    "@react-pdf/renderer": "^4.0.0",
+    "@react-pdf/renderer": "3.4.4",
     "@tamanu/shared": "*",
     "@socket.io/postgres-adapter": "^0.3.1",
     "asn1js": "^2.2.0",
