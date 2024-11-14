@@ -32,44 +32,47 @@ const StyledTextButton = styled(TextButton)`
   }
 `;
 
-const StyledContactListTable = styled(DataFetchingTable)`
-  display: ${props => (props.isEmpty ? 'none' : 'block')};
-  margin-bottom: 28px;
-  border-radius: 5px;
-  border: 1px solid ${Colors.outline};
-  background: ${Colors.white};
-  box-shadow: none;
+const StyledContactListTable = props => {
+  const Component = styled(DataFetchingTable)`
+    display: ${props => (props.isEmpty ? 'none' : 'block')};
+    margin-bottom: 28px;
+    border-radius: 5px;
+    border: 1px solid ${Colors.outline};
+    background: ${Colors.white};
+    box-shadow: none;
 
-  table {
-    padding-left: 21px;
-    padding-right: 25px;
-    padding-bottom: 16px;
-  }
-
-  table thead th {
-    background-color: ${Colors.white} !important;
-    border-bottom: 1px solid ${Colors.outline};
-    padding: 13px 0 12px 2px;
-    padding-left: 2px !important;
-    width: 30%;
-    &: 4th-child {
-      width: 10%;
+    table {
+      padding-left: 21px;
+      padding-right: 25px;
+      padding-bottom: 16px;
     }
-  }
 
-  table thead th tr {
-    font-size: 14px;
-    font-style: normal;
-    line-height: 18px;
-  }
+    table thead th {
+      background-color: ${Colors.white} !important;
+      border-bottom: 1px solid ${Colors.outline};
+      padding: 13px 0 12px 2px;
+      padding-left: 2px !important;
+      width: 30%;
+      &: 4th-child {
+        width: 10%;
+      }
+    }
 
-  table tbody td {
-    padding-left: 2px !important;
-    padding-top: 14px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none;
-  }
-`;
+    table thead th tr {
+      font-size: 14px;
+      font-style: normal;
+      line-height: 18px;
+    }
+
+    table tbody td {
+      padding-left: 2px !important;
+      padding-top: 14px !important;
+      padding-bottom: 0 !important;
+      border-bottom: none;
+    }
+  `;
+  return <Component {...props} />;
+};
 
 const RowActionLink = styled.a`
   text-decoration: underline;
@@ -80,37 +83,41 @@ const ColoredText = styled.span`
   color: ${props => props.color};
 `;
 
-const ContactDetailTable = styled(Table)`
-  border: 1px solid ${Colors.outline};
-  box-shadow: none;
-  margin: 22px 0 42px;
-  border-radius: 5px;
-  background: ${Colors.white};
+const ContactDetailTable = props => {
+  const Component = styled(Table)`
+    border: 1px solid ${Colors.outline};
+    box-shadow: none;
+    margin: 22px 0 42px;
+    border-radius: 5px;
+    background: ${Colors.white};
 
-  table {
-    padding-left: 23px;
-    padding-right: 20px;
+    table {
+      padding-left: 23px;
+      padding-right: 20px;
 
-    thead tr {
-      border-bottom: 1px solid ${Colors.outline};
+      thead tr {
+        border-bottom: 1px solid ${Colors.outline};
 
-      th {
-        font-style: normal;
-        background-color: ${Colors.white} !important;
-        padding: 13px 0 12px !important;
-        font-size: 14px;
-        line-height: 18px;
-        font-weight: 500;
-        width: 30%;
+        th {
+          font-style: normal;
+          background-color: ${Colors.white} !important;
+          padding: 13px 0 12px !important;
+          font-size: 14px;
+          line-height: 18px;
+          font-weight: 500;
+          width: 30%;
+        }
+      }
+
+      tbody tr td {
+        border-bottom: none;
+        padding: 10px 0 16px 1px !important;
       }
     }
+  `;
 
-    tbody tr td {
-      border-bottom: none;
-      padding: 10px 0 16px 1px !important;
-    }
-  }
-`;
+  return <Component {...props} />;
+};
 
 const CONNECTION_STATUS = {
   SUCCESS: 'success',

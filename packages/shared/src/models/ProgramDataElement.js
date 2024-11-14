@@ -27,6 +27,13 @@ export class ProgramDataElement extends Model {
     );
   }
 
+  static initRelations(models) {
+    this.hasOne(models.SurveyScreenComponent, {
+      foreignKey: 'dataElementId',
+      as: 'surveyScreenComponent',
+    });
+  }
+
   forResponse() {
     const { defaultOptions, ...values } = this.dataValues;
     return {
