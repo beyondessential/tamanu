@@ -80,8 +80,7 @@ const PatientDetailsContainer = styled(FlexCol)`
 const AppointmentDetailsContainer = styled(FlexCol)`
   padding: 0.75rem;
   gap: 0.5rem;
-  border-top: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
   position: relative;
 `;
 
