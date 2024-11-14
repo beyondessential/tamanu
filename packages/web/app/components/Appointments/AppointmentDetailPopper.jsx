@@ -96,12 +96,11 @@ const AppointmentStatusContainer = styled(Box)`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-    min-width: 3.625rem;
     border: none;
   }
 
-  .MuiPopper-root {
-    min-width: 3.625rem;
+  .MuiListItem-root {
+    padding-inline: 0.5625rem;
   }
 
   svg {
@@ -133,7 +132,10 @@ const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions }) => {
 
   return (
     <ControlsContainer>
-      <StyledMenuButton actions={[...baseActions, ...additionalActions]} placement="bottom-start" />
+      <StyledMenuButton
+        actions={[...baseActions, ...(additionalActions ? additionalActions : [])]}
+        placement="bottom-start"
+      />
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
