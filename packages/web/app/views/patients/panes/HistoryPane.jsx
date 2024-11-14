@@ -6,6 +6,7 @@ import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
+import { LocationBookingsTable } from '../../../components/Scheduling/LocationBookingsTable';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -43,6 +44,7 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
       />
+      <LocationBookingsTable />
     </>
   );
 });

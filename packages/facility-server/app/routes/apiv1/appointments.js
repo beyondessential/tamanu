@@ -55,6 +55,7 @@ const searchableFields = [
   'clinicianId',
   'locationId',
   'locationGroupId',
+  'patientId',
   'patient.first_name',
   'patient.last_name',
   'patient.display_id',
