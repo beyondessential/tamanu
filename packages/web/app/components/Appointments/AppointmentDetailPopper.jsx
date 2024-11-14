@@ -82,6 +82,7 @@ const AppointmentDetailsContainer = styled(FlexCol)`
   gap: 0.5rem;
   border-top: max(0.0625rem, 1px) solid ${Colors.outline};
   border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
+  position: relative;
 `;
 
 const AppointmentStatusContainer = styled(Box)`
@@ -119,6 +120,13 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
+const Tag = styled(FlexRow)`
+  gap: 2px;
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+`;
+
 const ControlsRow = ({ onClose, onCancel, onEdit }) => {
   const actions = [
     {
@@ -152,55 +160,6 @@ const DetailsDisplay = ({ label, value }) => (
     <Label>{label}</Label>
     <span>{value ?? <>&mdash;</>}</span>
   </FlexCol>
-);
-
-const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
-  <DetailsDisplay
-    label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
-    value={
-      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData
-          value={bookingType.id}
-          fallback={bookingType.name}
-          category="bookingType"
-        />
-        {isOvernight && (
-          <FlexRow sx={{ gap: '2px' }}>
-            <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
-            <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
-          </FlexRow>
-        )}
-      </FlexRow>
-    }
-  />
-);
-
-const AppointmentTypeDisplay = ({ appointmentType, isHighPriority }) => (
-  <DetailsDisplay
-    label={
-      <TranslatedText stringId="scheduling.appointmentType.label" fallback="Appointment type" />
-    }
-    value={
-      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData
-          value={appointmentType.id}
-          fallback={appointmentType.name}
-          category="appointmentType"
-        />
-        {isHighPriority && (
-          <FlexRow sx={{ gap: '2px' }}>
-            <HighPriorityIcon
-              aria-label="High priority"
-              aria-hidden={undefined}
-              htmlColor={Colors.alert}
-              style={{ fontSize: 15 }}
-            />
-            <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
-          </FlexRow>
-        )}
-      </FlexRow>
-    }
-  />
 );
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
@@ -294,12 +253,50 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
-      {appointmentType && (
-        <AppointmentTypeDisplay
-          appointmentType={appointmentType}
-          isHighPriority={appointment.isHighPriority}
+      {bookingType && (
+        <DetailsDisplay
+          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          value={
+            <TranslatedReferenceData
+              value={bookingType.id}
+              fallback={bookingType.name}
+              category="bookingType"
+            />
+          }
         />
+      )}
+      {appointmentType && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="scheduling.appointmentType.label"
+              fallback="Appointment type"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              value={appointmentType.id}
+              fallback={appointmentType.name}
+              category="appointmentType"
+            />
+          }
+        />
+      )}
+      {isOvernight && (
+        <Tag>
+          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
+          <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
+        </Tag>
+      )}
+      {appointment.isHighPriority && (
+        <Tag>
+          <HighPriorityIcon
+            aria-label="High priority"
+            htmlColor={Colors.alert}
+            style={{ fontSize: 15 }}
+          />
+          <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+        </Tag>
       )}
     </AppointmentDetailsContainer>
   );
