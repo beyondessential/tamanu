@@ -74,7 +74,7 @@ const Toggle = styled(ToggleButton)`
 `;
 
 const AvailableToggle = styled(Toggle)`
-  ${({ $hover }) =>
+  ${({ $hover = false }) =>
     $hover &&
     css`
       &&,
