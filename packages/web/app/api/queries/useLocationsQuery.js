@@ -3,6 +3,5 @@ import { useApi } from '../useApi';
 
 export const useLocationsQuery = options => {
   const api = useApi();
-
-  return useQuery(['locations'], () => api.get('location', options));
+  return useQuery(['locations', options], () => api.get('location', options));
 };
