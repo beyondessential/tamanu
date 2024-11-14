@@ -54,7 +54,7 @@ export const LabRequestFormScreen1 = ({
       <Field
         name="requestedDate"
         label={
-          <TranslatedText stringId="lab.requestDateTime.label" fallback="Request date & time" />
+          <TranslatedText stringId="general.requestDateTime.label" fallback="Request date & time" />
         }
         required
         component={DateTimeField}

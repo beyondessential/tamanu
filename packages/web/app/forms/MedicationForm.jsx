@@ -50,9 +50,7 @@ const validationSchema = readOnly =>
           .string()
           .oneOf(DRUG_ROUTE_VALUES)
           .required()
-          .translatedLabel(
-            <TranslatedText stringId="medication.validation.route.path" fallback="Route" />,
-          ),
+          .translatedLabel(<TranslatedText stringId="medication.route.label" fallback="Route" />),
         date: yup
           .date()
           .required()

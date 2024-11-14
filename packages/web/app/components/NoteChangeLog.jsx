@@ -37,7 +37,7 @@ const NoteChangeLogInfo = ({ note }) => (
       {note.onBehalfOf ? (
         <span>
           <TranslatedText
-            stringId="note.table.header.onBehalfOf"
+            stringId="note.table.onBehalfOfText"
             fallback="on behalf of :changeOnBehalfOfName"
             replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
           />{' '}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
-import { getDOB, getSex } from '../patientAccessors';
+import { getDob, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -134,7 +134,7 @@ const IDCardPrintoutComponent = ({
                 label={getTranslation('general.localisedField.firstName.label', 'First name')}
               />
               <DetailsRow
-                value={getDOB(patient)}
+                value={getDob(patient, { getTranslation })}
                 label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
               />
               <DetailsRow

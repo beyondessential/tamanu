@@ -69,13 +69,15 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   return [
     {
       key: 'labTestType',
-      title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
+      title: <TranslatedText stringId="lab.testType.label" fallback="Test type" />,
       width: '120px',
-      accessor: row => <TranslatedReferenceData
-        fallback={row.labTestType.name}
-        value={row.labTestType.id}
-        category="labTestType"
-      />,
+      accessor: row => (
+        <TranslatedReferenceData
+          fallback={row.labTestType.name}
+          value={row.labTestType.id}
+          category="labTestType"
+        />
+      ),
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
@@ -262,7 +264,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
             fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
             replacements={{ length: labTestRes.length, displayId }}
-          />
+          />,
         );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
@@ -276,8 +278,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
             fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
             replacements={{ message: err.message, displayId }}
-          />
-          );
+          />,
+        );
       },
     },
   );

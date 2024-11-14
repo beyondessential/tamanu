@@ -5,6 +5,7 @@ import path from 'path';
 import { FONT } from '@tamanu/constants';
 import { Font } from '@react-pdf/renderer';
 import { translationFactory } from '../translation/translationFactory';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
@@ -79,6 +80,13 @@ export const withLanguageContext = Component => props => {
       getTranslation(stringId, fallback, replacements, uppercase, lowercase) {
         const translationFunc = translationFactory(translations);
         const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+        return value;
+      },
+      getEnumTranslation(enumValues, currentValue) {
+        const translationFunc = translationFactory(translations);
+        const fallback = enumValues[currentValue];
+        const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+        const { value } = translationFunc(stringId, fallback);
         return value;
       },
     };

@@ -37,12 +37,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'patientName',
-        title: (
-          <TranslatedText
-            stringId="programRegistry.table.column.patientName"
-            fallback="Patient name"
-          />
-        ),
+        title: <TranslatedText stringId="general.patientName.label" fallback="Patient name" />,
         accessor: ({ patient }) => `${patient.firstName} ${patient.lastName}`,
         maxWidth: 200,
       },
