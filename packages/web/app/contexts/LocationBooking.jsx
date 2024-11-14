@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import React, { createContext, useContext, useState } from 'react';
 
 const LocationBookingContext = createContext();
 

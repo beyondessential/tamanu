@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
@@ -13,7 +13,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLocationBooking } from '../../../contexts/LocationBooking';
 import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
-import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 
 const PlusIcon = styled(AddRounded)`
   && {

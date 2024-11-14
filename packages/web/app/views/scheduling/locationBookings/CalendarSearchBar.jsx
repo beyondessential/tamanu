@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { CircularProgress, styled } from '@mui/material';
 
-import { styled } from '@mui/material';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { useFormikContext } from 'formik';
@@ -14,30 +14,35 @@ const SearchBar = styled('search')`
 
 const FormListener = ({ onFilterChange }) => {
   const { values } = useFormikContext();
-  const isInitialMount = useRef(true);
 
   useEffect(() => {
-    // Skip the first render to prevent overwriting database values
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
     onFilterChange(values);
   }, [values, onFilterChange]);
 
   return null;
 };
 
-export const CalendarSearchBar = ({ initialFilters, onFilterChange }) => {
+const emptyValues = {
+  locationGroupIds: [],
+  clinicianId: [],
+  bookingTypeId: [],
+  patientNameOrId: '',
+};
+
+export const CalendarSearchBar = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
+
+  if (isUserPreferencesLoading) {
+    return <CircularProgress />;
+  }
 
   return (
     <Form
       initialValues={{ ...userPreferences?.locationBookingFilters, patientNameOrId: '' }}
       onSubmit={async () => {}}
-      render={({ clearForm }) => (
+      render={({ setValues }) => (
         <>
           <FormListener onFilterChange={onFilterChange} />
           <SearchBar>
@@ -70,7 +75,8 @@ export const CalendarSearchBar = ({ initialFilters, onFilterChange }) => {
             />
             <TextButton
               onClick={() => {
-                clearForm();
+                setValues(emptyValues);
+                onFilterChange(emptyValues);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
             >
