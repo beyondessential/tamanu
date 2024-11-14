@@ -80,8 +80,7 @@ const PatientDetailsContainer = styled(FlexCol)`
 const AppointmentDetailsContainer = styled(FlexCol)`
   padding: 0.75rem;
   gap: 0.5rem;
-  border-top: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
   position: relative;
 `;
 
@@ -121,10 +120,10 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 const Tag = styled(FlexRow)`
-  gap: 2px;
+  gap: 0.125rem;
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.75rem;
+  inset-inline-end: 0.75rem;
+  inset-block-end: 0.75rem;
 `;
 
 const ControlsRow = ({ onClose, onCancel, onEdit }) => {
