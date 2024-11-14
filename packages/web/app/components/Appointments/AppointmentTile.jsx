@@ -101,48 +101,50 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
   );
 
   return (
-    <ThemedTooltip title={tileText}>
-      <Wrapper
-        $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-        $selected={open}
-        tabIndex={0}
-        ref={ref}
-        onClick={() => setOpen(true)}
-        {...props}
-      >
-        <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-          {tileText}
-        </Label>
-        <IconGroup>
-          {isHighPriority && (
-            <HighPriorityIcon
-              aria-label="High priority"
-              aria-hidden={undefined}
-              htmlColor={Colors.alert}
-              style={{ fontSize: 15 }}
-            />
-          )}
-          {isOvernight && (
-            <OvernightIcon
-              aria-label="Overnight booking"
-              aria-hidden={undefined}
-              htmlColor="#326699"
-              style={{ fontSize: 15 }}
-            />
-          )}
-          <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
-        </IconGroup>
-        <AppointmentDetailPopper
-          open={open}
-          onClose={() => setOpen(false)}
-          anchorEl={ref.current}
-          appointment={appointment}
-          isOvernight={isOvernight}
-          onEdit={onEdit}
-          onCancel={onCancel}
-          onStatusChange={setLocalStatus}
-        />
-      </Wrapper>
-    </ThemedTooltip>
+    <>
+      <ThemedTooltip title={tileText}>
+        <Wrapper
+          $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+          $selected={open}
+          tabIndex={0}
+          ref={ref}
+          onClick={() => setOpen(true)}
+          {...props}
+        >
+          <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+            {tileText}
+          </Label>
+          <IconGroup>
+            {isHighPriority && (
+              <HighPriorityIcon
+                aria-label="High priority"
+                aria-hidden={undefined}
+                htmlColor={Colors.alert}
+                style={{ fontSize: 15 }}
+              />
+            )}
+            {isOvernight && (
+              <OvernightIcon
+                aria-label="Overnight booking"
+                aria-hidden={undefined}
+                htmlColor="#326699"
+                style={{ fontSize: 15 }}
+              />
+            )}
+            <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
+          </IconGroup>
+        </Wrapper>
+      </ThemedTooltip>
+      <AppointmentDetailPopper
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorEl={ref.current}
+        appointment={appointment}
+        isOvernight={isOvernight}
+        onEdit={onEdit}
+        onCancel={onCancel}
+        onStatusChange={setLocalStatus}
+      />
+    </>
   );
 };
