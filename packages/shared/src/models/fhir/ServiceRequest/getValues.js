@@ -144,7 +144,7 @@ async function getValuesFromLabRequest(upstream, models) {
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester,
     note: labAnnotations(upstream),
-    specimen,
+    specimen: specimen ? [specimen] : null,
     resolved:
       subject.isResolved() &&
       encounter.isResolved() &&
