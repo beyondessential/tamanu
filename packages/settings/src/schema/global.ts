@@ -90,6 +90,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        enableLocationBooking:{
+          description: 'Enable location booking component on patient view',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         registerNewPatient: {
           description: 'Allow the creation of new patient on mobile',
           type: yup.boolean(),
