@@ -62,8 +62,6 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          console.log('newValue', newValue);
-          console.log(onStatusChange);
           onStatusChange?.(newValue);
         } catch (error) {
           toast.error(
