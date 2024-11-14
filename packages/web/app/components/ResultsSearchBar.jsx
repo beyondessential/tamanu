@@ -52,12 +52,7 @@ export const ResultsSearchBar = React.memo(
         <Fields>
           <StyledAutoCompleteInput
             name="category"
-            label={
-              <TranslatedText
-                stringId="patient.lab.results.search.testCategory.label"
-                fallback="Test category"
-              />
-            }
+            label={<TranslatedText stringId="lab.testCategory.label" fallback="Test category" />}
             disabled={disabled}
             suggester={categorySuggester}
             value={searchParameters.categoryId}

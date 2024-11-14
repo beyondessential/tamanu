@@ -17,7 +17,7 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
         name="reasonForEncounter"
         label={
           <TranslatedText
-            stringId="general.localisedField.reasonForEncounter.label"
+            stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
           />
         }

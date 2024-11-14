@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PrintIcon from '@material-ui/icons/Print';
 import styled from 'styled-components';
 
 import { Modal } from './Modal';
-import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { ViewPhotoLink } from './ViewPhotoLink';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponse } from '../api/queries/useSurveyResponse';
 import { ModalCancelRow } from './ModalActionRow';
+import { SurveyAnswerResult } from './SurveyAnswerResult';
 
 const SectionSpacing = styled.div`
   height: 14px;
@@ -20,19 +18,6 @@ const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
   overflow: auto;
 `;
-
-const convertBinaryToYesNo = value => {
-  switch (value) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return value;
-  }
-};
 
 const PrintButton = styled(Button)`
   position: absolute;
@@ -54,45 +39,9 @@ const COLUMNS = [
   {
     key: 'value',
     title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [surveyLink, setSurveyLink] = useState(null);
-      switch (type) {
-        case 'Result':
-          return <SurveyResultBadge resultText={answer} />;
-        case 'Calculated':
-          return parseFloat(answer).toFixed(1);
-        case 'Photo':
-          return <ViewPhotoLink imageId={answer} />;
-        case 'Checkbox':
-          return convertBinaryToYesNo(answer);
-        case 'SubmissionDate':
-          return <DateDisplay date={answer} />;
-        case 'Date':
-          return <DateDisplay date={answer} />;
-        case 'SurveyLink':
-          return (
-            <>
-              <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
-                Show Form
-              </Button>
-              <SurveyResponseDetailsModal
-                surveyResponseId={surveyLink}
-                onClose={() => setSurveyLink(null)}
-              />
-            </>
-          );
-        case 'MultiSelect':
-          return JSON.parse(answer).map(element => (
-            <>
-              {element}
-              <br />
-            </>
-          ));
-        default:
-          return answer;
-      }
-    },
+    accessor: ({ answer, sourceType, type }) => (
+      <SurveyAnswerResult answer={answer} sourceType={sourceType} type={type} />
+    ),
   },
 ];
 
@@ -149,11 +98,13 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
+      const sourceType = answerObject?.sourceType;
       return {
         id,
         type,
         answer,
         name,
+        sourceType,
       };
     })
     .filter(r => r.answer !== undefined);
