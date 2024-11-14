@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import Box from '@mui/material/Box';
@@ -13,8 +13,7 @@ import { TranslatedText } from '../../Translation';
 import { Colors } from '../../../constants';
 import { reloadPatient } from '../../../store';
 import { useApi } from '../../../api';
-import { usePatientAdditionalDataQuery, usePatientCurrentEncounter } from '../../../api/queries';
-import { EncounterModal } from '../../EncounterModal';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
@@ -47,31 +46,14 @@ export const AppointmentDetailPopper = ({
   const api = useApi();
   const patientId = appointment.patient.id;
 
-  const { data: initialEncounter } = usePatientCurrentEncounter(patientId);
   const { data: additionalData } = usePatientAdditionalDataQuery(patientId);
 
   const [localStatus, setLocalStatus] = useState(appointment.status);
-  const [encounterModal, setEncounterModal] = useState(false);
-  const [currentEncounter, setCurrentEncounter] = useState(null);
-
-  useEffect(() => {
-    setCurrentEncounter(initialEncounter);
-  }, [initialEncounter]);
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
-
-  const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
-  const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
-  const setEncounter = useCallback(
-    async encounter => {
-      setCurrentEncounter(encounter);
-      onCloseEncounterModal();
-    },
-    [onCloseEncounterModal],
-  );
 
   const debouncedUpdateAppointmentStatus = useMemo(
     () =>
@@ -157,23 +139,10 @@ export const AppointmentDetailPopper = ({
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
-              createdEncounter={currentEncounter}
-              onOpenEncounterModal={onOpenEncounterModal}
+              appointment={appointment}
+              additionalData={additionalData}
             />
           </StyledPaper>
-          <EncounterModal
-            initialValues={{
-              locationId: appointment?.location?.id,
-              examinerId: appointment?.clinician?.id,
-              practitionerId: appointment?.clinician?.id,
-            }}
-            open={encounterModal}
-            onClose={onCloseEncounterModal}
-            onSubmitEncounter={setEncounter}
-            noRedirectOnSubmit
-            patient={appointment.patient}
-            patientBillingTypeId={additionalData?.patientBillingTypeId}
-          />
         </Box>
       </ClickAwayListener>
     </Popper>

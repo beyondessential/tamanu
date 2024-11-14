@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 
@@ -9,6 +9,8 @@ import { ConditionalTooltip } from '../../Tooltip';
 import { TextButton } from '../../Button';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
+import { EncounterModal } from '../../EncounterModal';
+import { usePatientCurrentEncounter } from '../../../api/queries';
 
 const AppointmentStatusContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
@@ -40,17 +42,35 @@ const CheckInButton = styled(TextButton)`
 `;
 
 export const AppointmentStatusSelector = ({
+  appointment,
+  additionalData,
   selectedStatus,
   updateAppointmentStatus,
-  onOpenEncounterModal,
-  createdEncounter,
   disabled,
 }) => {
+  const {
+    data: initialEncounter,
+    isLoading: isPatientEncounterLoading,
+  } = usePatientCurrentEncounter(appointment?.patient?.id);
+
+  const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
+  const [encounter, setEncounter] = useState(null);
+
+  useEffect(() => {
+    setEncounter(initialEncounter);
+  }, [initialEncounter]);
+
+  if (isPatientEncounterLoading) {
+    return null;
+  }
+
   return (
-    <AppointmentStatusContainer>
-      <AppointmentStatusGrid>
-        {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
-          status => {
+    <>
+      <AppointmentStatusContainer>
+        <AppointmentStatusGrid>
+          {APPOINTMENT_STATUS_VALUES.filter(
+            status => status !== APPOINTMENT_STATUSES.CANCELLED,
+          ).map(status => {
             const isSelected = status === selectedStatus;
             return (
               <AppointmentStatusChip
@@ -62,25 +82,39 @@ export const AppointmentStatusSelector = ({
                 selected={isSelected}
               />
             );
-          },
-        )}
-      </AppointmentStatusGrid>
-      <StyledConditionalTooltip
-        title={
-          <TranslatedText
-            stringId="scheduling.tooltip.alreadyAdmitted"
-            fallback="Patient already admitted"
-          />
-        }
-        visible={!!createdEncounter}
-      >
-        <CheckInButton onClick={() => onOpenEncounterModal()} disabled={!!createdEncounter}>
-          <TranslatedText
-            stringId="scheduling.action.admitOrCheckIn"
-            fallback="Admit or check-in"
-          />
-        </CheckInButton>
-      </StyledConditionalTooltip>
-    </AppointmentStatusContainer>
+          })}
+        </AppointmentStatusGrid>
+        <StyledConditionalTooltip
+          title={
+            <TranslatedText
+              stringId="scheduling.tooltip.alreadyAdmitted"
+              fallback="Patient already admitted"
+            />
+          }
+          visible={!!encounter}
+        >
+          <CheckInButton onClick={() => setIsEncounterModalOpen(true)} disabled={!!encounter}>
+            <TranslatedText
+              stringId="scheduling.action.admitOrCheckIn"
+              fallback="Admit or check-in"
+            />
+          </CheckInButton>
+        </StyledConditionalTooltip>
+      </AppointmentStatusContainer>
+
+      <EncounterModal
+        initialValues={{
+          locationId: appointment?.location?.id,
+          examinerId: appointment?.clinician?.id,
+          practitionerId: appointment?.clinician?.id,
+        }}
+        open={isEncounterModalOpen}
+        onClose={() => setIsEncounterModalOpen(false)}
+        onSubmitEncounter={setEncounter}
+        noRedirectOnSubmit
+        patient={appointment.patient}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
+      />
+    </>
   );
 };
