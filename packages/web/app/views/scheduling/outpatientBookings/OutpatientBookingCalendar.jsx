@@ -126,6 +126,22 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   });
   const { headData = [], cellData, titleKey } = data;
 
+  const getActions = appointment => {
+    // eslint-disable-next-line no-unused-vars
+    const { startTime, endTime, ...partialAppointment } = appointment;
+    return [
+      {
+        label: (
+          <TranslatedText
+            stringId="appointments.action.newAppointment"
+            fallback="New appointment"
+          />
+        ),
+        action: () => onOpenDrawer(partialAppointment),
+      },
+    ];
+  };
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -165,6 +181,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   appointment={a}
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
+                  actions={getActions(a)}
                 />
               ))}
             </AppointmentColumnWrapper>

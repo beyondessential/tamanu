@@ -96,11 +96,12 @@ const AppointmentStatusContainer = styled(Box)`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-    width: 3.625rem;
+    min-width: 3.625rem;
+    border: none;
   }
 
   .MuiPopper-root {
-    width: 3.625rem;
+    min-width: 3.625rem;
   }
 
   svg {
@@ -118,8 +119,8 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, onCancel, onEdit }) => {
-  const actions = [
+const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions }) => {
+  const baseActions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
       action: onEdit,
@@ -132,7 +133,7 @@ const ControlsRow = ({ onClose, onCancel, onEdit }) => {
 
   return (
     <ControlsContainer>
-      <StyledMenuButton actions={actions} placement="bottom-start" />
+      <StyledMenuButton actions={[...baseActions, ...additionalActions]} placement="bottom-start" />
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
@@ -323,6 +324,7 @@ export const AppointmentDetailPopper = ({
   anchorEl,
   appointment,
   isOvernight = false,
+  actions,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
@@ -405,7 +407,12 @@ export const AppointmentDetailPopper = ({
         touchEvent="onTouchStart"
       >
         <Box>
-          <ControlsRow onClose={onClose} onEdit={onEdit} onCancel={onCancel} />
+          <ControlsRow
+            onClose={onClose}
+            onEdit={onEdit}
+            onCancel={onCancel}
+            additionalActions={actions}
+          />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}
