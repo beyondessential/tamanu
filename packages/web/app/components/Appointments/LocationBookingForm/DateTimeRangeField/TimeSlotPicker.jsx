@@ -101,11 +101,7 @@ export const TimeSlotPicker = ({
 
   const dateIsValid = isValid(date);
 
-  const {
-    data: todaysBookings,
-    isFetching: isFetchingTodaysBookings,
-    isFetched: isFetchedTodaysBookings,
-  } = useAppointmentsQuery(
+  const { data: todaysBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
       after: dateIsValid ? startOfDay(date) : null,
       before: dateIsValid ? endOfDay(date) : null,
@@ -283,9 +279,11 @@ export const TimeSlotPicker = ({
   );
 
   const clashIntervals =
-    potentiallyClashingBookings?.data
-      .map(appointmentToInterval)
-      .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
+    variant === 'range'
+      ? todaysBookedIntervals
+      : potentiallyClashingBookings?.data
+          .map(appointmentToInterval)
+          .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
