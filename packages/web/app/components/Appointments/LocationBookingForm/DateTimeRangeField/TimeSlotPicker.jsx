@@ -117,13 +117,13 @@ export const TimeSlotPicker = ({
       case 'range':
         void setFieldValue('startTime', newStartTime);
         void setFieldValue('endTime', newEndTime);
-        break;
+        return;
       case 'start':
         void setFieldValue('startTime', newStartTime);
-        break;
+        return;
       case 'end':
         void setFieldValue('endTime', newEndTime);
-        break;
+        return;
     }
   };
 
