@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const LocationBookingContext = createContext();
+const LocationBookingsContext = createContext(null);
 
-export const LocationBookingProvider = ({ children }) => {
+export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
     patientNameOrId: '',
     locationGroupIds: [],
@@ -11,10 +11,17 @@ export const LocationBookingProvider = ({ children }) => {
   });
 
   return (
-    <LocationBookingContext.Provider value={{ filters, setFilters }}>
+    <LocationBookingsContext.Provider value={{ filters, setFilters }}>
       {children}
-    </LocationBookingContext.Provider>
+    </LocationBookingsContext.Provider>
   );
 };
 
-export const useLocationBooking = () => useContext(LocationBookingContext);
+export const useLocationBookingsContext = () => {
+  const context = useContext(LocationBookingsContext);
+  if (!context)
+    throw new Error(
+      'useLocationBookingsContext has been called outside a LocationBookingsContextProvider',
+    );
+  return context;
+};
