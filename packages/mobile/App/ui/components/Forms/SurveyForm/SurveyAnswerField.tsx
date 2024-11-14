@@ -3,24 +3,17 @@ import React, { useEffect, useState } from 'react';
 import { StyledView } from '/styled/common';
 import { useFormikContext } from 'formik';
 import { useBackend } from '~/ui/hooks';
-import { Field } from '../FormField';
-import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
-import { FieldTypes } from '../../../helpers/fields';
-import { TextField } from '../../TextField/TextField';
+import { renderAnswer } from '~/ui/navigation/screens/programs/SurveyResponseDetailsScreen';
+import { Text } from 'react-native';
 
-export const SurveyAnswerField = ({
-  patient,
-  name,
-  config,
-  defaultText,
-}): JSX.Element => {
-  const [surveyResponseAnswer, setSurveyResponseAnswer] = useState<string>();
+export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
+  const [answer, setAnswer] = useState<any>('');
+  const [sourceQuestion, setSourceQuestion] = useState<any>();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
   useEffect(() => {
     (async (): Promise<void> => {
-      let displayAnswer;
       const answer = await models.SurveyResponseAnswer.getLatestAnswerForPatient(
         patient.id,
         config.source || config.Source,
@@ -32,31 +25,20 @@ export const SurveyAnswerField = ({
       if (answer) {
         const dataElement = await models.ProgramDataElement.findOne({
           where: { id: answer.dataElementId },
+          relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
         });
 
-        if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
-          displayAnswer = await getAutocompleteDisplayAnswer(
-            models,
-            answer.dataElementId,
-            answer.body,
-          );
-        }
+        setSourceQuestion(dataElement.surveyScreenComponent);
       }
-
-      // Set readable display answer
-      setSurveyResponseAnswer(displayAnswer || answer?.body || '');
+      if (answer?.body) {
+        setAnswer(answer?.body);
+      }
     })();
-  }, [patient.id, surveyResponseAnswer, name, config.source, config.Source]);
+  }, []);
 
   return (
-    <StyledView marginTop={10}>
-      <Field
-        component={TextField}
-        name={name}
-        label={defaultText}
-        value={surveyResponseAnswer || 'Answer not submitted'}
-        disabled
-      />
+    <StyledView alignItems='flex-start'>
+      {sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}
     </StyledView>
   );
 };
