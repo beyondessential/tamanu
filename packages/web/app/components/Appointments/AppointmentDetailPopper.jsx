@@ -23,6 +23,7 @@ import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constan
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { formatDateRange } from '../../utils/dateTime';
+import { PriorityHigh } from '@material-ui/icons';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
@@ -174,6 +175,34 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   />
 );
 
+const AppointmentTypeDisplay = ({ appointmentType, isHighPriority }) => (
+  <DetailsDisplay
+    label={
+      <TranslatedText stringId="scheduling.appointmentType.label" fallback="Appointment type" />
+    }
+    value={
+      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <TranslatedReferenceData
+          value={appointmentType.id}
+          fallback={appointmentType.name}
+          category="appointmentType"
+        />
+        {isHighPriority && (
+          <FlexRow sx={{ gap: '2px' }}>
+            <PriorityHigh
+              aria-label="High priority"
+              aria-hidden={undefined}
+              htmlColor={Colors.alert}
+              style={{ fontSize: 15 }}
+            />
+            <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+          </FlexRow>
+        )}
+      </FlexRow>
+    }
+  />
+);
+
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(id);
@@ -267,20 +296,9 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
       )}
       {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
       {appointmentType && (
-        <DetailsDisplay
-          label={
-            <TranslatedText
-              stringId="scheduling.appointmentType.label"
-              fallback="Appointment type"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              value={appointmentType.id}
-              fallback={appointmentType.name}
-              category="appointmentType"
-            />
-          }
+        <AppointmentTypeDisplay
+          appointmentType={appointmentType}
+          isHighPriority={appointment.isHighPriority}
         />
       )}
     </AppointmentDetailsContainer>
