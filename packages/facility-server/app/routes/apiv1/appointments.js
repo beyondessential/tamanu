@@ -49,7 +49,8 @@ appointments.put('/:id', simplePut('Appointment'));
 const searchableFields = [
   'startTime',
   'endTime',
-  'appointmentType',
+  'type',
+  'bookingTypeId',
   'status',
   'clinicianId',
   'locationId',
@@ -70,7 +71,6 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
-  appointmentType: Sequelize.col('appointmentType.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
 };
@@ -89,6 +89,8 @@ appointments.get(
         all = false,
         order = 'ASC',
         orderBy = 'startTime',
+        patientNameOrId,
+        includeCancelled = false,
         ...queries
       },
     } = req;
@@ -102,11 +104,35 @@ appointments.get(
     if (before) {
       startTimeQuery[Op.lte] = before;
     }
+
+    const patientNameOrIdQuery = patientNameOrId
+      ? {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn(
+                'concat',
+                Sequelize.col('patient.first_name'),
+                ' ',
+                Sequelize.col('patient.last_name'),
+              ),
+              {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            ),
+            {
+              '$patient.display_id$': {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            },
+          ],
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
       }
-      if (!(typeof queryValue === 'string')) {
+      if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
         return _filters;
       }
       let column = queryField;
@@ -114,21 +140,24 @@ appointments.get(
       if (queryField.includes('.')) {
         column = `$${queryField}$`;
       }
+      const filterCondition = Array.isArray(queryValue)
+        ? { [Op.in]: queryValue }
+        : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
 
       return {
         ..._filters,
-        [column]: {
-          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
-        },
+        [column]: filterCondition,
       };
     }, {});
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
         startTime: startTimeQuery,
+        ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
+        ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
       },
       include: [...Appointment.getListReferenceAssociations()],
