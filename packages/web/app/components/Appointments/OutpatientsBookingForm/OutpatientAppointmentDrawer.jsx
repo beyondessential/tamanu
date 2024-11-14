@@ -207,7 +207,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           name="isHighPriority"
           label={
             <IconLabel>
-              <TranslatedText stringId="general.highPriority.label" fallback="High priority" />{' '}
+              <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
               <HighPriorityIcon
                 aria-label="High priority"
                 aria-hidden={undefined}
