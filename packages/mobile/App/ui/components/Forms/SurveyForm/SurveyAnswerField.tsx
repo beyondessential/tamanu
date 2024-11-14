@@ -21,9 +21,6 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
 
       // Set the actual answer
       setFieldValue(name, answer?.body);
-      if (answer?.body) {
-        setAnswer(answer?.body);
-      }
 
       if (answer) {
         const dataElement = await models.ProgramDataElement.findOne({
@@ -32,6 +29,9 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
         });
 
         setSourceQuestion(dataElement.surveyScreenComponent);
+      }
+      if (answer?.body) {
+        setAnswer(answer?.body);
       }
     })();
   }, []);
