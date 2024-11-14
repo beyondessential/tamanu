@@ -121,10 +121,10 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 const Tag = styled(FlexRow)`
-  gap: 2px;
+  gap: 0.125rem;
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.75rem;
+  inset-inline-end: 0.75rem;
+  inset-block-end: 0.75rem;
 `;
 
 const ControlsRow = ({ onClose, onCancel, onEdit }) => {
