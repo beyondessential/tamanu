@@ -56,3 +56,7 @@ vaccination.
 {% docs fhir__immunizations__protocol_applied %}
 Label of the vaccine dose given.
 {% enddocs %}
+
+{% docs fhir__immunizations__is_live %}
+TODO
+{% enddocs %}

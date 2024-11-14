@@ -38,6 +38,10 @@ TODO
 TODO
 {% enddocs %}
 
+{% docs appointments__type_legacy %}
+TODO
+{% enddocs %}
+
 {% docs appointments__status %}
 The current status of the appointment record.
 {% enddocs %}
@@ -51,5 +55,13 @@ Legacy format of the end time kept for safety purposes.
 {% enddocs %}
 
 {% docs appointments__location_group_id %}
+TODO
+{% enddocs %}
+
+{% docs appointments__booking_type_id %}
+TODO
+{% enddocs %}
+
+{% docs appointments__appointment_type_id %}
 TODO
 {% enddocs %}
