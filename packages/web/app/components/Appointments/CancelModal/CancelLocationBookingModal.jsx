@@ -5,10 +5,10 @@ import { toast } from 'react-toastify';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 
 import { useLocationBookingMutation } from '../../../api/mutations';
+import { formatDateTimeRange } from '../../../utils/dateTime';
 import { BaseModal } from '../../BaseModal';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { formatDateTimeRange } from '../../utils/dateTime';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -57,7 +57,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={location?.name ?? '—'}
+              fallback={location?.name ?? '—'} // em dash
               value={location?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION}
             />
