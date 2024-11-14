@@ -12,6 +12,7 @@ import {
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
+import { ENCOUNTER_TYPE_LABELS } from './encounters';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -60,6 +61,7 @@ export const registeredEnums = {
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -106,6 +108,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
+  ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',

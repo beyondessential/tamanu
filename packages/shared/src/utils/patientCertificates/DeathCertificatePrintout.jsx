@@ -193,14 +193,14 @@ const causeOfDeathAccessor = ({ causes }) => {
 };
 
 // Death certificate has a slightly different DOB format to other certificates so needs its own accessor
-const getDOB = ({ dateOfBirth }, getLocalisation) =>
+const getDob = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
-const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
-  return `${getDateOfDeath(patientData, getLocalisation)} ${getTimeOfDeath(
-    patientData,
+const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
+  return `${getDateOfDeath(patientData, {
     getLocalisation,
-  )}`;
+    getTranslation,
+  })} ${getTimeOfDeath(patientData, { getLocalisation, getTranslation })}`;
 };
 
 const PATIENT_DETAIL_FIELDS = {
@@ -212,7 +212,7 @@ const PATIENT_DETAIL_FIELDS = {
   ],
   rightCol: [
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
+    { key: 'dateOfBirth', label: 'DOB', accessor: getDob },
     { key: 'ethnicity', label: 'Ethnicity', accessor: getEthnicity },
   ],
 };

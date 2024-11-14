@@ -218,7 +218,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
       <InfoCardItem
         label={
           <TranslatedText
-            stringId="encounter.summary.reason.label"
+            stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
           />
         }
