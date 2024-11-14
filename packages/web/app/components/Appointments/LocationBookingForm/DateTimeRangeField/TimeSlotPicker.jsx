@@ -123,7 +123,7 @@ export const TimeSlotPicker = ({
       enabled:
         isTodaysBookingsQueryDualPurpose && // For non-overnight bookings, piggyback off `todaysBookings`
         !!values.locationId &&
-        dateIsValid &&
+        dateIsValid,
     },
   );
 
