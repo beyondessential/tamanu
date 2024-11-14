@@ -208,6 +208,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     location,
     bookingType,
     appointmentType,
+    isHighPriority,
   } = appointment;
   return (
     <AppointmentDetailsContainer>
@@ -236,6 +237,8 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
+
+      {/* These will only show up on location booking pop outs */}
       {location && (
         <DetailsDisplay
           label={
@@ -265,6 +268,14 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
+      {isOvernight && (
+        <Tag>
+          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
+          <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
+        </Tag>
+      )}
+
+      {/* These will only show up on outpatient appointment pop outs */}
       {appointmentType && (
         <DetailsDisplay
           label={
@@ -282,13 +293,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {isOvernight && (
-        <Tag>
-          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
-          <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
-        </Tag>
-      )}
-      {appointment.isHighPriority && (
+      {isHighPriority && (
         <Tag>
           <HighPriorityIcon
             aria-label="High priority"
