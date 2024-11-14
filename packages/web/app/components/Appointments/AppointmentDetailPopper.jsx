@@ -23,7 +23,7 @@ import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constan
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { formatDateRange } from '../../utils/dateTime';
-import { PriorityHigh } from '@material-ui/icons';
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
@@ -189,11 +189,11 @@ const AppointmentTypeDisplay = ({ appointmentType, isHighPriority }) => (
         />
         {isHighPriority && (
           <FlexRow sx={{ gap: '2px' }}>
-            <PriorityHigh
+            <HighPriorityIcon
               aria-label="High priority"
               aria-hidden={undefined}
               htmlColor={Colors.alert}
-              style={{ fontSize: 15 }}
+              sx={{ fontSize: 15 }}
             />
             <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
           </FlexRow>
