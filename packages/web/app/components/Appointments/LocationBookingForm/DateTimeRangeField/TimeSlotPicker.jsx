@@ -3,6 +3,7 @@ import {
   addMilliseconds as addMs,
   areIntervalsOverlapping,
   endOfDay,
+  isSameDay,
   isValid,
   max,
   min,
@@ -61,7 +62,7 @@ export const TimeSlotPicker = ({
   ...props
 }) => {
   const {
-    initialValues: { startTime: initialStart, endTime: initialEnd },
+    initialValues: { overnight, startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
   } = useFormikContext();
@@ -84,13 +85,19 @@ export const TimeSlotPicker = ({
    * Array of integers representing the selected toggle buttons. Each time slot is represented by
    * the integer form of its start time.
    */
-  const [selectedToggles, setSelectedToggles] = useState(
-    initialTimeRange
-      ? timeSlots
-          .filter(s => areIntervalsOverlapping(s, initialTimeRange))
-          .map(({ start }) => start.valueOf())
-      : [],
-  );
+  const [selectedToggles, setSelectedToggles] = useState(() => {
+    if (!initialTimeRange) return [];
+
+    // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
+    // component (and vice versa)
+    const isModifyingOvernightBooking = !isSameDay(initialStart, initialEnd);
+    const isOvernightVariant = variant !== 'range';
+    if (isModifyingOvernightBooking !== isOvernightVariant) return [];
+
+    return timeSlots
+      .filter(s => areIntervalsOverlapping(s, initialTimeRange))
+      .map(({ start }) => start.valueOf());
+  });
   const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
@@ -289,7 +296,6 @@ export const TimeSlotPicker = ({
           };
           break;
       }
-
 
       return !bookedIntervals.some(bookedInterval =>
         areIntervalsOverlapping(targetSelection, bookedInterval),
