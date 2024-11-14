@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import styled from '@mui/material/styled';
+import styled from '@mui/system/styled';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { useFormikContext } from 'formik';

@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import Box from '@mui/material/Box';
 import ListItemText from '@mui/material/ListItemText';
-import styled from '@mui/material/styled';
+import styled from '@mui/system/styled';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Search } from '@mui/icons-material';
