@@ -11,6 +11,8 @@ import {
   FHIR_REQUEST_PRIORITY,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_STATUS,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
+  IMAGING_TABLE_STATUS_GROUPINGS,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -695,6 +697,359 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ],
       });
       expect(response).toHaveSucceeded();
+    });
+  });
+
+  describe('isLive', () => {
+    describe('Imaging Requests', () => {
+      const activeRequestStatuses = IMAGING_TABLE_STATUS_GROUPINGS.ACTIVE;
+      const inActiveRequestStatuses = Object.values(IMAGING_REQUEST_STATUS_TYPES).filter(
+        status => !activeRequestStatuses.includes(status),
+      );
+
+      it('treats all active imaging requests as live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        for (const status of activeRequestStatuses) {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationGroupId: resources.locationGroup.id,
+              status,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              imagingType: 'xRay',
+            }),
+          );
+
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(true);
+        }
+      });
+
+      it('treats all inactive imaging requests as not live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        for (const status of inActiveRequestStatuses) {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationGroupId: resources.locationGroup.id,
+              status,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              imagingType: 'xRay',
+            }),
+          );
+
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(false);
+        }
+      });
+
+      it('remateralises live requests', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          activeRequestStatuses[Math.floor(Math.random() * activeRequestStatuses.length)];
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        ir.set({ requestedDate: updatedRequestedDate });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+      });
+
+      it('does not remateralise requests that are not live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          inActiveRequestStatuses[Math.floor(Math.random() * inActiveRequestStatuses.length)];
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        ir.set({ requestedDate: updatedRequestedDate });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+      });
+
+      it('should force remateralise requests that are not live if their resulting FHIR status changes', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialStatus = IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status: initialStatus,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('completed');
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        const updatedStatus = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+        ir.set({ requestedDate: updatedRequestedDate, status: updatedStatus });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
+
+      it('should not force remateralise requests that are not live if their resulting FHIR status does not change', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialStatus = IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status: initialStatus,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('revoked');
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        const updatedStatus = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+        ir.set({ requestedDate: updatedRequestedDate, status: updatedStatus });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
+    });
+
+    describe('Lab Requests', () => {
+      const activeRequestStatuses = LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE;
+      const inActiveRequestStatuses = Object.values(LAB_REQUEST_STATUSES).filter(
+        status => !activeRequestStatuses.includes(status),
+      );
+
+      it('treats all active lab requests as live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const status of activeRequestStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            true,
+            {
+              status,
+            },
+          );
+
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(true);
+        }
+      });
+
+      it('treats all inactive imaging requests as not live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const status of inActiveRequestStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            true,
+            {
+              status,
+            },
+          );
+
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(false);
+        }
+      });
+
+      it('remateralises live requests', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          activeRequestStatuses[Math.floor(Math.random() * activeRequestStatuses.length)];
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({ requestedDate: updatedRequestedDate });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+      });
+
+      it('does not remateralise requests that are not live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          inActiveRequestStatuses[Math.floor(Math.random() * inActiveRequestStatuses.length)];
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({ requestedDate: updatedRequestedDate });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+      });
+
+      it('should force remateralise requests that are not live if their resulting FHIR status changes', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const intitialStatus = LAB_REQUEST_STATUSES.PUBLISHED;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status: intitialStatus,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({
+          requestedDate: updatedRequestedDate,
+          status: LAB_REQUEST_STATUSES.CANCELLED,
+        });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
     });
   });
 

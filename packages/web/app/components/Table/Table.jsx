@@ -192,12 +192,14 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className }) => (
+const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
   <StyledTableRow
     className={className}
     onClick={onClick}
     $rowStyle={rowStyle}
     $lazyLoading={lazyLoading}
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
   >
     {children}
   </StyledTableRow>
@@ -250,6 +252,8 @@ const Row = React.memo(
     refreshTable,
     cellStyle,
     onClickRow,
+    onMouseEnter,
+    onMouseLeave,
     getRowTooltip,
   }) => {
     const cells = columns.map(
@@ -284,6 +288,8 @@ const Row = React.memo(
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
         lazyLoading={lazyLoading}
+        onMouseEnter={onMouseEnter && (() => onMouseEnter(data))}
+        onMouseLeave={onMouseLeave && (() => onMouseLeave(data))}
         rowTooltip={getRowTooltip && getRowTooltip(data)}
       >
         {cells}
@@ -412,6 +418,8 @@ class TableComponent extends React.Component {
       cellStyle,
       statusCellStyle,
       onClickRow,
+      onMouseEnterRow,
+      onMouseLeaveRow,
       getRowTooltip,
     } = this.props;
 
@@ -443,6 +451,8 @@ class TableComponent extends React.Component {
                 lazyLoading={lazyLoading}
                 cellStyle={cellStyle}
                 onClickRow={onClickRow}
+                onMouseEnter={onMouseEnterRow}
+                onMouseLeave={onMouseLeaveRow}
                 getRowTooltip={getRowTooltip}
               />
             );
@@ -583,6 +593,8 @@ TableComponent.propTypes = {
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
   onRowClick: PropTypes.func,
+  onMouseEnterRow: PropTypes.func,
+  onMouseLeaveRow: PropTypes.func,
   cellOnChange: PropTypes.func,
   headerOnChange: PropTypes.func,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
@@ -615,6 +627,8 @@ TableComponent.defaultProps = {
   page: null,
   elevated: true,
   onRowClick: null,
+  onMouseEnterRow: null,
+  onMouseLeaveRow: null,
   cellOnChange: null,
   headerOnChange: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
