@@ -128,7 +128,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
 
   const getActions = appointment => {
     // eslint-disable-next-line no-unused-vars
-    const { startTime, endTime, ...partialAppointment } = appointment;
+    const { id, startTime, endTime, ...partialAppointment } = appointment;
     return [
       {
         label: (
