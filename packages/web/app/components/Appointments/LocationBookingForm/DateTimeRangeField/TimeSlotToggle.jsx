@@ -105,6 +105,8 @@ const BookedToggle = styled(Toggle).attrs({
 `;
 
 const tooltipStyles = css`
+  cursor: not-allowed;
+
   // Workaround: ThemedTooltip passes its classes onto the tooltip popper
   &:not(.MuiTooltip-popper) {
     display: grid;
@@ -146,7 +148,6 @@ const ConflictTooltip = styled(ConditionalTooltip).attrs({
   ),
 })`
   ${tooltipStyles};
-  cursor: not-allowed;
   max-inline-size: 13em;
   text-wrap: balance;
 `;
