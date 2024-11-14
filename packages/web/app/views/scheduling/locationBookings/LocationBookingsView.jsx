@@ -64,7 +64,6 @@ export const LocationBookingsView = () => {
 
   const handleFilterChange = useCallback(
     values => {
-      console.log('values', values);
       setFilters(values);
       // eslint-disable-next-line no-unused-vars
       const { patientNameOrId, ...locationBookingFilters } = values;
