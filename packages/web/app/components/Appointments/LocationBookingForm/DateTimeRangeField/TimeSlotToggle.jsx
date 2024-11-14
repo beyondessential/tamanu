@@ -60,7 +60,7 @@ const Toggle = styled(ToggleButton)`
     &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
       color: ${Colors.midText};
-      background-color: ${Colors.transparent};
+      background-color: transparent;
       cursor: not-allowed;
     }
 
