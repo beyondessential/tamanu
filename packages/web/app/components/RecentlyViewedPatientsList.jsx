@@ -55,6 +55,12 @@ const CardComponent = styled.div`
   &:first-child {
     margin-left: 0;
   }
+  ${p =>
+    p.$inDashboard
+      ? `border: 1px solid ${Colors.outline};
+      height: 100px;
+    `
+      : ''}
 `;
 
 const CardComponentContent = styled.div`
@@ -72,11 +78,20 @@ const CardListContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  ${p =>
+    p.$inDashboard
+      ? `background-color: ${Colors.white};
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 1px solid ${Colors.outline};
+    padding-bottom: 10px;`
+      : ''}
 `;
 
 const CardTitle = styled(Typography)`
   font-weight: bold;
-  font-size: 14px;
+  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
+  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
   color: ${getColorForEncounter};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -84,7 +99,8 @@ const CardTitle = styled(Typography)`
 `;
 
 const CardText = styled(Typography)`
-  font-size: 14px;
+  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
+  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
 `;
 
 const CapitalizedCardText = styled(CardText)`
@@ -130,23 +146,32 @@ const MarginDiv = styled.div`
   width: 30px;
 `;
 
+const SectionTitle = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  padding-left: 24px;
+  flex: 0 0 82px;
+  align-self: flex-start;
+  padding-top: 12px;
+`;
+
 const PATIENTS_PER_PAGE = 6;
 
-const Card = ({ patient, handleClick }) => {
+const Card = ({ patient, handleClick, inDashboard }) => {
   return (
-    <CardComponent onClick={() => handleClick(patient.id)}>
+    <CardComponent onClick={() => handleClick(patient.id)} $inDashboard={inDashboard}>
       <EncounterTypeIndicator $encounterType={patient.encounter_type} />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
-          <CardTitle $encounterType={patient.encounter_type}>
+          <CardTitle $encounterType={patient.encounter_type} $inDashboard={inDashboard}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>
-        <CardText>{patient.displayId}</CardText>
-        <CapitalizedCardText>
+        <CardText $inDashboard={inDashboard}>{patient.displayId}</CardText>
+        <CapitalizedCardText $inDashboard={inDashboard}>
           <TranslatedSex sex={patient.sex} />
         </CapitalizedCardText>
-        <CardText>
+        <CardText $inDashboard={inDashboard}>
           <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />
           : <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
@@ -155,7 +180,7 @@ const Card = ({ patient, handleClick }) => {
   );
 };
 
-export const RecentlyViewedPatientsList = ({ encounterType }) => {
+export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -186,13 +211,28 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   return (
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
-        <SectionLabel>
-          <TranslatedText stringId="patientList.recentlyViewed.title" fallback="Recently viewed" />
-        </SectionLabel>
-        {isExpanded ? <ExpandLess /> : <ExpandMore />}
+        {!inDashboard && (
+          <>
+            <SectionLabel>
+              <TranslatedText
+                stringId="patientList.recentlyViewed.title"
+                fallback="Recently viewed"
+              />
+            </SectionLabel>
+            {isExpanded ? <ExpandLess /> : <ExpandMore />}
+          </>
+        )}
       </ContainerTitle>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <CardListContainer>
+        <CardListContainer $inDashboard={inDashboard}>
+          {inDashboard && (
+            <SectionTitle>
+              <TranslatedText
+                stringId="patientList.recentlyViewed.title"
+                fallback="Recently viewed"
+              />
+            </SectionTitle>
+          )}
           {pageIndex > 0 ? (
             <LeftArrowButton onClick={() => changePage(-1)}>
               <NavigateBefore />
@@ -204,7 +244,12 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
               .map(patient => (
-                <Card key={patient.id} patient={patient} handleClick={cardOnClick} />
+                <Card
+                  key={patient.id}
+                  patient={patient}
+                  handleClick={cardOnClick}
+                  inDashboard={inDashboard}
+                />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (

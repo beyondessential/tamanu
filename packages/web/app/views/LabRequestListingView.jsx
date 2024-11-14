@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_TABLE_STATUS_GROUPINGS } from '@tamanu/constants';
 import {
   ContentPane,
   LabRequestsSearchBar,
@@ -37,7 +37,7 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
 export const LabRequestListingView = () => (
   <PageContainer>
     <TopBar title="Active lab requests" />
-    <LabRequestListing />
+    <LabRequestListing statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE} />
   </PageContainer>
 );
 
@@ -45,7 +45,7 @@ export const PublishedLabRequestListingView = () => (
   <PageContainer>
     <TopBar title="Published lab requests" />
     <LabRequestListing
-      statuses={[LAB_REQUEST_STATUSES.PUBLISHED, LAB_REQUEST_STATUSES.INVALIDATED]}
+      statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
       searchParamKey={LabRequestSearchParamKeys.Published}
     />
   </PageContainer>
