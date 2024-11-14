@@ -16,6 +16,26 @@ import {
 import { ThemedTooltip } from '../Tooltip';
 
 const Wrapper = styled.div`
+  background-color: var(--bg-lighter);
+  border-color: transparent;
+  border-radius: 0.3125rem;
+  border-style: solid;
+  border-width: max(0.0625rem, 1px);
+  color: ${Colors.darkestText};
+  cursor: pointer;
+  display: grid;
+  gap: 0.3125rem;
+  grid-template-columns: 1fr auto;
+  padding-block: 0.5rem;
+  padding-inline: 0.3125rem;
+  text-decoration-thickness: from-font;
+  touch-action: manipulation;
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  &:hover {
+    background-color: var(--bg-darker);
+  }
+
   ${({ $color = Colors.blue, $selected }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
@@ -26,33 +46,12 @@ const Wrapper = styled.div`
         --bg-darker: ${$color}33;
       }
 
-      border-color: transparent;
-      border-style: solid;
-      border-width: max(0.0625rem, 1px);
-
       ${$selected &&
         css`
           background-color: var(--bg-darker);
           border-color: ${$color};
         `}
     `}
-
-  background-color: var(--bg-lighter);
-  border-radius: 0.3125rem;
-  color: ${Colors.darkestText};
-  cursor: pointer;
-  display: grid;
-  gap: 0.3125rem;
-  grid-template-columns: 1fr auto;
-  padding-block: 0.5rem;
-  padding-inline: 0.3125rem;
-  text-decoration-thickness: from-font;
-  transition: background-color 150ms ease;
-  touch-action: manipulation;
-
-  &:hover {
-    background-color: var(--bg-darker);
-  }
 `;
 
 const Label = styled.span`
