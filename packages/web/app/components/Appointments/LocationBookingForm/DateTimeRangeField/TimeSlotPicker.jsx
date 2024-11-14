@@ -150,7 +150,6 @@ export const TimeSlotPicker = ({
    * guaranteed to have its elements in natural order.
    */
   const handleChange = (event, newTogglesUnsorted) => {
-    console.log('%cHandling change', 'font-weight: bold; color: purple;');
     const newToggles = newTogglesUnsorted.toSorted();
 
     switch (variant) {
