@@ -17,7 +17,7 @@ export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChann
   useEffect(() => {
     const handleDataUpdatedEvent = debounce(() => {
       queryClient.invalidateQueries(queryKey);
-    }, 200);
+    }, 1000);
     if (!socket) return;
     socket.on(updateDetectionChannel, handleDataUpdatedEvent);
     return () => socket.off(updateDetectionChannel, handleDataUpdatedEvent);
