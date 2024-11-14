@@ -98,7 +98,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar initialFilters={filters} onFilterChange={handleFilterChange} />
+        <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText
