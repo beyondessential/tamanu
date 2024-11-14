@@ -289,13 +289,13 @@ export const TimeSlotPicker = ({
           break;
         case 'start':
           targetSelection = {
-            end: endOfDay(date),
             start: timeSlot.start,
+            end: max([values.endTime, endOfDay(date)]),
           };
           break;
         case 'end':
           targetSelection = {
-            start: values.startTime,
+            start: min([values.startTime, startOfDay(date)]),
             end: timeSlot.end,
           };
           break;
