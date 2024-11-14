@@ -2,6 +2,11 @@ import { addMinutes, differenceInMinutes, isValid, isWithinInterval, parse } fro
 import { isEqual } from 'lodash';
 import ms from 'ms';
 
+export const appointmentToInterval = appointment => ({
+  start: new Date(appointment.startTime),
+  end: new Date(appointment.endTime),
+});
+
 /**
  * @param {{start: Date, end: Date}} timeSlot
  * @param {{start: Date, end: Date} | null} range

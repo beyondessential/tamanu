@@ -17,14 +17,13 @@ import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import {
+  appointmentToInterval,
   calculateTimeSlots,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
@@ -101,14 +100,34 @@ export const TimeSlotPicker = ({
   const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
-  const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
+
+  const {
+    data: todaysBookings,
+    isFetching: isFetchingTodaysBookings,
+    isFetched: isFetchedTodaysBookings,
+  } = useAppointmentsQuery(
     {
-      after: dateIsValid ? toDateTimeString(startOfDay(date)) : null,
-      before: dateIsValid ? toDateTimeString(endOfDay(date)) : null,
+      after: dateIsValid ? startOfDay(date) : null,
+      before: dateIsValid ? endOfDay(date) : null,
       all: true,
       locationId: values.locationId,
     },
     { enabled: dateIsValid && !!values.locationId },
+  );
+
+  const { data: potentiallyClashingBookings } = useAppointmentsQuery(
+    {
+      after: isValid(values.startTime) ? values.startTime : null,
+      before: dateIsValid ? endOfDay(date) : null,
+      all: true,
+      locationId: values.locationId,
+    },
+    {
+      enabled:
+        variant !== 'range' && // For non-overnight bookings, piggyback off `todaysBookings` and save the API call
+        dateIsValid &&
+        !!values.locationId,
+    },
   );
 
   const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
@@ -255,17 +274,18 @@ export const TimeSlotPicker = ({
     }
   };
 
-  const bookedIntervals = useMemo(() => {
-    if (!isFetched) return [];
-    return (
-      existingLocationBookings?.data
-        .map(booking => ({
-          start: new Date(booking.startTime),
-          end: new Date(booking.endTime),
-        }))
-        .filter(interval => !isEqual(interval, initialTimeRange)) ?? []
-    ); // Ignore the booking currently being modified
-  }, [existingLocationBookings?.data, initialTimeRange, isFetched]);
+  const todaysBookedIntervals = useMemo(
+    () =>
+      todaysBookings?.data
+        .map(appointmentToInterval)
+        .filter(interval => !isEqual(interval, initialTimeRange)) ?? [], // Ignore the booking currently being modified
+    [todaysBookings?.data, initialTimeRange],
+  );
+
+  const clashIntervals =
+    potentiallyClashingBookings?.data
+      .map(appointmentToInterval)
+      .filter(interval => !isEqual(interval, initialTimeRange)) ?? []; // Ignore the booking currently being modified
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
@@ -296,22 +316,20 @@ export const TimeSlotPicker = ({
           break;
       }
 
-      return !bookedIntervals.some(bookedInterval =>
-        areIntervalsOverlapping(targetSelection, bookedInterval),
-      );
+      return !clashIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
-    [bookedIntervals, date, values.startTime, values.endTime, variant],
+    [clashIntervals, date, values.startTime, values.endTime, variant],
   );
 
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
-        {isFetching ? (
+        {isFetchingTodaysBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
             const isBooked =
-              bookedIntervals.some(bookedInterval =>
+              todaysBookedIntervals.some(bookedInterval =>
                 areIntervalsOverlapping(timeSlot, bookedInterval),
               ) ?? false;
 
