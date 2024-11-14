@@ -7,15 +7,17 @@ import styled, { css } from 'styled-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
+import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
+import { ThemedTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
 } from './appointmentStatusIndicators';
-import { ThemedTooltip } from '../Tooltip';
 
-const Wrapper = styled.div`
+const Tile = styled(UnstyledHtmlButton)`
+  align-items: center;
   background-color: var(--bg-lighter);
   border-color: transparent;
   border-radius: 0.3125rem;
@@ -28,8 +30,6 @@ const Wrapper = styled.div`
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.3125rem;
-  text-decoration-thickness: from-font;
-  touch-action: manipulation;
   transition: background-color 150ms ease, border-color 150ms ease;
 
   &:hover {
@@ -103,10 +103,9 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
   return (
     <>
       <ThemedTooltip title={tileText}>
-        <Wrapper
+        <Tile
           $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
           $selected={open}
-          tabIndex={0}
           ref={ref}
           onClick={() => setOpen(true)}
           {...props}
@@ -133,7 +132,7 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
             )}
             <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
           </IconGroup>
-        </Wrapper>
+        </Tile>
       </ThemedTooltip>
       <AppointmentDetailPopper
         open={open}
