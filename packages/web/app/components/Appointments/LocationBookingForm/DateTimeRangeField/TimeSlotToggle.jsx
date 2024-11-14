@@ -105,9 +105,12 @@ const BookedToggle = styled(Toggle).attrs({
 `;
 
 const tooltipStyles = css`
-  cursor: not-allowed;
+  &:has(> :is(:disabled, [aria-disabled='true'], .${toggleButtonGroupClasses.disabled})) {
+    cursor: not-allowed;
+  }
 
-  // Workaround: ThemedTooltip passes its classes onto the tooltip popper
+  // Prevent tooltip’s div from affecting interpretation of justify-self: auto on children.
+  // :not() clause is a workaround: ThemedTooltip passes its classes onto the tooltip popper
   &:not(.MuiTooltip-popper) {
     display: grid;
     grid-template-columns: subgrid;
