@@ -90,7 +90,7 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useAppointmentMutation(
+  const { mutateAsync: mutateAppointment } = useAppointmentMutation(
     { isEdit: true },
     {
       onSuccess: () => {
@@ -121,7 +121,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
       bottomRowContent={
         <BottomModalContent
           cancelBooking={() =>
-            cancelBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
+            mutateAppointment({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
           }
           onClose={onClose}
         />
@@ -132,7 +132,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
       <BodyContainer>
         <TranslatedText
           stringId="locationBooking.modal.cancel.text"
-          fallback="Are you sure you would like to cancel the below location booking?"
+          fallback="Are you sure you would like to cancel the below appointment?"
         />
         <AppointmentDetailsDisplay appointment={appointment} />
       </BodyContainer>
