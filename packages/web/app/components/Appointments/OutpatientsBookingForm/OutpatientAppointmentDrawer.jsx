@@ -34,6 +34,11 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
+const IconLabel = styled.div`
+  display: flex;
+  align-items: center;
+`
+
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -201,15 +206,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         <Field
           name="isHighPriority"
           label={
-            <>
+            <IconLabel>
               <TranslatedText stringId="general.highPriority.label" fallback="High priority" />{' '}
               <HighPriorityIcon
                 aria-label="High priority"
                 aria-hidden={undefined}
                 htmlColor={Colors.alert}
-                style={{ fontSize: 15 }}
+                style={{ fontSize: 18 }}
               />
-            </>
+            </IconLabel>
           }
           component={CheckField}
         />
