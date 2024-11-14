@@ -126,7 +126,7 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: 'Survey is misconfigured: Question config did not specify a valid source',
+          message: 'no model for componentConfig {}',
         },
       });
     });
@@ -147,7 +147,7 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: 'Survey is misconfigured: Question config did not specify a valid source',
+          message: "no model for componentConfig {\"source\":\"Frobnizzle\"}",
         },
       });
     });

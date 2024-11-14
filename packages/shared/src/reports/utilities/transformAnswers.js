@@ -31,7 +31,19 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
 
   const result = await model.findByPk(answer);
   if (!result) {
-    return answer;
+    if (answer === '') {
+      return answer;
+    }
+
+    if (componentConfig.source === 'ReferenceData') {
+      throw new Error(
+        `Selected answer ${componentConfig.source}[${answer}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
+      );
+    }
+
+    throw new Error(
+      `Selected answer ${componentConfig.source}[${answer}] not found`,
+    );
   }
 
   return getDisplayNameForModel(componentConfig.source, result);
