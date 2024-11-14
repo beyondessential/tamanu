@@ -14,8 +14,8 @@ jest.mock('./utils', () => ({
   sleepAsync: jest.fn(),
 }));
 
-jest.mock('react-native-device-info', () => ({
-  getUniqueId: jest.fn().mockReturnValue('test-device-id'),
+jest.mock('uuid', () => ({
+  v4: jest.fn().mockReturnValue('test-device-id'),
 }));
 
 jest.mock('/root/package.json', () => ({

@@ -7,6 +7,11 @@ export * from '@tamanu/shared/utils/date';
 
 export const formatDateRange = (start, end) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
+
+  if (!end) {
+    return formattedStart;
+  }
+
   const formattedEnd = getDateDisplay(end, {
     showDate: !isSameDay(parseISO(start), parseISO(end)),
     showTime: true,

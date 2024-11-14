@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
+import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -80,6 +81,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -87,6 +89,11 @@ export const OutpatientAppointmentsView = () => {
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
+  };
+
+  const handleOpenCancelModal = appointment => {
+    setSelectedAppointment(appointment);
+    setIsCancelModalOpen(true);
   };
 
   const handleCloseDrawer = () => setDrawerOpen(false);
@@ -113,6 +120,11 @@ export const OutpatientAppointmentsView = () => {
         onClose={handleCloseDrawer}
         open={drawerOpen}
       />
+      <CancelAppointmentModal
+        appointment={selectedAppointment}
+        open={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+      />
       <AppointmentTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
@@ -128,6 +140,7 @@ export const OutpatientAppointmentsView = () => {
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
           <OutpatientBookingCalendar
+            onCancel={handleOpenCancelModal}
             onOpenDrawer={handleOpenDrawer}
             groupBy={groupBy}
             selectedDate={selectedDate}
