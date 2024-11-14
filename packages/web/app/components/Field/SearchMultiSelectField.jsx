@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import styled from '@mui/system/styled';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Search } from '@mui/icons-material';
+import Search from '@mui/icons-material/Search'
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
