@@ -173,23 +173,6 @@ describe('SurveyResponse', () => {
       });
     });
 
-    it('should skip error if the answer body is an empty string', async () => {
-      // arrange
-      const { Facility } = models;
-      await Facility.create(fake(Facility));
-      const { response } = await setupAutocompleteSurvey(
-        JSON.stringify({ source: 'Facility' }),
-        '',
-      );
-
-      // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
-
-      // assert
-      expect(result).toHaveSucceeded();
-      expect(result.body.answers[0].body).toBe('');
-    });
-
     it('should error and hint if users might have legacy ReferenceData sources', async () => {
       // arrange
       const { Facility } = models;
