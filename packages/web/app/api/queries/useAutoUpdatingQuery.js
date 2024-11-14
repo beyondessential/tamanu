@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { debounce } from 'lodash';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
@@ -14,9 +15,9 @@ export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChann
   const queryKey = useMemo(() => [endpoint, queryParams], [endpoint, queryParams]);
 
   useEffect(() => {
-    const handleDataUpdatedEvent = () => {
+    const handleDataUpdatedEvent = debounce(() => {
       queryClient.invalidateQueries(queryKey);
-    };
+    }, 1000);
     if (!socket) return;
     socket.on(updateDetectionChannel, handleDataUpdatedEvent);
     return () => socket.off(updateDetectionChannel, handleDataUpdatedEvent);
