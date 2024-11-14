@@ -26,14 +26,14 @@ const Wrapper = styled.div`
         --bg-darker: ${$color}33;
       }
 
-      border-color: ${$color};
-
-      border: 1px solid transparent;
+      border-color: transparent;
+      border-style: solid;
+      border-width: max(0.0625rem, 1px);
 
       ${$selected &&
         css`
-          border: 1px solid ${$color};
           background-color: var(--bg-darker);
+          border-color: ${$color};
         `}
     `}
 
