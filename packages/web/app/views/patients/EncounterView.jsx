@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
@@ -32,7 +33,7 @@ import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
-import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
+import { isEqual } from 'lodash';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -166,14 +167,16 @@ export const EncounterView = () => {
 
   useEffect(() => {
     if (!userPreferences?.encounterTabOrders) return;
+    if (!currentTab) {
+      setCurrentTab(visibleTabs[0].key);
+    }
     const newTabs = visibleTabs.sort((a, b) => {
       const aOrder = userPreferences?.encounterTabOrders[a.key] || 0;
       const bOrder = userPreferences?.encounterTabOrders[b.key] || 0;
       return aOrder - bOrder;
     });
-    setTabs([...newTabs]);
-    if (!currentTab) {
-      setCurrentTab(visibleTabs[0].key);
+    if (!isEqual(newTabs, tabs)) {
+      setTabs([...newTabs]);
     }
   }, [userPreferences?.encounterTabOrders]);
 
@@ -198,7 +201,7 @@ export const EncounterView = () => {
 
     const currentVisibleTabs = visibleTabs;
     const newTabs = reorder(currentVisibleTabs, result.source.index, result.destination.index);
-    setTabs(newTabs);
+    setTabs([...newTabs]);
 
     const newTabOrders = newTabs.reduce((curr, tab, index) => {
       curr[tab.key] = index + 1;

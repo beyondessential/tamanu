@@ -20,7 +20,6 @@ import {
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
-import { useUserPreferencesQuery } from './api/queries/useUserPreferencesQuery';
 
 const AppContainer = styled.div`
   display: flex;
@@ -42,8 +41,6 @@ export function App({ sidebar, children }) {
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
-  // prefetch userPreferences
-  useUserPreferencesQuery({ enabled: isUserLoggedIn });
 
   const browser = Bowser.getParser(window.navigator.userAgent);
   const isChrome = browser.satisfies({
