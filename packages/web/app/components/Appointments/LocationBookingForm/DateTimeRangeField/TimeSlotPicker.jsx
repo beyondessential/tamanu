@@ -135,6 +135,7 @@ export const TimeSlotPicker = ({
    * guaranteed to have its elements in natural order.
    */
   const handleChange = (event, newTogglesUnsorted) => {
+    console.log('%cHandling change', 'font-weight: bold; color: purple;');
     const newToggles = newTogglesUnsorted.toSorted();
 
     switch (variant) {
@@ -269,13 +270,11 @@ export const TimeSlotPicker = ({
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
-      // If beginning a fresh selection, discontinuity is impossible
-      if (!values.startTime) return true;
-
       let targetSelection;
       switch (variant) {
         case 'range':
-          if (!values.endTime) return true;
+          // If beginning a fresh selection, discontinuity is impossible
+          if (!values.startTime || !values.endTime) return true;
 
           // The would-be time range if this time slot were to be selected
           targetSelection = {
