@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
+import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
@@ -149,7 +149,7 @@ export const LocationBookingsView = () => {
         open={isDrawerOpen}
         onClose={closeBookingForm}
       />
-      <CancelBookingModal
+      <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
