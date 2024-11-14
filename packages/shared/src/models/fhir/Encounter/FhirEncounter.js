@@ -7,6 +7,7 @@ import { getValues } from './getValues';
 import { fromEncounters } from './getQueryToFindUpstreamIds';
 import { searchParameters } from './searchParameters';
 import { filterFromEncounters } from './getQueryToFilterUpstream';
+import { FhirReference } from '../../../services/fhirTypes';
 
 export class FhirEncounter extends FhirResource {
   static init(options, models) {
@@ -69,8 +70,9 @@ export class FhirEncounter extends FhirResource {
   asFhir() {
     const resource = super.asFhir();
 
+    const { FhirPatient } = this.sequelize.models;
     // Exclude unresolved upstream if it remains in the materialised data.
-    if (resource.subject.type === 'upstream://patient') {
+    if (resource.subject.type === FhirReference.unresolvedReferenceType(FhirPatient)) {
       delete resource.subject;
     }
 

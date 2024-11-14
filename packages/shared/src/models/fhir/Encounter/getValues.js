@@ -38,7 +38,7 @@ async function getValuesFromEncounter(upstream, models) {
     subject,
     location: locationRef(upstream),
     serviceProvider,
-    resolved: subject.isResolved() && serviceProvider.isResolved(),
+    resolved: subject.isResolved() && (serviceProvider ? serviceProvider.isResolved() : true),
   };
 }
 

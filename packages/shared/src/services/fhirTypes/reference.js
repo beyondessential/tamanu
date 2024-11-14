@@ -1,8 +1,8 @@
 import * as yup from 'yup';
+import { lowerCase, snakeCase } from 'lodash';
 
 import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
-import { lowerCase, snakeCase } from 'lodash';
 
 const UPSTREAM_REF_TYPE_PREFIX = 'upstream://';
 
@@ -40,6 +40,10 @@ export class FhirReference extends FhirBaseType {
       .noUnknown();
   }
 
+  static unresolvedReferenceType(resourceModel) {
+    return `${UPSTREAM_REF_TYPE_PREFIX}${snakeCase(lowerCase(resourceModel.fhirName))}`;
+  }
+
   static async to(resourceModel, upstreamId, fields) {
     const resource = await resourceModel.findOne({ where: { upstreamId } });
     if (!resource) {
@@ -49,17 +53,17 @@ export class FhirReference extends FhirBaseType {
     return this.resolved(resourceModel, resource.id, fields);
   }
 
-  static resolved(resourceType, id, fields) {
+  static resolved(resourceModel, id, fields) {
     return new this({
-      type: resourceType.fhirName,
-      reference: `${resourceType.fhirName}/${id}`,
+      type: resourceModel.fhirName,
+      reference: `${resourceModel.fhirName}/${id}`,
       ...fields,
     });
   }
 
-  static unresolved(resourceType, upstreamId, fields) {
+  static unresolved(resourceModel, upstreamId, fields) {
     return new this({
-      type: `${UPSTREAM_REF_TYPE_PREFIX}${snakeCase(lowerCase(resourceType.fhirName))}`,
+      type: this.unresolvedReferenceType(resourceModel),
       reference: upstreamId,
       ...fields,
     });
