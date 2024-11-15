@@ -111,8 +111,8 @@ const EmailFields = ({ patientId }) => {
 
   // Keep form state up to date with relevant selected patient email
   useEffect(() => {
-    setFieldValue('email', patient?.email);
-    setFieldValue('confirmEmail', null);
+    setFieldValue('email', patient?.email ?? '');
+    setFieldValue('confirmEmail', '');
   }, [patient?.email, setFieldValue]);
 
   return (
