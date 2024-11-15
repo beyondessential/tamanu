@@ -19,7 +19,7 @@ import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { Colors } from '../../constants';
 import { reloadPatient } from '../../store';
-import { formatDateRange } from '../../utils/dateTime';
+import { formatDateTimeRange } from '../../utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { MenuButton } from '../MenuButton';
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -301,7 +301,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     <AppointmentDetailsContainer>
       <DetailsDisplay
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
-        value={formatDateRange(startTime, endTime, isOvernight)}
+        value={formatDateTimeRange(startTime, endTime, isOvernight)}
       />
       <DetailsDisplay
         label={
