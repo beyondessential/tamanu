@@ -109,7 +109,7 @@ const EmailFields = ({ patientId }) => {
   return (
     <>
       <Field
-        name="emailAddress"
+        name="email"
         label={
           <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
         }
@@ -118,7 +118,7 @@ const EmailFields = ({ patientId }) => {
         component={TextField}
       />
       <Field
-        name="confirmEmailAddress"
+        name="confirmEmail"
         label={
           <TranslatedText
             stringId="appointment.confirmEmailAddress.label"
@@ -170,6 +170,18 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         },
       ),
     patientId: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+    email: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required()
+    }),
+    confirmEmail: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required()
+    }),
   });
 
   const renderForm = ({ values, resetForm, dirty }) => {
@@ -258,7 +270,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           }
           component={CheckField}
         />
-
         {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
 
         <FormSubmitCancelRow onCancel={warnAndResetForm} />
