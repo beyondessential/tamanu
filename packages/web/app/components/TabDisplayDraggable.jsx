@@ -19,6 +19,7 @@ const TabContainer = styled(Tabs)`
   .MuiTabs-indicator {
     background-color: ${Colors.primary};
   }
+
   * {
     cursor: url(${grabCursor}), auto !important;
   }
@@ -37,6 +38,7 @@ const StyledTab = styled(Box)`
   position: relative;
   flex-shrink: 0;
   transition: opacity, background-color 0.3s;
+  cursor: url(${grabCursor}), auto !important;
 
   &:hover {
     opacity: 1;
@@ -79,6 +81,8 @@ export const TabDisplayDraggable = ({
   handleDragEnd,
   ...tabProps
 }) => {
+  console.log({grabCursor})
+
   const currentTabData = tabs.find(t => t.key === currentTab);
 
   const onDragEnd = result => {
