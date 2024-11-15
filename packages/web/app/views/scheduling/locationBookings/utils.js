@@ -40,7 +40,7 @@ export const appointmentToFormValues = appointment => {
 export const partitionAppointmentsByLocation = appointments =>
   appointments.reduce((acc, appt) => {
     const locationId = appt.locationId;
-    (acc[locationId] || (acc[locationId] = [])).push(appt);
+    (acc[locationId] ?? (acc[locationId] = [])).push(appt);
     return acc;
   }, {});
 
@@ -50,7 +50,7 @@ export const partitionAppointmentsByDate = appointments =>
     const end = parseISO(appt.endTime);
 
     const dates = eachDayOfInterval({ start, end }).map(toDateString);
-    for (const date of dates) (acc[date] || (acc[date] = [])).push(appt);
+    for (const date of dates) (acc[date] ?? (acc[date] = [])).push(appt);
 
     return acc;
   }, {});
