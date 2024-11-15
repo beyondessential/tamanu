@@ -48,3 +48,7 @@ that area.
 Reference to the [facility](#!/source/source.tamanu.fhir__tamanu.facilities) where the encounter is
 taking place.
 {% enddocs %}
+
+{% docs fhir__encounters__is_live %}
+TODO
+{% enddocs %}
