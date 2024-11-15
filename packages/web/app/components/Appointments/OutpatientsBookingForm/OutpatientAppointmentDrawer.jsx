@@ -114,7 +114,8 @@ const EmailFields = ({ patientId }) => {
           <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
         }
         required
-        defaultValue={patient?.email}
+        // TODO: this isnt updatable
+        value={patient?.email}
         component={TextField}
       />
       <Field
@@ -170,17 +171,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         },
       ),
     patientId: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+    shouldEmailAppointment: yup.boolean(),
     email: yup.string().when('shouldEmailAppointment', {
       is: true,
-      then: yup
-        .string()
-        .required()
+      then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
     }),
     confirmEmail: yup.string().when('shouldEmailAppointment', {
       is: true,
       then: yup
         .string()
-        .required()
+        .required(getTranslation('validation.required.inline', '*Required'))
+        .oneOf([yup.ref('email')], 'Emails must match'),
     }),
   });
 
