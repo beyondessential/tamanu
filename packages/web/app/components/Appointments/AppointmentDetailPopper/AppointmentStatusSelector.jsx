@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
 import { EncounterModal } from '../../EncounterModal';
 import { usePatientCurrentEncounter } from '../../../api/queries';
+import { useAppointmentMutation } from '../../../api/mutations';
 
 const AppointmentStatusContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
@@ -53,12 +54,15 @@ export const AppointmentStatusSelector = ({
     isLoading: isPatientEncounterLoading,
   } = usePatientCurrentEncounter(appointment?.patient?.id);
 
+  const { mutateAsync: updateAppointment } = useAppointmentMutation({ isEdit: true });
+
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
   const [encounter, setEncounter] = useState(null);
 
   useEffect(() => {
     setEncounter(initialEncounter);
-  }, [initialEncounter]);
+    updateAppointment({ id: appointment?.id, encounterId: initialEncounter?.id });
+  }, [initialEncounter, appointment, updateAppointment]);
 
   if (isPatientEncounterLoading) {
     return null;
