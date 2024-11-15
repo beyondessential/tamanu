@@ -8,7 +8,11 @@ import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import {
+  appointmentToFormValues,
+  partitionAppointmentsByDate,
+  partitionAppointmentsByLocation,
+} from './utils';
 
 export const BookingsCell = ({
   appointments,
@@ -21,7 +25,7 @@ export const BookingsCell = ({
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ startTime: date, locationId });
+      openBookingForm({ date, startDate: date, locationId });
     }}
   >
     {appointments?.map(a => (
@@ -30,7 +34,7 @@ export const BookingsCell = ({
         className="appointment-tile"
         key={a.id}
         onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        onEdit={() => openBookingForm(appointmentToFormValues(a))}
       />
     ))}
   </CarouselGrid.Cell>

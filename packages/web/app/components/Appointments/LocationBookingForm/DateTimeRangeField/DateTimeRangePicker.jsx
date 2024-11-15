@@ -1,3 +1,4 @@
+import { isValid } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
@@ -9,14 +10,23 @@ export const DateTimeRangePicker = ({
   dateFieldHelperText,
   datePickerLabel = <TranslatedText stringId="general.date.label" fallback="Date" />,
   datePickerName,
-  disabled,
+  disabled = false,
   required,
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { values } = useFormikContext();
+  const { setFieldValue, values } = useFormikContext();
+
+  const hasSelectedLocation = !!values.locationId;
+
   const dateFieldValue = values[datePickerName];
-  const locationId = values.locationId;
+  const date = dateFieldValue ? new Date(dateFieldValue) : null; // Not using parseISO in case it’s already a date object
+  const isValidDate = isValid(date);
+
+  const { id: appointmentId, locationId } = values;
+
+  /** Keep synchronised with start date field for overnight bookings */
+  const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
 
   return (
     <>
@@ -26,13 +36,15 @@ export const DateTimeRangePicker = ({
         helperText={dateFieldHelperText}
         label={datePickerLabel}
         name={datePickerName}
+        onChange={flushChangeToStartDateField}
         required={required}
         {...props}
       />
       <TimeSlotPicker
-        date={dateFieldValue ? new Date(dateFieldValue) : null}
-        disabled={disabled || !dateFieldValue}
-        key={`${locationId}_${dateFieldValue}`}
+        date={isValidDate ? date : null}
+        disabled={disabled || !hasSelectedLocation || !isValidDate}
+        // Changes to any of these require state to refresh
+        key={`${appointmentId}_${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
         variant="range"

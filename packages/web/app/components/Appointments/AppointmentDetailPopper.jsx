@@ -12,7 +12,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 
 import { isSameDay } from 'date-fns';
 import { useApi } from '../../api';
@@ -234,7 +235,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
     bookingType,
     appointmentType,
   } = appointment;
-  const isOvernight = !isSameDay(startTime, endTime);
+  const isOvernight = !isSameDay(parseDate(startTime), parseDate(endTime));
 
   return (
     <AppointmentDetailsContainer>

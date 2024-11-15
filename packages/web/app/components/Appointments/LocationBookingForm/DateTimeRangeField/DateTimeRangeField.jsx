@@ -1,58 +1,36 @@
-import { endOfDay, startOfDay } from 'date-fns';
+import { addDays } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
-import { useAppointmentsQuery } from '../../../../api/queries';
 import { TranslatedText } from '../../../Translation';
-import { DateTimePicker } from './DateTimePicker';
+import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const DateTimeRangeField = ({ isEdit, separate = false, ...props }) => {
+export const DateTimeRangeField = ({ disabled, required, separate = false, ...props }) => {
   const {
-    values: { startDate, endDate, locationId, patientId },
+    values: { locationId, startDate },
   } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: startDate ? toDateTimeString(startOfDay(new Date(startDate))) : null,
-      before: endDate ? toDateTimeString(endOfDay(new Date(endDate))) : null,
-      all: true,
-      locationId,
-      patientId,
-    },
-    { enabled: !!(startDate && endDate && locationId && patientId) },
-  );
-
-  const getStartDateFieldHelperText = () => {
-    const showSameDayBookingWarning =
-      !isEdit &&
-      isFetched &&
-      patientId &&
-      existingLocationBookings.data.some(booking => booking.patientId === patientId);
-
-    return showSameDayBookingWarning ? (
-      <TranslatedText
-        stringId="locationBooking.form.date.warning"
-        fallback="Patient already has an appointment scheduled at this location on this day"
-      />
-    ) : null;
-  };
 
   if (separate) {
+    const isEndPickerDisabled = disabled || !locationId || !startDate;
     return (
       <>
-        <DateTimePicker dateFieldHelperText={getStartDateFieldHelperText()} name="start" />
-        <DateTimePicker name="end" />
+        <StartDateTimePicker disabled={disabled} required={required} />
+        <EndDateTimePicker
+          disabled={isEndPickerDisabled}
+          minDate={!isEndPickerDisabled ? addDays(new Date(startDate), 1) : null}
+          required={required}
+        />
       </>
     );
   }
 
   return (
     <DateTimeRangePicker
-      dateFieldHelperText={getStartDateFieldHelperText()}
       datePickerLabel={<TranslatedText stringId="general.date.label" fallback="Date" />}
       datePickerName="date"
+      disabled={disabled}
+      required={required}
       timePickerLabel={
         <TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />
       }

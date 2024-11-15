@@ -26,9 +26,12 @@ import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
-import { DateTimeRangeField } from './DateTimeRangeField/DateTimeRangeField';
+import { DateTimeRangeField } from './DateTimeRangeField';
 
-const StyledDrawer = styled(Drawer)`
+const StyledDrawer = styled(Drawer).attrs({
+  anchor: 'right',
+  variant: 'persistent',
+})`
   .MuiPaper-root {
     // Add 1 pixel to allow border to show
     block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
@@ -115,8 +118,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isEdit = !!initialValues.id;
 
-  const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
-
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
@@ -157,6 +158,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     },
   );
 
+  const handleSubmit = async (
+    { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
+    { resetForm },
+  ) => {
+    putOrPostBooking({
+      locationId,
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(endTime),
+      patientId,
+      bookingTypeId,
+      clinicianId,
+    });
+    resetForm();
+  };
+
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
@@ -165,18 +181,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       resetForm();
     };
 
-    /** Resets fields which appear strictly after the sentinel field in the form. */
-    const resetFieldsAfter = sentinel => {
-      for (const field of resettableFieldsReversed) {
-        if (field === sentinel) return;
-        setFieldValue(field, null);
-      }
+    const resetFields = fields => {
+      for (const field of fields) setFieldValue(field, null);
     };
 
     return (
       <StyledDrawer
-        variant="persistent"
-        anchor="right"
         PaperProps={{
           // Used to exclude the drawer from click away listener on appointment detail popper
           className: APPOINTMENT_DRAWER_CLASS,
@@ -199,7 +209,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={() => resetFieldsAfter('locationId')}
+            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
           />
           <Field
             name="overnight"
@@ -210,9 +220,9 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               </OvernightStayLabel>
             }
             component={CheckField}
-            onChange={() => resetFieldsAfter('overnight')}
+            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
           />
-          <DateTimeRangeField isEdit={isEdit} required separate={values.overnight} />
+          <DateTimeRangeField required separate={values.overnight} />
           <Field
             component={AutocompleteField}
             label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
@@ -243,21 +253,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         </StyledFormGrid>
       </StyledDrawer>
     );
-  };
-
-  const handleSubmit = async (
-    { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
-    { resetForm },
-  ) => {
-    putOrPostBooking({
-      locationId,
-      startTime: toDateTimeString(startTime),
-      endTime: toDateTimeString(endTime),
-      patientId,
-      bookingTypeId,
-      clinicianId,
-    });
-    resetForm();
   };
 
   return (

@@ -9,12 +9,20 @@ import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 
+/**
+ * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
+ * :hover) that are baked into the MUI component. A more precise selector with equivalent behaviour
+ * would be:
+ * ```
+ * .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+ *   .${toggleButtonGroupClasses.firstButton},
+ *   .${toggleButtonGroupClasses.middleButton},
+ *   .${toggleButtonGroupClasses.lastButton}
+ * )
+ * ```
+ */
 const Toggle = styled(ToggleButton)`
-  &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
-    .${toggleButtonGroupClasses.firstButton},
-    .${toggleButtonGroupClasses.middleButton},
-    .${toggleButtonGroupClasses.lastButton}
-  ) {
+  &&&&& {
     block-size: 1.875rem;
     border-radius: calc(infinity * 1px);
     border: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -28,7 +36,7 @@ const Toggle = styled(ToggleButton)`
     padding: 0.25rem;
     text-transform: none;
     touch-action: manipulation;
-    transition: background-color 100ms ease, border-color 100ms ease;
+    transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
       background-color: oklch(from ${Colors.primary} l c h / 10%);
@@ -36,9 +44,8 @@ const Toggle = styled(ToggleButton)`
         background-color: ${Colors.primary}1a;
       }
 
-      &,
-      & + & // Override stubborn MUI style
-      {
+      :is(&, & + &) {
+        //   ^~~~~ Override another stubborn MUI style
         border: max(0.0625rem, 1px) solid ${Colors.primary};
       }
     }
@@ -46,39 +53,32 @@ const Toggle = styled(ToggleButton)`
     // Manually manage hover effect with $hover transient prop
     // Using :where() to avoid :not() increasing specificity
     &:where(:not(.${toggleButtonGroupClasses.selected})):hover {
-     background-color: unset;
+      background-color: unset;
     }
 
     &:disabled,
     &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
-      background-color: ${Colors.background};
+      color: ${Colors.midText};
+      background-color: transparent;
       cursor: not-allowed;
     }
 
-    ${({ $booked = false }) =>
-      $booked &&
-      css`
-        &,
-        &:hover,
-        &:disabled,
-        &[aria-disabled='true'],
-        &.${toggleButtonGroupClasses.disabled} {
-          color: ${Colors.midText};
+    .MuiTouchRipple-child {
+      background-color: oklch(from ${Colors.primary} l c h / 50%);
+      @supports not (color: oklch(from black l c h)) {
+        background-color: ${Colors.primary}80;
+      }
+    }
+  }
+`;
 
-          background-color: oklch(from ${Colors.alert} l c h / 10%);
-          @supports not (color: oklch(from black l c h)) {
-            background-color: ${Colors.alert}1a;
-          }
-        }
-      `}`;
-
-const AvailableCell = styled(Toggle)`
-  ${({ $hover }) =>
+const AvailableToggle = styled(Toggle)`
+  ${({ $hover = false }) =>
     $hover &&
     css`
-      &:not(${toggleButtonClasses.selected}),
-      &&&&:not(${toggleButtonClasses.selected}):hover {
+      &&,
+      &&&&&:hover {
         background-color: ${Colors.veryLightBlue};
       }
     `};
@@ -92,15 +92,32 @@ const AvailableCell = styled(Toggle)`
     `}
 `;
 
+const BookedToggle = styled(Toggle).attrs({
+  disabled: true,
+})`
+  // (0,6,0) to override styling of disabled Toggle
+  &&&&&& {
+    background-color: oklch(from ${Colors.alert} l c h / 10%);
+    @supports not (color: oklch(from black l c h)) {
+      background-color: ${Colors.alert}1a;
+    }
+  }
+`;
+
 const tooltipStyles = css`
-  // Workaround: ThemedTooltip passes its classes onto the tooltip popper
+  &:has(> :is(:disabled, [aria-disabled='true'], .${toggleButtonGroupClasses.disabled})) {
+    cursor: not-allowed;
+  }
+
+  // Prevent tooltip’s div from affecting interpretation of justify-self: auto on children.
+  // :not() clause is a workaround: ThemedTooltip passes its classes onto the tooltip popper
   &:not(.MuiTooltip-popper) {
     display: grid;
     grid-template-columns: subgrid;
   }
 `;
 
-const BookedTooltip = styled(ThemedTooltip).attrs({
+const StyledTooltip = styled(ThemedTooltip).attrs({
   title: (
     <TranslatedText stringId="locationBooking.tooltip.notAvailable" fallback="Not available" />
   ),
@@ -108,7 +125,24 @@ const BookedTooltip = styled(ThemedTooltip).attrs({
   ${tooltipStyles}
 `;
 
-const StyledConditionalTooltip = styled(ConditionalTooltip).attrs({
+const TooltipHelper = styled.div.attrs({ tabIndex: 0 })`
+  display: contents;
+  :focus-visible {
+    outline: none;
+  }
+`;
+
+/**
+ * Wrapping in TooltipHelper ensures tooltip can listen for mouse and focus events even if children
+ * would otherwise be disabled.
+ */
+const BookedTooltip = ({ children, ...props }) => (
+  <StyledTooltip {...props}>
+    <TooltipHelper>{children}</TooltipHelper>
+  </StyledTooltip>
+);
+
+const ConflictTooltip = styled(ConditionalTooltip).attrs({
   title: (
     <TranslatedText
       stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
@@ -142,26 +176,26 @@ export const TimeSlotToggle = ({
   if (booked) {
     return (
       <BookedTooltip>
-        <Toggle {...props} $booked aria-disabled>
-          {/* Not true `disabled` attribute as it prevents tooltip from listening for events */}
+        <BookedToggle {...props}>
           <TimeRangeDisplay range={timeSlot} />
-        </Toggle>
+        </BookedToggle>
       </BookedTooltip>
     );
   }
 
   return (
-    <StyledConditionalTooltip visible={!selectable}>
-      <AvailableCell
+    <ConflictTooltip visible={!selectable}>
+      <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}
+        disabled={!selectable}
         onMouseEnter={selectable ? onMouseEnter : null}
         onMouseLeave={selectable ? onMouseLeave : null}
         {...props}
       >
         <TimeRangeDisplay range={timeSlot} />
-      </AvailableCell>
-    </StyledConditionalTooltip>
+      </AvailableToggle>
+    </ConflictTooltip>
   );
 };
 
@@ -173,6 +207,5 @@ const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
 `;
 
 export const SkeletonTimeSlotToggles = ({ count = 16 }) => {
-  // eslint-disable-next-line react/jsx-key
-  return Array.from({ length: count }).map(() => <StyledSkeleton />);
+  return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} />);
 };
