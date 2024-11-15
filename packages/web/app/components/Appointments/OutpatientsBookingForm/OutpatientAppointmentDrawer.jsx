@@ -27,6 +27,7 @@ import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { usePatientData } from '../../../api/queries/usePatientData';
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
@@ -100,6 +101,34 @@ const ErrorMessage = ({ isEdit = false, error }) => {
       fallback="Failed to create appointment with error: :error"
       replacements={{ error: error.message }}
     />
+  );
+};
+
+const EmailFields = ({ patientId }) => {
+  const { data: patient } = usePatientData(patientId);
+  return (
+    <>
+      <Field
+        name="emailAddress"
+        label={
+          <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
+        }
+        required
+        defaultValue={patient?.email}
+        component={TextField}
+      />
+      <Field
+        name="confirmEmailAddress"
+        label={
+          <TranslatedText
+            stringId="appointment.confirmEmailAddress.label"
+            fallback="Confirm email address"
+          />
+        }
+        required
+        component={TextField}
+      />
+    </>
   );
 };
 
@@ -220,7 +249,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           component={CheckField}
         />
         <Field
-          name="emailAppointment"
+          name="shouldEmailAppointment"
           label={
             <TranslatedText
               stringId="appointment.emailAppointment.label"
@@ -230,33 +259,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           component={CheckField}
         />
 
-        {values.emailAppointment && (
-          <>
-            <Field
-              name="emailAddress"
-              label={
-                <TranslatedText
-                  stringId="appointment.emailAddress.label"
-                  fallback="Email address"
-                />
-              }
-              required
-              value={values.patientId}
-              component={TextField}
-            />
-            <Field
-              name="confirmEmailAddress"
-              label={
-                <TranslatedText
-                  stringId="appointment.confirmEmailAddress.label"
-                  fallback="Confirm email address"
-                />
-              }
-              required
-              component={TextField}
-            />
-          </>
-        )}
+        {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
 
         <FormSubmitCancelRow onCancel={warnAndResetForm} />
       </FormGrid>
