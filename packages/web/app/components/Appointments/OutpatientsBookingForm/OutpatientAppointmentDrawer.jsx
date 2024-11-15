@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { usePatientData } from '../../../api/queries/usePatientData';
+import { useFormikContext } from 'formik';
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
@@ -105,7 +106,15 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 };
 
 const EmailFields = ({ patientId }) => {
+  const { setFieldValue } = useFormikContext();
   const { data: patient } = usePatientData(patientId);
+
+  // Keep form state up to date with relevant selected patient email
+  useEffect(() => {
+    setFieldValue('email', patient?.email);
+    setFieldValue('confirmEmail', null);
+  }, [patient?.email, setFieldValue]);
+
   return (
     <>
       <Field
@@ -114,8 +123,6 @@ const EmailFields = ({ patientId }) => {
           <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
         }
         required
-        // TODO: this isnt updatable
-        value={patient?.email}
         component={TextField}
       />
       <Field
