@@ -11,6 +11,7 @@ import {
   Form,
   DateTimeField,
   CheckField,
+  TextField,
 } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -37,7 +38,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
-`
+`;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -218,6 +219,44 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           }
           component={CheckField}
         />
+        <Field
+          name="emailAppointment"
+          label={
+            <TranslatedText
+              stringId="appointment.emailAppointment.label"
+              fallback="Email appointment"
+            />
+          }
+          component={CheckField}
+        />
+
+        {values.emailAppointment && (
+          <>
+            <Field
+              name="emailAddress"
+              label={
+                <TranslatedText
+                  stringId="appointment.emailAddress.label"
+                  fallback="Email address"
+                />
+              }
+              required
+              value={values.patientId}
+              component={TextField}
+            />
+            <Field
+              name="confirmEmailAddress"
+              label={
+                <TranslatedText
+                  stringId="appointment.confirmEmailAddress.label"
+                  fallback="Confirm email address"
+                />
+              }
+              required
+              component={TextField}
+            />
+          </>
+        )}
 
         <FormSubmitCancelRow onCancel={warnAndResetForm} />
       </FormGrid>
