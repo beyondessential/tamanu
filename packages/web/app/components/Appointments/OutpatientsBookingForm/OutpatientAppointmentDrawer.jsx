@@ -2,12 +2,20 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
-import { AutocompleteField, DynamicSelectField, Field, Form, DateTimeField } from '../../Field';
+import {
+  AutocompleteField,
+  DynamicSelectField,
+  Field,
+  Form,
+  DateTimeField,
+  CheckField,
+} from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
-import { FORM_TYPES } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -25,6 +33,11 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-block-start: 1rem;
   inset-inline-end: 1rem;
 `;
+
+const IconLabel = styled.div`
+  display: flex;
+  align-items: center;
+`
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -189,6 +202,21 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
           component={TimeWithFixedDateField}
           saveDateAsString
+        />
+        <Field
+          name="isHighPriority"
+          label={
+            <IconLabel>
+              <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+              <HighPriorityIcon
+                aria-label="High priority"
+                aria-hidden={undefined}
+                htmlColor={Colors.alert}
+                style={{ fontSize: 18 }}
+              />
+            </IconLabel>
+          }
+          component={CheckField}
         />
 
         <FormSubmitCancelRow onCancel={warnAndResetForm} />
