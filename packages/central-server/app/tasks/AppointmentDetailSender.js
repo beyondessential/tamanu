@@ -9,6 +9,8 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { makeVaccineCertificate } from '../../utils/makePatientCertificate';
+import { replaceInTemplate } from '@tamanu/shared/src/utils/replaceInTemplate';
+import { toDateString, formatTime } from '@tamanu/shared/src/utils/dateTime';
 
 // TODO: bad name
 export class AppointmentDetailSender extends ScheduledTask {
@@ -50,7 +52,7 @@ export class AppointmentDetailSender extends ScheduledTask {
     for (const appointment of appointmentsToEmail) {
       try {
         const patientId = notification.get('patientId');
-        const patient = await Patient.findByPk(patientId);
+        const patient = await Patient.findByPk(appointment.patientId);
 
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
@@ -89,36 +91,38 @@ export class AppointmentDetailSender extends ScheduledTask {
 
         const subject = 'Appointment confirmation';
         const content = `
-            Hi ${appointment.patient.firstName} ${appointment.patient.lastName},
+            Hi $firstName$ $lastName$,
 
             This is a confirmation that your appointment has been scheduled at <facility>.
-            Date: ${appointment.patient.startTime} // to date
-            Time: ${appointment.patient.startTime} // to time
-            Location: ${appointment.locationGroup.name}, ${appointment.locationGroup.facility.name} 
+            Date: $startDate$
+            Time: $startTime$
+            Location: $locatioName$, $facilityName$
             Clinician: Clinician name (if recorded, otherwise don't display this field)
 
             Do not respond to this email. 
         `;
 
+        const replacements = {
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          startDate: toDateString(appointment.startTime),
+          startTime: formatTime(appointment.startTime),
+          locationName: appointment.location.name,
+          facilityName: appointment.location.facility.name,
+        };
+
+        const processedContent = replaceInTemplate(content, replacements);
+
         // eslint-disable-next-line no-loop-func
-        const [comm] = await sequelize.transaction(() =>
-          // queue the email to be sent and mark this notification as processed
-          Promise.all([
-            PatientCommunication.create({
-              type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-              channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-              subject,
-              content,
-              status: COMMUNICATION_STATUSES.QUEUED,
-              patientId,
-              destination: notification.get('forwardAddress'), // TODO: how to get email here
-              attachment: pdf.filePath,
-            }),
-            notification.update({
-              status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
-            }),
-          ]),
-        );
+        const comm = PatientCommunication.create({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          subject,
+          content: processedContent,
+          status: COMMUNICATION_STATUSES.QUEUED,
+          patientId,
+          destination: notification.get('forwardAddress'), // TODO: how to get email here
+        });
         processed += 1;
         sublog.info('Done processing certificate notification', { emailId: comm.id });
       } catch (error) {
@@ -130,7 +134,7 @@ export class AppointmentDetailSender extends ScheduledTask {
       }
     }
 
-    log.info('Done with certificate notification task', {
+    log.info('Done with appointment email task', {
       attempted: queuedNotifications.length,
       processed,
     });
