@@ -1,6 +1,6 @@
 import { isSameDay, isValid, startOfDay } from 'date-fns';
 
-export const appointmentToFormFields = appointment => {
+export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
 
   const { bookingTypeId, clinicianId, id, locationId, patientId } = appointment;

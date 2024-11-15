@@ -9,7 +9,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import {
-  appointmentToFormFields,
+  appointmentToFormValues,
   partitionAppointmentsByDate,
   partitionAppointmentsByLocation,
 } from './utils';
@@ -34,7 +34,7 @@ export const BookingsCell = ({
         className="appointment-tile"
         key={a.id}
         onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm(appointmentToFormFields(a))}
+        onEdit={() => openBookingForm(appointmentToFormValues(a))}
       />
     ))}
   </CarouselGrid.Cell>

@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
-import { appointmentToFormFields } from './utils';
+import { appointmentToFormValues } from './utils';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -71,7 +71,7 @@ export const LocationBookingsView = () => {
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointmentToFormFields(appointment));
+    setSelectedAppointment(appointmentToFormValues(appointment));
     setIsCancelModalOpen(true);
   };
 
