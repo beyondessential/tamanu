@@ -242,7 +242,7 @@ export const TimeSlotPicker = ({
         // Fresh selection. Select this and all preceding time slots
         if (newToggles.length === 1 && !isSameArrayMinusHead(newToggles, selectedToggles)) {
           //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Carves out
-          //                           the scenario where the earliest only two slots were selected,
+          //                           the scenario where only the earliest two slots were selected,
           //                           and user tries to toggle off the earliest slot, which would
           //                           leave only the second-earliest slot selected (illegally)
           const [selectedToggle] = newToggles;
