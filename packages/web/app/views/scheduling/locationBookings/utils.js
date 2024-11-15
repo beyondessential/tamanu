@@ -1,5 +1,7 @@
 import { eachDayOfInterval, isSameDay, isValid, parseISO, startOfDay } from 'date-fns';
 
+import { toDateString } from '@tamanu/shared/utils/dateTime';
+
 export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
 
