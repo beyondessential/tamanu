@@ -1,3 +1,4 @@
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import Close from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -12,18 +13,16 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { parseDate } from '@tamanu/shared/utils/dateTime';
+import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
 
-import { isSameDay } from 'date-fns';
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { Colors } from '../../constants';
 import { reloadPatient } from '../../store';
-import { formatDateTimeRange } from '../../utils/dateTime';
+import { formatDateRange } from '../../utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { MenuButton } from '../MenuButton';
-import { getPatientNameAsString } from '../PatientNameDisplay';
+import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
@@ -40,24 +39,30 @@ const FlexCol = styled(Box)`
   flex-direction: column;
 `;
 
-const PatientName = styled('h2')`
+const StyledH2 = styled('h2')`
   font-size: 0.875rem;
   font-weight: 500;
   margin-block: 0;
 `;
 
-const Label = styled('span')`
+const Label = styled('p')`
   font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-block: 0;
+`;
+
+const PatientId = styled(Label)`
+  color: ${Colors.primary};
 `;
 
 const StyledPaper = styled(Paper)`
+  border-radius: 0.3125rem;
+  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
   color: ${Colors.darkestText};
   display: flex;
   flex-direction: column;
-  width: 16rem;
-  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-  border-radius: 0.3125rem;
   font-size: 0.6875rem;
+  width: 16rem;
 `;
 
 const ControlsContainer = styled(FlexRow)`
@@ -79,35 +84,28 @@ const PatientDetailsContainer = styled(FlexCol)`
   border-top-right-radius: 0.3125rem;
 `;
 
-const AppointmentDetailsContainer = styled(FlexCol)`
-  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
-  gap: 0.5rem;
-  padding: 0.75rem;
-`;
-
 const PrimaryDetails = styled('div')`
-  > span + span {
+  > * + * {
     margin-inline-start: 0.25rem;
     padding-inline-start: 0.25rem;
     border-inline-start: max(0.0625rem, 1px) solid currentcolor;
   }
 `;
 
-const PatientId = styled('p')`
-  color: ${Colors.primary};
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  margin-block: 0;
+const AppointmentDetailsContainer = styled(FlexCol)`
+  padding: 0.75rem;
+  gap: 0.5rem;
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  position: relative;
 `;
 
 const AppointmentStatusContainer = styled(Box)`
-  padding-inline: 0.75rem;
-  padding-block: 0.5rem 0.75rem;
   display: grid;
+  grid-row: 0.5rem 0.3125rem;
   grid-template-columns: repeat(3, 1fr);
-  grid-row-gap: 0.5rem;
-  grid-column-gap: 0.3125rem;
   justify-items: center;
+  padding-block: 0.5rem 0.75rem;
+  padding-inline: 0.75rem;
 `;
 
 const StyledMenuButton = styled(MenuButton)`
@@ -123,8 +121,9 @@ const StyledMenuButton = styled(MenuButton)`
   svg {
     font-size: 0.875rem;
   }
+
   #menu-list-grow {
-    box-shadow: 0px 0.25rem 1rem 0px hsla(0, 0%, 0%, 0.1);
+    box-shadow: 0 0.25rem 1rem 0 oklch(0 0 0 / 10%);
   }
 `;
 
@@ -133,6 +132,13 @@ const StyledIconButton = styled(IconButton)`
   svg {
     font-size: 0.875rem;
   }
+`;
+
+const Tag = styled(FlexRow)`
+  gap: 0.125rem;
+  inset-block-end: 0.75rem;
+  inset-inline-end: 0.75rem;
+  position: absolute;
 `;
 
 const ControlsRow = ({ onClose, onCancel, onEdit }) => {
@@ -170,33 +176,12 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
-const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
-  <DetailsDisplay
-    label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
-    value={
-      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData
-          value={bookingType.id}
-          fallback={bookingType.name}
-          category="bookingType"
-        />
-        {isOvernight && (
-          <FlexRow sx={{ gap: '2px' }}>
-            <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
-            <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
-          </FlexRow>
-        )}
-      </FlexRow>
-    }
-  />
-);
-
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(id);
   return (
     <PatientDetailsContainer onClick={onClick}>
-      <PatientName>{getPatientNameAsString(patient)}</PatientName>
+      <PatientNameDisplay as={StyledH2} patient={patient} />
       <PrimaryDetails>
         <InlineDetailsDisplay
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
@@ -225,7 +210,83 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const AppointmentDetailsDisplay = ({ appointment }) => {
+const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
+  return (
+    <>
+      {location && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={location?.name}
+              value={location?.id}
+              category="location"
+            />
+          }
+        />
+      )}
+      {bookingType && (
+        <DetailsDisplay
+          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          value={
+            <TranslatedReferenceData
+              value={bookingType.id}
+              fallback={bookingType.name}
+              category="bookingType"
+            />
+          }
+        />
+      )}
+      {isOvernight && (
+        <Tag>
+          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
+          <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
+        </Tag>
+      )}
+    </>
+  );
+};
+
+const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
+  return (
+    <>
+      {appointmentType && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="scheduling.appointmentType.label"
+              fallback="Appointment type"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              value={appointmentType.id}
+              fallback={appointmentType.name}
+              category="appointmentType"
+            />
+          }
+        />
+      )}
+      {isHighPriority && (
+        <Tag>
+          <HighPriorityIcon
+            aria-label="High priority"
+            htmlColor={Colors.alert}
+            style={{ fontSize: 15 }}
+          />
+          <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+        </Tag>
+      )}
+    </>
+  );
+};
+
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const {
     startTime,
     endTime,
@@ -234,14 +295,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
     location,
     bookingType,
     appointmentType,
+    isHighPriority,
   } = appointment;
-  const isOvernight = !isSameDay(parseDate(startTime), parseDate(endTime));
-
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
-        value={formatDateTimeRange(startTime, endTime)}
+        value={formatDateRange(startTime, endTime, isOvernight)}
       />
       <DetailsDisplay
         label={
@@ -264,40 +324,19 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           />
         }
       />
-      {location && (
-        <DetailsDisplay
-          label={
-            <TranslatedText
-              stringId="general.localisedField.locationId.label"
-              fallback="Location"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              fallback={location?.name}
-              value={location?.id}
-              category="location"
-            />
-          }
+
+      {/* Location booking specific data */}
+      {location && bookingType && (
+        <LocationBookingDetails
+          location={location}
+          bookingType={bookingType}
+          isOvernight={isOvernight}
         />
       )}
-      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
+
+      {/* Outpatient appointment specific data */}
       {appointmentType && (
-        <DetailsDisplay
-          label={
-            <TranslatedText
-              stringId="scheduling.appointmentType.label"
-              fallback="Appointment type"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              value={appointmentType.id}
-              fallback={appointmentType.name}
-              category="appointmentType"
-            />
-          }
-        />
+        <AppointmentTypeDetails appointmentType={appointmentType} isHighPriority={isHighPriority} />
       )}
     </AppointmentDetailsContainer>
   );
@@ -338,6 +377,7 @@ export const AppointmentDetailPopper = ({
   onCancel,
   anchorEl,
   appointment,
+  isOvernight = false,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
@@ -426,7 +466,7 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
             />
-            <AppointmentDetailsDisplay appointment={appointment} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}

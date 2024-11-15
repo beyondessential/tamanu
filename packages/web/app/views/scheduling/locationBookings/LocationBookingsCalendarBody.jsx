@@ -1,4 +1,4 @@
-import { endOfDay, formatISO } from 'date-fns';
+import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -32,6 +32,7 @@ export const BookingsCell = ({
       <AppointmentTile
         appointment={a}
         className="appointment-tile"
+        hideTime={!isSameDay(date, parseISO(a.startTime))}
         key={a.id}
         onCancel={() => openCancelModal(a)}
         onEdit={() => openBookingForm(appointmentToFormValues(a))}
@@ -96,7 +97,7 @@ export const LocationBookingsCalendarBody = ({
 
   const { data: appointmentsData = [] } = useAppointmentsQuery({
     after: displayedDates[0],
-    before: endOfDay(displayedDates[displayedDates.length - 1]),
+    before: endOfDay(displayedDates.at(-1)),
     all: true,
     locationId: '',
     clinicianId: filters.clinicianId,
