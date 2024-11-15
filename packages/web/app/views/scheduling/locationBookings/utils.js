@@ -42,10 +42,13 @@ export const partitionAppointmentsByLocation = appointments =>
     return acc;
   }, {});
 
-// TODO: Don’t just use start time
 export const partitionAppointmentsByDate = appointments =>
   appointments.reduce((acc, appt) => {
-    const date = appt.startTime.slice(0, 10); // Slice out ISO date, no time
-    (acc[date] || (acc[date] = [])).push(appt);
+    const start = parseISO(appt.startTime);
+    const end = parseISO(appt.endTime);
+
+    const dates = eachDayOfInterval({ start, end }).map(toDateString);
+    for (const date of dates) (acc[date] || (acc[date] = [])).push(appt);
+
     return acc;
   }, {});
