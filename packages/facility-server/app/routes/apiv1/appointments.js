@@ -43,6 +43,7 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
   };
 };
 
+// TODO: i think this endpoint should handle creating a patient communication record??
 appointments.post('/$', simplePost('Appointment'));
 appointments.put('/:id', simplePut('Appointment'));
 
