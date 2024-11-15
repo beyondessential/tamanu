@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
-import { appointmentToFormFields } from './util';
+import { appointmentToFormFields } from './utils';
 
 const PlusIcon = styled(AddRounded)`
   && {

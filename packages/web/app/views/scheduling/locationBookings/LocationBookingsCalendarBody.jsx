@@ -12,7 +12,7 @@ import {
   appointmentToFormFields,
   partitionAppointmentsByDate,
   partitionAppointmentsByLocation,
-} from './util';
+} from './utils';
 
 export const BookingsCell = ({
   appointments,
