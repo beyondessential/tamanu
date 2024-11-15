@@ -174,14 +174,20 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     shouldEmailAppointment: yup.boolean(),
     email: yup.string().when('shouldEmailAppointment', {
       is: true,
-      then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+      then: yup
+        .string()
+        .required(getTranslation('validation.required.inline', '*Required'))
+        .email(getTranslation('validation.invalidEmail.inline', 'Invalid email format')),
     }),
     confirmEmail: yup.string().when('shouldEmailAppointment', {
       is: true,
       then: yup
         .string()
         .required(getTranslation('validation.required.inline', '*Required'))
-        .oneOf([yup.ref('email')], 'Emails must match'),
+        .oneOf(
+          [yup.ref('email')],
+          getTranslation('validation.mustMatchEmail.inline', 'Emails must match'),
+        ),
     }),
   });
 
