@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
@@ -24,6 +25,11 @@ const TableTitle = styled(Typography)`
   top: 0;
   background-color: ${Colors.white};
   z-index: 1;
+`;
+
+const OvernightIcon = styled(Brightness2Icon)`
+  color: ${Colors.primary};
+  font-size: 12px;
 `;
 
 const StyledTable = styled(Table)`
@@ -80,8 +86,11 @@ const StyledTable = styled(Table)`
   }
 `;
 
-const LowerCaseText = styled.span`
+const DateText = styled.div`
   text-transform: lowercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const Container = styled.div`
@@ -96,15 +105,19 @@ const getDate = ({ startTime, endTime }) => {
   const startDate = toDateString(startTime);
   const endDate = toDateString(endTime);
   let dateTimeString;
+  const isOvernight = startDate !== endDate;
 
-  if (startDate === endDate) {
+  if (!isOvernight) {
     dateTimeString = `${formatShortest(startTime)} ${getFormattedTime(
       startTime,
     )} - ${getFormattedTime(endTime)}`;
   } else {
     dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
   }
-  return <LowerCaseText>{dateTimeString}</LowerCaseText>;
+  return <DateText>
+    <span>{dateTimeString}</span>
+    {isOvernight && <OvernightIcon />}  
+  </DateText>;
 };
 
 const CustomCellContainer = styled(Box)`
