@@ -28,12 +28,12 @@ export const BookingsCell = ({
   >
     {appointments?.map(a => (
       <AppointmentTile
-        className="appointment-tile"
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
-        onCancel={() => openCancelModal(a)}
         appointment={a}
-        key={a.id}
+        className="appointment-tile"
         hideTime={!isSameDay(date, parseISO(a.startTime))}
+        key={a.id}
+        onCancel={() => openCancelModal(a)}
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
       />
     ))}
   </CarouselGrid.Cell>
