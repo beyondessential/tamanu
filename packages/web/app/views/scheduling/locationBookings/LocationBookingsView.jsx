@@ -10,6 +10,7 @@ import { CalendarSearchBar } from './CalendarSearchBar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
+import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
@@ -126,7 +127,7 @@ export const LocationBookingsView = () => {
         open={isDrawerOpen}
         onClose={closeBookingForm}
       />
-      <CancelBookingModal
+      <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}

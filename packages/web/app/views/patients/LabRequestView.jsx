@@ -237,12 +237,7 @@ export const LabRequestView = () => {
         <FixedTileRow>
           <Tile
             Icon={() => <img src={TestCategoryIcon} alt="test category" />}
-            text={
-              <TranslatedText
-                stringId="lab.view.tile.testCategory.label"
-                fallback="Test Category"
-              />
-            }
+            text={<TranslatedText stringId="lab.testCategory.label" fallback="Test Category" />}
             main={
               labRequest.category?.name ? (
                 <TranslatedReferenceData

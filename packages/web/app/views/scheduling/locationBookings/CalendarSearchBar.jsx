@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { CircularProgress, styled } from '@mui/material';
+import { CircularProgress } from '@mui/material';
+import styled from '@mui/system/styled';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
