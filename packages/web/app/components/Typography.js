@@ -21,6 +21,12 @@ export const SmallBodyText = styled(Typography)`
   line-height: 15px;
 `;
 
+export const Heading1 = styled(Typography).attrs({ component: 'h1' })`
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+`;
+
 export const Heading2 = styled(Typography).attrs({ component: 'h2' })`
   font-weight: 500;
   font-size: 20px;

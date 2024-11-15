@@ -45,6 +45,11 @@ export class FhirResource extends Model {
             return this.lastUpdated;
           },
         },
+        isLive: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        },
         ...attributes,
       },
       {
@@ -96,6 +101,14 @@ export class FhirResource extends Model {
       });
     }
 
+    const currentIsLive = resource.isLive;
+    await resource.updateIsLive();
+    const newIsLive = resource.isLive;
+    if (!currentIsLive && !newIsLive && !(await resource.shouldForceRematerialise())) {
+      // Skipping rematerialisation
+      return resource;
+    }
+
     await resource.updateMaterialisation();
     await resource.save();
 
@@ -117,6 +130,14 @@ export class FhirResource extends Model {
   // fetch upstream and necessary includes, diff and update
   async updateMaterialisation() {
     throw new Error('must be overridden');
+  }
+
+  async updateIsLive() {
+    this.isLive = true; // Override this to have custom logic at the model level
+  }
+
+  async shouldForceRematerialise() {
+    return false; // By default we don't force rematerialise, but can be overridden
   }
 
   // return the IDs of upstream records that are not this one's upstream, but
@@ -193,7 +214,7 @@ export class FhirResource extends Model {
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'isLive'].includes(name)) continue;
       fields[name] = this.get(name);
     }
 

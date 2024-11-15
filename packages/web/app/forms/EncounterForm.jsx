@@ -135,7 +135,7 @@ export const EncounterForm = React.memo(
             name="reasonForEncounter"
             label={
               <TranslatedText
-                stringId="modal.checkIn.reasonForEncounter.label"
+                stringId="encounter.reasonForEncounter.label"
                 fallback="Reason for encounter"
               />
             }

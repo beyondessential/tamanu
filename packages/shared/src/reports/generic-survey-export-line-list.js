@@ -56,7 +56,7 @@ select
   p.date_of_birth::date "Date of birth",
   extract(year from age(p.date_of_birth::date))::integer "Age",
   p.sex "Sex",
-  p.display_id "Patient ID", 
+  p.display_id "Patient ID",
   vil."name" as "Village",
   to_char(sr.end_time::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
@@ -164,7 +164,7 @@ export const transformSingleResponse = async (
 };
 
 export const transformAllResponses = async (models, results, surveyComponents) => {
-  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
+  const autocompleteComponentMap = await getAutocompleteComponentMap(models, surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   const transformedResults = [];

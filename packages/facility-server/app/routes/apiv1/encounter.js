@@ -1,7 +1,9 @@
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes } from 'sequelize';
+import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
+import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -9,8 +11,8 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
+  TASK_STATUSES,
 } from '@tamanu/constants';
-
 import {
   simpleGet,
   simpleGetHasOne,
@@ -20,6 +22,9 @@ import {
   paginatedGetList,
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
+import { add } from 'date-fns';
+import { z } from 'zod';
+
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -41,7 +46,7 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
-    
+
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);
       await encounterObject.addDiets(dietIds);
@@ -310,7 +315,7 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
-        AND 
+        AND
           surveys.id IN (:surveyIds)
         AND
           encounters.deleted_at IS NULL
@@ -339,7 +344,7 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
-        AND 
+        AND
           surveys.id IN (:surveyIds)
         AND
           survey_responses.deleted_at IS NULL
@@ -519,6 +524,84 @@ encounterRelations.get(
       count: data.length,
       data,
     });
+  }),
+);
+
+const encounterTasksQuerySchema = z.object({
+  order: z.preprocess(
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
+    z
+      .enum(['ASC', 'DESC'])
+      .optional()
+      .default('ASC'),
+  ),
+  orderBy: z
+    .enum(['dueTime', 'name'])
+    .optional()
+    .default('dueTime'),
+  statuses: z
+    .array(z.enum(Object.values(TASK_STATUSES)))
+    .optional()
+    .default([TASK_STATUSES.TODO]),
+  assignedTo: z.string().optional(),
+  page: z.coerce
+    .number()
+    .optional()
+    .default(0),
+  rowsPerPage: z.coerce
+    .number()
+    .optional()
+    .default(10),
+});
+encounterRelations.get(
+  '/:id/tasks',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Task } = models;
+    const { id: encounterId } = params;
+
+    const query = await encounterTasksQuerySchema.parseAsync(req.query);
+    const { order, orderBy, assignedTo, statuses, page, rowsPerPage } = query;
+
+    req.checkPermission('list', 'Tasking');
+
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+    const baseQueryOptions = {
+      where: {
+        encounterId,
+        status: { [Op.in]: statuses },
+        dueTime: {
+          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+        ...(assignedTo && {
+          [Op.and]: literal(`
+            EXISTS (
+              SELECT 1 FROM "task_designations" AS td
+              WHERE (
+                "td"."designation_id" = :assignedTo
+                AND "td"."task_id" = "Task"."id"
+              )
+            )
+          `),
+        }),
+      },
+      replacements: { assignedTo },
+    };
+    const queryResults = await Task.findAll({
+      ...baseQueryOptions,
+      order: [
+        [orderBy, order.toUpperCase()],
+        ['highPriority', 'DESC'],
+        ['name', 'ASC'],
+      ],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      include: Task.getFullReferenceAssociations(),
+    });
+    const results = queryResults.map(x => x.forResponse());
+
+    const count = await Task.count(baseQueryOptions);
+    res.send({ data: results, count });
   }),
 );
 

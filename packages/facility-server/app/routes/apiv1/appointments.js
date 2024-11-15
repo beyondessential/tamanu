@@ -184,6 +184,7 @@ appointments.post('/locationBooking', async (req, res) => {
       const bookingTimeAlreadyTaken = await Appointment.findOne({
         where: {
           locationId,
+          status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
           ...timeOverlapWhereCondition(startTime, endTime),
         },
         transaction,
