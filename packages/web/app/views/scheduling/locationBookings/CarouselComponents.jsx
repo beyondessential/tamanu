@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+
+import { UnstyledHtmlButton } from '../../../components';
 import { Colors } from '../../../constants';
-import { UnstyledHtmlButton } from '../../../components/index.js';
 
 const Grid = styled.div`
   --header-col-width: 11.5rem;
