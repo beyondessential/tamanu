@@ -17,10 +17,10 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
   const { ability } = useAuth();
   const { getSetting } = useSettings();
 
-  const enableLocationBooking = getSetting('features.enableLocationBooking');
+  const showLocationBookingsSetting = getSetting('layouts.showLocationBookingsOnPatientView');
   const canListAppointment = ability.can('list', 'Appointment');
   const canReadAppointment = ability.can('read', 'Appointment');
-  const showLocationBookings = enableLocationBooking && canListAppointment && canReadAppointment;
+  const showLocationBookings = showLocationBookingsSetting && canListAppointment && canReadAppointment;
 
   const onViewEncounter = useCallback(
     id => {
