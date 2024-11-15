@@ -1,15 +1,16 @@
-import { endOfDay, formatISO } from 'date-fns';
+import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
+
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const BookingsCell = ({
   appointments,
@@ -32,6 +33,7 @@ export const BookingsCell = ({
         onCancel={() => openCancelModal(a)}
         appointment={a}
         key={a.id}
+        hideTime={!isSameDay(date, parseISO(a.startTime))}
       />
     ))}
   </CarouselGrid.Cell>
@@ -93,7 +95,7 @@ export const LocationBookingsCalendarBody = ({
 
   const { data: appointmentsData = [] } = useAppointmentsQuery({
     after: displayedDates[0],
-    before: endOfDay(displayedDates[displayedDates.length - 1]),
+    before: endOfDay(displayedDates.at(-1)),
     all: true,
     locationId: '',
     clinicianId: filters.clinicianId,

@@ -55,6 +55,14 @@ const Wrapper = styled.div`
   }
 `;
 
+const Time = styled.time`
+  margin-inline-end: 0.3em; // Approximates a wordspace
+`;
+
+const Timestamp = ({ date }) => (
+  <Time dateTime={date.toISOString()}>{format(date, 'h:mmaaa')}</Time>
+);
+
 const Label = styled.span`
   padding-inline-start: 0.3125rem;
   overflow: hidden;
@@ -68,17 +76,13 @@ const Label = styled.span`
     `}
 `;
 
-const Timestamp = ({ date }) => (
-  <time dateTime={date.toISOString()}>{format(date, 'h:mmaaa')}</time>
-);
-
 const IconGroup = styled.div`
   align-items: center;
   display: flex;
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => {
+export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCancel, ...props }) => {
   const {
     patient,
     startTime: startTimeStr,
@@ -95,9 +99,11 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
   const isHighPriority = false; // TODO
   const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
+  const timestamp = hideTime ? null : <Timestamp date={startTime} />;
   const tileText = (
     <>
-      <Timestamp date={startTime} /> {getPatientNameAsString(patient)}
+      {timestamp}
+      {getPatientNameAsString(patient)}
     </>
   );
 
