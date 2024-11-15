@@ -5,10 +5,10 @@ import { useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
 import {
-  CircularProgress,
-  IconButton,
   Button as MuiButton,
   ButtonBase as MuiButtonBase,
+  CircularProgress,
+  IconButton,
 } from '@material-ui/core';
 import {
   AddBoxOutlined,
@@ -60,7 +60,7 @@ const StyledButton = styled(({ ...props }) => {
   &.MuiButton-outlinedPrimary {
     border-color: ${props => props.theme.palette.primary.main};
   }
-  ${props => props.confirmStyle ? props.confirmStyle : ''}
+  ${props => props.confirmStyle ?? ''}
 `;
 
 const StyledCircularProgress = styled(CircularProgress)`
@@ -309,3 +309,21 @@ const getLocationProps = ({ to }) => {
 
 const ButtonWithPermissionTooltip = withPermissionTooltip(Button);
 export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissionTooltip);
+
+/**
+ * To be extended by custom components which need button semantics, but are not visually or
+ * conceptually “a button”.
+ */
+export const UnstyledHtmlButton = styled.button`
+  appearance: none;
+  background-color: unset;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration-thickness: from-font;
+  touch-action: manipulation;
+`;

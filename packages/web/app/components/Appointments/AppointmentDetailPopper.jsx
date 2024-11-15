@@ -23,6 +23,7 @@ import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constan
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { formatDateRange } from '../../utils/dateTime';
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
@@ -79,8 +80,8 @@ const PatientDetailsContainer = styled(FlexCol)`
 const AppointmentDetailsContainer = styled(FlexCol)`
   padding: 0.75rem;
   gap: 0.5rem;
-  border-top: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  position: relative;
 `;
 
 const AppointmentStatusContainer = styled(Box)`
@@ -118,6 +119,13 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
+const Tag = styled(FlexRow)`
+  gap: 0.125rem;
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  inset-block-end: 0.75rem;
+`;
+
 const ControlsRow = ({ onClose, onCancel, onEdit }) => {
   const actions = [
     {
@@ -151,27 +159,6 @@ const DetailsDisplay = ({ label, value }) => (
     <Label>{label}</Label>
     <span>{value ?? <>&mdash;</>}</span>
   </FlexCol>
-);
-
-const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
-  <DetailsDisplay
-    label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
-    value={
-      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData
-          value={bookingType.id}
-          fallback={bookingType.name}
-          category="bookingType"
-        />
-        {isOvernight && (
-          <FlexRow sx={{ gap: '2px' }}>
-            <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
-            <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
-          </FlexRow>
-        )}
-      </FlexRow>
-    }
-  />
 );
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
@@ -211,6 +198,82 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
+const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
+  return (
+    <>
+      {location && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={location?.name}
+              value={location?.id}
+              category="location"
+            />
+          }
+        />
+      )}
+      {bookingType && (
+        <DetailsDisplay
+          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          value={
+            <TranslatedReferenceData
+              value={bookingType.id}
+              fallback={bookingType.name}
+              category="bookingType"
+            />
+          }
+        />
+      )}
+      {isOvernight && (
+        <Tag>
+          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
+          <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
+        </Tag>
+      )}
+    </>
+  );
+};
+
+const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
+  return (
+    <>
+      {appointmentType && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="appointment.appointmentType.label.short"
+              fallback="Appt type"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              value={appointmentType.id}
+              fallback={appointmentType.name}
+              category="appointmentType"
+            />
+          }
+        />
+      )}
+      {isHighPriority && (
+        <Tag>
+          <HighPriorityIcon
+            aria-label="High priority"
+            htmlColor={Colors.alert}
+            style={{ fontSize: 15 }}
+          />
+          <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+        </Tag>
+      )}
+    </>
+  );
+};
+
 const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const {
     startTime,
@@ -220,6 +283,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     location,
     bookingType,
     appointmentType,
+    isHighPriority,
   } = appointment;
   return (
     <AppointmentDetailsContainer>
@@ -248,40 +312,19 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      {location && (
-        <DetailsDisplay
-          label={
-            <TranslatedText
-              stringId="general.localisedField.locationId.label"
-              fallback="Location"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              fallback={location?.name}
-              value={location?.id}
-              category="location"
-            />
-          }
+
+      {/* Location booking specific data */}
+      {location && bookingType && (
+        <LocationBookingDetails
+          location={location}
+          bookingType={bookingType}
+          isOvernight={isOvernight}
         />
       )}
-      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
+
+      {/* Outpatient appointment specific data */}
       {appointmentType && (
-        <DetailsDisplay
-          label={
-            <TranslatedText
-              stringId="scheduling.appointmentType.label"
-              fallback="Appointment type"
-            />
-          }
-          value={
-            <TranslatedReferenceData
-              value={appointmentType.id}
-              fallback={appointmentType.name}
-              category="appointmentType"
-            />
-          }
-        />
+        <AppointmentTypeDetails appointmentType={appointmentType} isHighPriority={isHighPriority} />
       )}
     </AppointmentDetailsContainer>
   );

@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import {
-  Menu,
-  MenuItem,
-  Checkbox,
-  Box,
-  ListItemText,
-  styled,
-  Button,
-  InputAdornment,
-} from '@mui/material';
-import { Search } from '@mui/icons-material';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
+import ListItemText from '@mui/material/ListItemText';
+import styled from '@mui/system/styled';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import Search from '@mui/icons-material/Search'
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
