@@ -98,10 +98,9 @@ export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCance
 
   const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
-  const timestamp = hideTime ? null : <Timestamp date={startTime} />;
   const tileText = (
     <>
-      {timestamp}
+      {!hideTime && <Timestamp date={startTime} />}
       {getPatientNameAsString(patient)}
     </>
   );
