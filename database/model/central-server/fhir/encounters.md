@@ -14,6 +14,7 @@ These are materialised from `public.encounters`.
 The status of the encounter.
 
 In Tamanu this can be one of two values:
+
 - in-progress (for current or open encounters)
 - discharged
 {% enddocs %}
@@ -22,6 +23,7 @@ In Tamanu this can be one of two values:
 The general classification of the encounter.
 
 This is a complex type but in Tamanu represents only one of these three classes (or absent):
+
 - IMP (inpatient)
 - EMER (emergency)
 - OBSENC (observation)
@@ -47,8 +49,4 @@ that area.
 {% docs fhir__encounters__service_provider %}
 Reference to the [facility](#!/source/source.tamanu.fhir__tamanu.facilities) where the encounter is
 taking place.
-{% enddocs %}
-
-{% docs fhir__encounters__is_live %}
-TODO
 {% enddocs %}

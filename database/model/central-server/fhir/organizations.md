@@ -21,7 +21,3 @@ Whether the facility is active.
 
 This is materialised from `visibility_status`.
 {% enddocs %}
-
-{% docs fhir__organizations__is_live %}
-TODO
-{% enddocs %}

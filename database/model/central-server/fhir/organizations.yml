@@ -42,6 +42,6 @@ sources:
             description: "{{ doc('fhir__organizations__active') }}"
           - name: is_live
             data_type: boolean
-            description: "{{ doc('fhir__generic__is_live') }}"
+            description: "{{ doc('fhir__generic__is_live') }} in organizations."
             data_tests:
               - not_null
