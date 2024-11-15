@@ -48,13 +48,13 @@ export const CheckInModal = React.memo(
           ...data,
         };
 
-        await createEncounter(newEncounter);
+        const { id } = await createEncounter(newEncounter);
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
         if (typeof onSubmitEncounter === 'function') {
-          onSubmitEncounter(newEncounter);
+          onSubmitEncounter({ id, ...newEncounter });
         }
 
         onClose();

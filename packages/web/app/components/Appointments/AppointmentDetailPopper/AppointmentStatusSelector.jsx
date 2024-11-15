@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import { toast } from 'react-toastify';
 
 import { FlexCol } from './SharedComponents';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
@@ -59,10 +60,24 @@ export const AppointmentStatusSelector = ({
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
   const [encounter, setEncounter] = useState(null);
 
+  const updateEncounter = useCallback(
+    e => {
+      setEncounter(e);
+      updateAppointment({ id: appointment?.id, encounterId: e?.id });
+      setIsEncounterModalOpen(false);
+      toast.success(
+        <TranslatedText
+          stringId="scheduling.success.encounterCreated"
+          fallback="Encounter successfully started"
+        />,
+      );
+    },
+    [appointment, updateAppointment],
+  );
+
   useEffect(() => {
     setEncounter(initialEncounter);
-    updateAppointment({ id: appointment?.id, encounterId: initialEncounter?.id });
-  }, [initialEncounter, appointment, updateAppointment]);
+  }, [initialEncounter]);
 
   if (isPatientEncounterLoading) {
     return null;
@@ -114,7 +129,7 @@ export const AppointmentStatusSelector = ({
         }}
         open={isEncounterModalOpen}
         onClose={() => setIsEncounterModalOpen(false)}
-        onSubmitEncounter={setEncounter}
+        onSubmitEncounter={updateEncounter}
         noRedirectOnSubmit
         patient={appointment.patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
