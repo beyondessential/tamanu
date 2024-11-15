@@ -83,6 +83,7 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
     startTime: startTimeStr,
     endTime: endTimeStr,
     status: appointmentStatus,
+    isHighPriority,
   } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
@@ -91,7 +92,6 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isHighPriority = false; // TODO
   const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
   const tileText = (
