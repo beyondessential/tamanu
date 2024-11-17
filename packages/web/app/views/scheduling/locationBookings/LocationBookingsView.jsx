@@ -13,6 +13,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
+import { omit } from 'lodash';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -65,9 +66,7 @@ export const LocationBookingsView = () => {
   const handleFilterChange = useCallback(
     values => {
       setFilters(values);
-      // Below are the only filters that are stored in user preferences
-      const { locationGroupIds, clinicianId, bookingTypeId } = values;
-      mutateUserPreferences({ locationGroupIds, clinicianId, bookingTypeId });
+      mutateUserPreferences({ locationBookingFilters: omit(values, ['patientNameOrId']) });
     },
     [setFilters, mutateUserPreferences],
   );
