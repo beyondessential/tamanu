@@ -126,7 +126,7 @@ const Tag = styled(FlexRow)`
   inset-block-end: 0.75rem;
 `;
 
-const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions }) => {
+const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
   const baseActions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
@@ -140,10 +140,7 @@ const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions }) => {
 
   return (
     <ControlsContainer>
-      <StyledMenuButton
-        actions={[...baseActions, ...(additionalActions ? additionalActions : [])]}
-        placement="bottom-start"
-      />
+      <StyledMenuButton actions={[...baseActions, ...additionalActions]} placement="bottom-start" />
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
