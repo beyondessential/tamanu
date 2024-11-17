@@ -49,9 +49,9 @@ export const partitionAppointmentsByDate = appointments =>
     const start = parseISO(appt.startTime);
     const end = parseISO(appt.endTime);
 
-    const dates = isValid(end)
+    const dates = appt.endTime
       ? eachDayOfInterval({ start, end }).map(toDateString)
-      : [appt.startTime.slice(0, 10)];
+      : [appt.startTime.slice(0, 10)]; // Slice out datestring without converting to Date and back
     for (const date of dates) (acc[date] ?? (acc[date] = [])).push(appt);
 
     return acc;
