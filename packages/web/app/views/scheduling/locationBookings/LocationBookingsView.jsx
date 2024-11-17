@@ -65,9 +65,9 @@ export const LocationBookingsView = () => {
   const handleFilterChange = useCallback(
     values => {
       setFilters(values);
-      // eslint-disable-next-line no-unused-vars
-      const { patientNameOrId, ...locationBookingFilters } = values;
-      mutateUserPreferences({ locationBookingFilters });
+      // Below are the only filters that are stored in user preferences
+      const { locationGroupIds, clinicianId, bookingTypeId } = values;
+      mutateUserPreferences({ locationGroupIds, clinicianId, bookingTypeId });
     },
     [setFilters, mutateUserPreferences],
   );
