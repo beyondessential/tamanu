@@ -17,7 +17,6 @@ import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
-import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -27,17 +26,10 @@ import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
-`;
-
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
-`
+`;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -151,76 +143,103 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     return (
-      <FormGrid columns={1}>
-        <CloseDrawerIcon onClick={warnAndResetForm} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          disabled={isEdit}
-          required
-        />
-        <Field
-          label={
-            <TranslatedText stringId="general.locationGroup.label" fallback="Location group" />
-          }
-          name="locationGroupId"
-          component={AutocompleteField}
-          suggester={locationGroupSuggester}
-          required
-        />
-        <Field
-          name="appointmentTypeId"
-          label={
+      <Drawer
+        PaperProps={{
+          // Used to exclude the drawer from click away listener on appointment details popper
+          className: APPOINTMENT_DRAWER_CLASS,
+        }}
+        open={open}
+        onClose={warnAndResetForm}
+        title={
+          isEdit ? (
             <TranslatedText
-              stringId="appointment.appointmentType.label"
-              fallback="Appointment type"
+              stringId="outpatientAppointment.form.edit.heading"
+              fallback="Modify outpatient appointment"
             />
-          }
-          component={DynamicSelectField}
-          suggester={appointmentTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <Field
-          name="startTime"
-          label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
-          component={DateTimeField}
-          required
-          saveDateAsString
-        />
-        <Field
-          name="endTime"
-          disabled={!values.startTime}
-          date={parseISO(values.startTime)}
-          label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
-          component={TimeWithFixedDateField}
-          saveDateAsString
-        />
-        <Field
-          name="isHighPriority"
-          label={
-            <IconLabel>
-              <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
-              <HighPriorityIcon
-                aria-label="High priority"
-                aria-hidden={undefined}
-                htmlColor={Colors.alert}
-                style={{ fontSize: 18 }}
+          ) : (
+            <TranslatedText
+              stringId="outpatientAppointment.form.new.heading"
+              fallback="New outpatient appointment"
+            />
+          )
+        }
+        description={
+          <TranslatedText
+            stringId="outpatientAppointment.form.new.description"
+            fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+          />
+        }
+      >
+        <FormGrid columns={1}>
+          <Field
+            name="patientId"
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            component={AutocompleteField}
+            suggester={patientSuggester}
+            disabled={isEdit}
+            required
+          />
+          <Field
+            label={
+              <TranslatedText stringId="general.locationGroup.label" fallback="Location group" />
+            }
+            name="locationGroupId"
+            component={AutocompleteField}
+            suggester={locationGroupSuggester}
+            required
+          />
+          <Field
+            name="appointmentTypeId"
+            label={
+              <TranslatedText
+                stringId="appointment.appointmentType.label"
+                fallback="Appointment type"
               />
-            </IconLabel>
-          }
-          component={CheckField}
-        />
+            }
+            component={DynamicSelectField}
+            suggester={appointmentTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <Field
+            name="startTime"
+            label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
+            component={DateTimeField}
+            required
+            saveDateAsString
+          />
+          <Field
+            name="endTime"
+            disabled={!values.startTime}
+            date={parseISO(values.startTime)}
+            label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+            component={TimeWithFixedDateField}
+            saveDateAsString
+          />
+          <Field
+            name="isHighPriority"
+            label={
+              <IconLabel>
+                <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+                <HighPriorityIcon
+                  aria-label="High priority"
+                  aria-hidden={undefined}
+                  htmlColor={Colors.alert}
+                  style={{ fontSize: 18 }}
+                />
+              </IconLabel>
+            }
+            component={CheckField}
+          />
 
-        <FormSubmitCancelRow onCancel={warnAndResetForm} />
-      </FormGrid>
+          <FormSubmitCancelRow onCancel={warnAndResetForm} />
+        </FormGrid>
+      </Drawer>
     );
   };
 
@@ -244,33 +263,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     },
   );
   return (
-    <Drawer
-      PaperProps={{
-        // Used to exclude the drawer from click away listener on appointment details popper
-        className: APPOINTMENT_DRAWER_CLASS,
-      }}
-      open={open}
-      onClose={onClose}
-      title={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointment.form.edit.heading"
-            fallback="Modify outpatient appointment"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.heading"
-            fallback="New outpatient appointment"
-          />
-        )
-      }
-      description={
-        <TranslatedText
-          stringId="outpatientAppointment.form.new.description"
-          fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-        />
-      }
-    >
+    <>
       <Form
         onSubmit={async (values, { resetForm }) => {
           await handleSubmit(values);
@@ -288,6 +281,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
       />
-    </Drawer>
+    </>
   );
 };
