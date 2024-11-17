@@ -250,8 +250,8 @@ const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
         <DetailsDisplay
           label={
             <TranslatedText
-              stringId="scheduling.appointmentType.label"
-              fallback="Appointment type"
+              stringId="appointment.appointmentType.label.short"
+              fallback="Appt type"
             />
           }
           value={

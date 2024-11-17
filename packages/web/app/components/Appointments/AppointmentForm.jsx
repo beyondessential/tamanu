@@ -63,7 +63,10 @@ export const AppointmentForm = props => {
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />,
+            <TranslatedText
+              stringId="appointment.appointmentType.label"
+              fallback="Appointment type"
+            />,
           ),
         startTime: yup
           .string()
@@ -99,7 +102,10 @@ export const AppointmentForm = props => {
             <FormSeparatorLine />
             <Field
               label={
-                <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
+                <TranslatedText
+                  stringId="appointment.appointmentType.label"
+                  fallback="Appointment type"
+                />
               }
               name="appointmentTypeId"
               component={AutocompleteField}
