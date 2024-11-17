@@ -6,6 +6,7 @@ FHIR data about service requests, which cover both laboratories and imaging.
 
 {% docs fhir__service_requests__identifier %}
 Two identifiers:
+
 - The Tamanu internal UUID of the lab or imaging request.
 - The Tamanu Display ID of the lab or imaging request.
 {% enddocs %}
