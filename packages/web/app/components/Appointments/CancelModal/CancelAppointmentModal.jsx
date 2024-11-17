@@ -64,7 +64,12 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           value={clinician?.displayName}
         />
         <DetailDisplay
-          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          label={
+            <TranslatedText
+              stringId="appointment.appointmentType.label.short"
+              fallback="Appt type"
+            />
+          }
           value={
             <TranslatedReferenceData
               value={appointmentType?.id}
