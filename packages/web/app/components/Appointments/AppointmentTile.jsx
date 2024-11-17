@@ -81,7 +81,7 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCancel, ...props }) => {
+export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCancel, actions, ...props }) => {
   const {
     patient,
     startTime: startTimeStr,
@@ -148,6 +148,7 @@ export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCance
         onEdit={onEdit}
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
+        actions={actions}
       />
     </>
   );

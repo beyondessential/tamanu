@@ -37,7 +37,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
-`
+`;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -110,7 +110,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('locationGroup');
 
-  const isEdit = !!initialValues.id;
+  const isEdit = !!(initialValues.id && initialValues.startTime);
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -158,7 +158,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
           component={AutocompleteField}
           suggester={patientSuggester}
-          disabled={isEdit}
+          disabled={!!initialValues.patientId}
           required
         />
         <Field
