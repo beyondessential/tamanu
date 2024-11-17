@@ -10,6 +10,7 @@ This is mostly a stub resource that other, more clinically relevant, resources r
 
 {% docs fhir__practitioners__identifier %}
 One or more identifiers:
+
 - The Tamanu internal UUID for the user
 - The Tamanu Display ID for the user, if present
 {% enddocs %}

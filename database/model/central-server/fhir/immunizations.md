@@ -12,6 +12,7 @@ These are materialised from `public.administered_vaccines`.
 Normalized status code for the vaccination.
 
 Tamanu has a larger set of values for vaccine status than FHIR, so a reduced mapping is done. One of:
+
 - completed
 - entered-in-error
 - not-done
