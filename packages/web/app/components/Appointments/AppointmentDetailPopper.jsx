@@ -74,15 +74,17 @@ const ControlsContainer = styled(FlexRow)`
 `;
 
 const PatientDetailsContainer = styled(FlexCol)`
+  border-start-end-radius: 0.3125rem;
+  border-start-start-radius: 0.3125rem;
+  cursor: pointer;
+  gap: 0.1875rem;
   padding-block: 0.75rem 0.5rem;
   padding-inline: 0.75rem;
-  gap: 0.1875rem;
-  :hover {
+  transition: background-color 150ms ease;
+
+  &:hover {
     background-color: ${Colors.veryLightBlue};
-    cursor: pointer;
   }
-  border-top-left-radius: 0.3125rem;
-  border-top-right-radius: 0.3125rem;
 `;
 
 const PrimaryDetails = styled('div')`
