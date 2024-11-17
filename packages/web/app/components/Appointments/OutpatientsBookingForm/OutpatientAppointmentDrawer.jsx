@@ -181,7 +181,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <Field
             label={
-              <TranslatedText stringId="general.locationGroup.label" fallback="Location group" />
+              <TranslatedText
+                stringId="general.localisedField.locationGroupId.label"
+                fallback="Area"
+              />
             }
             name="locationGroupId"
             component={AutocompleteField}
@@ -202,7 +205,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <Field
             name="clinicianId"
-            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.clinician.label"
+                fallback="Clinician"
+              />
+            }
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
