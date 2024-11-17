@@ -22,7 +22,7 @@ import { reloadPatient } from '../../store';
 import { formatDateTimeRange } from '../../utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { MenuButton } from '../MenuButton';
-import { PatientNameDisplay } from '../PatientNameDisplay';
+import { getPatientNameAsString } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
@@ -39,13 +39,13 @@ const FlexCol = styled(Box)`
   flex-direction: column;
 `;
 
-const StyledH2 = styled('h2')`
+const PatientName = styled('h2')`
   font-size: 0.875rem;
   font-weight: 500;
   margin-block: 0;
 `;
 
-const Label = styled('p')`
+const Label = styled('span')`
   font-weight: 500;
   letter-spacing: 0.02em;
   margin-block: 0;
@@ -102,7 +102,7 @@ const AppointmentDetailsContainer = styled(FlexCol)`
 
 const AppointmentStatusContainer = styled(Box)`
   display: grid;
-  grid-row: 0.5rem 0.3125rem;
+  gap: 0.5rem 0.3125rem;
   grid-template-columns: repeat(3, 1fr);
   justify-items: center;
   padding-block: 0.5rem 0.75rem;
@@ -164,10 +164,13 @@ const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
   );
 };
 
+const Paragraph = styled('p')`
+  display: inline;
+`;
 const InlineDetailsDisplay = ({ label, value }) => (
-  <span>
-    <Label>{label}: </Label> {value ?? '—'}
-  </span>
+  <Paragraph>
+    <Label>{label}: </Label> {value ?? <>&mdash;</>}
+  </Paragraph>
 );
 
 const DetailsDisplay = ({ label, value }) => (
@@ -182,7 +185,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { data: additionalData } = usePatientAdditionalDataQuery(id);
   return (
     <PatientDetailsContainer onClick={onClick}>
-      <PatientNameDisplay as={StyledH2} patient={patient} />
+      <PatientName>{getPatientNameAsString(patient)}</PatientName>
       <PrimaryDetails>
         <InlineDetailsDisplay
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
