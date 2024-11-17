@@ -8,6 +8,7 @@ import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
+import { omit } from 'lodash';
 
 export const CELL_WIDTH_PX = 224;
 
@@ -126,22 +127,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   });
   const { headData = [], cellData, titleKey } = data;
 
-  const getActions = appointment => {
-    // eslint-disable-next-line no-unused-vars
-    const { id, startTime, endTime, ...partialAppointment } = appointment;
-    return [
-      {
-        label: (
-          <TranslatedText
-            stringId="appointments.action.newAppointment"
-            fallback="New appointment"
-          />
-        ),
-        action: () => onOpenDrawer(partialAppointment),
-      },
-    ];
-  };
-
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -181,7 +166,17 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   appointment={a}
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
-                  actions={getActions(a)}
+                  actions={[
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.newAppointment"
+                          fallback="New appointment"
+                        />
+                      ),
+                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                    },
+                  ]}
                 />
               ))}
             </AppointmentColumnWrapper>
