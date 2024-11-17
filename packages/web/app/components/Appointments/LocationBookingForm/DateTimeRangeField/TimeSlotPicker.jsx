@@ -35,7 +35,7 @@ const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
   border: max(0.0625rem, 1px) solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
   padding-block: 0.75rem;
-  padding-inline: 1rem;
+  padding-inline: 0.85rem;
 
   &.${toggleButtonGroupClasses.root} {
     display: grid;
