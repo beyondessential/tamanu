@@ -8,6 +8,7 @@ import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
+import { omit } from 'lodash';
 
 export const CELL_WIDTH_PX = 224;
 
@@ -165,6 +166,17 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   appointment={a}
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
+                  actions={[
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.newAppointment"
+                          fallback="New appointment"
+                        />
+                      ),
+                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                    },
+                  ]}
                 />
               ))}
             </AppointmentColumnWrapper>
