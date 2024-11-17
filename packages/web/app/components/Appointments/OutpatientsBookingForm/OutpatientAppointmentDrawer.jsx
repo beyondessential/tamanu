@@ -102,7 +102,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('locationGroup');
 
-  const isEdit = !!initialValues.id;
+  const isEdit = !!(initialValues.id && initialValues.startTime);
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
