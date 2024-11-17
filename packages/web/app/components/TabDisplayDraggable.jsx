@@ -77,6 +77,9 @@ export const TabDisplayDraggable = ({
   handleDragEnd,
   ...tabProps
 }) => {
+  const cursorStyle = `url(${grabCursor}), auto !important`
+  console.log(grabCursor)
+  console.log(cursorStyle)
   const currentTabData = tabs.find(t => t.key === currentTab);
 
   const onDragEnd = result => {
@@ -93,7 +96,7 @@ export const TabDisplayDraggable = ({
               variant={scrollable ? 'scrollable' : 'fixed'}
               scrollButtons={scrollable ? 'on' : 'off'}
               value={currentTab}
-              style={{ '*': { cursor: `url(${grabCursor}), auto !important` } }}
+              style={{ '*': { cursor: cursorStyle } }}
               {...provided.droppableProps}
             >
               {tabs.map(({ key, label, render, icon }, index) => (
