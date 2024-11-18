@@ -52,20 +52,23 @@ export const AppointmentStatusSelector = ({
   disabled,
 }) => {
   const {
-    data: initialEncounter,
-    isLoading: isPatientEncounterLoading,
+    data: currentPatientEncounter,
+    isLoading: isCurrentPatientEncounterLoading,
   } = usePatientCurrentEncounter(appointment?.patient?.id);
 
   const { mutateAsync: updateAppointment } = useAppointmentMutation({ isEdit: true });
 
-  const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
   const [encounter, setEncounter] = useState(null);
+
+  const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
+  const openEncounterModal = setIsEncounterModalOpen(true);
+  const closeEncounterModal = setIsEncounterModalOpen(false);
 
   const updateEncounter = useCallback(
     e => {
       setEncounter(e);
       updateAppointment({ id: appointment?.id, encounterId: e?.id });
-      setIsEncounterModalOpen(false);
+      closeEncounterModal();
       toast.success(
         <TranslatedText
           stringId="scheduling.success.encounterCreated"
@@ -73,14 +76,14 @@ export const AppointmentStatusSelector = ({
         />,
       );
     },
-    [appointment, updateAppointment],
+    [appointment?.id, closeEncounterModal, updateAppointment],
   );
 
   useEffect(() => {
-    setEncounter(initialEncounter);
-  }, [initialEncounter]);
+    setEncounter(currentPatientEncounter);
+  }, [currentPatientEncounter]);
 
-  if (isPatientEncounterLoading) {
+  if (isCurrentPatientEncounterLoading) {
     return null;
   }
 
@@ -113,7 +116,7 @@ export const AppointmentStatusSelector = ({
           }
           visible={!!encounter}
         >
-          <CheckInButton onClick={() => setIsEncounterModalOpen(true)} disabled={!!encounter}>
+          <CheckInButton onClick={openEncounterModal} disabled={!!encounter}>
             <TranslatedText
               stringId="scheduling.action.admitOrCheckIn"
               fallback="Admit or check-in"
@@ -129,7 +132,7 @@ export const AppointmentStatusSelector = ({
           practitionerId: appointment?.clinician?.id,
         }}
         open={isEncounterModalOpen}
-        onClose={() => setIsEncounterModalOpen(false)}
+        onClose={() => closeEncounterModeal()}
         onSubmitEncounter={updateEncounter}
         noRedirectOnSubmit
         patient={appointment.patient}
