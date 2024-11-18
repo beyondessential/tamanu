@@ -1,8 +1,10 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { format, isSameDay, parseISO } from 'date-fns';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
@@ -81,7 +83,14 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCancel, actions, ...props }) => {
+export const AppointmentTile = ({
+  appointment,
+  hideTime = false,
+  onEdit,
+  onCancel,
+  actions,
+  ...props
+}) => {
   const {
     patient,
     startTime: startTimeStr,
@@ -92,6 +101,15 @@ export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCance
   const ref = useRef(null);
   const [open, setOpen] = useState();
   const [localStatus, setLocalStatus] = useState(appointmentStatus);
+
+  const location = useLocation();
+  useEffect(() => {
+    const { appointmentId } = queryString.parse(location.search);
+    if (appointmentId && appointmentId === appointment.id) {
+      setOpen(true);
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
@@ -109,15 +127,13 @@ export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCance
     <>
       <ThemedTooltip title={tileText}>
         <Tile
-          $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+          $color={APPOINTMENT_STATUS_COLORS[localStatus]}
           $selected={open}
           ref={ref}
           onClick={() => setOpen(true)}
           {...props}
         >
-          <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-            {tileText}
-          </Label>
+          <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
           <IconGroup>
             {isHighPriority && (
               <HighPriorityIcon

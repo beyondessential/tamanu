@@ -55,6 +55,7 @@ const searchableFields = [
   'clinicianId',
   'locationId',
   'locationGroupId',
+  'patientId',
   'patient.first_name',
   'patient.last_name',
   'patient.display_id',
@@ -73,6 +74,7 @@ const sortKeys = {
   location: Sequelize.col('location.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
+  bookingType: Sequelize.col('bookingType.name'),
 };
 
 appointments.get(
@@ -205,8 +207,9 @@ appointments.post('/locationBooking', async (req, res) => {
 });
 
 appointments.put('/locationBooking/:id', async (req, res) => {
-  const { models, body, params } = req;
+  const { models, body, params, query } = req;
   const { id } = params;
+  const { skipConflictCheck = false } = query;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
@@ -219,17 +222,20 @@ appointments.put('/locationBooking/:id', async (req, res) => {
       if (!existingBooking) {
         throw new NotFoundError();
       }
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
-        where: {
-          id: { [Op.ne]: id },
-          locationId,
-          ...timeOverlapWhereCondition(startTime, endTime),
-        },
-        transaction,
-      });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
+      if (!skipConflictCheck) {
+        const bookingTimeAlreadyTaken = await Appointment.findOne({
+          where: {
+            id: { [Op.ne]: id },
+            locationId,
+            ...timeOverlapWhereCondition(startTime, endTime),
+          },
+          transaction,
+        });
+
+        if (bookingTimeAlreadyTaken) {
+          throw new ResourceConflictError();
+        }
       }
 
       const updatedRecord = await existingBooking.update(body, { transaction });

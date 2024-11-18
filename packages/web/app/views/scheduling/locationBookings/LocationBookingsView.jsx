@@ -1,8 +1,10 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
-import React, { useState } from 'react';
+import { omit } from 'lodash';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
@@ -60,6 +62,15 @@ export const LocationBookingsView = () => {
   const { facilityId } = useAuth();
 
   const { filters, setFilters } = useLocationBookingsContext();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+
+  const handleFilterChange = useCallback(
+    values => {
+      setFilters(values);
+      mutateUserPreferences({ locationBookingFilters: omit(values, ['patientNameOrId']) });
+    },
+    [setFilters, mutateUserPreferences],
+  );
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
@@ -87,7 +98,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={setFilters} />
+        <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText

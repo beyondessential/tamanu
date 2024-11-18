@@ -108,7 +108,7 @@ export const OutpatientAppointmentsView = () => {
         'endTime',
         'patientId',
         'clinicianId',
-        'isHighPriority'
+        'isHighPriority',
       ]),
     );
     setDrawerOpen(true);
