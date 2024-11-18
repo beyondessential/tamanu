@@ -25,10 +25,20 @@ import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { TOP_BAR_HEIGHT } from '../../TopBar';
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const StyledDrawer = styled(Drawer)`
+  & .MuiPaper-root {
+    inset-block-start: calc(${TOP_BAR_HEIGHT}px + 5.188rem);
+    inset-block-end: calc(1rem + 1px);
+    inset-inline-end: calc(1rem + 1px);
+    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px - 5.188rem - 1rem);
+  }
 `;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
@@ -143,7 +153,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     return (
-      <Drawer
+      <StyledDrawer
         PaperProps={{
           // Used to exclude the drawer from click away listener on appointment details popper
           className: APPOINTMENT_DRAWER_CLASS,
@@ -174,6 +184,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           <Field
             name="patientId"
             label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            placeholder={getTranslation(
+              'scheduling.filter.placeholder.patientNameOrId',
+              'Search patient name or ID',
+            )}
             component={AutocompleteField}
             suggester={patientSuggester}
             disabled={isEdit}
@@ -247,7 +261,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
-      </Drawer>
+      </StyledDrawer>
     );
   };
 
