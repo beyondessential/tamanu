@@ -26,7 +26,6 @@ const Carousel = styled.div`
   border-radius: 0.2rem;
   margin: 1rem;
   overflow: scroll;
-
   overscroll-behavior: contain;
   // Uncomment line below to re-enable scroll snap. Components in CarouselComponents still support
   // scroll snap, but disabling because Chrome’s current handling of scrolling by clicking-and-
