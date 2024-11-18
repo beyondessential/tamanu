@@ -120,7 +120,7 @@ export const AppointmentStatusSelector = ({
           <CheckInButton onClick={openEncounterModal} disabled={!!encounter}>
             <TranslatedText
               stringId="scheduling.action.admitOrCheckIn"
-              fallback="Admit or check-in"
+              fallback="Admit or check in"
             />
           </CheckInButton>
         </StyledConditionalTooltip>
