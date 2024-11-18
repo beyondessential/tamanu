@@ -20,7 +20,7 @@ import { useAuth } from '../contexts/Auth';
 
 export const LabRequestsTable = React.memo(
   ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
-    const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
+    const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
 
     const { facilityId } = useAuth();
 
@@ -47,7 +47,7 @@ export const LabRequestsTable = React.memo(
         { key: 'labTestPanelName', title: 'Panel', accessor: getPanelType },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
-        publishedStatus
+        isPublishedTable
           ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
           : { key: 'priority', title: 'Priority', accessor: getPriority },
         {
@@ -55,10 +55,10 @@ export const LabRequestsTable = React.memo(
           title: 'Status',
           accessor: getStatus,
           maxWidth: 200,
-          sortable: !publishedStatus,
+          sortable: !isPublishedTable,
         },
       ];
-    }, [publishedStatus]);
+    }, [isPublishedTable]);
     const dispatch = useDispatch();
 
     const selectLab = async lab => {
@@ -74,6 +74,11 @@ export const LabRequestsTable = React.memo(
       );
     };
 
+    // Filter either by the selected filter status or the array of valid table statuses
+    const statusesToFilterBy = {
+      statuses: searchParameters.status ? searchParameters.status : statuses,
+    };
+
     return (
       <SearchTableWithPermissionCheck
         verb="list"
@@ -85,12 +90,12 @@ export const LabRequestsTable = React.memo(
         onRowClick={selectLab}
         fetchOptions={{
           ...searchParameters,
-          ...(statuses && { statuses }),
+          ...statusesToFilterBy,
           facilityId,
         }}
         initialSort={{
           order: 'desc',
-          orderBy: publishedStatus ? 'publishedDate' : 'requestedDate',
+          orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',
         }}
       />
     );
