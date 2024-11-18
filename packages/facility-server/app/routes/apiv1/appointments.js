@@ -140,14 +140,10 @@ appointments.get(
       if (queryField.includes('.')) {
         column = `$${queryField}$`;
       }
-      const filterCondition = Array.isArray(queryValue)
+      _filters[column] = Array.isArray(queryValue)
         ? { [Op.in]: queryValue }
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
-
-      return {
-        ..._filters,
-        [column]: filterCondition,
-      };
+      return _filters;
     }, {});
 
     const { rows, count } = await Appointment.findAndCountAll({
