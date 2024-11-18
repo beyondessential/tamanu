@@ -57,9 +57,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={location?.name ?? '—'} // em dash
-              value={location?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION}
+              fallback={location?.name}
+              placeholder={<>&mdash;</>}
+              value={location?.id}
             />
           }
         />
