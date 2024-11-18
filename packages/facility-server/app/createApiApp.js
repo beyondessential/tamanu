@@ -34,7 +34,6 @@ export async function createApiApp({
     NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
   ]);
 
-  console.log('dbNotifierrr', dbNotifier);
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
