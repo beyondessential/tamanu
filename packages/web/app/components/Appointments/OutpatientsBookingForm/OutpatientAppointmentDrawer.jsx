@@ -144,10 +144,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     return (
       <Drawer
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment details popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
+        // Used to exclude the drawer from click away listener on appointment details popper
+        containerClassName={APPOINTMENT_DRAWER_CLASS}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -280,6 +278,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         onSubmit={async (values, { resetForm }) => {
           await handleSubmit(values);
           resetForm();
+        }}
+        style={{
+          overflowY: 'auto',
+          minWidth: 'fit-content',
         }}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

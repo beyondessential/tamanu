@@ -37,10 +37,10 @@ const OvernightIcon = styled(Brightness2Icon)`
 `;
 
 const StyledDrawer = styled(Drawer)`
-  .MuiPaper-root {
-    // Add 1 pixel to allow border to show
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
+  .MuiCollapse-wrapperInner > div {
+    // // Add 1 pixel to allow border to show
+    // block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
+    // inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
   }
 `;
 
@@ -169,10 +169,8 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
       <StyledDrawer
         variant="persistent"
         anchor="right"
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment detail popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        containerClassName={APPOINTMENT_DRAWER_CLASS}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -260,6 +258,13 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
         onSubmit={async (values, { resetForm }) => {
           handleSubmit(values);
           resetForm();
+        }}
+        style={{
+          position: 'absolute',
+          overflowY: 'auto',
+          right: 0,
+          blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
+          insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
         }}
         suppressErrorDialog
         validationSchema={validationSchema}

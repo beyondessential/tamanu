@@ -1,19 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import MuiDrawer from '@mui/material/Drawer';
 
 import { BodyText, Heading4 } from './Typography';
 import { Colors } from '../constants';
-import { TOP_BAR_HEIGHT } from './TopBar';
 import { ClearIcon } from './Icons';
+
+import Collapse from '@mui/material/Collapse';
 
 const Container = styled.div`
   width: 20.625rem;
   padding: 1rem;
   padding-top: 0;
   background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
+  border-inline-start: 1px ${Colors.outline} solid;
 `;
 
 const Title = styled(Heading4)`
@@ -33,13 +32,6 @@ const Description = styled(BodyText)`
   margin-bottom: 1rem;
 `;
 
-const StyledDrawer = styled(MuiDrawer)`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
-  }
-`;
-
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
   position: absolute;
@@ -49,8 +41,8 @@ const CloseDrawerIcon = styled(ClearIcon)`
 
 export const Drawer = ({
   open,
-  PaperProps = {},
   className,
+  containerClassName,
   onClose,
   title,
   description,
@@ -61,15 +53,8 @@ export const Drawer = ({
   useEffect(() => topRef.current.scrollIntoView(), [open]);
 
   return (
-    <StyledDrawer
-      PaperProps={PaperProps}
-      className={className}
-      variant="persistent"
-      anchor="right"
-      open={open}
-      onClose={onClose}
-    >
-      <Container columns={1}>
+    <Collapse className={className} in={open} orientation="horizontal">
+      <Container className={containerClassName} columns={1}>
         <div ref={topRef} aria-hidden></div>
         <Title>
           {title}
@@ -78,6 +63,6 @@ export const Drawer = ({
         <Description>{description}</Description>
         {children}
       </Container>
-    </StyledDrawer>
+    </Collapse>
   );
 };

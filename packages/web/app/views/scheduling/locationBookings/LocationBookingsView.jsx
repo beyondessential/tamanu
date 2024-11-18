@@ -3,7 +3,13 @@ import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import {
+  APPOINTMENT_DRAWER_CLASS,
+  Button,
+  PageContainer,
+  TopBar,
+  TranslatedText,
+} from '../../../components';
 import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { CalendarSearchBar } from './CalendarSearchBar';
@@ -14,6 +20,7 @@ import { CancelLocationBookingModal } from '../../../components/Appointments/Can
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { omit } from 'lodash';
+import { Box } from '@mui/material';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -95,41 +102,43 @@ export const LocationBookingsView = () => {
   const hasNoLocations = locations?.length === 0;
 
   return (
-    <Wrapper>
-      <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={() => openBookingForm({})}>
-          <PlusIcon />
-          <TranslatedText
-            stringId="locationBooking.calendar.bookLocation"
-            fallback="Book location"
-          />
-        </NewBookingButton>
-      </LocationBookingsTopBar>
-      {hasNoLocations ? (
-        <EmptyStateLabel>
-          <TranslatedText
-            stringId="locationBooking.calendar.noBookableLocations"
-            fallback="No bookable locations"
-          />
-        </EmptyStateLabel>
-      ) : (
-        <LocationBookingsCalendar
-          locationsQuery={locationsQuery}
-          openBookingForm={openBookingForm}
-          openCancelModal={openCancelModal}
-        />
-      )}
+    <Box display="flex">
       <BookLocationDrawer
         initialValues={selectedAppointment}
         open={isDrawerOpen}
         onClose={closeBookingForm}
       />
-      <CancelLocationBookingModal
-        appointment={selectedAppointment}
-        open={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)}
-      />
-    </Wrapper>
+      <Wrapper>
+        <LocationBookingsTopBar>
+          <CalendarSearchBar onFilterChange={handleFilterChange} />
+          <NewBookingButton onClick={() => openBookingForm({})}>
+            <PlusIcon />
+            <TranslatedText
+              stringId="locationBooking.calendar.bookLocation"
+              fallback="Book location"
+            />
+          </NewBookingButton>
+        </LocationBookingsTopBar>
+        {hasNoLocations ? (
+          <EmptyStateLabel>
+            <TranslatedText
+              stringId="locationBooking.calendar.noBookableLocations"
+              fallback="No bookable locations"
+            />
+          </EmptyStateLabel>
+        ) : (
+          <LocationBookingsCalendar
+            locationsQuery={locationsQuery}
+            openBookingForm={openBookingForm}
+            openCancelModal={openCancelModal}
+          />
+        )}
+        <CancelLocationBookingModal
+          appointment={selectedAppointment}
+          open={isCancelModalOpen}
+          onClose={() => setIsCancelModalOpen(false)}
+        />
+      </Wrapper>
+    </Box>
   );
 };
