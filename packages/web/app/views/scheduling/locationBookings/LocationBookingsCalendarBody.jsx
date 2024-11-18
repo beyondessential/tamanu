@@ -109,11 +109,10 @@ export const LocationBookingsCalendarBody = ({
   const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  const areFiltersActive = Object.values(filters).some(
-    filter => filter !== null && filter.length > 0,
-  );
+  const areNonLocationFiltersActive =
+    filters.clinicianId.length > 0 || filters.bookingTypeId.length > 0 || filters.patientNameOrId;
 
-  const filteredLocations = areFiltersActive
+  const filteredLocations = areNonLocationFiltersActive
     ? locations.filter(location => appointmentsByLocation[location.id])
     : locations;
 
