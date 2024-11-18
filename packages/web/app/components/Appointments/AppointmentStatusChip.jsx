@@ -56,7 +56,12 @@ const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
   </PillShapedButton>
 );
 
-export const AppointmentStatusChip = ({ appointmentStatus, disabled, selected, ...props }) => {
+export const AppointmentStatusChip = ({
+  appointmentStatus,
+  disabled = false,
+  selected,
+  ...props
+}) => {
   return (
     <Chip
       disabled={disabled}
