@@ -201,12 +201,12 @@ appointments.post('/locationBooking', async (req, res) => {
 });
 
 appointments.put('/locationBooking/:id', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
   const { models, body, params } = req;
   const { id } = params;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
-
-  req.checkPermission('create', 'Appointment');
 
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
