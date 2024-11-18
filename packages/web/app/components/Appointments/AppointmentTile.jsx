@@ -107,7 +107,7 @@ export const AppointmentTile = ({
     const { appointmentId } = queryString.parse(location.search);
     if (appointmentId && appointmentId === appointment.id) {
       setOpen(true);
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      ref.current.scrollIntoView({ block: 'center' });
     }
   }, [appointment.id, location.search]);
 
