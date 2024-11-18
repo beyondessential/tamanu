@@ -34,6 +34,7 @@ const IconLabel = styled.div`
 
 const StyledDrawer = styled(Drawer)`
   & .MuiPaper-root {
+    border-bottom-right-radius: 4px;
     inset-block-start: calc(${TOP_BAR_HEIGHT}px + 5.188rem);
     inset-block-end: calc(1rem + 1px);
     inset-inline-end: calc(1rem + 1px);
