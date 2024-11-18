@@ -132,7 +132,7 @@ const COLUMNS = [
         fallback="Clinician"
       />
     ),
-    accessor: ({ clinician }) => clinician?.displayName,
+    accessor: ({ clinician }) => clinician?.displayName || '-',
   },
   {
     key: 'appointmentType',
@@ -153,7 +153,7 @@ const COLUMNS = [
 export const PastAppointmentModal = ({ open, onClose, patient }) => {
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
-    initialSortDirection: 'asc',
+    initialSortDirection: 'desc',
   });
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   let appointments =
