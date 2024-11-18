@@ -109,7 +109,7 @@ export const AppointmentTile = ({
       setOpen(true);
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [location.search]);
+  }, [appointment.id, location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
