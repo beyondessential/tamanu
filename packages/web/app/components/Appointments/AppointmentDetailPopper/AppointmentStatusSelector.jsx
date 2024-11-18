@@ -1,18 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { FlexCol } from './SharedComponents';
-import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { AppointmentStatusChip } from '../AppointmentStatusChip';
-import { ConditionalTooltip } from '../../Tooltip';
-import { TextButton } from '../../Button';
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../../Translation';
-import { EncounterModal } from '../../EncounterModal';
-import { usePatientCurrentEncounter } from '../../../api/queries';
+import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
+
 import { useAppointmentMutation } from '../../../api/mutations';
+import { usePatientCurrentEncounter } from '../../../api/queries';
+import { Colors } from '../../../constants';
+import { TextButton } from '../../Button';
+import { EncounterModal } from '../../EncounterModal';
+import { ConditionalTooltip } from '../../Tooltip';
+import { TranslatedText } from '../../Translation';
+import { AppointmentStatusChip } from '../AppointmentStatusChip';
+import { FlexCol } from './SharedComponents';
 
 const AppointmentStatusContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
