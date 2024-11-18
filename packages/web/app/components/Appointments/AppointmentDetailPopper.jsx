@@ -63,6 +63,7 @@ const ControlsContainer = styled(FlexRow)`
   inset-block-start: 0.5rem;
   inset-inline-end: 0.5rem;
   gap: 0.125rem;
+  z-index: 1;
 `;
 
 const PatientDetailsContainer = styled(FlexCol)`
