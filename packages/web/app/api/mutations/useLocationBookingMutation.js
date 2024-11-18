@@ -7,17 +7,19 @@ export const useLocationBookingMutation = (
 ) => {
   const api = useApi();
 
+  const BASE_URL = 'appointments/locationBooking';
+
   return useMutation(
     payload =>
       isEdit
         ? api.put(
-            `appointments/locationBooking/${payload.id}${
-              skipConflictCheck ? '?skipConflictCheck=true' : ''
-            }`,
+            `${BASE_URL}/${payload.id}${skipConflictCheck && '?skipConflictCheck=true'}`,
             payload,
-            { throwResponse: true },
+            {
+              throwResponse: true,
+            },
           )
-        : api.post('appointments/locationBooking', payload, { throwResponse: true }),
+        : api.post(BASE_URL, payload, { throwResponse: true }),
     useMutationOptions,
   );
 };
