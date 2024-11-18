@@ -6,6 +6,7 @@ import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const appointments = express.Router();
 
@@ -82,7 +83,7 @@ appointments.get(
     const {
       models,
       query: {
-        after,
+        after = startOfToday(),
         before,
         rowsPerPage = 10,
         page = 0,
@@ -96,14 +97,18 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    const afterTime = after || startOfToday();
-    const startTimeQuery = {
-      [Op.gte]: afterTime,
-    };
+    const timeQuery = before
+      ? {
+          [Op.or]: Sequelize.literal(
+            `("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ('${toDateTimeString(
+              after,
+            )}', '${toDateTimeString(before)}')`,
+          ),
+        }
+      : {
+          startTime: { [Op.gte]: after },
+        };
 
-    if (before) {
-      startTimeQuery[Op.lte] = before;
-    }
 
     const patientNameOrIdQuery = patientNameOrId
       ? {
@@ -151,7 +156,7 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        startTime: startTimeQuery,
+        ...timeQuery,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
