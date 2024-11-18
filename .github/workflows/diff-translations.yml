@@ -19,7 +19,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
-        fetch-tags: true
 
     - uses: actions/setup-node@v4
       with:
