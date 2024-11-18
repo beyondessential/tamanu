@@ -4,6 +4,7 @@ import { Box, Tabs } from '@material-ui/core';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import { Colors } from '../constants';
+import grabCursor from '../assets/images/grab_cursor.svg';
 
 const TabBar = styled.div`
   display: flex;
@@ -17,6 +18,9 @@ const TabContainer = styled(Tabs)`
 
   .MuiTabs-indicator {
     background-color: ${Colors.primary};
+  }
+  * {
+    cursor: url("${grabCursor}"), auto !important;
   }
 `;
 
@@ -32,7 +36,7 @@ const StyledTab = styled(Box)`
   opacity: 0.7;
   position: relative;
   flex-shrink: 0;
-  transition: all 0.3s;
+  transition: opacity, background-color 0.3s;
 
   &:hover {
     opacity: 1;
@@ -84,7 +88,7 @@ export const TabDisplayDraggable = ({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <TabBar className={className}>
-        <Droppable droppableId="droppable" direction="horizontal">
+        <Droppable droppableId="tab-display-droppable" direction="horizontal">
           {provided => (
             <TabContainer
               ref={provided.innerRef}
@@ -100,6 +104,7 @@ export const TabDisplayDraggable = ({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      style={provided.draggableProps.style}
                       onClick={() => render && onTabSelect(key)}
                       className={cn({
                         selected: currentTabData?.key === key,
