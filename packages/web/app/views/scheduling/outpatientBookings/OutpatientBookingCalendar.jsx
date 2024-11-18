@@ -1,4 +1,5 @@
 import React from 'react';
+import { omit } from 'lodash';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import styled from 'styled-components';
@@ -8,7 +9,6 @@ import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
-import { omit } from 'lodash';
 
 export const CELL_WIDTH_PX = 224;
 
