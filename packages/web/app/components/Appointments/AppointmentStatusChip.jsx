@@ -64,8 +64,9 @@ export const AppointmentStatusChip = ({
 }) => {
   return (
     <Chip
-      disabled={disabled}
       color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+      disabled={disabled}
+      role="radio"
       selected={selected}
       {...props}
     >

@@ -1,9 +1,8 @@
-import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientCurrentEncounter } from '../../../api/queries';
@@ -15,6 +14,10 @@ import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
 import { FlexCol } from './SharedComponents';
 
+const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
+  status => status !== APPOINTMENT_STATUSES.CANCELLED,
+);
+
 const AppointmentStatusContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
   padding-block: 0.5rem 0.75rem;
@@ -22,27 +25,35 @@ const AppointmentStatusContainer = styled(FlexCol)`
   align-items: center;
 `;
 
-const AppointmentStatusGrid = styled(Box)`
+const ChipGroup = styled('div')`
   display: grid;
+  gap: 0.5rem 0.3125rem;
   grid-template-columns: repeat(3, 1fr);
-  grid-row-gap: 0.5rem;
-  grid-column-gap: 0.3125rem;
   justify-items: center;
 `;
 
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
+    max-inline-size: 7.5rem;
     padding-inline: 1rem;
-    max-width: 7.5rem;
   }
 `;
 
 const CheckInButton = styled(TextButton)`
   color: ${Colors.primary};
   font-size: 0.6875rem;
+  text-decoration-thickness: from-font;
   text-decoration: underline;
   text-transform: none;
 `;
+
+const PlaceholderStatusSelector = () => (
+  <ChipGroup role="radiogroup">
+    {NONCANCELLED_APPOINTMENT_STATUSES.map(status => (
+      <AppointmentStatusChip appointmentStatus={status} disabled key={status} selected={false} />
+    ))}
+  </ChipGroup>
+);
 
 export const AppointmentStatusSelector = ({
   appointment,
@@ -51,23 +62,22 @@ export const AppointmentStatusSelector = ({
   updateAppointmentStatus,
   disabled,
 }) => {
-  const {
-    data: currentPatientEncounter,
-    isLoading: isCurrentPatientEncounterLoading,
-  } = usePatientCurrentEncounter(appointment?.patient?.id);
+  const { data: encounter, isLoading: encounterIsLoading } = usePatientCurrentEncounter(
+    appointment?.patient?.id,
+  );
 
   const { mutateAsync: updateAppointment } = useAppointmentMutation({ isEdit: true });
-
-  const [encounter, setEncounter] = useState(null);
 
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
   const openEncounterModal = setIsEncounterModalOpen(true);
   const closeEncounterModal = setIsEncounterModalOpen(false);
 
   const updateEncounter = useCallback(
-    e => {
-      setEncounter(e);
-      updateAppointment({ id: appointment?.id, encounterId: e?.id });
+    newEncounter => {
+      updateAppointment({
+        id: appointment?.id,
+        encounterId: newEncounter?.id,
+      });
       closeEncounterModal();
       toast.success(
         <TranslatedText
@@ -79,21 +89,13 @@ export const AppointmentStatusSelector = ({
     [appointment?.id, closeEncounterModal, updateAppointment],
   );
 
-  useEffect(() => {
-    setEncounter(currentPatientEncounter);
-  }, [currentPatientEncounter]);
-
-  if (isCurrentPatientEncounterLoading) {
-    return null;
-  }
+  if (encounterIsLoading) return <PlaceholderStatusSelector />;
 
   return (
     <>
       <AppointmentStatusContainer>
-        <AppointmentStatusGrid>
-          {APPOINTMENT_STATUS_VALUES.filter(
-            status => status !== APPOINTMENT_STATUSES.CANCELLED,
-          ).map(status => {
+        <ChipGroup role="radiogroup">
+          {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
             const isSelected = status === selectedStatus;
             return (
               <AppointmentStatusChip
@@ -101,12 +103,11 @@ export const AppointmentStatusSelector = ({
                 appointmentStatus={status}
                 onClick={() => updateAppointmentStatus(status)}
                 disabled={disabled || isSelected}
-                role="radio"
                 selected={isSelected}
               />
             );
           })}
-        </AppointmentStatusGrid>
+        </ChipGroup>
         <StyledConditionalTooltip
           title={
             <TranslatedText
@@ -132,7 +133,7 @@ export const AppointmentStatusSelector = ({
           practitionerId: appointment?.clinician?.id,
         }}
         open={isEncounterModalOpen}
-        onClose={() => closeEncounterModeal()}
+        onClose={closeEncounterModal}
         onSubmitEncounter={updateEncounter}
         noRedirectOnSubmit
         patient={appointment.patient}
