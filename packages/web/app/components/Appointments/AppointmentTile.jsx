@@ -1,10 +1,10 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { format, isSameDay, parseISO } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
