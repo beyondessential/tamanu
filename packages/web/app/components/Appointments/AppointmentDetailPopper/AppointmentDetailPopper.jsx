@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
@@ -33,14 +32,15 @@ const StyledPaper = styled(Paper)`
 `;
 
 export const AppointmentDetailPopper = ({
-  open,
-  onClose,
-  onStatusChange,
-  onEdit,
-  onCancel,
+  actions,
   anchorEl,
   appointment,
   isOvernight = false,
+  onCancel,
+  onClose,
+  onEdit,
+  onStatusChange,
+  open = false,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
@@ -111,37 +111,40 @@ export const AppointmentDetailPopper = ({
 
   return (
     <Popper
-      open={open}
       anchorEl={anchorEl}
-      placement="bottom-start"
-      onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
-      sx={{
-        zIndex: 10,
-      }}
       modifiers={modifiers}
+      onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
+      open={open}
+      placement="bottom-start"
+      sx={{ zIndex: 10 }}
     >
       <ClickAwayListener
         onClickAway={handleClickAway}
         mouseEvent="onMouseDown"
         touchEvent="onTouchStart"
       >
-        <Box>
-          <ControlsRow onClose={onClose} onEdit={onEdit} onCancel={onCancel} />
+        <div>
+          <ControlsRow
+            additionalActions={actions}
+            onCancel={onCancel}
+            onClose={onClose}
+            onEdit={onEdit}
+          />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
-              patient={appointment.patient}
-              onClick={handlePatientDetailsClick}
               additionalData={additionalData}
+              onClick={handlePatientDetailsClick}
+              patient={appointment.patient}
             />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
+              additionalData={additionalData}
+              appointment={appointment}
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
-              appointment={appointment}
-              additionalData={additionalData}
             />
           </StyledPaper>
-        </Box>
+        </div>
       </ClickAwayListener>
     </Popper>
   );
