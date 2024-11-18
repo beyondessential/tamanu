@@ -22,7 +22,7 @@ import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
-import { updateDependentRecord } from '../../app/sync/refreshSyncLookupChildRecords';
+import { updateChildRecordsForSyncLookup } from '../../dist/sync/registerSyncLookupUpdateListener';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -1515,7 +1515,7 @@ describe('Sync Lookup data', () => {
       encounter.patientId = patient2.id;
       await encounter.save();
 
-      await updateDependentRecord(models.Encounter, encounter.id);
+      await updateChildRecordsForSyncLookup(models.Encounter, encounter.id);
 
       await centralSyncManager.updateLookupTable();
 
