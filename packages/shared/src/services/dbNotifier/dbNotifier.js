@@ -1,5 +1,6 @@
 import PGPubSub from 'pg-notify';
 import { defineHook } from './hook';
+
 import { BACKEND_HOOKS, NOTIFY_CHANNELS } from '@tamanu/constants';
 
 const CHANNEL_TO_HOOK = {
@@ -8,7 +9,7 @@ const CHANNEL_TO_HOOK = {
 };
 
 /**
- *
+ * Define db notifier for multiple events
  * @param {{host: string, port: number, database: string, username: string, password: string}} config
  */
 export const defineDbNotifier = async (config, channels = []) => {

@@ -3,11 +3,21 @@ import { snakeCase } from 'lodash';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { getDependantAssociations } from '@tamanu/shared/utils';
 
-export async function updateDependentRecord(model, instanceId) {
+/**
+ * Update child records by setting updated_at_sync_tick = 1
+ * so that they are refreshed in the sync_lookup table
+ * @param {*} model
+ * @param {*} instanceId
+ */
+export async function updateChildRecordsForSyncLookup(model, instanceId) {
   const dependantAssociations = getDependantAssociations(model);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
+
+    // We need to go via a raw query as Model.update({}) performs validation on the
+    // whole record, so we'll be rejected for failing to include required fields -
+    // even though we only want to update updated_at_sync_tick!
     const [updatedRows] = await model.sequelize.query(
       `
       UPDATE ${target.tableName}
@@ -22,19 +32,26 @@ export async function updateDependentRecord(model, instanceId) {
       },
     );
 
-    // If there are any child records, also update them so that they are updated in the sync_lookup table too
+    // If there are any child records, also recursively update them
+    // so that they are also updated in the sync_lookup table
     for (const updatedRow of updatedRows) {
-      await updateDependentRecord(target, updatedRow.id);
+      await updateChildRecordsForSyncLookup(target, updatedRow.id);
     }
   }
 }
 
-export const refreshSyncLookupChildRecords = async ({ models, dbNotifier }) => {
+
+/**
+ * Register a listener when a record is updated and the change includes patient_id
+ * @param {*} models 
+ * @param {*} dbNotifier 
+ */
+export const registerSyncLookupUpdateListener = async (models, dbNotifier) => {
   const onTableChanged = dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
   onTableChanged(async payload => {
     if (payload.event === 'UPDATE' && payload.changes?.includes('patient_id')) {
       const model = Object.values(models).find(model => model.tableName === payload.table);
-      await updateDependentRecord(model, payload.newId);
+      await updateChildRecordsForSyncLookup(model, payload.newId);
     }
   });
 };

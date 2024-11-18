@@ -1,2 +1,2 @@
 export { buildSyncRoutes } from './buildSyncRoutes';
-export { refreshSyncLookupChildRecords } from './refreshSyncLookupChildRecords';
+export { registerSyncLookupUpdateListener } from './registerSyncLookupUpdateListener';
