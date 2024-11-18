@@ -19,7 +19,7 @@ import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
-const DEBOUNCE_DELAY = 200; // ms
+const DEBOUNCE_DELAY_MS = 200;
 
 const StyledPaper = styled(Paper)`
   color: ${Colors.darkestText};
@@ -73,7 +73,7 @@ export const AppointmentDetailPopper = ({
           );
           setLocalStatus(appointment.status);
         }
-      }, DEBOUNCE_DELAY),
+      }, DEBOUNCE_DELAY_MS),
     [api, appointment.id, appointment.status, onStatusChange],
   );
 
