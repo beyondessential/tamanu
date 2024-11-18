@@ -81,7 +81,14 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCancel, actions, ...props }) => {
+export const AppointmentTile = ({
+  appointment,
+  hideTime = false,
+  onEdit,
+  onCancel,
+  actions,
+  ...props
+}) => {
   const {
     patient,
     startTime: startTimeStr,
@@ -109,15 +116,13 @@ export const AppointmentTile = ({ appointment, hideTime = false, onEdit, onCance
     <>
       <ThemedTooltip title={tileText}>
         <Tile
-          $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+          $color={APPOINTMENT_STATUS_COLORS[localStatus]}
           $selected={open}
           ref={ref}
           onClick={() => setOpen(true)}
           {...props}
         >
-          <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-            {tileText}
-          </Label>
+          <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
           <IconGroup>
             {isHighPriority && (
               <HighPriorityIcon
