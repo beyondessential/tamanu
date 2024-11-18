@@ -62,7 +62,7 @@ export const Drawer = ({
 }) => {
   const topRef = useRef(null);
 
-  useEffect(() => topRef.current.scrollIntoView(), []);
+  useEffect(() => topRef.current.scrollIntoView(), [open]);
 
   return (
     <StyledDrawer
