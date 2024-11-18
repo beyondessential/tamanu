@@ -8,7 +8,8 @@ import {
 } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Colors } from '../../../constants/index';
+
+import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
@@ -25,9 +26,12 @@ const Carousel = styled.div`
   border-radius: 0.2rem;
   margin: 1rem;
   overflow: scroll;
-
   overscroll-behavior: contain;
-  scroll-snap-type: both proximity;
+  // Uncomment line below to re-enable scroll snap. Components in CarouselComponents still support
+  // scroll snap, but disabling because Chrome’s current handling of scrolling by clicking-and-
+  // holding scrollbar arrows doesn’t respect the final scroll offset. It jumps back to the original
+  // scroll offset.
+  // scroll-snap-type: both mandatory;
 
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
