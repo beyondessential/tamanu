@@ -200,7 +200,7 @@ export const LabRequestsSearchBar = ({ statuses }) => {
           />
         ) : (
           <LocalisedField
-            name="status"
+            name="statuses"
             label={
               <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
             }

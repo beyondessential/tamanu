@@ -74,11 +74,6 @@ export const LabRequestsTable = React.memo(
       );
     };
 
-    // Filter either by the selected filter status or the array of valid table statuses
-    const statusesToFilterBy = {
-      statuses: searchParameters.status ? searchParameters.status : statuses,
-    };
-
     return (
       <SearchTableWithPermissionCheck
         verb="list"
@@ -89,8 +84,8 @@ export const LabRequestsTable = React.memo(
         noDataMessage="No lab requests found"
         onRowClick={selectLab}
         fetchOptions={{
+          statuses,
           ...searchParameters,
-          ...statusesToFilterBy,
           facilityId,
         }}
         initialSort={{
