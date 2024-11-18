@@ -103,7 +103,7 @@ export const AppointmentTile = ({
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
+  const isOvernightLocationBooking = appointment.location && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -132,7 +132,7 @@ export const AppointmentTile = ({
                 style={{ fontSize: 15 }}
               />
             )}
-            {isOvernight && (
+            {isOvernightLocationBooking && (
               <OvernightIcon
                 aria-label="Overnight booking"
                 aria-hidden={undefined}
@@ -149,7 +149,7 @@ export const AppointmentTile = ({
         onClose={() => setOpen(false)}
         anchorEl={ref.current}
         appointment={appointment}
-        isOvernight={isOvernight}
+        isOvernight={isOvernightLocationBooking}
         onEdit={onEdit}
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
