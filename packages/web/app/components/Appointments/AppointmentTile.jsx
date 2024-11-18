@@ -1,8 +1,10 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { format, isSameDay, parseISO } from 'date-fns';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
@@ -99,6 +101,15 @@ export const AppointmentTile = ({
   const ref = useRef(null);
   const [open, setOpen] = useState();
   const [localStatus, setLocalStatus] = useState(appointmentStatus);
+
+  const location = useLocation();
+  useEffect(() => {
+    const { appointmentId } = queryString.parse(location.search);
+    if (appointmentId && appointmentId === appointment.id) {
+      setOpen(true);
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
