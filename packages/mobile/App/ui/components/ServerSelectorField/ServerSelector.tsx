@@ -23,7 +23,13 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // allows overriding the central server list or meta server in builds
   const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
   if (centralServerOverrides) {
-    return centralServerOverrides;
+    return [
+      ...centralServerOverrides,
+      {
+        label: 'Release 2.20',
+        value: 'https://central.release-2-20.internal.tamanu.io',
+      },
+    ];
   }
 
   const defaultMetaServer = 'https://meta.tamanu.app';
@@ -43,6 +49,11 @@ const fetchServers = async (): Promise<SelectOption[]> => {
       value: 'http://10.0.2.2:3000',
     });
   }
+
+  options.push({
+    label: 'Release 2.20',
+    value: 'https://central.release-2-20.internal.tamanu.io',
+  });
 
   return options;
 };
