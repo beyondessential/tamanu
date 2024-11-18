@@ -69,9 +69,9 @@ export const AppointmentDetailPopper = ({
               stringId="schedule.error.updateStatus"
               fallback="Error updating appointment status"
             />,
-            console.error(error),
           );
           setLocalStatus(appointment.status);
+          console.error(error);
         }
       }, DEBOUNCE_DELAY_MS),
     [api, appointment.id, appointment.status, onStatusChange],
