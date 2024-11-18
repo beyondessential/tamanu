@@ -27,7 +27,7 @@ module.exports = {
         get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
       },
     ),
-    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'mjs', 'json'],
   },
 
   // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
