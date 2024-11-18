@@ -275,24 +275,24 @@ export const TimeSlotPicker = ({
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
-      let targetSelection;
+      let targetSelection; // The would-be time range if this time slot were to be selected
       switch (variant) {
         case 'range':
           // If beginning a fresh selection, discontinuity is impossible
           if (!values.startTime || !values.endTime) return true;
-
-          // The would-be time range if this time slot were to be selected
           targetSelection = {
             start: min([values.startTime, timeSlot.start]),
             end: max([values.endTime, timeSlot.end]),
           };
           break;
+
         case 'start':
           targetSelection = {
             start: timeSlot.start,
             end: max([values.endTime, endOfDay(date)]),
           };
           break;
+
         case 'end':
           targetSelection = {
             start: min([values.startTime, startOfDay(date)]),
