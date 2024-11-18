@@ -49,7 +49,6 @@ const CalendarInnerWrapper = styled(Box)`
   width: 100%;
   overflow: auto;
   border-block-start: 1px solid ${Colors.outline};
-  position: relative;
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
