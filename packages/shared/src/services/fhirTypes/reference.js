@@ -46,7 +46,7 @@ export class FhirReference extends FhirBaseType {
 
   static async to(resourceModel, upstreamId, fields) {
     const resource = await resourceModel.findOne({ where: { upstreamId } });
-    if (!resource) {
+    if (!resource || !resource.resolved) {
       return this.unresolved(resourceModel, upstreamId, fields);
     }
 

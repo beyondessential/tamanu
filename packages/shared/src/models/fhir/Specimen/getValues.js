@@ -37,7 +37,17 @@ function createCollection(collectedDateTime, collector, bodySite) {
 }
 
 async function requestRef(labRequest, models) {
-  return FhirReference.to(models.FhirServiceRequest, labRequest.id);
+  const serviceRequest = await models.FhirServiceRequest.findOne({
+    where: { upstreamId: labRequest.id },
+  });
+
+  // We mark specimens as resolved if their request is materialised, since there is a circular dependency between FhirSpecimen and FhirServiceRequest
+  // If we didn't do this then neither resource would ever be marked as resolved
+  if (serviceRequest) {
+    return FhirReference.resolved(models.FhirServiceRequest, serviceRequest.id);
+  }
+
+  return FhirReference.unresolved(models.FhirServiceRequest, labRequest.id);
 }
 
 async function collectorRef(labRequest, models) {

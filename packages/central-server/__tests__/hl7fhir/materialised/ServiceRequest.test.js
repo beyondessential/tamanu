@@ -29,17 +29,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   const fhirResources = {
     fhirPractitioner: null,
     fhirEncounter: null,
+    fhirOrganization: null,
   };
 
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
-    const { FhirPractitioner } = ctx.store.models;
+    const { FhirPractitioner, FhirOrganization } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
+    const fhirOrganization = await FhirOrganization.materialiseFromUpstream(resources.facility.id);
+    fhirResources.fhirOrganization = fhirOrganization;
   });
   afterAll(() => ctx.close());
 

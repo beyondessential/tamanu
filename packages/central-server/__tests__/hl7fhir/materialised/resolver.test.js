@@ -29,9 +29,11 @@ describe(`FHIR reference resolution`, () => {
         LabTestPanel,
         LabTestPanelRequest,
         FhirEncounter,
+        FhirOrganization,
         FhirPractitioner,
       } = ctx.store.models;
       await FhirEncounter.destroy({ where: {} });
+      await FhirOrganization.destroy({ where: {} });
       await FhirPractitioner.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
@@ -91,6 +93,7 @@ describe(`FHIR reference resolution`, () => {
         FhirServiceRequest,
         ImagingRequest,
         FhirEncounter,
+        FhirOrganization,
         FhirPractitioner,
       } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -104,6 +107,7 @@ describe(`FHIR reference resolution`, () => {
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
 
       // act
+      await FhirOrganization.materialiseFromUpstream(resources.facility.id);
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -177,6 +181,7 @@ describe(`FHIR reference resolution`, () => {
         FhirServiceRequest,
         ImagingRequest,
         FhirEncounter,
+        FhirOrganization,
         FhirPractitioner,
       } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -199,6 +204,7 @@ describe(`FHIR reference resolution`, () => {
 
       // A reference should have resolved, so expect to bump lastUpdated
       await sleepAsync(100);
+      await FhirOrganization.materialiseFromUpstream(resources.facility.id);
       await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       await FhirServiceRequest.resolveUpstreams();
       await mat.reload();
@@ -250,6 +256,7 @@ describe(`FHIR reference resolution`, () => {
         FhirServiceRequest,
         ImagingRequest,
         FhirEncounter,
+        FhirOrganization,
         FhirPractitioner,
       } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -272,6 +279,7 @@ describe(`FHIR reference resolution`, () => {
       expect(response).toHaveSucceeded();
       expect(mat.resolved).toBe(false);
 
+      await FhirOrganization.materialiseFromUpstream(resources.facility.id);
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
         resources.practitioner.id,
