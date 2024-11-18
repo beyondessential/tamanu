@@ -30,8 +30,8 @@ const Carousel = styled.div`
   overscroll-behavior: contain;
   // Uncomment line below to re-enable scroll snap. Components in CarouselComponents still support
   // scroll snap, but disabling because Chrome’s current handling of scrolling by clicking-and-
-  // holding scrollbar arrows doesn’t respect the final scroll offset - it tries to jumps to the
-  // original scroll offset.
+  // holding scrollbar arrows doesn’t respect the final scroll offset. It jumps back to the original
+  // scroll offset.
   // scroll-snap-type: both mandatory;
 
   @media (prefers-reduced-motion: no-preference) {
