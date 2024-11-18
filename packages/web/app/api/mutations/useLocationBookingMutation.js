@@ -1,13 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
+const BASE_URL = 'appointments/locationBooking';
+
+
 export const useLocationBookingMutation = (
   { isEdit = false, skipConflictCheck = false },
   useMutationOptions,
 ) => {
   const api = useApi();
-
-  const BASE_URL = 'appointments/locationBooking';
 
   return useMutation(
     payload =>
