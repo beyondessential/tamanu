@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { isAfter, parseISO } from 'date-fns';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 
+import { usePatientSuggester, useSuggester } from '../../../api';
+import { useAppointmentMutation } from '../../../api/mutations';
+import { Colors, FORM_TYPES } from '../../../constants';
+import { useTranslation } from '../../../contexts/Translation';
+import { notifyError, notifySuccess } from '../../../utils';
+import { FormSubmitCancelRow } from '../../ButtonRow';
+import { ConfirmModal } from '../../ConfirmModal';
+import { Drawer } from '../../Drawer';
 import {
   AutocompleteField,
+  CheckField,
+  DateTimeField,
   DynamicSelectField,
   Field,
   Form,
-  DateTimeField,
-  CheckField,
 } from '../../Field';
-import { usePatientSuggester, useSuggester } from '../../../api';
-import { useAppointmentMutation } from '../../../api/mutations';
-import { FormSubmitCancelRow } from '../../ButtonRow';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
-import { ConfirmModal } from '../../ConfirmModal';
-import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { isAfter, parseISO } from 'date-fns';
-import { useTranslation } from '../../../contexts/Translation';
-import { Drawer } from '../../Drawer';
-import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const IconLabel = styled.div`
   display: flex;
