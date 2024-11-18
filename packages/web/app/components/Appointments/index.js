@@ -1,0 +1,1 @@
+export { AppointmentDetailPopper } from './AppointmentDetailPopper';
