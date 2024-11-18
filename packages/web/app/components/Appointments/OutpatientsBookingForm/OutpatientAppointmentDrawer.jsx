@@ -25,20 +25,19 @@ import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
-import { TOP_BAR_HEIGHT } from '../../TopBar';
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
-
 const StyledDrawer = styled(Drawer)`
   & .MuiPaper-root {
-    border-bottom-right-radius: 4px;
-    inset-block-start: calc(${TOP_BAR_HEIGHT}px + 5.188rem);
-    inset-block-end: calc(1rem + 1px);
-    inset-inline-end: calc(1rem + 1px);
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px - 5.188rem - 1rem);
+    position: absolute;
+    inset-block-start: inherit;
+    block-size: inherit;
+    height: 100%;
+    overflow-y: auto;
+    transition: none;
   }
 `;
 

@@ -49,6 +49,7 @@ const CalendarInnerWrapper = styled(Box)`
   width: 100%;
   overflow: auto;
   border-block-start: 1px solid ${Colors.outline};
+  position: relative;
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
@@ -116,11 +117,6 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <OutpatientAppointmentDrawer
-        initialValues={selectedAppointment}
-        onClose={handleCloseDrawer}
-        open={drawerOpen}
-      />
       <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
@@ -140,6 +136,11 @@ export const OutpatientAppointmentsView = () => {
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
+          <OutpatientAppointmentDrawer
+            initialValues={selectedAppointment}
+            onClose={handleCloseDrawer}
+            open={drawerOpen}
+          />
           <OutpatientBookingCalendar
             onCancel={handleOpenCancelModal}
             onOpenDrawer={handleOpenDrawer}
