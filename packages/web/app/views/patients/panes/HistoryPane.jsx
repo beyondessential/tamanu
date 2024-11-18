@@ -6,7 +6,7 @@ import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
-import { LocationBookingsTable } from '../../../components/Scheduling/LocationBookingsTable';
+import { LocationBookingsTable } from '../../../components/Appointments/LocationBookingsTable'; 
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 

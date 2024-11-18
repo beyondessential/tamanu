@@ -13,7 +13,7 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
-import { CancelLocationBookingModal } from '../Appointments/CancelModal/CancelLocationBookingModal';
+import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
 
 const TableTitle = styled(Typography)`
@@ -144,6 +144,7 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
   });
+
   const appointments =
     useAppointmentsQuery({
       locationId: '',
