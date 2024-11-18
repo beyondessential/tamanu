@@ -1,22 +1,22 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
+import { push } from 'connected-react-router';
 import { debounce } from 'lodash';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { TranslatedText } from '../../Translation';
-import { Colors } from '../../../constants';
-import { reloadPatient } from '../../../store';
 import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { ControlsRow } from './ControlsRow';
-import { PatientDetailsDisplay } from './PatientDetailsDisplay';
+import { Colors } from '../../../constants';
+import { reloadPatient } from '../../../store';
+import { TranslatedText } from '../../Translation';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';
+import { ControlsRow } from './ControlsRow';
+import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
