@@ -1,4 +1,5 @@
 import React from 'react';
+import { omit } from 'lodash';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import styled from 'styled-components';
@@ -165,6 +166,17 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   appointment={a}
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
+                  actions={[
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.newAppointment"
+                          fallback="New appointment"
+                        />
+                      ),
+                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                    },
+                  ]}
                 />
               ))}
             </AppointmentColumnWrapper>

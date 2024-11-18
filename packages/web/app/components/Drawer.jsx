@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import MuiDrawer from '@mui/material/Drawer'
+import MuiDrawer from '@mui/material/Drawer';
 
 import { BodyText, Heading4 } from './Typography';
 import { Colors } from '../constants';

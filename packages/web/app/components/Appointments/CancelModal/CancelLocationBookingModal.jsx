@@ -111,8 +111,8 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useLocationBookingMutation(
-    { isEdit: true },
+  const { mutateAsync: updateBooking } = useLocationBookingMutation(
+    { isEdit: true, skipConflictCheck: true },
     {
       onSuccess: () => {
         toast.success(
@@ -147,7 +147,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
       bottomRowContent={
         <BottomModalContent
           cancelBooking={() =>
-            cancelBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
+            updateBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
           }
           onClose={onClose}
         />
