@@ -2,7 +2,7 @@ import { formatRFC7231 } from 'date-fns';
 import asyncHandler from 'express-async-handler';
 
 import { NotFound } from '@tamanu/shared/utils/fhir';
-import { sleepAsync } from '@tamanu/shared';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { ValidationError } from '@tamanu/shared/errors';
 
 const UNRESOLVED_RESOURCE_AWAIT_TIMEOUT = 20 * 1000; // 20 seconds
