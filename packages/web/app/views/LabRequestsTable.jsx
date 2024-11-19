@@ -17,7 +17,6 @@ import {
 } from '../utils/lab';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
-import { omit } from 'lodash';
 
 export const LabRequestsTable = React.memo(
   ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
@@ -75,9 +74,7 @@ export const LabRequestsTable = React.memo(
       );
     };
 
-    const statusesToFilterBy = {
-      statuses: searchParameters.status ? [searchParameters.status] : statuses,
-    };
+    const { status, ...searchFilters } = searchParameters;
 
     return (
       <SearchTableWithPermissionCheck
@@ -89,8 +86,8 @@ export const LabRequestsTable = React.memo(
         noDataMessage="No lab requests found"
         onRowClick={selectLab}
         fetchOptions={{
-          ...omit(searchParameters, 'status'),
-          ...statusesToFilterBy,
+          ...searchFilters,
+          statuses: status ? [status] : statuses,
           facilityId,
         }}
         initialSort={{
