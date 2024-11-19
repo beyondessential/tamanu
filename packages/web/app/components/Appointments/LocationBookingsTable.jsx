@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
@@ -15,16 +15,25 @@ import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
+import { PastBookingsModal } from './PastBookingsModal';
 
-const TableTitle = styled(Typography)`
-  font-size: 16px;
-  font-weight: 500;
+const TableTitleContainer = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
   z-index: 1;
+  line-height: 1.5;
+`;
+
+const ViewPastBookingsButton = styled(Box)`
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
 `;
 
 const OvernightIcon = styled(Brightness2Icon)`
@@ -114,10 +123,12 @@ const getDate = ({ startTime, endTime }) => {
   } else {
     dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
   }
-  return <DateText>
-    <span>{dateTimeString}</span>
-    {isOvernight && <OvernightIcon />}  
-  </DateText>;
+  return (
+    <DateText>
+      <span>{dateTimeString}</span>
+      {isOvernight && <OvernightIcon />}
+    </DateText>
+  );
 };
 
 const CustomCellContainer = styled(Box)`
@@ -155,6 +166,7 @@ export const LocationBookingsTable = ({ patient }) => {
     }).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const history = useHistory();
 
@@ -168,8 +180,8 @@ export const LocationBookingsTable = ({ patient }) => {
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
     history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
-  }
-  
+  };
+
   const COLUMNS = [
     {
       key: 'startTime',
@@ -185,7 +197,9 @@ export const LocationBookingsTable = ({ patient }) => {
     },
     {
       key: 'locationGroup',
-      title: <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />,
+      title: (
+        <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />
+      ),
       accessor: ({ location }) => location?.locationGroup?.name,
       sortable: false,
     },
@@ -204,9 +218,11 @@ export const LocationBookingsTable = ({ patient }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => <div onMouseEnter={() => setSelectedAppointment(data)}>
-        <MenuButton actions={actions} />
-      </div>,
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedAppointment(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
     },
   ];
 
@@ -216,13 +232,30 @@ export const LocationBookingsTable = ({ patient }) => {
         data={appointments}
         columns={COLUMNS}
         noDataMessage={
-          <TranslatedText stringId="patient.bookings.table.noData" fallback="No location bookings" />
+          <TranslatedText
+            stringId="patient.bookings.table.noData"
+            fallback="No location bookings"
+          />
         }
         allowExport={false}
         TableHeader={
-          <TableTitle>
-            <TranslatedText stringId="patient.bookings.table.title" fallback="Location bookings" />
-          </TableTitle>
+          <TableTitleContainer>
+            <Box component={'span'} fontSize="16px" fontWeight={500}>
+              <TranslatedText
+                stringId="patient.bookings.table.title"
+                fallback="Location bookings"
+              />
+            </Box>
+            <ViewPastBookingsButton
+              component={'span'}
+              onClick={() => setIsViewPastBookingsModalOpen(true)}
+            >
+              <TranslatedText
+                stringId="patient.bookings.table.viewPastBookings"
+                fallback="View past bookings"
+              />
+            </ViewPastBookingsButton>
+          </TableTitleContainer>
         }
         onClickRow={handleRowClick}
         orderBy={orderBy}
@@ -232,8 +265,14 @@ export const LocationBookingsTable = ({ patient }) => {
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)} 
+        onClose={() => setIsCancelModalOpen(false)}
       />
+      {isViewPastBookingsModalOpen && (
+        <PastBookingsModal
+          patient={patient}
+          onClose={() => setIsViewPastBookingsModalOpen(false)}
+        />
+      )}
     </Container>
   );
 };
