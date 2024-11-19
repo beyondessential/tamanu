@@ -70,24 +70,21 @@ export const AppointmentStatusSelector = ({
 
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
   const openEncounterModal = () => setIsEncounterModalOpen(true);
-  const closeEncounterModal = useCallback(() => setIsEncounterModalOpen(false), []);
+  const closeEncounterModal = () => setIsEncounterModalOpen(false);
 
-  const updateEncounter = useCallback(
-    newEncounter => {
-      updateAppointment({
-        id: appointment?.id,
-        encounterId: newEncounter?.id,
-      });
-      closeEncounterModal();
-      toast.success(
-        <TranslatedText
-          stringId="scheduling.success.encounterCreated"
-          fallback="Encounter successfully started"
-        />,
-      );
-    },
-    [appointment?.id, closeEncounterModal, updateAppointment],
-  );
+  const updateEncounter = newEncounter => {
+    updateAppointment({
+      id: appointment?.id,
+      encounterId: newEncounter?.id,
+    });
+    closeEncounterModal();
+    toast.success(
+      <TranslatedText
+        stringId="scheduling.success.encounterCreated"
+        fallback="Encounter successfully started"
+      />,
+    );
+  };
 
   if (encounterIsLoading) return <PlaceholderStatusSelector />;
 
