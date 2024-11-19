@@ -19,7 +19,8 @@ import { useTableSorting } from '../Table/useTableSorting';
 const TableTitle = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
-  padding: 15px 0px;
+  padding: 12px 0px;
+  padding-bottom: 13px;
   border-bottom: 1px solid ${Colors.outline};
   position: sticky;
   top: 0;
@@ -38,7 +39,7 @@ const StyledTable = styled(Table)`
   thead {
     tr {
       position: sticky;
-      top: 55px;
+      top: 50px;
       background-color: ${Colors.white};
       z-index: 1;
     }
@@ -51,14 +52,16 @@ const StyledTable = styled(Table)`
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
+    padding-left: 6px;
+    padding-right: 6px;
     &:first-child {
       padding-left: 0px;
     }
   }
   .MuiTableCell-body {
-    padding: 11px;
+    padding: 6px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     &:first-child {
       padding-left: 0px;
     }
@@ -71,11 +74,23 @@ const StyledTable = styled(Table)`
       width: 28px;
       button {
         position: relative;
-        left: 26px;
+        left: 21px;
       }
       > div > div {
         overflow: visible;
       }
+    }
+    &:nth-child(1) {
+      width: 26%;
+    }
+    &:nth-child(2) {
+      width: 34%;
+    }
+    &:nth-child(3) {
+      width: 23%;
+    }
+    &:nth-child(4) {
+      width: 17%;
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
@@ -91,10 +106,6 @@ const DateText = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-`;
-
-const Container = styled.div`
-  margin: 0 30px 30px 30px;
 `;
 
 const getFormattedTime = time => {
@@ -115,13 +126,15 @@ const getDate = ({ startTime, endTime }) => {
     dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
   }
   return <DateText>
-    <span>{dateTimeString}</span>
+    <div>{dateTimeString}</div>
     {isOvernight && <OvernightIcon />}  
   </DateText>;
 };
 
 const CustomCellContainer = styled(Box)`
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
@@ -174,20 +187,20 @@ export const LocationBookingsTable = ({ patient }) => {
     {
       key: 'startTime',
       title: <TranslatedText stringId="patient.bookings.table.column.date" fallback="Date" />,
-      maxWidth: 200,
       accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
     },
     {
-      key: 'location',
+      key: 'bookingArea',
       title: <TranslatedText stringId="patient.bookings.table.column.area" fallback="Area" />,
-      accessor: ({ location }) => location?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={190} />,
+      accessor: ({ location }) => location?.locationGroup?.name,
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={243} />,
     },
     {
-      key: 'locationGroup',
+      key: 'location',
       title: <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />,
-      accessor: ({ location }) => location?.locationGroup?.name,
+      accessor: ({ location }) => location?.name,
       sortable: false,
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={158} />,
     },
     {
       key: 'bookingType',
@@ -198,6 +211,7 @@ export const LocationBookingsTable = ({ patient }) => {
         />
       ),
       accessor: ({ bookingType }) => bookingType?.name,
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
     },
     {
       key: '',
@@ -211,7 +225,7 @@ export const LocationBookingsTable = ({ patient }) => {
   ];
 
   return (
-    <Container>
+    <div>
       <StyledTable
         data={appointments}
         columns={COLUMNS}
@@ -234,6 +248,6 @@ export const LocationBookingsTable = ({ patient }) => {
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)} 
       />
-    </Container>
+    </div>
   );
 };
