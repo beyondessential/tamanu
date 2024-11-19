@@ -1,28 +1,28 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 
-import { FlexCol, InlineDetailsDisplay, Label, Title } from './SharedComponents';
+import { InlineDetailsDisplay, Label, Title } from './SharedComponents';
 import { Colors } from '../../../constants';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
 import { TranslatedSex, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
 
-const PatientDetailsContainer = styled(FlexCol)`
-  padding-block: 0.75rem 0.5rem;
-  padding-inline: 0.75rem;
+const PatientDetailsContainer = styled('header')`
+  border-start-end-radius: 0.3125rem;
+  border-start-start-radius: 0.3125rem;
+  display: flex;
+  flex-direction: column;
   gap: 0.1875rem;
-  :hover {
+  &:hover {
     background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
-  border-top-left-radius: 0.3125rem;
-  border-top-right-radius: 0.3125rem;
 `;
 
 export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
   const { displayId, sex, dateOfBirth } = patient;
   return (
-    <PatientDetailsContainer onClick={onClick}>
+    <PatientDetailsContainer onClick={onClick} tabIndex={0}>
       <Title>
         <PatientNameDisplay patient={patient} />
       </Title>

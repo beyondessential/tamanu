@@ -3,23 +3,19 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
 import { push } from 'connected-react-router';
-import { debounce } from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
 
-import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { reloadPatient } from '../../../store';
-import { TranslatedText } from '../../Translation';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';
 import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
+import { CheckInButton } from './CheckInButton';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
-const DEBOUNCE_DELAY_MS = 200;
 
 const StyledPaper = styled(Paper)`
   color: ${Colors.darkestText};
@@ -29,6 +25,17 @@ const StyledPaper = styled(Paper)`
   box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
   border-radius: 0.3125rem;
   font-size: 0.6875rem;
+
+  > * {
+    padding-block: 0.625rem;
+    padding-inline: 0.75rem;
+  }
+`;
+
+const Footer = styled('footer')`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
 export const AppointmentDetailPopper = ({
@@ -39,51 +46,17 @@ export const AppointmentDetailPopper = ({
   onCancel,
   onClose,
   onEdit,
-  onStatusChange,
   open = false,
 }) => {
   const dispatch = useDispatch();
-  const api = useApi();
   const patientId = appointment.patient.id;
 
-  const { data: additionalData } = usePatientAdditionalDataQuery(patientId);
-
-  const [localStatus, setLocalStatus] = useState(appointment.status);
+  const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
-
-  const debouncedUpdateAppointmentStatus = useMemo(
-    () =>
-      debounce(async newValue => {
-        try {
-          await api.put(`appointments/${appointment.id}`, {
-            status: newValue,
-          });
-          onStatusChange?.(newValue);
-        } catch (error) {
-          toast.error(
-            <TranslatedText
-              stringId="schedule.error.updateStatus"
-              fallback="Error updating appointment status"
-            />,
-          );
-          setLocalStatus(appointment.status);
-          console.error(error);
-        }
-      }, DEBOUNCE_DELAY_MS),
-    [api, appointment.id, appointment.status, onStatusChange],
-  );
-
-  const updateAppointmentStatus = useCallback(
-    newValue => {
-      setLocalStatus(newValue);
-      debouncedUpdateAppointmentStatus(newValue);
-    },
-    [debouncedUpdateAppointmentStatus],
-  );
 
   const handleClickAway = e => {
     if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
@@ -138,12 +111,10 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
             />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-            <AppointmentStatusSelector
-              additionalData={additionalData}
-              appointment={appointment}
-              selectedStatus={localStatus}
-              updateAppointmentStatus={updateAppointmentStatus}
-            />
+            <Footer>
+              <AppointmentStatusSelector appointment={appointment} />
+              <CheckInButton appointment={appointment} />
+            </Footer>
           </StyledPaper>
         </div>
       </ClickAwayListener>

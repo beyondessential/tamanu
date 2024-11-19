@@ -9,7 +9,6 @@ import { formatDateRange } from '../../../utils/dateTime';
 import { DetailsDisplay, FlexCol, FlexRow } from './SharedComponents';
 
 const AppointmentDetailsContainer = styled(FlexCol)`
-  padding: 0.75rem;
   gap: 0.5rem;
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
   position: relative;

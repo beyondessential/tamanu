@@ -95,12 +95,11 @@ export const AppointmentTile = ({
     patient,
     startTime: startTimeStr,
     endTime: endTimeStr,
-    status: appointmentStatus,
+    status,
     isHighPriority,
   } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
-  const [localStatus, setLocalStatus] = useState(appointmentStatus);
 
   const location = useLocation();
   useEffect(() => {
@@ -127,13 +126,13 @@ export const AppointmentTile = ({
     <>
       <ThemedTooltip title={tileText}>
         <Tile
-          $color={APPOINTMENT_STATUS_COLORS[localStatus]}
+          $color={APPOINTMENT_STATUS_COLORS[status]}
           $selected={open}
           ref={ref}
           onClick={() => setOpen(true)}
           {...props}
         >
-          <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
+          <Label $strikethrough={status === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
           <IconGroup>
             {isHighPriority && (
               <HighPriorityIcon
@@ -151,7 +150,7 @@ export const AppointmentTile = ({
                 style={{ fontSize: 15 }}
               />
             )}
-            <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
+            <StatusIndicator appointmentStatus={status} width={15} height={15} />
           </IconGroup>
         </Tile>
       </ThemedTooltip>
@@ -163,7 +162,6 @@ export const AppointmentTile = ({
         isOvernight={isOvernightLocationBooking}
         onEdit={onEdit}
         onCancel={onCancel}
-        onStatusChange={setLocalStatus}
         actions={actions}
       />
     </>
