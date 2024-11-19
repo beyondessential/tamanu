@@ -14,8 +14,11 @@ export const useUserPreferencesMutation = () => {
         ...newUserPreferences,
       });
     },
-    onSuccess: data => {
-      queryClient.setQueriesData(['userPreferences', currentUser.id], data);
+    onSuccess: requestData => {
+      queryClient.setQueriesData(['userPreferences', currentUser.id], oldPreferences => {
+        oldPreferences[requestData.key] = requestData.value;
+        return oldPreferences;
+      });
     },
   });
 };
