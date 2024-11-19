@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 const SELECTED_GRAPHED_VITALS_ON_FILTER_KEY = 'selectedGraphedVitalsOnFilter';
 
@@ -30,6 +30,24 @@ export async function up(query) {
     type: DataTypes.JSONB,
     allowNull: false,
   });
+
+  await query.sequelize.query(`
+    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_pkey;
+    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_user_id_uk;
+  `);
+  await query.removeColumn('user_preferences', 'id');
+  await query.addColumn('user_preferences', 'id', {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
+  });
+  await query.sequelize.query(`
+    ALTER TABLE user_preferences ADD PRIMARY KEY (id);
+  `);
+  await query.addConstraint('user_preferences', {
+    fields: ['user_id', 'key'],
+    type: 'unique',
+  });
 }
 
 export async function down(query) {
@@ -44,6 +62,28 @@ export async function down(query) {
     WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
   `);
 
+  // Down migration would result in data loss on user preference!
+  await query.sequelize.query(`
+    DELETE FROM user_preferences
+    WHERE key != '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
+  `);
+
   await query.removeColumn('user_preferences', 'key');
   await query.removeColumn('user_preferences', 'value');
+
+  await query.sequelize.query(`
+    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_pkey;
+    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_user_id_key_uk;
+  `);
+  await query.removeColumn('user_preferences', 'id');
+  await query.addColumn('user_preferences', 'id', {
+    type: `TEXT GENERATED ALWAYS AS ("user_id") STORED`,
+  });
+  await query.sequelize.query(`
+    ALTER TABLE user_preferences ADD PRIMARY KEY (user_id);
+  `);
+  await query.addConstraint('user_preferences', {
+    fields: ['user_id'],
+    type: 'unique',
+  });
 }
