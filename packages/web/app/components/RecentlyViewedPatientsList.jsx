@@ -90,8 +90,7 @@ const CardListContainer = styled.div`
 
 const CardTitle = styled(Typography)`
   font-weight: bold;
-  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
-  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: 14px;
   color: ${getColorForEncounter};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -99,8 +98,7 @@ const CardTitle = styled(Typography)`
 `;
 
 const CardText = styled(Typography)`
-  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
-  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: 14px;
 `;
 
 const CapitalizedCardText = styled(CardText)`
