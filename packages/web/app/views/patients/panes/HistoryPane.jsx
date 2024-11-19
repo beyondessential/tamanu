@@ -9,6 +9,7 @@ import { EncounterModal } from '../../../components/EncounterModal';
 import { LocationBookingsTable } from '../../../components/Appointments/LocationBookingsTable'; 
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
+import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -43,6 +44,9 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
           patient={patient}
           disabled={disabled}
         />
+      </ContentPane>
+      <ContentPane>
+        <OutpatientAppointmentsTable patient={patient} />
       </ContentPane>
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />

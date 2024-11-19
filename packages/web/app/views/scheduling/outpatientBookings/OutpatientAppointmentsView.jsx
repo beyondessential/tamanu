@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { pick } from 'lodash';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
+import queryString from 'query-string';
+import { useLocation } from 'react-router-dom';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from './DateSelector';
@@ -86,6 +88,14 @@ export const OutpatientAppointmentsView = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
+  const location = useLocation();
+
+  useEffect(() => {
+    const { newAppointment } = queryString.parse(location.search);
+    if (newAppointment) {
+      setDrawerOpen(newAppointment);
+    }
+  }, [location.search]);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
