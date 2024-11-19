@@ -40,8 +40,3 @@ sources:
           - name: active
             data_type: boolean
             description: "{{ doc('fhir__organizations__active') }}"
-          - name: is_live
-            data_type: boolean
-            description: "{{ doc('fhir__organizations__is_live') }}"
-            data_tests:
-              - not_null

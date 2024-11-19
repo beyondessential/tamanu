@@ -21,7 +21,3 @@ The display name of the practitioner.
 {% docs fhir__practitioners__telecom %}
 The practitioner's email.
 {% enddocs %}
-
-{% docs fhir__practitioners__is_live %}
-TODO
-{% enddocs %}

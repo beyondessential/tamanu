@@ -26,10 +26,6 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) that get the notif
 When the notification was created
 {% enddocs %}
 
-{% docs notifications__patient_id %}
-TODO
-{% enddocs %}
-
 {% docs notifications__metadata %}
 Metadata of the notification
 {% enddocs %}

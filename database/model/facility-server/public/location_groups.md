@@ -17,7 +17,3 @@ Code for location group
 {% docs location_groups__facility_id %}
 TODO
 {% enddocs %}
-
-{% docs location_groups__is_bookable %}
-TODO
-{% enddocs %}

@@ -18,7 +18,3 @@ Coded type of the specimen.
 
 These codes are from Reference Data `type=specimenType`.
 {% enddocs %}
-
-{% docs fhir__specimens__is_live %}
-TODO
-{% enddocs %}
