@@ -119,7 +119,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     name="prescription"
                     label={
                       <TranslatedText
-                        stringId="medication.form.instructions.label"
+                        stringId="medication.instructions.label"
                         fallback="Instruction"
                       />
                     }
@@ -129,7 +129,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     name="indication"
                     label={
                       <TranslatedText
-                        stringId="medication.form.indication.label"
+                        stringId="medication.indication.label"
                         fallback="Indication"
                       />
                     }
@@ -137,16 +137,14 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   <Field
                     component={TextField}
                     name="route"
-                    label={
-                      <TranslatedText stringId="medication.form.route.label" fallback="Route" />
-                    }
+                    label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
                   />
                   <Field
                     component={NumberField}
                     name="quantity"
                     label={
                       <TranslatedText
-                        stringId="medication.form.quantityInSingleUnits.label"
+                        stringId="medication.quantityInSingleUnits.label"
                         fallback="Quantity (in single units)"
                       />
                     }
@@ -156,7 +154,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 <StyledView marginBottom={screenPercentageToDP(0.605, Orientation.Height)}>
                   <SectionHeader h3>
                     <TranslatedText
-                      stringId="medication.form.notes.label"
+                      stringId="medication.notes.label"
                       fallback="Prescription notes"
                     />
                   </SectionHeader>

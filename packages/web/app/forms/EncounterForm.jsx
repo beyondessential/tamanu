@@ -135,7 +135,7 @@ export const EncounterForm = React.memo(
             name="reasonForEncounter"
             label={
               <TranslatedText
-                stringId="modal.checkIn.reasonForEncounter.label"
+                stringId="encounter.reasonForEncounter.label"
                 fallback="Reason for encounter"
               />
             }
@@ -199,14 +199,16 @@ export const EncounterForm = React.memo(
                 fallback="Encounter type"
               />,
             ),
-          reasonForEncounter: yup.string().max(
-            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
-            getTranslation(
-              "reasonForEncounter.validation.rule.maxNCharacters",
-              "Reason for encounter must not exceed :maxChars characters",
-              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
-            )
-          )
+          reasonForEncounter: yup
+            .string()
+            .max(
+              REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+              getTranslation(
+                'reasonForEncounter.validation.rule.maxNCharacters',
+                'Reason for encounter must not exceed :maxChars characters',
+                { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS },
+              ),
+            ),
         })}
       />
     );
