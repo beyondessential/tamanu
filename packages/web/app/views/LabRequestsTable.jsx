@@ -75,7 +75,9 @@ export const LabRequestsTable = React.memo(
       );
     };
 
-    const statusesToFilterBy = { statuses: searchParameters.status ?? statuses };
+    const statusesToFilterBy = {
+      statuses: searchParameters.status ? [searchParameters.status] : statuses,
+    };
 
     return (
       <SearchTableWithPermissionCheck
