@@ -74,6 +74,10 @@ export const LabRequestsTable = React.memo(
       );
     };
 
+    const statusesToFilterBy = {
+      statuses: searchParameters.status ?? statuses,
+    };
+
     return (
       <SearchTableWithPermissionCheck
         verb="list"
@@ -84,8 +88,8 @@ export const LabRequestsTable = React.memo(
         noDataMessage="No lab requests found"
         onRowClick={selectLab}
         fetchOptions={{
-          statuses,
           ...searchParameters,
+          ...statusesToFilterBy,
           facilityId,
         }}
         initialSort={{
