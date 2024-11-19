@@ -56,11 +56,11 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({
-  appointment,
   additionalData,
+  appointment,
+  disabled = false,
   selectedStatus,
   updateAppointmentStatus,
-  disabled,
 }) => {
   const { data: encounter, isLoading: encounterIsLoading } = usePatientCurrentEncounter(
     appointment?.patient?.id,
@@ -69,8 +69,8 @@ export const AppointmentStatusSelector = ({
   const { mutateAsync: updateAppointment } = useAppointmentMutation({ isEdit: true });
 
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
-  const openEncounterModal = setIsEncounterModalOpen(true);
-  const closeEncounterModal = setIsEncounterModalOpen(false);
+  const openEncounterModal = () => setIsEncounterModalOpen(true);
+  const closeEncounterModal = useCallback(() => setIsEncounterModalOpen(false), []);
 
   const updateEncounter = useCallback(
     newEncounter => {
