@@ -277,11 +277,11 @@ jobs:
           sha-${{ needs.config.outputs.sha }}
           latest
           EOF
-          for image in $images; do
+          for tag in $tags; do
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
-              --template "$image.ARCH" \
-              --target "$image"
+              --template "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag.ARCH" \
+              --target "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag"
           done
 
   deploy-up:
