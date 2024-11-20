@@ -33,7 +33,7 @@ const HeadCellWrapper = styled(Box)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(${CELL_WIDTH_PX}px - 1px);
+  width: calc(${CELL_WIDTH_PX}px - 2px);
   text-align: center;
 `;
 
@@ -157,11 +157,12 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     );
   }
   return (
-    <Box display="flex" width="100%" overflow="auto">
+    <Box display="flex" width="100%" overflow="auto" flex={1}>
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
+            <div style={{ height: 0 }} aria-hidden />
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => (
