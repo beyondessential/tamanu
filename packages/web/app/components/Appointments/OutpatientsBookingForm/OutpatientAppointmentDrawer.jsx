@@ -36,7 +36,7 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -44,16 +44,30 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   return (
     <ConfirmModal
       title={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.title"
-          fallback="Cancel new appointment"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.title"
+            fallback="Cancel modifying appointment"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.title"
+            fallback="Cancel new appointment"
+          />
+        )
       }
       subText={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new appointment?"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
+            fallback="Are you sure you would like to cancel modifying the appointment?"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
+            fallback="Are you sure you would like to cancel the new appointment?"
+          />
+        )
       }
       open={open}
       onConfirm={() => {
