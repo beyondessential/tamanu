@@ -247,7 +247,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
     outputs:
-      meta: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.version.outputs.version }}
 
   multi-arch:
     needs:
@@ -271,14 +271,17 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           images=<<EOF
-          ${{ steps.images.outputs.meta }}
+          $(jq -r '.version' package.json)
+          $(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
+          $(jq -r '.version | split(".") | .[0]' package.json)
+          sha-${{ needs.config.outputs.sha }}
+          latest
           EOF
           for image in $images; do
-            generic=${image/%.{amd64,arm64}}
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
-              --template "$generic.ARCH" \
-              --target "$generic"
+              --template "$image.ARCH" \
+              --target "$image"
           done
 
   deploy-up:
