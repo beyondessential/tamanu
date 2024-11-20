@@ -23,7 +23,6 @@ const TableTitleContainer = styled(Box)`
   font-size: 16px;
   font-weight: 500;
   padding: 4px 0px;
-  border-bottom: 1px solid ${Colors.outline};
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
@@ -34,13 +33,16 @@ const TableTitleContainer = styled(Box)`
 const StyledTable = styled(Table)`
   max-height: 186px;
   padding: 0 20px;
-  thead {
+  .MuiTableHead-root {
     tr {
       position: sticky;
       top: 50px;
       background-color: ${Colors.white};
       z-index: 1;
     }
+  }
+  .MuiTable-root {
+    border-top: 1px solid ${Colors.outline};
   }
   .MuiTableCell-head {
     background-color: ${Colors.white};
@@ -115,6 +117,14 @@ const LowercaseText = styled.div`
   text-transform: lowercase;
 `;
 
+const NoDataContainer = styled.div`
+  padding: 0 20px;
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: white;
+  border: 1px solid ${Colors.outline};        
+`;
+
 const getDate = ({ startTime }) => (
   <LowercaseText>
     {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
@@ -135,6 +145,36 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
     </CustomCellContainer>
   );
 };
+
+const TableHeader = ({ title }) => (
+  <TableTitleContainer>
+    <Box component={'span'} fontSize="16px" fontWeight={500}>
+      {title}
+    </Box>
+    <div>
+      <ViewPastBookingsButton
+        component={'span'}
+        onClick={() => setIsViewPastBookingsModalOpen(true)}
+        mr={2}
+      >
+        <TranslatedText
+          stringId="patient.appointments.table.viewPastAppointments"
+          fallback="View past appointments"
+        />
+      </ViewPastBookingsButton>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
+      >
+        <TranslatedText
+          stringId="patient.appointments.table.bookAppointment"
+          fallback="+ Book appointment"
+        />
+      </Button>
+    </div>
+  </TableTitleContainer>
+);
 
 export const OutpatientAppointmentsTable = ({ patient }) => {
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
@@ -214,49 +254,36 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     },
   ];
 
+  if (!appointments.length) {
+    return (
+      <NoDataContainer>
+        <TableHeader
+          title={
+            <TranslatedText
+              stringId="patient.appointments.table.noData"
+              fallback="No outpatient appointments"
+            />
+          }
+        />
+      </NoDataContainer>
+    );
+  }
+
   return (
     <div>
       <StyledTable
         data={appointments}
         columns={COLUMNS}
-        noDataMessage={
-          <TranslatedText
-            stringId="patient.appointments.table.noData"
-            fallback="No outpatient appointments"
-          />
-        }
         allowExport={false}
         TableHeader={
-          <TableTitleContainer>
-            <Box component={'span'} fontSize="16px" fontWeight={500}>
+          <TableHeader
+            title={
               <TranslatedText
                 stringId="patient.appointments.table.title"
                 fallback="Outpatient appointments"
               />
-            </Box>
-            <div>
-              <ViewPastBookingsButton
-                component={'span'}
-                onClick={() => setIsViewPastBookingsModalOpen(true)}
-                mr={2}
-              >
-                <TranslatedText
-                  stringId="patient.appointments.table.viewPastAppointments"
-                  fallback="View past appointments"
-                />
-              </ViewPastBookingsButton>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
-              >
-                <TranslatedText
-                  stringId="patient.appointments.table.bookAppointment"
-                  fallback="+ Book appointment"
-                />
-              </Button>
-            </div>
-          </TableTitleContainer>
+            }
+          />
         }
         onClickRow={handleRowClick}
         orderBy={orderBy}
