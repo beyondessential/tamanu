@@ -1,5 +1,3 @@
----
-enabled: true
 sql: |
   SELECT
     id,

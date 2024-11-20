@@ -1,4 +1,3 @@
-enabled: true
 sql: |
   select facility_id from patient_facilities group by facility_id
   except

@@ -1,4 +1,3 @@
-enabled: true
 sql: |
   SELECT *
   FROM report_requests
