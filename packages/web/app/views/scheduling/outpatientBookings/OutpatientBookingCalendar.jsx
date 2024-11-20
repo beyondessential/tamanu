@@ -162,7 +162,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
         const appointments = cellData[cell.id];
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
-            <div style={{ height: 0 }} aria-hidden />
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => (
