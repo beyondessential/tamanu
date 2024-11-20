@@ -317,6 +317,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        isEdit={isEdit}
       />
     </>
   );
