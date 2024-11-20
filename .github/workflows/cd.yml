@@ -271,7 +271,8 @@ jobs:
         run: |
           set -x
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          images=<<EOF
+          image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
+          tags=<<EOF
           $(jq -r '.version' package.json)
           $(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
           $(jq -r '.version | split(".") | .[0]' package.json)
@@ -281,8 +282,8 @@ jobs:
           for tag in $tags; do
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
-              --template "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag.ARCH" \
-              --target "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag" \
+              --template "$image:$tag.ARCH" \
+              --target "$image:$tag" \
             || true
           done
 
