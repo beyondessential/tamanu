@@ -269,6 +269,7 @@ jobs:
       - uses: ./.github/actions/setup-manifest-tool
       - name: Combine images
         run: |
+          set -x
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           images=<<EOF
           $(jq -r '.version' package.json)
@@ -281,7 +282,8 @@ jobs:
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
               --template "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag.ARCH" \
-              --target "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag"
+              --target "ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:$tag" \
+            || true
           done
 
   deploy-up:
