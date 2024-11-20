@@ -73,7 +73,7 @@ const SuccessMessage = ({ isEdit = false }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
-      fallback="Appointment successfully edited"
+      fallback="Appointment successfully modified"
     />
   ) : (
     <TranslatedText
