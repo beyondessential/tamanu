@@ -36,14 +36,6 @@ const OvernightIcon = styled(Brightness2Icon)`
   left: 145px;
 `;
 
-const StyledDrawer = styled(Drawer)`
-  .MuiCollapse-wrapperInner > div {
-    // // Add 1 pixel to allow border to show
-    // block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    // inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
-  }
-`;
-
 // A bit blunt but the base form fields are going to have their size tweaked in a
 // later card so this is a bridging solution just for this form
 const StyledFormGrid = styled(FormGrid)`
@@ -166,11 +158,9 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <StyledDrawer
-        variant="persistent"
-        anchor="right"
+      <Drawer
         // Used to exclude the drawer from click away listener on appointment detail popper
-        containerClassName={APPOINTMENT_DRAWER_CLASS}
+        innerClassName={APPOINTMENT_DRAWER_CLASS}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -248,7 +238,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
         </StyledFormGrid>
-      </StyledDrawer>
+      </Drawer>
     );
   };
 
