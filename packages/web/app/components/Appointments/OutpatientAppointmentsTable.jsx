@@ -12,9 +12,9 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
-import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
+import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -291,7 +291,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         order={order}
         onChangeOrderBy={onChangeOrderBy}
       />
-      <CancelLocationBookingModal
+      <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
