@@ -16,7 +16,7 @@ export const ColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   width: ${CELL_WIDTH_PX}px;
-  height: min-content;
+  min-height: max-content;
   &:not(:first-child) {
     border-inline-start: 1px solid ${Colors.outline};
   }
@@ -29,12 +29,11 @@ const HeadCellWrapper = styled(Box)`
   top: 0;
   position: sticky;
   background: ${Colors.white};
-  border-inline-end: 1px solid ${Colors.outline};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: ${CELL_WIDTH_PX}px;
+  width: calc(${CELL_WIDTH_PX}px - 1px);
   text-align: center;
 `;
 
@@ -97,7 +96,6 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
-    <Box height="0px" />
     <HeadCellTextWrapper>
       <ThemedTooltip title={title}>
         <HeadCellText>{title}</HeadCellText>
