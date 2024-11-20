@@ -173,6 +173,9 @@ jobs:
           - name: frontend
             path: web
             target: frontend
+          - name: toolbox
+            path: none
+            target: toolbox
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -217,6 +220,12 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
+          images: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}
+          tags: |
+            type=semver,value=v${{ steps.version.outputs.version }},pattern={{version}}.${{ matrix.platform.arch }}
+            type=semver,value=v${{ steps.version.outputs.version }},pattern={{major}}.{{minor}}.${{ matrix.platform.arch }}
+            type=semver,value=v${{ steps.version.outputs.version }},pattern={{major}}.${{ matrix.platform.arch }}
+            sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
           labels: |
             org.opencontainers.image.vendor=BES
             org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
@@ -236,7 +245,9 @@ jobs:
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
+          tags: ${{ steps.meta.outputs.tags }}
+      outputs:
+        meta: ${{ steps.meta.outputs.tags }}
 
   multi-arch:
     needs:
@@ -249,28 +260,26 @@ jobs:
           - central
           - facility
           - frontend
+          - toolbox
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-manifest-tool
-
       - name: Combine images
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          manifest-tool push from-args \
-            --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
-
-      - name: Combine images (release)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-        run: |
-          manifest-tool push from-args \
-            --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:${{ github.ref_name }}
+          images=<<EOF
+          ${{ steps.images.outputs.meta }}
+          EOF
+          for image in $images; do
+            generic=${image/%.{amd64,arm64}}
+            manifest-tool push from-args \
+              --platforms linux/amd64,linux/arm64 \
+              --template "$generic.ARCH" \
+              --target "$generic"
+          done
 
   deploy-up:
     needs:
@@ -350,11 +359,6 @@ jobs:
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
 
-  package-alerts:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Alerts ${{ github.ref_name }}
-    uses: ./.github/workflows/cd-package-alerts.yml
-
   package-android-release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
@@ -383,3 +387,4 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-toolbox` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-toolbox/${{ github.ref_name }}) |
