@@ -29,14 +29,16 @@ CREATE OR REPLACE FUNCTION notify_table_changed() RETURNS TRIGGER AS $$
         event_name := 'TRUNCATE';
       END IF;
 
-     SELECT array_agg(changed_columns.column_name) FROM (
-        SELECT old_json.key AS column_name
-        FROM jsonb_each(to_jsonb(OLD)) AS old_json
-        CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
-        WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value  AND old_json.key NOT IN (${METADATA_FIELDS.map(
-          m => `'${m}'`,
-        ).join(',')})
-      ) as changed_columns INTO changes;
+      IF TG_OP = 'UPDATE' THEN
+        SELECT array_agg(changed_columns.column_name) FROM (
+            SELECT old_json.key AS column_name
+            FROM jsonb_each(to_jsonb(OLD)) AS old_json
+            CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
+            WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value  AND old_json.key NOT IN (${METADATA_FIELDS.map(
+              m => `'${m}'`,
+            ).join(',')})
+          ) as changed_columns INTO changes;
+      END IF;
 
       -- Create the JSON payload with table name and event name
       payload := json_build_object(
@@ -44,7 +46,7 @@ CREATE OR REPLACE FUNCTION notify_table_changed() RETURNS TRIGGER AS $$
         'event', event_name,
         'oldId', OLD.id,
 		    'newId', NEW.id,
-        'changes', changes
+        'changedColumns', changes
       );
 
       -- Send notification to the 'table_changed' channel with the JSON payload
