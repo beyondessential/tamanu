@@ -16,16 +16,23 @@ import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
 
-const TableTitle = styled(Typography)`
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px 0px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid ${Colors.outline};
+const TableTitleContainer = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
   z-index: 1;
+  line-height: 1.5;
+  height: 50px;
+`;
+
+const ViewPastBookingsButton = styled(Box)`
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
 `;
 
 const OvernightIcon = styled(Brightness2Icon)`
@@ -36,7 +43,7 @@ const OvernightIcon = styled(Brightness2Icon)`
 const StyledTable = styled(Table)`
   max-height: 186px;
   padding: 0 20px;
-  thead {
+  .MuiTableHead-root {
     tr {
       position: sticky;
       top: 50px;
@@ -46,6 +53,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableCell-head {
     background-color: ${Colors.white};
+    border-top: 1px solid ${Colors.outline};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
@@ -108,6 +116,28 @@ const DateText = styled.div`
   gap: 4px;
 `;
 
+const NoDataContainer = styled.div`
+  padding: 0 20px;
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: white;
+  border: 1px solid ${Colors.outline};
+`;
+
+const TableHeader = ({ title }) => (
+  <TableTitleContainer>
+    <Box component={'span'} fontSize="16px" fontWeight={500}>
+      {title}
+    </Box>
+    <ViewPastBookingsButton component={'span'}>
+      <TranslatedText
+        stringId="patient.bookings.table.viewPastBookings"
+        fallback="View past bookings"
+      />
+    </ViewPastBookingsButton>
+  </TableTitleContainer>
+);
+
 const getFormattedTime = time => {
   return formatTime(time).replace(' ', '');
 };
@@ -125,10 +155,12 @@ const getDate = ({ startTime, endTime }) => {
   } else {
     dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
   }
-  return <DateText>
-    <div>{dateTimeString}</div>
-    {isOvernight && <OvernightIcon />}  
-  </DateText>;
+  return (
+    <DateText>
+      <div>{dateTimeString}</div>
+      {isOvernight && <OvernightIcon />}
+    </DateText>
+  );
 };
 
 const CustomCellContainer = styled(Box)`
@@ -181,8 +213,8 @@ export const LocationBookingsTable = ({ patient }) => {
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
     history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
-  }
-  
+  };
+
   const COLUMNS = [
     {
       key: 'startTime',
@@ -197,7 +229,9 @@ export const LocationBookingsTable = ({ patient }) => {
     },
     {
       key: 'location',
-      title: <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />,
+      title: (
+        <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />
+      ),
       accessor: ({ location }) => location?.name,
       sortable: false,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={158} />,
@@ -218,25 +252,44 @@ export const LocationBookingsTable = ({ patient }) => {
       title: '',
       dontCallRowInput: true,
       sortable: false,
-      CellComponent: ({ data }) => <div onMouseEnter={() => setSelectedAppointment(data)}>
-        <MenuButton actions={actions} />
-      </div>,
+      CellComponent: ({ data }) => (
+        <div onMouseEnter={() => setSelectedAppointment(data)}>
+          <MenuButton actions={actions} />
+        </div>
+      ),
     },
   ];
+
+  if (!appointments.length) {
+    return (
+      <NoDataContainer>
+        <TableHeader
+          title={
+            <TranslatedText
+              stringId="patient.bookings.table.noData"
+              fallback="No location bookings"
+            />
+          }
+        />
+      </NoDataContainer>
+    );
+  }
 
   return (
     <div>
       <StyledTable
         data={appointments}
         columns={COLUMNS}
-        noDataMessage={
-          <TranslatedText stringId="patient.bookings.table.noData" fallback="No location bookings" />
-        }
         allowExport={false}
         TableHeader={
-          <TableTitle>
-            <TranslatedText stringId="patient.bookings.table.title" fallback="Location bookings" />
-          </TableTitle>
+          <TableHeader
+            title={
+              <TranslatedText
+                stringId="patient.bookings.table.title"
+                fallback="Location bookings"
+              />
+            }
+          />
         }
         onClickRow={handleRowClick}
         orderBy={orderBy}
@@ -246,7 +299,7 @@ export const LocationBookingsTable = ({ patient }) => {
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)} 
+        onClose={() => setIsCancelModalOpen(false)}
       />
     </div>
   );
