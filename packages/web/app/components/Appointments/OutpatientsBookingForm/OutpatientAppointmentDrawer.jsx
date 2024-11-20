@@ -165,10 +165,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           )
         }
         description={
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.description"
-            fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-          />
+          isEdit ? (
+            <TranslatedText
+              stringId="outpatientAppointment.form.new.description"
+              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+            />
+          ) : (
+            <TranslatedText
+              stringId="outpatientAppointment.form.edit.description"
+              fallback="Modify the selected appointment below"
+            />
+          )
         }
         // Used to exclude the drawer from click away listener on appointment details popper
         innerClassName={APPOINTMENT_DRAWER_CLASS}
