@@ -277,7 +277,7 @@ jobs:
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
               --template "$image:$tag.ARCH" \
-              --target \
+              --target "$image" \
             || true
           }
 
