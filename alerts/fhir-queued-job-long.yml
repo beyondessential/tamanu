@@ -3,10 +3,11 @@ sql: |
   SELECT
     id,
     payload->>'resource' AS resource,
-    ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60) AS duration_minutes,
+    ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60)::text AS duration_minutes
   FROM fhir.jobs
   WHERE status = 'Queued'
     AND NOW() - created_at > INTERVAL '15 minutes';
+
 send:
   - target: external
     id: default

@@ -3,7 +3,7 @@ sql: |
   SELECT
     id,
     payload->>'resource' AS resource,
-    ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60) AS duration_minutes,
+    ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60)::text AS duration_minutes
   FROM fhir.jobs
   WHERE status = 'Started'
     AND NOW() - started_at > INTERVAL '15 minutes';
