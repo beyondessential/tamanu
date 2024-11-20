@@ -31,6 +31,11 @@ const IconLabel = styled.div`
   align-items: center;
 `;
 
+const formStyles = {
+  overflowY: 'auto',
+  minWidth: 'fit-content',
+};
+
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -279,10 +284,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           await handleSubmit(values);
           resetForm();
         }}
-        style={{
-          overflowY: 'auto',
-          minWidth: 'fit-content',
-        }}
+        style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}

@@ -26,6 +26,15 @@ import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
+const formStyles = {
+  zIndex: 1000,
+  position: 'absolute',
+  overflowY: 'auto',
+  right: 0,
+  blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
+  insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
+};
+
 const OvernightStayField = styled.div`
   display: flex;
   align-items: center;
@@ -249,13 +258,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
           handleSubmit(values);
           resetForm();
         }}
-        style={{
-          position: 'absolute',
-          overflowY: 'auto',
-          right: 0,
-          blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
-          insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
-        }}
+        style={formStyles}
         suppressErrorDialog
         validationSchema={validationSchema}
         initialValues={initialValues}
