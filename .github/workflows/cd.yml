@@ -246,8 +246,8 @@ jobs:
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
-      outputs:
-        meta: ${{ steps.meta.outputs.tags }}
+    outputs:
+      meta: ${{ steps.meta.outputs.tags }}
 
   multi-arch:
     needs:
