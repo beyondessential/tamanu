@@ -26,6 +26,10 @@ export const ColumnWrapper = styled(Box)`
 `;
 
 const HeadCellWrapper = styled(Box)`
+  top: 0;
+  position: sticky;
+  background: ${Colors.white};
+  border-inline-end: 1px solid ${Colors.outline};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,6 +97,7 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
+    <Box height="0px" />
     <HeadCellTextWrapper>
       <ThemedTooltip title={title}>
         <HeadCellText>{title}</HeadCellText>
