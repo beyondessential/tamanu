@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from './DateSelector';
@@ -91,9 +92,12 @@ export const OutpatientAppointmentsView = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const { newAppointment } = queryString.parse(location.search);
+    const { newAppointment, date } = queryString.parse(location.search);
     if (newAppointment) {
       setDrawerOpen(newAppointment);
+    }
+    if (date) {
+      setSelectedDate(parseDate(date));
     }
   }, [location.search]);
 

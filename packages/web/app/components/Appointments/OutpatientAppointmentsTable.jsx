@@ -34,18 +34,16 @@ const StyledTable = styled(Table)`
   max-height: 186px;
   padding: 0 20px;
   .MuiTableHead-root {
+    background-color: ${Colors.white};
     tr {
       position: sticky;
-      top: 50px;
-      background-color: ${Colors.white};
+      top: 49px;
       z-index: 1;
     }
   }
-  .MuiTable-root {
-    border-top: 1px solid ${Colors.outline};
-  }
   .MuiTableCell-head {
     background-color: ${Colors.white};
+    border-top: 1px solid ${Colors.outline};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
@@ -122,7 +120,7 @@ const NoDataContainer = styled.div`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background: white;
-  border: 1px solid ${Colors.outline};        
+  border: 1px solid ${Colors.outline};
 `;
 
 const getDate = ({ startTime }) => (
@@ -146,35 +144,38 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title }) => (
-  <TableTitleContainer>
-    <Box component={'span'} fontSize="16px" fontWeight={500}>
-      {title}
-    </Box>
-    <div>
-      <ViewPastBookingsButton
-        component={'span'}
-        onClick={() => setIsViewPastBookingsModalOpen(true)}
-        mr={2}
-      >
-        <TranslatedText
-          stringId="patient.appointments.table.viewPastAppointments"
-          fallback="View past appointments"
-        />
-      </ViewPastBookingsButton>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
-      >
-        <TranslatedText
-          stringId="patient.appointments.table.bookAppointment"
-          fallback="+ Book appointment"
-        />
-      </Button>
-    </div>
-  </TableTitleContainer>
-);
+const TableHeader = ({ title }) => {
+  const history = useHistory();
+  return (
+    <TableTitleContainer>
+      <Box component={'span'} fontSize="16px" fontWeight={500}>
+        {title}
+      </Box>
+      <div>
+        <ViewPastBookingsButton
+          component={'span'}
+          onClick={() => setIsViewPastBookingsModalOpen(true)}
+          mr={2}
+        >
+          <TranslatedText
+            stringId="patient.appointments.table.viewPastAppointments"
+            fallback="View past appointments"
+          />
+        </ViewPastBookingsButton>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
+        >
+          <TranslatedText
+            stringId="patient.appointments.table.bookAppointment"
+            fallback="+ Book appointment"
+          />
+        </Button>
+      </div>
+    </TableTitleContainer>
+  );
+};
 
 export const OutpatientAppointmentsTable = ({ patient }) => {
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
@@ -204,7 +205,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const COLUMNS = [
