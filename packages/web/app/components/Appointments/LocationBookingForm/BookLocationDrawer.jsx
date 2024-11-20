@@ -168,8 +168,6 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
 
     return (
       <Drawer
-        // Used to exclude the drawer from click away listener on appointment detail popper
-        innerClassName={APPOINTMENT_DRAWER_CLASS}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -181,6 +179,8 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
             fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
           />
         }
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        innerClassName={APPOINTMENT_DRAWER_CLASS}
       >
         <StyledFormGrid nested columns={1}>
           <Field

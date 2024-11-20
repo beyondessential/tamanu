@@ -149,8 +149,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     return (
       <Drawer
-        // Used to exclude the drawer from click away listener on appointment details popper
-        containerClassName={APPOINTMENT_DRAWER_CLASS}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -172,6 +170,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
           />
         }
+        // Used to exclude the drawer from click away listener on appointment details popper
+        innerClassName={APPOINTMENT_DRAWER_CLASS}
       >
         <FormGrid columns={1}>
           <Field
