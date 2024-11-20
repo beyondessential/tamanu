@@ -28,6 +28,7 @@ const TableTitleContainer = styled(Box)`
   background-color: ${Colors.white};
   z-index: 1;
   line-height: 1.5;
+  height: 50px;
 `;
 
 const StyledTable = styled(Table)`
@@ -37,7 +38,7 @@ const StyledTable = styled(Table)`
     background-color: ${Colors.white};
     tr {
       position: sticky;
-      top: 49px;
+      top: 50px;
       z-index: 1;
     }
   }
