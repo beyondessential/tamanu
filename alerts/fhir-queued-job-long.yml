@@ -8,8 +8,8 @@ sql: |
   WHERE status = 'Queued'
     AND NOW() - created_at > INTERVAL '15 minutes';
 send:
-  - target: zendesk
-    endpoint: https://example.zendesk.com/api/v2/requests
+  - target: external
+    id: default
     subject: '[Tamanu Alert] Long queued FHIR jobs ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>

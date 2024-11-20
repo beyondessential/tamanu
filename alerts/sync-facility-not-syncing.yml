@@ -2,11 +2,13 @@ enabled: true
 sql: |
   select facility_id from patient_facilities group by facility_id
   except
-  select debug_info->>'facilityId' as facility_id from sync_sessions where completed_at > now() - '30 minutes'::interval group by debug_info->>'facilityId';
+  select debug_info->>'facilityId' as facility_id from sync_sessions
+  where completed_at > now() - '30 minutes'::interval
+  group by debug_info->>'facilityId';
 
 send:
-  - target: zendesk
-    endpoint: https://example.zendesk.com/api/v2/requests
+  - target: external
+    id: default
     subject: '[Tamanu Alert] No complete sync for at least one facility in the past 30 minutes'
     template: |
       <p>Server: {{ hostname }}</p>

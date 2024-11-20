@@ -6,8 +6,8 @@ sql: |
   AND created_at > $1;
 
 send:
-  - target: zendesk
-    endpoint: https://example.zendesk.com/api/v2/requests
+  - target: external
+    id: default
     subject: '[Tamanu Alert] Certificate notification error ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
