@@ -1,5 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
+import { toast } from 'react-toastify';
+
+import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+
+import { useAppointmentMutation } from '../../../api/mutations';
+import { formatDateTimeRange } from '../../../utils/dateTime';
 import { BaseModal } from '../../BaseModal';
+import { PatientNameDisplay } from '../../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import {
   AppointmentDetailsColumn,
@@ -10,12 +18,6 @@ import {
   DetailDisplay,
   StyledConfirmCancelRow,
 } from './BaseModalComponents';
-import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAppointmentMutation } from '../../../api/mutations';
-import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { formatDateRange } from '../../../utils/dateTime';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const { patient, startTime, endTime, locationGroup, clinician, appointmentType } = appointment;
@@ -29,7 +31,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         />
         <DetailDisplay
           label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          value={formatDateRange(startTime, endTime)}
+          value={formatDateTimeRange(startTime, endTime)}
         />
         <DetailDisplay
           label={

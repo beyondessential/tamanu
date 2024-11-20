@@ -12,6 +12,6 @@ export const FormGrid = styled.div`
   align-items: start;
 `;
 
-export const SmallGridSpacer = styled.div`
+export const SmallGridSpacer = styled.div.attrs({ 'aria-hidden': true })`
   margin-bottom: ${GAP_BETWEEN_FORM_ITEMS};
 `;
