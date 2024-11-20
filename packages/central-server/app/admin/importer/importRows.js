@@ -239,7 +239,7 @@ export async function importRows(
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: extractRecordName(values, dataType),
+          text: extractRecordName(values, dataType) ?? '',
           language: ENGLISH_LANGUAGE_CODE,
         });
       }
