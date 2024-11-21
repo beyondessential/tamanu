@@ -11,5 +11,5 @@ Stores the tab encounter order that the user has adjusted
 {% enddocs %}
 
 {% docs user_preferences__selected_graphed_vitals_on_filter %}
-TODO
+In the Vitals views, graphs can be filtered. This is remembered per user.
 {% enddocs %}
