@@ -1,19 +1,13 @@
+import { camelCase } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
-import { useEncounter } from '../contexts/Encounter';
-import { useLocalisation } from '../contexts/Localisation';
-import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
-import { foreignKey } from '../utils/validation';
-
-import { camelCase } from 'lodash';
-import { useDispatch } from 'react-redux';
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormCancelButton } from '../components/Button';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
@@ -34,9 +28,14 @@ import {
   TranslatedText,
   getReferenceDataStringId,
 } from '../components/Translation';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
+import { useEncounter } from '../contexts/Encounter';
+import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
 import { reloadImagingRequest } from '../store';
+import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { foreignKey } from '../utils/validation';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
