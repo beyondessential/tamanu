@@ -1,4 +1,5 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -25,8 +26,8 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
+import { APPOINTMENT_CALENDAR_CLASS } from '../AppointmentDetailPopper';
 
 const formStyles = {
   zIndex: 1000,
@@ -184,70 +185,78 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <Drawer
-        open={open}
-        onClose={warnAndResetForm}
-        title={
-          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
-        }
-        description={
-          <TranslatedText
-            stringId="locationBooking.form.new.description"
-            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-          />
-        }
-        // Used to exclude the drawer from click away listener on appointment detail popper
-        innerClassName={APPOINTMENT_DRAWER_CLASS}
-      >
-        <StyledFormGrid nested columns={1}>
-          <Field
-            enableLocationStatus={false}
-            name="locationId"
-            component={LocalisedLocationField}
-            required
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
-          />
-          <Field
-            name="overnight"
-            label={
-              <OvernightStayLabel>
-                <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
-                <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
-              </OvernightStayLabel>
-            }
-            component={CheckField}
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
-          />
-          <DateTimeRangeField required separate={values.overnight} />
-          <Field
-            component={AutocompleteField}
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-            name="patientId"
-            placeholder={getTranslation(
-              'general.patient.search.placeholder',
-              'Search patient name or ID',
-            )}
-            required
-            suggester={patientSuggester}
-          />
-          <Field
-            name="bookingTypeId"
-            label={
-              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-            }
-            component={DynamicSelectField}
-            suggester={bookingTypeSuggester}
-            required
-          />
-          <Field
-            name="clinicianId"
-            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-            component={AutocompleteField}
-            suggester={clinicianSuggester}
-          />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
-        </StyledFormGrid>
-      </Drawer>
+      <Box className={APPOINTMENT_CALENDAR_CLASS}>
+        <Drawer
+          open={open}
+          onClose={warnAndResetForm}
+          title={
+            <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          }
+          description={
+            <TranslatedText
+              stringId="locationBooking.form.new.description"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+            />
+          }
+        >
+          <StyledFormGrid nested columns={1}>
+            <Field
+              enableLocationStatus={false}
+              name="locationId"
+              component={LocalisedLocationField}
+              required
+              onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            />
+            <Field
+              name="overnight"
+              label={
+                <OvernightStayLabel>
+                  <TranslatedText
+                    stringId="location.overnightStay.label"
+                    fallback="Overnight stay"
+                  />
+                  <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
+                </OvernightStayLabel>
+              }
+              component={CheckField}
+              onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            />
+            <DateTimeRangeField required separate={values.overnight} />
+            <Field
+              component={AutocompleteField}
+              label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+              name="patientId"
+              placeholder={getTranslation(
+                'general.patient.search.placeholder',
+                'Search patient name or ID',
+              )}
+              required
+              suggester={patientSuggester}
+            />
+            <Field
+              name="bookingTypeId"
+              label={
+                <TranslatedText
+                  stringId="location.form.bookingType.label"
+                  fallback="Booking type"
+                />
+              }
+              component={DynamicSelectField}
+              suggester={bookingTypeSuggester}
+              required
+            />
+            <Field
+              name="clinicianId"
+              label={
+                <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
+              }
+              component={AutocompleteField}
+              suggester={clinicianSuggester}
+            />
+            <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+          </StyledFormGrid>
+        </Drawer>
+      </Box>
     );
   };
 

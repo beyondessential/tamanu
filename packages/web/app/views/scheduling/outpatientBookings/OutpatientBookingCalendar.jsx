@@ -5,7 +5,12 @@ import Skeleton from '@mui/material/Skeleton';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants/index';
-import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
+import {
+  APPOINTMENT_CALENDAR_CLASS,
+  BodyText,
+  SmallBodyText,
+  TranslatedText,
+} from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
@@ -157,7 +162,13 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     );
   }
   return (
-    <Box display="flex" width="100%" overflow="auto" flex={1}>
+    <Box
+      className={APPOINTMENT_CALENDAR_CLASS}
+      display="flex"
+      width="100%"
+      overflow="auto"
+      flex={1}
+    >
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         return (

@@ -26,7 +26,7 @@ import { getPatientNameAsString } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
-export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
+export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 const DEBOUNCE_DELAY = 200; // ms
 
 const FlexRow = styled(Box)`
@@ -426,7 +426,7 @@ export const AppointmentDetailPopper = ({
   );
 
   const handleClickAway = e => {
-    if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
+    if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
 
