@@ -68,13 +68,14 @@ export async function down(query) {
     WHERE key != '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
   `);
 
-  await query.removeColumn('user_preferences', 'key');
-  await query.removeColumn('user_preferences', 'value');
-
   await query.sequelize.query(`
     ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_pkey;
     ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_user_id_key_uk;
   `);
+
+  await query.removeColumn('user_preferences', 'key');
+  await query.removeColumn('user_preferences', 'value');
+
   await query.removeColumn('user_preferences', 'id');
   await query.addColumn('user_preferences', 'id', {
     type: `TEXT GENERATED ALWAYS AS ("user_id") STORED`,
