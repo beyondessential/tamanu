@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: task_templates
-        description: "{{ doc('table__task_templates') }}"
+        description: '{{ doc("table__task_templates") }}'
         tags: []
         columns:
           - name: id

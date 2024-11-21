@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notifications
-        description: "{{ doc('table__notifications') }}"
+        description: '{{ doc("table__notifications") }}'
         tags: []
         columns:
           - name: id

@@ -75,6 +75,6 @@ sources:
               - not_null
           - name: is_live
             data_type: boolean
-            description: "{{ doc('fhir__immunizations__is_live') }}"
+            description: "{{ doc('fhir__generic__is_live') }} in immunizations."
             data_tests:
               - not_null
