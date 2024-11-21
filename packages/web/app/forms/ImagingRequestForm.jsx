@@ -136,7 +136,6 @@ export const ImagingRequestForm = ({
       })}
       showInlineErrorsOnly
       render={({ submitForm, values }) => {
-        console.log('submitForm', submitForm);
         const imagingAreas = getAreasForImagingType(values.imagingType);
         return (
           <FormGrid>
