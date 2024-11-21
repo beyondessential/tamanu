@@ -203,14 +203,12 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </PrimaryDetails>
-      {additionalData?.primaryContactNumber && (
-        <InlineDetailsDisplay
-          label={
-            <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
-          }
-          value={additionalData.primaryContactNumber}
-        />
-      )}
+      <InlineDetailsDisplay
+        label={
+          <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
+        }
+        value={additionalData?.primaryContactNumber}
+      />
       <PatientId>{displayId}</PatientId>
     </PatientDetailsContainer>
   );
