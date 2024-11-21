@@ -101,8 +101,14 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const getEarliestRelevantTime = () => minValidDate([startOfDay(date), values.startTime]);
-  const getLatestRelevantTime = () => maxValidDate([endOfDay(date), values.endTime]);
+  const getEarliestRelevantTime = useCallback(
+    () => minValidDate([startOfDay(date), values.startTime]),
+    [date, values.startTime],
+  );
+  const getLatestRelevantTime = useCallback(() => maxValidDate([endOfDay(date), values.endTime]), [
+    date,
+    values.endTime,
+  ]);
 
   const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
