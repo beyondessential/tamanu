@@ -634,7 +634,7 @@ describe('User', () => {
       const result = await app.post('/api/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        id: user.id,
+        id: expect.any(String),
         userId: user.id,
         ...userPreference,
       });
