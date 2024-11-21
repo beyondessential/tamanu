@@ -21,7 +21,7 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { CONFLICT_TOOLTIP_TITLE, SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import {
   appointmentToInterval,
   calculateTimeSlots,
@@ -351,6 +351,7 @@ export const TimeSlotPicker = ({
             return (
               <TimeSlotToggle
                 booked={isBooked}
+                conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
                 inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
                 key={timeSlot.start.valueOf()}

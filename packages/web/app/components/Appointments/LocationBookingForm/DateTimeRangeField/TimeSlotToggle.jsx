@@ -9,6 +9,27 @@ import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 
+export const CONFLICT_TOOLTIP_TITLE = {
+  range: (
+    <TranslatedText
+      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
+      fallback="All times must be available when booking over multiple times"
+    />
+  ),
+  start: (
+    <TranslatedText
+      stringId="locationBooking.tooltip.unavailableFutureTimeWarning"
+      fallback="All future time slots must be available when booking overnight"
+    />
+  ),
+  end: (
+    <TranslatedText
+      stringId="locationBooking.tooltip.unavailablePastTimeWarning"
+      fallback="All previous time slots must be available when booking overnight"
+    />
+  ),
+};
+
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
  * :hover) that are baked into the MUI component. A more precise selector with equivalent behaviour
@@ -143,12 +164,7 @@ const BookedTooltip = ({ children, ...props }) => (
 );
 
 const ConflictTooltip = styled(ConditionalTooltip).attrs({
-  title: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-      fallback="All times must be available when booking over multiple times"
-    />
-  ),
+  title: CONFLICT_TOOLTIP_TITLE.range,
 })`
   ${tooltipStyles};
   max-inline-size: 13em;
