@@ -31,11 +31,6 @@ export async function up(query) {
     allowNull: false,
   });
 
-  const test = await query.sequelize.query(`
-    \\d+ user_preferences;
-  `);
-  console.log(test);
-
   await query.sequelize.query(`
     ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_pkey;
     ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_user_id_uk;
