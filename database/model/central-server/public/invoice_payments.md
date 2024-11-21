@@ -15,7 +15,3 @@ Receipt number. Usually auto-generated.
 {% docs invoice_payments__amount %}
 Amount paid.
 {% enddocs %}
-
-{% docs invoice_payments__updated_by_user_id %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who updated this invoice payment.
-{% enddocs %}

@@ -36,3 +36,7 @@ Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% docs patient_contacts__relationship_id %}
 If the contact method is via another person.
 {% enddocs %}
+
+{% docs patient_contacts__deletion_status %}
+TODO
+{% enddocs %}
