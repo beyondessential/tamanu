@@ -383,10 +383,12 @@ export const AppointmentDetailPopper = ({
   appointment,
   isOvernight = false,
   actions,
+  preventOverflowPadding = {},
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
+
   const patientId = appointment.patient.id;
 
   const handlePatientDetailsClick = useCallback(async () => {
@@ -443,7 +445,7 @@ export const AppointmentDetailPopper = ({
         altBoundary: true,
         tether: false,
         rootBoundary: 'document',
-        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+        padding: preventOverflowPadding, // px conversions of height / width from CarouselComponents
       },
     },
   ];

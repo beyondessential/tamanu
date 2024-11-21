@@ -114,7 +114,8 @@ export const AppointmentTile = ({
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
+  const isLocationBooking = !!appointment.location;
+  const isOvernight = isLocationBooking && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -165,6 +166,7 @@ export const AppointmentTile = ({
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
         actions={actions}
+        preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
       />
     </>
   );
