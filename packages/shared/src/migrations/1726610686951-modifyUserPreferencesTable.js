@@ -32,7 +32,7 @@ export async function up(query) {
   });
 
   const test = await query.sequelize.query(`
-    \d+ user_preferences;
+    \\d+ user_preferences;
   `);
   console.log(test);
 
