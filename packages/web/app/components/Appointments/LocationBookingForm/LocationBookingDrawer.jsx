@@ -1,5 +1,4 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
