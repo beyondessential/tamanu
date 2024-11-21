@@ -8,6 +8,8 @@ import {
   isMatch,
   isSameDay,
   isValid,
+  max,
+  min,
   parseISO,
   startOfDay,
   startOfWeek,
@@ -270,3 +272,13 @@ export const datetimeCustomValidation = z.string().refine(
     message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
   },
 );
+
+export const maxValidDate = dates => {
+  const validDates = dates.filter(isValid);
+  return validDates.length === 0 ? null : max(validDates);
+};
+
+export const minValidDate = dates => {
+  const validDates = dates.filter(isValid);
+  return validDates.length === 0 ? null : min(validDates);
+};

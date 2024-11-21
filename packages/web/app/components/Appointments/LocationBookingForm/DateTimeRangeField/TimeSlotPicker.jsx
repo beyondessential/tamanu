@@ -17,6 +17,8 @@ import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
+import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
+
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
@@ -99,9 +101,8 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const dateIsValid = isValid(date);
-  const getEarliestRelevantTime = () => min([startOfDay(date), values.startTime].filter(isValid));
-  const getLatestRelevantTime = () => max([endOfDay(date), values.endTime].filter(isValid));
+  const getEarliestRelevantTime = () => minValidDate([startOfDay(date), values.startTime]);
+  const getLatestRelevantTime = () => maxValidDate([endOfDay(date), values.endTime]);
 
   const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
@@ -110,7 +111,7 @@ export const TimeSlotPicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: !!values.locationId && dateIsValid },
+    { enabled: !!values.locationId && isValid(date) },
   );
 
   const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
@@ -281,21 +282,21 @@ export const TimeSlotPicker = ({
           // If beginning a fresh selection, discontinuity is impossible
           if (!values.startTime || !values.endTime) return true;
           targetSelection = {
-            start: min([values.startTime, timeSlot.start]),
-            end: max([values.endTime, timeSlot.end]),
+            start: minValidDate([values.startTime, timeSlot.start]),
+            end: maxValidDate([values.endTime, timeSlot.end]),
           };
           break;
 
         case 'start':
           targetSelection = {
             start: timeSlot.start,
-            end: max([values.endTime, endOfDay(date)]),
+            end: getLatestRelevantTime(),
           };
           break;
 
         case 'end':
           targetSelection = {
-            start: min([values.startTime, startOfDay(date)]),
+            start: getEarliestRelevantTime(),
             end: timeSlot.end,
           };
           break;
@@ -303,7 +304,14 @@ export const TimeSlotPicker = ({
 
       return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
-    [bookedIntervals, date, values.startTime, values.endTime, variant],
+    [
+      variant,
+      bookedIntervals,
+      values.startTime,
+      values.endTime,
+      getLatestRelevantTime,
+      getEarliestRelevantTime,
+    ],
   );
 
   return (
