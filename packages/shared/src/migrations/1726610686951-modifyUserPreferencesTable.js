@@ -38,6 +38,18 @@ export async function up(query) {
   await query.removeColumn('user_preferences', 'id');
   await query.addColumn('user_preferences', 'id', {
     type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
+  });
+  await query.sequelize.query(`
+    UPDATE user_preferences
+    SET id = uuid_generate_v5(
+      uuid_generate_v5(uuid_nil(), 'user_preferences'),
+      user_id
+    );
+  `);
+  await query.changeColumn('user_preferences', 'id', {
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: Sequelize.fn('uuid_generate_v4'),
   });
