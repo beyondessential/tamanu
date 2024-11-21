@@ -276,8 +276,8 @@ jobs:
           retag() {
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
-              --template "$image:$tag.ARCH" \
-              --target "$image" \
+              --template "$image:$1.ARCH" \
+              --target "$image:$1" \
             || true
           }
 
