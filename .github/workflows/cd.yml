@@ -281,10 +281,14 @@ jobs:
             || true
           }
 
+          retag sha-${{ needs.config.outputs.sha }}
+
+          # quit now if we're not releasing
+          ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '' || 'exit' }}
+
           retag $(jq -r '.version' package.json)
           retag $(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
           retag $(jq -r '.version | split(".") | .[0]' package.json)
-          retag sha-${{ needs.config.outputs.sha }}
           retag latest
 
   deploy-up:
