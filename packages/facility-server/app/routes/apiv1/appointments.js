@@ -99,17 +99,23 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    const timeQuery = before
+    // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
+    const shouldQueryByOverlap = !!before;
+    const timeQueryWhereClause = shouldQueryByOverlap
       ? {
           [Op.or]: Sequelize.literal(
-            `("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ('${toDateTimeString(
-              after,
-            )}', '${toDateTimeString(before)}')`,
+            '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
           ),
         }
       : {
           startTime: { [Op.gte]: after },
         };
+    const timeQueryBindParams = shouldQueryByOverlap
+      ? {
+          afterDateTime: `'${toDateTimeString(after)}'`,
+          beforeDateTime: `'${toDateTimeString(before)}'`,
+        }
+      : null;
 
     const patientNameOrIdQuery = patientNameOrId
       ? {
@@ -157,12 +163,13 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        ...timeQuery,
+        ...timeQueryWhereClause,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
       },
       include: [...Appointment.getListReferenceAssociations()],
+      bind: { ...timeQueryBindParams },
     });
 
     res.send({
