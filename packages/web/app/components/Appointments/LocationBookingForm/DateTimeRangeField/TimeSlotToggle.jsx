@@ -163,22 +163,21 @@ const BookedTooltip = ({ children, ...props }) => (
   </StyledTooltip>
 );
 
-const ConflictTooltip = styled(ConditionalTooltip).attrs({
-  title: CONFLICT_TOOLTIP_TITLE.range,
-})`
+const ConflictTooltip = styled(ConditionalTooltip)`
   ${tooltipStyles};
   max-inline-size: 13em;
   text-wrap: balance;
 `;
 
 export const TimeSlotToggle = ({
-  timeSlot,
   booked = false,
-  selectable = true,
+  conflictTooltipTitle = CONFLICT_TOOLTIP_TITLE.range,
   disabled = false,
+  inHoverRange = false,
   onMouseEnter,
   onMouseLeave,
-  inHoverRange = false,
+  selectable = true,
+  timeSlot,
   ...props
 }) => {
   if (disabled) {
@@ -200,7 +199,7 @@ export const TimeSlotToggle = ({
   }
 
   return (
-    <ConflictTooltip visible={!selectable}>
+    <ConflictTooltip title={conflictTooltipTitle} visible={!selectable}>
       <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}
