@@ -25,8 +25,15 @@ export function readHandler(FhirResource) {
 
     let totalAwaitedTime = 0;
     while (!record.resolved && totalAwaitedTime < UNRESOLVED_RESOURCE_AWAIT_TIMEOUT) {
-      await sleepAsync(totalAwaitedTime + UNRESOLVED_RESOURCE_AWAIT_BACKOFF);
-      totalAwaitedTime += totalAwaitedTime + UNRESOLVED_RESOURCE_AWAIT_BACKOFF;
+      const nextSleepTime = Math.max(
+        Math.min(
+          totalAwaitedTime + UNRESOLVED_RESOURCE_AWAIT_BACKOFF,
+          UNRESOLVED_RESOURCE_AWAIT_TIMEOUT - totalAwaitedTime,
+        ),
+        0,
+      );
+      await sleepAsync(nextSleepTime);
+      totalAwaitedTime += nextSleepTime;
       await record.reload();
     }
 
