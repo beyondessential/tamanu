@@ -39,7 +39,6 @@ export async function up(query) {
   await query.addColumn('user_preferences', 'id', {
     type: DataTypes.STRING,
     allowNull: true,
-    defaultValue: Sequelize.fn('uuid_generate_v4'),
   });
   await query.sequelize.query(`
     UPDATE user_preferences
