@@ -1,12 +1,14 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { BaseModal } from '../../BaseModal';
-import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
-import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { formatDateRange } from '../../../utils/dateTime';
+
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useQueryClient } from '@tanstack/react-query';
+import { formatDateTimeRange } from '../../../utils/dateTime';
+import { BaseModal } from '../../BaseModal';
+import { PatientNameDisplay } from '../../PatientNameDisplay';
+import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -55,15 +57,16 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={location?.name ?? '—'}
-              value={location?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION}
+              fallback={location?.name}
+              placeholder={<>&mdash;</>}
+              value={location?.id}
             />
           }
         />
         <DetailDisplay
           label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          value={formatDateRange(startTime, endTime)}
+          value={formatDateTimeRange(startTime, endTime)}
         />
       </AppointmentDetailsColumnLeft>
       <AppointmentDetailsColumn>
@@ -111,8 +114,8 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useLocationBookingMutation(
-    { isEdit: true },
+  const { mutateAsync: updateBooking } = useLocationBookingMutation(
+    { isEdit: true, skipConflictCheck: true },
     {
       onSuccess: () => {
         toast.success(
@@ -147,7 +150,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
       bottomRowContent={
         <BottomModalContent
           cancelBooking={() =>
-            cancelBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
+            updateBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
           }
           onClose={onClose}
         />

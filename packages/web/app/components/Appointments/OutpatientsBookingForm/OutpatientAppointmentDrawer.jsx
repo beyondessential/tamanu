@@ -100,7 +100,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
-  const locationGroupSuggester = useSuggester('locationGroup');
+  const locationGroupSuggester = useSuggester('bookableLocationGroup');
 
   const isEdit = !!(initialValues.id && initialValues.startTime);
 
@@ -174,6 +174,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           <Field
             name="patientId"
             label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            placeholder={getTranslation(
+              'scheduling.filter.placeholder.patientNameOrId',
+              'Search patient name or ID',
+            )}
             component={AutocompleteField}
             suggester={patientSuggester}
             disabled={isEdit}

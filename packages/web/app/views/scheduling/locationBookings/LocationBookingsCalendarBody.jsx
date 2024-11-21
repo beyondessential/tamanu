@@ -2,20 +2,22 @@ import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import {
+  appointmentToFormValues,
+  partitionAppointmentsByDate,
+  partitionAppointmentsByLocation,
+} from './utils';
 
 export const BookingsCell = ({
   appointments,
   date,
-  location,
+  location: { id: locationId },
   openBookingForm,
   openCancelModal,
 }) => (
@@ -23,7 +25,7 @@ export const BookingsCell = ({
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date: toDateTimeString(date), locationId: location.id });
+      openBookingForm({ date, startDate: date, locationId });
     }}
   >
     {appointments?.map(a => (
@@ -33,7 +35,7 @@ export const BookingsCell = ({
         hideTime={!isSameDay(date, parseISO(a.startTime))}
         key={a.id}
         onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        onEdit={() => openBookingForm(appointmentToFormValues(a))}
       />
     ))}
   </CarouselGrid.Cell>
