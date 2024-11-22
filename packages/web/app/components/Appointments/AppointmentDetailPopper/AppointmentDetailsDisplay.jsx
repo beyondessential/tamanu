@@ -1,11 +1,11 @@
-import React from 'react';
-import { styled } from '@mui/material/styles';
-import Overnight from '@mui/icons-material/Brightness2';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import Overnight from '@mui/icons-material/Brightness2';
+import { styled } from '@mui/material/styles';
+import React from 'react';
 
 import { Colors } from '../../../constants';
+import { formatDateTimeRange } from '../../../utils/dateTime';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { formatDateRange } from '../../../utils/dateTime';
 import { DetailsDisplay, FlexCol, FlexRow } from './SharedComponents';
 
 const AppointmentDetailsContainer = styled(FlexCol)`
@@ -112,7 +112,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     <AppointmentDetailsContainer>
       <DetailsDisplay
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
-        value={formatDateRange(startTime, endTime, isOvernight)}
+        value={formatDateTimeRange(startTime, endTime, isOvernight)}
       />
       <DetailsDisplay
         label={
