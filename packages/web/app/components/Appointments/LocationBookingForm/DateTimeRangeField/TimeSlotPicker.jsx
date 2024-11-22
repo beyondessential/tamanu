@@ -21,7 +21,8 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { CONFLICT_TOOLTIP_TITLE, SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 import {
   appointmentToInterval,
   calculateTimeSlots,
@@ -29,13 +30,7 @@ import {
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
-} from './util';
-
-export const TIME_SLOT_PICKER_VARIANTS = {
-  RANGE: 'range',
-  START: 'start',
-  END: 'end',
-};
+} from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
