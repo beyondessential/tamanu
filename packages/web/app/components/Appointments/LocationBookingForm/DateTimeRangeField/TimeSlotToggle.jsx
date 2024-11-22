@@ -172,7 +172,7 @@ const ConflictTooltip = styled(ConditionalTooltip)`
 
 export const TimeSlotToggle = ({
   booked = false,
-  conflictTooltipTitle = CONFLICT_TOOLTIP_TITLE.range,
+  conflictTooltipTitle = CONFLICT_TOOLTIP_TITLE[TIME_SLOT_PICKER_VARIANTS.RANGE],
   disabled = false,
   inHoverRange = false,
   onMouseEnter,
