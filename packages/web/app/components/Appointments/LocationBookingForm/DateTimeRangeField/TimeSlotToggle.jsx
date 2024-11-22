@@ -8,8 +8,7 @@ import { Colors } from '../../../../constants';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
-import { TIME_SLOT_PICKER_VARIANTS } from './TimeSlotPicker';
-import { CONFLICT_TOOLTIP_TITLE } from './util';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './util';
 
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and

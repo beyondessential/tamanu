@@ -21,15 +21,16 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { CONFLICT_TOOLTIP_TITLE, SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import {
+  CONFLICT_TOOLTIP_TITLE,
+  TIME_SLOT_PICKER_VARIANTS,
   appointmentToInterval,
   calculateTimeSlots,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
-  TIME_SLOT_PICKER_VARIANTS,
 } from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
