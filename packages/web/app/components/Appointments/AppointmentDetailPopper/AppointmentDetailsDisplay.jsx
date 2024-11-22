@@ -55,7 +55,7 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
       )}
       {isOvernight && (
         <Tag>
-          <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
+          <Overnight aria-hidden htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
           <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
         </Tag>
       )}
