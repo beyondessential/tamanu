@@ -112,7 +112,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     <AppointmentDetailsContainer>
       <DetailsDisplay
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
-        value={formatDateTimeRange(startTime, endTime, isOvernight)}
+        value={formatDateTimeRange(startTime, endTime)}
       />
       <DetailsDisplay
         label={
