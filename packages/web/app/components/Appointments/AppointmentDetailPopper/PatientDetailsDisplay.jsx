@@ -1,37 +1,61 @@
-import React from 'react';
 import { styled } from '@mui/material/styles';
+import React from 'react';
 
-import { InlineDetailsDisplay, Label, Title } from './SharedComponents';
 import { Colors } from '../../../constants';
-import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedSex, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
+import { getPatientNameAsString } from '../../PatientNameDisplay';
+import { TranslatedSex, TranslatedText } from '../../Translation';
+import { InlineDetailsDisplay } from './SharedComponents';
 
-const PatientDetailsContainer = styled('header')`
+const Header = styled('header')`
   border-start-end-radius: 0.3125rem;
   border-start-start-radius: 0.3125rem;
   display: flex;
   flex-direction: column;
-  gap: 0.1875rem;
+  gap: 0.25rem;
   &:hover {
     background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
 `;
 
+const H2 = styled('h2')`
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-block: 0;
+`;
+
+const PrimaryDetails = styled('div')`
+  --_gap: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--_gap);
+
+  > * + * {
+    //margin-inline-start: var(--_gap);
+    padding-inline-start: var(--_gap);
+    border-inline-start: max(0.0625rem, 1px) solid currentcolor;
+  }
+`;
+
+const PatientId = styled('p')`
+  color: ${Colors.primary};
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-variant-numeric: lining-nums tabular-nums;
+  margin-block: 0.25rem 0;
+`;
+
 export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
   const { displayId, sex, dateOfBirth } = patient;
   return (
-    <PatientDetailsContainer onClick={onClick} tabIndex={0}>
-      <Title>
-        <PatientNameDisplay patient={patient} />
-      </Title>
-      <span>
+    <Header onClick={onClick} tabIndex={0}>
+      <H2>{getPatientNameAsString(patient)}</H2>
+      <PrimaryDetails>
         <InlineDetailsDisplay
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
           value={<TranslatedSex sex={sex} />}
         />
-        <Label>{' | '}</Label>
         <InlineDetailsDisplay
           label={
             <TranslatedText
@@ -41,7 +65,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
           }
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
-      </span>
+      </PrimaryDetails>
       {additionalData?.primaryContactNumber && (
         <InlineDetailsDisplay
           label={
@@ -50,7 +74,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
           value={additionalData.primaryContactNumber}
         />
       )}
-      <Label color={Colors.primary}>{displayId}</Label>
-    </PatientDetailsContainer>
+      <PatientId>{displayId}</PatientId>
+    </Header>
   );
 };

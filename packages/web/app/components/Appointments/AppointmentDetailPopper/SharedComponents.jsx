@@ -1,36 +1,43 @@
-import React from 'react';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+import React from 'react';
 
-export const FlexRow = styled(Box)`
+export const FlexRow = styled('div')`
   display: flex;
   flex-direction: row;
 `;
 
-export const FlexCol = styled(Box)`
+export const FlexCol = styled('div')`
   display: flex;
   flex-direction: column;
 `;
 
-export const Title = styled('span')`
+export const H3 = styled('h3')`
+  font-size: inherit;
   font-weight: 500;
-  font-size: 0.875rem;
+  letter-spacing: 0.015em;
+  margin-block: 0;
 `;
 
-export const Label = styled('span')`
-  font-weight: 500;
-  color: ${props => props.color || 'inherit'};
+const Paragraph = styled('p')`
+  margin-block: 0;
+  letter-spacing: 0.015em;
+`;
+
+const InlineParagraph = styled(Paragraph)`
+  display: inline-block;
 `;
 
 export const InlineDetailsDisplay = ({ label, value }) => (
-  <span>
-    <Label>{label}: </Label> {value ?? '—'}
-  </span>
+  <InlineParagraph>
+    <strong>{label}: </strong> {value ?? <>&mdash;</>}
+  </InlineParagraph>
 );
 
-export const DetailsDisplay = ({ label, value }) => (
-  <FlexCol>
-    <Label>{label}</Label>
-    <span>{value ?? <>&mdash;</>}</span>
-  </FlexCol>
-);
+export const DetailsDisplay = ({ label, value }) => {
+  return (
+    <FlexCol>
+      <H3>{label}</H3>
+      <Paragraph>{value ?? <>&mdash;</>}</Paragraph>
+    </FlexCol>
+  );
+};
