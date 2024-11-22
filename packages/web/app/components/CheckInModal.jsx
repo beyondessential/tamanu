@@ -42,20 +42,17 @@ export const CheckInModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
-        const newEncounter = {
+        const newEncounter = await createEncounter({
           patientId,
           referralId: referral?.id,
           ...data,
-        };
+        });
 
-        const { id } = await createEncounter(newEncounter);
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
-        if (typeof onSubmitEncounter === 'function') {
-          onSubmitEncounter({ id, ...newEncounter });
-        }
+        onSubmitEncounter?.(newEncounter);
 
         onClose();
 
