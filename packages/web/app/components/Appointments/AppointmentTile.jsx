@@ -38,7 +38,7 @@ const Tile = styled(UnstyledHtmlButton)`
     background-color: var(--bg-darker);
   }
 
-  ${({ $color = Colors.blue, $selected }) =>
+  ${({ $color = Colors.blue, $selected = false }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
       --bg-darker: oklch(from ${$color} l c h / 20%);
@@ -65,10 +65,10 @@ const Timestamp = ({ date }) => (
 );
 
 const Label = styled.span`
-  padding-inline-start: 0.3125rem;
   overflow: hidden;
-  white-space: nowrap;
+  padding-inline-start: 0.3125rem;
   text-overflow: ellipsis;
+  white-space: nowrap;
 
   ${props =>
     props.$strikethrough &&

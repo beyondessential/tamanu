@@ -1,18 +1,22 @@
-import Brightness2Icon from '@material-ui/icons/Brightness2';
+import OvernightIcon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
+import { Colors } from '../../../constants';
+import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
+import { Drawer } from '../../Drawer';
 import {
   AutocompleteField,
   CheckField,
-  DateField,
   DynamicSelectField,
   Field,
   Form,
@@ -21,22 +25,13 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BookingTimeField } from './BookingTimeField';
-import { useTranslation } from '../../../contexts/Translation';
-import { Drawer } from '../../Drawer';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { DateTimeRangeField } from './DateTimeRangeField';
 
-const OvernightStayField = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const OvernightIcon = styled(Brightness2Icon)`
-  position: absolute;
-  left: 145px;
-`;
-
-const StyledDrawer = styled(Drawer)`
+const StyledDrawer = styled(Drawer).attrs({
+  anchor: 'right',
+  variant: 'persistent',
+})`
   .MuiPaper-root {
     // Add 1 pixel to allow border to show
     block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
@@ -51,8 +46,13 @@ const StyledFormGrid = styled(FormGrid)`
   .MuiInputBase-input,
   .MuiFormControlLabel-label,
   div {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
+`;
+
+const OvernightStayLabel = styled.span`
+  display: flex;
+  gap: 0.25rem;
 `;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
@@ -107,13 +107,14 @@ const SuccessMessage = ({ isEdit = false }) =>
 const validationSchema = yup.object({
   locationId: yup.string().required('*Required'),
   date: yup.string().required('*Required'),
-  startTime: yup.string().required('*Required'),
-  endTime: yup.string().required('*Required'),
+  startTime: yup.date().required('*Required'),
+  endTime: yup.date().required('*Required'),
   patientId: yup.string().required('*Required'),
   bookingTypeId: yup.string().required('*Required'),
+  clinicianId: yup.string(),
 });
 
-export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
+export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isEdit = !!initialValues.id;
 
@@ -131,7 +132,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
     });
 
   const queryClient = useQueryClient();
-  const { mutateAsync: handleSubmit } = useLocationBookingMutation(
+  const { mutateAsync: putOrPostBooking } = useLocationBookingMutation(
     { isEdit },
     {
       onSuccess: () => {
@@ -157,6 +158,21 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
     },
   );
 
+  const handleSubmit = async (
+    { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
+    { resetForm },
+  ) => {
+    putOrPostBooking({
+      locationId,
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(endTime),
+      patientId,
+      bookingTypeId,
+      clinicianId,
+    });
+    resetForm();
+  };
+
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
@@ -165,10 +181,12 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
       resetForm();
     };
 
+    const resetFields = fields => {
+      for (const field of fields) setFieldValue(field, null);
+    };
+
     return (
       <StyledDrawer
-        variant="persistent"
-        anchor="right"
         PaperProps={{
           // Used to exclude the drawer from click away listener on appointment detail popper
           className: APPOINTMENT_DRAWER_CLASS,
@@ -191,47 +209,30 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={() => {
-              if (values.overnight) {
-                setFieldValue('overnight', null);
-              }
-              if (values.startTime) {
-                setFieldValue('startTime', null);
-                setFieldValue('endTime', null);
-              }
-            }}
+            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
           />
-          <OvernightStayField>
-            <Field
-              name="overnight"
-              label={
-                <TranslatedText
-                  stringId="location.form.overnightStay.label"
-                  fallback="Overnight stay"
-                />
-              }
-              component={CheckField}
-              disabled={!values.locationId}
-            />
-            <OvernightIcon fontSize="small" />
-          </OvernightStayField>
           <Field
-            name="date"
-            label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-            component={DateField}
-            required
+            name="overnight"
+            label={
+              <OvernightStayLabel>
+                <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
+                <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
+              </OvernightStayLabel>
+            }
+            component={CheckField}
+            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
           />
-          <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
+          <DateTimeRangeField required separate={values.overnight} />
           <Field
-            name="patientId"
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
             component={AutocompleteField}
-            suggester={patientSuggester}
-            required
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            name="patientId"
             placeholder={getTranslation(
               'general.patient.search.placeholder',
               'Search patient name or ID',
             )}
+            required
+            suggester={patientSuggester}
           />
           <Field
             name="bookingTypeId"
@@ -257,15 +258,12 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
   return (
     <>
       <Form
-        onSubmit={async (values, { resetForm }) => {
-          handleSubmit(values);
-          resetForm();
-        }}
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
-        initialValues={initialValues}
-        enableReinitialize
-        render={renderForm}
       />
       <WarningModal
         open={warningModalOpen}
