@@ -12,7 +12,7 @@ import { Colors } from '../../constants';
 import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { ThemedTooltip } from '../Tooltip';
-import { AppointmentDetailPopper } from './AppointmentDetailPopper';
+import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,

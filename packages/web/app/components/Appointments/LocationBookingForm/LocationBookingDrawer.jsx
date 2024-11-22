@@ -25,7 +25,7 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper/AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
 
 const StyledDrawer = styled(Drawer).attrs({
