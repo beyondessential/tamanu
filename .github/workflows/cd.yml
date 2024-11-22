@@ -222,10 +222,11 @@ jobs:
         with:
           images: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}
           tags: |
-            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern={{version}}.${{ matrix.platform.arch }}
-            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern={{major}}.{{minor}}.${{ matrix.platform.arch }}
-            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern={{major}}.${{ matrix.platform.arch }}
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{version}}.${{ matrix.platform.arch }}
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{major}}.{{minor}}.${{ matrix.platform.arch }}
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{major}}.${{ matrix.platform.arch }}
             sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
+            type=raw,value=latest,enable=false
           labels: |
             org.opencontainers.image.vendor=BES
             org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
@@ -286,10 +287,9 @@ jobs:
           # quit now if we're not releasing
           ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '' || 'exit' }}
 
-          retag $(jq -r '.version' package.json)
-          retag $(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
-          retag $(jq -r '.version | split(".") | .[0]' package.json)
-          retag latest
+          retag v$(jq -r '.version' package.json)
+          retag v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
+          retag v$(jq -r '.version | split(".") | .[0]' package.json)
 
   deploy-up:
     needs:
