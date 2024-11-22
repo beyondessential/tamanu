@@ -29,13 +29,8 @@ import {
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
+  TIME_SLOT_PICKER_VARIANTS,
 } from './util';
-
-export const TIME_SLOT_PICKER_VARIANTS = {
-  RANGE: 'range',
-  START: 'start',
-  END: 'end',
-};
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
