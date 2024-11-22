@@ -34,7 +34,7 @@ export const CheckInButton = ({ appointment }) => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const { mutate: updateAppointment, isLoading: isUpdatingAppointment } = useAppointmentMutation(
+  const { mutate: mutateAppointment, isLoading: isUpdatingAppointment } = useAppointmentMutation(
     {
       appointmentId: appointment?.id,
       isEdit: true,
@@ -59,7 +59,7 @@ export const CheckInButton = ({ appointment }) => {
     },
   );
 
-  const updateEncounter = newEncounter => updateAppointment({ encounterId: newEncounter?.id });
+  const updateEncounter = newEncounter => mutateAppointment({ encounterId: newEncounter?.id });
 
   return (
     <>
