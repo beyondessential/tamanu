@@ -1,7 +1,10 @@
 import * as yup from 'yup';
 
-/** Pattern from ms package. Use ms to parse these strings. */
-const DURATION_PATTERN = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i;
+/**
+ * Adapted ms package. Use ms to parse these strings. This pattern represents a strict subset of
+ * strings accepted by ms. Note that this pattern stipulates that a unit MUST be included.
+ */
+const DURATION_PATTERN = /^(-?(?:\d+)?\.?\d+) *(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h)$/i;
 
 export const durationStringSchema = (propertyName: string) =>
   yup

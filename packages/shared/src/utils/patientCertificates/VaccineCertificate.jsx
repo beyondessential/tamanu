@@ -141,7 +141,7 @@ const VaccineCertificateComponent = ({
   settings,
   extraPatientFields,
   certificateData,
-  healthFacility
+  healthFacility,
 }) => {
   const { getTranslation } = useLanguageContext();
   const getLocalisation = key => get(localisation, key);
@@ -170,7 +170,7 @@ const VaccineCertificateComponent = ({
         <Text
           style={vaccineCertificateStyles.valueText}
           render={({ pageNumber, totalPages }) =>
-            getTranslation('pdf.vaccineCertificate.pagination', ':currentPage of :totalPages', {
+            getTranslation('pdf.pagination', ':currentPage of :totalPages', {
               currentPage: pageNumber,
               totalPages,
             })

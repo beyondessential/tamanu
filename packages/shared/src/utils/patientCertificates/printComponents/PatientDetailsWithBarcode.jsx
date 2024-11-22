@@ -3,7 +3,7 @@ import { DataSection } from './DataSection';
 import { View } from '@react-pdf/renderer';
 import { P } from '../Typography';
 import { Col } from '../Layout';
-import { getDOBWithAge, getPatientWeight, getSex, getVillageName } from '../../patientAccessors';
+import { getDobWithAge, getPatientWeight, getSex, getVillageName } from '../../patientAccessors';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { PrintableBarcode } from './PrintableBarcode';
 import { renderDataItems } from './renderDataItems';
@@ -14,7 +14,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
     leftCol: [
       { key: 'firstName', label: 'First name' },
       { key: 'lastName', label: 'Last name' },
-      { key: 'dateOfBirth', label: 'DOB', accessor: getDOBWithAge },
+      { key: 'dateOfBirth', label: 'DOB', accessor: getDobWithAge },
       { key: 'sex', label: 'Sex', accessor: getSex },
       { key: 'villageName', label: 'Village', accessor: getVillageName },
     ],
@@ -24,7 +24,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
             {
               key: 'patientWeight',
               label: 'Patient weight',
-              accessor: data => getPatientWeight(data, getTranslation),
+              accessor: getPatientWeight,
             },
           ]
         : []),

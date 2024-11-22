@@ -39,7 +39,7 @@ const COLUMNS = [
   displayId,
   {
     key: 'fullName',
-    title: <TranslatedText stringId="vaccine.table.column.patientName" fallback="Patient name" />,
+    title: <TranslatedText stringId="general.patientName.label" fallback="Patient name" />,
     accessor: row => `${row.firstName} ${row.lastName}`,
   },
   dateOfBirth,

@@ -24,7 +24,7 @@ const columns = [
   },
   {
     key: 'category.name',
-    title: <TranslatedText stringId="lab.table.column.testCategory" fallback="Test category" />,
+    title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
     accessor: getRequestType,
   },
   {
@@ -36,7 +36,7 @@ const columns = [
   },
   {
     key: 'displayName',
-    title: <TranslatedText stringId="lab.table.column.requestedBy" fallback="Requested by" />,
+    title: <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />,
     accessor: getRequestedBy,
     sortable: false,
   },

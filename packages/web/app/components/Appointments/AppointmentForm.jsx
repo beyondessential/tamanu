@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
-import { AutocompleteField, DateTimeField, Field, Form, TranslatedSelectField } from '../Field';
+import { AutocompleteField, DateTimeField, Field, Form } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
@@ -16,12 +16,13 @@ export const AppointmentForm = props => {
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const appointmentTypeSuggester = useSuggester('appointmentType');
 
   let initialValues = {};
   if (isUpdating) {
     initialValues = {
       patientId: appointment.patientId,
-      type: appointment.type,
+      appointmentTypeId: appointment.appointmentTypeId,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
@@ -58,11 +59,14 @@ export const AppointmentForm = props => {
           .string()
           .required()
           .translatedLabel(<TranslatedText stringId="general.patient.label" fallback="Patient" />),
-        type: yup
+        appointmentTypeId: yup
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />,
+            <TranslatedText
+              stringId="appointment.appointmentType.label"
+              fallback="Appointment type"
+            />,
           ),
         startTime: yup
           .string()
@@ -98,11 +102,14 @@ export const AppointmentForm = props => {
             <FormSeparatorLine />
             <Field
               label={
-                <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
+                <TranslatedText
+                  stringId="appointment.appointmentType.label"
+                  fallback="Appointment type"
+                />
               }
-              name="type"
-              component={TranslatedSelectField}
-              enumValues={APPOINTMENT_TYPE_LABELS}
+              name="appointmentTypeId"
+              component={AutocompleteField}
+              suggester={appointmentTypeSuggester}
               required
             />
           </FormGrid>

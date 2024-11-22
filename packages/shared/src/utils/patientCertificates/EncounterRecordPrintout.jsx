@@ -1,21 +1,23 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { CertificateHeader, Watermark } from './Layout';
-import { LetterheadSection } from './LetterheadSection';
-import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
+
 import {
-  ENCOUNTER_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
 } from '@tamanu/constants';
+
+import { CertificateHeader, Watermark } from './Layout';
+import { LetterheadSection } from './LetterheadSection';
+import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort } from '../dateTime';
@@ -138,177 +140,8 @@ const NotesCell = ({ children, style = {} }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
-const COLUMNS = {
-  encounterTypes: [
-    {
-      key: 'encounterType',
-      title: 'Type',
-      accessor: ({ newEncounterType }) => ENCOUNTER_LABELS[newEncounterType],
-      style: { width: '65%' },
-    },
-    {
-      key: 'dateMoved',
-      title: 'Date & time moved',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '35%' },
-    },
-  ],
-  locations: [
-    {
-      key: 'to',
-      title: 'Area',
-      accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
-      style: { width: '30%' },
-    },
-    {
-      key: 'location',
-      title: 'Location',
-      accessor: ({ newLocation }) => startCase(newLocation),
-      style: { width: '35%' },
-    },
-    {
-      key: 'dateMoved',
-      title: 'Date & time moved',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '35%' },
-    },
-  ],
-  diagnoses: [
-    {
-      key: 'diagnosis',
-      title: 'Diagnosis',
-      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
-      style: { width: '55%' },
-    },
-    {
-      key: 'type',
-      title: 'Type',
-      accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
-      style: { width: '20%' },
-    },
-    {
-      key: 'date',
-      title: 'Date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '25%' },
-    },
-  ],
-  procedures: [
-    {
-      key: 'procedure',
-      title: 'Procedure',
-      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
-      style: { width: '75%' },
-    },
-    {
-      key: 'procedureDate',
-      title: 'Procedure date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '25%' },
-    },
-  ],
-  labRequests: [
-    {
-      key: 'testType',
-      title: 'Test type',
-      style: { width: '20%' },
-    },
-    {
-      key: 'testCategory',
-      title: 'Test category',
-      style: { width: '25%' },
-    },
-    {
-      key: 'requestedByName',
-      title: 'Requested by',
-      style: { width: '20%' },
-    },
-    {
-      key: 'requestDate',
-      title: 'Request date',
-      accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
-      style: { width: '17.5%' },
-    },
-    {
-      key: 'publishedDate',
-      title: 'Published date',
-      accessor: ({ publishedDate }) => (publishedDate ? formatShort(publishedDate) : '--/--/----'),
-      style: { width: '17.5%' },
-    },
-  ],
-  imagingRequests: [
-    {
-      key: 'imagingType',
-      title: 'Request type',
-      accessor: ({ imagingName }) => imagingName?.label,
-      style: { width: '17%' },
-    },
-    {
-      key: 'areaToBeImaged',
-      title: 'Area to be imaged',
-      accessor: imagingRequest =>
-        imagingRequest?.areas?.length
-          ? imagingRequest?.areas.map(area => area.name).join(', ')
-          : imagingRequest?.areaNote,
-      style: { width: '25%' },
-    },
-    {
-      key: 'requestedBy',
-      title: 'Requested by',
-      accessor: ({ requestedBy }) => requestedBy?.displayName,
-      style: { width: '18%' },
-    },
-    {
-      key: 'requestDate',
-      title: 'Request date',
-      accessor: ({ requestedDate }) => (requestedDate ? formatShort(requestedDate) : '--/--/----'),
-      style: { width: '20%' },
-    },
-    {
-      key: 'completedDate',
-      title: 'Completed date',
-      accessor: imagingRequest =>
-        imagingRequest?.results[0]?.completedAt
-          ? formatShort(imagingRequest?.results[0]?.completedAt)
-          : '--/--/----',
-      style: { width: '20%' },
-    },
-  ],
-  medications: [
-    {
-      key: 'medication',
-      title: 'Medication',
-      accessor: ({ medication }) => medication?.name,
-      style: { width: '20%' },
-    },
-    {
-      key: 'instructions',
-      title: 'Instructions',
-      accessor: ({ prescription }) => prescription || '',
-      style: { width: '30%' },
-    },
-    {
-      key: 'route',
-      title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
-      style: { width: '12.5%' },
-    },
-    {
-      key: 'prescriber',
-      title: 'Prescriber',
-      accessor: ({ prescriber }) => prescriber?.displayName,
-      style: { width: '25%' },
-    },
-    {
-      key: 'prescriptionDate',
-      title: 'Prescription date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '22.5%' },
-    },
-  ],
-};
-
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+  const { getTranslation } = useLanguageContext();
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
@@ -318,7 +151,9 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
         }
-        return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+        return pageNumber === firstPageOccurence
+          ? title
+          : `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
       }}
     />
   );
@@ -384,14 +219,26 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const NoteFooter = ({ note }) => (
-  <Text style={textStyles.tableCellFooter}>
-    {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
-      ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
-    {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-  </Text>
-);
-
+const NoteFooter = ({ note }) => {
+  const { getTranslation } = useLanguageContext();
+  return (
+    <Text style={textStyles.tableCellFooter}>
+      {[
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN &&
+          `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
+        note.author?.displayName,
+        note.onBehalfOf &&
+          getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+            changeOnBehalfOfName: note.onBehalfOf.displayName,
+          }),
+        formatShort(note.date),
+        getDisplayDate(note.date, 'h:mma'),
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    </Text>
+  );
+};
 const NotesMultipageCellPadding = () => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
@@ -408,11 +255,12 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
       <View>
-        <MultipageTableHeading title="Notes" />
+        <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
           {notes.map(note => (
             <>
@@ -431,7 +279,7 @@ const NotesSection = ({ notes }) => {
                 <NotesCell>
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
-                    title={NOTE_TYPE_LABELS[note.noteType]}
+                    title={getEnumTranslation(NOTE_TYPE_LABELS, note.noteType)}
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
@@ -470,66 +318,261 @@ const EncounterRecordPrintoutComponent = ({
   discharge,
   medications,
   getLocalisation,
-  clinicianText,
   vitalsData,
   recordedDates,
   getVitalsColumn,
 }) => {
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
+
+  const COLUMNS = {
+    encounterTypes: [
+      {
+        key: 'encounterType',
+        title: getTranslation('encounter.type.label', 'Type'),
+        accessor: ({ newEncounterType }) =>
+          getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
+        style: { width: '65%' },
+      },
+      {
+        key: 'dateMoved',
+        title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '35%' },
+      },
+    ],
+    locations: [
+      {
+        key: 'to',
+        title: getTranslation('general.localisedField.locationGroupId.label', 'Area'),
+        accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
+        style: { width: '30%' },
+      },
+      {
+        key: 'location',
+        title: getTranslation('general.localisedField.locationId.label', 'Location'),
+        accessor: ({ newLocation }) => startCase(newLocation),
+        style: { width: '35%' },
+      },
+      {
+        key: 'dateMoved',
+        title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '35%' },
+      },
+    ],
+    diagnoses: [
+      {
+        key: 'diagnosis',
+        title: getTranslation('general.localisedField.diagnosis.label', 'Diagnosis'),
+        accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
+        style: { width: '55%' },
+      },
+      {
+        key: 'type',
+        title: getTranslation('encounter.type.label', 'Type'),
+        accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
+        style: { width: '20%' },
+      },
+      {
+        key: 'date',
+        title: getTranslation('general.date.label', 'Date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '25%' },
+      },
+    ],
+    procedures: [
+      {
+        key: 'procedure',
+        title: getTranslation('procedure.procedureType.label', 'Procedure'),
+        accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
+        style: { width: '75%' },
+      },
+      {
+        key: 'procedureDate',
+        title: getTranslation('procedure.date.label', 'Procedure date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '25%' },
+      },
+    ],
+    labRequests: [
+      {
+        key: 'testType',
+        title: getTranslation('lab.testType.label', 'Test type'),
+        style: { width: '20%' },
+      },
+      {
+        key: 'testCategory',
+        title: getTranslation('lab.testCategory.label', 'Test category'),
+        style: { width: '25%' },
+      },
+      {
+        key: 'requestedByName',
+        title: getTranslation('general.requestedBy.label', 'Requested by'),
+        style: { width: '20%' },
+      },
+      {
+        key: 'requestDate',
+        title: getTranslation('general.requestDate.label', 'Request date'),
+        accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
+        style: { width: '17.5%' },
+      },
+      {
+        key: 'publishedDate',
+        title: getTranslation('pdf.encounterRecord.publishedDate', 'Published date'),
+        accessor: ({ publishedDate }) =>
+          publishedDate ? formatShort(publishedDate) : '--/--/----',
+        style: { width: '17.5%' },
+      },
+    ],
+    imagingRequests: [
+      {
+        key: 'imagingType',
+        title: getTranslation('general.requestType.label', 'Request type'),
+        accessor: ({ imagingName }) => imagingName?.label,
+        style: { width: '17%' },
+      },
+      {
+        key: 'areaToBeImaged',
+        title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
+        accessor: imagingRequest =>
+          imagingRequest?.areas?.length
+            ? imagingRequest?.areas.map(area => area.name).join(', ')
+            : imagingRequest?.areaNote,
+        style: { width: '25%' },
+      },
+      {
+        key: 'requestedBy',
+        title: getTranslation('general.requestedBy.label', 'Requested by'),
+        accessor: ({ requestedBy }) => requestedBy?.displayName,
+        style: { width: '18%' },
+      },
+      {
+        key: 'requestDate',
+        title: getTranslation('general.requestDate.label', 'Request date'),
+        accessor: ({ requestedDate }) =>
+          requestedDate ? formatShort(requestedDate) : '--/--/----',
+        style: { width: '20%' },
+      },
+      {
+        key: 'completedDate',
+        title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
+        accessor: imagingRequest =>
+          imagingRequest?.results[0]?.completedAt
+            ? formatShort(imagingRequest?.results[0]?.completedAt)
+            : '--/--/----',
+        style: { width: '20%' },
+      },
+    ],
+    medications: [
+      {
+        key: 'medication',
+        title: getTranslation('medication.medication.label', 'Medication'),
+        accessor: ({ medication }) => medication?.name,
+        style: { width: '20%' },
+      },
+      {
+        key: 'instructions',
+        title: getTranslation('medication.medication.instructions', 'Instructions'),
+        accessor: ({ prescription }) => prescription || '',
+        style: { width: '30%' },
+      },
+      {
+        key: 'route',
+        title: getTranslation('medication.route.label', 'Route'),
+        accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
+        style: { width: '12.5%' },
+      },
+      {
+        key: 'prescriber',
+        title: getTranslation('medication.prescriber.label', 'Prescriber'),
+        accessor: ({ prescriber }) => prescriber?.displayName,
+        style: { width: '25%' },
+      },
+      {
+        key: 'prescriptionDate',
+        title: getTranslation('medication.date.label', 'Prescription date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '22.5%' },
+      },
+    ],
+  };
 
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName="Patient encounter record"
+          documentName={getTranslation('pdf.encounterRecord.title', 'Patient encounter record')}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle="Patient encounter record"
+            certificateTitle={getTranslation(
+              'pdf.encounterRecord.title',
+              'Patient encounter record',
+            )}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
-        <EncounterDetailsExtended
-          encounter={encounter}
-          discharge={discharge}
-          clinicianText={clinicianText}
-        />
+        <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
-            title="Encounter types"
+            title={getTranslation('pdf.encounterRecord.section.encounterTypes', 'Encounter types')}
             data={encounterTypeHistory}
             columns={COLUMNS.encounterTypes}
           />
         )}
         {locationHistory.length > 0 && (
-          <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
+          <TableSection
+            title={getTranslation('general.localisedField.locationId.label', 'Location')}
+            data={locationHistory}
+            columns={COLUMNS.locations}
+          />
         )}
         {diagnoses.length > 0 && (
-          <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
+          <TableSection
+            title={getTranslation('general.localisedField.diagnosis.label', 'Diagnosis')}
+            data={diagnoses}
+            columns={COLUMNS.diagnoses}
+          />
         )}
         {procedures.length > 0 && (
-          <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
+          <TableSection
+            title={getTranslation('discharge.procedures.label', 'Procedures')}
+            data={procedures}
+            columns={COLUMNS.procedures}
+          />
         )}
         {labRequests.length > 0 && (
-          <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
+          <TableSection
+            title={getTranslation('pdf.encounterRecord.section.labRequests', 'Lab requests')}
+            data={labRequests}
+            columns={COLUMNS.labRequests}
+          />
         )}
         {imagingRequests.length > 0 && (
           <TableSection
-            title="Imaging requests"
+            title={getTranslation(
+              'pdf.encounterRecord.section.imagingRequests',
+              'Imaging requests',
+            )}
             data={imagingRequests}
             columns={COLUMNS.imagingRequests}
           />
         )}
         {medications.length > 0 && (
-          <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
+          <TableSection
+            title={getTranslation('pdf.encounterRecord.section.medications', 'Medications')}
+            data={medications}
+            columns={COLUMNS.medications}
+          />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
         <Footer />
@@ -540,7 +583,7 @@ const EncounterRecordPrintoutComponent = ({
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <TableSection
-                  title="Vitals"
+                  title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
                   columns={getVitalsColumn(start)}
                   type="vitals"

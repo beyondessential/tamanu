@@ -4,6 +4,7 @@ export class ServerResponseError extends Error {}
 export class AuthExpiredError extends ServerResponseError {}
 export class VersionIncompatibleError extends ServerResponseError {}
 export class ServerUnavailableError extends Error {}
+export class ResourceConflictError extends ServerResponseError {}
 
 export function getVersionIncompatibleMessage(error, response) {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {

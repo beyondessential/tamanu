@@ -42,12 +42,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.MEDICATION,
-    title: (
-      <TranslatedText
-        stringId="medication.modal.printMultiple.table.column.medication"
-        fallback="Medication"
-      />
-    ),
+    title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
     sortable: false,
     maxWidth: 300,
     accessor: ({ medication }) => (
@@ -183,12 +178,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             />
           }
           name="prescriberId"
-          label={
-            <TranslatedText
-              stringId="medication.modal.printMultiple.prescriber.label"
-              fallback="Prescriber"
-            />
-          }
+          label={<TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />}
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
