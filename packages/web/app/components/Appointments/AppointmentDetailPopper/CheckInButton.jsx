@@ -11,6 +11,11 @@ import { ConditionalTooltip } from '../../Tooltip';
 import { TranslatedText } from '../../Translation';
 
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  // Prevent tooltip’s div wreaking havoc on children’s layout in parent flex/grid
+  display: inherit;
+  flex-direction: inherit;
+  gap: inherit;
+
   .MuiTooltip-tooltip {
     max-inline-size: 7.5rem;
     padding-inline: 1rem;
