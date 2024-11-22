@@ -102,7 +102,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('bookableLocationGroup');
 
+  console.log(initialValues)
+
   const isEdit = !!(initialValues.id && initialValues.startTime);
+  const isOpenedFromPopout = !!(initialValues.patientId && initialValues.locationGroup)
+
+  // TODO: how to detect that this came from 
+  const disabledPatientField = isEdit || isOpenedFromPopout
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -142,6 +148,28 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       resetForm();
     };
 
+    const title = isEdit ? (
+      <TranslatedText
+        stringId="outpatientAppointment.form.edit.heading"
+        fallback="Modify outpatient appointment"
+      />
+    ) : (
+      <TranslatedText
+        stringId="outpatientAppointment.form.new.heading"
+        fallback="New outpatient appointment"
+      />
+    );
+
+    // newFromPopout Complete appointment details below to create a new appointment for the selected patient.
+    // isEdit Modify the selected appointment below
+
+    const description = (
+      <TranslatedText
+        stringId="outpatientAppointment.form.new.description"
+        fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+      />
+    );
+
     return (
       <Drawer
         PaperProps={{
@@ -150,25 +178,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         }}
         open={open}
         onClose={warnAndResetForm}
-        title={
-          isEdit ? (
-            <TranslatedText
-              stringId="outpatientAppointment.form.edit.heading"
-              fallback="Modify outpatient appointment"
-            />
-          ) : (
-            <TranslatedText
-              stringId="outpatientAppointment.form.new.heading"
-              fallback="New outpatient appointment"
-            />
-          )
-        }
-        description={
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.description"
-            fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-          />
-        }
+        title={title}
+        description={description}
       >
         <FormGrid columns={1}>
           <Field
@@ -180,7 +191,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             )}
             component={AutocompleteField}
             suggester={patientSuggester}
-            disabled={isEdit}
+            disabled={disabledPatientField}
             required
           />
           <Field
