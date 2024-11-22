@@ -22,16 +22,15 @@ import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 import {
-  CONFLICT_TOOLTIP_TITLE,
-  TIME_SLOT_PICKER_VARIANTS,
   appointmentToInterval,
   calculateTimeSlots,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
-} from './util';
+} from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
