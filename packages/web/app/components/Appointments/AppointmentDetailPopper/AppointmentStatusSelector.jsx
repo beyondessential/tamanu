@@ -31,10 +31,10 @@ const PlaceholderStatusSelector = () => (
   </ChipGroup>
 );
 
-export const AppointmentStatusSelector = ({ appointment, disabled = false }) => {
+export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
   const { mutateAsync: updateAppointment } = useAppointmentMutation(
     {
-      appointmentId: appointment.Id,
+      appointmentId: appointment.id,
       isEdit: true,
     },
     {
@@ -71,6 +71,7 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false }) => 
       onChange={handleChange}
       role="radiogroup"
       value={appointment.status}
+      {...props}
     >
       {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
         const isSelected = status === appointment.status;
