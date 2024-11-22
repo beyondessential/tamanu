@@ -73,3 +73,8 @@ sources:
             description: "{{ doc('fhir__patients__extension') }}"
             data_tests:
               - not_null
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in patients."
+            data_tests:
+              - not_null
