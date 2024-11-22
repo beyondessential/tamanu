@@ -107,19 +107,13 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const getEarliestRelevantTime = useCallback(
-    () => minValidDate([startOfDay(date), values.startTime]),
-    [date, values.startTime],
-  );
-  const getLatestRelevantTime = useCallback(() => maxValidDate([endOfDay(date), values.endTime]), [
-    date,
-    values.endTime,
-  ]);
+  const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
+  const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
   const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
-      after: getEarliestRelevantTime(),
-      before: getLatestRelevantTime(),
+      after: earliestRelevantTime,
+      before: latestRelevantTime,
       all: true,
       locationId: values.locationId,
     },
@@ -302,13 +296,13 @@ export const TimeSlotPicker = ({
         case TIME_SLOT_PICKER_VARIANTS.START:
           targetSelection = {
             start: timeSlot.start,
-            end: getLatestRelevantTime(),
+            end: latestRelevantTime,
           };
           break;
 
         case TIME_SLOT_PICKER_VARIANTS.END:
           targetSelection = {
-            start: getEarliestRelevantTime(),
+            start: earliestRelevantTime,
             end: timeSlot.end,
           };
           break;
@@ -321,8 +315,8 @@ export const TimeSlotPicker = ({
       bookedIntervals,
       values.startTime,
       values.endTime,
-      getLatestRelevantTime,
-      getEarliestRelevantTime,
+      latestRelevantTime,
+      earliestRelevantTime,
     ],
   );
 
