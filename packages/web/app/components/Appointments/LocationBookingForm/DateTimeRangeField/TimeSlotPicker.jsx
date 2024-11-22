@@ -23,7 +23,7 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { CONFLICT_TOOLTIP_TITLE, SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import {
   appointmentToInterval,
   calculateTimeSlots,
@@ -32,6 +32,12 @@ import {
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
 } from './util';
+
+export const TIME_SLOT_PICKER_VARIANTS = {
+  RANGE: 'range',
+  START: 'start',
+  END: 'end',
+};
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -59,7 +65,7 @@ export const TimeSlotPicker = ({
   disabled = false,
   label,
   required,
-  variant = 'range',
+  variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   ...props
 }) => {
   const {
@@ -92,7 +98,7 @@ export const TimeSlotPicker = ({
     // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
     // component (and vice versa)
     const isModifyingOvernightBooking = !isSameDay(initialStart, initialEnd);
-    const isOvernightVariant = variant !== 'range';
+    const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
     if (isModifyingOvernightBooking !== isOvernightVariant) return [];
 
     return timeSlots
@@ -123,14 +129,14 @@ export const TimeSlotPicker = ({
   const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
     setSelectedToggles(newToggleSelection);
     switch (variant) {
-      case 'range':
+      case TIME_SLOT_PICKER_VARIANTS.RANGE:
         void setFieldValue('startTime', newStartTime);
         void setFieldValue('endTime', newEndTime);
         return;
-      case 'start':
+      case TIME_SLOT_PICKER_VARIANTS.START:
         void setFieldValue('startTime', newStartTime);
         return;
-      case 'end':
+      case TIME_SLOT_PICKER_VARIANTS.END:
         void setFieldValue('endTime', newEndTime);
         return;
     }
@@ -147,7 +153,7 @@ export const TimeSlotPicker = ({
     const newToggles = newTogglesUnsorted.toSorted();
 
     switch (variant) {
-      case 'range': {
+      case TIME_SLOT_PICKER_VARIANTS.RANGE: {
         // Deselecting the only selected time slot
         if (newToggles.length === 0) {
           updateSelection([], { start: null, end: null });
@@ -194,7 +200,7 @@ export const TimeSlotPicker = ({
         setHoverRange(null);
         return;
       }
-      case 'start': {
+      case TIME_SLOT_PICKER_VARIANTS.START: {
         // Deselecting the only selected time slot (necessarily the latest time slot of the day)
         if (newToggles.length === 0) {
           updateSelection([], { start: null });
@@ -230,7 +236,7 @@ export const TimeSlotPicker = ({
         updateSelection([], { start: null });
         return;
       }
-      case 'end': {
+      case TIME_SLOT_PICKER_VARIANTS.END: {
         // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
         if (newToggles.length === 0) {
           updateSelection([], { end: null });
@@ -284,7 +290,7 @@ export const TimeSlotPicker = ({
     timeSlot => {
       let targetSelection; // The would-be time range if this time slot were to be selected
       switch (variant) {
-        case 'range':
+        case TIME_SLOT_PICKER_VARIANTS.RANGE:
           // If beginning a fresh selection, discontinuity is impossible
           if (!values.startTime || !values.endTime) return true;
           targetSelection = {
@@ -293,14 +299,14 @@ export const TimeSlotPicker = ({
           };
           break;
 
-        case 'start':
+        case TIME_SLOT_PICKER_VARIANTS.START:
           targetSelection = {
             start: timeSlot.start,
             end: getLatestRelevantTime(),
           };
           break;
 
-        case 'end':
+        case TIME_SLOT_PICKER_VARIANTS.END:
           targetSelection = {
             start: getEarliestRelevantTime(),
             end: timeSlot.end,
@@ -335,7 +341,7 @@ export const TimeSlotPicker = ({
               if (selectedToggles.length > 1) return;
 
               switch (variant) {
-                case 'range':
+                case TIME_SLOT_PICKER_VARIANTS.RANGE:
                   if (!values.startTime || !values.endTime) {
                     setHoverRange(timeSlot);
                     return;
@@ -346,13 +352,13 @@ export const TimeSlotPicker = ({
                     end: max([timeSlot.end, values.endTime]),
                   });
                   return;
-                case 'start':
+                case TIME_SLOT_PICKER_VARIANTS.START:
                   setHoverRange({
                     start: timeSlot.start,
                     end: endOfDay(date),
                   });
                   return;
-                case 'end':
+                case TIME_SLOT_PICKER_VARIANTS.END:
                   setHoverRange({
                     start: startOfDay(date),
                     end: timeSlot.end,
@@ -364,6 +370,7 @@ export const TimeSlotPicker = ({
             return (
               <TimeSlotToggle
                 booked={isBooked}
+                conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
                 inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
                 key={timeSlot.start.valueOf()}
@@ -386,7 +393,7 @@ TimeSlotPicker.propTypes = {
   disabled: PropTypes.bool,
   label: PropTypes.elementType,
   required: PropTypes.bool,
-  variant: PropTypes.oneOf(['range', 'start', 'end']),
+  variant: PropTypes.oneOf(Object.values(TIME_SLOT_PICKER_VARIANTS)),
 };
 
 TimeSlotPicker.defaultProps = {
@@ -394,5 +401,5 @@ TimeSlotPicker.defaultProps = {
   disabled: false,
   label: undefined,
   required: false,
-  variant: 'range',
+  variant: TIME_SLOT_PICKER_VARIANTS.RANGE,
 };

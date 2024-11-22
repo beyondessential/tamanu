@@ -132,7 +132,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     });
 
   const queryClient = useQueryClient();
-  const { mutateAsync: putOrPostBooking } = useLocationBookingMutation(
+  const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
       onSuccess: () => {
@@ -162,7 +162,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
     { resetForm },
   ) => {
-    putOrPostBooking({
+    mutateBooking({
+      id: initialValues.id, // Undefined when creating new booking
       locationId,
       startTime: toDateTimeString(startTime),
       endTime: toDateTimeString(endTime),
