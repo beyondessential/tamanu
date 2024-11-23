@@ -10,6 +10,7 @@ import {
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
 
 import {
@@ -544,6 +545,69 @@ encounterRelations.get(
     res.send({
       count: parseInt(count, 10),
       data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/chartSurveys/:chartSurveyId/chartInstances',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, query } = req;
+    req.checkPermission('list', 'Charting');
+    const { id: encounterId, chartSurveyId } = params;
+    const { order = 'asc', orderBy = 'endTime' } = query;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    console.log('encounterIdddd', encounterId);
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+
+    const results = await db.query(
+      `
+        SELECT 
+          surveys.id as "chartSurveyId",
+          survey_responses.id as "chartInstanceId",
+          survey_response_answers.body AS "chartInstanceName"
+        FROM surveys
+        JOIN 
+          survey_responses ON survey_responses.survey_id = surveys.id
+        JOIN 
+          survey_response_answers ON survey_responses.id = survey_response_answers.response_id
+        JOIN
+          encounters ON encounters.id = survey_responses.encounter_id
+        WHERE
+          survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = :surveyType
+        AND 
+          survey_responses.survey_id = :chartSurveyId
+        AND
+          survey_responses.deleted_at IS NULL
+        AND
+          encounters.deleted_at is null
+        AND 
+          survey_response_answers.data_element_id = :complexChartInstanceNameElementId
+      `,
+      {
+        replacements: {
+          encounterId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          chartSurveyId,
+          complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      count: results.length,
+      data: results,
     });
   }),
 );

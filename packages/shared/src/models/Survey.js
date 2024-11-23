@@ -1,4 +1,4 @@
-import { Sequelize, Op} from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SURVEY_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
@@ -67,7 +67,15 @@ export class Survey extends Model {
 
   static getChartSurveys() {
     return this.findAll({
-      where: { surveyType: { [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] } },
+      where: {
+        surveyType: {
+          [Op.in]: [
+            SURVEY_TYPES.SIMPLE_CHART,
+            SURVEY_TYPES.COMPLEX_CHART_CORE,
+            SURVEY_TYPES.COMPLEX_CHART,
+          ],
+        },
+      },
       order: [['name', 'ASC']],
     });
   }
