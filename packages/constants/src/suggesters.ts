@@ -12,6 +12,7 @@ export const SUGGESTER_ENDPOINTS = [
   'department',
   'facility',
   'facilityLocationGroup',
+  'bookableLocationGroup',
   'invoiceProducts',
   'location',
   'multiReferenceData',

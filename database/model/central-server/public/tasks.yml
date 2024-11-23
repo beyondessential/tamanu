@@ -111,11 +111,11 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in tasks."
+          - name: deleted_reason_for_sync_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__deleted_reason_for_sync_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in tasks."
             data_tests:
               - not_null
-          - name: deleted_reason_for_sync_id
-            data_type: character varying(255)
-            description: "{{ doc('tasks__deleted_reason_for_sync_id') }}"

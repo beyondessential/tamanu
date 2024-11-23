@@ -1,3 +1,4 @@
+export { datelessTimeStringSchema } from './bookingSlots';
 export { vaccinationsSchema } from './vaccinations';
 export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat';
 export { durationStringSchema } from './durationStringSchema';

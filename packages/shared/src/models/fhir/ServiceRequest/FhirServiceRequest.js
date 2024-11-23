@@ -4,7 +4,7 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
 import { getQueryOptions } from './getQueryOptions';
-import { getValues } from './getValues';
+import { getIsLive, getValues, shouldForceRematerialise } from './getValues';
 import { fromImagingRequests, fromLabRequests } from './getQueryToFindUpstreamIds';
 import { searchParameters } from './searchParameters';
 
@@ -70,6 +70,17 @@ export class FhirServiceRequest extends FhirResource {
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
     const values = await getValues(upstream, this.sequelize.models);
     this.set(values);
+  }
+
+  async updateIsLive() {
+    const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
+    const isLive = getIsLive(upstream, this.sequelize.models);
+    this.isLive = isLive;
+  }
+
+  async shouldForceRematerialise() {
+    const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
+    return shouldForceRematerialise(upstream, this, this.sequelize.models);
   }
 
   static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {

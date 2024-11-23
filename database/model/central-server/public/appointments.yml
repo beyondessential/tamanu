@@ -51,17 +51,11 @@ sources:
               - relationships:
                   to: source('tamanu', 'locations')
                   field: id
-          - name: type
+          - name: type_legacy
             data_type: character varying(255)
-            description: "{{ doc('appointments__type') }}"
+            description: "{{ doc('appointments__type_legacy') }}"
             data_tests:
               - not_null
-              - accepted_values:
-                  values:
-                    - Standard
-                    - Emergency
-                    - Specialist
-                    - Other
           - name: status
             data_type: character varying(255)
             description: "{{ doc('appointments__status') }}"
@@ -89,5 +83,26 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in appointments."
+            data_tests:
+              - not_null
+          - name: booking_type_id
+            data_type: character varying(255)
+            description: "{{ doc('appointments__booking_type_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'bookingType'
+          - name: appointment_type_id
+            data_type: character varying(255)
+            description: "{{ doc('appointments__appointment_type_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'appointmentType'
+          - name: is_high_priority
+            data_type: boolean
+            description: "{{ doc('appointments__is_high_priority') }}"
             data_tests:
               - not_null

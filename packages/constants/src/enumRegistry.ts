@@ -12,10 +12,10 @@ import {
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
+import { ENCOUNTER_TYPE_LABELS } from './encounters';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
-  APPOINTMENT_TYPE_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
@@ -53,7 +53,6 @@ type EnumEntries = [EnumKeys, EnumValues][];
  */
 export const registeredEnums = {
   APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
   ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
@@ -62,6 +61,7 @@ export const registeredEnums = {
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -100,7 +100,6 @@ export const registeredEnums = {
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
-  APPOINTMENT_TYPE_LABELS: 'appointment.property.types',
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
@@ -109,6 +108,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
+  ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',

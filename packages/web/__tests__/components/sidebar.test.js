@@ -30,15 +30,7 @@ const defaultSettings = {
   scheduling: {
     hidden: false,
     sortPriority: 0,
-    schedulingAppointments: {
-      hidden: false,
-      sortPriority: 0,
-    },
     schedulingCalendar: {
-      hidden: false,
-      sortPriority: 0,
-    },
-    schedulingNew: {
       hidden: false,
       sortPriority: 0,
     },

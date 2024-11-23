@@ -70,29 +70,21 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: (
           <TranslatedText
-            stringId="sidebar.scheduling.upcomingAppointments"
-            fallback="Upcoming appointments"
+            stringId="sidebar.scheduling.outpatientAppointments"
+            fallback="Outpatient appointments"
           />
         ),
-        path: '/appointments/all',
-        key: 'schedulingAppointments',
+        path: '/appointments/outpatients',
+        key: 'schedulingOutpatients',
         ability: { action: 'read' },
       },
       {
+        key: 'schedulingLocations',
+        path: '/appointments/locations',
         label: (
-          <TranslatedText stringId="sidebar.scheduling.calendar" fallback="Appointments calendar" />
+          <TranslatedText stringId="sidebar.scheduling.locations" fallback="Location bookings" />
         ),
-        path: '/appointments/calendar',
-        key: 'schedulingCalendar',
         ability: { action: 'read' },
-      },
-      {
-        label: (
-          <TranslatedText stringId="sidebar.scheduling.newAppointment" fallback="New appointment" />
-        ),
-        path: '/appointments/new',
-        key: 'schedulingNew',
-        ability: { action: 'create' },
       },
     ],
   },
@@ -191,7 +183,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: <TranslatedText stringId="sidebar.facilityAdmin.reports" fallback="Reports" />,
         key: 'reports',
-        path: `/facility-admin/reports`,
+        path: '/facility-admin/reports',
       },
       {
         label: (
@@ -201,7 +193,7 @@ export const FACILITY_MENU_ITEMS = [
           />
         ),
         key: 'bedManagement',
-        path: `/facility-admin/bed-management`,
+        path: '/facility-admin/bed-management',
       },
     ],
   },

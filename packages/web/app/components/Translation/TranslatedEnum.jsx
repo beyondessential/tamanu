@@ -20,7 +20,6 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) 
 };
 
 TranslatedEnum.propTypes = {
-  prefix: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   enumValues: PropTypes.object.isRequired,
 };
