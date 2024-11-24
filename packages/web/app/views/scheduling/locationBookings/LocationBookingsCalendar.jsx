@@ -13,6 +13,7 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -44,7 +45,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
   const displayedDates = getDisplayableDates(monthOf);
 
   return (
-    <Carousel>
+    <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
       <CarouselGrid.Root $dayCount={displayedDates.length}>
         <LocationBookingsCalendarHeader
           selectedMonthState={selectedMonthState}

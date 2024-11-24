@@ -26,7 +26,7 @@ import { getPatientNameAsString } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
-export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
+export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 const DEBOUNCE_DELAY = 200; // ms
 
 const FlexRow = styled(Box)`
@@ -203,14 +203,12 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </PrimaryDetails>
-      {additionalData?.primaryContactNumber && (
-        <InlineDetailsDisplay
-          label={
-            <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
-          }
-          value={additionalData.primaryContactNumber}
-        />
-      )}
+      <InlineDetailsDisplay
+        label={
+          <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
+        }
+        value={additionalData?.primaryContactNumber}
+      />
       <PatientId>{displayId}</PatientId>
     </PatientDetailsContainer>
   );
@@ -385,10 +383,12 @@ export const AppointmentDetailPopper = ({
   appointment,
   isOvernight = false,
   actions,
+  preventOverflowPadding = {},
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
+
   const patientId = appointment.patient.id;
 
   const handlePatientDetailsClick = useCallback(async () => {
@@ -426,7 +426,7 @@ export const AppointmentDetailPopper = ({
   );
 
   const handleClickAway = e => {
-    if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
+    if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
 
@@ -445,7 +445,7 @@ export const AppointmentDetailPopper = ({
         altBoundary: true,
         tether: false,
         rootBoundary: 'document',
-        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+        padding: preventOverflowPadding,
       },
     },
   ];
