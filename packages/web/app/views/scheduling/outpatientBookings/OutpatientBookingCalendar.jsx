@@ -26,7 +26,7 @@ export const ColumnWrapper = styled(Box)`
 `;
 
 const HeadCellWrapper = styled(Box)`
-  top: 0;
+  inset-block-start: 0;
   position: sticky;
   background: ${Colors.white};
   display: flex;
