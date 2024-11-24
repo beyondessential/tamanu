@@ -168,6 +168,7 @@ const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
 
 const Paragraph = styled('p')`
   display: inline;
+  margin-block: 0;
 `;
 const InlineDetailsDisplay = ({ label, value }) => (
   <Paragraph>

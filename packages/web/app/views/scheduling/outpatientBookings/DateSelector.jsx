@@ -53,6 +53,7 @@ const DayWrapper = styled('button')`
   padding: 0.25rem;
   border-radius: 3px;
   flex-grow: 1;
+  max-inline-size: 2.25rem;
   user-select: none;
   &:hover {
     background-color: ${({ $selected }) => ($selected ? Colors.primary : Colors.veryLightBlue)};
@@ -106,7 +107,7 @@ const StepperWrapper = styled(Box)`
   display: flex;
   align-items: center;
   overflow: hidden;
-  width: 70rem;
+  inline-size: 100%;
 `;
 
 const getMonthInterval = date =>
