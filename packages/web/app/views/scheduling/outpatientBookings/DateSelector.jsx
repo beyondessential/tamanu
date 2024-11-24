@@ -66,7 +66,7 @@ const DateText = styled(BodyText)`
   color: ${({ $selected, $isWeekend }) => {
     if ($selected) return Colors.white;
     if ($isWeekend) return Colors.midText;
-    return Colors.superDark;
+    return Colors.darkestText;
   }};
 `;
 
