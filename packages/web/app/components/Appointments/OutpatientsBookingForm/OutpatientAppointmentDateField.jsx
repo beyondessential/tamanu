@@ -10,6 +10,7 @@ import { DateTimeField } from '../..';
 
 export const OutpatientAppointmentDateField = ({ isEdit }) => {
   const { values } = useFormikContext();
+
   const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
     {
       after: values.startTime ? toDateTimeString(startOfDay(new Date(values.startTime))) : null,
@@ -19,7 +20,7 @@ export const OutpatientAppointmentDateField = ({ isEdit }) => {
       patientId: values.patientId,
     },
     {
-      enabled: !!(values.startTime && values.locationGroupId && values.patientId),
+      enabled: !isEdit && !!(values.startTime && values.locationGroupId && values.patientId),
     },
   );
 
