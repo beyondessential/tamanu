@@ -10,7 +10,6 @@ import {
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
-  SURVEY_TYPES,
 } from '@tamanu/constants';
 
 import {
