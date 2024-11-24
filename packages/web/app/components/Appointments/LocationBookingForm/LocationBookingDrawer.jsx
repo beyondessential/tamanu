@@ -32,7 +32,7 @@ const formStyles = {
   zIndex: 1000,
   position: 'absolute',
   overflowY: 'auto',
-  right: 0,
+  insetInlineEnd: 0,
   blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
   insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
 };
