@@ -4,14 +4,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
-import {
-  AutocompleteField,
-  DynamicSelectField,
-  Field,
-  Form,
-  DateTimeField,
-  CheckField,
-} from '../../Field';
+import { AutocompleteField, DynamicSelectField, Field, Form, CheckField } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -24,6 +17,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { OutpatientAppointmentDateField } from './OutpatientAppointmentDateField';
 
 const IconLabel = styled.div`
   display: flex;
@@ -239,13 +233,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <Field
-            name="startTime"
-            label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
-            component={DateTimeField}
-            required
-            saveDateAsString
-          />
+          <OutpatientAppointmentDateField isEdit={isEdit} />
           <Field
             name="endTime"
             disabled={!values.startTime}
