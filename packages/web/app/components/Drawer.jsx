@@ -9,17 +9,25 @@ import { BodyText, Heading4 } from './Typography';
 const StyledCollapse = styled(Collapse)`
   &.${collapseClasses.root} {
     background-color: ${Colors.background};
-    border-inline-start: 1px ${Colors.outline} solid;
     min-block-size: 100%;
     overflow-y: auto;
     padding-block: 0 1rem;
-    padding-inline: 1rem;
     position: relative;
 
-    .${collapseClasses.wrapperInner} {
-      inline-size: 21rem;
+    // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
+    :not(.${collapseClasses.hidden}) {
+      border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
     }
   }
+`;
+
+const Wrapper = styled.div`
+  inline-size: 21rem;
+  block-size: 100%;
+  overflow-y: auto;
+  padding-block: 0 1rem;
+  padding-inline: 1rem;
+  position: relative;
 `;
 
 // TODO: Fix semantics
@@ -64,13 +72,15 @@ export const Drawer = ({
 
   return (
     <StyledCollapse in={open} orientation={orientation} {...props}>
-      <div ref={topRef} aria-hidden />
-      <Title>
-        {title}
-        <CloseDrawerIcon onClick={onClose} />
-      </Title>
-      <Description>{description}</Description>
-      {children}
+      <Wrapper>
+        <div ref={topRef} aria-hidden />
+        <Title>
+          {title}
+          <CloseDrawerIcon onClick={onClose} />
+        </Title>
+        <Description>{description}</Description>
+        {children}
+      </Wrapper>
     </StyledCollapse>
   );
 };
