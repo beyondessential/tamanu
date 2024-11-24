@@ -121,15 +121,15 @@ export const LocationBookingsView = () => {
           openCancelModal={openCancelModal}
         />
       )}
-      <LocationBookingDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+      />
+      <LocationBookingDrawer
+        initialValues={selectedAppointment}
+        open={isDrawerOpen}
+        onClose={closeBookingForm}
       />
     </Wrapper>
   );

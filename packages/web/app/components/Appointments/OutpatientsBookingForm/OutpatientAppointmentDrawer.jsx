@@ -31,6 +31,11 @@ const IconLabel = styled.div`
   align-items: center;
 `;
 
+const formStyles = {
+  overflowY: 'auto',
+  minWidth: 'fit-content',
+};
+
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -144,10 +149,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     return (
       <Drawer
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment details popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -169,6 +170,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
           />
         }
+        // Used to exclude the drawer from click away listener on appointment details popper
+        innerClassName={APPOINTMENT_DRAWER_CLASS}
       >
         <FormGrid columns={1}>
           <Field
@@ -281,6 +284,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           await handleSubmit(values);
           resetForm();
         }}
+        style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}

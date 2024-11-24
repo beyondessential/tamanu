@@ -13,3 +13,7 @@ Stores the tab encounter order that the user has adjusted
 {% docs user_preferences__selected_graphed_vitals_on_filter %}
 In the Vitals views, graphs can be filtered. This is remembered per user.
 {% enddocs %}
+
+{% docs user_preferences__location_booking_filters %}
+In the Location bookings calendar, bookings can be filtered. This is remembered per user.
+{% enddocs %}

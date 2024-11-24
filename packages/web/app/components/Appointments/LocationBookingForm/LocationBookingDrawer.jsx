@@ -28,16 +28,14 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper/AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
 
-const StyledDrawer = styled(Drawer).attrs({
-  anchor: 'right',
-  variant: 'persistent',
-})`
-  .MuiPaper-root {
-    // Add 1 pixel to allow border to show
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
-  }
-`;
+const formStyles = {
+  zIndex: 1000,
+  position: 'absolute',
+  overflowY: 'auto',
+  insetInlineEnd: 0,
+  blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
+  insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
+};
 
 // A bit blunt but the base form fields are going to have their size tweaked in a
 // later card so this is a bridging solution just for this form
@@ -187,11 +185,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <StyledDrawer
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment detail popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
+      <Drawer
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -203,6 +197,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
           />
         }
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        innerClassName={APPOINTMENT_DRAWER_CLASS}
       >
         <StyledFormGrid nested columns={1}>
           <Field
@@ -252,7 +248,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
         </StyledFormGrid>
-      </StyledDrawer>
+      </Drawer>
     );
   };
 
@@ -265,6 +261,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
+        style={formStyles}
       />
       <WarningModal
         open={warningModalOpen}

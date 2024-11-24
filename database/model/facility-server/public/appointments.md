@@ -73,3 +73,7 @@ Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
 Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
 (`type=appointmentType`).
 {% enddocs %}
+
+{% docs appointments__is_high_priority %}
+Boolean specify if the appointment is high priority.
+{% enddocs %}

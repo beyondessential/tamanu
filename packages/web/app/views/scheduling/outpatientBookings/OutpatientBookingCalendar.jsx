@@ -16,6 +16,7 @@ export const ColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   width: ${CELL_WIDTH_PX}px;
+  min-block-size: max-content;
   &:not(:first-child) {
     border-inline-start: 1px solid ${Colors.outline};
   }
@@ -25,11 +26,14 @@ export const ColumnWrapper = styled(Box)`
 `;
 
 const HeadCellWrapper = styled(Box)`
+  inset-block-start: 0;
+  position: sticky;
+  background: ${Colors.white};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: ${CELL_WIDTH_PX}px;
+  width: calc(${CELL_WIDTH_PX}px - 2px);
   text-align: center;
 `;
 
@@ -153,7 +157,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     );
   }
   return (
-    <Box display="flex" width="100%" overflow="auto">
+    <Box display="flex" width="100%" overflow="auto" flex={1}>
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         return (

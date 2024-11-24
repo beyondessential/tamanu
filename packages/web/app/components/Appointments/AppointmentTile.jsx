@@ -105,8 +105,10 @@ export const AppointmentTile = ({
   useEffect(() => {
     const { appointmentId } = queryString.parse(location.search);
     if (appointmentId && appointmentId === appointment.id) {
-      setOpen(true);
-      ref.current.scrollIntoView({ block: 'center' });
+      setTimeout(() => {
+        setOpen(true)
+        ref.current.scrollIntoView({ block: 'center' });
+      });
     }
   }, [appointment.id, location.search]);
 
