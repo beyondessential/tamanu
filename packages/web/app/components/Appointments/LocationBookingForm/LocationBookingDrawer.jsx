@@ -26,6 +26,7 @@ import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
+import { APPOINTMENT_CALENDAR_CLASS } from '../AppointmentDetailPopper';
 
 const formStyles = {
   zIndex: 1000,
@@ -197,7 +198,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           />
         }
         // Used to exclude the drawer from click away listener on appointment detail popper
-        innerClassName={APPOINTMENT_DRAWER_CLASS}
+        innerClassName={APPOINTMENT_CALENDAR_CLASS}
       >
         <StyledFormGrid nested columns={1}>
           <Field
