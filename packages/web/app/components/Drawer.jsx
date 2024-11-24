@@ -51,19 +51,19 @@ const CloseDrawerIcon = styled(ClearIcon)`
 
 export const Drawer = ({
   open,
-  className,
   onClose,
   title,
   description,
   children,
   orientation = 'horizontal',
+  ...props
 }) => {
   const topRef = useRef(null);
 
   useEffect(() => topRef.current.scrollIntoView(), [open]);
 
   return (
-    <StyledCollapse className={className} in={open} orientation={orientation}>
+    <StyledCollapse in={open} orientation={orientation} {...props}>
       <div ref={topRef} aria-hidden />
       <Title>
         {title}
