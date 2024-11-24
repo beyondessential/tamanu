@@ -197,8 +197,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
           />
         }
-        // Used to exclude the drawer from click away listener on appointment detail popper
-        innerClassName={APPOINTMENT_CALENDAR_CLASS}
       >
         <StyledFormGrid nested columns={1}>
           <Field
