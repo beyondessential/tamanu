@@ -426,6 +426,7 @@ export const AppointmentDetailPopper = ({
   );
 
   const handleClickAway = e => {
+    console.log(e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`));
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };

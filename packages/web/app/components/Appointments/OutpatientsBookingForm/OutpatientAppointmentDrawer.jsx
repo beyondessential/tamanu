@@ -191,8 +191,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             />
           )
         }
-        // Used to exclude the drawer from click away listener on appointment details popper
-        innerClassName={APPOINTMENT_CALENDAR_CLASS}
       >
         <FormGrid columns={1}>
           <Field
