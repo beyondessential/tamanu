@@ -8,7 +8,6 @@ export const useEncounterChartInstancesQuery = (encounterId, chartSurvey) => {
   const api = useApi();
 
   const { id: chartSurveyId, surveyType } = chartSurvey || {};
-  console.log('chartSurvey', chartSurvey);  
   return useQuery(
     [`encounter/${encounterId}/chartSurveys/${chartSurveyId}/chartInstances`],
     () => api.get(`encounter/${encounterId}/chartSurveys/${chartSurveyId}/chartInstances`),

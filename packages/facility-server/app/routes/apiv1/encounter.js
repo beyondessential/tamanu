@@ -552,21 +552,10 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/chartSurveys/:chartSurveyId/chartInstances',
   asyncHandler(async (req, res) => {
-    const { db, models, params, query } = req;
+    const { db, params } = req;
     req.checkPermission('list', 'Charting');
+
     const { id: encounterId, chartSurveyId } = params;
-    const { order = 'asc', orderBy = 'endTime' } = query;
-    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-
-    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
-
-    console.log('encounterIdddd', encounterId);
-    if (!permittedSurveyIds.length) {
-      res.send({
-        data: [],
-        count: 0,
-      });
-    }
 
     const results = await db.query(
       `
