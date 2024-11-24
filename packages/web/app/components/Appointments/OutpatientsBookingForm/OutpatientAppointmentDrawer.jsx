@@ -36,7 +36,7 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -44,16 +44,30 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   return (
     <ConfirmModal
       title={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.title"
-          fallback="Cancel new appointment"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.title"
+            fallback="Cancel modifying appointment"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.title"
+            fallback="Cancel new appointment"
+          />
+        )
       }
       subText={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new appointment?"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
+            fallback="Are you sure you would like to cancel modifying the appointment?"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
+            fallback="Are you sure you would like to cancel the new appointment?"
+          />
+        )
       }
       open={open}
       onConfirm={() => {
@@ -73,7 +87,7 @@ const SuccessMessage = ({ isEdit = false }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
-      fallback="Appointment successfully edited"
+      fallback="Appointment successfully modified"
     />
   ) : (
     <TranslatedText
@@ -165,10 +179,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           )
         }
         description={
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.description"
-            fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-          />
+          isEdit ? (
+            <TranslatedText
+              stringId="outpatientAppointment.form.new.description"
+              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+            />
+          ) : (
+            <TranslatedText
+              stringId="outpatientAppointment.form.edit.description"
+              fallback="Modify the selected appointment below"
+            />
+          )
         }
         // Used to exclude the drawer from click away listener on appointment details popper
         innerClassName={APPOINTMENT_DRAWER_CLASS}
@@ -296,6 +317,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        isEdit={isEdit}
       />
     </>
   );
