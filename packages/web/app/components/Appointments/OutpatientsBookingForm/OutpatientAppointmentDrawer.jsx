@@ -24,7 +24,6 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { APPOINTMENT_CALENDAR_CLASS } from '../AppointmentDetailPopper';
 
 const IconLabel = styled.div`
   display: flex;
