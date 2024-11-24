@@ -37,7 +37,7 @@ const DaysWrapper = styled(Box)`
   scrollbar-width: thin;
   width: 100%;
   padding-block: 0.25rem;
-  justify-content: space-between;
+  justify-content: space-around;
 `;
 
 const DayWrapper = styled('button')`
