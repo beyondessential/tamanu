@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
-import { styled } from '@mui/material/styles';
+import { css, styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import {
@@ -27,7 +27,8 @@ import { Colors } from '../../../constants';
 const Wrapper = styled(Box)`
   display: flex;
   align-items: center;
-  padding: 0.3rem 0.48rem;
+  padding-block: 0.3rem;
+  padding-inline: 0.48rem;
   gap: 0.5rem;
 `;
 
@@ -35,34 +36,51 @@ const DaysWrapper = styled(Box)`
   display: flex;
   overflow: auto;
   scrollbar-width: thin;
-  width: 100%;
+  inline-size: 100%;
   padding-block: 0.25rem;
   justify-content: space-around;
 `;
 
 const DayWrapper = styled('button')`
-  touch-action: manipulation
+  touch-action: manipulation;
   appearance: none;
-  background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
-  border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
-  color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
+  background-color: transparent;
+  border: max(0.0625rem, 1px) solid transparent;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   font-family: inherit;
   align-items: center;
   padding: 0.25rem;
-  border-radius: 3px;
+  border-radius: 0.1875rem;
   flex-grow: 1;
   max-inline-size: 2.25rem;
   user-select: none;
+
   &:hover {
-    background-color: ${({ $selected }) => ($selected ? Colors.primary : Colors.veryLightBlue)};
+    background-color: ${Colors.veryLightBlue};
   }
+
+  ${({ $selected }) =>
+    $selected &&
+    css`
+      color: ${Colors.white};
+
+      &,
+      &:hover {
+        background-color: ${Colors.primary};
+      }
+    `}
+
+  ${({ $isToday }) =>
+    $isToday &&
+    css`
+      border-color: ${Colors.primary};
+    `}
 `;
 
 const DateText = styled(BodyText)`
-  min-width: 1.125rem;
+  min-inline-size: 1.125rem;
   text-align: center;
   color: ${({ $selected, $isWeekend }) => {
     if ($selected) return Colors.white;
@@ -83,7 +101,8 @@ const WeekdayText = styled(DateText)`
 const TodayButton = styled(TextButton)`
   margin-inline: 0.375rem;
   font-size: 0.75rem;
-  text-decoration: underline;
+
+  &,
   &:hover {
     text-decoration: underline;
   }
@@ -97,9 +116,9 @@ const StepperButton = styled(IconButton)`
 `;
 
 const StyledMonthYearInput = styled(MonthYearInput)`
-  width: 6.3rem;
+  inline-size: 6.3rem;
   & .MuiInputBase-root > input {
-    height: 1.039rem;
+    block-size: 1.039rem;
     font-size: 0.875rem;
   }
 `;
