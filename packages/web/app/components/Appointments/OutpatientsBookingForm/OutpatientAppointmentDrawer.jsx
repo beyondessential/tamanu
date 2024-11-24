@@ -24,6 +24,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { APPOINTMENT_CALENDAR_CLASS } from '../AppointmentDetailPopper';
 
 const IconLabel = styled.div`
   display: flex;
@@ -191,7 +192,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           )
         }
         // Used to exclude the drawer from click away listener on appointment details popper
-        innerClassName={APPOINTMENT_DRAWER_CLASS}
+        innerClassName={APPOINTMENT_CALENDAR_CLASS}
       >
         <FormGrid columns={1}>
           <Field
