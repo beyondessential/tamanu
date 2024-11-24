@@ -445,7 +445,7 @@ export const AppointmentDetailPopper = ({
         altBoundary: true,
         tether: false,
         rootBoundary: 'document',
-        padding: preventOverflowPadding, // px conversions of height / width from CarouselComponents
+        padding: preventOverflowPadding,
       },
     },
   ];

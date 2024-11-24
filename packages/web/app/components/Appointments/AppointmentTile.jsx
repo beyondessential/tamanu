@@ -166,6 +166,7 @@ export const AppointmentTile = ({
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
         actions={actions}
+        // px conversions of height / width from CarouselComponents
         preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
       />
     </>
