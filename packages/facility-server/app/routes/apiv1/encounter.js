@@ -550,7 +550,7 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/chartSurveys/:chartSurveyId/chartInstances',
+  '/:id/charts/:chartSurveyId/chartInstances',
   asyncHandler(async (req, res) => {
     const { db, params } = req;
     req.checkPermission('list', 'Charting');
@@ -572,8 +572,6 @@ encounterRelations.get(
           encounters ON encounters.id = survey_responses.encounter_id
         WHERE
           survey_responses.encounter_id = :encounterId
-        AND
-          surveys.survey_type = :surveyType
         AND 
           survey_responses.survey_id = :chartSurveyId
         AND
@@ -586,7 +584,6 @@ encounterRelations.get(
       {
         replacements: {
           encounterId,
-          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
           chartSurveyId,
           complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
         },

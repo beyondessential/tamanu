@@ -9,8 +9,8 @@ export const useEncounterChartInstancesQuery = (encounterId, chartSurvey) => {
 
   const { id: chartSurveyId, surveyType } = chartSurvey || {};
   return useQuery(
-    [`encounter/${encounterId}/chartSurveys/${chartSurveyId}/chartInstances`],
-    () => api.get(`encounter/${encounterId}/chartSurveys/${chartSurveyId}/chartInstances`),
+    [`encounter/${encounterId}/charts/${chartSurveyId}/chartInstances`],
+    () => api.get(`encounter/${encounterId}/charts/${chartSurveyId}/chartInstances`),
     { enabled: surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE },
   );
 };

@@ -87,10 +87,10 @@ export const VITALS_DATA_ELEMENT_IDS = {
 
 export const CHARTING_DATA_ELEMENT_IDS = {
   dateRecorded: 'pde-PatientChartingDate',
-  complexChartInstanceName: 'pde-chartcodecomplexchartinstancename',
-  complexChartDate: 'pde-chartcodecomplexchartdate',
-  complexChartType: 'pde-chartcodecomplexcharttype',
-  complexChartSubType: 'pde-chartcodecomplexchartsubtype',
+  complexChartInstanceName: 'pde-ComplexChartInstanceName',
+  complexChartDate: 'pde-ComplexChartDate',
+  complexChartType: 'pde-ComplexChartType',
+  complexChartSubType: 'pde-ComplexChartSubType',
 };
 
 export const BLOOD_PRESSURE = 'BLOOD_PRESSURE';
