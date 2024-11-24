@@ -174,13 +174,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         description={
           isEdit ? (
             <TranslatedText
-              stringId="outpatientAppointment.form.new.description"
-              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+              stringId="outpatientAppointment.form.edit.description"
+              fallback="Modify the selected appointment below"
             />
           ) : (
             <TranslatedText
-              stringId="outpatientAppointment.form.edit.description"
-              fallback="Modify the selected appointment below"
+              stringId="outpatientAppointment.form.new.description"
+              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
             />
           )
         }
