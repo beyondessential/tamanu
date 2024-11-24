@@ -153,7 +153,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
       answers: getAnswersFromData(data, survey),
       facilityId,
       metadata: {
-        chartInstanceResponseId: currentTab,
+        chartInstanceResponseId: chartSurveyId,
       },
     });
     handleClose();
