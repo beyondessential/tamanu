@@ -26,7 +26,6 @@ import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
-import { APPOINTMENT_CALENDAR_CLASS } from '../AppointmentDetailPopper';
 
 const formStyles = {
   zIndex: 1000,
