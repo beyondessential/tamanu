@@ -15,7 +15,7 @@ const StyledCollapse = styled(Collapse)`
     position: relative;
 
     // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
-    :not(.${collapseClasses.hidden}) {
+    &:not(.${collapseClasses.hidden}) {
       border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
     }
   }
