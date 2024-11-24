@@ -23,7 +23,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
     },
   );
 
-  const showSamedayWarning =
+  const showSameDayWarning =
     !isEdit &&
     isFetched &&
     values.patientId &&
@@ -37,7 +37,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       required
       save
       helperText={
-        showSamedayWarning && (
+        showSameDayWarning && (
           <TranslatedText
             stringId="outpatientAppointment.date.warning"
             fallback="Patient already has an appointment scheduled for this this day"
