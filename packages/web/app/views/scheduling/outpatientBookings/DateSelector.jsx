@@ -107,7 +107,7 @@ const StepperWrapper = styled(Box)`
   display: flex;
   align-items: center;
   overflow: hidden;
-  width: 100%;
+  inline-size: 100%;
 `;
 
 const getMonthInterval = date =>
