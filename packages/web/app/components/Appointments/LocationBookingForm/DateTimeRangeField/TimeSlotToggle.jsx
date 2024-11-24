@@ -8,6 +8,7 @@ import { Colors } from '../../../../constants';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
@@ -142,27 +143,21 @@ const BookedTooltip = ({ children, ...props }) => (
   </StyledTooltip>
 );
 
-const ConflictTooltip = styled(ConditionalTooltip).attrs({
-  title: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-      fallback="All times must be available when booking over multiple times"
-    />
-  ),
-})`
+const ConflictTooltip = styled(ConditionalTooltip)`
   ${tooltipStyles};
   max-inline-size: 13em;
   text-wrap: balance;
 `;
 
 export const TimeSlotToggle = ({
-  timeSlot,
   booked = false,
-  selectable = true,
+  conflictTooltipTitle = CONFLICT_TOOLTIP_TITLE[TIME_SLOT_PICKER_VARIANTS.RANGE],
   disabled = false,
+  inHoverRange = false,
   onMouseEnter,
   onMouseLeave,
-  inHoverRange = false,
+  selectable = true,
+  timeSlot,
   ...props
 }) => {
   if (disabled) {
@@ -184,7 +179,7 @@ export const TimeSlotToggle = ({
   }
 
   return (
-    <ConflictTooltip visible={!selectable}>
+    <ConflictTooltip title={conflictTooltipTitle} visible={!selectable}>
       <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}

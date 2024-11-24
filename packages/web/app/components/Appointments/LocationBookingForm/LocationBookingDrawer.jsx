@@ -32,7 +32,7 @@ const formStyles = {
   zIndex: 1000,
   position: 'absolute',
   overflowY: 'auto',
-  right: 0,
+  insetInlineEnd: 0,
   blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
   insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
 };
@@ -130,7 +130,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     });
 
   const queryClient = useQueryClient();
-  const { mutateAsync: putOrPostBooking } = useLocationBookingMutation(
+  const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
       onSuccess: () => {
@@ -160,7 +160,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
     { resetForm },
   ) => {
-    putOrPostBooking({
+    mutateBooking({
+      id: initialValues.id, // Undefined when creating new booking
       locationId,
       startTime: toDateTimeString(startTime),
       endTime: toDateTimeString(endTime),
