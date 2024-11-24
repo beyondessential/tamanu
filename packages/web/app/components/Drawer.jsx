@@ -52,7 +52,6 @@ const CloseDrawerIcon = styled(ClearIcon)`
 export const Drawer = ({
   open,
   className,
-  innerClassName,
   onClose,
   title,
   description,
