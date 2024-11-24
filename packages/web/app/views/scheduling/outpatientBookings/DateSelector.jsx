@@ -49,6 +49,7 @@ const DayWrapper = styled('button')`
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  font-family: inherit;
   align-items: center;
   padding: 0.25rem;
   border-radius: 3px;
