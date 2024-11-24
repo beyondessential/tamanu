@@ -21,8 +21,9 @@ export const ColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   width: ${CELL_WIDTH_PX}px;
-  min-height: max-content;
-  &:not(:first-child) {
+  <<<<<<<headmin-height: max-content;
+  =======min-block-size: max-content;
+  >>>>>>>epic-scheduling-enhance &:not(:first-child) {
     border-inline-start: 1px solid ${Colors.outline};
   }
   &:last-child {
@@ -31,8 +32,9 @@ export const ColumnWrapper = styled(Box)`
 `;
 
 const HeadCellWrapper = styled(Box)`
-  top: 0;
-  position: sticky;
+  <<<<<<<headtop: 0;
+  =======inset-block-start: 0;
+  >>>>>>>epic-scheduling-enhanceposition: sticky;
   background: ${Colors.white};
   display: flex;
   flex-direction: column;

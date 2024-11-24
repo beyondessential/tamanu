@@ -62,7 +62,7 @@ export const Drawer = ({
   return (
     <Collapse className={className} in={open} orientation={orientation}>
       <Container className={innerClassName} columns={1}>
-        <div ref={topRef} aria-hidden></div>
+        <div ref={topRef} aria-hidden />
         <Title>
           {title}
           <CloseDrawerIcon onClick={onClose} />

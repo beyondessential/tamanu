@@ -38,3 +38,8 @@ sources:
           - name: type
             data_type: jsonb
             description: "{{ doc('fhir__specimens__type') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in specimens."
+            data_tests:
+              - not_null

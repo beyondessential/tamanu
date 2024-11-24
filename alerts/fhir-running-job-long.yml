@@ -1,0 +1,24 @@
+sql: |
+  SELECT
+    id,
+    payload->>'resource' AS resource,
+    ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60)::text AS duration_minutes
+  FROM fhir.jobs
+  WHERE status = 'Started'
+    AND NOW() - started_at > INTERVAL '15 minutes';
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Long running FHIR jobs ({{ hostname }})'
+    template: |
+      <p>Server: {{ hostname }}</p>
+      <p>Alert: {{ filename }}</p>
+      <h1>Long running FHIR jobs detected</h1>
+      <ul>
+        {% for row in rows | slice(end=5) %}
+        <li><b>{{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
+        {% endfor %}
+         <li>... and {{ rows | length - 5 }} more</li>
+        {% endif %}
+      </ul>
+      <p>For more information, please check the logs.</p>
