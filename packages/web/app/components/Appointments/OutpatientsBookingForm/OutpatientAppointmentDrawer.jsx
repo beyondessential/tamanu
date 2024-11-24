@@ -4,14 +4,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
-import {
-  AutocompleteField,
-  DynamicSelectField,
-  Field,
-  Form,
-  DateTimeField,
-  CheckField,
-} from '../../Field';
+import { AutocompleteField, DynamicSelectField, Field, Form, CheckField } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -24,6 +17,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 
 const IconLabel = styled.div`
   display: flex;
@@ -180,13 +174,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         description={
           isEdit ? (
             <TranslatedText
-              stringId="outpatientAppointment.form.new.description"
-              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+              stringId="outpatientAppointment.form.edit.description"
+              fallback="Modify the selected appointment below"
             />
           ) : (
             <TranslatedText
-              stringId="outpatientAppointment.form.edit.description"
-              fallback="Modify the selected appointment below"
+              stringId="outpatientAppointment.form.new.description"
+              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
             />
           )
         }
@@ -239,13 +233,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <Field
-            name="startTime"
-            label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
-            component={DateTimeField}
-            required
-            saveDateAsString
-          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
           <Field
             name="endTime"
             disabled={!values.startTime}
