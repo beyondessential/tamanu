@@ -27,7 +27,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
     !isEdit &&
     isFetched &&
     values.patientId &&
-    existingAppointments.data.some(booking => booking.patientId === values.patientId);
+    existingAppointments?.data.some(booking => booking.patientId === values.patientId);
 
   return (
     <Field
