@@ -17,7 +17,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { OutpatientAppointmentDateField } from './OutpatientAppointmentDateField';
+import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 
 const IconLabel = styled.div`
   display: flex;
@@ -233,7 +233,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <OutpatientAppointmentDateField isEdit={isEdit} />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
           <Field
             name="endTime"
             disabled={!values.startTime}

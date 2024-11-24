@@ -8,27 +8,26 @@ import { useAppointmentsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../Translation';
 import { DateTimeField } from '../..';
 
-export const OutpatientAppointmentDateField = ({ isEdit }) => {
+export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
   const { values } = useFormikContext();
 
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
+  const { data: existingAppointments, isFetched } = useAppointmentsQuery(
     {
       after: values.startTime ? toDateTimeString(startOfDay(new Date(values.startTime))) : null,
       before: values.startTime ? toDateTimeString(endOfDay(new Date(values.startTime))) : null,
       all: true,
-      locationGroupId: values.locationGroupId,
       patientId: values.patientId,
     },
     {
-      enabled: !isEdit && !!(values.startTime && values.locationGroupId && values.patientId),
+      enabled: !isEdit && !!(values.startTime && values.patientId),
     },
   );
 
-  const showSameDayBookingWarning =
+  const showSamedayWarning =
     !isEdit &&
     isFetched &&
     values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
+    existingAppointments.data.some(booking => booking.patientId === values.patientId);
 
   return (
     <Field
@@ -38,10 +37,10 @@ export const OutpatientAppointmentDateField = ({ isEdit }) => {
       required
       save
       helperText={
-        showSameDayBookingWarning && (
+        showSamedayWarning && (
           <TranslatedText
-            stringId="outpatientBookingForm.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this area on this day"
+            stringId="outpatientAppointment.date.warning"
+            fallback="Patient already has an appointment scheduled for this this day"
           />
         )
       }
