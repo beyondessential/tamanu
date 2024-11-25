@@ -50,7 +50,7 @@ export const globalSettings = {
       description: 'Toggle features on/off',
       properties: {
         mandateSpecimenType: {
-          description: '_',
+          description: 'Make specimen type a required field when creating a new lab request',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -82,6 +82,11 @@ export const globalSettings = {
         },
         enableInvoicing: {
           description: 'Enable invoice tab/module on encounter view',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableTasking: {
+          description: 'Enable tasking tab/module on encounter view',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1011,6 +1016,10 @@ export const globalSettings = {
         sidebar: {
           description: 'The sidebar tabs in the facility',
           properties: {
+            dashboard: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
             patients: {
               description: '_',
               properties: {
@@ -1056,6 +1065,11 @@ export const globalSettings = {
               },
             },
           },
+        },
+        showLocationBookingsOnPatientView: {
+          description: 'Show location bookings component on patient view',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

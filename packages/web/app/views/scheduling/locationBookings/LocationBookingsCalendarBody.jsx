@@ -1,14 +1,18 @@
-import { endOfDay, formatISO } from 'date-fns';
+import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
-import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import {
+  appointmentToFormValues,
+  partitionAppointmentsByDate,
+  partitionAppointmentsByLocation,
+} from './utils';
 
 export const BookingsCell = ({
   appointments,
@@ -16,33 +20,26 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
-}) => {
-  const {
-    selectedCell: { date: selectedDate, locationId: selectedLocationId },
-  } = useLocationBooking();
-
-  return (
-    <CarouselGrid.Cell
-      onClick={e => {
-        if (e.target.closest('.appointment-tile')) return;
-        // Open form for creating new booking
-        openBookingForm({ startTime: date, locationId });
-      }}
-      // TODO: probably best to use context once that has been added
-      $selected={locationId === selectedLocationId && date === selectedDate}
-    >
-      {appointments?.map(a => (
-        <AppointmentTile
-          appointment={a}
-          className="appointment-tile"
-          key={a.id}
-          onCancel={() => openCancelModal(a)}
-          onEdit={() => openBookingForm({ ...a, date: a.startTime })}
-        />
-      ))}
-    </CarouselGrid.Cell>
-  );
-};
+}) => (
+  <CarouselGrid.Cell
+    onClick={e => {
+      if (e.target.closest('.appointment-tile')) return;
+      // Open form for creating new booking
+      openBookingForm({ date, startDate: date, locationId });
+    }}
+  >
+    {appointments?.map(a => (
+      <AppointmentTile
+        appointment={a}
+        className="appointment-tile"
+        hideTime={!isSameDay(date, parseISO(a.startTime))}
+        key={a.id}
+        onCancel={() => openCancelModal(a)}
+        onEdit={() => openBookingForm(appointmentToFormValues(a))}
+      />
+    ))}
+  </CarouselGrid.Cell>
+);
 
 export const BookingsRow = ({
   appointments,
@@ -94,13 +91,13 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const { filters } = useLocationBooking();
+  const { data: locations = [], isLoading: locationsAreLoading } = locationsQuery;
 
-  const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
+  const { filters } = useLocationBookingsContext();
 
   const { data: appointmentsData = [] } = useAppointmentsQuery({
     after: displayedDates[0],
-    before: endOfDay(displayedDates[displayedDates.length - 1]),
+    before: endOfDay(displayedDates.at(-1)),
     all: true,
     locationId: '',
     clinicianId: filters.clinicianId,
@@ -108,11 +105,10 @@ export const LocationBookingsCalendarBody = ({
     patientNameOrId: filters.patientNameOrId,
   });
 
-  const appointments = appointmentsData.data ?? [];
-
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations?.length === 0) return <EmptyStateRow />;
+  if (locations.length === 0) return <EmptyStateRow />;
 
+  const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const areFiltersActive = Object.values(filters).some(

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
-import { ThemeProvider as MuiLatestThemeProvider } from '@mui/material';
+import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';

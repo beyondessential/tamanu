@@ -8,6 +8,7 @@ import { Colors } from '../../../../constants';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
@@ -36,7 +37,7 @@ const Toggle = styled(ToggleButton)`
     padding: 0.25rem;
     text-transform: none;
     touch-action: manipulation;
-    transition: background-color 100ms ease, border-color 100ms ease;
+    transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
       background-color: oklch(from ${Colors.primary} l c h / 10%);
@@ -59,7 +60,8 @@ const Toggle = styled(ToggleButton)`
     &:disabled,
     &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
-      background-color: ${Colors.background};
+      color: ${Colors.midText};
+      background-color: transparent;
       cursor: not-allowed;
     }
 
@@ -73,7 +75,7 @@ const Toggle = styled(ToggleButton)`
 `;
 
 const AvailableToggle = styled(Toggle)`
-  ${({ $hover }) =>
+  ${({ $hover = false }) =>
     $hover &&
     css`
       &&,
@@ -96,8 +98,6 @@ const BookedToggle = styled(Toggle).attrs({
 })`
   // (0,6,0) to override styling of disabled Toggle
   &&&&&& {
-    color: ${Colors.midText};
-
     background-color: oklch(from ${Colors.alert} l c h / 10%);
     @supports not (color: oklch(from black l c h)) {
       background-color: ${Colors.alert}1a;
@@ -106,7 +106,12 @@ const BookedToggle = styled(Toggle).attrs({
 `;
 
 const tooltipStyles = css`
-  // Workaround: ThemedTooltip passes its classes onto the tooltip popper
+  &:has(> :is(:disabled, [aria-disabled='true'], .${toggleButtonGroupClasses.disabled})) {
+    cursor: not-allowed;
+  }
+
+  // Prevent tooltip’s div from affecting interpretation of justify-self: auto on children.
+  // :not() clause is a workaround: ThemedTooltip passes its classes onto the tooltip popper
   &:not(.MuiTooltip-popper) {
     display: grid;
     grid-template-columns: subgrid;
@@ -138,28 +143,21 @@ const BookedTooltip = ({ children, ...props }) => (
   </StyledTooltip>
 );
 
-const ConflictTooltip = styled(ConditionalTooltip).attrs({
-  title: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-      fallback="All times must be available when booking over multiple times"
-    />
-  ),
-})`
+const ConflictTooltip = styled(ConditionalTooltip)`
   ${tooltipStyles};
-  cursor: not-allowed;
   max-inline-size: 13em;
   text-wrap: balance;
 `;
 
 export const TimeSlotToggle = ({
-  timeSlot,
   booked = false,
-  selectable = true,
+  conflictTooltipTitle = CONFLICT_TOOLTIP_TITLE[TIME_SLOT_PICKER_VARIANTS.RANGE],
   disabled = false,
+  inHoverRange = false,
   onMouseEnter,
   onMouseLeave,
-  inHoverRange = false,
+  selectable = true,
+  timeSlot,
   ...props
 }) => {
   if (disabled) {
@@ -181,7 +179,7 @@ export const TimeSlotToggle = ({
   }
 
   return (
-    <ConflictTooltip visible={!selectable}>
+    <ConflictTooltip title={conflictTooltipTitle} visible={!selectable}>
       <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}

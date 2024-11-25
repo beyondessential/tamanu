@@ -30,7 +30,7 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 
 const columns = sex => [
   {
-    title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
+    title: <TranslatedText stringId="lab.testType.label" fallback="Test type" />,
     key: 'labTestType.name',
     accessor: row => <TranslatedReferenceData fallback={row.labTestType.name} value={row.labTestType.id} category="labTestType"/>,
   },

@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+
+import { UnstyledHtmlButton } from '../../../components';
 import { Colors } from '../../../constants';
 
 const Grid = styled.div`
@@ -85,24 +87,13 @@ const RowHeaderCell = styled(HeaderCell)`
   text-wrap: balance;
 `;
 
-const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
-  // Reset browser <button> styles
-  appearance: none;
-  background-color: unset;
-  border: none;
-  color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  font-style: inherit;
-  line-height: inherit;
-  text-align: inherit;
-  ${({$selected}) => $selected && `border: 1px solid ${Colors.primary} !important; `}
-
+const BodyCell = styled(BaseCell).attrs({ as: UnstyledHtmlButton })`
   align-items: stretch;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  ${({$selected}) => $selected && `border: 1px solid ${Colors.primary} !important; `}
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
     background-color: var(--weekend-color);

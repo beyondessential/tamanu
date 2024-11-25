@@ -5,7 +5,6 @@ import React from 'react';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import { useLocationBooking } from '../../../../contexts/LocationBooking';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
@@ -16,8 +15,7 @@ export const DateTimeRangePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { values, errors } = useFormikContext();
-  const { updateSelectedDate } = useLocationBooking();
+  const { setFieldValue, values } = useFormikContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -25,9 +23,10 @@ export const DateTimeRangePicker = ({
   const date = dateFieldValue ? new Date(dateFieldValue) : null; // Not using parseISO in case it’s already a date object
   const isValidDate = isValid(date);
 
-  const locationId = values.locationId;
+  const { id: appointmentId, locationId } = values;
 
-  const isDisabled = disabled || !hasSelectedLocation || !isValidDate
+  /** Keep synchronised with start date field for overnight bookings */
+  const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
 
   return (
     <>
@@ -37,19 +36,17 @@ export const DateTimeRangePicker = ({
         helperText={dateFieldHelperText}
         label={datePickerLabel}
         name={datePickerName}
+        onChange={flushChangeToStartDateField}
         required={required}
-        onChange={e => {
-          updateSelectedDate(e.target.value)
-        }}
         {...props}
       />
       <TimeSlotPicker
         date={isValidDate ? date : null}
-        disabled={isDisabled}
-        key={`${locationId}_${dateFieldValue}`}
+        disabled={disabled || !hasSelectedLocation || !isValidDate}
+        // Changes to any of these require state to refresh
+        key={`${appointmentId}_${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
-        $error={!isDisabled && (errors.startTime || errors.endTime)}
         variant="range"
       />
     </>

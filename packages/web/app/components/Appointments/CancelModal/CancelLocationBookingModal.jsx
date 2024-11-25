@@ -1,67 +1,23 @@
-import { Box, styled } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 
-import { useAppointmentMutation } from '../../api/mutations';
-import { Colors } from '../../constants';
-import { formatDateTimeRange } from '../../utils/dateTime';
-import { BaseModal } from '../BaseModal';
-import { ConfirmCancelRow } from '../ButtonRow';
-import { PatientNameDisplay } from '../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
-
-const FlexCol = styled(Box)`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FlexRow = styled(Box)`
-  display: flex;
-  flex-direction: row;
-`;
-
-const Label = styled('span')`
-  color: ${Colors.midText};
-  font-weight: 400;
-`;
-
-const Value = styled('span')`
-  font-weight: 500;
-`;
-
-const DetailDisplay = ({ label, value }) => (
-  <FlexCol>
-    <Label>{label}</Label>
-    <Value>{value ?? '—'}</Value>
-  </FlexCol>
-);
-
-const AppointmentDetailsContainer = styled(FlexRow)`
-  font-size: 0.875rem;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  padding-block: 1.5rem;
-`;
-
-const AppointmentDetailsColumn = styled(FlexCol)`
-  padding-inline: 1.5rem;
-  gap: 1.25rem;
-  width: 50%;
-`;
-
-const BottomModalContainer = styled(Box)`
-  padding-block: 2rem;
-  padding-inline: 2.5rem;
-  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
-  background-color: ${Colors.background};
-`;
-
-const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  margin-block-start: 0;
-`;
+import { useLocationBookingMutation } from '../../../api/mutations';
+import { formatDateTimeRange } from '../../../utils/dateTime';
+import { BaseModal } from '../../BaseModal';
+import { PatientNameDisplay } from '../../PatientNameDisplay';
+import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+import {
+  AppointmentDetailsColumn,
+  AppointmentDetailsColumnLeft,
+  AppointmentDetailsContainer,
+  BodyContainer,
+  BottomModalContainer,
+  DetailDisplay,
+  StyledConfirmCancelRow,
+} from './BaseModalComponents';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const {
@@ -76,7 +32,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
 
   return (
     <AppointmentDetailsContainer>
-      <AppointmentDetailsColumn sx={{ borderInlineEnd: `1px solid ${Colors.outline}` }}>
+      <AppointmentDetailsColumnLeft>
         <DetailDisplay
           label={
             <TranslatedText
@@ -101,9 +57,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={location?.name ?? '—'}
-              value={location?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION}
+              fallback={location?.name}
+              placeholder={<>&mdash;</>}
+              value={location?.id}
             />
           }
         />
@@ -111,7 +68,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           label={<TranslatedText stringId="general.date.label" fallback="Date" />}
           value={formatDateTimeRange(startTime, endTime)}
         />
-      </AppointmentDetailsColumn>
+      </AppointmentDetailsColumnLeft>
       <AppointmentDetailsColumn>
         <DetailDisplay
           label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
@@ -123,7 +80,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <TranslatedReferenceData
               value={bookingType.id}
               fallback={bookingType.name}
-              category="appointmentType"
+              category="bookingType"
             />
           }
         />
@@ -154,11 +111,11 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
   </BottomModalContainer>
 );
 
-export const CancelBookingModal = ({ appointment, open, onClose }) => {
+export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: cancelBooking } = useAppointmentMutation(
-    { isEdit: true },
+  const { mutateAsync: updateBooking } = useLocationBookingMutation(
+    { isEdit: true, skipConflictCheck: true },
     {
       onSuccess: () => {
         toast.success(
@@ -170,8 +127,7 @@ export const CancelBookingModal = ({ appointment, open, onClose }) => {
         queryClient.invalidateQueries('appointments');
         onClose();
       },
-      onError: error => {
-        console.log(error);
+      onError: () => {
         toast.error(
           <TranslatedText
             stringId="scheduling.error.cancelBooking"
@@ -194,7 +150,7 @@ export const CancelBookingModal = ({ appointment, open, onClose }) => {
       bottomRowContent={
         <BottomModalContent
           cancelBooking={() =>
-            cancelBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
+            updateBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
           }
           onClose={onClose}
         />
@@ -202,13 +158,13 @@ export const CancelBookingModal = ({ appointment, open, onClose }) => {
       open={open}
       onClose={onClose}
     >
-      <FlexCol sx={{ gap: '1.75rem' }}>
+      <BodyContainer>
         <TranslatedText
           stringId="locationBooking.modal.cancel.text"
           fallback="Are you sure you would like to cancel the below location booking?"
         />
         <AppointmentDetailsDisplay appointment={appointment} />
-      </FlexCol>
+      </BodyContainer>
     </BaseModal>
   );
 };

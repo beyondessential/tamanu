@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import {
-  Menu,
-  MenuItem,
-  Checkbox,
-  Box,
-  ListItemText,
-  styled,
-  Button,
-  InputAdornment,
-} from '@mui/material';
-import { Search } from '@mui/icons-material';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
+import ListItemText from '@mui/material/ListItemText';
+import styled from '@mui/system/styled';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import Search from '@mui/icons-material/Search'
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
@@ -110,6 +108,8 @@ export const SearchMultiSelectInput = ({
     setSearchValue('');
   };
 
+  const shouldShowSearch = options?.length > 10;
+
   return (
     <>
       <StyledInputButton variant="outlined" onClick={handleOpen} {...props}>
@@ -118,20 +118,22 @@ export const SearchMultiSelectInput = ({
 
       <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <SearchContainer>
-          <StyledTextInput
-            InputProps={{
-              startAdornment: (
-                <Icon>
-                  <Search />
-                </Icon>
-              ),
-            }}
-            placeholder={`Search ${label.toLowerCase()}`}
-            style={{ paddingInlineStart: 0 }}
-            value={searchValue}
-            onChange={e => setSearchValue(e.target.value)}
-            size="small"
-          />
+          {shouldShowSearch && (
+            <StyledTextInput
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <Search />
+                  </Icon>
+                ),
+              }}
+              placeholder={`Search ${label.toLowerCase()}`}
+              style={{ paddingInlineStart: 0 }}
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              size="small"
+            />
+          )}
           <StyledTextButton onClick={handleClear}>
             <TranslatedText stringId="general.action.clear" fallback="Clear" />
           </StyledTextButton>

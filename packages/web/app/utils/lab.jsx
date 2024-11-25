@@ -72,7 +72,7 @@ export const getRequestType = ({ categoryName, categoryId, category }) => {
       />
     );
   }
-  return <TranslatedText stringId="general.unknown" fallback="Unknown" />;
+  return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 };
 export const getPriority = ({ priorityName, priority }) =>
   priorityName ||

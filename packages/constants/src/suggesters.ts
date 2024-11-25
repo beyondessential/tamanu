@@ -15,6 +15,7 @@ export const SUGGESTER_ENDPOINTS = [
   'bookableLocationGroup',
   'invoiceProducts',
   'location',
+  'multiReferenceData',
   'patient',
   'patientLabTestCategories',
   'patientLabTestPanelTypes',
