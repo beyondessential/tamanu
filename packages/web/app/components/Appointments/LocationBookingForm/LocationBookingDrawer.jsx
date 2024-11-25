@@ -171,9 +171,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     resetForm();
   };
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty, ...rest }) => {
-    console.log(rest);
-
+  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
