@@ -58,9 +58,7 @@ export const PatientDetailsCard = ({ patient }) => (
   <Card mb={4}>
     <Column>
       <CardItem
-        label={
-          <TranslatedText stringId="patient.detail.card.patientId.label" fallback="Patient ID" />
-        }
+        label={<TranslatedText stringId="general.patientId.label" fallback="Patient ID" />}
         value={patient?.displayId}
       />
       <CardItem
