@@ -4,7 +4,7 @@ import { useLanguageContext } from '../pdf/languageContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
-import { getDOB, getName, getSex } from '../patientAccessors';
+import { getDob, getName, getSex } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'name', label: 'Patient Name', accessor: getName, percentageWidth: 40 },
@@ -12,7 +12,7 @@ const PATIENT_FIELDS = [
   {
     key: 'dateOfBirth',
     label: 'DOB',
-    accessor: getDOB,
+    accessor: getDob,
     percentageWidth: 20,
   },
   { key: 'sex', label: 'Sex', accessor: getSex, percentageWidth: 40 },
@@ -49,7 +49,10 @@ export const HandoverPatient = ({
           <Row>
             {detailsToDisplay.map(
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
-                const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+                const value =
+                  (accessor
+                    ? accessor(patient, { getLocalisation, getTranslation })
+                    : patient[key]) || '';
                 const label =
                   defaultLabel ||
                   getTranslation(`general.localisedFields.${key}.label.short`) ||
