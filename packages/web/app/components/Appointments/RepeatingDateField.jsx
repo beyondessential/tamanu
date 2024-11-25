@@ -110,9 +110,6 @@ const getRepeatText = (reportUnit, value) => {
     });
     const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
     const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
-    const arr = ['first', 'second', 'third', 'fourth'];
-    const arrTest = [...arr.slice(0, sameDay.length - 1), 'last'];
-    console.log(arrTest);
     if (sameDay.length === nOfWeek + 1) {
       text += 'last';
     } else if (nOfWeek === 0) {
@@ -138,7 +135,7 @@ export const RepeatingDateField = ({ value, onChange }) => {
       <Box display="flex" gap="0.5rem" height="100%">
         <StyledNumberInput
           value={repeatN}
-          min={0}
+          min={1}
           onChange={e => setRepeatN(e.target.value)}
           label={
             <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
