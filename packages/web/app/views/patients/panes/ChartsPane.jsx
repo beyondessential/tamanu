@@ -98,22 +98,21 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const chartTypes = useMemo(
     () =>
       chartSurveys
-        .sort((a, b) => a.name.localeCompare(b.name))
         .filter(s =>
           [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(s.surveyType),
         )
         .map(({ name, id }) => ({
           label: name,
           value: id,
-          // type: surveyType,
         })),
     [chartSurveys],
   );
 
-  const findChart = chartId => chartSurveys.find(({ id }) => id === chartId);
+  const findChartSurvey = chartId => chartSurveys.find(({ id }) => id === chartId);
 
+  // Find the complex chart survey that corresponds to the core chart survey
   const findComplexChartSurveyFromCore = coreChartSurveyId => {
-    const coreChartSurvey = chartSurveys.find(s => s.id === coreChartSurveyId);
+    const coreChartSurvey = findChartSurvey(coreChartSurveyId);
     return chartSurveys.find(
       s => s.programId === coreChartSurvey.programId && s.surveyType === SURVEY_TYPES.COMPLEX_CHART,
     )?.id;
@@ -121,9 +120,10 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
 
   const { data: { data: chartInstances = [] } = {} } = useEncounterChartInstancesQuery(
     encounter.id,
-    findChart(selectedChartType),
+    findChartSurvey(selectedChartType),
   );
 
+  // Create tabs for each chart instance
   const chartInstanceTabs = useMemo(
     () =>
       chartInstances.map(({ chartInstanceId, chartInstanceName }) => ({
@@ -134,6 +134,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     [chartInstances],
   );
 
+  // Set default current tab if not set
   useEffect(() => {
     if (!currentTab && chartInstanceTabs?.length) {
       setCurrenTab(chartInstanceTabs[0].key);
@@ -160,19 +161,20 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     await loadEncounter(encounter.id);
   };
 
-  const isComplexChart = findChart(selectedChartType)?.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE;
+  const isComplexChart =
+    findChartSurvey(selectedChartType)?.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE;
 
   return (
     <TabPane>
       <ChartModal
         open={modalOpen}
-        chartName={findChart(selectedChartType)?.name}
+        chartName={findChartSurvey(selectedChartType)?.name}
         onClose={handleClose}
         chartSurveyId={chartSurveyId}
         onSubmit={handleSubmitChart}
       />
 
-      <TableButtonRow variant="small" justifyContent="start">
+      <TableButtonRow variant="small" justifyContent={isComplexChart ? 'start' : 'space-between'}>
         <ChartDropDown
           selectedChartType={selectedChartType}
           setSelectedChartType={setSelectedChartType}
@@ -201,8 +203,13 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           <StyledButtonWithPermissionCheck
             justifyContent="end"
             onClick={() => {
-              const complexChartSurveyId = findComplexChartSurveyFromCore(selectedChartType);
-              setChartSurveyId(complexChartSurveyId);
+              if (isComplexChart) {
+                const complexChartSurveyId = findComplexChartSurveyFromCore(selectedChartType);
+                setChartSurveyId(complexChartSurveyId);
+              } else {
+                setChartSurveyId(selectedChartType);
+              }
+
               setModalOpen(true);
             }}
             disabled={readonly}
