@@ -188,13 +188,27 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         open={open}
         onClose={warnAndResetForm}
         title={
-          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          isEdit ? (
+            <TranslatedText
+              stringId="locationBooking.form.edit.heading"
+              fallback="Modify booking"
+            />
+          ) : (
+            <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          )
         }
         description={
-          <TranslatedText
-            stringId="locationBooking.form.new.description"
-            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-          />
+          isEdit ? (
+            <TranslatedText
+              stringId="locationBooking.form.edit.description"
+              fallback="Modify the selected booking below"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.form.new.description"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+            />
+          )
         }
       >
         <StyledFormGrid nested columns={1}>

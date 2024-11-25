@@ -15,6 +15,7 @@ import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
+import { PastBookingsModal } from './PastBookingsModal';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -157,7 +158,7 @@ const getDate = ({ startTime, endTime }) => {
   }
   return (
     <DateText>
-      <div>{dateTimeString}</div>
+      <span>{dateTimeString}</span>
       {isOvernight && <OvernightIcon />}
     </DateText>
   );
@@ -200,6 +201,7 @@ export const LocationBookingsTable = ({ patient }) => {
     }).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const history = useHistory();
 
@@ -301,6 +303,12 @@ export const LocationBookingsTable = ({ patient }) => {
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
       />
+      {isViewPastBookingsModalOpen && (
+        <PastBookingsModal
+          patient={patient}
+          onClose={() => setIsViewPastBookingsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
