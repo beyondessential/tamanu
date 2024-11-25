@@ -5,6 +5,7 @@ import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import { labsIcon, radiologyIcon } from '../../constants/images';
 import { Colors } from '../../constants';
@@ -15,6 +16,9 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { useQueryClient } from '@tanstack/react-query';
 import { LoadingIndicator } from '../LoadingIndicator';
+import { useLabRequest } from '../../contexts/LabRequest';
+import { useEncounter } from '../../contexts/Encounter';
+import { reloadImagingRequest } from '../../store';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
@@ -130,7 +134,10 @@ const ReadTitle = styled.div`
 `;
 
 const Card = ({ notification }) => {
+  const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
+  const { loadEncounter } = useEncounter();
+  const dispatch = useDispatch();
   const { mutateAsync: markAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
   const { encounterId, id } = metadata;
@@ -140,6 +147,13 @@ const Card = ({ notification }) => {
   const onNotificationClick = async () => {
     if (status === NOTIFICATION_STATUSES.UNREAD) {
       await markAsRead();
+    }
+    if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
+      await loadLabRequest(id);
+    }
+    if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
+      await loadEncounter(encounterId);
+      await dispatch(reloadImagingRequest(metadata.id));
     }
     history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
   };
