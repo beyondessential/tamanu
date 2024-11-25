@@ -1,17 +1,12 @@
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
-export const FlexRow = styled('div')`
-  display: flex;
-  flex-direction: row;
-`;
-
-export const FlexCol = styled('div')`
+const FlexCol = styled('div')`
   display: flex;
   flex-direction: column;
 `;
 
-export const H3 = styled('h3')`
+const H3 = styled('h3')`
   font-size: inherit;
   font-weight: 500;
   letter-spacing: 0.015em;

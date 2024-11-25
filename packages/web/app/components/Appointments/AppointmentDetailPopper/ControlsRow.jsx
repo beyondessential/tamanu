@@ -3,15 +3,16 @@ import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import Close from '@mui/icons-material/Close';
 
-import { FlexRow } from './SharedComponents';
 import { MenuButton } from '../../MenuButton';
 import { TranslatedText } from '../../Translation';
 
-const ControlsContainer = styled(FlexRow)`
-  position: fixed;
+const ControlsContainer = styled('div')`
+  display: flex;
+  flex-direction: row;
+  gap: 0.125rem;
   inset-block-start: 0.5rem;
   inset-inline-end: 0.5rem;
-  gap: 0.125rem;
+  position: fixed;
 `;
 
 const StyledMenuButton = styled(MenuButton)`
@@ -27,8 +28,9 @@ const StyledMenuButton = styled(MenuButton)`
   svg {
     font-size: 0.875rem;
   }
+
   #menu-list-grow {
-    box-shadow: 0px 0.25rem 1rem 0px hsla(0, 0%, 0%, 0.1);
+    box-shadow: 0 0.25rem 1rem 0 oklch(0 0 0 / 10%);
   }
 `;
 

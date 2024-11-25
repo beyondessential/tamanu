@@ -6,19 +6,23 @@ import React from 'react';
 import { Colors } from '../../../constants';
 import { formatDateTimeRange } from '../../../utils/dateTime';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { DetailsDisplay, FlexCol, FlexRow } from './SharedComponents';
+import { DetailsDisplay } from './SharedComponents';
 
-const AppointmentDetailsContainer = styled(FlexCol)`
-  gap: 0.5rem;
+const AppointmentDetailsContainer = styled('div')`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   position: relative;
 `;
 
-const Tag = styled(FlexRow)`
+const Tag = styled('div')`
+  display: flex;
+  flex-direction: row;
   gap: 0.125rem;
-  position: absolute;
-  inset-inline-end: 0.75rem;
   inset-block-end: 0.75rem;
+  inset-inline-end: 0.75rem;
+  position: absolute;
 `;
 
 const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
