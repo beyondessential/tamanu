@@ -172,7 +172,7 @@ const Paragraph = styled('p')`
 `;
 const InlineDetailsDisplay = ({ label, value }) => (
   <Paragraph>
-    <Label>{label}: </Label> {value ?? <>&mdash;</>}
+    <Label>{label}: </Label> {value || <>&mdash;</>}
   </Paragraph>
 );
 
