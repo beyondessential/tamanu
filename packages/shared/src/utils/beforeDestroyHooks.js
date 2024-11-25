@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { getDependantAssociations } from './getDependentAssociations';
 
 async function getIds(options) {
   let ids = options.where?.id?.[Op.in];
@@ -9,12 +10,6 @@ async function getIds(options) {
 
   const instances = await options.model.findAll(options);
   return instances.map(x => x.id);
-}
-
-function getDependantAssociations(model) {
-  return Object.values(model.associations).filter(
-    ({ associationType }) => ['HasMany', 'HasOne'].includes(associationType),
-  );
 }
 
 async function executeInsideTransaction(sequelize, arg, fn) {

@@ -22,6 +22,7 @@ import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { updateChildRecordsForSyncLookup } from '../../dist/sync/registerSyncLookupUpdateListener';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -1416,6 +1417,121 @@ describe('Sync Lookup data', () => {
 
       expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
       expect(snapshotPatientFromAnotherFacility).toBeDefined();
+    });
+  });
+
+  describe('updates child records when parent records are updated in sync_lookup', () => {
+    const setupAutocompleteSurvey = async (sscConfig, answerBody) => {
+      const {
+        Facility,
+        Location,
+        Department,
+        Patient,
+        User,
+        Encounter,
+        Program,
+        Survey,
+        SurveyResponse,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponseAnswer,
+      } = models;
+
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
+      const examiner = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: examiner.id,
+      });
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+      });
+      const response = await SurveyResponse.create({
+        ...fake(SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const dataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: 'Autocomplete',
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        responseId: response.id,
+        dataElementId: dataElement.id,
+        surveyId: survey.id,
+        config: sscConfig,
+      });
+      const answer = await SurveyResponseAnswer.create({
+        ...fake(SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response.id,
+        body: answerBody,
+      });
+
+      return { patient, encounter, answer, response };
+    };
+
+    it('updates patient_id of child records when patient_id of parent records are updated in sync_lookup', async () => {
+      const { patient, encounter, answer, response } = await setupAutocompleteSurvey(
+        JSON.stringify({
+          source: 'Facility',
+        }),
+        facility.id,
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const encounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter.id },
+      });
+      const responseLookupData = await models.SyncLookup.findOne({
+        where: { recordId: response.id },
+      });
+      const answerLookupData = await models.SyncLookup.findOne({
+        where: { recordId: answer.id },
+      });
+
+      expect(encounterLookupData.patientId).toBe(patient.id);
+      expect(responseLookupData.patientId).toBe(patient.id);
+      expect(answerLookupData.patientId).toBe(patient.id);
+
+      const patient2 = await models.Patient.create(fake(models.Patient));
+
+      encounter.patientId = patient2.id;
+      await encounter.save();
+
+      await updateChildRecordsForSyncLookup(models.Encounter, encounter.id);
+
+      await centralSyncManager.updateLookupTable();
+
+      const encounterLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: encounter.id },
+      });
+      const responseLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: response.id },
+      });
+      const answerLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: answer.id },
+      });
+
+      expect(encounterLookupData2.patientId).toBe(patient2.id);
+      expect(responseLookupData2.patientId).toBe(patient2.id);
+      expect(answerLookupData2.patientId).toBe(patient2.id);
     });
   });
 });

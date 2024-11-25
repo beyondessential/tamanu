@@ -3,6 +3,7 @@ import { debounce } from 'lodash';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
+import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  * Similar to useQuery but with a listener to a socket channel matching the endpoint that indicates
@@ -13,6 +14,11 @@ export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChann
   const { socket } = useSocket();
   const queryClient = useQueryClient();
   const queryKey = useMemo(() => [endpoint, queryParams], [endpoint, queryParams]);
+
+  // listen to any updates on the root collection, i.e. the first segment of the endpoint
+  // updates at the root level indicate anything below needs to be re-fetched
+  const rootCollection = endpoint.split('/')[0];
+  const updateDetectionChannel = `${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${rootCollection}`;
 
   useEffect(() => {
     const handleDataUpdatedEvent = debounce(() => {
