@@ -172,7 +172,7 @@ const Paragraph = styled('p')`
 `;
 const InlineDetailsDisplay = ({ label, value }) => (
   <Paragraph>
-    <Label>{label}: </Label> {value ?? <>&mdash;</>}
+    <Label>{label}: </Label> {value || <>&mdash;</>}
   </Paragraph>
 );
 
@@ -208,7 +208,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         label={
           <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
         }
-        value={additionalData?.primaryContactNumber || null}
+        value={additionalData?.primaryContactNumber}
       />
       <PatientId>{displayId}</PatientId>
     </PatientDetailsContainer>
