@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 
 import { labsIcon, radiologyIcon } from '../../constants/images';
 import { Colors } from '../../constants';
-import { BodyText, Heading5 } from '../Typography';
+import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest, formatTime } from '../DateDisplay';
@@ -48,7 +48,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       case LAB_REQUEST_STATUSES.INVALIDATED:
         return getTranslation(
           'notification.content.labRequest.invalidated',
-          'Lab results for :patientName (:displayId) are <strong>have been invalidated</strong>',
+          'Lab results for :patientName (:displayId) have been <strong>invalidated</strong>',
           { displayId, patientName },
         );
     }
@@ -132,6 +132,16 @@ const ReadTitle = styled.div`
   font-weight: 500;
 `;
 
+const NoDataContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 3px;
+  margin-bottom: 40px;
+`;
+
 const Card = ({ notification }) => {
   const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
@@ -185,17 +195,38 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
   return (
     <StyledDrawer open={open} onClose={onClose} anchor="right">
       <Title>
-        {
+        <TranslatedText
+          fallback="Notifications"
+          stringId="dashboard.notification.notifications.title"
+          replacements={{ count: unreadNotifications.length }}
+        />{' '}
+        {!!unreadNotifications.length && (
           <TranslatedText
-            fallback="Notifications (:count new)"
-            stringId="dashboard.notification.notifications.title"
-            replacements={{ count: unreadNotifications.length || '0' }}
+            fallback="(:count new)"
+            stringId="dashboard.notification.title.countNew"
+            replacements={{ count: unreadNotifications.length }}
           />
-        }
+        )}
         <CloseButton onClick={onClose}>
           <CloseIcon />
         </CloseButton>
       </Title>
+      {!unreadNotifications.length && !readNotifications.length && (
+        <NoDataContainer>
+          <Heading3 margin={0}>
+            <TranslatedText
+              fallback="No notifications to display "
+              stringId="dashboard.notification.empty.title"
+            />
+          </Heading3>
+          <BodyText>
+            <TranslatedText
+              fallback="Check back again later"
+              stringId="dashboard.notification.empty.subTitle"
+            />
+          </BodyText>
+        </NoDataContainer>
+      )}
       {!isLoading ? (
         <>
           {!!unreadNotifications.length && (
