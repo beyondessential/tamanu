@@ -6,16 +6,6 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 
-export const concatSelf = (array, ...items) => {
-  items.forEach(item => {
-    if (isArray(item)) {
-      item.forEach(variable => array.push(variable));
-    } else {
-      array.push(item);
-    }
-  });
-};
-
 export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
@@ -44,6 +34,7 @@ export const notify = (message, props) => {
   }
 };
 
+export const notifyInfo = (msg, props) => notify(msg, { ...props, type: 'info' });
 export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
 export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
@@ -105,4 +96,10 @@ export const renderToText = element => {
   const renderedText = div.innerText;
   root.unmount();
   return renderedText;
+};
+
+export const preventInvalidNumber = event => {
+  if (!event.target.validity.valid) {
+    event.target.value = '';
+  }
 };

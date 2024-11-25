@@ -23,7 +23,6 @@ describe('snapshotOutgoingChanges', () => {
   let outgoingModels;
   const simplestSessionConfig = {
     syncAllLabRequests: false,
-    syncAllEncountersForTheseVaccines: [],
     isMobile: false,
   };
 
@@ -48,17 +47,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         sessionId,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
         fullSyncPatientsTable,
         sessionId,
-        '',
+        [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(0);
@@ -83,17 +84,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -130,17 +133,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -168,17 +173,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         firstTock - 1,
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         firstTock - 1,
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(2);
@@ -233,6 +240,7 @@ describe('snapshotOutgoingChanges', () => {
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
           return snapshotOutgoingChanges(
+            ctx.store,
             {
               // the transaction needs to have a select, ANY select, so the database
               // actually takes a snapshot of the db at that point in time. THEN we
@@ -245,7 +253,8 @@ describe('snapshotOutgoingChanges', () => {
             0,
             true,
             syncSession.id,
-            '',
+            [''],
+            null,
             simplestSessionConfig,
           );
         },
@@ -317,6 +326,7 @@ describe('snapshotOutgoingChanges', () => {
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
           return snapshotOutgoingChanges(
+            ctx.store,
             {
               Facility: models.Facility,
               FakeModel: fakeModelThatWaitsUntilWeSaySo,
@@ -326,7 +336,8 @@ describe('snapshotOutgoingChanges', () => {
             0,
             true,
             syncSession.id,
-            '',
+            [''],
+            null,
             simplestSessionConfig,
           );
         },
@@ -372,8 +383,9 @@ describe('snapshotOutgoingChanges', () => {
       const patient1 = await Patient.create(fake(Patient));
       const patient2 = await Patient.create(fake(Patient));
       const facility = await Facility.create(fake(Facility));
-      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
-      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
+      const facility2 = await Facility.create(fake(Facility));
+      const location = await Location.create({ ...fake(Location), facilityId: facility2.id });
+      const department = await Department.create({ ...fake(Department), facilityId: facility2.id });
       const encounter1 = await Encounter.create({
         ...fake(Encounter),
         examinerId: user.id,
@@ -388,6 +400,7 @@ describe('snapshotOutgoingChanges', () => {
         locationId: location.id,
         departmentId: department.id,
       });
+
       await PatientFacility.create({ patientId: patient2.id, facilityId: facility.id });
 
       const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
@@ -466,17 +479,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        facilityId,
+        [facilityId],
         firstTock - 1,
       );
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         1,
         incrementalSyncPatientsTable,
         syncSession.id,
-        facilityId,
+        [facilityId],
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -497,7 +512,7 @@ describe('snapshotOutgoingChanges', () => {
       );
     });
 
-    it('includes encounters for patients marked for sync even if the encounter is older than the sync "since" time', async () => {
+    it('includes encounters for patients not marked for sync even if the encounter is older than the sync "since" time', async () => {
       const { Encounter, LabRequest, LabTest } = models;
       const {
         encounter1,
@@ -514,17 +529,19 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         false,
-        facility.id,
+        [facility.id],
         secondTock - 1,
       );
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         secondTock - 1,
         1,
         incrementalSyncPatientsTable,
         syncSession.id,
-        facility.id,
+        [facility.id],
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -551,189 +568,15 @@ describe('snapshotOutgoingChanges', () => {
       const { firstTock, syncSession } = await setupTestData();
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         0,
         true,
         syncSession.id,
         fakeUUID(),
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: false },
-      );
-
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
-        syncSession.id,
-        SYNC_SESSION_DIRECTION.OUTGOING,
-      );
-      expect(outgoingSnapshotRecords.length).toEqual(0);
-    });
-  });
-
-  describe('syncAllEncountersForTheseVaccines', () => {
-    const setupTestData = async () => {
-      const {
-        AdministeredVaccine,
-        Department,
-        Encounter,
-        Facility,
-        LocalSystemFact,
-        Location,
-        Patient,
-        ReferenceData,
-        ScheduledVaccine,
-        SyncSession,
-        User,
-      } = models;
-      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
-      const user = await User.create(fake(User));
-      const patient = await Patient.create(fake(Patient));
-      const facility = await Facility.create(fake(Facility));
-      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
-      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
-      const encounter1 = await Encounter.create({
-        ...fake(Encounter),
-        examinerId: user.id,
-        patientId: patient.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
-      const encounter2 = await Encounter.create({
-        ...fake(Encounter),
-        examinerId: user.id,
-        patientId: patient.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
-      const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
-
-      const vaccine1 = await ReferenceData.create({ ...fake(ReferenceData), type: 'drug' });
-      const vaccine2 = await ReferenceData.create({ ...fake(ReferenceData), type: 'drug' });
-      const scheduledVaccine1 = await ScheduledVaccine.create({
-        ...fake(ScheduledVaccine),
-        vaccineId: vaccine1.id,
-      });
-      const scheduledVaccine2 = await ScheduledVaccine.create({
-        ...fake(ScheduledVaccine),
-        vaccineId: vaccine2.id,
-      });
-      const administeredVaccine1 = await AdministeredVaccine.create({
-        ...fake(AdministeredVaccine),
-        scheduledVaccineId: scheduledVaccine1.id,
-        encounterId: encounter1.id,
-        recorderId: user.id,
-      });
-      const administeredVaccine2 = await AdministeredVaccine.create({
-        ...fake(AdministeredVaccine),
-        scheduledVaccineId: scheduledVaccine2.id,
-        encounterId: encounter2.id,
-        recorderId: user.id,
-      });
-
-      const startTime = new Date();
-      const syncSession = await SyncSession.create({
-        startTime,
-        lastConnectionTime: startTime,
-      });
-      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
-
-      return {
-        encounter1,
-        encounter2,
-        administeredVaccine1,
-        administeredVaccine2,
-        scheduledVaccine1,
-        scheduledVaccine2,
-        firstTock,
-        secondTock,
-        syncSession,
-      };
-    };
-
-    it('includes required administered vaccines and encounters, if turned on', async () => {
-      const { Encounter, AdministeredVaccine } = models;
-
-      const {
-        // use the first vaccine type in the list to sync everywhere, the second should be ignored
-        encounter1,
-        administeredVaccine1,
-        scheduledVaccine1,
-        firstTock,
-        syncSession,
-      } = await setupTestData();
-
-      await snapshotOutgoingChanges(
-        { Encounter, AdministeredVaccine },
-        firstTock - 1,
-        0,
-        true,
-        syncSession.id,
-        fakeUUID(),
-        {
-          ...simplestSessionConfig,
-          syncAllEncountersForTheseVaccines: [scheduledVaccine1.vaccineId],
-        },
-      );
-
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
-        syncSession.id,
-        SYNC_SESSION_DIRECTION.OUTGOING,
-      );
-      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
-        [administeredVaccine1.id, encounter1.id].sort(),
-      );
-    });
-
-    it('includes encounters for new administered vaccines even if the encounter is older than the sync "since" time', async () => {
-      const { Encounter, AdministeredVaccine } = models;
-      const {
-        // use the second vaccine this time, to mix things up
-        encounter2,
-        administeredVaccine2,
-        scheduledVaccine2,
-        secondTock,
-        syncSession,
-      } = await setupTestData();
-
-      await snapshotOutgoingChanges(
-        { Encounter, AdministeredVaccine },
-        secondTock - 1,
-        0,
-        true,
-        syncSession.id,
-        fakeUUID(),
-        {
-          ...simplestSessionConfig,
-          syncAllEncountersForTheseVaccines: [scheduledVaccine2.vaccineId],
-        },
-      );
-
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
-        syncSession.id,
-        SYNC_SESSION_DIRECTION.OUTGOING,
-      );
-      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
-        [administeredVaccine2.id, encounter2.id].sort(),
-      );
-    });
-
-    it('does not include administered vaccines for patients not marked for sync if turned off', async () => {
-      const { Encounter, AdministeredVaccine } = models;
-
-      const { firstTock, syncSession } = await setupTestData();
-
-      await snapshotOutgoingChanges(
-        { Encounter, AdministeredVaccine },
-        firstTock - 1,
-        0,
-        true,
-        syncSession.id,
-        fakeUUID(),
-        {
-          ...simplestSessionConfig,
-          syncAllEncountersForTheseVaccines: [],
-        },
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(

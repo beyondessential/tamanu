@@ -1,7 +1,8 @@
 import React from 'react';
 import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
-import { getDOB, getNationality, getPassportNumber } from '../patientAccessors';
+import { getDob, getNationality, getPassportNumber } from '../patientAccessors';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First name' },
@@ -9,7 +10,7 @@ const PATIENT_FIELDS = [
   {
     key: 'dateOfBirth',
     label: 'Date of birth',
-    accessor: getDOB,
+    accessor: getDob,
   },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },
@@ -20,12 +21,14 @@ const PATIENT_FIELDS = [
 export const CovidPatientDetailsSection = ({
   patient,
   getLocalisation,
+  getSetting,
   vdsSrc,
   extraFields = [],
   uvci,
 }) => {
+  const { getTranslation } = useLanguageContext();
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+    ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
 
   const leftWidth = vdsSrc ? 68 : 80;
@@ -36,8 +39,12 @@ export const CovidPatientDetailsSection = ({
       <Col style={{ width: `${leftWidth}%` }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+            const value =
+              accessor?.(patient, { getLocalisation, getTranslation }) ?? (patient[key] || '');
+            const label =
+              getTranslation(`general.localisedFields.${key}.label.short`) ||
+              getTranslation(`general.localisedFields.${key}.label`) ||
+              defaultLabel;
 
             return (
               <Col key={key}>

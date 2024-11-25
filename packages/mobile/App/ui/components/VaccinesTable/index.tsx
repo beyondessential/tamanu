@@ -152,14 +152,12 @@ export const VaccinesTable = ({
       if (!cellData) return <CellContent vaccineStatus={VaccineStatus.UNKNOWN} />;
       const { vaccineStatus, dueStatus, scheduledVaccine } = cellData;
       const status = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
-      const cellId = `${categoryName}-${scheduledVaccine?.id}-${status}`;
       return (
         <VaccineTableCell
           onPress={onPressItem}
           data={cellData}
           status={status}
-          key={`vaccine-table-cell-${cellId}`}
-          id={cellId}
+          key={`vaccine-table-cell-${categoryName}-${scheduledVaccine?.id}}`}
         />
       );
     },

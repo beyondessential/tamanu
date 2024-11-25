@@ -1,19 +1,31 @@
+/* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
-import { buildSettings } from '../index';
+import { SettingPath } from '../types';
+import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
-const KEYS_EXPOSED_TO_FRONT_END = [
-  'vaccinations',
-  'upcomingVaccinations',
-  'templates',
+export const KEYS_EXPOSED_TO_FRONT_END = [
+  'ageDisplayFormat',
+  'customisations',
   'features',
-  'invoice',
+  'fields',
+  'imagingCancellationReasons',
+  'imagingPriorities',
   'insurer',
-  'customisations'
-];
+  'customisations',
+  'printMeasures',
+  'invoice',
+  'labsCancellationReasons',
+  'templates',
+  'layouts',
+  'triageCategories',
+  'upcomingVaccinations',
+  'vaccinations',
+  'vitalEditReasons',
+] as const;
 
-export class ReadSettings {
+export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
   constructor(models: Models, facilityId?: string) {
@@ -21,9 +33,9 @@ export class ReadSettings {
     this.facilityId = facilityId;
   }
 
-  async get(key: string) {
+  async get(key: Path) {
     const settings = await this.getAll();
-    return lodashGet(settings, key);
+    return lodashGet(settings, key as string);
   }
 
   // This is what is called on login. This gets only settings relevant to

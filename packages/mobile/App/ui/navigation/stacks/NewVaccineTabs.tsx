@@ -1,11 +1,4 @@
-import React, {
-  FunctionComponent,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
@@ -116,21 +109,9 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
   );
 
   const [state, setState] = useState({
-    index: 0,
+    index: route.params.vaccine.status === VaccineStatus.NOT_GIVEN ? 1 : 0,
     routes,
   });
-
-  useEffect(() => {
-    switch (route.params.vaccine.status) {
-      case VaccineStatus.NOT_GIVEN:
-        setState({
-          index: 1,
-          routes,
-        });
-        break;
-      default:
-    }
-  }, [route, routes]);
 
   const scenes = {
     [VaccineStatus.GIVEN]: NewVaccineTab,

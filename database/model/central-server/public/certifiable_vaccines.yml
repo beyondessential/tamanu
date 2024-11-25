@@ -1,0 +1,80 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: certifiable_vaccines
+        description: '{{ doc("table__certifiable_vaccines") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in certifiable_vaccines."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in certifiable_vaccines."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in certifiable_vaccines."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in certifiable_vaccines."
+          - name: vaccine_id
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__vaccine_id') }}"
+            data_tests:
+              - unique
+              - not_null
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'vaccine'
+          - name: manufacturer_id
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__manufacturer_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'manufacturer'
+          - name: icd11_drug_code
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__icd11_drug_code') }}"
+            data_tests:
+              - not_null
+          - name: icd11_disease_code
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__icd11_disease_code') }}"
+            data_tests:
+              - not_null
+          - name: vaccine_code
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__vaccine_code') }}"
+            data_tests:
+              - not_null
+          - name: target_code
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__target_code') }}"
+          - name: eu_product_code
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__eu_product_code') }}"
+          - name: maximum_dosage
+            data_type: integer
+            description: "{{ doc('certifiable_vaccines__maximum_dosage') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              certifiable_vaccines."
+            data_tests:
+              - not_null

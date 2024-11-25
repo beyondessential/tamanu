@@ -20,12 +20,6 @@
     "consoleLevel": null,
     "enableAuditLog": true
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "Emergency",
-      "location": "Bed 1"
-    }
-  },
   "schedules": {
     "refreshMaterializedView": {
       "upcomingVaccinations": {
@@ -34,7 +28,7 @@
       }
     }
   },
-  "serverFacilityId": "balwyn",
+  "serverFacilityIds": ["balwyn", "kerang", "lake-charm"],
   "sync": {
     "backoff": {
       "maxAttempts": 1,

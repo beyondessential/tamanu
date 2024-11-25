@@ -19,7 +19,6 @@ import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '../../../../../shared/src/utils/date';
@@ -43,19 +42,16 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.MEDICATION,
-    title: (
-      <TranslatedText
-        stringId="medication.modal.printMultiple.table.column.medication"
-        fallback="Medication"
-      />
-    ),
+    title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
     sortable: false,
     maxWidth: 300,
-    accessor: ({ medication }) => <TranslatedReferenceData
-      fallback={medication.name}
-      value={medication.id}
-      category={medication.type}
-    />,
+    accessor: ({ medication }) => (
+      <TranslatedReferenceData
+        fallback={medication.name}
+        value={medication.id}
+        category={medication.type}
+      />
+    ),
   },
   {
     key: COLUMN_KEYS.QUANTITY,
@@ -109,8 +105,7 @@ const PrescriberWrapper = styled.div`
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
   const { getTranslation } = useTranslation();
-  const { getLocalisation } = useLocalisation();
-  const weightUnit = getLocalisation('fields.weightUnit.longLabel');
+  const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
   const [medicationData, setMedicationData] = useState([]);
   const [prescriberId, setPrescriberId] = useState(null);
@@ -183,12 +178,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             />
           }
           name="prescriberId"
-          label={
-            <TranslatedText
-              stringId="medication.modal.printMultiple.prescriber.label"
-              fallback="Prescriber"
-            />
-          }
+          label={<TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />}
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}

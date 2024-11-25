@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
@@ -25,16 +26,21 @@ export const RemoveConditionFormModal = ({
   const api = useApi();
   const queryClient = useQueryClient();
   const removeCondition = async () => {
-    await api.delete(
-      `patient/${encodeURIComponent(
-        patientProgramRegistration.patientId,
-      )}/programRegistration/${encodeURIComponent(
-        patientProgramRegistration.programRegistryId,
-      )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
-      { deletionDate: getCurrentDateTimeString() },
-    );
-    queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
-    onSubmit();
+    try {
+      await api.delete(
+        `patient/${encodeURIComponent(
+          patientProgramRegistration.patientId,
+        )}/programRegistration/${encodeURIComponent(
+          patientProgramRegistration.programRegistryId,
+        )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
+        { deletionDate: getCurrentDateTimeString() },
+      );
+      toast.success('Related condition removed successfully');
+      queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
+      onSubmit();
+    } catch (e) {
+      toast.error(`Failed to remove related condition with error: ${e.message}`);
+    }
   };
   return (
     <Modal title="Remove related condition" open={open} onClose={onCancel}>

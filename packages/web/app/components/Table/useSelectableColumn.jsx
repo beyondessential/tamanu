@@ -1,7 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { CheckInput } from '../Field';
 
-export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey = 'id' } = {}) => {
+export const useSelectableColumn = (
+  rows,
+  {
+    columnKey = 'selected',
+    selectionKey = 'id',
+    getIsRowDisabled = () => false,
+    getIsTitleDisabled = () => false,
+    showIndeterminate = false,
+    getRowsFilterer = () => () => true,
+  } = {},
+) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
 
   const selectedRows = useMemo(() => {
@@ -22,35 +32,57 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
     [rows, selectionKey, selectedKeys],
   );
   const cellAccessor = useCallback(
-    ({ rowIndex }) => (
-      <CheckInput
-        value={selectedKeys.has(rows[rowIndex][selectionKey])}
-        name="selected"
-        onChange={event => cellOnChange(event, rowIndex)}
-        style={{ margin: 'auto' }}
-      />
-    ),
+    row => {
+      const { rowIndex } = row;
+      return (
+        <CheckInput
+          value={selectedKeys.has(rows[rowIndex][selectionKey])}
+          name="selected"
+          onChange={event => cellOnChange(event, rowIndex)}
+          style={{ margin: 'auto' }}
+          disabled={getIsRowDisabled(selectedKeys, row)}
+        />
+      );
+    },
     [rows, selectionKey, selectedKeys, cellOnChange],
   );
 
   const titleOnChange = useCallback(
     event => {
-      const newSelection = event.target.checked ? rows.map(row => row[selectionKey]) : [];
+      const newSelection = event.target.checked
+        ? [
+            ...selectedKeys,
+            ...rows.filter(getRowsFilterer(selectedKeys)).map(row => row[selectionKey]),
+          ]
+        : [...selectedKeys].filter(k => !rows.some(row => row[selectionKey] === k));
       setSelectedKeys(new Set(newSelection));
     },
-    [rows, selectionKey],
+    [rows, selectionKey, selectedKeys],
   );
+
   const titleAccessor = useCallback(() => {
-    const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
+    const isEveryRowSelected =
+      rows?.length > 0 &&
+      rows.filter(getRowsFilterer(selectedKeys)).every(r => selectedKeys.has(r[selectionKey]));
+
+    const isSomeRowSelected =
+      rows?.length > 0 && rows.some(r => selectedKeys.has(r[selectionKey])) && !isEveryRowSelected;
+
     return (
       <CheckInput
         value={isEveryRowSelected}
         name="selected"
         onChange={titleOnChange}
         style={{ margin: 'auto' }}
+        indeterminate={showIndeterminate && isSomeRowSelected}
+        disabled={getIsTitleDisabled(selectedKeys)}
       />
     );
-  }, [rows, selectedRows, titleOnChange]);
+  }, [rows, selectedRows, titleOnChange, selectedKeys]);
+
+  const resetSelection = useCallback(() => {
+    setSelectedKeys(new Set());
+  }, []);
 
   return {
     selectedRows,
@@ -61,5 +93,6 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
       titleAccessor,
       accessor: cellAccessor,
     },
+    resetSelection,
   };
 };

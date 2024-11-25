@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class ContributingDeathCause extends Model {
   static init({ primaryKey, ...options }) {
@@ -62,5 +63,19 @@ export class ContributingDeathCause extends Model {
       AND
         contributing_death_causes.updated_at_sync_tick > :since
     `;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'patient_death_data.patient_id',
+      }),
+      joins: `
+        JOIN
+          patient_death_data
+        ON
+          patient_death_data_id = patient_death_data.id
+      `,
+    };
   }
 }

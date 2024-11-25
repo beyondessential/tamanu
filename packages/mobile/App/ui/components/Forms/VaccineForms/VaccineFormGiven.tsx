@@ -15,18 +15,18 @@ import {
   VaccineLocationField,
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
 import { parseISO } from 'date-fns';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
 
-  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
+  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,

@@ -1,6 +1,6 @@
 {
   "name": "csca",
-  "version": "2.17.0",
+  "version": "2.21.0",
   "private": true,
   "description": "CSCA tooling for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -10,7 +10,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir build --copy-files --source-maps true src",
-    "cli": "yarn build && node build"
+    "cli": "npm run build && node build"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",

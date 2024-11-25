@@ -14,8 +14,8 @@ jest.mock('./utils', () => ({
   sleepAsync: jest.fn(),
 }));
 
-jest.mock('react-native-device-info', () => ({
-  getUniqueId: jest.fn().mockReturnValue('test-device-id'),
+jest.mock('uuid', () => ({
+  v4: jest.fn().mockReturnValue('test-device-id'),
 }));
 
 jest.mock('/root/package.json', () => ({
@@ -123,7 +123,7 @@ describe('CentralServerConnection', () => {
       expect(postSpy).toBeCalledWith(
         expect.stringContaining(mockSessionId),
         {},
-        { tablesToInclude: mockTablesToInclude },
+        { tablesToInclude: mockTablesToInclude, deviceId: 'mobile-test-device-id' },
       );
       expect(mockSleepAsync).toHaveBeenCalledTimes(2);
     });

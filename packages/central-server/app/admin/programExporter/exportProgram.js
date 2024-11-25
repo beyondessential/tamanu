@@ -86,7 +86,7 @@ export async function exportProgram(context, programId) {
         pde.default_options as options,
         pde.visualisation_config
       FROM survey_screen_components ssc
-      JOIN program_data_elements pde ON concat(ssc.survey_id, '-', pde.code) = ssc.id
+      JOIN program_data_elements pde ON ssc.data_element_id = pde.id
       WHERE ssc.survey_id IN (:surveyIds)
       ORDER BY ssc.screen_index, ssc.component_index
     `,
@@ -120,7 +120,7 @@ export async function exportProgram(context, programId) {
           'config',
           'visibilityStatus',
         ],
-        ...groupedSurveyRecords[survey.id].map((s, i, a) => [
+        ...(groupedSurveyRecords[survey.id] || []).map((s, i, a) => [
           s.code,
           s.type,
           s.name,

@@ -2,6 +2,7 @@ import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const FIELDS = [
   'Reporting period',
@@ -18,6 +19,8 @@ const reportColumnTemplate = FIELDS.map(field => ({
   title: field,
   accessor: data => data[field],
 }));
+
+const facilityIds = selectFacilityIds(config) || [];
 
 const query = `
 with
@@ -46,7 +49,7 @@ with
       join facilities f on d.facility_id = f.id
     where
       e.encounter_type = 'admission' and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
-      and f.id = '${config.serverFacilityId}'
+      and f.id in (${facilityIds.map(id => `'${id}'`).join(',')})
   ),
   admissions as (
     select
@@ -132,7 +135,7 @@ with
           when p_days.month > (current_date - interval '1' month) then current_date - p_days.month
           else (p_days.month + interval '1' month )::date - p_days.month
         end
-        )*100, 2) bed_occupancy    
+        )*100, 2) bed_occupancy
     from
       patient_days p_days
       left join available_beds ab on p_days.facility_name = ab.facility_name

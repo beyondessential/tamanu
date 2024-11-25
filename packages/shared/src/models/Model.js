@@ -47,6 +47,14 @@ export class Model extends sequelize.Model {
     return Utils.toDefaultValue(this.defaultIdValue);
   }
 
+  /**
+   * Generates a uuid via the database
+   */
+  static async generateDbUuid() {
+    const [[{ uuid_generate_v4: uuid }]] = await this.sequelize.query(`SELECT uuid_generate_v4();`);
+    return uuid;
+  }
+
   static validateSync(timestamps) {
     // every syncing model should have timestamps turned on
     if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {

@@ -3,7 +3,7 @@ import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { DEFAULT_JWT_SECRET } from '../../auth';
-import { getToken } from '../../auth/utils';
+import { buildToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
 
 const keyTypeToSecret = {
@@ -33,7 +33,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
   }
 
   // generate token
-  const token = await getToken(
+  const token = await buildToken(
     {
       userId: user.id,
     },

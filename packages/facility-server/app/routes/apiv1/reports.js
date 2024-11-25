@@ -25,7 +25,7 @@ reports.post(
   '/:reportId',
   asyncHandler(async (req, res) => {
     const {
-      body: { parameters = {} },
+      body: { parameters = {}, facilityId },
       user,
       params,
       db,
@@ -56,6 +56,7 @@ reports.post(
           models,
           reportSchemaStores,
           sequelize: db,
+          facilityId,
         },
         parameters,
       );

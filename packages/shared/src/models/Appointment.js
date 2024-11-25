@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -69,9 +70,17 @@ export class Appointment extends Model {
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id = :facilityId
+        location_groups.facility_id in (:facilityIds)
       AND
         appointments.updated_at_sync_tick > :since
     `;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: `${this.tableName}.patient_id`,
+      }),
+    };
   }
 }

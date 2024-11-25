@@ -1,0 +1,63 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: program_registries
+        description: '{{ doc("table__program_registries") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in program_registries."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in program_registries."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in program_registries."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in program_registries."
+          - name: code
+            data_type: text
+            description: "{{ doc('program_registries__code') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: name
+            data_type: text
+            description: "{{ doc('program_registries__name') }}"
+            data_tests:
+              - not_null
+          - name: currently_at_type
+            data_type: text
+            description: "{{ doc('program_registries__currently_at_type') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - village
+                    - facility
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in program_registries."
+          - name: program_id
+            data_type: character varying(255)
+            description: "{{ doc('program_registries__program_id') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in program_registries."
+            data_tests:
+              - not_null

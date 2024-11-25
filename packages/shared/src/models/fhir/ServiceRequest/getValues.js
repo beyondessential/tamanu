@@ -5,7 +5,9 @@ import {
   FHIR_REQUEST_PRIORITY,
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TABLE_STATUS_GROUPINGS,
   LAB_REQUEST_STATUSES,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
   NOTE_TYPES,
 } from '@tamanu/constants';
 
@@ -168,9 +170,12 @@ function imagingCode(upstream) {
   const { label } = imagingTypes[imagingType] || {};
   if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
-  return new FhirCodeableConcept({
-    text: label,
-  });
+  return generateCodings(
+    imagingType,
+    undefined,
+    label,
+    config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,
+  );
 }
 
 // Match the priority to a FHIR ServiceRequest priority where possible
@@ -216,6 +221,7 @@ function statusFromLabRequest(upstream) {
     case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
       return FHIR_REQUEST_STATUS.DRAFT;
     case LAB_REQUEST_STATUSES.RESULTS_PENDING:
+    case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
     case LAB_REQUEST_STATUSES.TO_BE_VERIFIED:
     case LAB_REQUEST_STATUSES.VERIFIED:
       return FHIR_REQUEST_STATUS.ACTIVE;
@@ -230,6 +236,31 @@ function statusFromLabRequest(upstream) {
     default:
       return FHIR_REQUEST_STATUS.UNKNOWN;
   }
+}
+
+export function getIsLive(upstream, models) {
+  const { ImagingRequest, LabRequest } = models;
+
+  if (upstream instanceof ImagingRequest)
+    return IMAGING_TABLE_STATUS_GROUPINGS.ACTIVE.includes(upstream.status);
+  if (upstream instanceof LabRequest)
+    return LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE.includes(upstream.status);
+
+  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
+}
+
+export function shouldForceRematerialise(upstream, downstream, models) {
+  const { ImagingRequest, LabRequest } = models;
+
+  // Force remateralisation on status change
+  if (upstream instanceof ImagingRequest) {
+    return statusFromImagingRequest(upstream) !== downstream.status;
+  }
+  if (upstream instanceof LabRequest) {
+    return statusFromLabRequest(upstream) !== downstream.status;
+  }
+
+  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
 function labCode(upstream) {

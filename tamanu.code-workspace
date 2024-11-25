@@ -13,10 +13,6 @@
       "path": "packages/facility-server"
     },
     {
-      "name": "meta-server",
-      "path": "packages/meta-server"
-    },
-    {
       "name": "mobile",
       "path": "packages/mobile"
     },
@@ -39,6 +35,10 @@
     {
       "name": "constants",
       "path": "packages/constants"
+    },
+    {
+      "name": "settings",
+      "path": "packages/settings"
     },
   ],
   "settings": {

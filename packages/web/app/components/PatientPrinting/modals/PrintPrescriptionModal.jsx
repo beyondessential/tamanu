@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -6,12 +7,14 @@ import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
@@ -24,7 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   useEffect(() => {
     setEncounterLoading(true);
@@ -81,12 +84,17 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     })();
   }, [api, medication.prescriberId]);
 
+  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
+  );
+
   const isLoading =
     encounterLoading ||
     patientLoading ||
     additionalDataLoading ||
     villageLoading ||
     prescriberLoading ||
+    isFacilityLoading ||
     isFetchingCertificate;
 
   return (
@@ -107,6 +115,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             facility={facility}
             prescriber={prescriber}
             getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </PDFLoader>
       </Modal>

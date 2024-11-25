@@ -1,0 +1,70 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: report_definition_versions
+        description: '{{ doc("table__report_definition_versions") }}'
+        tags:
+          - administration
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in report_definition_versions."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in report_definition_versions."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in report_definition_versions."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in report_definition_versions."
+          - name: version_number
+            data_type: integer
+            description: "{{ doc('report_definition_versions__version_number') }}"
+            data_tests:
+              - not_null
+          - name: notes
+            data_type: text
+            description: "{{ doc('report_definition_versions__notes') }}"
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__status') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - draft
+                    - published
+          - name: query
+            data_type: text
+            description: "{{ doc('report_definition_versions__query') }}"
+          - name: query_options
+            data_type: json
+            description: "{{ doc('report_definition_versions__query_options') }}"
+          - name: report_definition_id
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__report_definition_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'report_definitions')
+                  field: id
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__user_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              report_definition_versions."
+            data_tests:
+              - not_null

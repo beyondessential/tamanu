@@ -49,7 +49,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
     const { models } = this.context.store;
     const { CertificateNotification, Encounter, LabRequest } = models;
     const categories = config.notifications.certificates.labTestCategoryIds;
-    const questionId = config.questionCodeIds?.email;
+    const questionId = await this.context.settings.get('questionCodeIds.email');
 
     // Find all published requests that don't have associated certificate notifications
     const newlyPublished = await LabRequest.findAll({

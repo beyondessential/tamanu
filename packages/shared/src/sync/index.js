@@ -10,3 +10,5 @@ export * from './adjustDataPostSyncPush';
 export * from './getSyncSnapshotRecordIds';
 export * from './waitForPendingEditsUsingSyncTick';
 export * from './getSyncTicksOfPendingEdits';
+export * from './buildEncounterLinkedLookupFilter';
+export * from './buildSyncLookupSelect';

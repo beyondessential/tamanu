@@ -8,16 +8,6 @@ import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { version } from './serverInfo';
 
 export const addFacilityMiddleware = async express => {
-  let errorMiddleware = null;
-  if (config.errors?.enabled) {
-    if (config.errors?.type === 'bugsnag') {
-      const Bugsnag = await import('@bugsnag/js');
-      const middleware = Bugsnag.getPlugin('express');
-      express.use(middleware.requestHandler);
-      errorMiddleware = middleware.errorHandler;
-    }
-  }
-
   express.use(compression());
   express.use(bodyParser.json({ limit: '50mb' }));
   express.use(bodyParser.urlencoded({ extended: true }));
@@ -32,5 +22,15 @@ export const addFacilityMiddleware = async express => {
   express.set('trust proxy', config.proxy.trusted);
   express.use(getLoggingMiddleware());
 
-  return { errorMiddleware}
+  let errorMiddleware = null;
+  if (config.errors?.enabled) {
+    if (config.errors?.type === 'bugsnag') {
+      const { default: Bugsnag } = await import('@bugsnag/js');
+      const middleware = Bugsnag.getPlugin('express');
+      express.use(middleware.requestHandler);
+      errorMiddleware = middleware.errorHandler;
+    }
+  }
+
+  return { errorMiddleware }
 };

@@ -1,8 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter, buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class InvoiceItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -83,6 +84,19 @@ export class InvoiceItem extends Model {
       [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'invoices',
+        'encounters',
+      ]),
+    };
   }
 
   static getListReferenceAssociations(models) {

@@ -7,6 +7,7 @@ export const REFERENCE_TYPES = {
   CATCHMENT: 'catchment',
   DRUG: 'drug',
   DIET: 'diet',
+  DESIGNATION: 'designation',
   TRIAGE_REASON: 'triageReason',
   PROCEDURE_TYPE: 'procedureType',
   IMAGING_TYPE: 'imagingType',
@@ -46,6 +47,10 @@ export const REFERENCE_TYPES = {
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
+  TASK_TEMPLATE: 'taskTemplate',
+  TASK_SET: 'taskSet',
+  TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
+  TASK_DELETION_REASON: 'taskDeletionReason',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);

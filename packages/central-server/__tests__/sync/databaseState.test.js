@@ -33,7 +33,9 @@ describe('databaseState', () => {
 
   it('unsyncing models should not have tick column', async () => {
     const unsyncModels = Object.values(models).filter(
-      model => model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC,
+      // sync_lookup is a special table that is non syncing but should still have updated_at_sync_tick
+      model =>
+        model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC && model.tableName !== 'sync_lookup',
     );
 
     for (const Model of unsyncModels) {

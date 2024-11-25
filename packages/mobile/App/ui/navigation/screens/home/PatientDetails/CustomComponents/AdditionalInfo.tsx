@@ -4,7 +4,6 @@ import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import {
   CustomPatientFieldValues,
   usePatientAdditionalData,
@@ -13,6 +12,7 @@ import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -43,7 +43,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getBool, getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -52,7 +52,6 @@ export const AdditionalInfo = ({
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
 
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
@@ -62,7 +61,7 @@ export const AdditionalInfo = ({
   }
 
   // Check if patient additional data should be editable
-  const isEditable = getBool('features.editPatientDetailsOnMobile');
+  const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
   const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
@@ -95,9 +94,7 @@ export const AdditionalInfo = ({
     return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
   });
 
-  const sections = isHardCodedLayout
-    ? additionalSections
-    : [...additionalSections, ...customSections];
+  const sections = [...additionalSections, ...customSections];
 
   return (
     <>

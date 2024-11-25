@@ -10,6 +10,7 @@ import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
+import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
@@ -63,6 +64,8 @@ function getAnswerText(question, answer): string | number {
       return 'PATIENT_ISSUE_GENERATOR';
     case FieldTypes.MULTI_SELECT:
       return JSON.parse(answer).join(', ');
+    case FieldTypes.GEOLOCATE:
+      return answer || 'N/A';
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;
@@ -95,7 +98,7 @@ const isFromBackend = ({ config, dataElement }): Boolean => {
   return false;
 };
 
-const renderAnswer = (question, answer): ReactElement => {
+export const renderAnswer = (question, answer): ReactElement => {
   if (isFromBackend(question)) {
     return <BackendAnswer question={question} answer={answer} />;
   }
@@ -105,6 +108,8 @@ const renderAnswer = (question, answer): ReactElement => {
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.SURVEY_ANSWER:
+      return <SurveyAnswerResult question={question} answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>

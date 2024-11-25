@@ -21,6 +21,7 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useSettings } from '../../contexts/Settings';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -34,8 +35,9 @@ const Spacer = styled.div`
 
 export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const imagingPriorities = getLocalisation('imagingPriorities') || [];
+  const imagingPriorities = getSetting('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
@@ -71,10 +73,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               <LocalisedField
                 name="requestedById"
                 label={
-                  <TranslatedText
-                    stringId="general.localisedField.requestedById.label"
-                    fallback="Requested by"
-                  />
+                  <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />
                 }
                 saveDateAsString
                 component={AutocompleteField}
@@ -220,12 +219,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       {isCompletedTable && (
         <LocalisedField
           name="requestedById"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.requestedById.label"
-              fallback="Requested by"
-            />
-          }
+          label={<TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />}
           component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"

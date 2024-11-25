@@ -2,7 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
-const SettingsContext = React.createContext(null);
+/**
+ * @typedef {import("@tamanu/settings/types").FrontEndExposedSettingPath} SettingPath
+ * @typedef {Object} SettingsContextType
+ * @property {(path: SettingPath) => ?} getSetting
+ */
+
+/** @type {React.Context<SettingsContextType | undefined>} */
+const SettingsContext = React.createContext();
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
@@ -14,16 +21,21 @@ export const useSettings = () => {
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const reduxSettings = useSelector(state => state.auth.settings);
 
   useEffect(() => {
     setSettings(reduxSettings);
+    if (reduxSettings) {
+      setIsSettingsLoaded(true);
+    }
   }, [reduxSettings]);
 
   return (
     <SettingsContext.Provider
       value={{
         getSetting: path => get(settings, path),
+        isSettingsLoaded,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import { log } from './log.js';
 
 export async function initBugsnag(options) {
-  const Bugsnag = await import('@bugsnag/js');
+  const { default: Bugsnag } = await import('@bugsnag/js');
   const BugsnagPluginExpress = await import('@bugsnag/plugin-express');
   Bugsnag.start({
     ...options,

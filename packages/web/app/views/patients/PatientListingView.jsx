@@ -77,7 +77,12 @@ const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatien
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
-  const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+  const { facilityId } = useAuth();
+  const fetchOptionsWithSearchParameters = {
+    ...searchParameters,
+    ...fetchOptions,
+    facilityId,
+  };
 
   const handleViewPatient = async row => {
     await dispatch(reloadPatient(row.id));
@@ -146,6 +151,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
+  const { facilityId } = useAuth();
+
   return (
     <PageContainer>
       <TopBar
@@ -162,7 +169,7 @@ export const PatientListingView = ({ onViewPatient }) => {
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={{ isAllPatientsListing: true, ...searchParameters }}
+          searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
           columns={LISTING_COLUMNS}
         />
       </ContentPane>
@@ -174,7 +181,7 @@ export const AdmittedPatientsView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.AdmittedPatientsView,
   );
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   return (
     <PageContainer>
@@ -191,10 +198,14 @@ export const AdmittedPatientsView = () => {
         <SearchTableTitle>
           <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
+        <PatientSearchBar
+          onSearch={setSearchParameters}
+          searchParameters={searchParameters}
+          isInpatient
+        />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
@@ -206,7 +217,7 @@ export const OutpatientsView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.OutpatientsView,
   );
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   return (
     <PageContainer>
@@ -223,7 +234,7 @@ export const OutpatientsView = () => {
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
         />
       </ContentPane>

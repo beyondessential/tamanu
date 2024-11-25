@@ -1,20 +1,29 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
-  static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
+  /**
+   *
+   * @param {any} arg0
+   * @param {import('./')} models
+   */
+  static init({ primaryKey, hackToSkipEncounterValidation, ...options }, models) {
     let validate = {};
     if (!hackToSkipEncounterValidation) {
       validate = {
@@ -61,9 +70,55 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async afterDestroy(encounter, opts) {
+            const deletionReason = await models.ReferenceData.findByPk(
+              TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
+            );
+
+            // update endtime for all parent tasks of this encounter
+            await models.Task.update(
+              {
+                endTime: getCurrentDateTimeString(),
+                deletedReasonForSyncId: deletionReason?.id ?? null,
+              },
+              {
+                where: {
+                  encounterId: encounter.id,
+                  parentTaskId: null,
+                  frequencyValue: { [Op.not]: null },
+                  frequencyUnit: { [Op.not]: null },
+                },
+                transaction: opts.transaction,
+              },
+            );
+
+            // set deletion info for all tasks of this encounter
+            await models.Task.update(
+              {
+                deletedByUserId: SYSTEM_USER_UUID,
+                deletedReasonId: deletionReason?.id ?? null,
+                deletedTime: getCurrentDateTimeString(),
+              },
+              { where: { encounterId: encounter.id }, transaction: opts.transaction },
+            );
+
+            // delete all tasks of this encounter
+            await models.Task.destroy({
+              where: { encounterId: encounter.id },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
+          },
+          afterUpdate: async (encounter) => {
+            if (encounter.endDate && !encounter.previous('endDate')) {
+              await models.Task.onEncounterDischarged(encounter);
+            }
+          },
+        },
       },
     );
-    onSaveMarkPatientForSync(this);
+    onCreateEncounterMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {
@@ -79,7 +134,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diets'
+      'diets',
     ];
   }
 
@@ -197,7 +252,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-    
+
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -223,7 +278,7 @@ export class Encounter extends Model {
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
-    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
+    const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
@@ -260,44 +315,6 @@ export class Encounter extends Model {
       `);
     }
 
-    // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-    if (syncAllEncountersForTheseVaccines?.length > 0) {
-      const escapedVaccineIds = syncAllEncountersForTheseVaccines
-        .map(id => this.sequelize.escape(id))
-        .join(',');
-      joins.push(`
-        LEFT JOIN (
-          SELECT e.id, MAX(av.updated_at_sync_tick) AS av_updated_at_sync_tick
-          FROM encounters e
-          INNER JOIN administered_vaccines av ON av.encounter_id = e.id
-          INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
-          WHERE
-            sv.vaccine_id IN (${escapedVaccineIds})
-          AND
-            (
-              e.updated_at_sync_tick > :since
-            OR
-              av.updated_at_sync_tick > :since
-            )
-          ${
-            patientCount > 0
-              ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
-              : ''
-          }
-          GROUP BY e.id
-        ) AS encounters_with_scheduled_vaccines
-        ON encounters_with_scheduled_vaccines.id = encounters.id
-      `);
-
-      encountersToIncludeClauses.push(`
-        encounters_with_scheduled_vaccines.id IS NOT NULL
-      `);
-
-      updatedAtSyncTickClauses.push(`
-        encounters_with_scheduled_vaccines.av_updated_at_sync_tick > :since
-      `);
-    }
-
     if (encountersToIncludeClauses.length === 0) {
       return null;
     }
@@ -311,6 +328,28 @@ export class Encounter extends Model {
         ${updatedAtSyncTickClauses.join('\nOR')}
       )
     `;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        encounterId: 'encounters.id',
+        isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
+      }),
+      joins: `
+        LEFT JOIN (
+          SELECT DISTINCT encounter_id
+          FROM lab_requests
+          WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
+        ) AS new_labs ON new_labs.encounter_id = encounters.id
+      `,
+      where: `
+        encounters.updated_at_sync_tick > :since -- to include including normal encounters
+        OR
+        new_labs.encounter_id IS NOT NULL -- to include encounters that got lab requests recently attached to it
+      `,
+    };
   }
 
   static async adjustDataPostSyncPush(recordIds) {
@@ -366,6 +405,24 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addTriageScoreNote(triageRecord, submittedTime, user) {
+    const department = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
+    await this.addSystemNote(
+      `${department.name} triage score: ${triageRecord.score}`,
       submittedTime,
       user,
     );

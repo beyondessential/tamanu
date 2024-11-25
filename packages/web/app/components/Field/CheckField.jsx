@@ -14,8 +14,9 @@ import { Colors } from '../../constants';
 */
 export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    icon={<i className="far fa-square" />}
+    icon={props.disabled ? <i className="fas fa-square" /> : <i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
+    indeterminateIcon={<i className="far fa-minus-square"></i>}
     {...props}
     checked={Boolean(value)}
     value="true"
@@ -35,6 +36,9 @@ const ControlLabel = styled(FormControlLabel)`
   }
   i.fa-square {
     color: ${props => props.$color || Colors.softText};
+  }
+  i.fa-minus-square {
+    color: ${props => props.$color || Colors.primary};
   }
 `;
 

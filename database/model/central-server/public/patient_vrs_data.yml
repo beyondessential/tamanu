@@ -1,0 +1,49 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_vrs_data
+        description: '{{ doc("table__patient_vrs_data") }}'
+        __generator:
+          js_class: PatientVRSData
+        tags:
+          - patient
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_vrs_data."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_vrs_data."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_vrs_data."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_vrs_data."
+          - name: id_type
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__id_type') }}"
+          - name: identifier
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__identifier') }}"
+          - name: unmatched_village_name
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__unmatched_village_name') }}"
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__patient_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: is_deleted_by_remote
+            data_type: boolean
+            description: "{{ doc('patient_vrs_data__is_deleted_by_remote') }}"
+            data_tests:
+              - not_null

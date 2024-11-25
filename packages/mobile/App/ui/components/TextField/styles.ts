@@ -21,6 +21,7 @@ export const InputContainer = styled(StyledView)`
   text-align: center;
   width: 100%;
   height: 100%;
+  position: relative;
 `;
 
 export const StyledTextInput = styled.TextInput<StyledViewProps>`

@@ -1,0 +1,116 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: vitals
+        description: '{{ doc("table__vitals") }}'
+        tags:
+          - clinical
+          - deprecated
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in vitals."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in vitals."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in vitals."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in vitals."
+          - name: date_recorded
+            data_type: character(19)
+            description: "{{ doc('generic__date_recorded') }} in vitals."
+            data_tests:
+              - not_null
+          - name: temperature
+            data_type: double precision
+            description: "{{ doc('vitals__temperature') }}"
+          - name: weight
+            data_type: double precision
+            description: "{{ doc('vitals__weight') }}"
+          - name: height
+            data_type: double precision
+            description: "{{ doc('vitals__height') }}"
+          - name: sbp
+            data_type: double precision
+            description: "{{ doc('vitals__sbp') }}"
+          - name: dbp
+            data_type: double precision
+            description: "{{ doc('vitals__dbp') }}"
+          - name: heart_rate
+            data_type: double precision
+            description: "{{ doc('vitals__heart_rate') }}"
+          - name: respiratory_rate
+            data_type: double precision
+            description: "{{ doc('vitals__respiratory_rate') }}"
+          - name: spo2
+            data_type: double precision
+            description: "{{ doc('vitals__spo2') }}"
+          - name: avpu
+            data_type: user-defined
+            description: "{{ doc('vitals__avpu') }}"
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('vitals__encounter_id') }}"
+          - name: gcs
+            data_type: double precision
+            description: "{{ doc('vitals__gcs') }}"
+          - name: hemoglobin
+            data_type: double precision
+            description: "{{ doc('vitals__hemoglobin') }}"
+          - name: fasting_blood_glucose
+            data_type: double precision
+            description: "{{ doc('vitals__fasting_blood_glucose') }}"
+          - name: urine_ph
+            data_type: double precision
+            description: "{{ doc('vitals__urine_ph') }}"
+          - name: urine_leukocytes
+            data_type: character varying(255)
+            description: "{{ doc('vitals__urine_leukocytes') }}"
+          - name: urine_nitrites
+            data_type: character varying(255)
+            description: "{{ doc('vitals__urine_nitrites') }}"
+          - name: urobilinogen
+            data_type: double precision
+            description: "{{ doc('vitals__urobilinogen') }}"
+          - name: urine_protein
+            data_type: character varying(255)
+            description: "{{ doc('vitals__urine_protein') }}"
+          - name: blood_in_urine
+            data_type: character varying(255)
+            description: "{{ doc('vitals__blood_in_urine') }}"
+          - name: urine_specific_gravity
+            data_type: double precision
+            description: "{{ doc('vitals__urine_specific_gravity') }}"
+          - name: urine_ketone
+            data_type: character varying(255)
+            description: "{{ doc('vitals__urine_ketone') }}"
+          - name: urine_bilirubin
+            data_type: character varying(255)
+            description: "{{ doc('vitals__urine_bilirubin') }}"
+          - name: urine_glucose
+            data_type: double precision
+            description: "{{ doc('vitals__urine_glucose') }}"
+          - name: date_recorded_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__date_recorded_legacy') }} in vitals."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in vitals."
+            data_tests:
+              - not_null
+          - name: migrated_record
+            data_type: character varying(255)
+            description: "{{ doc('vitals__migrated_record') }}"

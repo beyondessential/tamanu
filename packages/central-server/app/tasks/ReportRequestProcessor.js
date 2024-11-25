@@ -10,9 +10,6 @@ import { log } from '@tamanu/shared/services/logging';
 import { ReportRunner } from '../report/ReportRunner';
 import { getLocalisation } from '../localisation';
 
-// time out and kill the report process if it takes more than 2 hours to run
-const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
-
 export class ReportRequestProcessor extends ScheduledTask {
   getName() {
     return 'ReportRequestProcessor';
@@ -43,7 +40,11 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const { processOptions } = config.reportProcess;
+    const {
+      childProcessEnv,
+      processOptions,
+      timeOutDurationSeconds,
+    } = await this.context.settings.get('reportProcess');
     const parameters = processOptions || process.execArgv;
 
     log.info(
@@ -54,11 +55,12 @@ export class ReportRequestProcessor extends ScheduledTask {
 
     // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
     // So this is a work around
-    const childProcessEnv = config.reportProcess.childProcessEnv || {
+    const childEnv = childProcessEnv || {
       ...process.env,
       pm2_env: JSON.stringify(process.env),
     };
 
+    const sleepAfterReport = await this.context.settings.get('reportProcess.sleepAfterReport');
     const childProcess = spawn(
       node,
       [
@@ -75,10 +77,13 @@ export class ReportRequestProcessor extends ScheduledTask {
         request.requestedByUserId,
         '--format',
         request.exportFormat,
+        '--sleepAfterReport',
+        JSON.stringify(sleepAfterReport),
       ],
       {
-        timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,
-        env: childProcessEnv,
+        // Time out and kill the report process if it takes too long to run (default 2 hours)
+        timeout: timeOutDurationSeconds * 1000,
+        env: childEnv,
       },
     );
 
@@ -131,12 +136,14 @@ export class ReportRequestProcessor extends ScheduledTask {
     });
   };
 
-  async runReportInTheSameProcess(request) {
+  runReportInTheSameProcess = async request => {
     log.info(
       `Running report request "${
         request.id
       }" for report "${request.getReportId()}" in main process.`,
     );
+
+    const sleepAfterReport = await this.context.settings.get('reportProcess.sleepAfterReport');
     const reportRunner = new ReportRunner(
       request.getReportId(),
       request.getParameters(),
@@ -146,10 +153,11 @@ export class ReportRequestProcessor extends ScheduledTask {
       this.context.emailService,
       request.requestedByUserId,
       request.exportFormat,
+      sleepAfterReport,
     );
 
     await reportRunner.run();
-  }
+  };
 
   async countQueue() {
     return this.context.store.models.ReportRequest.count({
@@ -210,11 +218,13 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        if (config.reportProcess.runInChildProcess) {
-          await this.spawnReportProcess(request);
-        } else {
-          await this.runReportInTheSameProcess(request);
-        }
+        const shouldRunInChildProcess = await this.context.settings.get(
+          'reportProcess.runInChildProcess',
+        );
+        const runReport = shouldRunInChildProcess
+          ? this.spawnReportProcess
+          : this.runReportInTheSameProcess;
+        await runReport(request);
 
         await request.update({
           status: REPORT_REQUEST_STATUSES.PROCESSED,
@@ -231,10 +241,13 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   async validateTimeoutReports() {
     try {
+      const timeOutDurationSeconds = await this.context.settings.get(
+        'reportProcess.timeOutDurationSeconds',
+      );
       const requests = await this.context.store.models.ReportRequest.findAll({
         where: sequelize.literal(
           `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND
-          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
+          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${timeOutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
         limit: 10,

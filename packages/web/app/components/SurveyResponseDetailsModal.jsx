@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import PrintIcon from '@material-ui/icons/Print';
+import styled from 'styled-components';
 
 import { Modal } from './Modal';
-import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { ViewPhotoLink } from './ViewPhotoLink';
-import { useApi } from '../api';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSurveyResponse } from '../api/queries/useSurveyResponse';
+import { ModalCancelRow } from './ModalActionRow';
+import { SurveyAnswerResult } from './SurveyAnswerResult';
 
-const convertBinaryToYesNo = value => {
-  switch (value) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return value;
-  }
-};
+const SectionSpacing = styled.div`
+  height: 14px;
+`;
+
+const TableContainer = styled.div`
+  max-height: calc(100vh - 298px);
+  overflow: auto;
+`;
+
+const PrintButton = styled(Button)`
+  position: absolute;
+  right: 70px;
+  top: 21px;
+`;
 
 const COLUMNS = [
   {
@@ -37,45 +39,9 @@ const COLUMNS = [
   {
     key: 'value',
     title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [surveyLink, setSurveyLink] = useState(null);
-      switch (type) {
-        case 'Result':
-          return <SurveyResultBadge resultText={answer} />;
-        case 'Calculated':
-          return parseFloat(answer).toFixed(1);
-        case 'Photo':
-          return <ViewPhotoLink imageId={answer} />;
-        case 'Checkbox':
-          return convertBinaryToYesNo(answer);
-        case 'SubmissionDate':
-          return <DateDisplay date={answer} />;
-        case 'Date':
-          return <DateDisplay date={answer} />;
-        case 'SurveyLink':
-          return (
-            <>
-              <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
-                Show Form
-              </Button>
-              <SurveyResponseDetailsModal
-                surveyResponseId={surveyLink}
-                onClose={() => setSurveyLink(null)}
-              />
-            </>
-          );
-        case 'MultiSelect':
-          return JSON.parse(answer).map(element => (
-            <>
-              {element}
-              <br />
-            </>
-          ));
-        default:
-          return answer;
-      }
-    },
+    accessor: ({ answer, sourceType, type }) => (
+      <SurveyAnswerResult answer={answer} sourceType={sourceType} type={type} />
+    ),
   },
 ];
 
@@ -88,14 +54,8 @@ function shouldShow(component) {
   }
 }
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
-  const api = useApi();
-  const { data: surveyDetails, isLoading, error } = useQuery(
-    ['surveyResponse', surveyResponseId],
-    () => api.get(`surveyResponse/${surveyResponseId}`),
-    { enabled: !!surveyResponseId },
-  );
-
+export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+  const { data: surveyDetails, isLoading, error } = useSurveyResponse(surveyResponseId);
   if (error) {
     return (
       <Modal
@@ -138,11 +98,13 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
+      const sourceType = answerObject?.sourceType;
       return {
         id,
         type,
         answer,
         name,
+        sourceType,
       };
     })
     .filter(r => r.answer !== undefined);
@@ -155,7 +117,25 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       open={!!surveyResponseId}
       onClose={onClose}
     >
-      <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      {onPrint && (
+        <PrintButton
+          onClick={onPrint}
+          color="primary"
+          variant="outlined"
+          startIcon={<PrintIcon />}
+          size="small"
+        >
+          <TranslatedText stringId="general.action.print" fallback="Print" />
+        </PrintButton>
+      )}
+      <TableContainer>
+        <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      </TableContainer>
+      <SectionSpacing />
+      <ModalCancelRow
+        onConfirm={onClose}
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+      />
     </Modal>
   );
 };

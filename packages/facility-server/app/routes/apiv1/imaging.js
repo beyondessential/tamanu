@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { literal, Op } from 'sequelize';
@@ -8,6 +7,7 @@ import {
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
+  NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
@@ -17,13 +17,13 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
-async function renderResults(models, imagingRequest) {
+async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
     ?.filter(result => !result.deletedAt)
     .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
-  const imagingProvider = await getImagingProvider(models);
+  const imagingProvider = await getImagingProvider(models, settings);
   if (imagingProvider) {
     const urls = await Promise.all(
       imagingRequest.results.map(async result => {
@@ -102,9 +102,12 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, ImagingResult, User, ReferenceData },
+      models,
+      settings,
       params: { id },
+      query: { facilityId },
     } = req;
+    const { ImagingRequest, ImagingResult, ReferenceData, User } = models;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: [
@@ -136,7 +139,13 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults(
+        {
+          settings: settings[facilityId],
+          models,
+        },
+        imagingRequestObject,
+      ),
     });
   }),
 );
@@ -145,17 +154,20 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, ImagingResult },
+      models,
+      settings,
       params: { id },
       user,
-      body: { areas, note, areaNote, newResult, ...imagingRequestData },
+      body: { areas, note, areaNote, newResult, facilityId, ...imagingRequestData },
     } = req;
+    const { ImagingRequest, ImagingResult, Notification } = models;
     req.checkPermission('read', 'ImagingRequest');
 
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
 
+    const previousStatus = imagingRequestObject.status;
     await imagingRequestObject.update(imagingRequestData);
 
     // Updates the reference data associations for the areas to be imaged
@@ -218,12 +230,22 @@ imagingRequest.put(
       } else {
         imagingRequestObject.results = [imagingResult];
       }
+
+      if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+        await Notification.pushNotification(NOTIFICATION_TYPES.IMAGING_REQUEST, imagingRequestObject);
+      }
     }
 
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults(
+        {
+          settings: settings[facilityId],
+          models,
+        },
+        imagingRequestObject,
+      ),
     });
   }),
 );
@@ -357,7 +379,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: config.serverFacilityId } },
+          : { facilityId: { [Op.eq]: filterParams.facilityId } },
     };
 
     const location = {

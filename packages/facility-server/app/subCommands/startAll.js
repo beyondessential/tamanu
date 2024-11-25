@@ -2,8 +2,9 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
@@ -14,10 +15,11 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
+import { SyncTask } from '../tasks/SyncTask';
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {
@@ -33,7 +35,7 @@ async function startAll({ skipMigrationCheck }) {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
@@ -57,17 +59,18 @@ async function startAll({ skipMigrationCheck }) {
   const { server: syncServer } = await createSyncApp(context);
 
   let { port: syncPort } = config.sync.syncApiConnection;
-  if (+process.env.PORT) { syncPort = +process.env.PORT; }
-  if (syncPort === port) { syncPort += 1; }
   syncServer.listen(syncPort, () => {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
+  const syncTaskClass = [SyncTask];
   const cancelTasks = startScheduledTasks(context);
+  const cancelSyncTask = startScheduledTasks(context, syncTaskClass);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     cancelTasks();
+    cancelSyncTask();
     server.close();
     syncServer.close();
   });

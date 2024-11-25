@@ -1,7 +1,11 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class InvoicePatientPayment extends Model {
   static init({ primaryKey, ...options }) {
@@ -41,6 +45,20 @@ export class InvoicePatientPayment extends Model {
       [this.tableName, 'invoice_payments', 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'invoice_payments',
+        'invoices',
+        'encounters',
+      ]),
+    };
   }
 
   /**

@@ -1,0 +1,78 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: surveys
+        description: '{{ doc("table__surveys") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in surveys."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in surveys."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in surveys."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in surveys."
+          - name: code
+            data_type: character varying(255)
+            description: "{{ doc('surveys__code') }}"
+          - name: name
+            data_type: character varying(255)
+            description: "{{ doc('surveys__name') }}"
+          - name: program_id
+            data_type: character varying(255)
+            description: "{{ doc('surveys__program_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'programs')
+                  field: id
+          - name: survey_type
+            data_type: character varying(255)
+            description: "{{ doc('surveys__survey_type') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - programs
+                    - referral
+                    - obsolete
+                    - vitals
+          - name: is_sensitive
+            data_type: boolean
+            description: "{{ doc('surveys__is_sensitive') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in surveys."
+            data_tests:
+              - not_null
+          - name: notifiable
+            data_type: boolean
+            description: "{{ doc('surveys__notifiable') }}"
+            data_tests:
+              - not_null
+          - name: notify_email_addresses
+            data_type: array
+            description: "{{ doc('surveys__notify_email_addresses') }}"
+            data_tests:
+              - not_null
+          - name: visibility_status
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in surveys."
+            data_tests:
+              - not_null

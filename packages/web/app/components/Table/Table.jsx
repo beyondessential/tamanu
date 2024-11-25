@@ -19,7 +19,7 @@ import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -192,16 +192,44 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, className }) => (
+const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
   <StyledTableRow
     className={className}
     onClick={onClick}
     $rowStyle={rowStyle}
     $lazyLoading={lazyLoading}
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
   >
     {children}
   </StyledTableRow>
-));
+);
+
+const RowTooltip = ({ title, children }) => (
+  <ThemedTooltip
+    title={title}
+    PopperProps={{
+      modifiers: {
+        flip: {
+          enabled: false,
+        },
+        offset: {
+          enabled: true,
+          offset: '0, -10',
+        },
+      },
+    }}
+  >
+    {children}
+  </ThemedTooltip>
+);
+
+const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
+  if (rowTooltip) {
+    return <RowTooltip title={rowTooltip}>{getTableRow(rowProps)}</RowTooltip>;
+  }
+  return getTableRow(rowProps);
+});
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
@@ -224,6 +252,9 @@ const Row = React.memo(
     refreshTable,
     cellStyle,
     onClickRow,
+    onMouseEnter,
+    onMouseLeave,
+    getRowTooltip,
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
@@ -257,6 +288,9 @@ const Row = React.memo(
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
         lazyLoading={lazyLoading}
+        onMouseEnter={onMouseEnter && (() => onMouseEnter(data))}
+        onMouseLeave={onMouseLeave && (() => onMouseLeave(data))}
+        rowTooltip={getRowTooltip && getRowTooltip(data)}
       >
         {cells}
       </RowContainer>
@@ -384,6 +418,9 @@ class TableComponent extends React.Component {
       cellStyle,
       statusCellStyle,
       onClickRow,
+      onMouseEnterRow,
+      onMouseLeaveRow,
+      getRowTooltip,
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -414,6 +451,9 @@ class TableComponent extends React.Component {
                 lazyLoading={lazyLoading}
                 cellStyle={cellStyle}
                 onClickRow={onClickRow}
+                onMouseEnter={onMouseEnterRow}
+                onMouseLeave={onMouseLeaveRow}
+                getRowTooltip={getRowTooltip}
               />
             );
           })}
@@ -553,6 +593,8 @@ TableComponent.propTypes = {
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
   onRowClick: PropTypes.func,
+  onMouseEnterRow: PropTypes.func,
+  onMouseLeaveRow: PropTypes.func,
   cellOnChange: PropTypes.func,
   headerOnChange: PropTypes.func,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
@@ -568,6 +610,7 @@ TableComponent.propTypes = {
   isLoadingMore: PropTypes.bool,
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
+  getRowTooltip: PropTypes.func,
 };
 
 TableComponent.defaultProps = {
@@ -584,6 +627,8 @@ TableComponent.defaultProps = {
   page: null,
   elevated: true,
   onRowClick: null,
+  onMouseEnterRow: null,
+  onMouseLeaveRow: null,
   cellOnChange: null,
   headerOnChange: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
@@ -599,15 +644,14 @@ TableComponent.defaultProps = {
   isLoadingMore: false,
   noDataBackgroundColor: Colors.white,
   isBodyScrollable: false,
+  getRowTooltip: null,
 };
 
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
-    const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
-    const columns = allColumns.filter(
-      ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
-    );
+    const { getSetting } = useSettings();
+    const columns = allColumns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
 
     return (
       <TableComponent

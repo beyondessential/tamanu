@@ -1,5 +1,6 @@
 import config from 'config';
 import { QueryTypes } from 'sequelize';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const DEFAULT_SETTINGS = {
   'fhir.worker.heartbeat': '1 minute',
@@ -8,7 +9,8 @@ const DEFAULT_SETTINGS = {
 
 export async function up(query) {
   // only write defaults to central
-  if (config?.serverFacilityId) return;
+  const isFacilityServer = !!selectFacilityIds(config);
+  if (isFacilityServer) return;
 
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
     const [{ count }] = await query.sequelize.query(

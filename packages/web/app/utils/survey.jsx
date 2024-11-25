@@ -29,6 +29,7 @@ import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTi
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { SurveyAnswerField } from '../components/Field/SurveyAnswerField';
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
@@ -54,7 +55,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
@@ -309,7 +310,11 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
-      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+      const isGeolocateType = type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE;
+      const mandatory = isGeolocateType
+        ? false
+        : checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -400,10 +405,11 @@ export const checkMandatory = (mandatory, values) => {
     notifyError(
       <TranslatedText
         stringId="general.notification.useMandatoryFailed"
-        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
-          }`}
+        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(
+          mandatory,
+        )}, error: ${error.message}`}
         replacements={{ mandatory: JSON.stringify(mandatory), message: error.message }}
-      />
+      />,
     );
     return false;
   }

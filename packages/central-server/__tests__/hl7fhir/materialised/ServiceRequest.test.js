@@ -9,6 +9,10 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
   FHIR_REQUEST_PRIORITY,
+  LAB_REQUEST_STATUSES,
+  FHIR_REQUEST_STATUS,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
+  IMAGING_TABLE_STATUS_GROUPINGS,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -147,6 +151,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         priority: 'routine',
         code: {
           text: 'X-Ray',
+          coding: [
+            {
+              code: 'xRay',
+              display: 'X-Ray',
+              system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+            },
+          ],
         },
         orderDetail: [
           {
@@ -209,11 +220,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const { labTestPanel, labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        true,
-      );
+      const {
+        labTestPanel,
+        labRequest,
+        panelTestTypes,
+      } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -260,14 +271,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             {
               code: labTestPanel.code,
               display: labTestPanel.name,
-              system:
-                'https://www.senaite.com/profileCodes.html',
+              system: 'https://www.senaite.com/profileCodes.html',
             },
             {
               code: labTestPanel.externalCode,
               display: labTestPanel.name,
-              system:
-                'http://loinc.org',
+              system: 'http://loinc.org',
             },
           ],
         },
@@ -351,7 +360,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    // Noting here that LabRequests have a priority in reference data 
+    // Noting here that LabRequests have a priority in reference data
     // while ImageRequests have a priority that is a string
     it('will materialise LabRequests into ServiceRequest with correct priority', async () => {
       // arrange
@@ -373,8 +382,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           resources,
           true,
           {
-            labTestPriorityId: allPriorities[currentKey].id
-          }
+            labTestPriorityId: allPriorities[currentKey].id,
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         await FhirServiceRequest.resolveUpstreams();
@@ -388,7 +397,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         expect(response.body).toMatchObject({
           resourceType: 'ServiceRequest',
           id: expect.any(String),
-          priority: allPriorities[currentKey].name
+          priority: allPriorities[currentKey].name,
         });
         expect(response).toHaveSucceeded();
       }
@@ -513,6 +522,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               priority: 'routine',
               code: {
                 text: 'X-Ray',
+                coding: [
+                  {
+                    code: 'xRay',
+                    display: 'X-Ray',
+                    system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+                  },
+                ],
               },
               orderDetail: [
                 {
@@ -632,6 +648,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               priority: 'routine',
               code: {
                 text: 'X-Ray',
+                coding: [
+                  {
+                    code: 'xRay',
+                    display: 'X-Ray',
+                    system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+                  },
+                ],
               },
               orderDetail: [
                 {
@@ -674,6 +697,359 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ],
       });
       expect(response).toHaveSucceeded();
+    });
+  });
+
+  describe('isLive', () => {
+    describe('Imaging Requests', () => {
+      const activeRequestStatuses = IMAGING_TABLE_STATUS_GROUPINGS.ACTIVE;
+      const inActiveRequestStatuses = Object.values(IMAGING_REQUEST_STATUS_TYPES).filter(
+        status => !activeRequestStatuses.includes(status),
+      );
+
+      it('treats all active imaging requests as live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        for (const status of activeRequestStatuses) {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationGroupId: resources.locationGroup.id,
+              status,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              imagingType: 'xRay',
+            }),
+          );
+
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(true);
+        }
+      });
+
+      it('treats all inactive imaging requests as not live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        for (const status of inActiveRequestStatuses) {
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationGroupId: resources.locationGroup.id,
+              status,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              imagingType: 'xRay',
+            }),
+          );
+
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(false);
+        }
+      });
+
+      it('remateralises live requests', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          activeRequestStatuses[Math.floor(Math.random() * activeRequestStatuses.length)];
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        ir.set({ requestedDate: updatedRequestedDate });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+      });
+
+      it('does not remateralise requests that are not live', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          inActiveRequestStatuses[Math.floor(Math.random() * inActiveRequestStatuses.length)];
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        ir.set({ requestedDate: updatedRequestedDate });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+      });
+
+      it('should force remateralise requests that are not live if their resulting FHIR status changes', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialStatus = IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status: initialStatus,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('completed');
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        const updatedStatus = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+        ir.set({ requestedDate: updatedRequestedDate, status: updatedStatus });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
+
+      it('should not force remateralise requests that are not live if their resulting FHIR status does not change', async () => {
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+
+        const initialStatus = IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            locationGroupId: resources.locationGroup.id,
+            status: initialStatus,
+            priority: 'routine',
+            requestedDate: initialRequestedDate,
+            imagingType: 'xRay',
+          }),
+        );
+
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        let mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('revoked');
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        const updatedStatus = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+        ir.set({ requestedDate: updatedRequestedDate, status: updatedStatus });
+        await ir.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
+    });
+
+    describe('Lab Requests', () => {
+      const activeRequestStatuses = LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE;
+      const inActiveRequestStatuses = Object.values(LAB_REQUEST_STATUSES).filter(
+        status => !activeRequestStatuses.includes(status),
+      );
+
+      it('treats all active lab requests as live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const status of activeRequestStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            true,
+            {
+              status,
+            },
+          );
+
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(true);
+        }
+      });
+
+      it('treats all inactive imaging requests as not live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const status of inActiveRequestStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            true,
+            {
+              status,
+            },
+          );
+
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          await FhirServiceRequest.resolveUpstreams();
+
+          expect(mat.isLive).toBe(false);
+        }
+      });
+
+      it('remateralises live requests', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          activeRequestStatuses[Math.floor(Math.random() * activeRequestStatuses.length)];
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({ requestedDate: updatedRequestedDate });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+      });
+
+      it('does not remateralise requests that are not live', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const status =
+          inActiveRequestStatuses[Math.floor(Math.random() * inActiveRequestStatuses.length)];
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({ requestedDate: updatedRequestedDate });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+      });
+
+      it('should force remateralise requests that are not live if their resulting FHIR status changes', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+
+        const initialRequestedDate = '2022-03-04 15:30:00';
+        const intitialStatus = LAB_REQUEST_STATUSES.PUBLISHED;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          true,
+          {
+            requestedDate: initialRequestedDate,
+            status: intitialStatus,
+          },
+        );
+
+        let mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(initialRequestedDate));
+
+        const updatedRequestedDate = '2024-10-17 15:30:00';
+        labRequest.set({
+          requestedDate: updatedRequestedDate,
+          status: LAB_REQUEST_STATUSES.CANCELLED,
+        });
+        await labRequest.save();
+
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        await FhirServiceRequest.resolveUpstreams();
+        await mat.reload();
+
+        expect(mat.occurrenceDateTime).toBe(formatFhirDate(updatedRequestedDate));
+        expect(mat.status).toBe('revoked');
+      });
     });
   });
 
@@ -876,7 +1252,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(resources.fhirPatient.id);
@@ -890,7 +1268,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(resources.fhirPatient.id);
@@ -904,7 +1284,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(2);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(response).toHaveSucceeded();
       });
 
@@ -914,7 +1296,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(fhirResources.fhirEncounter.id);
@@ -935,17 +1319,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
         expect(response).toHaveSucceeded();
       });
-
-
-
-
     });
 
     describe('Lab Requests as ServiceRequests', () => {
       test.todo('Need to complete rigorous testing for aspects of Lab Requests searching here');
 
       describe('including', () => {
-
         beforeEach(async () => {
           const { models } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
@@ -958,7 +1337,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const { models } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest } = models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
-          const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
+            labRequest.id,
+          );
           const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
 
           await FhirServiceRequest.resolveUpstreams();
@@ -967,21 +1348,71 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
           const response = await app.get(path);
           const { entry } = response.body;
-          const fetchedServiceRequest = entry.find(
-            ({ search: { mode } }) => mode === 'match',
-          );
+          const fetchedServiceRequest = entry.find(({ search: { mode } }) => mode === 'match');
 
-          const includedSpecimen = entry.find(
-            ({ search: { mode } }) => mode === 'include',
-          );
+          const includedSpecimen = entry.find(({ search: { mode } }) => mode === 'include');
           expect(response).toHaveSucceeded();
           expect(includedSpecimen).toBeDefined();
           expect(fetchedServiceRequest.resource.id).toBe(materialisedServiceRequest.id);
           expect(includedSpecimen.resource.id).toBe(materialiseSpecimen.id);
           expect(response.body.entry.length).toBe(2);
         });
-      });
 
+        it('correctly maps LabRequest statuses to ServiceRequest statuses', async () => {
+          const { models } = ctx.store;
+          const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+
+          for (const status of Object.values(LAB_REQUEST_STATUSES)) {
+            let expectedServiceRequestStatus;
+            if (
+              [
+                LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+                LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.DRAFT;
+            } else if (
+              [
+                LAB_REQUEST_STATUSES.RESULTS_PENDING,
+                LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+                LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+                LAB_REQUEST_STATUSES.VERIFIED,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.ACTIVE;
+            } else if ([LAB_REQUEST_STATUSES.PUBLISHED].includes(status)) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.COMPLETED;
+            } else if (
+              [
+                LAB_REQUEST_STATUSES.CANCELLED,
+                LAB_REQUEST_STATUSES.INVALIDATED,
+                LAB_REQUEST_STATUSES.DELETED,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.REVOKED;
+            } else if ([LAB_REQUEST_STATUSES.ENTERED_IN_ERROR].includes(status)) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.ENTERED_IN_ERROR;
+            } else {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.UNKNOWN;
+            }
+
+            const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources, { status });
+            await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+
+            const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`;
+            const response = await app.get(path);
+            const { entry } = response.body;
+            const fetchedServiceRequest = entry.find(({ search: { mode } }) => mode === 'match');
+
+            expect(response).toHaveSucceeded();
+            expect(fetchedServiceRequest.resource.status).toBe(expectedServiceRequestStatus);
+
+            await FhirSpecimen.destroy({ where: {} });
+            await FhirServiceRequest.destroy({ where: {} });
+            await LabRequest.destroy({ where: {} });
+          }
+        });
+      });
     });
   });
 

@@ -13,7 +13,6 @@ Desktop.ini
 
 # npm
 node_modules
-package-lock.json
 *.log
 *.gz
 
@@ -26,6 +25,7 @@ packages/*/dist
 *.tsbuildinfo
 packages/*/{src,app}/**/*.d.ts
 storybook-static
+database/docs
 
 # Test artefacts
 test.*.hl7.json
@@ -61,6 +61,7 @@ lints.md
 
 # Env
 /packages/mobile/.envrc
+/packages/mobile/metro-cache
 
 # cd-up and cd-down workflows
 /ops

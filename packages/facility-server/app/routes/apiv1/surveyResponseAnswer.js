@@ -7,18 +7,80 @@ import {
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
+import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
 export const surveyResponseAnswer = express.Router();
+
+surveyResponseAnswer.get(
+  '/latest-answer/:dataElementCode',
+  asyncHandler(async (req, res) => {
+    const { models, query, params } = req;
+    const { patientId } = query;
+    const { dataElementCode } = params;
+
+    req.checkPermission('read', 'SurveyResponse');
+
+    const answer = await models.SurveyResponseAnswer.findOne({
+      include: [
+        {
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+          include: [
+            {
+              model: models.Encounter,
+              as: 'encounter',
+              where: { patientId },
+            },
+          ],
+        },
+        {
+          model: models.ProgramDataElement,
+          where: { code: dataElementCode },
+          include: [
+            {
+              model: models.SurveyScreenComponent,
+              as: 'surveyScreenComponent',
+              include: models.SurveyScreenComponent.getListReferenceAssociations(true),
+            },
+          ],
+        },
+      ],
+      order: [['surveyResponse', 'startTime', 'DESC']],
+    });
+
+    if (!answer) {
+      throw new NotFoundError('No answer found');
+    }
+
+    const transformedAnswers = await transformAnswers(
+      models,
+      [answer],
+      [answer.ProgramDataElement.surveyScreenComponent],
+      { notTransformDate: true }
+    );
+    answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
+    answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
+
+    res.send(answer);
+  }),
+);
 
 surveyResponseAnswer.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, user, params, getLocalisation } = req;
+    const {
+      db,
+      models,
+      user,
+      params,
+      settings,
+      body: { facilityId, ...body },
+    } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
 
-    const localisation = await getLocalisation();
-    if (!localisation?.features?.enableVitalEdit) {
+    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
+    if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
 
@@ -46,12 +108,12 @@ surveyResponseAnswer.put(
       ],
     });
     if (!answerObject) throw new NotFoundError();
-    if (answerObject.body === req.body.newValue) {
+    if (answerObject.body === body.newValue) {
       throw new InvalidParameterError('New value is the same as previous value.');
     }
 
     await db.transaction(async () => {
-      const { newValue = '', reasonForChange, date } = req.body;
+      const { newValue = '', reasonForChange, date } = body;
       await VitalLog.create({
         date,
         reasonForChange,
@@ -71,26 +133,32 @@ surveyResponseAnswer.put(
 surveyResponseAnswer.post(
   '/vital',
   asyncHandler(async (req, res) => {
-    const { db, models, user, getLocalisation } = req;
+    const {
+      db,
+      models,
+      user,
+      settings,
+      body: { facilityId, ...body },
+    } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     req.checkPermission('create', 'Vitals');
 
     // Even though this wouldn't technically be editing a vital
     // we will not allow the creation of a single vital answer if its not enabled
-    const localisation = await getLocalisation();
-    if (!localisation?.features?.enableVitalEdit) {
+    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
+    if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
 
     // Ensure data element exists and it's not a calculated question
-    const dataElement = await ProgramDataElement.findOne({ where: { id: req.body.dataElementId } });
+    const dataElement = await ProgramDataElement.findOne({ where: { id: body.dataElementId } });
     if (!dataElement || dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED) {
       throw new InvalidOperationError('Invalid data element.');
     }
 
     const responseObject = await SurveyResponse.findAll({
       where: {
-        encounterId: req.body.encounterId,
+        encounterId: body.encounterId,
       },
       include: [
         {
@@ -104,7 +172,7 @@ surveyResponseAnswer.post(
           model: SurveyResponseAnswer,
           as: 'answers',
           where: {
-            body: req.body.recordedDate,
+            body: body.recordedDate,
             dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
           },
         },
@@ -118,7 +186,7 @@ surveyResponseAnswer.post(
 
     let newAnswer;
     await db.transaction(async () => {
-      const { newValue = '', reasonForChange, date, dataElementId } = req.body;
+      const { newValue = '', reasonForChange, date, dataElementId } = body;
       newAnswer = await models.SurveyResponseAnswer.create({
         dataElementId,
         body: newValue,

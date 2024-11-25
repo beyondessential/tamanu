@@ -2,10 +2,14 @@ import { Sequelize } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { generateDisplayId } from '../utils/generateDisplayId';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -200,6 +204,17 @@ export class LabRequest extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        encounterId: `${this.tableName}.encounter_id`,
+        isLabRequestValue: 'TRUE',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   getTests() {

@@ -39,6 +39,12 @@
   "cors": {
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
+  "sync": {
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
+  },
   "localisation": {
     "data": {
       "timeZone": "UTC",
@@ -109,11 +115,6 @@
     "omniLab": {
       "enabled": true,
       "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
-    }
-  },
-  "disk": {
-    "freeSpaceRequired": {
-      "gigabytesForUploadingDocuments": 4
     }
   },
   "notifications": {

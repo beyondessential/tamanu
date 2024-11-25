@@ -9,9 +9,9 @@ import * as styles from './styles';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '../../helpers/user';
 import { IPatient } from '~/types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { useSettings } from '/contexts/SettingsContext';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -27,8 +27,8 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
 
   const name = joinNames({ firstName, lastName });
 
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
 
   return (
     <TouchableWithoutFeedback onPress={(): void => onPress()}>

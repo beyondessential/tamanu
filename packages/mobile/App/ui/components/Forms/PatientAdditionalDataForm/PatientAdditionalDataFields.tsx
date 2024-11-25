@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -22,6 +21,7 @@ import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -131,8 +131,7 @@ export const PatientAdditionalDataFields = ({
   showMandatory = true,
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
-  const { getLocalisation } = useLocalisation();
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
+  const { getSetting } = useSettings();
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
@@ -140,9 +139,11 @@ export const PatientAdditionalDataFields = ({
   );
   const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
-  const padFields = isHardCodedLayout
-    ? fields
-    : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getLocalisation);
+  const padFields = getConfiguredPatientAdditionalDataFields(
+    fields as string[],
+    showMandatory,
+    getSetting,
+  );
 
   if (isCustomSection)
     return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
@@ -151,7 +152,7 @@ export const PatientAdditionalDataFields = ({
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);
-    const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
+    const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });
 };

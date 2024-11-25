@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.17.0",
+  "version": "2.21.0",
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "scripts": {
@@ -10,10 +10,16 @@
     "test-determinism": "node src/testDeterminism.js"
   },
   "dependencies": {
-    "google-spreadsheet": "^2.0.7",
     "commander": "^9.0.0",
+    "config": "^3.3.9",
+    "google-spreadsheet": "^2.0.7",
+    "inflection": "^1.13.4",
+    "lodash": "^4.17.5",
     "object-hash": "^3.0.0",
-    "pgsql-ast-parser": "^11.1.0"
+    "pg": "^8.5.1",
+    "pgsql-ast-parser": "^11.1.0",
+    "rimraf": "^6.0.1",
+    "yaml": "^2.2.1"
   },
   "devDependencies": {
     "tape": "^5.7.5"

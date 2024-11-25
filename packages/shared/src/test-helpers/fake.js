@@ -545,6 +545,10 @@ export const fake = (model, passedOverrides = {}) => {
       return isFunction(defaultValue) ? defaultValue() : defaultValue;
     }
 
+    if (type instanceof DataTypes.BLOB) {
+      return Buffer.from('test');
+    }
+
     if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
     }
@@ -557,8 +561,12 @@ export const fake = (model, passedOverrides = {}) => {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     }
 
-    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name][fieldName]) {
+    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
       return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
+    }
+
+    if (type instanceof DataTypes.JSONB) {
+      return { test: 'test' };
     }
 
     // if you hit this error, you probably need to add a new field handler or a model-specific override

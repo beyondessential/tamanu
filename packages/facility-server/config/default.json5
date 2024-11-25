@@ -30,7 +30,7 @@
     "timeout": 10000,
     "syncApiConnection": {
       "host": "http://localhost",
-      "port": 5000,
+      "port": 4100,
     },
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
@@ -88,15 +88,14 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+    "useHardcodedPermissions": true,
+
+    // Authentication "cookie" secret. Set to a random value so sessions don't
+    // expire when the server restarts.
+    // "secret": "some long secret value",
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "GeneralClinic",
-      "location": "GeneralClinic"
-    }
-  },
-  "serverFacilityId": "",
+  "serverFacilityId": null,
+  "serverFacilityIds": null,
   "debugging": {
     "requestFailureRate": 0
   },
@@ -110,7 +109,7 @@
         // every 10 mins
         "schedule": "*/10 * * * *"
       },
-    }
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -118,10 +117,6 @@
     "encounter-summary-line-list": {
       "includedPatientFieldIds": []
     }
-  },
-  "questionCodeIds": {
-    "passport": "pde-FijCOVRDT005",
-    "nationalityId": "pde-PalauCOVSamp7"
   },
   "proxy": {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html
@@ -137,5 +132,13 @@
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false
+  "allowMismatchedTimeZones": false,
+  "tasking": {
+    "upcomingTasksTimeFrame": 8, // hours,
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "notification": {
+    "enabled": true,
+    "recentNotificationsTimeFrame": 48, // hours
+  },
 }

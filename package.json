@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.17.0",
+  "version": "2.21.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -8,44 +8,46 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
+    "prepare": "patch-package",
     "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
     "clean:deps": "rimraf node_modules packages/*/node_modules",
     "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "node scripts/build-all.mjs",
-    "build-shared": "yarn run build --shared-only",
-    "test": "yarn run build-shared && node scripts/test-all.mjs",
-    "test-coverage": "yarn run test --coverage",
+    "build-shared": "npm run build -- --shared-only",
+    "test": "npm run build-shared && node scripts/test-all.mjs",
+    "test-coverage": "npm run test -- --coverage",
     "lint-all": "eslint .",
-    "lint-fix": "yarn run lint-all --fix",
-    "web-start-dev": "yarn workspace @tamanu/web-frontend run start-dev",
-    "storybook": "yarn run watch-shared-and @tamanu/web-frontend storybook",
+    "lint-fix": "npm run lint-all -- --fix",
+    "web-start-dev": "npm run start-dev --workspace @tamanu/web-frontend",
+    "storybook": "npm run watch-shared-and @tamanu/web-frontend storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
-    "web-unit-test": "yarn run build-shared && yarn workspace @tamanu/web-frontend run test",
-    "web-unit-test-watch": "yarn run build-shared && yarn workspace @tamanu/web-frontend run test-watch",
-    "facility-test": "yarn run build-shared && yarn workspace @tamanu/facility-server run test",
-    "facility-start-dev": "yarn run build-shared && yarn run watch-shared-and @tamanu/facility-server start-dev",
-    "facility-test-watch": "yarn run watch-shared-and @tamanu/facility-server test-watch",
-    "facility-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate up\" yarn run facility-start-dev",
-    "facility-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run facility-start-dev",
-    "shared-test": "yarn run build-shared && yarn workspace @tamanu/shared run test",
-    "central-test": "yarn run build-shared && yarn workspace @tamanu/central-server run test",
-    "central-shell": "yarn run build-shared && yarn workspace @tamanu/central-server run shell",
-    "central-start-dev": "yarn run build-shared && yarn run watch-shared-and @tamanu/central-server start-dev",
-    "central-test-watch": "yarn run watch-shared-and @tamanu/central-server test-watch",
-    "central-start": "yarn run central-start-dev",
-    "central-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate\" yarn run central-start-dev",
-    "central-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run central-start-dev",
-    "meta-test": "yarn run build-shared && yarn workspace @tamanu/meta-server run test",
-    "meta-start-dev": "yarn run watch-shared-and @tamanu/meta-server start-dev",
-    "meta-test-watch": "yarn run watch-shared-and @tamanu/meta-server test-watch",
-    "meta-start": "yarn run meta-start-dev",
-    "build-report": "yarn build-shared && yarn workspace @tamanu/central-server build && yarn workspace @tamanu/central-server start report"
+    "web-unit-test": "npm run build-shared && npm run --workspace @tamanu/web-frontend test",
+    "web-unit-test-watch": "npm run build-shared && npm run --workspace @tamanu/web-frontend test-watch",
+    "facility-test": "npm run build-shared && npm run --workspace @tamanu/facility-server test",
+    "facility-start-dev": "npm run build-shared && npm run watch-shared-and @tamanu/facility-server start-dev",
+    "facility-test-watch": "npm run watch-shared-and @tamanu/facility-server test-watch",
+    "facility-migrate": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch migrate",
+    "facility-migrate-down": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch migrate down",
+    "mobile-run-android": "npm run build-shared && npm run --workspace @tamanu/mobile android",
+    "shared-test": "npm run build-shared && npm run --workspace @tamanu/shared test",
+    "central-test": "npm run build-shared && npm run --workspace @tamanu/central-server test",
+    "central-shell": "npm run build-shared && npm run --workspace @tamanu/central-server shell",
+    "central-start-dev": "npm run build-shared && npm run watch-shared-and @tamanu/central-server start-dev",
+    "central-test-watch": "npm run watch-shared-and @tamanu/central-server test-watch",
+    "central-start": "npm run central-start-dev",
+    "central-migrate": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch migrate",
+    "central-migrate-down": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch migrate down",
+    "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
+    "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
+    "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
+    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js"
   },
   "engines": {
     "node": "^20.9.0"
   },
-  "packageManager": "yarn@1.19.1",
+  "packageManager": "npm@10.8.0",
+  "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
@@ -56,17 +58,11 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/meta-server",
       "packages/shared",
       "packages/constants",
       "packages/settings",
-      "packages/api-client"
-    ],
-    "nohoist": [
-      "**/fbjs-scripts",
-      "**/fbjs-scripts/**",
-      "**/config",
-      "**/config/**"
+      "packages/api-client",
+      "packages/mobile"
     ]
   },
   "devDependencies": {
@@ -80,13 +76,23 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^13.24.0",
     "prettier": "^1.17.1",
-    "yaml": "^2.2.1",
-    "yarn": "^1.22.18"
+    "yaml": "^2.2.1"
   },
   "dependencies": {
+    "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
+    "patch-package": "^8.0.0",
     "pm2": "^4.5.0"
+  },
+  "overrides": {
+    "react": "18.2.0",
+    "react-native-svg": "^12.1.0",
+    "react-redux": "8.0.2",
+    "react-dom": "18.2.0",
+    "react-test-renderer": "^18.3.1",
+    "@react-pdf/renderer": "^3.4.4",
+    "@react-pdf/layout": "3.11.5"
   }
 }

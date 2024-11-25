@@ -56,11 +56,24 @@ export class ReferenceData extends Model {
       foreignKey: 'areaId',
     });
 
+    this.belongsToMany(models.Task, {
+      through: models.TaskDesignation,
+      as: 'designation',
+      foreignKey: 'designationId',
+    });
+
     this.belongsToMany(this, {
       as: 'parent',
       through: 'reference_data_relations',
       foreignKey: 'referenceDataId',
       otherKey: 'referenceDataParentId',
+    });
+
+    this.belongsToMany(this, {
+      as: 'children',
+      through: 'reference_data_relations',
+      foreignKey: 'referenceDataParentId',
+      otherKey: 'referenceDataId',
     });
 
     this.hasOne(models.ImagingAreaExternalCode, {
@@ -71,6 +84,11 @@ export class ReferenceData extends Model {
     this.hasOne(models.Facility, {
       as: 'facility',
       foreignKey: 'catchmentId',
+    });
+
+    this.hasOne(models.TaskTemplate, {
+      as: 'taskTemplate',
+      foreignKey: 'referenceDataId',
     });
   }
 
@@ -140,6 +158,10 @@ export class ReferenceData extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

@@ -3,19 +3,20 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
+import { useAuth } from '../contexts/Auth';
 import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
-import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
+import { useSettings } from '../contexts/Settings';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
 const useColumns = () => {
-  const { getLocalisation } = useLocalisation();
-  const triageCategories = getLocalisation('triageCategories');
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('triageCategories');
 
   return [
     {
@@ -47,7 +48,7 @@ const useColumns = () => {
       accessor: row => (
         <TranslatedReferenceData
           value={row.chiefComplaintId}
-          fallback={row.chiefCompaint}
+          fallback={row.chiefComplaint}
           category="triageReason"
         />
       ),
@@ -89,6 +90,7 @@ const useColumns = () => {
 };
 
 export const TriageTable = React.memo(() => {
+  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { category } = useParams();
   const dispatch = useDispatch();
@@ -105,6 +107,7 @@ export const TriageTable = React.memo(() => {
       verb="list"
       noun="Triage"
       endpoint="triage"
+      fetchOptions={{ facilityId }}
       columns={columns}
       noDataMessage={
         <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />

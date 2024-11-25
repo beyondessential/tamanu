@@ -1,8 +1,10 @@
 import { Sequelize, Op } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
+import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -151,20 +153,37 @@ export class Setting extends Model {
   }
 
   static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
-    const records = buildSettingsRecords(key, value, facilityId);
+    const records = buildSettingsRecords(key, value, facilityId, scope);
+    const schema = getScopedSchema(scope);
+    const defaultsForScope = extractDefaults(schema);
 
-    // create or update records
+    const existingSettings = await this.findAll({
+      where: {
+        key: records.map(r => r.key),
+        scope,
+        facilityId,
+      },
+      paranoid: false,
+    });
+
+    const existingByKey = keyBy(existingSettings, 'key');
+
     await Promise.all(
       records.map(async record => {
-        // can't use upsert as sequelize can't parse our triple-index unique constraint
-        const existing = await this.findOne({
-          where: { key: record.key, facilityId: record.facilityId, scope },
-        });
-
+        const existing = existingByKey[record.key];
         if (existing) {
-          await this.update({ value: record.value }, { where: { id: existing.id } });
+          if (existing.deletedAt) {
+            await this.restore({ where: { id: existing.id } });
+          }
+          if (!isEqual(existing.value, record.value)) {
+            // only update existing records that have changed
+            await this.update({ value: record.value }, { where: { id: existing.id } });
+          }
         } else {
-          await this.create({ ...record, scope });
+          // only create records for values that differ from the defaults
+          if (!isEqual(record.value, getAtPath(defaultsForScope, record.key))) {
+            await this.create(record);
+          }
         }
       }),
     );
@@ -199,7 +218,15 @@ export class Setting extends Model {
   }
 
   static buildSyncFilter() {
-    return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
+    return `WHERE (facility_id in (:facilityIds) OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        facilityId: 'settings.facility_id',
+      }),
+    };
   }
 }
 

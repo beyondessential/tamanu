@@ -19,7 +19,7 @@ import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
-import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
@@ -41,7 +41,7 @@ export async function createApi(ctx) {
   let errorMiddleware = null;
   if (config.errors?.enabled) {
     if (config.errors?.type === 'bugsnag') {
-      const Bugsnag = await import('@bugsnag/js');
+      const { default: Bugsnag } = await import('@bugsnag/js');
       const middleware = Bugsnag.getPlugin('express');
       express.use(middleware.requestHandler);
       errorMiddleware = middleware.errorHandler;
@@ -75,7 +75,7 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(buildSettingsReaderMiddleware());
+  express.use(settingsReaderMiddleware);
 
   express.get('/$', (req, res) => {
     res.send({

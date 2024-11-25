@@ -22,6 +22,8 @@ import { FhirMissingResources } from './FhirMissingResources';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
+import { SyncLookupRefresher } from './SyncLookupRefresher';
+import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -34,14 +36,16 @@ export async function startScheduledTasks(context) {
     CertificateNotificationProcessor,
     IPSRequestProcessor,
     PatientMergeMaintainer,
-    FhirMissingResources,
     PatientTelegramCommunicationProcessor,
     VaccinationReminderProcessor,
     AutomaticLabTestResultPublisher,
     CovidClearanceCertificatePublisher,
     StaleSyncSessionCleaner,
     PlannedMoveTimeout,
+    FhirMissingResources,
     SurveyCompletionNotifierProcessor,
+    SyncLookupRefresher,
+    GenerateRepeatingTasks
   ];
 
   if (config.integrations.fijiVrs.enabled) {

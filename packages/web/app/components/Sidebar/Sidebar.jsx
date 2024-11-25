@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
@@ -13,6 +14,7 @@ import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
+import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
@@ -164,8 +166,8 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const { agentVersion } = useApi();
-  const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
+  const api = useApi();
+  const { facilityId, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
   const extendSidebar = () => setIsRetracted(false);
@@ -189,6 +191,28 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
+
+  const { data: facility, isLoading: isFacilityLoading } = useQuery(
+    ['facility', facilityId],
+    async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+    {
+      enabled: !!facilityId,
+    },
+  );
+
+  const connectionName = useMemo(() => {
+    if (isFacilityLoading) {
+      return '';
+    }
+    if (!facility) {
+      return (
+        <TranslatedText stringId="general.meta.centralServer" fallback="Central admin server" />
+      );
+    }
+    return (
+      <TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />
+    );
+  }, [facility, isFacilityLoading]);
 
   return (
     <Container $retracted={isRetracted}>
@@ -279,16 +303,7 @@ export const Sidebar = React.memo(({ items }) => {
                 <UserName>{currentUser?.displayName}</UserName>
                 <Box display="flex" justifyContent="space-between">
                   <ConnectedTo>
-                    {roleName} <br />{' '}
-                    {facility?.name ? (
-                      <TranslatedReferenceData
-                        fallback={facility.name}
-                        value={facility.id}
-                        category="facility"
-                      />
-                    ) : (
-                      centralHost
-                    )}
+                    {roleName} <br /> {connectionName}
                   </ConnectedTo>
                 </Box>
               </StyledUserInfoContent>
@@ -300,8 +315,9 @@ export const Sidebar = React.memo(({ items }) => {
           <>
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
-              <Version>
-                <TranslatedText stringId="general.meta.version" fallback="Version" /> {agentVersion}
+              <Version title={FULL_VERSION}>
+                <TranslatedText stringId="general.meta.version" fallback="Version" />{' '}
+                {api.agentVersion}
               </Version>
               <LogoutButton
                 type="button"

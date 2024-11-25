@@ -1,0 +1,30 @@
+sql: |
+  select
+    id, errors::text,
+    debug_info->>'facilityId' AS facility_id,
+    created_at::text AS created,
+    (completed_at - created_at)::text AS duration
+  from sync_sessions
+  where created_at > $1
+  and completed_at IS NULL
+  and (pull_until is null or pull_since is null or pull_until - pull_since < 1000)
+  and (updated_at - created_at) > '20 minutes'::interval;
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu alert] Sync sessions longer than 20 minutes ({{ hostname }})'
+    template: |
+      <p>Server: {{ hostname }}</p>
+      <p>Alert: {{ filename }}</p>
+      <h1>Sync sessions lasting longer than 21 minutes in the last {{ interval }}</h1>
+      <p><b>Report this immediately to support.</b></p>
+      <ul>
+        {% for row in rows | slice(end=5) %}
+        <li><b>{{ row.id }}</b>: <i>{{ row.errors }}</i> ({{ row.facility_id }},  duration {{ row.duration }}, start {{ row.created }})</li>
+        {% endfor %}
+        {% if rows | length > 5 %}
+        <li>... and {{ rows | length - 5 }} more</li>
+        {% endif %}
+      </ul>
+      <p>For more information, please check the logs.</p>

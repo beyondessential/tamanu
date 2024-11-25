@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { JOB_PRIORITIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { log } from '../../services/logging';
 import { sleepAsync } from '../../utils/sleepAsync';
@@ -21,7 +21,7 @@ export class FhirJob extends Model {
         priority: {
           type: DataTypes.INTEGER,
           allowNull: false,
-          defaultValue: 1000,
+          defaultValue: JOB_PRIORITIES.DEFAULT,
         },
         status: {
           type: DataTypes.TEXT,

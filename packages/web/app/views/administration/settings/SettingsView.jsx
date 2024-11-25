@@ -1,160 +1,233 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Settings } from '@material-ui/icons';
-import { useQuery } from '@tanstack/react-query';
+import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { applyDefaults, validateSettings } from '@tamanu/settings';
 
-import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
+import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { JSONEditor } from './JSONEditor';
-import { ScopeSelector } from './ScopeSelector';
-import { DefaultSettingsModal } from './DefaultSettingsModal';
+import { Form, TranslatedText } from '../../../components';
+import { JSONEditorView } from './JSONEditorView';
+import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { TranslatedText } from '../../../components/Translation';
+import { notifyError, notifySuccess } from '../../../utils';
+import { Colors } from '../../../constants';
+import { EditorView } from './EditorView';
+import { ScopeSelectorFields } from './components/ScopeSelectorFields';
+import { WarningModal } from './components/WarningModal';
 
-const StyledTopBar = styled(TopBar)`
-  padding: 0;
-  .MuiToolbar-root {
-    align-items: flex-end;
-  }
-`;
-
-const DefaultSettingsButton = styled(TextButton)`
-  font-size: 14px;
-  white-space: nowrap;
-  margin-left: 5px;
-  .MuiSvgIcon-root {
-    margin-right: 5px;
-  }
-  margin-bottom: 12px;
-`;
-
-const buildSettingsString = settings => {
-  if (Object.keys(settings).length === 0) return '';
-  return JSON.stringify(settings, null, 2);
+const SETTING_TABS = {
+  EDITOR: 'editor',
+  JSON: 'JSON',
 };
 
-export const SettingsView = React.memo(() => {
+const StyledAdminViewContainer = styled(AdminViewContainer)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const StyledTabDisplay = styled(TabDisplay)`
+  height: 100%;
+  border-top: 1px solid ${Colors.outline};
+  > div:last-child {
+    flex: 1;
+  }
+`;
+
+const TabContainer = styled.div`
+  height: 100%;
+  padding: 1.25rem;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  background-color: ${Colors.background};
+`;
+
+const tabs = [
+  {
+    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
+    key: SETTING_TABS.EDITOR,
+    icon: 'fa fa-cog',
+    render: props => {
+      // Don't show the editor if the scope is facility and no facility is selected
+      const { facilityId, scope } = props.values;
+      const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
+      return (
+        <TabContainer>
+          <ScopeSelectorFields {...props} />
+          {shouldShowEditor && <EditorView {...props} />}
+        </TabContainer>
+      );
+    },
+  },
+  {
+    label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
+    key: SETTING_TABS.JSON,
+    icon: 'fa fa-code',
+    render: props => (
+      <TabContainer>
+        <ScopeSelectorFields {...props} />
+        <JSONEditorView {...props} />
+      </TabContainer>
+    ),
+  },
+];
+
+export const SettingsView = () => {
   const api = useApi();
-  const [settingsEditString, setSettingsEditString] = useState('');
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
-  const [jsonError, setJsonError] = useState(null);
-  const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
-    () => api.get('admin/settings', { scope, facilityId }),
+    async () => {
+      const data = await api.get('admin/settings', { scope, facilityId });
+      return applyDefaults(data, scope);
+    },
+    {
+      enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
+    },
   );
 
-  const settingsViewString = buildSettingsString(settings);
-  const hasSettingsChanged = settingsViewString !== settingsEditString;
+  const queryClient = useQueryClient();
 
-  const updateSettingsEditString = value => {
-    setSettingsEditString(value);
-    setJsonError(null);
-  };
-
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
-  const turnOffEditMode = () => updateSettingsEditString(null);
-  const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeScope = event => {
-    setScope(event.target.value || null);
-    setFacilityId(null);
-    updateSettingsEditString(null);
-  };
-  const onChangeFacility = event => {
-    setFacilityId(event.target.value || null);
-    updateSettingsEditString(null);
-  };
-
-  // Convert settings string from editor into object and post to backend
-  const saveSettings = async () => {
-    // Check if the JSON is valid and notify if not
+  const handleSubmit = async ({ settings }) => {
     try {
-      JSON.parse(settingsEditString);
-    } catch (error) {
-      notifyError(`Invalid JSON: ${error.message}`);
-      setJsonError(error);
-      return;
-    }
-    const settingsObject = JSON.parse(settingsEditString);
-
-    try {
-      await api.put('admin/settings', {
-        settings: settingsObject,
-        facilityId,
-        scope,
-      });
+      await validateSettings({ settings, scope });
+      await api.put('admin/settings', { settings, facilityId, scope });
       notifySuccess('Settings saved');
-      await refetchSettings();
-      turnOffEditMode();
+      queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
+      return true;
     } catch (error) {
-      notifyError(`Error while saving settings: ${error.message}`);
+      if (error instanceof ValidationError) {
+        error?.inner?.forEach(e => {
+          notifyError(e.message);
+        });
+      } else {
+        notifyError(`Error while saving settings: ${error.message}`);
+      }
+      return false;
     }
   };
-
-  const editMode = !!settingsEditString;
-  const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
   return (
-    <AdminViewContainer
+    <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
-      <StyledTopBar>
-        <ScopeSelector
-          selectedScope={scope}
-          onChangeScope={onChangeScope}
-          selectedFacility={facilityId}
-          onChangeFacility={onChangeFacility}
-        />
-        <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
-          <Settings />
-          <TranslatedText
-            stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
-          />
-        </DefaultSettingsButton>
-        <ButtonRow>
-          {editMode ? (
-            <>
-              <LargeButton variant="outlined" onClick={turnOffEditMode}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-              </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
-                <TranslatedText stringId="general.action.save" fallback="Save" />
-              </LargeButton>
-            </>
-          ) : (
-            <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
-            </LargeButton>
+      {settingsFetchError ? (
+        <ErrorMessage error={settingsFetchError} />
+      ) : (
+        <Form
+          enableReinitialize
+          initialValues={{ scope, facilityId, settings: settingsSnapshot }}
+          onSubmit={handleSubmit}
+          render={props => (
+            <SettingsForm
+              {...props}
+              scope={scope}
+              setScope={setScope}
+              facilityId={facilityId}
+              setFacilityId={setFacilityId}
+            />
           )}
-        </ButtonRow>
-      </StyledTopBar>
-      <ContentPane>
-        {settingsFetchError && (
-          <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />
-        )}
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholderText="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
-      </ContentPane>
-      <DefaultSettingsModal
-        open={isDefaultModalOpen}
-        onClose={() => setIsDefaultModalOpen(false)}
-        scope={scope}
-      />
-    </AdminViewContainer>
+          style={{ flex: 1 }}
+        />
+      )}
+    </StyledAdminViewContainer>
   );
-});
+};
+
+const SettingsForm = ({
+  values,
+  setValues,
+  setFieldValue,
+  submitForm,
+  resetForm,
+  isSubmitting,
+  dirty,
+  scope,
+  setScope,
+  facilityId,
+  setFacilityId,
+}) => {
+  const { ability } = useAuth();
+  const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
+  const [warningModalOpen, setShowWarningModal] = useState(false);
+  const [resolveFn, setResolveFn] = useState(null);
+
+  const canViewJSONEditor = ability.can('write', 'Setting');
+  const filteredTabs = useMemo(
+    () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
+    [canViewJSONEditor],
+  );
+
+  const handleShowWarningModal = async () =>
+    new Promise(resolve => {
+      setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+      setShowWarningModal(true);
+    });
+
+  const handleChangeTab = async newTab => {
+    if (newTab !== currentTab && dirty) {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+      await resetForm();
+    }
+    setCurrentTab(newTab);
+  };
+
+  const handleChangeScope = async e => {
+    const newScope = e.target.value;
+    if (newScope !== scope && dirty) {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+    }
+    setScope(newScope);
+    setFacilityId(null);
+  };
+
+  const handleFacilityChange = async e => {
+    const newFacilityId = e.target.value;
+    if (newFacilityId !== facilityId && dirty) {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+    }
+    setFacilityId(newFacilityId);
+  };
+
+  return (
+    <>
+      <StyledTabDisplay
+        tabs={filteredTabs}
+        currentTab={currentTab}
+        onTabSelect={handleChangeTab}
+        scrollable={false}
+        setValues={setValues}
+        setFieldValue={setFieldValue}
+        handleShowWarningModal={handleShowWarningModal}
+        values={values}
+        submitForm={submitForm}
+        isSubmitting={isSubmitting}
+        resetForm={resetForm}
+        dirty={dirty}
+        scope={scope}
+        onScopeChange={handleChangeScope}
+        facilityId={facilityId}
+        onFacilityChange={handleFacilityChange}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
+    </>
+  );
+};

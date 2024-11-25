@@ -10,8 +10,8 @@ export const getTimeOfSwab = ({ sampleTime }) => {
   return sampleTime ? getDisplayDate(sampleTime, 'hh:mm a') : 'Unknown';
 };
 
-export const getLaboratory = ({ laboratory }, getLocalisation) =>
-  (laboratory || {}).name || getLocalisation('templates.covidTestCertificate.laboratoryName');
+export const getLaboratory = ({ laboratory }, _, getSetting) =>
+  laboratory?.name || getSetting('templates.covidTestCertificate.laboratoryName');
 
 export const getLabMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
 

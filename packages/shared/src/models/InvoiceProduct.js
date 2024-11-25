@@ -56,6 +56,10 @@ export class InvoiceProduct extends Model {
     return null; // syncs everywhere
   }
 
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
+  
   static getFullReferenceAssociations() {
     return ['referenceData', 'labTestType'];
   }

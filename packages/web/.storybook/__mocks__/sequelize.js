@@ -6,6 +6,8 @@ export const DataTypes = {
 
 export const QueryTypes = {};
 
+export const Op = {};
+
 const Sequelize = {
   NOW: {},
   UUIDV4: {},

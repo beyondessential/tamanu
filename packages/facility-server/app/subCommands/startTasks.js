@@ -2,8 +2,9 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
@@ -13,9 +14,9 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-async function startTasks({ skipMigrationCheck }) {
+export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
   log.info(`Starting facility task runner version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {
@@ -31,11 +32,11 @@ async function startTasks({ skipMigrationCheck }) {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
-  context.syncManager = new FacilitySyncManager(context);
+  context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
   await performTimeZoneChecks({
     remote: context.centralServer,
@@ -43,7 +44,7 @@ async function startTasks({ skipMigrationCheck }) {
     config,
   });
 
-  const cancelTasks = startScheduledTasks(context);
+  const cancelTasks = startScheduledTasks(context, taskClasses);
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();

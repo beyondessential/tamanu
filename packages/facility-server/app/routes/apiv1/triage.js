@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -18,23 +17,48 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, user } = req;
-    const { vitals, notes } = req.body;
+    const { models, db, user, body, settings } = req;
+    const { vitals, notes, facilityId } = body;
 
     req.checkPermission('create', 'Triage');
     if (vitals) {
       req.checkPermission('create', 'Vitals');
     }
 
-    const triageRecord = await models.Triage.create({ ...req.body, actorId: user.id });
+    const getDepartmentId = async () => {
+      const { departmentId } = body;
+      if (departmentId) {
+        return departmentId;
+      }
+
+      if (!facilityId) {
+        throw new Error('Providing facilityId is required to find the emergency department');
+      }
+
+      // default to the emergency department of the facility
+      const department = await models.Department.findOne({
+        where: { name: 'Emergency', facilityId },
+      });
+
+      if (!department) {
+        throw new Error('Cannot find Emergency department for current facility');
+      }
+
+      return department.id;
+    };
+    const departmentId = await getDepartmentId();
+
+    const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
-      const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
+      const getDefaultId = async type =>
+        models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),
         encounterId: triageRecord.encounterId,
         userId: req.user.id,
+        facilityId,
         ...vitals,
       };
       await db.transaction(async () => {
@@ -50,6 +74,11 @@ triage.post(
         content: notes,
       });
     }
+
+    const encounter = await models.Encounter.findOne({
+      where: { id: triageRecord.encounterId },
+    });
+    await encounter.addTriageScoreNote(triageRecord, Date.now(), user);
 
     res.send(triageRecord);
   }),
@@ -79,7 +108,7 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const { orderBy = 'score', order = 'asc' } = query;
+    const { facilityId, orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy];
 
     if (!sortKey) {
@@ -126,7 +155,7 @@ triage.get(
             ON (planned_location.location_group_id = planned_location_group.id)
           WHERE true
           AND encounters.end_date IS NULL
-          AND location.facility_id = :facility
+          AND location.facility_id = :facilityId
           AND encounters.encounter_type IN (:triageEncounterTypes)
           AND encounters.deleted_at is null
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
@@ -136,7 +165,7 @@ triage.get(
         type: QueryTypes.SELECT,
         mapToModel: true,
         replacements: {
-          facility: config.serverFacilityId,
+          facilityId,
           triageEncounterTypes: [
             ENCOUNTER_TYPES.TRIAGE,
             ENCOUNTER_TYPES.OBSERVATION,

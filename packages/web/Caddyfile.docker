@@ -1,13 +1,17 @@
 :3000 {
 	root * /app
-	encode zstd gzip
 	log {
 		output stderr
 	}
 
+	encode zstd gzip
 	file_server {
 		precompressed zstd br gzip
 	}
+
+	header / Cache-Control no-cache
+	header /manifest.json Cache-Control no-cache
+	header /env.js Cache-Control no-cache
 
 	handle_errors {
 		@custom_err file /resources/errors/{err.status_code}.html
@@ -16,4 +20,13 @@
 			file_server
 		}
 	}
+
+	# make sure to update app/utils/env.js when changing this
+	respond /env.js <<JS
+		window.env = {
+			NODE_ENV: `{$NODE_ENV}` || 'production',
+			BUGSNAG_API_KEY: `{$BUGSNAG_API_KEY}` || null,
+			REVISION: `{$REVISION}` || null,
+		}
+		JS 200
 }

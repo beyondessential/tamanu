@@ -3,7 +3,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY .yarnrc common.* ./
+COPY common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base
@@ -27,7 +27,7 @@ CMD ["serve"]
 
 
 ## Build the target server
-FROM build-base as build-server
+FROM build-base AS build-server
 ARG PACKAGE_PATH
 
 # copy all packages
@@ -38,7 +38,7 @@ RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Normal final target for servers
-FROM run-base as server
+FROM run-base AS server
 # restart from a fresh base without the build tools
 ARG PACKAGE_PATH
 # FROM resets the ARGs, so we need to redeclare it
@@ -50,20 +50,23 @@ COPY --from=build-server /app/node_modules/ node_modules/
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
 
-# explicitly reconfigure the port
-RUN echo '{"port":3000}' > config/local.json
+# explicitly configure the port
+ENV PORT=3000
 EXPOSE 3000
+
+# read configuration from source and from /config
+ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
 ## Build the frontend
-FROM build-base as build-frontend
+FROM build-base AS build-frontend
 RUN apk add zstd brotli
 COPY packages/ packages/
 RUN scripts/docker-build.sh web
 
 
 ## Minimal image to serve the frontend
-FROM alpine as frontend
+FROM alpine AS frontend
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

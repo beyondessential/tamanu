@@ -36,9 +36,10 @@ attachmentRoutes.get(
 attachmentRoutes.post(
   '/$',
   asyncHandler(async (req, res) => {
+    const { settings } = req;
     req.checkPermission('create', 'Attachment');
 
-    const canUpload = await canUploadAttachment();
+    const canUpload = await canUploadAttachment(settings);
 
     if (!canUpload) {
       throw new InsufficientStorageError(
