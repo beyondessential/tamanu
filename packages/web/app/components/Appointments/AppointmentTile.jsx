@@ -106,7 +106,7 @@ export const AppointmentTile = ({
     const { appointmentId } = queryString.parse(location.search);
     if (appointmentId && appointmentId === appointment.id) {
       setTimeout(() => {
-        setOpen(true)
+        setOpen(true);
         ref.current.scrollIntoView({ block: 'center' });
       });
     }
@@ -115,7 +115,8 @@ export const AppointmentTile = ({
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isOvernightLocationBooking = appointment.location && !isSameDay(startTime, endTime);
+  const isLocationBooking = !!appointment.location;
+  const isOvernightLocationBooking = isLocationBooking && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -148,7 +149,7 @@ export const AppointmentTile = ({
               <OvernightIcon
                 aria-label="Overnight booking"
                 aria-hidden={undefined}
-                htmlColor="#326699"
+                htmlColor={Colors.primary}
                 style={{ fontSize: 15 }}
               />
             )}
@@ -165,6 +166,8 @@ export const AppointmentTile = ({
         onEdit={onEdit}
         onCancel={onCancel}
         actions={actions}
+        // px conversions of height / width from CarouselComponents
+        preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
       />
     </>
   );

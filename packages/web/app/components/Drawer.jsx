@@ -1,3 +1,4 @@
+import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -5,13 +6,24 @@ import { Colors } from '../constants';
 import { ClearIcon } from './Icons';
 import { BodyText, Heading4 } from './Typography';
 
-import Collapse from '@mui/material/Collapse';
+const StyledCollapse = styled(Collapse)`
+  &.${collapseClasses.root} {
+    background-color: ${Colors.background};
+    min-block-size: 100%;
+    overflow-y: auto;
+    padding-block: 0 1rem;
+    position: relative;
 
-const Container = styled.div`
-  background-color: ${Colors.background};
-  border-inline-start: 1px ${Colors.outline} solid;
-  inline-size: 20.625rem;
-  min-block-size: 100%;
+    // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
+    &:not(.${collapseClasses.hidden}) {
+      border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
+    }
+  }
+`;
+
+const Wrapper = styled.div`
+  inline-size: 21rem;
+  block-size: 100%;
   overflow-y: auto;
   padding-block: 0 1rem;
   padding-inline: 1rem;
@@ -47,21 +59,20 @@ const CloseDrawerIcon = styled(ClearIcon)`
 
 export const Drawer = ({
   open,
-  className,
-  innerClassName,
   onClose,
   title,
   description,
   children,
   orientation = 'horizontal',
+  ...props
 }) => {
   const topRef = useRef(null);
 
   useEffect(() => topRef.current.scrollIntoView(), [open]);
 
   return (
-    <Collapse className={className} in={open} orientation={orientation}>
-      <Container className={innerClassName} columns={1}>
+    <StyledCollapse in={open} orientation={orientation} {...props}>
+      <Wrapper>
         <div ref={topRef} aria-hidden />
         <Title>
           {title}
@@ -69,7 +80,7 @@ export const Drawer = ({
         </Title>
         <Description>{description}</Description>
         {children}
-      </Container>
-    </Collapse>
+      </Wrapper>
+    </StyledCollapse>
   );
 };

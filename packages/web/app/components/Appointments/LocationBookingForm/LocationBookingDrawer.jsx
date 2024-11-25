@@ -25,7 +25,6 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper/AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
 
 const formStyles = {
@@ -197,8 +196,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
           />
         }
-        // Used to exclude the drawer from click away listener on appointment detail popper
-        innerClassName={APPOINTMENT_DRAWER_CLASS}
       >
         <StyledFormGrid nested columns={1}>
           <Field
