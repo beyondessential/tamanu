@@ -98,7 +98,7 @@ const StyledRadioGroup = styled(RadioGroup)`
   gap: 10px;
 `;
 
-const getRepeatText = (reportUnit, value) => {
+const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_INTERVAL_UNITS.WEEK) {
     return `on a ${format(value, 'EEEE')}`;
   }
@@ -112,8 +112,6 @@ const getRepeatText = (reportUnit, value) => {
     const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
     if (sameDay.length === nOfWeek + 1) {
       text += 'last';
-    } else if (nOfWeek === 0) {
-      text += 'first';
     } else {
       text += ['first', 'second', 'third', 'fourth'][nOfWeek];
     }
@@ -156,7 +154,7 @@ export const RepeatingDateField = ({ value, field }) => {
       <Box>
         <SmallBodyText>
           Repeats on: <TranslatedEnum enumValues={REPEAT_INTERVAL_LABELS} value={repeatUnit} />{' '}
-          {getRepeatText(repeatUnit, value)}
+          {getRepeatText(repeatUnit, repeatN, value)}
         </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
