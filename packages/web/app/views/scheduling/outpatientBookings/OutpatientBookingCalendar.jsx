@@ -45,7 +45,7 @@ const HeadCellWrapper = styled(Box)`
 `;
 
 const AppointmentNumber = styled(Box)`
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   justify-content: flex-end;
   block-size: 1.1rem;
@@ -112,7 +112,7 @@ export const HeadCell = ({ title, count }) => (
     <AppointmentNumber>
       {Number.isInteger(count) && (
         <>
-          <SmallBodyText>{count}</SmallBodyText>
+          <SmallBodyText>{count}</SmallBodyText>&nbsp;
           <SmallBodyText color="textTertiary">
             {count === 1 ? (
               <TranslatedText
