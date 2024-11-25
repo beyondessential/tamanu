@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { getDependantAssociations } from './getDependentAssociations';
+import { getDependentAssociations } from './getDependentAssociations';
 
 async function getIds(options) {
   let ids = options.where?.id?.[Op.in];
@@ -23,7 +23,7 @@ async function executeInsideTransaction(sequelize, arg, fn) {
 }
 
 async function beforeDestroy(instance) {
-  const dependantAssociations = getDependantAssociations(instance.constructor);
+  const dependantAssociations = getDependentAssociations(instance.constructor);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
@@ -37,7 +37,7 @@ async function beforeBulkDestroy(options) {
     return;
   }
 
-  const dependantAssociations = getDependantAssociations(options.model);
+  const dependantAssociations = getDependentAssociations(options.model);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
