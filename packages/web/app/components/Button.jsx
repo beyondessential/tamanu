@@ -330,6 +330,11 @@ export const UnstyledHtmlButton = styled.button`
   touch-action: manipulation;
 `;
 
+/**
+ * @privateRemarks It’s a bit of a mission to override MUI’s baked-in styles. When creating a
+ * `styled` version of this component, the selector will need specificity higher than (0,5,0) to
+ * override the styles declared here.
+ */
 export const ToggleButton = styled(MuiToggleButton)`
  .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
    .${toggleButtonGroupClasses.firstButton},
