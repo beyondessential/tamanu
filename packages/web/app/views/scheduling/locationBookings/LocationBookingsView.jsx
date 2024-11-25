@@ -86,6 +86,11 @@ export const LocationBookingsView = () => {
     setIsCancelModalOpen(true);
   };
 
+  const handleNewBooking = async () => {
+    await setSelectedAppointment(null);
+    openBookingForm({});
+  };
+
   const locationsQuery = useLocationsQuery({
     facilityId,
     bookableOnly: true,
@@ -99,7 +104,7 @@ export const LocationBookingsView = () => {
     <Wrapper>
       <LocationBookingsTopBar>
         <CalendarSearchBar onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={() => openBookingForm({})}>
+        <NewBookingButton onClick={handleNewBooking}>
           <PlusIcon />
           <TranslatedText
             stringId="locationBooking.calendar.bookLocation"
@@ -126,11 +131,13 @@ export const LocationBookingsView = () => {
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
       />
-      <LocationBookingDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
+      {selectedAppointment && (
+        <LocationBookingDrawer
+          initialValues={selectedAppointment}
+          open={isDrawerOpen}
+          onClose={closeBookingForm}
+        />
+      )}
     </Wrapper>
   );
 };
