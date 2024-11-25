@@ -8,28 +8,7 @@ import { Colors } from '../../../../constants';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
-import { TIME_SLOT_PICKER_VARIANTS } from './TimeSlotPicker';
-
-export const CONFLICT_TOOLTIP_TITLE = {
-  [TIME_SLOT_PICKER_VARIANTS.RANGE]: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-      fallback="All times must be available when booking over multiple times"
-    />
-  ),
-  [TIME_SLOT_PICKER_VARIANTS.START]: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailableFutureTimeWarning"
-      fallback="All future time slots must be available when booking overnight"
-    />
-  ),
-  [TIME_SLOT_PICKER_VARIANTS.END]: (
-    <TranslatedText
-      stringId="locationBooking.tooltip.unavailablePastTimeWarning"
-      fallback="All previous time slots must be available when booking overnight"
-    />
-  ),
-};
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and

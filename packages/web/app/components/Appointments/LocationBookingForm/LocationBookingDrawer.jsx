@@ -25,19 +25,16 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField';
 
-const StyledDrawer = styled(Drawer).attrs({
-  anchor: 'right',
-  variant: 'persistent',
-})`
-  .MuiPaper-root {
-    // Add 1 pixel to allow border to show
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
-  }
-`;
+const formStyles = {
+  zIndex: 1000,
+  position: 'absolute',
+  overflowY: 'auto',
+  insetInlineEnd: 0,
+  blockSize: `calc(100% - ${TOP_BAR_HEIGHT + 1}px)`,
+  insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
+};
 
 // A bit blunt but the base form fields are going to have their size tweaked in a
 // later card so this is a bridging solution just for this form
@@ -187,21 +184,31 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     return (
-      <StyledDrawer
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment detail popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
+      <Drawer
         open={open}
         onClose={warnAndResetForm}
         title={
-          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          isEdit ? (
+            <TranslatedText
+              stringId="locationBooking.form.edit.heading"
+              fallback="Modify booking"
+            />
+          ) : (
+            <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          )
         }
         description={
-          <TranslatedText
-            stringId="locationBooking.form.new.description"
-            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-          />
+          isEdit ? (
+            <TranslatedText
+              stringId="locationBooking.form.edit.description"
+              fallback="Modify the selected booking below"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.form.new.description"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+            />
+          )
         }
       >
         <StyledFormGrid nested columns={1}>
@@ -252,7 +259,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
         </StyledFormGrid>
-      </StyledDrawer>
+      </Drawer>
     );
   };
 
@@ -265,6 +272,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
+        style={formStyles}
       />
       <WarningModal
         open={warningModalOpen}

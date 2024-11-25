@@ -20,7 +20,8 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showLocationBookingsSetting = getSetting('layouts.showLocationBookingsOnPatientView');
   const canListAppointment = ability.can('list', 'Appointment');
   const canReadAppointment = ability.can('read', 'Appointment');
-  const showLocationBookings = showLocationBookingsSetting && canListAppointment && canReadAppointment;
+  const showLocationBookings =
+    showLocationBookingsSetting && canListAppointment && canReadAppointment;
 
   const onViewEncounter = useCallback(
     id => {
@@ -44,6 +45,11 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
           disabled={disabled}
         />
       </ContentPane>
+      {showLocationBookings && (
+        <ContentPane>
+          <LocationBookingsTable patient={patient} />
+        </ContentPane>
+      )}
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </ContentPane>

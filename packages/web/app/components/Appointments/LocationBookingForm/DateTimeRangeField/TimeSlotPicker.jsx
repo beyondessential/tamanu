@@ -17,11 +17,14 @@ import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
+import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
+
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { CONFLICT_TOOLTIP_TITLE, SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 import {
   appointmentToInterval,
   calculateTimeSlots,
@@ -29,13 +32,7 @@ import {
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
-} from './util';
-
-export const TIME_SLOT_PICKER_VARIANTS = {
-  RANGE: 'range',
-  START: 'start',
-  END: 'end',
-};
+} from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -105,18 +102,17 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const dateIsValid = isValid(date);
-  const getEarliestRelevantTime = () => min([startOfDay(date), values.startTime].filter(isValid));
-  const getLatestRelevantTime = () => max([endOfDay(date), values.endTime].filter(isValid));
+  const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
+  const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
   const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
     {
-      after: getEarliestRelevantTime(),
-      before: getLatestRelevantTime(),
+      after: earliestRelevantTime,
+      before: latestRelevantTime,
       all: true,
       locationId: values.locationId,
     },
-    { enabled: !!values.locationId && dateIsValid },
+    { enabled: !!values.locationId && isValid(date) },
   );
 
   const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
@@ -287,21 +283,21 @@ export const TimeSlotPicker = ({
           // If beginning a fresh selection, discontinuity is impossible
           if (!values.startTime || !values.endTime) return true;
           targetSelection = {
-            start: min([values.startTime, timeSlot.start]),
-            end: max([values.endTime, timeSlot.end]),
+            start: minValidDate([values.startTime, timeSlot.start]),
+            end: maxValidDate([values.endTime, timeSlot.end]),
           };
           break;
 
         case TIME_SLOT_PICKER_VARIANTS.START:
           targetSelection = {
             start: timeSlot.start,
-            end: max([values.endTime, endOfDay(date)]),
+            end: latestRelevantTime,
           };
           break;
 
         case TIME_SLOT_PICKER_VARIANTS.END:
           targetSelection = {
-            start: min([values.startTime, startOfDay(date)]),
+            start: earliestRelevantTime,
             end: timeSlot.end,
           };
           break;
@@ -309,7 +305,14 @@ export const TimeSlotPicker = ({
 
       return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
-    [bookedIntervals, date, values.startTime, values.endTime, variant],
+    [
+      variant,
+      bookedIntervals,
+      values.startTime,
+      values.endTime,
+      latestRelevantTime,
+      earliestRelevantTime,
+    ],
   );
 
   return (
@@ -319,10 +322,9 @@ export const TimeSlotPicker = ({
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
-            const isBooked =
-              bookedIntervals.some(bookedInterval =>
-                areIntervalsOverlapping(timeSlot, bookedInterval),
-              ) ?? false;
+            const isBooked = bookedIntervals.some(bookedInterval =>
+              areIntervalsOverlapping(timeSlot, bookedInterval),
+            );
 
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
