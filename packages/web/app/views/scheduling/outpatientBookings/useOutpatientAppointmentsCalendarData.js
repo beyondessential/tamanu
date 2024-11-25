@@ -72,7 +72,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const isRefetching =
     locationGroupsQuery.isRefetching || usersQuery.isRefetching || appointmentsQuery.isRefetching;
   const isSuccess =
-    locationGroupsQuery.isSuccess || usersQuery.isSuccess || appointmentsQuery.isSuccess;
+    locationGroupsQuery.isSuccess && usersQuery.isSuccess && appointmentsQuery.isSuccess;
 
   return {
     data,
