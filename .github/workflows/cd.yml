@@ -350,6 +350,11 @@ jobs:
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
 
+  package-alerts:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Package Alerts ${{ github.ref_name }}
+    uses: ./.github/workflows/cd-package-alerts.yml
+
   package-android-release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package release Android ${{ github.ref_name }}
