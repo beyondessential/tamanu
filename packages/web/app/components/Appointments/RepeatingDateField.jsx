@@ -122,20 +122,21 @@ const getRepeatText = (reportUnit, value) => {
   }
 };
 
-export const RepeatingDateField = ({ value, onChange }) => {
+export const RepeatingDateField = ({ value, field }) => {
   const [repeatN, setRepeatN] = useState(1);
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
   const [repeatType, setRepeatType] = useState('on');
   const [repeatDate, setRepeatDate] = useState(addMonths(value, 6));
   const [repeatAfter, setRepeatAfter] = useState(2);
 
-  console.log(add(value, { [`${repeatUnit}s`]: repeatN }));
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
         <StyledNumberInput
           value={repeatN}
           min={1}
+          //TODO: Discuss sensible max value
+          max={99}
           onChange={e => setRepeatN(e.target.value)}
           label={
             <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
