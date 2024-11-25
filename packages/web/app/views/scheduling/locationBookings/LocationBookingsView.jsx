@@ -76,8 +76,8 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = prepopulationValues => {
-    setSelectedAppointment(prepopulationValues);
+  const openBookingForm = async prepopulationValues => {
+    await setSelectedAppointment(prepopulationValues);
     setIsDrawerOpen(true);
   };
 
