@@ -1,10 +1,12 @@
+import { startOfToday } from 'date-fns';
 import React from 'react';
 
-import { BookingTimeField } from '../../app/components/Appointments/LocationBookingForm/BookingTimeField';
-import { MockedApi } from '../utils/mockedApi';
-import { MockSettingsProvider } from '../utils/mockSettingsProvider';
-import { Form } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+
+import { Form } from '../../app/components';
+import { TimeSlotPicker } from '../../app/components/Appointments/LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
+import { MockSettingsProvider } from '../utils/mockSettingsProvider';
+import { MockedApi } from '../utils/mockedApi';
 
 const todaysDate = toDateString(new Date());
 
@@ -54,8 +56,8 @@ const endpoints = {
 };
 
 export default {
-  title: 'Appointments/Booking time field',
-  component: BookingTimeField,
+  title: 'Appointments/Time slot picker',
+  component: TimeSlotPicker,
   decorators: [
     Story => (
       <MockedApi endpoints={endpoints}>
@@ -63,17 +65,17 @@ export default {
           <Form
             onSubmit={async () => {}}
             initialValues={{
-              date: new Date(),
+              date: startOfToday(),
               locationId: 'location-a',
             }}
             render={({ values }) => {
               return (
                 <>
                   <Story />
-                  <b>Debug form state</b>
-                  <div>
-                    Selected time range: {values.startTime} - {values.endTime}
-                  </div>
+                  <h2>Debug form state</h2>
+                  <p>
+                    Selected time range: {values.startTime}&nbsp;&ndash {values.endTime}
+                  </p>
                 </>
               );
             }}
@@ -84,5 +86,6 @@ export default {
   ],
 };
 
-export const Disabled = () => <BookingTimeField disabled />;
-export const Basic30Mins = () => <BookingTimeField />;
+export const Basic30Mins = () => <TimeSlotPicker />;
+
+export const Disabled = () => <TimeSlotPicker disabled />;

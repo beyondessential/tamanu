@@ -1066,6 +1066,11 @@ export const globalSettings = {
             },
           },
         },
+        showLocationBookingsOnPatientView: {
+          description: 'Show location bookings component on patient view',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
     templates: {

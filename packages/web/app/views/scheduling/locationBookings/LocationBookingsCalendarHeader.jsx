@@ -1,6 +1,8 @@
-import { formatISO, isSameDay, isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
@@ -97,6 +99,15 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
   const [monthOf, setMonthOf] = selectedMonthState;
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   useEffect(() => (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)(), [monthOf]);
+
+  const location = useLocation();
+  useEffect(() => {
+    const { date } = queryString.parse(location.search);
+    if (date) {
+      const parsedDate = parseISO(date);
+      setMonthOf(parsedDate);
+    }
+  }, [location.search]);
 
   return (
     <CarouselGrid.HeaderRow>
