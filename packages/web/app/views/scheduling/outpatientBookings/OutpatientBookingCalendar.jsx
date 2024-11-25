@@ -16,11 +16,14 @@ import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
 export const ColumnWrapper = styled(Box)`
-  --_column-width: 14rem;
+  --column-width: 14rem;
   display: flex;
   flex-direction: column;
-  inline-size: var(--_column-width);
+  inline-size: var(--column-width);
   min-block-size: max-content;
+  > * {
+    padding-inline: 0.5rem;
+  }
   &:not(:first-child) {
     border-inline-start: max(0.0625rem, 1px) solid ${Colors.outline};
   }
@@ -37,7 +40,7 @@ const HeadCellWrapper = styled(Box)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(var(--_column-width) - 2px);
+  inline-size: calc(var(--column-width) - 2px);
   text-align: center;
 `;
 
@@ -45,14 +48,13 @@ const AppointmentNumber = styled(Box)`
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  height: 1.1rem;
+  block-size: 1.1rem;
   gap: 0.25rem;
-  padding-inline-end: 1rem;
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const HeadCellTextWrapper = styled(Box)`
-  height: 4rem;
+  block-size: 4rem;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -70,14 +72,14 @@ const HeadCellText = styled(BodyText)`
 const AppointmentColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding-block: 0.5rem;
   gap: 0.5rem;
 `;
 
 const StatusText = styled(BodyText)`
-  width: 100%;
+  inline-size: 100%;
   text-align: center;
-  padding-top: 1rem;
+  padding-block-start: 1rem;
   font-weight: 500;
   color: ${Colors.primary};
 `;
@@ -99,12 +101,14 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 `;
 
 export const HeadCell = ({ title, count }) => (
-  <HeadCellWrapper>
-    <HeadCellTextWrapper>
-      <ThemedTooltip title={title}>
-        <HeadCellText>{title}</HeadCellText>
-      </ThemedTooltip>
-    </HeadCellTextWrapper>
+  <>
+    <HeadCellWrapper>
+      <HeadCellTextWrapper>
+        <ThemedTooltip title={title}>
+          <HeadCellText>{title}</HeadCellText>
+        </ThemedTooltip>
+      </HeadCellTextWrapper>
+    </HeadCellWrapper>
     <AppointmentNumber>
       {Number.isInteger(count) && (
         <>
@@ -125,7 +129,7 @@ export const HeadCell = ({ title, count }) => (
         </>
       )}
     </AppointmentNumber>
-  </HeadCellWrapper>
+  </>
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
@@ -169,6 +173,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       flex={1}
     >
       {headData?.map(cell => {
+        console.log(cell);
         const appointments = cellData[cell.id];
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
