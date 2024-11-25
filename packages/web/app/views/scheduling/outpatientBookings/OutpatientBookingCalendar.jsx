@@ -52,7 +52,7 @@ const AppointmentCountLabel = styled(SmallBodyText)`
   color: ${Colors.midText};
   inline-size: 100%;
   letter-spacing: 0.02em;
-  padding-inline: 0.5rem;
+  padding-inline: 0.8125rem;
   text-align: end;
 `;
 
