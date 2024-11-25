@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import styled from 'styled-components';
 
-import { Colors } from '../../../constants/index';
+import { Colors } from '../../../constants';
 import {
   APPOINTMENT_CALENDAR_CLASS,
   BodyText,
@@ -24,11 +24,13 @@ export const ColumnWrapper = styled(Box)`
   > * {
     padding-inline: 0.5rem;
   }
+
+  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
   &:not(:first-child) {
-    border-inline-start: max(0.0625rem, 1px) solid ${Colors.outline};
+    border-inline-start: var(--border-style);
   }
   &:last-child {
-    border-inline-end: max(0.0625rem, 1px) solid ${Colors.outline};
+    border-inline-end: var(--border-style);
   }
 `;
 
@@ -44,13 +46,20 @@ const HeadCellWrapper = styled(Box)`
   text-align: center;
 `;
 
-const AppointmentNumber = styled(Box)`
-  inline-size: 100%;
-  display: flex;
-  justify-content: flex-end;
+const AppointmentCountLabel = styled(SmallBodyText)`
   block-size: 1.1rem;
-  gap: 0.25rem;
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  color: ${Colors.midText};
+  inline-size: 100%;
+  letter-spacing: 0.02em;
+  padding-inline: 0.5rem;
+  text-align: end;
+`;
+
+const AppointmentCount = styled('span')`
+  color: ${Colors.darkestText};
+  display: contents;
+  font-weight: 500;
 `;
 
 const HeadCellTextWrapper = styled(Box)`
@@ -109,26 +118,24 @@ export const HeadCell = ({ title, count }) => (
         </ThemedTooltip>
       </HeadCellTextWrapper>
     </HeadCellWrapper>
-    <AppointmentNumber>
+    <AppointmentCountLabel>
       {Number.isInteger(count) && (
         <>
-          <SmallBodyText>{count}</SmallBodyText>&nbsp;
-          <SmallBodyText color="textTertiary">
-            {count === 1 ? (
-              <TranslatedText
-                stringId="appointments.outpatientCalendar.appointmentAbbreviation"
-                fallback="appt"
-              />
-            ) : (
-              <TranslatedText
-                stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
-                fallback="appts"
-              />
-            )}
-          </SmallBodyText>
+          <AppointmentCount>{count}</AppointmentCount>&nbsp;
+          {count === 1 ? (
+            <TranslatedText
+              stringId="appointments.outpatientCalendar.appointmentAbbreviation"
+              fallback="appt"
+            />
+          ) : (
+            <TranslatedText
+              stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
+              fallback="appts"
+            />
+          )}
         </>
       )}
-    </AppointmentNumber>
+    </AppointmentCountLabel>
   </>
 );
 
