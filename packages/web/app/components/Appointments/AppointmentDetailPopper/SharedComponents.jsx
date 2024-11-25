@@ -19,8 +19,8 @@ export const H3 = styled('h3')`
 `;
 
 const Paragraph = styled('p')`
-  margin-block: 0;
   letter-spacing: 0.015em;
+  margin-block: 0;
 `;
 
 const InlineParagraph = styled(Paragraph)`
