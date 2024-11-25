@@ -76,7 +76,7 @@ COPY --from=build-frontend /app/packages/web/dist/ .
 
 
 ## Toolbox image
-FROM rust AS build-toolbox
+FROM rust AS build-bestool
 RUN cargo install bestool --no-default-features \
   -F completions \
   -F crypto \
@@ -84,8 +84,6 @@ RUN cargo install bestool --no-default-features \
   -F walg
 
 FROM ubuntu AS toolbox
-
-# tooling
 RUN apt update && apt install -y --no-install-recommends \
   age \
   ca-certificates \
@@ -94,6 +92,8 @@ RUN apt update && apt install -y --no-install-recommends \
   jq \
   minisign \
   neovim \
+  pipx \
+  postgresql-client \
   ripgrep \
   wget \
   zstd
@@ -102,7 +102,10 @@ RUN \
     "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
   && dpkg -i step-cli.deb \
   && rm step-cli.deb
-
-# bestool and standard alerts
-COPY --from=build-toolbox /usr/local/cargo/bin/bestool /usr/bin/bestool
+RUN \
+  pipx ensurepath \
+  && pipx install dbt-core \
+  && pipx inject dbt-core dbt-postgres
+COPY --from=build-bestool /usr/local/cargo/bin/bestool /usr/bin/bestool
 COPY alerts /alerts
+COPY database /database
