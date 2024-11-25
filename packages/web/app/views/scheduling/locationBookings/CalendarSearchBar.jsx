@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@mui/system/styled';
-import queryString from 'query-string';
-import { useLocation } from 'react-router-dom';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
@@ -17,16 +15,10 @@ const SearchBar = styled('search')`
 
 const FormListener = ({ onFilterChange }) => {
   const { values } = useFormikContext();
-  const { search } = useLocation();
 
   useEffect(() => {
-    const { clinicianId } = queryString.parse(search);
-    if (clinicianId) {
-      onFilterChange({ clinicianId: [clinicianId] });
-      return;
-    }
     onFilterChange(values);
-  }, [values, onFilterChange, search]);
+  }, [values, onFilterChange]);
 
   return null;
 };

@@ -55,6 +55,7 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
       {showOutpatientAppointments && (
         <ContentPane>
           <OutpatientAppointmentsTable patient={patient} />
+        </ContentPane>
       )}
       {showLocationBookings && (
         <ContentPane>
@@ -70,7 +71,6 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
       />
-      {showLocationBookings && <LocationBookingsTable patient={patient} />}
     </>
   );
 });
