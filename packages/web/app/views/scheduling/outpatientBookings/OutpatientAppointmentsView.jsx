@@ -130,11 +130,6 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <OutpatientAppointmentDrawer
-        initialValues={selectedAppointment}
-        onClose={handleCloseDrawer}
-        open={drawerOpen}
-      />
       <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
@@ -159,6 +154,11 @@ export const OutpatientAppointmentsView = () => {
             onOpenDrawer={handleOpenDrawer}
             groupBy={groupBy}
             selectedDate={selectedDate}
+          />
+          <OutpatientAppointmentDrawer
+            initialValues={selectedAppointment}
+            onClose={handleCloseDrawer}
+            open={drawerOpen}
           />
         </CalendarInnerWrapper>
       </CalendarWrapper>

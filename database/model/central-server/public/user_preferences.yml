@@ -42,3 +42,9 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_preferences."
             data_tests:
               - not_null
+          - name: location_booking_filters
+            data_type: jsonb
+            description: "{{ doc('user_preferences__location_booking_filters') }}"
+          - name: encounter_tab_orders
+            data_type: jsonb
+            description: "{{ doc('user_preferences__encounter_tab_orders') }}"

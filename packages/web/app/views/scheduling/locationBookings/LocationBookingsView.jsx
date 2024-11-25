@@ -1,19 +1,20 @@
+import { Typography } from '@material-ui/core';
+import { AddRounded } from '@material-ui/icons';
+import { omit } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { useLocationsQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { Typography } from '@material-ui/core';
-import { LocationBookingsCalendar } from './LocationBookingsCalendar';
-import { CalendarSearchBar } from './CalendarSearchBar';
-import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
-import { AddRounded } from '@material-ui/icons';
-import { useAuth } from '../../../contexts/Auth';
-import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
-import { omit } from 'lodash';
+import { useLocationsQuery } from '../../../api/queries';
+import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
+import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
+import { Colors } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { CalendarSearchBar } from './CalendarSearchBar';
+import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { appointmentToFormValues } from './utils';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -75,13 +76,13 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = initialValues => {
-    setSelectedAppointment(initialValues);
+  const openBookingForm = prepopulationValues => {
+    setSelectedAppointment(prepopulationValues);
     setIsDrawerOpen(true);
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointment);
+    setSelectedAppointment(appointmentToFormValues(appointment));
     setIsCancelModalOpen(true);
   };
 
@@ -120,15 +121,15 @@ export const LocationBookingsView = () => {
           openCancelModal={openCancelModal}
         />
       )}
-      <BookLocationDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+      />
+      <LocationBookingDrawer
+        initialValues={selectedAppointment}
+        open={isDrawerOpen}
+        onClose={closeBookingForm}
       />
     </Wrapper>
   );
