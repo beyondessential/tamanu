@@ -1,10 +1,10 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { format, isSameDay, parseISO } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
@@ -38,7 +38,7 @@ const Tile = styled(UnstyledHtmlButton)`
     background-color: var(--bg-darker);
   }
 
-  ${({ $color = Colors.blue, $selected }) =>
+  ${({ $color = Colors.blue, $selected = false }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
       --bg-darker: oklch(from ${$color} l c h / 20%);
@@ -65,10 +65,10 @@ const Timestamp = ({ date }) => (
 );
 
 const Label = styled.span`
-  padding-inline-start: 0.3125rem;
   overflow: hidden;
-  white-space: nowrap;
+  padding-inline-start: 0.3125rem;
   text-overflow: ellipsis;
+  white-space: nowrap;
 
   ${props =>
     props.$strikethrough &&
@@ -106,15 +106,18 @@ export const AppointmentTile = ({
   useEffect(() => {
     const { appointmentId } = queryString.parse(location.search);
     if (appointmentId && appointmentId === appointment.id) {
-      setOpen(true);
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        setOpen(true)
+        ref.current.scrollIntoView({ block: 'center' });
+      });
     }
-  }, [location.search]);
+  }, [appointment.id, location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
+  const isLocationBooking = !!appointment.location;
+  const isOvernight = isLocationBooking && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -165,6 +168,8 @@ export const AppointmentTile = ({
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
         actions={actions}
+        // px conversions of height / width from CarouselComponents
+        preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
       />
     </>
   );

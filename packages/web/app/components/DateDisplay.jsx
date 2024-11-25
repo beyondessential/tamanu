@@ -158,19 +158,20 @@ export const getDateDisplay = (
 
 export const DateDisplay = React.memo(
   ({
+    color = 'currentcolor',
     date: dateValue,
-    timeOnlyTooltip = false,
-    color = 'unset',
     fontWeight,
     noTooltip = false,
+    timeOnlyTooltip = false,
     ...props
   }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
-    const dateObj = parseDate(dateValue);
 
     if (noTooltip) {
       return <span style={{ color, fontWeight }}>{displayDateString}</span>;
     }
+
+    const dateObj = parseDate(dateValue);
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
         <span style={{ color, fontWeight }}>{displayDateString}</span>
@@ -193,7 +194,7 @@ export const MultilineDatetimeDisplay = React.memo(
 
 export const TimeRangeDisplay = ({ range: { start, end } }) => (
   <>
-    {format(start, 'h:mma').toLowerCase()}&nbsp;&ndash; {format(end, 'h:mma').toLowerCase()}
+    {format(start, 'h:mmaaa')}&nbsp;&ndash; {format(end, 'h:mmaaa')}
   </>
 );
 
