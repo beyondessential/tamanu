@@ -102,7 +102,7 @@
     "socket.io-client": "^4.7.5",
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
-    "typeorm": "^0.2.31",
+    "typeorm": "^0.3.20",
     "yup": "^0.28.5"
   },
   "devDependencies": {
