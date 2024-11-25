@@ -208,7 +208,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         label={
           <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
         }
-        value={additionalData?.primaryContactNumber}
+        value={additionalData?.primaryContactNumber || null}
       />
       <PatientId>{displayId}</PatientId>
     </PatientDetailsContainer>
