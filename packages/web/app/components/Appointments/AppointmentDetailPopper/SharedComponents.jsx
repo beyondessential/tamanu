@@ -29,7 +29,7 @@ const InlineParagraph = styled(Paragraph)`
 
 export const InlineDetailsDisplay = ({ label, value }) => (
   <InlineParagraph>
-    <strong>{label}: </strong> {value ?? <>&mdash;</>}
+    <strong>{label}: </strong> {value || <>&mdash;</>}
   </InlineParagraph>
 );
 
@@ -37,7 +37,7 @@ export const DetailsDisplay = ({ label, value }) => {
   return (
     <FlexCol>
       <H3>{label}</H3>
-      <Paragraph>{value ?? <>&mdash;</>}</Paragraph>
+      <Paragraph>{value || <>&mdash;</>}</Paragraph>
     </FlexCol>
   );
 };
