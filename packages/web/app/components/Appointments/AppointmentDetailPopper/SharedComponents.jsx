@@ -14,7 +14,7 @@ const H3 = styled('h3')`
 `;
 
 const Paragraph = styled('p')`
-  letter-spacing: 0.015em;
+  letter-spacing: 0.01em;
   margin-block: 0;
 `;
 
