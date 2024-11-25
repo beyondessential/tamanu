@@ -29,6 +29,33 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
+const getDescription = (isEdit, isLockedPatient) => {
+  if (isEdit) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.edit.description"
+        fallback="Modify the selected appointment below"
+      />
+    );
+  }
+
+  if (isLockedPatient) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.newForPatient.description"
+        fallback="Complete appointment details below to create a new appointment for the selected patient."
+      />
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="outpatientAppointment.form.new.description"
+      fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+    />
+  );
+};
+
 export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -114,7 +141,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('bookableLocationGroup');
 
-  const isEdit = !!(initialValues.id && initialValues.startTime);
+  const isEdit = !!initialValues.id;
+  const isLockedPatient = !!initialValues.patientId;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -171,19 +199,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             />
           )
         }
-        description={
-          isEdit ? (
-            <TranslatedText
-              stringId="outpatientAppointment.form.edit.description"
-              fallback="Modify the selected appointment below"
-            />
-          ) : (
-            <TranslatedText
-              stringId="outpatientAppointment.form.new.description"
-              fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-            />
-          )
-        }
+        description={getDescription(isEdit, isLockedPatient)}
       >
         <FormGrid columns={1}>
           <Field
@@ -195,7 +211,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             )}
             component={AutocompleteField}
             suggester={patientSuggester}
-            disabled={isEdit}
+            disabled={isLockedPatient}
             required
           />
           <Field
