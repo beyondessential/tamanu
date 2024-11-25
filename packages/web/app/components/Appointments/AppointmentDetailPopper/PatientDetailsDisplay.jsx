@@ -10,12 +10,14 @@ import { InlineDetailsDisplay } from './SharedComponents';
 const Header = styled('header')`
   border-start-end-radius: 0.3125rem;
   border-start-start-radius: 0.3125rem;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  transition: background-color 150ms ease;
+
   &:hover {
     background-color: ${Colors.veryLightBlue};
-    cursor: pointer;
   }
 `;
 
