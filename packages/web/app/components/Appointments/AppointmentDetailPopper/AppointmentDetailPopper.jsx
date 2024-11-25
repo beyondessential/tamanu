@@ -15,7 +15,7 @@ import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 import { CheckInButton } from './CheckInButton';
 
-export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
+export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
 const StyledPaper = styled(Paper)`
   color: ${Colors.darkestText};
@@ -47,6 +47,7 @@ export const AppointmentDetailPopper = ({
   onClose,
   onEdit,
   open = false,
+  preventOverflowPadding = {},
 }) => {
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
@@ -59,7 +60,7 @@ export const AppointmentDetailPopper = ({
   }, [dispatch, patientId]);
 
   const handleClickAway = e => {
-    if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
+    if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
 
@@ -78,7 +79,7 @@ export const AppointmentDetailPopper = ({
         altBoundary: true,
         tether: false,
         rootBoundary: 'document',
-        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+        padding: preventOverflowPadding,
       },
     },
   ];

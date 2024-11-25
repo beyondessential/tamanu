@@ -32,7 +32,6 @@ const PrimaryDetails = styled('div')`
   column-gap: var(--_gap);
 
   > * + * {
-    //margin-inline-start: var(--_gap);
     padding-inline-start: var(--_gap);
     border-inline-start: max(0.0625rem, 1px) solid currentcolor;
   }
@@ -66,14 +65,12 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </PrimaryDetails>
-      {additionalData?.primaryContactNumber && (
-        <InlineDetailsDisplay
-          label={
-            <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
-          }
-          value={additionalData.primaryContactNumber}
-        />
-      )}
+      <InlineDetailsDisplay
+        label={
+          <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
+        }
+        value={additionalData?.primaryContactNumber}
+      />
       <PatientId>{displayId}</PatientId>
     </Header>
   );
