@@ -41,14 +41,14 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
       onSuccess: () =>
         toast.success(
           <TranslatedText
-            stringId="scheduling.success.encounterCreated"
+            stringId="scheduling.action.changeStatus.success"
             fallback="Appointment status updated"
           />,
         ),
       onError: () =>
         toast.error(
           <TranslatedText
-            stringId="schedule.error.updateStatus"
+            stringId="scheduling.action.changeStatus.error"
             fallback="Couldn’t update appointment status"
           />,
         ),
