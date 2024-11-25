@@ -49,11 +49,6 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in invoice_payments."
-          - name: updated_at_sync_tick
-            data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_payments."
-            data_tests:
-              - not_null
           - name: updated_by_user_id
             data_type: character varying(255)
             description: "{{ doc('invoice_payments__updated_by_user_id') }}"
@@ -61,3 +56,8 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_payments."
+            data_tests:
+              - not_null

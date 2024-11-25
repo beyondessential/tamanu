@@ -100,3 +100,8 @@ sources:
           - name: specimen
             data_type: jsonb
             description: "{{ doc('fhir__service_requests__specimen') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in service_requests."
+            data_tests:
+              - not_null
