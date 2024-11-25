@@ -49,7 +49,7 @@ export const CheckInButton = ({ appointment }) => {
         closeModal();
         toast.success(
           <TranslatedText
-            stringId="scheduling.success.encounterCreated"
+            stringId="scheduling.action.createEncounter.success"
             fallback="Encounter successfully started"
           />,
         );
@@ -57,7 +57,7 @@ export const CheckInButton = ({ appointment }) => {
       onError: () =>
         toast.error(
           <TranslatedText
-            stringId="schedule.error.updateStatus"
+            stringId="scheduling.action.createEncounter.error"
             fallback="Couldn’t start encounter"
           />,
         ),
