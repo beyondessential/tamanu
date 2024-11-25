@@ -4,28 +4,54 @@ import { execFileSync } from 'child_process';
 function cleanupLeadingGarbage(jsonStr) {
   if (jsonStr.startsWith('{')) return jsonStr;
 
-  // strangest thing ever, in some environments the yarn output starts with a bunch of garbage
-  // that looks like this: `\x1b[2K\x1b[G` before the first {, so we need to strip it out
+  // some environments come with garbage characters at the beginning
   const firstOpenBrace = jsonStr.indexOf('{');
   if (firstOpenBrace === -1) return jsonStr;
   return jsonStr.slice(firstOpenBrace);
 }
 
+function extractDependencyTree(workspaceTree, workspaces) {
+  const dependencyTree = {};
+
+  Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
+    let dependencies = []
+    if (info.dependencies) {
+      dependencies = Object.keys(info.dependencies).filter(dependency =>
+        workspaces.has(dependency),
+      );
+    }
+    dependencyTree[workspace] = dependencies;
+  });
+
+  return dependencyTree;
+}
+
+function extractLocation(resolvedPath) {
+  const packageIndex = resolvedPath.indexOf('packages');
+  return resolvedPath.slice(packageIndex);
+}
+
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(execFileSync('yarn', ['-s', 'workspaces', 'info'], { encoding: 'utf8' })),
+    cleanupLeadingGarbage(
+      execFileSync('npm', ['ls', '--workspaces', '--json'], { encoding: 'utf8' }),
+    ),
   );
-  const workspaces = new Set(Object.keys(workspaceTree));
+
+  const workspaces = new Set(Object.keys(workspaceTree.dependencies));
   const processed = new Set();
 
-  const packagesThatAreDependedOn = new Set(
-    Object.values(workspaceTree).flatMap(({ workspaceDependencies }) => workspaceDependencies),
-  );
+  const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
+  const packagesThatAreDependedOn = new Set(Object.values(dependencyTree).flat());
 
   while (processed.size < workspaces.size) {
     for (const workspace of workspaces) {
       if (processed.has(workspace)) continue;
-      const { location, workspaceDependencies } = workspaceTree[workspace];
+
+      const { resolved } = workspaceTree.dependencies[workspace];
+      const location = extractLocation(resolved);
+      const workspaceDependencies = dependencyTree[workspace];
+
       if (workspaceDependencies.every(dep => processed.has(dep))) {
         processed.add(workspace);
 

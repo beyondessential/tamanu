@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { camelCase } from 'lodash';
 import PropTypes from 'prop-types';
-import * as yup from 'yup';
-import shortid from 'shortid';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { foreignKey } from '../utils/validation';
-import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
-import { useEncounter } from '../contexts/Encounter';
-import { reloadImagingRequest } from '../store';
-import { useLocalisation } from '../contexts/Localisation';
-import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
+import shortid from 'shortid';
+import * as yup from 'yup';
 
+import { IMAGING_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
+import { FormCancelButton } from '../components/Button';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   AutocompleteField,
   DateTimeField,
@@ -24,14 +23,19 @@ import {
   TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FormCancelButton } from '../components/Button';
-import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
-import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  getReferenceDataStringId,
+} from '../components/Translation';
+import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
+import { useEncounter } from '../contexts/Encounter';
+import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
-import { IMAGING_TYPES } from '@tamanu/constants';
-import { renderToText } from '../utils';
-import { camelCase } from 'lodash';
+import { reloadImagingRequest } from '../store';
+import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { foreignKey } from '../utils/validation';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -43,30 +47,22 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
-  const dispatch = useDispatch();
+const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
   const { loadEncounter } = useEncounter();
+  const dispatch = useDispatch();
   const { navigateToImagingRequest } = usePatientNavigation();
-  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
-
-  // Transition to print page as soon as we have the generated id
-  useEffect(() => {
-    (async () => {
-      if (awaitingPrintRedirect && requestId) {
-        await dispatch(reloadImagingRequest(requestId));
-        navigateToImagingRequest(requestId, 'print');
-      }
-    })();
-  }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
 
   const finalise = async data => {
+    setOnSuccess(() => () => loadEncounter(encounter.id));
     await submitForm(data);
-    await loadEncounter(encounter.id);
   };
   const finaliseAndPrint = async data => {
+    setOnSuccess(() => async newRequest => {
+      const requestId = newRequest.id;
+      await dispatch(reloadImagingRequest(requestId));
+      navigateToImagingRequest(requestId, 'print');
+    });
     await submitForm(data);
-    // We can't transition pages until the imaging req is fully submitted
-    setAwaitingPrintRedirect(true);
   };
 
   const actions = [
@@ -90,10 +86,10 @@ export const ImagingRequestForm = React.memo(
     practitionerSuggester,
     onCancel,
     encounter = {},
-    requestId,
     onSubmit,
     editedObject,
     generateId = shortid.generate,
+    setOnSuccess,
   }) => {
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
@@ -247,11 +243,10 @@ export const ImagingRequestForm = React.memo(
                     .map(({ id, name, type }) => ({
                       label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
                       value: id,
+                      searchString: getTranslation(getReferenceDataStringId(id, type), name),
                     }))
                     .sort((area1, area2) => {
-                      const str1 = renderToText(area1.label);
-                      const str2 = renderToText(area2.label);
-                      return str1.localeCompare(str2);
+                      return area1.searchString.localeCompare(area2.searchString);
                     })}
                   name="areas"
                   label={
@@ -290,8 +285,8 @@ export const ImagingRequestForm = React.memo(
                   <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                 </FormCancelButton>
                 <FormSubmitActionDropdown
-                  requestId={requestId}
                   encounter={encounter}
+                  setOnSuccess={setOnSuccess}
                   submitForm={submitForm}
                 />
               </ButtonRow>

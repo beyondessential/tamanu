@@ -1,15 +1,14 @@
 import React from 'react';
 
 import {
-  ATTENDANT_OF_BIRTH_OPTIONS,
+  ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
-  PLACE_OF_BIRTH_OPTIONS,
+  PLACE_OF_BIRTH_LABELS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 import {
   AutocompleteField,
-  SelectField,
   TextField,
   TimeField,
   TranslatedSelectField,
@@ -43,15 +42,14 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
       ),
     },
     registeredBirthPlace: {
-      component: SelectField,
-      options: PLACE_OF_BIRTH_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: PLACE_OF_BIRTH_LABELS,
       label: (
         <TranslatedText
           stringId="general.localisedField.registeredBirthPlace.label"
           fallback="Place of birth"
         />
       ),
-      prefix: 'localisedField.property.registeredBirthPlace',
     },
     birthFacilityId: {
       component: AutocompleteField,
@@ -65,15 +63,14 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
       ),
     },
     attendantAtBirth: {
-      component: SelectField,
-      options: ATTENDANT_OF_BIRTH_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: ATTENDANT_OF_BIRTH_LABELS,
       label: (
         <TranslatedText
           stringId="general.localisedField.attendantAtBirth.label"
           fallback="Attendant at birth"
         />
       ),
-      prefix: 'localisedField.property.attendantAtBirth',
     },
     nameOfAttendantAtBirth: {
       component: TextField,

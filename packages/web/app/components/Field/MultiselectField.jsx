@@ -93,9 +93,10 @@ const getValues = value => {
   return Array.isArray(value) ? value : JSON.parse(value);
 };
 
-// Match only by label unless that label is not readable
-const searchByLabel = option => {
+const getSearchBy = option => {
+  if (option.data.searchString) return option.data.searchString;
   if (typeof option.label === 'string') return option.label;
+
   return option.value;
 };
 
@@ -179,7 +180,7 @@ export const MultiselectInput = ({
           hideSelectedOptions={false}
           filterOption={createFilter({
             matchFrom: 'any',
-            stringify: searchByLabel,
+            stringify: getSearchBy,
           })}
           components={{
             DropdownIndicator: SelectDropdownIndicator,

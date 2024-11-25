@@ -1,0 +1,67 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: sync_sessions
+        description: '{{ doc("table__sync_sessions") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in sync_sessions."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in sync_sessions."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in sync_sessions."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in sync_sessions."
+          - name: start_time
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__start_time') }}"
+            data_tests:
+              - not_null
+          - name: last_connection_time
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__last_connection_time') }}"
+            data_tests:
+              - not_null
+          - name: snapshot_completed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__snapshot_completed_at') }}"
+          - name: debug_info
+            data_type: json
+            description: "{{ doc('sync_sessions__debug_info') }}"
+          - name: completed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__completed_at') }}"
+          - name: persist_completed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__persist_completed_at') }}"
+          - name: pull_since
+            data_type: bigint
+            description: "{{ doc('sync_sessions__pull_since') }}"
+          - name: pull_until
+            data_type: bigint
+            description: "{{ doc('sync_sessions__pull_until') }}"
+          - name: started_at_tick
+            data_type: bigint
+            description: "{{ doc('sync_sessions__started_at_tick') }}"
+          - name: snapshot_started_at
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__snapshot_started_at') }}"
+          - name: errors
+            data_type: array
+            description: "{{ doc('sync_sessions__errors') }}"

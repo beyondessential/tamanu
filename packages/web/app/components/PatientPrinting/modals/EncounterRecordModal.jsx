@@ -107,11 +107,7 @@ const getDateTitleArray = date => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { getTranslation } = useTranslation();
-  const clinicianText = getTranslation(
-    'general.localisedField.clinician.label.short',
-    'Clinician',
-  ).toLowerCase();
+  const { translations, storedLanguage, getTranslation } = useTranslation();
   const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
@@ -288,7 +284,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return [
       {
         key: 'measure',
-        title: 'Measure',
+        title: getTranslation('vitals.table.column.measure', 'Measure'),
         accessor: ({ value }) => value,
         style: { width: 140 },
       },
@@ -322,12 +318,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={imagingRequests}
+          language={storedLanguage}
           notes={displayNotes}
           discharge={discharge}
           village={village}
           medications={medications}
           getLocalisation={getLocalisation}
-          clinicianText={clinicianText}
+          translations={translations}
         />
       </PDFLoader>
     </Modal>

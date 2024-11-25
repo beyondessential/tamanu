@@ -1,0 +1,68 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_field_definitions
+        description: '{{ doc("table__patient_field_definitions") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_field_definitions."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_field_definitions."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_field_definitions."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_field_definitions."
+          - name: name
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__name') }}"
+            data_tests:
+              - not_null
+          - name: field_type
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__field_type') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - string
+                    - number
+                    - select
+          - name: options
+            data_type: array
+            description: "{{ doc('patient_field_definitions__options') }}"
+          - name: visibility_status
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null
+          - name: category_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__category_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'patient_field_definition_categories')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null

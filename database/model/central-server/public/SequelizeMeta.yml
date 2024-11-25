@@ -1,0 +1,16 @@
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: SequelizeMeta
+        description: '{{ doc("table__SequelizeMeta") }}'
+        tags:
+          - system
+        columns:
+          - name: name
+            data_type: character varying(255)
+            description: "{{ doc('SequelizeMeta__name') }}"
+            data_tests:
+              - unique
+              - not_null

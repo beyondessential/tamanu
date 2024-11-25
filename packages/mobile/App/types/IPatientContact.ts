@@ -6,7 +6,6 @@ export interface IPatientContact {
   name: string;
   method: string;
   connectionDetails?: string;
-  deletionStatus?: string;
   patient: IPatient;
   patientId?: string;
   relationship: IReferenceData;

@@ -1,0 +1,75 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: facilities
+        description: '{{ doc("table__facilities") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in facilities."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in facilities."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in facilities."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in facilities."
+          - name: code
+            data_type: character varying(255)
+            description: "{{ doc('facilities__code') }}"
+            data_tests:
+              - not_null
+          - name: name
+            data_type: character varying(255)
+            description: "{{ doc('facilities__name') }}"
+            data_tests:
+              - not_null
+          - name: division
+            data_type: character varying(255)
+            description: "{{ doc('facilities__division') }}"
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('facilities__type') }}"
+          - name: email
+            data_type: character varying(255)
+            description: "{{ doc('facilities__email') }}"
+          - name: contact_number
+            data_type: character varying(255)
+            description: "{{ doc('facilities__contact_number') }}"
+          - name: city_town
+            data_type: character varying(255)
+            description: "{{ doc('facilities__city_town') }}"
+          - name: street_address
+            data_type: character varying(255)
+            description: "{{ doc('facilities__street_address') }}"
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in facilities."
+            data_tests:
+              - accepted_values:
+                  values:
+                    - current
+                    - historical
+          - name: catchment_id
+            data_type: text
+            description: "{{ doc('facilities__catchment_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'catchment'
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in facilities."
+            data_tests:
+              - not_null

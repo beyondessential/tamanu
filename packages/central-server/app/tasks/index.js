@@ -23,6 +23,7 @@ import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunic
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
 import { SyncLookupRefresher } from './SyncLookupRefresher';
+import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -44,6 +45,7 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
     SurveyCompletionNotifierProcessor,
     SyncLookupRefresher,
+    GenerateRepeatingTasks
   ];
 
   if (config.integrations.fijiVrs.enabled) {

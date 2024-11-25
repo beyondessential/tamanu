@@ -1,0 +1,58 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: ips_requests
+        description: '{{ doc("table__ips_requests") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in ips_requests."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in ips_requests."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in ips_requests."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in ips_requests."
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__patient_id') }}"
+            data_tests:
+              - not_null
+          - name: created_by
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__created_by') }}"
+            data_tests:
+              - not_null
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__status') }}"
+            data_tests:
+              - not_null
+          - name: email
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__email') }}"
+            data_tests:
+              - not_null
+          - name: error
+            data_type: text
+            description: "{{ doc('ips_requests__error') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in ips_requests."
+            data_tests:
+              - not_null

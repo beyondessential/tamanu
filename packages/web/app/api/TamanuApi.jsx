@@ -213,11 +213,12 @@ export class TamanuApi extends ApiClient {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         notifyError([
-          <TranslatedText
-            key="general.api.notification.requestFailed"
-            stringId="general.api.notification.requestFailed"
-            fallback="Network request failed"
-          />,
+          <b key="general.api.notification.requestFailed">
+            <TranslatedText
+              stringId="general.api.notification.requestFailed"
+              fallback="Network request failed"
+            />
+          </b>,
           <TranslatedText
             key="general.api.notification.path"
             stringId="general.api.notification.path"

@@ -14,6 +14,7 @@ export const SUGGESTER_ENDPOINTS = [
   'facilityLocationGroup',
   'invoiceProducts',
   'location',
+  'multiReferenceData',
   'patient',
   'patientLabTestCategories',
   'patientLabTestPanelTypes',

@@ -57,13 +57,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
-        cache: yarn
+        cache: npm
 
     - uses: chainguard-dev/actions/setup-gitsign@main
     - name: Autolint
       run: |
-        yarn install --frozen-lockfile
-        yarn lint-fix || true
+        npm install --package-lock
+        npm run lint-fix || true
     - name: Commit and push
       run: |
         git config user.name github-actions

@@ -1,0 +1,1 @@
+../../central-server/public/program_registry_conditions.md

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
-import CameraRoll from '@react-native-community/cameraroll';
+import CameraRoll from '@react-native-camera-roll/camera-roll';
 import Modal from 'react-native-modal';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { useBackend } from '~/ui/hooks';
