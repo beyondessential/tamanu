@@ -46,6 +46,7 @@ ARG PACKAGE_PATH
 # copy the built packages and their deps
 COPY --from=build-server /app/packages/ packages/
 COPY --from=build-server /app/node_modules/ node_modules/
+COPY alerts alerts/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
