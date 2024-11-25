@@ -15,18 +15,17 @@ import { AppointmentTile } from '../../../components/Appointments/AppointmentTil
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
-export const CELL_WIDTH_PX = 224;
-
 export const ColumnWrapper = styled(Box)`
+  --_column-width: 14rem;
   display: flex;
   flex-direction: column;
-  width: ${CELL_WIDTH_PX}px;
+  inline-size: var(--_column-width);
   min-block-size: max-content;
   &:not(:first-child) {
-    border-inline-start: 1px solid ${Colors.outline};
+    border-inline-start: max(0.0625rem, 1px) solid ${Colors.outline};
   }
   &:last-child {
-    border-inline-end: 1px solid ${Colors.outline};
+    border-inline-end: max(0.0625rem, 1px) solid ${Colors.outline};
   }
 `;
 
@@ -38,7 +37,7 @@ const HeadCellWrapper = styled(Box)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(${CELL_WIDTH_PX}px - 2px);
+  width: calc(var(--_column-width) - 2px);
   text-align: center;
 `;
 
@@ -49,7 +48,7 @@ const AppointmentNumber = styled(Box)`
   height: 1.1rem;
   gap: 0.25rem;
   padding-inline-end: 1rem;
-  border-block: 1px solid ${Colors.outline};
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const HeadCellTextWrapper = styled(Box)`
