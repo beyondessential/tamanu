@@ -173,7 +173,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       flex={1}
     >
       {headData?.map(cell => {
-        console.log(cell);
         const appointments = cellData[cell.id];
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
