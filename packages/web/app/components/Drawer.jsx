@@ -1,16 +1,30 @@
-import MuiDrawer from '@mui/material/Drawer';
+import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
 import { ClearIcon } from './Icons';
-import { TOP_BAR_HEIGHT } from './TopBar';
 import { BodyText, Heading4 } from './Typography';
 
-const Container = styled.div`
-  background-color: ${Colors.background};
-  inline-size: 20.625rem;
-  min-block-size: 100%;
+const StyledCollapse = styled(Collapse)`
+  &.${collapseClasses.root} {
+    z-index: 20;
+    background-color: ${Colors.background};
+    min-block-size: 100%;
+    overflow-y: auto;
+    padding-block: 0 1rem;
+    position: relative;
+
+    // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
+    &:not(.${collapseClasses.hidden}) {
+      border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
+    }
+  }
+`;
+
+const Wrapper = styled.div`
+  inline-size: 21rem;
+  block-size: 100%;
   overflow-y: auto;
   padding-block: 0 1rem;
   padding-inline: 1rem;
@@ -37,13 +51,6 @@ const Description = styled(BodyText)`
   margin-block-end: 1rem;
 `;
 
-const StyledDrawer = styled(MuiDrawer)`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
-    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
-  }
-`;
-
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
   inset-block-start: 1rem;
@@ -53,27 +60,20 @@ const CloseDrawerIcon = styled(ClearIcon)`
 
 export const Drawer = ({
   open,
-  PaperProps = {},
-  className,
   onClose,
   title,
   description,
   children,
+  orientation = 'horizontal',
+  ...props
 }) => {
   const topRef = useRef(null);
 
   useEffect(() => topRef.current.scrollIntoView(), [open]);
 
   return (
-    <StyledDrawer
-      PaperProps={PaperProps}
-      className={className}
-      variant="persistent"
-      anchor="right"
-      open={open}
-      onClose={onClose}
-    >
-      <Container columns={1}>
+    <StyledCollapse in={open} orientation={orientation} {...props}>
+      <Wrapper>
         <div ref={topRef} aria-hidden />
         <Title>
           {title}
@@ -81,7 +81,7 @@ export const Drawer = ({
         </Title>
         <Description>{description}</Description>
         {children}
-      </Container>
-    </StyledDrawer>
+      </Wrapper>
+    </StyledCollapse>
   );
 };
