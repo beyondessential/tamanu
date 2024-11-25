@@ -37,5 +37,7 @@ export * from './webSocket.js';
 export * from './enumRegistry.js';
 export * from './materializedView.js';
 export * from './database.js';
+export * from './tasks.js';
 export * from './debugLog.js';
 export * from './scheduling.js';
+export * from './notifications.js';

@@ -1,22 +1,44 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { isSameDay, parseISO } from 'date-fns';
-import React, { useRef, useState } from 'react';
+import { format, isSameDay, parseISO } from 'date-fns';
+import queryString from 'query-string';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
-import { formatTime } from '../DateDisplay';
+import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
+import { ThemedTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
 } from './appointmentStatusIndicators';
 
-const Wrapper = styled.div`
-  ${({ $color = Colors.blue, $selected }) =>
+const Tile = styled(UnstyledHtmlButton)`
+  align-items: center;
+  background-color: var(--bg-lighter);
+  border-color: transparent;
+  border-radius: 0.3125rem;
+  border-style: solid;
+  border-width: max(0.0625rem, 1px);
+  color: ${Colors.darkestText};
+  cursor: pointer;
+  display: grid;
+  gap: 0.3125rem;
+  grid-template-columns: 1fr auto;
+  padding-block: 0.5rem;
+  padding-inline: 0.3125rem;
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  &:hover {
+    background-color: var(--bg-darker);
+  }
+
+  ${({ $color = Colors.blue, $selected = false }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
       --bg-darker: oklch(from ${$color} l c h / 20%);
@@ -26,37 +48,27 @@ const Wrapper = styled.div`
         --bg-darker: ${$color}33;
       }
 
-      border-color: ${$color};
-
-      border: 1px solid transparent;
-
       ${$selected &&
         css`
-          border: 1px solid ${$color};
           background-color: var(--bg-darker);
+          border-color: ${$color};
         `}
     `}
-
-  background-color: var(--bg-lighter);
-  border-radius: 0.3125rem;
-  color: ${Colors.darkestText};
-  cursor: pointer;
-  display: grid;
-  gap: 0.3125rem;
-  grid-template-columns: 1fr auto;
-  padding-block: 0.5rem;
-  padding-inline: 0.3125rem;
-  text-decoration-thickness: from-font;
-  transition: background-color 150ms ease;
-  touch-action: manipulation;
-
-  &:hover {
-    background-color: var(--bg-darker);
-  }
 `;
 
+const Time = styled.time`
+  margin-inline-end: 0.3em; // Approximates a wordspace
+`;
+
+const Timestamp = ({ date }) => (
+  <Time dateTime={date.toISOString()}>{format(date, 'h:mmaaa')}</Time>
+);
+
 const Label = styled.span`
+  overflow: hidden;
   padding-inline-start: 0.3125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   ${props =>
     props.$strikethrough &&
@@ -65,62 +77,87 @@ const Label = styled.span`
     `}
 `;
 
-const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(date)}</time>;
-
 const IconGroup = styled.div`
   align-items: center;
   display: flex;
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => {
+export const AppointmentTile = ({
+  appointment,
+  hideTime = false,
+  onEdit,
+  onCancel,
+  actions,
+  ...props
+}) => {
   const {
     patient,
     startTime: startTimeStr,
     endTime: endTimeStr,
     status: appointmentStatus,
+    isHighPriority,
   } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
   const [localStatus, setLocalStatus] = useState(appointmentStatus);
 
+  const location = useLocation();
+  useEffect(() => {
+    const { appointmentId } = queryString.parse(location.search);
+    if (appointmentId && appointmentId === appointment.id) {
+      setTimeout(() => {
+        setOpen(true)
+        ref.current.scrollIntoView({ block: 'center' });
+      });
+    }
+  }, [appointment.id, location.search]);
+
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
-  const isHighPriority = false; // TODO
-  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
+  const isLocationBooking = !!appointment.location;
+  const isOvernight = isLocationBooking && !isSameDay(startTime, endTime);
+
+  const tileText = (
+    <>
+      {!hideTime && <Timestamp date={startTime} />}
+      {getPatientNameAsString(patient)}
+    </>
+  );
 
   return (
-    <Wrapper
-      $color={APPOINTMENT_STATUS_COLORS[localStatus]}
-      $selected={open}
-      tabIndex={0}
-      ref={ref}
-      onClick={() => setOpen(true)}
-      {...props}
-    >
-      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={startTime} /> {getPatientNameAsString(patient)}
-      </Label>
-      <IconGroup>
-        {isHighPriority && (
-          <HighPriorityIcon
-            aria-label="High priority"
-            aria-hidden={undefined}
-            htmlColor={Colors.alert}
-            style={{ fontSize: 15 }}
-          />
-        )}
-        {isOvernight && (
-          <OvernightIcon
-            aria-label="Overnight"
-            aria-hidden={undefined}
-            htmlColor="#326699"
-            style={{ fontSize: 15 }}
-          />
-        )}
-        <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
-      </IconGroup>
+    <>
+      <ThemedTooltip title={tileText}>
+        <Tile
+          $color={APPOINTMENT_STATUS_COLORS[localStatus]}
+          $selected={open}
+          ref={ref}
+          onClick={() => setOpen(true)}
+          {...props}
+        >
+          <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
+          <IconGroup>
+            {isHighPriority && (
+              <HighPriorityIcon
+                aria-label="High priority"
+                aria-hidden={undefined}
+                htmlColor={Colors.alert}
+                style={{ fontSize: 15 }}
+              />
+            )}
+            {isOvernight && (
+              <OvernightIcon
+                aria-label="Overnight booking"
+                aria-hidden={undefined}
+                htmlColor="#326699"
+                style={{ fontSize: 15 }}
+              />
+            )}
+            <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
+          </IconGroup>
+        </Tile>
+      </ThemedTooltip>
       <AppointmentDetailPopper
         open={open}
         onClose={() => setOpen(false)}
@@ -130,7 +167,10 @@ export const AppointmentTile = ({ appointment, onEdit, onCancel, ...props }) => 
         onEdit={onEdit}
         onCancel={onCancel}
         onStatusChange={setLocalStatus}
+        actions={actions}
+        // px conversions of height / width from CarouselComponents
+        preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
       />
-    </Wrapper>
+    </>
   );
 };

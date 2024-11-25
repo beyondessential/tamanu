@@ -1,38 +1,26 @@
-import React, { useState } from 'react';
+import { Typography } from '@material-ui/core';
+import { AddRounded } from '@material-ui/icons';
+import { omit } from 'lodash';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { Typography } from '@material-ui/core';
-import { LocationBookingsCalendar } from './LocationBookingsCalendar';
-import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
-import { AddRounded } from '@material-ui/icons';
+import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
+import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
+import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
-import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { CalendarSearchBar } from './CalendarSearchBar';
+import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { appointmentToFormValues } from './utils';
 
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
   }
 `;
-
-// BEGIN PLACEHOLDERS
-
-const Placeholder = styled.div`
-  background-color: oklch(0% 0 0 / 3%);
-  max-block-size: 100%;
-  border: 1px solid oklch(0% 0 0 / 15%);
-  border-radius: 0.2rem;
-  color: oklch(0% 0 0 / 55%);
-  display: grid;
-  font-size: 1rem;
-  padding: 0.5rem;
-  place-items: center;
-  text-align: center;
-`;
-
-// END PLACEHOLDERS
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -46,11 +34,6 @@ const Wrapper = styled(PageContainer)`
   display: grid;
   grid-template-rows: auto 1fr;
   max-block-size: 100%;
-`;
-
-const Filters = styled('search')`
-  display: flex;
-  gap: 1rem;
 `;
 
 const NewBookingButton = styled(Button)`
@@ -77,35 +60,45 @@ export const LocationBookingsView = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
+
+  const { filters, setFilters } = useLocationBookingsContext();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+
+  const handleFilterChange = useCallback(
+    values => {
+      setFilters(values);
+      mutateUserPreferences({ locationBookingFilters: omit(values, ['patientNameOrId']) });
+    },
+    [setFilters, mutateUserPreferences],
+  );
+
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = initialValues => {
-    setSelectedAppointment(initialValues);
+
+  const openBookingForm = prepopulationValues => {
+    setSelectedAppointment(prepopulationValues);
     setIsDrawerOpen(true);
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointment);
+    setSelectedAppointment(appointmentToFormValues(appointment));
     setIsCancelModalOpen(true);
   };
 
   const locationsQuery = useLocationsQuery({
     facilityId,
     bookableOnly: true,
+    locationGroupIds: filters.locationGroupIds,
   });
+
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <Filters>
-          <Placeholder>Search</Placeholder>
-          <Placeholder>Area</Placeholder>
-          <Placeholder>Clinician</Placeholder>
-          <Placeholder>Type</Placeholder>
-        </Filters>
+        <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText
@@ -128,15 +121,15 @@ export const LocationBookingsView = () => {
           openCancelModal={openCancelModal}
         />
       )}
-      <BookLocationDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
-      <CancelBookingModal
+      <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+      />
+      <LocationBookingDrawer
+        initialValues={selectedAppointment}
+        open={isDrawerOpen}
+        onClose={closeBookingForm}
       />
     </Wrapper>
   );

@@ -66,10 +66,10 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
             <NoteOnBehalfOf>
               &nbsp;&nbsp;|&nbsp;&nbsp;
               <TranslatedText
-                stringId="carePlan.noteOnBehalfOf.label"
-                fallback="On behalf of"
-              />{' '}
-              {note.onBehalfOf.displayName}
+                stringId="note.table.onBehalfOfText"
+                fallback="On behalf of :changeOnBehalfOfName"
+                replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
+              />
             </NoteOnBehalfOf>
           ) : null}
           {isMainCarePlan ? (

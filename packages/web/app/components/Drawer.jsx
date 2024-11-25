@@ -1,59 +1,86 @@
-import React from 'react';
+import Collapse, { collapseClasses } from '@mui/material/Collapse';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Drawer as MuiDrawer } from '@mui/material';
 
-import { BodyText, Heading4 } from './Typography';
 import { Colors } from '../constants';
-import { TOP_BAR_HEIGHT } from './TopBar';
+import { ClearIcon } from './Icons';
+import { BodyText, Heading4 } from './Typography';
 
-const Container = styled.div`
-  width: 20.625rem;
-  padding: 1rem;
-  background-color: ${Colors.background};
+const StyledCollapse = styled(Collapse)`
+  &.${collapseClasses.root} {
+    background-color: ${Colors.background};
+    min-block-size: 100%;
+    overflow-y: auto;
+    padding-block: 0 1rem;
+    position: relative;
+
+    // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
+    &:not(.${collapseClasses.hidden}) {
+      border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
+    }
+  }
+`;
+
+const Wrapper = styled.div`
+  inline-size: 21rem;
+  block-size: 100%;
   overflow-y: auto;
+  padding-block: 0 1rem;
+  padding-inline: 1rem;
   position: relative;
 `;
 
+// TODO: Fix semantics
 const Title = styled(Heading4)`
+  background-color: ${Colors.background};
+  border-bottom: max(0.0625rem, 1px) ${Colors.outline} solid;
   font-size: 1rem;
-  margin-block-end: 0.563rem;
+  inset-block-start: 0;
+  margin-block: 0 0.5625rem;
+  margin-inline: -1rem;
+  padding-block: 1rem 0.313rem;
+  padding-inline: 1rem;
+  position: sticky;
+  z-index: 1;
 `;
 
 const Description = styled(BodyText)`
-  font-size: 0.688rem;
   color: ${Colors.midText};
+  font-size: 0.688rem;
+  margin-block-end: 1rem;
 `;
 
-const StyledDrawer = styled(MuiDrawer)`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
-  }
+const CloseDrawerIcon = styled(ClearIcon)`
+  cursor: pointer;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
+  position: absolute;
 `;
 
 export const Drawer = ({
   open,
-  PaperProps = {},
-  className,
   onClose,
   title,
   description,
   children,
+  orientation = 'horizontal',
+  ...props
 }) => {
+  const topRef = useRef(null);
+
+  useEffect(() => topRef.current.scrollIntoView(), [open]);
+
   return (
-    <StyledDrawer
-      PaperProps={PaperProps}
-      className={className}
-      variant="persistent"
-      anchor="right"
-      open={open}
-      onClose={onClose}
-    >
-      <Container columns={1}>
-        <Title>{title}</Title>
+    <StyledCollapse in={open} orientation={orientation} {...props}>
+      <Wrapper>
+        <div ref={topRef} aria-hidden />
+        <Title>
+          {title}
+          <CloseDrawerIcon onClick={onClose} />
+        </Title>
         <Description>{description}</Description>
         {children}
-      </Container>
-    </StyledDrawer>
+      </Wrapper>
+    </StyledCollapse>
   );
 };

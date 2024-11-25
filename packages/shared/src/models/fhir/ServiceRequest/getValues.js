@@ -5,7 +5,9 @@ import {
   FHIR_REQUEST_PRIORITY,
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TABLE_STATUS_GROUPINGS,
   LAB_REQUEST_STATUSES,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
   NOTE_TYPES,
 } from '@tamanu/constants';
 
@@ -234,6 +236,31 @@ function statusFromLabRequest(upstream) {
     default:
       return FHIR_REQUEST_STATUS.UNKNOWN;
   }
+}
+
+export function getIsLive(upstream, models) {
+  const { ImagingRequest, LabRequest } = models;
+
+  if (upstream instanceof ImagingRequest)
+    return IMAGING_TABLE_STATUS_GROUPINGS.ACTIVE.includes(upstream.status);
+  if (upstream instanceof LabRequest)
+    return LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE.includes(upstream.status);
+
+  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
+}
+
+export function shouldForceRematerialise(upstream, downstream, models) {
+  const { ImagingRequest, LabRequest } = models;
+
+  // Force remateralisation on status change
+  if (upstream instanceof ImagingRequest) {
+    return statusFromImagingRequest(upstream) !== downstream.status;
+  }
+  if (upstream instanceof LabRequest) {
+    return statusFromLabRequest(upstream) !== downstream.status;
+  }
+
+  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
 function labCode(upstream) {

@@ -1,19 +1,23 @@
-import { endOfDay, formatISO } from 'date-fns';
+import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import {
+  appointmentToFormValues,
+  partitionAppointmentsByDate,
+  partitionAppointmentsByLocation,
+} from './utils';
 
 export const BookingsCell = ({
   appointments,
   date,
-  location,
+  location: { id: locationId },
   openBookingForm,
   openCancelModal,
 }) => (
@@ -21,16 +25,17 @@ export const BookingsCell = ({
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date: toDateTimeString(date), locationId: location.id });
+      openBookingForm({ date, startDate: date, locationId });
     }}
   >
     {appointments?.map(a => (
       <AppointmentTile
-        className="appointment-tile"
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
-        onCancel={() => openCancelModal(a)}
         appointment={a}
+        className="appointment-tile"
+        hideTime={!isSameDay(date, parseISO(a.startTime))}
         key={a.id}
+        onCancel={() => openCancelModal(a)}
+        onEdit={() => openBookingForm(appointmentToFormValues(a))}
       />
     ))}
   </CarouselGrid.Cell>
@@ -86,21 +91,37 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
-  const appointments =
-    useAppointmentsQuery({
-      after: displayedDates[0],
-      before: endOfDay(displayedDates[displayedDates.length - 1]),
-      locationId: '',
-      all: true,
-    }).data?.data ?? [];
+  const { data: locations = [], isLoading: locationsAreLoading } = locationsQuery;
+
+  const { filters } = useLocationBookingsContext();
+
+  const { data: appointmentsData = [] } = useAppointmentsQuery({
+    after: displayedDates[0],
+    before: endOfDay(displayedDates.at(-1)),
+    all: true,
+    locationId: '',
+    clinicianId: filters.clinicianId,
+    bookingTypeId: filters.bookingTypeId,
+    patientNameOrId: filters.patientNameOrId,
+  });
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations?.length === 0) return <EmptyStateRow />;
+  if (locations.length === 0) return <EmptyStateRow />;
 
+  const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  return locations?.map(location => (
+  const areFiltersActive = Object.values(filters).some(
+    filter => filter !== null && filter.length > 0,
+  );
+
+  const filteredLocations = areFiltersActive
+    ? locations.filter(location => appointmentsByLocation[location.id])
+    : locations;
+
+  if (filteredLocations.length === 0) return <EmptyStateRow />;
+
+  return filteredLocations?.map(location => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}

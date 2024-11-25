@@ -12,6 +12,7 @@ import {
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
+import { ENCOUNTER_TYPE_LABELS } from './encounters';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -38,6 +39,7 @@ import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
 import { IMAGING_TYPES } from './imaging';
 import { REPEAT_INTERVAL_LABELS } from './scheduling';
 
@@ -60,6 +62,7 @@ export const registeredEnums = {
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -83,6 +86,7 @@ export const registeredEnums = {
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TEMPLATE_TYPE_LABELS,
   TITLE_LABELS,
@@ -106,6 +110,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
+  ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
@@ -129,6 +134,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
+  TASK_FREQUENCY_UNIT_LABELS: 'task.property.frequencyUnit',
   SOCIAL_MEDIA_LABELS: 'patient.property.socialMedia',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
   TITLE_LABELS: 'patient.property.title',

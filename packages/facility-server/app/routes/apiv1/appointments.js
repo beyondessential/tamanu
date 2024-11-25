@@ -6,6 +6,7 @@ import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const appointments = express.Router();
 
@@ -49,11 +50,13 @@ appointments.put('/:id', simplePut('Appointment'));
 const searchableFields = [
   'startTime',
   'endTime',
-  'appointmentType',
+  'type',
+  'bookingTypeId',
   'status',
   'clinicianId',
   'locationId',
   'locationGroupId',
+  'patientId',
   'patient.first_name',
   'patient.last_name',
   'patient.display_id',
@@ -70,9 +73,10 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
-  appointmentType: Sequelize.col('appointmentType.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
+  bookingType: Sequelize.col('bookingType.name'),
+  bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
 appointments.get(
@@ -82,31 +86,66 @@ appointments.get(
     const {
       models,
       query: {
-        after,
+        after = startOfToday(),
         before,
         rowsPerPage = 10,
         page = 0,
         all = false,
         order = 'ASC',
         orderBy = 'startTime',
+        patientNameOrId,
+        includeCancelled = false,
         ...queries
       },
     } = req;
     const { Appointment } = models;
 
-    const afterTime = after || startOfToday();
-    const startTimeQuery = {
-      [Op.gte]: afterTime,
-    };
+    // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
+    const shouldQueryByOverlap = !!before;
+    const timeQueryWhereClause = shouldQueryByOverlap
+      ? {
+          [Op.or]: Sequelize.literal(
+            '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
+          ),
+        }
+      : {
+          startTime: { [Op.gte]: after },
+        };
+    const timeQueryBindParams = shouldQueryByOverlap
+      ? {
+          afterDateTime: `'${toDateTimeString(after)}'`,
+          beforeDateTime: `'${toDateTimeString(before)}'`,
+        }
+      : null;
 
-    if (before) {
-      startTimeQuery[Op.lte] = before;
-    }
+    const patientNameOrIdQuery = patientNameOrId
+      ? {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn(
+                'concat',
+                Sequelize.col('patient.first_name'),
+                ' ',
+                Sequelize.col('patient.last_name'),
+              ),
+              {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            ),
+            {
+              '$patient.display_id$': {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            },
+          ],
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
       }
-      if (!(typeof queryValue === 'string')) {
+      if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
         return _filters;
       }
       let column = queryField;
@@ -114,24 +153,24 @@ appointments.get(
       if (queryField.includes('.')) {
         column = `$${queryField}$`;
       }
-
-      return {
-        ..._filters,
-        [column]: {
-          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
-        },
-      };
+      _filters[column] = Array.isArray(queryValue)
+        ? { [Op.in]: queryValue }
+        : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+      return _filters;
     }, {});
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-        startTime: startTimeQuery,
+        ...timeQueryWhereClause,
+        ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
+        ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
       },
       include: [...Appointment.getListReferenceAssociations()],
+      bind: { ...timeQueryBindParams },
     });
 
     res.send({
@@ -155,6 +194,7 @@ appointments.post('/locationBooking', async (req, res) => {
       const bookingTimeAlreadyTaken = await Appointment.findOne({
         where: {
           locationId,
+          status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
           ...timeOverlapWhereCondition(startTime, endTime),
         },
         transaction,
@@ -175,12 +215,13 @@ appointments.post('/locationBooking', async (req, res) => {
 });
 
 appointments.put('/locationBooking/:id', async (req, res) => {
-  const { models, body, params } = req;
+  req.checkPermission('create', 'Appointment');
+
+  const { models, body, params, query } = req;
   const { id } = params;
+  const { skipConflictCheck = false } = query;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
-
-  req.checkPermission('create', 'Appointment');
 
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
@@ -189,17 +230,20 @@ appointments.put('/locationBooking/:id', async (req, res) => {
       if (!existingBooking) {
         throw new NotFoundError();
       }
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
-        where: {
-          id: { [Op.ne]: id },
-          locationId,
-          ...timeOverlapWhereCondition(startTime, endTime),
-        },
-        transaction,
-      });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
+      if (!skipConflictCheck) {
+        const bookingTimeAlreadyTaken = await Appointment.findOne({
+          where: {
+            id: { [Op.ne]: id },
+            locationId,
+            ...timeOverlapWhereCondition(startTime, endTime),
+          },
+          transaction,
+        });
+
+        if (bookingTimeAlreadyTaken) {
+          throw new ResourceConflictError();
+        }
       }
 
       const updatedRecord = await existingBooking.update(body, { transaction });

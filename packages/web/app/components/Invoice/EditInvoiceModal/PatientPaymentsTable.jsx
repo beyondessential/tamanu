@@ -32,12 +32,13 @@ const TooltipContainer = styled.div`
   text-align: center;
 `;
 
-const getRowTooltipText = updatedByUser => (
-  <TooltipContainer>
-    <TranslatedText stringId="invoice.table.tooltip.recordedBy" fallback="Recorded by" />
-    <div>{updatedByUser.displayName}</div>
-  </TooltipContainer>
-);
+const getRowTooltipText = updatedByUser =>
+  updatedByUser?.displayName ? (
+    <TooltipContainer>
+      <TranslatedText stringId="invoice.table.tooltip.recordedBy" fallback="Recorded by" />
+      <div>{updatedByUser.displayName}</div>
+    </TooltipContainer>
+  ) : null;
 
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments

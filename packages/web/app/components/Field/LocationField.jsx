@@ -55,6 +55,7 @@ export const LocationInput = React.memo(
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 
+
     useEffect(() => {
       if (!initialValues) return;
       // Form is reinitialised, reset the state handled group and location values

@@ -41,8 +41,12 @@ const existingRecordLoaders = {
   // TranslatedString model has a composite PK that uses stringId & language
   TranslatedString: (TS, { stringId, language }) =>
     TS.findOne({ where: { stringId, language } }, { paranoid: false }),
-  ReferenceDataRelation: (RDR, { referenceDataId, type }) =>
-    RDR.findOne({ where: { referenceDataId, type } }, { paranoid: false }),
+  ReferenceDataRelation: (RDR, { referenceDataId, referenceDataParentId, type }) =>
+    RDR.findOne({ where: { referenceDataId, referenceDataParentId, type } }, { paranoid: false }),
+  TaskTemplateDesignation: (TTD, { taskTemplateId, designationId }) =>
+    TTD.findOne({ where: { taskTemplateId, designationId } }, { paranoid: false }),
+  UserDesignation: (UD, { userId, designationId }) =>
+    UD.findOne({ where: { userId, designationId } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {

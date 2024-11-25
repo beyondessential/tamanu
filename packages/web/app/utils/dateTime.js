@@ -1,16 +1,27 @@
 import { isSameDay, parseISO } from 'date-fns';
+
 import { getDateDisplay } from '../components';
 
 // Import all the shared date time utils here for backwards compatibility
-export * from '@tamanu/shared/utils/dateTime';
 export * from '@tamanu/shared/utils/date';
+export * from '@tamanu/shared/utils/dateTime';
 
-export const formatDateRange = (start, end) => {
-  const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
-  const formattedEnd = getDateDisplay(end, {
-    showDate: !isSameDay(parseISO(start), parseISO(end)),
+export const formatDateTimeRange = (start, end) => {
+  const formattedStart = getDateDisplay(start, {
+    showDate: true,
     showTime: true,
   });
 
-  return `${formattedStart} - ${formattedEnd}`;
+  if (!end) return formattedStart;
+
+  const doesSpanMultipleDays = !isSameDay(parseISO(start), parseISO(end));
+  const formattedEnd = getDateDisplay(end, {
+    showDate: doesSpanMultipleDays,
+    showTime: true,
+  });
+
+  // eslint-disable-next-line no-irregular-whitespace
+  return `${formattedStart} – ${formattedEnd}`;
+  //                        ^ en dash
+  //                       ^ nonbreaking space
 };

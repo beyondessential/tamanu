@@ -101,3 +101,8 @@ sources:
                   to: source('tamanu', 'reference_data')
                   field: id
                   to_condition: type = 'appointmentType'
+          - name: is_high_priority
+            data_type: boolean
+            description: "{{ doc('appointments__is_high_priority') }}"
+            data_tests:
+              - not_null
