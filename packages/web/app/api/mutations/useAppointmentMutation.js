@@ -14,7 +14,7 @@ export const useAppointmentMutation = ({ appointmentId, isEdit = false }, useMut
     {
       ...useMutationOptions,
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries(['appointments']);
+        void queryClient.invalidateQueries(['appointments']);
         useMutationOptions.onSuccess?.(data, variables, context);
       },
     },
