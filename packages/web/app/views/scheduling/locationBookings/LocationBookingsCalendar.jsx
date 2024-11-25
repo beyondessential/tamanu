@@ -9,11 +9,11 @@ import {
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
-import { APPOINTMENT_CALENDAR_CLASS } from '../../../components';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
