@@ -14,7 +14,6 @@ import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
-import { useQueryClient } from '@tanstack/react-query';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
@@ -138,13 +137,14 @@ const Card = ({ notification }) => {
   const { getTranslation } = useTranslation();
   const { loadEncounter } = useEncounter();
   const dispatch = useDispatch();
-  const { mutateAsync: markAsRead } = useMarkAsRead(notification.id);
+  const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
   const { encounterId, id } = metadata;
 
   const history = useHistory();
 
   const onNotificationClick = async () => {
+    if (isMarkingAsRead) return;
     if (status === NOTIFICATION_STATUSES.UNREAD) {
       await markAsRead();
     }
@@ -174,12 +174,11 @@ const Card = ({ notification }) => {
 };
 
 export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) => {
-  const queryClient = useQueryClient();
-  const { mutate: markAllAsRead } = useMarkAllAsRead();
+  const { mutate: markAllAsRead, isLoading: isMarkingAllAsRead } = useMarkAllAsRead();
   const { unreadNotifications = [], readNotifications = [] } = notifications;
 
   const onMarkAllAsRead = () => {
-    queryClient.invalidateQueries('notifications');
+    if (isMarkingAllAsRead) return;
     markAllAsRead();
   };
 
