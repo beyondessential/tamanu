@@ -18,7 +18,7 @@ const workspaces = getWorkspaces(__dirname);
 
 module.exports = (async () => {
   const {
-    resolver: { sourceExts },
+    resolver: { assetExts },
   } = await getDefaultConfig(__dirname);
   return {
     projectRoot: path.resolve(__dirname, '.'),
@@ -34,7 +34,7 @@ module.exports = (async () => {
         },
       ),
       sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
-      assetExts: [...sourceExts, 'cjs'],
+      assetExts: [...assetExts, 'cjs'],
     },
 
     // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
