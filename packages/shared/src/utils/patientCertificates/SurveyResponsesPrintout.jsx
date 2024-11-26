@@ -84,6 +84,8 @@ const getAnswers = ({ answer, sourceType, type }) => {
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
+      return JSON.parse(answer).join(', ');
     default:
       return answer;
   }
