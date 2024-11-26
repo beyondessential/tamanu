@@ -82,7 +82,7 @@ export const LocationBookingsView = () => {
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointmentToFormValues(appointment));
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
