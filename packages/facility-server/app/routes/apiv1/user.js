@@ -147,9 +147,10 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { selectedGraphedVitalsOnFilter } = body;
+    const { selectedGraphedVitalsOnFilter, locationBookingFilters } = body;
     const [userPreferences] = await UserPreference.upsert({
       selectedGraphedVitalsOnFilter,
+      locationBookingFilters,
       userId: currentUser.id,
       deletedAt: null,
     });

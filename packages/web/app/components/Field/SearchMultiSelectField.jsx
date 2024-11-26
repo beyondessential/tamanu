@@ -108,6 +108,8 @@ export const SearchMultiSelectInput = ({
     setSearchValue('');
   };
 
+  const shouldShowSearch = options?.length > 10;
+
   return (
     <>
       <StyledInputButton variant="outlined" onClick={handleOpen} {...props}>
@@ -116,20 +118,22 @@ export const SearchMultiSelectInput = ({
 
       <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <SearchContainer>
-          <StyledTextInput
-            InputProps={{
-              startAdornment: (
-                <Icon>
-                  <Search />
-                </Icon>
-              ),
-            }}
-            placeholder={`Search ${label.toLowerCase()}`}
-            style={{ paddingInlineStart: 0 }}
-            value={searchValue}
-            onChange={e => setSearchValue(e.target.value)}
-            size="small"
-          />
+          {shouldShowSearch && (
+            <StyledTextInput
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <Search />
+                  </Icon>
+                ),
+              }}
+              placeholder={`Search ${label.toLowerCase()}`}
+              style={{ paddingInlineStart: 0 }}
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              size="small"
+            />
+          )}
           <StyledTextButton onClick={handleClear}>
             <TranslatedText stringId="general.action.clear" fallback="Clear" />
           </StyledTextButton>

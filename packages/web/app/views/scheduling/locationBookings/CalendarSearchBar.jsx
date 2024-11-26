@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@mui/system/styled';
+
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
+import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -17,15 +19,31 @@ const FormListener = ({ onFilterChange }) => {
   useEffect(() => {
     onFilterChange(values);
   }, [values, onFilterChange]);
+
+  return null;
+};
+
+const emptyValues = {
+  locationGroupIds: [],
+  clinicianId: [],
+  bookingTypeId: [],
+  patientNameOrId: '',
 };
 
 export const CalendarSearchBar = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
+  const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
+
+  if (isUserPreferencesLoading) {
+    return <CircularProgress />;
+  }
+
   return (
     <Form
+      initialValues={{ ...userPreferences?.locationBookingFilters, patientNameOrId: '' }}
       onSubmit={async () => {}}
-      render={({ clearForm }) => (
+      render={({ setValues }) => (
         <>
           <FormListener onFilterChange={onFilterChange} />
           <SearchBar>
@@ -58,7 +76,8 @@ export const CalendarSearchBar = ({ onFilterChange }) => {
             />
             <TextButton
               onClick={() => {
-                clearForm();
+                setValues(emptyValues);
+                onFilterChange(emptyValues);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
             >

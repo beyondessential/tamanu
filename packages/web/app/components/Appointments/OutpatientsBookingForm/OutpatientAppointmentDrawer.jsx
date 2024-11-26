@@ -3,13 +3,13 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { useFormikContext } from 'formik';
 
 import {
   AutocompleteField,
   DynamicSelectField,
   Field,
   Form,
-  DateTimeField,
   CheckField,
   TextField,
 } from '../../Field';
@@ -18,7 +18,6 @@ import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
-import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -26,23 +25,47 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { usePatientData } from '../../../api/queries/usePatientData';
-import { useFormikContext } from 'formik';
-
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
-`;
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+const formStyles = {
+  overflowY: 'auto',
+  minWidth: 'fit-content',
+};
+
+const getDescription = (isEdit, isLockedPatient) => {
+  if (isEdit) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.edit.description"
+        fallback="Modify the selected appointment below"
+      />
+    );
+  }
+
+  if (isLockedPatient) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.newForPatient.description"
+        fallback="Complete appointment details below to create a new appointment for the selected patient."
+      />
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="outpatientAppointment.form.new.description"
+      fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+    />
+  );
+};
+
+export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -50,16 +73,30 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   return (
     <ConfirmModal
       title={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.title"
-          fallback="Cancel new appointment"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.title"
+            fallback="Cancel modifying appointment"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.title"
+            fallback="Cancel new appointment"
+          />
+        )
       }
       subText={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new appointment?"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
+            fallback="Are you sure you would like to cancel modifying the appointment?"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
+            fallback="Are you sure you would like to cancel the new appointment?"
+          />
+        )
       }
       open={open}
       onConfirm={() => {
@@ -79,7 +116,7 @@ const SuccessMessage = ({ isEdit = false }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
-      fallback="Appointment successfully edited"
+      fallback="Appointment successfully modified"
     />
   ) : (
     <TranslatedText
@@ -146,9 +183,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
-  const locationGroupSuggester = useSuggester('locationGroup');
+  const locationGroupSuggester = useSuggester('bookableLocationGroup');
 
   const isEdit = !!initialValues.id;
+  const isLockedPatient = !!initialValues.patientId;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -207,87 +245,110 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     return (
-      <FormGrid columns={1}>
-        <CloseDrawerIcon onClick={warnAndResetForm} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          disabled={isEdit}
-          required
-        />
-        <Field
-          label={
-            <TranslatedText stringId="general.locationGroup.label" fallback="Location group" />
-          }
-          name="locationGroupId"
-          component={AutocompleteField}
-          suggester={locationGroupSuggester}
-          required
-        />
-        <Field
-          name="appointmentTypeId"
-          label={
+      <Drawer
+        open={open}
+        onClose={warnAndResetForm}
+        title={
+          isEdit ? (
             <TranslatedText
-              stringId="appointment.appointmentType.label"
-              fallback="Appointment type"
+              stringId="outpatientAppointment.form.edit.heading"
+              fallback="Modify outpatient appointment"
             />
-          }
-          component={DynamicSelectField}
-          suggester={appointmentTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <Field
-          name="startTime"
-          label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
-          component={DateTimeField}
-          required
-          saveDateAsString
-        />
-        <Field
-          name="endTime"
-          disabled={!values.startTime}
-          date={parseISO(values.startTime)}
-          label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
-          component={TimeWithFixedDateField}
-          saveDateAsString
-        />
-        <Field
-          name="isHighPriority"
-          label={
-            <IconLabel>
-              <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
-              <HighPriorityIcon
-                aria-label="High priority"
-                aria-hidden={undefined}
-                htmlColor={Colors.alert}
-                style={{ fontSize: 18 }}
+          ) : (
+            <TranslatedText
+              stringId="outpatientAppointment.form.new.heading"
+              fallback="New outpatient appointment"
+            />
+          )
+        }
+        description={getDescription(isEdit, isLockedPatient)}
+      >
+        <FormGrid columns={1}>
+          <Field
+            name="patientId"
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            placeholder={getTranslation(
+              'scheduling.filter.placeholder.patientNameOrId',
+              'Search patient name or ID',
+            )}
+            component={AutocompleteField}
+            suggester={patientSuggester}
+            disabled={isLockedPatient}
+            required
+          />
+          <Field
+            label={
+              <TranslatedText
+                stringId="general.localisedField.locationGroupId.label"
+                fallback="Area"
               />
-            </IconLabel>
-          }
-          component={CheckField}
-        />
-        <Field
-          name="shouldEmailAppointment"
-          label={
-            <TranslatedText
-              stringId="appointment.emailAppointment.label"
-              fallback="Email appointment"
-            />
-          }
-          component={CheckField}
-        />
-        {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-
-        <FormSubmitCancelRow onCancel={warnAndResetForm} />
-      </FormGrid>
+            }
+            name="locationGroupId"
+            component={AutocompleteField}
+            suggester={locationGroupSuggester}
+            required
+          />
+          <Field
+            name="appointmentTypeId"
+            label={
+              <TranslatedText
+                stringId="appointment.appointmentType.label"
+                fallback="Appointment type"
+              />
+            }
+            component={DynamicSelectField}
+            suggester={appointmentTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.clinician.label"
+                fallback="Clinician"
+              />
+            }
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
+          <Field
+            name="endTime"
+            disabled={!values.startTime}
+            date={parseISO(values.startTime)}
+            label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+            component={TimeWithFixedDateField}
+            saveDateAsString
+          />
+          <Field
+            name="isHighPriority"
+            label={
+              <IconLabel>
+                <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+                <HighPriorityIcon
+                  aria-label="High priority"
+                  aria-hidden={undefined}
+                  htmlColor={Colors.alert}
+                  style={{ fontSize: 18 }}
+                />
+              </IconLabel>
+            }
+            component={CheckField}
+          />
+          <Field
+            name="shouldEmailAppointment"
+            label={
+              <TranslatedText
+                stringId="appointment.emailAppointment.label"
+                fallback="Email appointment"
+              />
+            }
+            component={CheckField}
+          />
+          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
+          <FormSubmitCancelRow onCancel={warnAndResetForm} />
+        </FormGrid>
+      </Drawer>
     );
   };
 
@@ -311,38 +372,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     },
   );
   return (
-    <Drawer
-      PaperProps={{
-        // Used to exclude the drawer from click away listener on appointment details popper
-        className: APPOINTMENT_DRAWER_CLASS,
-      }}
-      open={open}
-      onClose={onClose}
-      title={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointment.form.edit.heading"
-            fallback="Modify outpatient appointment"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.heading"
-            fallback="New outpatient appointment"
-          />
-        )
-      }
-      description={
-        <TranslatedText
-          stringId="outpatientAppointment.form.new.description"
-          fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-        />
-      }
-    >
+    <>
       <Form
         onSubmit={async (values, { resetForm }) => {
           await handleSubmit(values);
           resetForm();
         }}
+        style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
@@ -354,7 +390,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        isEdit={isEdit}
       />
-    </Drawer>
+    </>
   );
 };
