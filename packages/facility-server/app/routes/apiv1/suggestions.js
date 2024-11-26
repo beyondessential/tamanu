@@ -58,7 +58,6 @@ function createSuggesterRoute(
       const { language } = query;
       delete query.language;
       const model = models[modelName];
-      const start = Date.now();
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
@@ -110,7 +109,6 @@ function createSuggesterRoute(
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(r => mapper(r)));
 
-      console.log(Date.now() - start, 'ms');
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
