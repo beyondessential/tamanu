@@ -7,12 +7,12 @@
   "module": "dist/mjs/index.js",
   "exports": {
     ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/mjs/index.js"
     },
     "./*": {
-      "import": "./dist/mjs/*.js",
-      "require": "./dist/cjs/*.js"
+      "require": "./dist/cjs/*.js",
+      "import": "./dist/mjs/*.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
