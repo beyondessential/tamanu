@@ -105,7 +105,7 @@ export const TimeSlotPicker = ({
   const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
   const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
-  const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
+  const { data: existingBookings, isFetching: isFetchingExistingBookings } = useAppointmentsQuery(
     {
       after: earliestRelevantTime,
       before: latestRelevantTime,
@@ -318,7 +318,7 @@ export const TimeSlotPicker = ({
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
-        {isFetchingTodaysBookings ? (
+        {isFetchingExistingBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
