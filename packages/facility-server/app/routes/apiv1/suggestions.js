@@ -72,6 +72,7 @@ function createSuggesterRoute(
             language,
             refDataType: dataType,
             queryString: searchQuery,
+            limit: defaultLimit,
           })
         : [];
       const suggestedIds = translations.map(extractDataId);
