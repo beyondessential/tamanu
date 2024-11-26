@@ -73,6 +73,7 @@ export const LocationBookingsView = () => {
   );
 
   const closeBookingForm = () => {
+    setSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
