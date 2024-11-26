@@ -93,6 +93,7 @@ const BodyCell = styled(BaseCell).attrs({ as: UnstyledHtmlButton })`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  ${({$selected}) => $selected && `border: 1px solid ${Colors.primary} !important; `}
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
     background-color: var(--weekend-color);

@@ -1,4 +1,4 @@
-import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
+import { endOfDay, formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -20,26 +20,31 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
-}) => (
-  <CarouselGrid.Cell
-    onClick={e => {
-      if (e.target.closest('.appointment-tile')) return;
-      // Open form for creating new booking
-      openBookingForm({ date, startDate: date, locationId });
-    }}
-  >
-    {appointments?.map(a => (
-      <AppointmentTile
-        appointment={a}
-        className="appointment-tile"
-        hideTime={!isSameDay(date, parseISO(a.startTime))}
-        key={a.id}
-        onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm(appointmentToFormValues(a))}
-      />
-    ))}
-  </CarouselGrid.Cell>
-);
+}) => {
+  const { selectedCell } = useLocationBookingsContext();
+
+  return (
+    <CarouselGrid.Cell
+      onClick={e => {
+        if (e.target.closest('.appointment-tile')) return;
+        // Open form for creating new booking
+        openBookingForm({ date, startDate: date, locationId });
+      }}
+      $selected={selectedCell.locationId === locationId && isEqual(date, selectedCell.locationId)}
+    >
+      {appointments?.map(a => (
+        <AppointmentTile
+          appointment={a}
+          className="appointment-tile"
+          hideTime={!isSameDay(date, parseISO(a.startTime))}
+          key={a.id}
+          onCancel={() => openCancelModal(a)}
+          onEdit={() => openBookingForm(appointmentToFormValues(a))}
+        />
+      ))}
+    </CarouselGrid.Cell>
+  );
+};
 
 export const BookingsRow = ({
   appointments,
@@ -111,7 +116,7 @@ export const LocationBookingsCalendarBody = ({
   const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  // This stops us from hiding locations that don't contain any appointments when filtering only by location. 
+  // This stops us from hiding locations that don't contain any appointments when filtering only by location.
   // The actual filtering of locations actually happens within the locationsQuery passed to this file
   const areNonLocationFiltersActive =
     filters.clinicianId.length > 0 || filters.bookingTypeId.length > 0 || filters.patientNameOrId;

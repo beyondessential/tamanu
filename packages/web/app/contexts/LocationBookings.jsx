@@ -10,8 +10,15 @@ export const LocationBookingsContextProvider = ({ children }) => {
     bookingTypeId: [],
   });
 
+  const [selectedCell, setSelectedCell] = useState({
+    locationId: null,
+    date: null,
+  });
+
   return (
-    <LocationBookingsContext.Provider value={{ filters, setFilters }}>
+    <LocationBookingsContext.Provider
+      value={{ filters, setFilters, selectedCell, setSelectedCell }}
+    >
       {children}
     </LocationBookingsContext.Provider>
   );
