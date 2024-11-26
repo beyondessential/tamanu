@@ -31,7 +31,7 @@ const Tile = styled(UnstyledHtmlButton)`
   gap: 0.3125rem;
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
-  padding-inline: 0.3125rem;
+  padding-inline: 0.625rem;
   transition: background-color 150ms ease, border-color 150ms ease;
 
   &:hover {
@@ -66,7 +66,6 @@ const Timestamp = ({ date }) => (
 
 const Label = styled.span`
   overflow: hidden;
-  padding-inline-start: 0.3125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 
@@ -89,6 +88,7 @@ export const AppointmentTile = ({
   onEdit,
   onCancel,
   actions,
+  allowViewDetail = true,
   ...props
 }) => {
   const {
@@ -133,7 +133,7 @@ export const AppointmentTile = ({
           $color={APPOINTMENT_STATUS_COLORS[localStatus]}
           $selected={open}
           ref={ref}
-          onClick={() => setOpen(true)}
+          onClick={() => allowViewDetail && setOpen(true)}
           {...props}
         >
           <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
