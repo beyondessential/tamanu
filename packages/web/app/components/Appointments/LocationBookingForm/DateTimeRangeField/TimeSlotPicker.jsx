@@ -138,7 +138,7 @@ export const TimeSlotPicker = ({
    * coerces this into a contiguous selection. Note that this array has set semantics, and is not
    * guaranteed to have its elements in natural order.
    */
-  const handleChange = (event, newTogglesUnsorted) => {
+  const handleChange = (_event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
 
     switch (variant) {
