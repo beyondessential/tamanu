@@ -125,12 +125,12 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
-const TableHeader = ({ title }) => (
+const TableHeader = ({ title, openPastBookingsModal }) => (
   <TableTitleContainer>
     <Box component={'span'} fontSize="16px" fontWeight={500}>
       {title}
     </Box>
-    <ViewPastBookingsButton component={'span'}>
+    <ViewPastBookingsButton component={'span'} onClick={openPastBookingsModal}>
       <TranslatedText
         stringId="patient.bookings.table.viewPastBookings"
         fallback="View past bookings"
@@ -272,6 +272,7 @@ export const LocationBookingsTable = ({ patient }) => {
               fallback="No location bookings"
             />
           }
+          openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
         />
       </NoDataContainer>
     );
@@ -291,6 +292,7 @@ export const LocationBookingsTable = ({ patient }) => {
                 fallback="Location bookings"
               />
             }
+            openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
           />
         }
         onClickRow={handleRowClick}
