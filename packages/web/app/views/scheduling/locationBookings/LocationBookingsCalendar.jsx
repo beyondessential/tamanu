@@ -64,11 +64,12 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
 
-  const { filters } = useLocationBookingsContext();
+  const {
+    filters: { bookingTypeId, clinicianId, patientNameOrId },
+  } = useLocationBookingsContext();
   // When filtering only by location, don’t hide locations that contain no appointments
   const areNonLocationFiltersActive =
-    filters.clinicianId.length > 0 || filters.bookingTypeId.length > 0 || filters.patientNameOrId;
-
+    clinicianId?.length > 0 || bookingTypeId?.length > 0 || !!patientNameOrId;
   const { data: locations } = locationsQuery;
 
   const { data: appointmentsData } = useAppointmentsQuery({
@@ -76,9 +77,9 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     before: endOfDay(displayedDates.at(-1)),
     all: true,
     locationId: '',
-    clinicianId: filters.clinicianId,
-    bookingTypeId: filters.bookingTypeId,
-    patientNameOrId: filters.patientNameOrId,
+    clinicianId,
+    bookingTypeId,
+    patientNameOrId,
   });
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
