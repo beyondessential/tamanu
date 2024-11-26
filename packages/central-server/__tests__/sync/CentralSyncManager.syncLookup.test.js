@@ -1515,6 +1515,8 @@ describe('Sync Lookup data', () => {
       encounter.patientId = patient2.id;
       await encounter.save();
 
+      // Wait for the db listener (registered in registerSyncLookupUpdateListener.js)
+      // to also update the dependent records of encounter
       await sleepAsync(1000);
 
       await centralSyncManager.updateLookupTable();
