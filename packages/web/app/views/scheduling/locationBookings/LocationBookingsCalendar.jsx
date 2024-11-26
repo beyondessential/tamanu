@@ -25,6 +25,21 @@ const getDisplayableDates = date => {
   return eachDayOfInterval({ start, end });
 };
 
+const EmptyState = styled.div`
+  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
+  background-color: ${Colors.white};
+  border-block-end: var(--border-style);
+  border-end-end-radius: 0.2rem;
+  border-end-start-radius: 0.2rem;
+  border-inline: var(--border-style);
+  color: ${Colors.primary};
+  font-weight: 500;
+  margin-inline: 1rem;
+  padding-block: 0.75rem;
+  padding-inline: 0.5rem;
+  text-align: center;
+`;
+
 const Carousel = styled.div`
   background-color: ${Colors.white};
   border: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -41,18 +56,19 @@ const Carousel = styled.div`
   // scroll offset.
   // scroll-snap-type: both mandatory;
 
+  /*
+   * Make the empty state message superficially look like a row in the table. (Empty state message
+   * is a sibling, not child, to prevent its text from scrolling off-screen.
+   */
+  &:has(+ ${EmptyState}) {
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+    margin-block-end: 0;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
   }
-`;
-
-const EmptyState = styled.div`
-  color: ${Colors.primary};
-  font-weight: 500;
-  margin-block: 0.5rem;
-  padding: 0.5rem;
-  text-align: center;
-  margin-inline: 1rem;
 `;
 
 const emptyStateMessage = (
