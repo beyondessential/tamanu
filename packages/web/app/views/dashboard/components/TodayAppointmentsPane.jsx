@@ -110,6 +110,7 @@ export const TodayAppointmentsPane = () => {
         after: toDateTimeString(startOfDay(new Date())),
         before: toDateTimeString(endOfDay(new Date())),
         clinicianId: currentUser?.id,
+        all: true,
       },
       `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
     ).data?.data ?? [];
