@@ -107,7 +107,7 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
       const parsedDate = parseISO(date);
       setMonthOf(parsedDate);
     }
-  }, [location.search]);
+  }, [location.search, setMonthOf]);
 
   return (
     <CarouselGrid.HeaderRow>
