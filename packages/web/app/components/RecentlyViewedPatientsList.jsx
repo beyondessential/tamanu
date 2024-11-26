@@ -42,7 +42,7 @@ const SectionLabel = styled.div`
 const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
-  width: 16%;
+  flex-grow: 1;
   margin-left: 1%;
   background-color: white;
   border-radius: 3px;
@@ -117,8 +117,9 @@ const EncounterTypeIndicator = styled.div`
 `;
 
 const Container = styled(ListItem)`
+  grid-column: 1 / span 2;
   margin: 10px 0px 20px 0px;
-  display: inherit;
+  display: block;
   position: inherit;
   padding: 0;
   &.MuiListItem-root {
@@ -180,7 +181,11 @@ const Card = ({ patient, handleClick, inDashboard }) => {
   );
 };
 
-export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false }) => {
+export const RecentlyViewedPatientsList = ({
+  encounterType,
+  inDashboard = false,
+  patientPerPage = PATIENTS_PER_PAGE,
+}) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -193,7 +198,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false 
     () => api.get('user/recently-viewed-patients', { encounterType }),
   );
 
-  const pageCount = Math.ceil(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
+  const pageCount = Math.ceil(recentlyViewedPatients?.length / patientPerPage);
   const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
@@ -242,7 +247,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false 
           )}
           <CardList>
             {recentlyViewedPatients
-              .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
+              .slice(pageIndex * patientPerPage, (pageIndex + 1) * patientPerPage)
               .map(patient => (
                 <Card
                   key={patient.id}
