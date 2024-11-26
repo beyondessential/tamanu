@@ -158,7 +158,7 @@ const getDate = ({ startTime, endTime }) => {
   }
   return (
     <DateText>
-      <span>{dateTimeString}</span>
+      <div>{dateTimeString}</div>
       {isOvernight && <OvernightIcon />}
     </DateText>
   );
