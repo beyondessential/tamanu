@@ -55,7 +55,7 @@ const EmptyState = styled.div`
   margin-inline: 1rem;
 `;
 
-const EmptyStateMessage = () => (
+const emptyStateMessage = (
   <EmptyState>No bookings to display. Please try adjusting the search filters.</EmptyState>
 );
 
@@ -104,7 +104,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
           />
         </CarouselGrid.Root>
       </Carousel>
-      {filteredLocations?.length === 0 && <EmptyStateMessage />}
+      {filteredLocations?.length === 0 && emptyStateMessage}
     </>
   );
 };
