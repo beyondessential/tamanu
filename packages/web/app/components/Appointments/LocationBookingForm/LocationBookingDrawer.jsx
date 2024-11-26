@@ -91,8 +91,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
 const SuccessMessage = ({ isEdit = false }) =>
   isEdit ? (
     <TranslatedText
-      stringId="locationBooking.notification.bookingSuccessfullyEdited"
-      fallback="Booking successfully edited"
+      stringId="locationBooking.notification.bookingSuccessfullyModified"
+      fallback="Booking successfully modified"
     />
   ) : (
     <TranslatedText
@@ -133,7 +133,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { isEdit },
     {
       onSuccess: () => {
-        notifySuccess(<SuccessMessage />);
+        notifySuccess(<SuccessMessage isEdit={isEdit} />);
         onClose();
         queryClient.invalidateQueries('appointments');
       },
