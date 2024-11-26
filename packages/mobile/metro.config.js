@@ -34,7 +34,7 @@ module.exports = (async () => {
         },
       ),
       sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
-      assetExts: [...assetExts, 'cjs'],
+      assetExts: [...assetExts, 'jsx', 'js', 'ts', 'tsx', 'cjs', 'json', 'cjs'],
     },
 
     // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
