@@ -9,6 +9,7 @@ import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../constants';
 import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;
@@ -96,6 +97,7 @@ const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
 
 export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDates }) => {
+  const { selectedCell } = useLocationBookingsContext()
   const [monthOf, setMonthOf] = selectedMonthState;
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   useEffect(() => (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)(), [monthOf]);
@@ -107,7 +109,9 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
       const parsedDate = parseISO(date);
       setMonthOf(parsedDate);
     }
-  }, [location.search]);
+  }, [location.search, setMonthOf]);
+
+  // TODO: keep month state up to date with selected cell
 
   return (
     <CarouselGrid.HeaderRow>
