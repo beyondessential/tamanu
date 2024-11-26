@@ -94,7 +94,9 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type, sourceType })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {getAnswers({ answer, type, sourceType })}
+      </Text>
     </View>
   );
 };
