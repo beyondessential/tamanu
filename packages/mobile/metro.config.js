@@ -16,40 +16,41 @@ const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
 
-const {
-  resolver: { sourceExts },
-} = getDefaultConfig(__dirname);
+module.exports = (async () => {
+  const {
+    resolver: { sourceExts },
+  } = await getDefaultConfig(__dirname);
+  return {
+    projectRoot: path.resolve(__dirname, '.'),
 
-module.exports = {
-  projectRoot: path.resolve(__dirname, '.'),
+    watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
 
-  watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
+    resolver: {
+      // https://github.com/facebook/metro/issues/1#issuecomment-453450709
+      extraNodeModules: new Proxy(
+        {},
+        {
+          get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
+        },
+      ),
+      sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+      assetExts: [...sourceExts, 'cjs'],
+    },
 
-  resolver: {
-    // https://github.com/facebook/metro/issues/1#issuecomment-453450709
-    extraNodeModules: new Proxy(
-      {},
-      {
-        get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
-      },
-    ),
-    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
-    assetExts: [...sourceExts, 'cjs'],
-  },
+    // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
+    transformer: {
+      getTransformOptions: async () => ({
+        transform: {
+          experimentalImportSupport: false,
+          inlineRequires: false,
+        },
+      }),
+    },
 
-  // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: false,
-      },
-    }),
-  },
-
-  cacheStores: [
-    new FileStore({
-      root: path.join(__dirname, 'metro-cache'),
-    }),
-  ],
-};
+    cacheStores: [
+      new FileStore({
+        root: path.join(__dirname, 'metro-cache'),
+      }),
+    ],
+  };
+})();
