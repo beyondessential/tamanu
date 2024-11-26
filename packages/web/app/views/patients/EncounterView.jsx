@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
@@ -42,6 +42,7 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
     key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => <ChartsPane {...props} />,
+    condition: getSetting => getSetting(SETTING_KEYS),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
