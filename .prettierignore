@@ -5,3 +5,4 @@
 **/realm-object-server/**
 **/data/**
 **/.bin/**
+database/model/**/*.md
