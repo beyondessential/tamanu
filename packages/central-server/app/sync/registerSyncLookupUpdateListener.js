@@ -1,7 +1,7 @@
 import { snakeCase } from 'lodash';
 
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { getDependantAssociations } from '@tamanu/shared/utils';
+import { getDependentAssociations } from '@tamanu/shared/utils';
 
 /**
  * Update child records by setting updated_at_sync_tick = 1
@@ -10,7 +10,7 @@ import { getDependantAssociations } from '@tamanu/shared/utils';
  * @param {*} instanceId
  */
 export async function updateChildRecordsForSyncLookup(model, instanceId) {
-  const dependantAssociations = getDependantAssociations(model);
+  const dependantAssociations = getDependentAssociations(model);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;

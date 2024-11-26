@@ -17,5 +17,10 @@ export async function createApp(ctx) {
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
   const websocket = await createWebsocket(api.httpServer, ctx);
 
+  // Release the connection back to the pool when the server is closed
+  api.httpServer.on('close', () => {
+    dbNotifier.close();
+  });
+
   return { express: api.express, server: api.httpServer, websocket };
 }

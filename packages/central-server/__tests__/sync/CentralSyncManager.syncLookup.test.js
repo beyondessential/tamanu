@@ -16,13 +16,13 @@ import {
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
 import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
-import { updateChildRecordsForSyncLookup } from '../../dist/sync/registerSyncLookupUpdateListener';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -1515,7 +1515,9 @@ describe('Sync Lookup data', () => {
       encounter.patientId = patient2.id;
       await encounter.save();
 
-      await updateChildRecordsForSyncLookup(models.Encounter, encounter.id);
+      // Wait for the db listener (registered in registerSyncLookupUpdateListener.js)
+      // to also update the dependent records of encounter
+      await sleepAsync(1000);
 
       await centralSyncManager.updateLookupTable();
 
