@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useAppointmentsQuery } from '../../../api/queries';
-import { APPOINTMENT_CALENDAR_CLASS } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
@@ -72,7 +72,12 @@ const Carousel = styled.div`
 `;
 
 const emptyStateMessage = (
-  <EmptyState>No bookings to display. Please try adjusting the search filters.</EmptyState>
+  <EmptyState>
+    <TranslatedText
+      stringId="locationBooking.calendar.noMatchingBookings"
+      fallback="No bookings to display. Please try adjusting the search filters."
+    />
+  </EmptyState>
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
