@@ -79,22 +79,10 @@ const StyledRow = styled(CarouselGrid.Row)`
   grid-template-columns: initial;
   place-items: center;
   margin-block: 0.5rem;
-  position: relative;
-`;
-
-const EmptyStateMessage = styled.span`
-  border: 1px solid red;
-  position: fixed;
-  // TODO: hacky i dont like
-  left: 45%;
 `;
 
 const EmptyStateRow = () => (
-  <StyledRow>
-    <EmptyStateMessage>
-      No bookings to display. Please try adjusting the search filters.
-    </EmptyStateMessage>
-  </StyledRow>
+  <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
 export const LocationBookingsCalendarBody = ({
