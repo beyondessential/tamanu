@@ -22,6 +22,7 @@ import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
+import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
   width: 376px;
@@ -74,6 +75,7 @@ const StyledTimelineConnector = styled(TimelineConnector)`
 
 const StyledTimelineItem = styled(TimelineItem)`
   min-height: 60px;
+  cursor: pointer;
   &:before {
     content: none;
   }
@@ -150,6 +152,8 @@ const getFormattedBookingTime = ({ startTime, endTime }) =>
   `${formatTime(startTime).replace(' ', '')} - ${formatTime(endTime).replace(' ', '')}`;
 
 const BookingsTimelineItem = ({ appointment }) => {
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const history = useHistory();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -157,8 +161,13 @@ const BookingsTimelineItem = ({ appointment }) => {
   const [bodyRef, isBodyOverflowing] = useOverflow();
   const showTooltip = isHeadingOverflowing || isBodyOverflowing;
 
+  const onItemClick = async () => {
+    await mutateUserPreferences({ locationBookingFilters: {} });
+    history.push(`/appointments/locations`);
+  };
+
   return (
-    <StyledTimelineItem>
+    <StyledTimelineItem onClick={onItemClick}>
       <StyledTimelineSeparator>
         <StyledTimelineDot>
           <AppointmentStatusIndicator appointmentStatus={status} width={13} height={13} />
