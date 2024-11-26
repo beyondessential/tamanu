@@ -1,18 +1,10 @@
-import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
-import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
-import { Colors } from '../../../constants';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import {
-  appointmentToFormValues,
-  partitionAppointmentsByDate,
-  partitionAppointmentsByLocation,
-} from './utils';
+import { appointmentToFormValues, partitionAppointmentsByDate } from './utils';
 
 export const BookingsCell = ({
   appointments,
