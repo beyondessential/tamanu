@@ -9,10 +9,16 @@ const path = require('path');
 
 const { FileStore } = require('metro-cache');
 
+const { getDefaultConfig } = require('metro-config');
+
 // still works with npm
 const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
+
+const {
+  resolver: { sourceExts },
+} = getDefaultConfig(__dirname);
 
 module.exports = {
   projectRoot: path.resolve(__dirname, '.'),
@@ -28,6 +34,7 @@ module.exports = {
       },
     ),
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+    assetExts: [...sourceExts, 'cjs'],
   },
 
   // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
