@@ -111,6 +111,8 @@ export const LocationBookingsCalendarBody = ({
   const appointments = appointmentsData.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
+  // This stops us from hiding locations that don't contain any appointments when filtering only by location. 
+  // The actual filtering of locations actually happens within the locationsQuery passed to this file
   const areNonLocationFiltersActive =
     filters.clinicianId.length > 0 || filters.bookingTypeId.length > 0 || filters.patientNameOrId;
 
