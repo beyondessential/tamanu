@@ -4,7 +4,7 @@ set -euxo pipefail
 cd "$(dirname "$BASH_SOURCE")/../"
 
 echo "Building @tamanu/constants..."
-cd packages/constants
+cd constants
 npm run build
 
 
