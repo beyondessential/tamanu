@@ -4,14 +4,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 
-import {
-  AutocompleteField,
-  DynamicSelectField,
-  Field,
-  Form,
-  DateTimeField,
-  CheckField,
-} from '../../Field';
+import { AutocompleteField, DynamicSelectField, Field, Form, CheckField } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -24,14 +17,46 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+const formStyles = {
+  overflowY: 'auto',
+  minWidth: 'fit-content',
+};
+
+const getDescription = (isEdit, isLockedPatient) => {
+  if (isEdit) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.edit.description"
+        fallback="Modify the selected appointment below"
+      />
+    );
+  }
+
+  if (isLockedPatient) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.form.newForPatient.description"
+        fallback="Complete appointment details below to create a new appointment for the selected patient."
+      />
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="outpatientAppointment.form.new.description"
+      fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+    />
+  );
+};
+
+const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -39,16 +64,30 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   return (
     <ConfirmModal
       title={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.title"
-          fallback="Cancel new appointment"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.title"
+            fallback="Cancel modifying appointment"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.title"
+            fallback="Cancel new appointment"
+          />
+        )
       }
       subText={
-        <TranslatedText
-          stringId="outpatientAppointments.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new appointment?"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
+            fallback="Are you sure you would like to cancel modifying the appointment?"
+          />
+        ) : (
+          <TranslatedText
+            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
+            fallback="Are you sure you would like to cancel the new appointment?"
+          />
+        )
       }
       open={open}
       onConfirm={() => {
@@ -68,7 +107,7 @@ const SuccessMessage = ({ isEdit = false }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
-      fallback="Appointment successfully edited"
+      fallback="Appointment successfully modified"
     />
   ) : (
     <TranslatedText
@@ -102,7 +141,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('bookableLocationGroup');
 
-  const isEdit = !!(initialValues.id && initialValues.startTime);
+  const isEdit = !!initialValues.id;
+  const isLockedPatient = !!initialValues.patientId;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -144,10 +184,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     return (
       <Drawer
-        PaperProps={{
-          // Used to exclude the drawer from click away listener on appointment details popper
-          className: APPOINTMENT_DRAWER_CLASS,
-        }}
         open={open}
         onClose={warnAndResetForm}
         title={
@@ -163,12 +199,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             />
           )
         }
-        description={
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.description"
-            fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
-          />
-        }
+        description={getDescription(isEdit, isLockedPatient)}
       >
         <FormGrid columns={1}>
           <Field
@@ -180,7 +211,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             )}
             component={AutocompleteField}
             suggester={patientSuggester}
-            disabled={isEdit}
+            disabled={isLockedPatient}
             required
           />
           <Field
@@ -218,13 +249,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <Field
-            name="startTime"
-            label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
-            component={DateTimeField}
-            required
-            saveDateAsString
-          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -281,6 +306,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           await handleSubmit(values);
           resetForm();
         }}
+        style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
@@ -292,6 +318,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        isEdit={isEdit}
       />
     </>
   );

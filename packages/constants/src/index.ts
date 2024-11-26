@@ -39,4 +39,5 @@ export * from './materializedView.js';
 export * from './database.js';
 export * from './tasks.js';
 export * from './debugLog.js';
+export * from './hook.js';
 export * from './notifications.js';
