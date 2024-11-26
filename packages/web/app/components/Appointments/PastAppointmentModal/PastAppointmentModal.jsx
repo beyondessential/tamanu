@@ -156,7 +156,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
     initialSortDirection: 'desc',
   });
   const beforeDate = useMemo(() => new Date().toISOString(), []);
-  let appointments =
+  const appointments =
     useAppointmentsQuery({
       all: true,
       patientId: patient?.id,
