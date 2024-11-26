@@ -69,7 +69,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     filter => filter !== null && filter.length > 0,
   );
 
-  const { data: appointmentsData = [] } = useAppointmentsQuery({
+  const { data: appointmentsData } = useAppointmentsQuery({
     after: displayedDates[0],
     before: endOfDay(displayedDates.at(-1)),
     all: true,
@@ -78,7 +78,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     bookingTypeId: filters.bookingTypeId,
     patientNameOrId: filters.patientNameOrId,
   });
-  const appointments = appointmentsData.data ?? [];
+  const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const { data: locations } = locationsQuery;
