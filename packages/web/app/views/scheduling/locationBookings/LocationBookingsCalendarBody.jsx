@@ -25,6 +25,7 @@ export const BookingsCell = ({
 
   return (
     <CarouselGrid.Cell
+      id={locationId + '.' + date.valueOf()}
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
         // Open form for creating new booking

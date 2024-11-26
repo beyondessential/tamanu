@@ -1,6 +1,14 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const LocationBookingsContext = createContext(null);
+
+const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.date).valueOf()}`;
+
+export const scrollToCell = newCell => {
+  document
+    .getElementById(generateIdFromCell(newCell))
+    ?.scrollIntoView({ inline: 'start', block: 'center', behavior: 'smooth' });
+};
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
@@ -13,7 +21,13 @@ export const LocationBookingsContextProvider = ({ children }) => {
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,
     date: null,
-  });
+  }); 
+
+  useEffect(() => {
+    if (selectedCell.locationId && selectedCell.date) {
+      scrollToCell(selectedCell);
+    }
+  }, [selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
