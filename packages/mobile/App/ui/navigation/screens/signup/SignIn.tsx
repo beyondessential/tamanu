@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
-import { LOGIN_HEADER } from '@tamanu/constants/auth';
+import { LOGIN_HEADER } from '@tamanu/constants';
 import {
   FullView,
   RowView,
