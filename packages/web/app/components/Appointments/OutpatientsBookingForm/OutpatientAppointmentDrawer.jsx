@@ -56,7 +56,7 @@ const getDescription = (isEdit, isLockedPatient) => {
   );
 };
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
