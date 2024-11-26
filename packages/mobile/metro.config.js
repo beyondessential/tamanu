@@ -23,7 +23,7 @@ module.exports = (async () => {
   return {
     projectRoot: path.resolve(__dirname, '.'),
 
-    watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
+    watchFolders: [path.resolve(__dirname, '../node_modules'), ...workspaces],
 
     resolver: {
       // https://github.com/facebook/metro/issues/1#issuecomment-453450709
