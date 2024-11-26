@@ -30,7 +30,7 @@ export const BookingsCell = ({
         // Open form for creating new booking
         openBookingForm({ date, startDate: date, locationId });
       }}
-      $selected={selectedCell.locationId === locationId && isEqual(date, selectedCell.locationId)}
+      $selected={selectedCell.locationId === locationId && isEqual(date, selectedCell.date)}
     >
       {appointments?.map(a => (
         <AppointmentTile
