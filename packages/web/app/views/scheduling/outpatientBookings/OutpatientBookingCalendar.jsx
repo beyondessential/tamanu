@@ -21,6 +21,7 @@ export const ColumnWrapper = styled(Box)`
   flex-direction: column;
   inline-size: var(--column-width);
   min-block-size: max-content;
+
   > * {
     padding-inline: 0.5rem;
   }
@@ -35,14 +36,14 @@ export const ColumnWrapper = styled(Box)`
 `;
 
 const HeadCellWrapper = styled(Box)`
-  inset-block-start: 0;
-  position: sticky;
+  align-items: center;
   background: ${Colors.white};
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   inline-size: calc(var(--column-width) - 2px);
+  inset-block-start: 0;
+  justify-content: center;
+  position: sticky;
   text-align: center;
 `;
 
@@ -65,32 +66,32 @@ const AppointmentCount = styled('span')`
 const HeadCellTextWrapper = styled(Box)`
   block-size: 4rem;
   display: flex;
-  justify-content: center;
   flex-direction: column;
+  justify-content: center;
 `;
 
 const HeadCellText = styled(BodyText)`
-  font-weight: 400;
-  display: -webkit-box;
-  padding-inline: 0.5rem;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  display: -webkit-box;
+  font-weight: 400;
+  -webkit-line-clamp: 2;
   overflow: hidden;
+  padding-inline: 0.5rem;
 `;
 
 const AppointmentColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
-  padding-block: 0.5rem;
   gap: 0.5rem;
+  padding-block: 0.5rem;
 `;
 
 const StatusText = styled(BodyText)`
-  inline-size: 100%;
-  text-align: center;
-  padding-block-start: 1rem;
-  font-weight: 500;
   color: ${Colors.primary};
+  font-weight: 500;
+  inline-size: 100%;
+  padding-block-start: 1rem;
+  text-align: center;
 `;
 
 const ErrorText = styled(StatusText)`
@@ -140,11 +141,14 @@ export const HeadCell = ({ title, count }) => (
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
-  const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
+  const {
+    data: { headData = [], cellData, titleKey },
+    isLoading,
+    error,
+  } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
   });
-  const { headData = [], cellData, titleKey } = data;
 
   if (isLoading) {
     return <LoadingSkeleton />;
