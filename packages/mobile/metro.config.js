@@ -20,6 +20,7 @@ module.exports = {
   watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
 
   resolver: {
+    resolverMainFields: ['react-native', 'browser', 'module', 'main'],
     // https://github.com/facebook/metro/issues/1#issuecomment-453450709
     extraNodeModules: new Proxy(
       {},
