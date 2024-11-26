@@ -8,7 +8,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -268,6 +268,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       <Form
         enableReinitialize
         initialValues={initialValues}
+        formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         onSubmit={handleSubmit}
         render={renderForm}
         suppressErrorDialog
