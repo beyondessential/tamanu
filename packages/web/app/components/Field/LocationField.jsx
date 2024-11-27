@@ -113,6 +113,8 @@ export const LocationInput = React.memo(
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
+          helperText={helperText}
+          error={error}
         />
         <AutocompleteInput
           label={label}
@@ -155,7 +157,6 @@ LocationInput.defaultProps = {
 };
 
 export const LocationField = React.memo(({ field, ...props }) => {
-  delete props.error;
   return (
     <LocationInput
       name={field.name}

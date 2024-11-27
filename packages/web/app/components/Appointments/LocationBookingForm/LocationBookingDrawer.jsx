@@ -201,7 +201,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     resetForm();
   };
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
+  const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -212,6 +212,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     const resetFields = fields => {
       for (const field of fields) setFieldValue(field, null);
     };
+
+    console.log(errors)
 
     return (
       <Drawer
@@ -248,6 +250,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            error={errors.locationId}
           />
           <Field
             name="overnight"
@@ -304,7 +307,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         suppressErrorDialog
         validationSchema={validationSchema}
         style={formStyles}
-        validateOnChange
       />
       <WarningModal
         open={warningModalOpen}
