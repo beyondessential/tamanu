@@ -37,7 +37,7 @@ import { FormHelperText } from '@mui/material';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
-  border: max(0.0625rem, 1px) solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
+  border: max(0.0625rem, 1px) solid ${({ error }) => (error ? Colors.alert : Colors.outline)};
   padding-block: 0.75rem;
   padding-inline: 0.85rem;
 
@@ -62,7 +62,7 @@ export const TimeSlotPicker = ({
   label,
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
-  $error,
+  error,
   ...props
 }) => {
   const {
@@ -319,7 +319,7 @@ export const TimeSlotPicker = ({
 
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
-      <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
+      <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} error={error} {...props}>
         {isFetchingTodaysBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
@@ -375,8 +375,8 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
-      {/* TODO: style properly and show correct message  */}
-      {$error && <FormHelperText sx={{fontWeight: 500}} error>{$error}</FormHelperText>}
+      {/* TODO: style properly and show correct message */}
+      {error && <FormHelperText sx={{fontWeight: 500}} error>*Required</FormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };

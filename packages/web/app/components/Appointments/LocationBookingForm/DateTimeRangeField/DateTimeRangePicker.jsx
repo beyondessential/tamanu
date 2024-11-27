@@ -48,7 +48,7 @@ export const DateTimeRangePicker = ({
         label={timePickerLabel}
         required={required}
         variant="range"
-        $error={errors.startTime}
+        error={errors.startTime}
       />
     </>
   );
