@@ -4,6 +4,7 @@ import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
+import { useLocation } from 'react-router-dom';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from './DateSelector';
@@ -81,11 +82,14 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const location = useLocation();
+  const defaultGroupBy = new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
+  const [groupBy, setGroupBy] = useState(defaultGroupBy);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
@@ -116,11 +120,6 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <OutpatientAppointmentDrawer
-        initialValues={selectedAppointment}
-        onClose={handleCloseDrawer}
-        open={drawerOpen}
-      />
       <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
@@ -145,6 +144,11 @@ export const OutpatientAppointmentsView = () => {
             onOpenDrawer={handleOpenDrawer}
             groupBy={groupBy}
             selectedDate={selectedDate}
+          />
+          <OutpatientAppointmentDrawer
+            initialValues={selectedAppointment}
+            onClose={handleCloseDrawer}
+            open={drawerOpen}
           />
         </CalendarInnerWrapper>
       </CalendarWrapper>

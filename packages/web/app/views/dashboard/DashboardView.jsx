@@ -12,6 +12,7 @@ import { NotificationIcon } from '../../assets/icons/NotificationIcon';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { TodayBookingsPane } from './components/TodayBookingsPane';
+import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
 import { useAppointmentsQuery } from '../../api/queries';
 
 const TopBar = styled.div`
@@ -37,7 +38,7 @@ const NotificationIndicator = styled.div`
 
 const DashboardLayout = styled.div`
   display: grid;
-  grid-template-columns: repeat(${p => p.showBookings ? 3 : 2}, 1fr);
+  grid-template-columns: repeat(${p => (p.showBookings && p.showAppointments ? 3 : 2)}, 1fr);
   grid-template-rows: repeat(2, 1fr);
   justify-content: space-between;
   margin: 20px;
@@ -55,16 +56,25 @@ export const DashboardView = () => {
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
   const { currentUser, ability } = useAuth();
-  const appointments = useAppointmentsQuery({
-    locationId: '',
-    all: true,
-    after: '1970-01-01 00:00',
-    clinicianId: currentUser?.id,
-  }).data?.data ?? [];
+  const appointments =
+    useAppointmentsQuery({
+      locationGroupId: '',
+      all: true,
+      after: '1970-01-01 00:00',
+      clinicianId: currentUser?.id,
+    }).data?.data ?? [];
+  const bookings =
+    useAppointmentsQuery({
+      locationId: '',
+      all: true,
+      after: '1970-01-01 00:00',
+      clinicianId: currentUser?.id,
+    }).data?.data ?? [];
   const canReadAppointments = ability.can('read', 'Appointment');
   const canListAppointments = ability.can('list', 'Appointment');
 
-  const showBookings = canReadAppointments && canListAppointments && appointments.length > 0;
+  const showBookings = canReadAppointments && canListAppointments && bookings.length > 0;
+  const showAppointments = canReadAppointments && canListAppointments && appointments.length > 0;
 
   return (
     <PageContainer>
@@ -95,8 +105,9 @@ export const DashboardView = () => {
         notifications={notifications}
         isLoading={isLoading}
       />
-      <DashboardLayout showBookings={showBookings}>
+      <DashboardLayout showBookings={showBookings} showAppointments={showAppointments}>
         <RecentlyViewedPatientsList inDashboard patientPerPage={showBookings ? 4 : 6} />
+        {showAppointments && <TodayAppointmentsPane />}
         {showBookings && <TodayBookingsPane />}
       </DashboardLayout>
     </PageContainer>

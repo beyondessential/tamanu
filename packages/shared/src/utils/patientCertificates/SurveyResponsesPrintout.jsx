@@ -84,6 +84,8 @@ const getAnswers = ({ answer, sourceType, type }) => {
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
+      return JSON.parse(answer).join(', ');
     default:
       return answer;
   }
@@ -94,7 +96,9 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type, sourceType })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {getAnswers({ answer, type, sourceType })}
+      </Text>
     </View>
   );
 };
