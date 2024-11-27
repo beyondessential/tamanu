@@ -22,16 +22,17 @@ export const BookingsCell = ({
   openCancelModal,
 }) => {
   const { selectedCell } = useLocationBookingsContext();
+  const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
   return (
     <CarouselGrid.Cell
-      id={locationId + '.' + date.valueOf()}
+      // This id is used for scrolling logic when the selected cell changes
+      id={`${locationId}.${date.valueOf()}`}
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
-        // Open form for creating new booking
         openBookingForm({ date, startDate: date, locationId });
       }}
-      $selected={selectedCell.locationId === locationId && isEqual(date, selectedCell.date)}
+      $selected={isSelected}
     >
       {appointments?.map(a => (
         <AppointmentTile
