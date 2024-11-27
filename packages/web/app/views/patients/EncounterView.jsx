@@ -42,7 +42,7 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
     key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => <ChartsPane {...props} />,
-    condition: getSetting => getSetting(SETTING_KEYS),
+    condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
