@@ -104,13 +104,13 @@ export const AppointmentTile = ({
   const location = useLocation();
   useEffect(() => {
     const { appointmentId } = queryString.parse(location.search);
-    if (appointmentId && appointmentId === appointment.id) {
+    if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
         setOpen(true);
-        ref.current.scrollIntoView({ block: 'center' });
+        ref.current.scrollIntoView({ block: 'center', inline: 'start' });
       });
     }
-  }, [appointment.id, location.search]);
+  }, [appointment.id, hideTime, location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);

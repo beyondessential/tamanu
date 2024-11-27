@@ -32,7 +32,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 
 const Wrapper = styled(PageContainer)`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   max-block-size: 100%;
 `;
 
@@ -76,14 +76,19 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = prepopulationValues => {
-    setSelectedAppointment(prepopulationValues);
+  const openBookingForm = async prepopulationValues => {
+    await setSelectedAppointment(prepopulationValues);
     setIsDrawerOpen(true);
   };
 
   const openCancelModal = appointment => {
     setSelectedAppointment(appointmentToFormValues(appointment));
     setIsCancelModalOpen(true);
+  };
+
+  const handleNewBooking = async () => {
+    await setSelectedAppointment(null);
+    openBookingForm({});
   };
 
   const locationsQuery = useLocationsQuery({
@@ -99,7 +104,7 @@ export const LocationBookingsView = () => {
     <Wrapper>
       <LocationBookingsTopBar>
         <CalendarSearchBar onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={() => openBookingForm({})}>
+        <NewBookingButton onClick={handleNewBooking}>
           <PlusIcon />
           <TranslatedText
             stringId="locationBooking.calendar.bookLocation"
@@ -126,11 +131,13 @@ export const LocationBookingsView = () => {
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
       />
-      <LocationBookingDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
+      {selectedAppointment && (
+        <LocationBookingDrawer
+          initialValues={selectedAppointment}
+          open={isDrawerOpen}
+          onClose={closeBookingForm}
+        />
+      )}
     </Wrapper>
   );
 };

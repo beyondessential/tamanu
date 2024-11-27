@@ -1,18 +1,10 @@
-import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
-import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
-import { Colors } from '../../../constants';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import {
-  appointmentToFormValues,
-  partitionAppointmentsByDate,
-  partitionAppointmentsByLocation,
-} from './utils';
+import { appointmentToFormValues, partitionAppointmentsByDate } from './utils';
 
 export const BookingsCell = ({
   appointments,
@@ -73,53 +65,17 @@ export const BookingsRow = ({
   );
 };
 
-const StyledRow = styled(CarouselGrid.Row)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  grid-template-columns: initial;
-  place-items: center;
-  margin-block: 0.5rem;
-`;
-
-const EmptyStateRow = () => (
-  <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
-);
-
 export const LocationBookingsCalendarBody = ({
+  appointmentsByLocation,
   displayedDates,
+  filteredLocations,
   locationsQuery,
   openBookingForm,
   openCancelModal,
 }) => {
-  const { data: locations = [], isLoading: locationsAreLoading } = locationsQuery;
+  if (locationsQuery.isLoading) return <SkeletonRows colCount={displayedDates.length} />;
 
-  const { filters } = useLocationBookingsContext();
-
-  const { data: appointmentsData = [] } = useAppointmentsQuery({
-    after: displayedDates[0],
-    before: endOfDay(displayedDates.at(-1)),
-    all: true,
-    locationId: '',
-    clinicianId: filters.clinicianId,
-    bookingTypeId: filters.bookingTypeId,
-    patientNameOrId: filters.patientNameOrId,
-  });
-
-  if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations.length === 0) return <EmptyStateRow />;
-
-  const appointments = appointmentsData.data ?? [];
-  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
-
-  const areFiltersActive = Object.values(filters).some(
-    filter => filter !== null && filter.length > 0,
-  );
-
-  const filteredLocations = areFiltersActive
-    ? locations.filter(location => appointmentsByLocation[location.id])
-    : locations;
-
-  if (filteredLocations.length === 0) return <EmptyStateRow />;
+  if (filteredLocations?.length === 0) return null;
 
   return filteredLocations?.map(location => (
     <BookingsRow

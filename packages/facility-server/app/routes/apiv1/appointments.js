@@ -76,6 +76,8 @@ const sortKeys = {
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
   bookingType: Sequelize.col('bookingType.name'),
+  appointmentType: Sequelize.col('appointmentType.name'),
+  outpatientAppointmentArea: Sequelize.col('locationGroup.name'),
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 

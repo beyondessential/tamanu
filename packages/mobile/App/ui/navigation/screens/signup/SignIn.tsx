@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
-import { LOGIN_HEADER } from '@tamanu/constants';
 import {
   FullView,
   RowView,
@@ -112,7 +111,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             <StyledText fontSize={14} color={theme.colors.WHITE}>
               <TranslatedText
                 stringId="login.subTitle"
-                fallback={LOGIN_HEADER}
+                fallback="Enter your details below to log in"
               />
             </StyledText>
           </StyledView>
