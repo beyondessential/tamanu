@@ -25,8 +25,9 @@ import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
+  grid-area: bookings;
   width: 376px;
-  height: 318px;
+  min-height: 318px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding-top: 15px;
@@ -148,12 +149,15 @@ const NoDataContainer = styled.div`
   text-align: center;
 `;
 
+const Link = styled.div`
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 const getFormattedBookingTime = ({ startTime, endTime }) =>
   `${formatTime(startTime).replace(' ', '')} - ${formatTime(endTime).replace(' ', '')}`;
 
 const BookingsTimelineItem = ({ appointment }) => {
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
-  const history = useHistory();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -161,13 +165,8 @@ const BookingsTimelineItem = ({ appointment }) => {
   const [bodyRef, isBodyOverflowing] = useOverflow();
   const showTooltip = isHeadingOverflowing || isBodyOverflowing;
 
-  const onItemClick = async () => {
-    await mutateUserPreferences({ locationBookingFilters: {} });
-    history.push(`/appointments/locations`);
-  };
-
   return (
-    <StyledTimelineItem onClick={onItemClick}>
+    <StyledTimelineItem>
       <StyledTimelineSeparator>
         <StyledTimelineDot>
           <AppointmentStatusIndicator appointmentStatus={status} width={13} height={13} />
@@ -203,6 +202,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = () => {
   const { currentUser } = useAuth();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -219,6 +219,11 @@ export const TodayBookingsPane = () => {
 
   const onViewAll = () => {
     history.push(`/appointments/locations?clinicianId=${currentUser?.id}`);
+  };
+
+  const onLocationBookingsClick = async () => {
+    await mutateUserPreferences({ locationBookingFilters: {} });
+    history.push(`/appointments/locations`);
   };
 
   return (
@@ -244,12 +249,12 @@ export const TodayBookingsPane = () => {
               stringId="dashboard.bookings.todayBookings.noBookings"
               fallback="You have no bookings scheduled for today. To view other bookings, visit"
             />
-            <Box style={{ textDecoration: 'underline' }}>
+            <Link onClick={onLocationBookingsClick}>
               <TranslatedText
                 stringId="dashboard.bookings.todayBookings.locationBookings"
                 fallback="Location bookings"
               />
-            </Box>
+            </Link>
           </div>
         </NoDataContainer>
       ) : (

@@ -38,14 +38,40 @@ const NotificationIndicator = styled.div`
 
 const DashboardLayout = styled.div`
   display: grid;
-  grid-template-columns: repeat(${p => (p.showBookings && p.showAppointments ? 3 : 2)}, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  ${p => {
+    if (p.showAppointments && p.showBookings) {
+      return `grid-template-areas: 
+        'patients patients appointments'
+        'tasks tasks appointments'
+        'tasks tasks bookings';`;
+    }
+    if (p.showAppointments && !p.showBookings) {
+      return `grid-template-areas: 
+        'patients patients appointments'
+        'tasks tasks appointments'
+        'tasks tasks appointments';`;
+    }
+    if (!p.showAppointments && p.showBookings) {
+      return `grid-template-areas: 
+        'patients patients bookings'
+        'tasks tasks bookings'
+        'tasks tasks bookings';`;
+    }
+    if (!p.showAppointments && !p.showBookings) {
+      return `grid-template-areas: 
+        'patients patients patients'
+        'tasks tasks tasks'
+        'tasks tasks tasks';`;
+    }
+  }}
   justify-content: space-between;
   margin: 20px;
   grid-column-gap: 2%;
+  grid-row-gap: 20px;
   .MuiListItem-root {
     margin: 0 -20px 0 -20px;
   }
+  height: calc(100vh - 130px);
 `;
 
 export const DashboardView = () => {
