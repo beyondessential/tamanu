@@ -15,6 +15,7 @@ import { MenuButton } from '../MenuButton';
 import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
+import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -102,8 +103,13 @@ const StyledTable = styled(Table)`
 
 const ViewPastBookingsButton = styled(Box)`
   font-size: 11px;
+  font-weight: 400;
   text-decoration: underline;
   cursor: pointer;
+  &:hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+  }
 `;
 
 const CustomCellContainer = styled(Box)`
@@ -147,6 +153,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 
 const TableHeader = ({ title }) => {
   const history = useHistory();
+  const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   return (
     <TableTitleContainer>
       <Box component={'span'} fontSize="16px" fontWeight={500}>
@@ -174,6 +181,12 @@ const TableHeader = ({ title }) => {
           />
         </Button>
       </div>
+      {isViewPastBookingsModalOpen && (
+        <PastAppointmentModal 
+          open={true} 
+          onClose={() => setIsViewPastBookingsModalOpen(false)}
+        />
+      )}
     </TableTitleContainer>
   );
 };

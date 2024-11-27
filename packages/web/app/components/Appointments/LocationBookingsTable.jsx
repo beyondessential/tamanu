@@ -32,8 +32,13 @@ const TableTitleContainer = styled(Box)`
 
 const ViewPastBookingsButton = styled(Box)`
   font-size: 11px;
+  font-weight: 400;
   text-decoration: underline;
   cursor: pointer;
+  &:hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+  }
 `;
 
 const OvernightIcon = styled(Brightness2Icon)`
@@ -274,6 +279,12 @@ export const LocationBookingsTable = ({ patient }) => {
           }
           openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
         />
+        {isViewPastBookingsModalOpen && (
+          <PastBookingsModal
+            patient={patient}
+            onClose={() => setIsViewPastBookingsModalOpen(false)}
+          />
+        )}
       </NoDataContainer>
     );
   }
