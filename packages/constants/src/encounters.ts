@@ -9,7 +9,7 @@ export const ENCOUNTER_TYPES = {
   VACCINATION: 'vaccination',
 };
 
-export const ENCOUNTER_LABELS = {
+export const ENCOUNTER_TYPE_LABELS = {
   [ENCOUNTER_TYPES.ADMISSION]: 'Hospital admission',
   [ENCOUNTER_TYPES.TRIAGE]: 'Triage',
   [ENCOUNTER_TYPES.CLINIC]: 'Clinic',

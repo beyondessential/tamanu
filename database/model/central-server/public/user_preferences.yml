@@ -34,6 +34,9 @@ sources:
           - name: selected_graphed_vitals_on_filter
             data_type: character varying(255)
             description: "{{ doc('user_preferences__selected_graphed_vitals_on_filter') }}"
+          - name: encounter_tab_orders
+            data_type: jsonb
+            description: "{{ doc('user_preferences__encounter_tab_orders') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_preferences."

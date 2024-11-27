@@ -16,3 +16,4 @@ export { EncounterInvoicingPane } from './EncounterInvoicingPane';
 export { InvoicesPane } from './InvoicesPane';
 export { VitalsPane } from './VitalsPane';
 export { PatientResultsPane } from './PatientResultsPane';
+export { TasksPane } from './TasksPane';

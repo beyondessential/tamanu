@@ -103,6 +103,8 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
+export * from './Notification';
+
 export * from './Signer';
 
 export * from './CertificateNotification';
@@ -117,6 +119,12 @@ export * from './fhir';
 export * from './TranslatedString';
 
 export * from './IPSRequest';
+
+export * from './Task';
+export * from './TaskDesignation';
+export * from './TaskTemplate';
+export * from './TaskTemplateDesignation';
+export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './DebugLog';

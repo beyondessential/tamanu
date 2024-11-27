@@ -144,6 +144,11 @@ describe('Sync Lookup data', () => {
       LabTest,
       Note,
       Referral,
+      Task,
+      TaskDesignation,
+      TaskTemplate,
+      TaskTemplateDesignation,
+      UserDesignation,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -225,7 +230,9 @@ describe('Sync Lookup data', () => {
       fake(PatientSecondaryId, { patientId: patient.id, typeId: referenceData.id }),
     );
     await Permission.create(fake(Permission, { roleId: role.id }));
-    await Appointment.create(fake(Appointment, { patientId: patient.id }));
+    await Appointment.create(
+      fake(Appointment, { patientId: patient.id, locationGroupId: locationGroup.id }),
+    );
     encounter1 = await Encounter.create(
       fake(Encounter, {
         patientId: patient.id,
@@ -533,6 +540,39 @@ describe('Sync Lookup data', () => {
         invoiceItemId: invoiceItem.id,
       }),
     );
+
+    const task = await Task.create(
+      fake(Task, {
+        encounterId: encounter1.id,
+        requestedByUserId: examiner.id,
+        completedByUserId: examiner.id,
+        notCompletedByUserId: examiner.id,
+        todoByUserId: examiner.id,
+        deletedByUserId: examiner.id,
+        deletedReasonId: referenceData.id,
+      }),
+    );
+    await TaskDesignation.create(
+      fake(TaskDesignation, {
+        taskId: task.id,
+        designationId: referenceData.id,
+      }),
+    );
+    const taskTemplate = await TaskTemplate.create(
+      fake(TaskTemplate, { referenceDataId: referenceData.id }),
+    );
+    await TaskTemplateDesignation.create(
+      fake(TaskTemplateDesignation, {
+        taskTemplateId: taskTemplate.id,
+        designationId: referenceData.id,
+      }),
+    );
+    await UserDesignation.create(
+      fake(UserDesignation, {
+        userId: examiner.id,
+        designationId: referenceData.id,
+      }),
+    );
   };
 
   beforeAll(async () => {
@@ -594,7 +634,7 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      [''],
+      [facility.id],
       null,
       simplestSessionConfig,
       simplestConfig,
@@ -614,12 +654,15 @@ describe('Sync Lookup data', () => {
         );
       }
 
+      // except for appointments, patient linked models should not spit out facilityId;
+      const expectedFacility = model.tableName === 'appointments' ? facility.id : null;
+
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
-          facilityId: null, // patient linked models should not spit out facilityId
+          facilityId: expectedFacility,
           isDeleted: false,
         }),
       );

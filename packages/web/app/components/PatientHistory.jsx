@@ -101,9 +101,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     },
     {
       key: 'encounterType',
-      title: (
-        <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />
-      ),
+      title: <TranslatedText stringId="encounter.type.label" fallback="Type" />,
       accessor: getType,
       sortable: false,
     },
@@ -123,7 +121,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       key: 'reasonForEncounter',
       title: (
         <TranslatedText
-          stringId="patientHistory.table.column.reasonForEncounter"
+          stringId="encounter.reasonForEncounter.label"
           fallback="Reason for encounter"
         />
       ),
