@@ -14,6 +14,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { appointmentToFormValues } from './utils';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -132,7 +133,7 @@ export const LocationBookingsView = () => {
       />
       {selectedAppointment && (
         <LocationBookingDrawer
-          initialValues={selectedAppointment}
+          initialValues={appointmentToFormValues(selectedAppointment)}
           open={isDrawerOpen}
           onClose={closeBookingForm}
         />
