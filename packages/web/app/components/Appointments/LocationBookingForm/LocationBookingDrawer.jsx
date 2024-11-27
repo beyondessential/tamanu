@@ -271,7 +271,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </StyledFormGrid>
       </Drawer>
     );
