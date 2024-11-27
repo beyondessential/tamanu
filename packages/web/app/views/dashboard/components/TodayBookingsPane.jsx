@@ -25,7 +25,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
-  grid-area: bookings;
+  flex-grow: 1;
   width: 376px;
   min-height: 318px;
   border: 1px solid ${Colors.outline};

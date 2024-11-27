@@ -37,41 +37,24 @@ const NotificationIndicator = styled.div`
 `;
 
 const DashboardLayout = styled.div`
-  display: grid;
-  ${p => {
-    if (p.showAppointments && p.showBookings) {
-      return `grid-template-areas: 
-        'patients patients appointments'
-        'tasks tasks appointments'
-        'tasks tasks bookings';`;
-    }
-    if (p.showAppointments && !p.showBookings) {
-      return `grid-template-areas: 
-        'patients patients appointments'
-        'tasks tasks appointments'
-        'tasks tasks appointments';`;
-    }
-    if (!p.showAppointments && p.showBookings) {
-      return `grid-template-areas: 
-        'patients patients bookings'
-        'tasks tasks bookings'
-        'tasks tasks bookings';`;
-    }
-    if (!p.showAppointments && !p.showBookings) {
-      return `grid-template-areas: 
-        'patients patients patients'
-        'tasks tasks tasks'
-        'tasks tasks tasks';`;
-    }
-  }}
-  justify-content: space-between;
+  display: flex;
   margin: 20px;
-  grid-column-gap: 2%;
-  grid-row-gap: 20px;
+  justify-content: space-between;
+  gap: 20px;
   .MuiListItem-root {
     margin: 0 -20px 0 -20px;
   }
   height: calc(100vh - 130px);
+`;
+
+const PatientsTasksContainer = styled.div`
+  flex-grow: 1;
+`;
+
+const SchedulePanesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `;
 
 export const DashboardView = () => {
@@ -132,9 +115,13 @@ export const DashboardView = () => {
         isLoading={isLoading}
       />
       <DashboardLayout showBookings={showBookings} showAppointments={showAppointments}>
-        <RecentlyViewedPatientsList inDashboard patientPerPage={showBookings ? 4 : 6} />
-        {showAppointments && <TodayAppointmentsPane />}
-        {showBookings && <TodayBookingsPane />}
+        <PatientsTasksContainer>
+          <RecentlyViewedPatientsList inDashboard patientPerPage={showBookings ? 4 : 6} />
+        </PatientsTasksContainer>
+        <SchedulePanesContainer>
+          {showAppointments && <TodayAppointmentsPane />}
+          {showBookings && <TodayBookingsPane />}
+        </SchedulePanesContainer>
       </DashboardLayout>
     </PageContainer>
   );
