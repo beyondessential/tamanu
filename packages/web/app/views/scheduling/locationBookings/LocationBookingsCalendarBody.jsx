@@ -12,6 +12,7 @@ import {
   appointmentToFormValues,
   partitionAppointmentsByDate,
   partitionAppointmentsByLocation,
+  generateIdFromCell,
 } from './utils';
 
 export const BookingsCell = ({
@@ -26,8 +27,7 @@ export const BookingsCell = ({
 
   return (
     <CarouselGrid.Cell
-      // This id is used for scrolling logic when the selected cell changes
-      id={`${locationId}.${date.valueOf()}`}
+      id={generateIdFromCell({ locationId, date })}
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
         openBookingForm({ date, startDate: date, locationId });

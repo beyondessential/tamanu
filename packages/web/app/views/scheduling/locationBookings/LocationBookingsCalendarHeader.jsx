@@ -10,6 +10,7 @@ import { Colors } from '../../../constants';
 import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { scrollToCell } from './utils';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;
@@ -97,10 +98,20 @@ const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
 
 export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDates }) => {
-  const { selectedCell } = useLocationBookingsContext()
+  const { selectedCell } = useLocationBookingsContext();
   const [monthOf, setMonthOf] = selectedMonthState;
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
-  useEffect(() => (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)(), [monthOf]);
+
+  // This controls the calendar scroll based on the selected month and cell
+  useEffect(() => {
+    if (selectedCell.date) {
+      setMonthOf(selectedCell.date);
+      scrollToCell(selectedCell);
+      return;
+    }
+    // This scroll logic only applies when chaning month without a selectedCell
+    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
+  }, [monthOf, selectedCell, setMonthOf]);
 
   const location = useLocation();
   useEffect(() => {
