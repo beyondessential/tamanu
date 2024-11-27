@@ -96,10 +96,10 @@ export class AppointmentDetailSender extends ScheduledTask {
             This is a confirmation that your appointment has been scheduled at <facility>.
             Date: $startDate$
             Time: $startTime$
-            Location: $locatioName$, $facilityName$
+            Location: $locationName$, $facilityName$
             Clinician: Clinician name (if recorded, otherwise don't display this field)
 
-            Do not respond to this email. 
+            Do not respond to this email.
         `;
 
         const replacements = {

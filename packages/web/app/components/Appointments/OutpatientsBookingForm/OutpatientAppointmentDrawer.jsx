@@ -27,6 +27,7 @@ import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { usePatientData } from '../../../api/queries/usePatientData';
+import { useAuth } from '../../../contexts/Auth';
 
 const IconLabel = styled.div`
   display: flex;
@@ -178,6 +179,7 @@ const EmailFields = ({ patientId }) => {
 };
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
+  const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
@@ -375,7 +377,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     <>
       <Form
         onSubmit={async (values, { resetForm }) => {
-          await handleSubmit(values);
+          await handleSubmit({ ...values, facilityId });
           resetForm();
         }}
         style={formStyles}
