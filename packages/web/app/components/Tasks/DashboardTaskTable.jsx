@@ -24,7 +24,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 
 const StyledTable = styled(Table)`
   max-height: 467px;
-  min-height: ${p=> !p.isEmpty ? '467px' : '511px'};
+  min-height: ${p => (!p.isEmpty ? '467px' : '511px')};
   border-left: 0px solid white;
   border-right: 0px solid white;
   border-radius: 0px;
@@ -257,7 +257,10 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { data: userTasks, isLoading } = useAutoUpdatingQuery(
     `user/${currentUser?.id}/tasks`,
     queryParams,
-    `${WS_EVENTS.DATABASE_TABLE_CHANGED}:tasks`,
+    [
+      `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${currentUser?.id}`,
+      `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`,
+    ],
   );
 
   useEffect(() => {

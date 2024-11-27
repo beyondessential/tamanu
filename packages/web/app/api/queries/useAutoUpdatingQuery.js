@@ -8,7 +8,7 @@ import { useApi } from '../useApi';
  * Similar to useQuery but with a listener to a socket channel matching the endpoint that indicates
  * when the data has updated, and invalidates the query when the event is received
  */
-export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChannel) => {
+export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChannels) => {
   const api = useApi();
   const { socket } = useSocket();
   const queryClient = useQueryClient();
@@ -19,9 +19,16 @@ export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChann
       queryClient.invalidateQueries(queryKey);
     }, 1000);
     if (!socket) return;
-    socket.on(updateDetectionChannel, handleDataUpdatedEvent);
-    return () => socket.off(updateDetectionChannel, handleDataUpdatedEvent);
-  }, [socket, updateDetectionChannel, queryClient, queryKey]);
+
+    const channels = Array.isArray(updateDetectionChannels)
+      ? updateDetectionChannels
+      : [updateDetectionChannels];
+    channels.forEach(channel => socket.on(channel, handleDataUpdatedEvent));
+
+    return () => {
+      channels.forEach(channel => socket.off(channel, handleDataUpdatedEvent));
+    };
+  }, [socket, updateDetectionChannels, queryClient, queryKey]);
 
   return useQuery(queryKey, () => api.get(endpoint, queryParams));
 };
