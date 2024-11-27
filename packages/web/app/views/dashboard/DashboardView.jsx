@@ -11,6 +11,7 @@ import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
+import { TodayBookingsPane } from './components/TodayBookingsPane';
 import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
 import { useAppointmentsQuery } from '../../api/queries';
 
@@ -36,15 +37,24 @@ const NotificationIndicator = styled.div`
 `;
 
 const DashboardLayout = styled.div`
-  display: grid;
-  grid-template-columns: repeat(${p => p.showBookings ? 3 : 2}, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  justify-content: space-between;
+  display: flex;
   margin: 20px;
-  grid-column-gap: 2%;
+  justify-content: space-between;
+  gap: 20px;
   .MuiListItem-root {
     margin: 0 -20px 0 -20px;
   }
+  height: calc(100vh - 130px);
+`;
+
+const PatientsTasksContainer = styled.div`
+  flex-grow: 1;
+`;
+
+const SchedulePanesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `;
 
 export const DashboardView = () => {
@@ -55,16 +65,24 @@ export const DashboardView = () => {
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
   const { currentUser, ability } = useAuth();
-  const appointments = useAppointmentsQuery({
-    locationGroupId: '',
-    all: true,
-    after: '1970-01-01 00:00',
-    clinicianId: currentUser?.id,
-  }).data?.data ?? [];
-
+  const appointments =
+    useAppointmentsQuery({
+      locationGroupId: '',
+      all: true,
+      after: '1970-01-01 00:00',
+      clinicianId: currentUser?.id,
+    }).data?.data ?? [];
+  const bookings =
+    useAppointmentsQuery({
+      locationId: '',
+      all: true,
+      after: '1970-01-01 00:00',
+      clinicianId: currentUser?.id,
+    }).data?.data ?? [];
   const canReadAppointments = ability.can('read', 'Appointment');
   const canListAppointments = ability.can('list', 'Appointment');
 
+  const showBookings = canReadAppointments && canListAppointments && bookings.length > 0;
   const showAppointments = canReadAppointments && canListAppointments && appointments.length > 0;
 
   return (
@@ -96,9 +114,14 @@ export const DashboardView = () => {
         notifications={notifications}
         isLoading={isLoading}
       />
-      <DashboardLayout showBookings={showAppointments}>
-        <RecentlyViewedPatientsList inDashboard patientPerPage={showAppointments ? 4 : 6} />
-        {showAppointments && <TodayAppointmentsPane />}
+      <DashboardLayout showBookings={showBookings} showAppointments={showAppointments}>
+        <PatientsTasksContainer>
+          <RecentlyViewedPatientsList inDashboard patientPerPage={showBookings ? 4 : 6} />
+        </PatientsTasksContainer>
+        <SchedulePanesContainer>
+          {showAppointments && <TodayAppointmentsPane />}
+          {showBookings && <TodayBookingsPane />}
+        </SchedulePanesContainer>
       </DashboardLayout>
     </PageContainer>
   );
