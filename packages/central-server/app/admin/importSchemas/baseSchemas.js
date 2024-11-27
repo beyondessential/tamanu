@@ -124,6 +124,14 @@ export const Location = Base.shape({
     .max(1, 'maxOccupancy above 1 is unimplemented'),
 });
 
+export const LocationGroup = Base.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+  facilityId: yup.string().required(),
+  visibilityStatus,
+  isBookable: yup.boolean().default(false),
+});
+
 export const Permission = yup.object().shape({
   _yCell: yup.string().oneOf(['y', 'n'], 'permissions matrix must only use the letter y or n'), // validation-only, not stored in the database anywhere
   verb: yup.string().required(),

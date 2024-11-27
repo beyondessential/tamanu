@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -11,16 +11,13 @@ export class Appointment extends Model {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
         endTime: dateTimeType('endTime'),
-        type: {
-          type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
-        },
         status: {
           type: Sequelize.STRING,
           allowNull: false,
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
+        typeLegacy: { type: Sequelize.STRING, allowNull: true },
+        isHighPriority: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -30,8 +27,13 @@ export class Appointment extends Model {
     return [
       { association: 'patient', include: ['village'] },
       'clinician',
-      'location',
+      {
+        association: 'location',
+        include: ['locationGroup'],
+      },
       'locationGroup',
+      'appointmentType',
+      'bookingType',
     ];
   }
 
@@ -55,6 +57,16 @@ export class Appointment extends Model {
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'appointmentTypeId',
+      as: 'appointmentType',
     });
   }
 

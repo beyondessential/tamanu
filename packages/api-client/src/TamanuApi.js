@@ -6,6 +6,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
+  ResourceConflictError,
   ServerResponseError,
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
@@ -214,6 +215,11 @@ export class TamanuApi {
         }
         throw new VersionIncompatibleError(versionIncompatibleMessage);
       }
+    }
+
+    // Handle resource conflict
+    if (response.status === 409) {
+      throw new ResourceConflictError(message)
     }
 
     throw new ServerResponseError(`Server error response: ${message}`);

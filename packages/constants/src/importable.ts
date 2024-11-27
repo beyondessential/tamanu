@@ -3,6 +3,8 @@ import { IMAGING_AREA_TYPES } from './imaging.js';
 // Reference data stored IN the "reference_data" table
 export const REFERENCE_TYPES = {
   ALLERGY: 'allergy',
+  APPOINTMENT_TYPE: 'appointmentType',
+  BOOKING_TYPE: 'bookingType',
   CONDITION: 'condition',
   CATCHMENT: 'catchment',
   DRUG: 'drug',

@@ -126,7 +126,7 @@ export const DateInput = ({
         return;
       }
     }
-  }
+  };
 
   useEffect(() => {
     const formattedValue = fromRFC3339(value, format);

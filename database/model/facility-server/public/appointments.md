@@ -38,6 +38,16 @@ TODO
 TODO
 {% enddocs %}
 
+{% docs appointments__type_legacy %}
+The legacy type of appointment.
+
+One of:
+- `Standard`
+- `Emergency`
+- `Specialist`
+- `Other`
+{% enddocs %}
+
 {% docs appointments__status %}
 The current status of the appointment record.
 {% enddocs %}
@@ -52,4 +62,18 @@ Legacy format of the end time kept for safety purposes.
 
 {% docs appointments__location_group_id %}
 TODO
+{% enddocs %}
+
+{% docs appointments__booking_type_id %}
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=bookingType`).
+{% enddocs %}
+
+{% docs appointments__appointment_type_id %}
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=appointmentType`).
+{% enddocs %}
+
+{% docs appointments__is_high_priority %}
+Boolean specify if the appointment is high priority.
 {% enddocs %}

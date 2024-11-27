@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton } from '@material-ui/core';
+import { WS_EVENTS } from '@tamanu/constants';
 
 import { Heading1, Heading5, PageContainer } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
@@ -8,6 +9,10 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
+import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
+import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
+import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
+import { useAppointmentsQuery } from '../../api/queries';
 
 const TopBar = styled.div`
   position: sticky;
@@ -17,10 +22,50 @@ const TopBar = styled.div`
   background-color: ${Colors.white};
   display: flex;
   justify-content: space-between;
+  position: relative;
+`;
+
+const NotificationIndicator = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background-color: ${Colors.alert};
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+`;
+
+const DashboardLayout = styled.div`
+  display: grid;
+  grid-template-columns: repeat(${p => p.showBookings ? 3 : 2}, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  justify-content: space-between;
+  margin: 20px;
+  grid-column-gap: 2%;
+  .MuiListItem-root {
+    margin: 0 -20px 0 -20px;
+  }
 `;
 
 export const DashboardView = () => {
-  const { currentUser } = useAuth();
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
+    'notifications',
+    {},
+    `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
+  );
+  const { currentUser, ability } = useAuth();
+  const appointments = useAppointmentsQuery({
+    locationGroupId: '',
+    all: true,
+    after: '1970-01-01 00:00',
+    clinicianId: currentUser?.id,
+  }).data?.data ?? [];
+
+  const canReadAppointments = ability.can('read', 'Appointment');
+  const canListAppointments = ability.can('list', 'Appointment');
+
+  const showAppointments = canReadAppointments && canListAppointments && appointments.length > 0;
 
   return (
     <PageContainer>
@@ -40,11 +85,21 @@ export const DashboardView = () => {
             />
           </Heading5>
         </div>
-        <IconButton>
+        <IconButton onClick={() => setNotificationOpen(true)}>
           <NotificationIcon />
+          {!!notifications.unreadNotifications?.length && <NotificationIndicator />}
         </IconButton>
       </TopBar>
-      <RecentlyViewedPatientsList inDashboard />
+      <NotificationDrawer
+        open={notificationOpen}
+        onClose={() => setNotificationOpen(false)}
+        notifications={notifications}
+        isLoading={isLoading}
+      />
+      <DashboardLayout showBookings={showAppointments}>
+        <RecentlyViewedPatientsList inDashboard patientPerPage={showAppointments ? 4 : 6} />
+        {showAppointments && <TodayAppointmentsPane />}
+      </DashboardLayout>
     </PageContainer>
   );
 };
