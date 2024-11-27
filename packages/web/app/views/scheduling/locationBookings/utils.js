@@ -62,5 +62,5 @@ export const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.da
 export const scrollToCell = newCell => {
   document
     .getElementById(generateIdFromCell(newCell))
-    ?.scrollIntoView({ inline: 'start', block: 'center', behavior: 'smooth' });
+    ?.scrollIntoView({ inline: 'start' });
 };
