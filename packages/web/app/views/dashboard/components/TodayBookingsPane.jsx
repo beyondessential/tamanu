@@ -41,9 +41,8 @@ const TitleContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid ${Colors.outline};
-  padding-bottom: 10px;
-  margin-left: 20px;
-  margin-right: 20px;
+  padding-bottom: 6px;
+  margin: 0 20px 11px;
 `;
 
 const ActionLink = styled.span`
@@ -53,20 +52,24 @@ const ActionLink = styled.span`
 `;
 
 const StyledTimeline = styled(Timeline)`
-  padding: 10px 12px;
+  padding-top: 0;
+  padding-right: 20px;
+  padding-left: 12px;
   margin: 0;
-  max-height: 252px;
+  margin-bottom: -16px;
+  flex: 1;
+  height: 0;
   overflow-y: auto;
 `;
 
 const StyledTimelineContent = styled(TimelineContent)`
   font-size: 14px;
-  min-width: 155px;
   display: flex;
   align-items: center;
   gap: 5px;
   padding: 0;
   padding-left: 6px;
+  width: 0;
 `;
 
 const StyledTimelineConnector = styled(TimelineConnector)`
@@ -101,7 +104,6 @@ const StyledTimelineSeparator = styled(TimelineSeparator)`
 
 const Card = styled.div`
   background-color: ${Colors.outline};
-  width: 192px;
   height: 54px;
   border-radius: 3px;
   padding: 8px 16px;
@@ -130,18 +132,20 @@ const TimeText = styled.div`
 `;
 
 const Footer = styled.div`
-  margin: 0 20px;
+  margin: 11px 20px 0;
   height: 20px;
   border-top: 1px solid ${Colors.outline};
+  position: sticky;
+  background-color: ${Colors.white};
 `;
 
 const NoDataContainer = styled.div`
-  height: 236px;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  margin: 20px;
+  margin: 0 20px 20px;
   font-size: 14px;
   font-weight: 500;
   color: ${Colors.primary};
@@ -175,26 +179,28 @@ const BookingsTimelineItem = ({ appointment }) => {
       </StyledTimelineSeparator>
       <StyledTimelineContent>
         <TimeText>{getFormattedBookingTime({ startTime, endTime })}</TimeText>
-        <ConditionalTooltip
-          visible={showTooltip}
-          title={
-            <div>
-              {locationGroup.name} {location.name}
-              <Box fontWeight={400}>
+        <Box width={0} flex={1}>
+          <ConditionalTooltip
+            visible={showTooltip}
+            title={
+              <div>
+                {locationGroup.name} {location.name}
+                <Box fontWeight={400}>
+                  {patient.firstName} {patient.lastName}
+                </Box>
+              </div>
+            }
+          >
+            <Card $color={APPOINTMENT_STATUS_COLORS[status]}>
+              <CardHeading ref={headingRef}>
+                {locationGroup.name} {location.name}
+              </CardHeading>
+              <CardBody ref={bodyRef}>
                 {patient.firstName} {patient.lastName}
-              </Box>
-            </div>
-          }
-        >
-          <Card $color={APPOINTMENT_STATUS_COLORS[status]}>
-            <CardHeading ref={headingRef}>
-              {locationGroup.name} {location.name}
-            </CardHeading>
-            <CardBody ref={bodyRef}>
-              {patient.firstName} {patient.lastName}
-            </CardBody>
-          </Card>
-        </ConditionalTooltip>
+              </CardBody>
+            </Card>
+          </ConditionalTooltip>
+        </Box>
       </StyledTimelineContent>
     </StyledTimelineItem>
   );
