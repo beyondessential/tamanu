@@ -33,6 +33,7 @@ import {
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
 } from './utils';
+import { FormHelperText } from '@mui/material';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -61,6 +62,7 @@ export const TimeSlotPicker = ({
   label,
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
+  $error,
   ...props
 }) => {
   const {
@@ -373,6 +375,8 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
+      {/* TODO: style properly and show correct message  */}
+      {$error && <FormHelperText sx={{fontWeight: 500}} error>{$error}</FormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };
