@@ -21,7 +21,7 @@ const TableTitleContainer = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0px;
+  padding: 15px 12px 15px 10px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
@@ -47,8 +47,9 @@ const OvernightIcon = styled(Brightness2Icon)`
 `;
 
 const StyledTable = styled(Table)`
+  box-shadow: none;
   max-height: 186px;
-  padding: 0 20px;
+  padding: 0 10px;
   .MuiTableHead-root {
     tr {
       position: sticky;
@@ -69,7 +70,52 @@ const StyledTable = styled(Table)`
     padding-left: 6px;
     padding-right: 6px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        right: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        right: 0;
+      }
+    }
+    &:last-child {
+      position: relative;
+      padding-right: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        left: 0;
+      }
     }
   }
   .MuiTableCell-body {
@@ -77,7 +123,18 @@ const StyledTable = styled(Table)`
     padding-top: 2px;
     padding-bottom: 2px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-radius: 5px 0 0 5px;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+      }
     }
     > div > div {
       overflow: hidden;
@@ -85,13 +142,25 @@ const StyledTable = styled(Table)`
       text-overflow: ellipsis;
     }
     &:last-child {
+      border-radius: 0 5px 5px 0;
       width: 28px;
       button {
         position: relative;
-        left: 21px;
+        left: 11px;
       }
       > div > div {
         overflow: visible;
+      }
+      position: relative;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
       }
     }
     &:nth-child(1) {
@@ -123,8 +192,7 @@ const DateText = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  padding: 0 20px;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};

@@ -23,7 +23,7 @@ const TableTitleContainer = styled(Box)`
   align-items: center;
   font-size: 16px;
   font-weight: 500;
-  padding: 4px 0px;
+  padding: 4px 6px 4px 10px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
@@ -33,8 +33,9 @@ const TableTitleContainer = styled(Box)`
 `;
 
 const StyledTable = styled(Table)`
+  box-shadow: none;
   max-height: 186px;
-  padding: 0 20px;
+  padding: 0 10px;
   .MuiTableHead-root {
     background-color: ${Colors.white};
     tr {
@@ -55,7 +56,52 @@ const StyledTable = styled(Table)`
     padding-left: 6px;
     padding-right: 6px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        right: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        right: 0;
+      }
+    }
+    &:last-child {
+      position: relative;
+      padding-right: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        left: 0;
+      }
     }
   }
   .MuiTableCell-body {
@@ -63,7 +109,18 @@ const StyledTable = styled(Table)`
     padding-top: 2px;
     padding-bottom: 2px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-radius: 5px 0 0 5px;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+      }
     }
     > div > div {
       overflow: hidden;
@@ -71,13 +128,25 @@ const StyledTable = styled(Table)`
       text-overflow: ellipsis;
     }
     &:last-child {
+      border-radius: 0 5px 5px 0;
       width: 28px;
       button {
         position: relative;
-        left: 21px;
+        left: 11px;
       }
       > div > div {
         overflow: visible;
+      }
+      position: relative;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
       }
     }
     &:nth-child(1) {
@@ -118,22 +187,22 @@ const CustomCellContainer = styled(Box)`
   text-overflow: ellipsis;
 `;
 
-const LowercaseText = styled.div`
+const DateText = styled.div`
   text-transform: lowercase;
+  min-width: 118px;
 `;
 
 const NoDataContainer = styled.div`
-  padding: 0 20px;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
 `;
 
 const getDate = ({ startTime }) => (
-  <LowercaseText>
+  <DateText>
     {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
-  </LowercaseText>
+  </DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
