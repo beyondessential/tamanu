@@ -115,7 +115,7 @@ const EncounterTypeIndicator = styled.div`
 `;
 
 const Container = styled(ListItem)`
-  grid-column: 1 / span 2;
+  grid-area: patients;
   margin: 10px 0px 20px 0px;
   display: block;
   position: inherit;

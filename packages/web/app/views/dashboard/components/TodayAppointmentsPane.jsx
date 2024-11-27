@@ -14,7 +14,9 @@ import { APPOINTMENT_GROUP_BY } from '../../scheduling/outpatientBookings/Outpat
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 const Container = styled.div`
-  height: 318px;
+  flex-grow: 1;
+  width: 376px;
+  min-height: 392px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding-top: 15px;
