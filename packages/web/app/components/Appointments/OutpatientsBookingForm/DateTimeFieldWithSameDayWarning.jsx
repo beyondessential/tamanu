@@ -17,6 +17,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,
       all: true,
       patientId: values.patientId,
+      locationGroupId: '',
     },
     {
       enabled: !isEdit && !!(values.startTime && values.patientId),
