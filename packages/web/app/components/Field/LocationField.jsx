@@ -51,6 +51,7 @@ export const LocationInput = React.memo(
       },
       baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
+    // TODO: this needs fixing!!
     const locationGroupSuggester = useSuggester('bookableLocationGroup');
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
