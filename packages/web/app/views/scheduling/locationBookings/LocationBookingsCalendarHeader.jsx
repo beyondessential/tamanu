@@ -1,13 +1,13 @@
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
-import React, { useEffect } from 'react';
-import styled, { css } from 'styled-components';
-import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
+import { Button, MonthYearInput, formatShort, formatWeekdayShort } from '../../../components';
 import { Colors } from '../../../constants';
-import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
@@ -107,7 +107,7 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
       const parsedDate = parseISO(date);
       setMonthOf(parsedDate);
     }
-  }, [location.search]);
+  }, [location.search, setMonthOf]);
 
   return (
     <CarouselGrid.HeaderRow>
