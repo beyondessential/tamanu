@@ -97,19 +97,17 @@ const scrollToThisWeek = () =>
 const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
 
-export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDates }) => {
+export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const { selectedCell } = useLocationBookingsContext();
-  const [monthOf, setMonthOf] = selectedMonthState;
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   // This controls the calendar scroll based on the selected month and cell
   useEffect(() => {
     if (selectedCell.date) {
-      setMonthOf(selectedCell.date);
       scrollToCell(selectedCell);
       return;
     }
-    // This scroll logic only applies when chaning month without a selectedCell
+    // This scroll logic only applies when changing month without a selectedCell
     (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
   }, [monthOf, selectedCell, setMonthOf]);
 
@@ -121,8 +119,6 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
       setMonthOf(parsedDate);
     }
   }, [location.search, setMonthOf]);
-
-  // TODO: keep month state up to date with selected cell
 
   return (
     <CarouselGrid.HeaderRow>

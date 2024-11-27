@@ -6,7 +6,7 @@ import {
   startOfToday,
   startOfWeek,
 } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants';
@@ -14,6 +14,7 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -40,15 +41,21 @@ const Carousel = styled.div`
 `;
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const selectedMonthState = useState(startOfToday());
-  const [monthOf] = selectedMonthState;
+  const { selectedCell } = useLocationBookingsContext();
+
+  const [monthOf, setMonthOf] = useState(startOfToday());
   const displayedDates = getDisplayableDates(monthOf);
+
+  useEffect(() => {
+    if (selectedCell.date) setMonthOf(selectedCell.date)
+  }, [selectedCell, setMonthOf]);
 
   return (
     <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
       <CarouselGrid.Root $dayCount={displayedDates.length}>
         <LocationBookingsCalendarHeader
-          selectedMonthState={selectedMonthState}
+          monthOf={monthOf}
+          setMonthOf={setMonthOf}
           displayedDates={displayedDates}
         />
         <LocationBookingsCalendarBody
