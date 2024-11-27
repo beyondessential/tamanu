@@ -32,7 +32,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 
 const Wrapper = styled(PageContainer)`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   max-block-size: 100%;
 `;
 
