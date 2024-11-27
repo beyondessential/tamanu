@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const LocationBookingsContext = createContext(null);
 
-const generateIdFromCell = cell => `${cell.locationId}.${parseISO(cell.date).valueOf()}`;
+const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.date).valueOf()}`;
 
 export const scrollToCell = newCell => {
   document
