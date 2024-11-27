@@ -1,6 +1,6 @@
 import React from 'react';
 import { Field, useFormikContext } from 'formik';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -13,8 +13,8 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
 
   const { data: existingAppointments, isFetched } = useAppointmentsQuery(
     {
-      after: values.startTime ? toDateTimeString(startOfDay(new Date(values.startTime))) : null,
-      before: values.startTime ? toDateTimeString(endOfDay(new Date(values.startTime))) : null,
+      after: values.startTime ? toDateTimeString(startOfDay(parseISO(values.startTime))) : null,
+      before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,
       all: true,
       patientId: values.patientId,
     },
@@ -34,6 +34,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       name="startTime"
       label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
       component={DateTimeField}
+      saveDateAsString
       required
       save
       helperText={
