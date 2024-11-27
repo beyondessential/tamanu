@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -23,19 +23,20 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 `;
 
 const StyledTable = styled(Table)`
+  max-height: 467px;
+  min-height: ${p=> !p.isEmpty ? '467px' : '511px'};
   border-left: 0px solid white;
   border-right: 0px solid white;
-  border-bottom: 0px solid white;
   border-radius: 0px;
   box-shadow: none;
   margin-top: 5px;
   .MuiTableCell-head {
     background-color: ${Colors.white};
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
+    padding-top: 8px;
+    padding-bottom: 8px;
     span {
       font-weight: 400;
-      color: ${Colors.midText} !important;
+      color: ${Colors.midText};
     }
     padding-left: 11px;
     padding-right: 11px;
@@ -44,8 +45,8 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
+    padding-top: 4px;
+    padding-bottom: 4px;
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
@@ -114,9 +115,9 @@ const TooltipContainer = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  height: 354px;
+  height: 477px;
   font-weight: 500;
-  margin: 0 0 20px 0;
+  margin: 5px 3px 20px 3px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -240,6 +241,7 @@ const COLUMNS = [
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser } = useAuth();
+  const [tableCount, setTableCount] = useState(0);
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -258,6 +260,10 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:tasks`,
   );
 
+  useEffect(() => {
+    userTasks?.count && setTableCount(userTasks.count);
+  }, [userTasks]);
+
   return (
     <div>
       <StyledTable
@@ -272,19 +278,21 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         orderBy={orderBy}
         order={order}
         hideHeader={!userTasks?.count}
+        isEmpty={!userTasks?.count && !isLoading}
       />
-      <PaginatorContainer>
-        <Paginator
-          page={page}
-          colSpan={COLUMNS.length}
-          count={userTasks?.count}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-          isLoading={isLoading}
-        />
-      </PaginatorContainer>
+      {!!userTasks?.count && !isLoading && (
+        <PaginatorContainer>
+          <Paginator
+            page={page}
+            colSpan={COLUMNS.length}
+            count={tableCount}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          />
+        </PaginatorContainer>
+      )}
     </div>
   );
 };

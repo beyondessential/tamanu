@@ -110,7 +110,6 @@ export const Paginator = React.memo(
     onPageChange,
     onRowsPerPageChange,
     rowsPerPageOptions,
-    isLoading = false,
   }) => {
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
@@ -128,17 +127,15 @@ export const Paginator = React.memo(
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            {!isLoading && (
-              <TranslatedText
-                stringId="general.table.pageRecordCount"
-                fallback=":lowerRange–:upperRange of :count"
-                replacements={{
-                  lowerRange,
-                  upperRange,
-                  count,
-                }}
-              />
-            )}
+            <TranslatedText
+              stringId="general.table.pageRecordCount"
+              fallback=":lowerRange–:upperRange of :count"
+              replacements={{
+                lowerRange,
+                upperRange,
+                count,
+              }}
+            />
           </PageRecordCount>
           <StyledSelectField
             label={<TranslatedText stringId="general.table.rowsPerPage" fallback="Rows per page" />}

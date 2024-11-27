@@ -9,12 +9,12 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
-import { TasksPane } from '../patients/panes';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { TodayBookingsPane } from './components/TodayBookingsPane';
 import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
 import { useAppointmentsQuery } from '../../api/queries';
+import { DashboardTaskPane } from '../../components/Tasks/DashboardTaskPane';
 
 const TopBar = styled.div`
   position: sticky;
@@ -118,8 +118,8 @@ export const DashboardView = () => {
       />
       <DashboardLayout showBookings={showBookings} showAppointments={showAppointments}>
         <PatientsTasksContainer>
-          <RecentlyViewedPatientsList inDashboard patientPerPage={showBookings ? 4 : 6} />
-          <TasksPane isDashboard />
+          <RecentlyViewedPatientsList isDashboard patientPerPage={showBookings ? 4 : 6} />
+          <DashboardTaskPane />
         </PatientsTasksContainer>
         <SchedulePanesContainer>
           {showAppointments && <TodayAppointmentsPane />}

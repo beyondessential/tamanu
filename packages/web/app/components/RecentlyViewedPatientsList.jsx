@@ -42,7 +42,7 @@ const SectionLabel = styled.div`
 const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
-  flex-grow: 1;
+  width: ${p => p.$isDashboard ? '25%' : '16%'};
   margin-left: 1%;
   background-color: white;
   border-radius: 3px;
@@ -181,7 +181,7 @@ const Card = ({ patient, handleClick, isDashboard }) => {
 
 export const RecentlyViewedPatientsList = ({
   encounterType,
-  inDashboard = false,
+  isDashboard = false,
   patientPerPage = PATIENTS_PER_PAGE,
 }) => {
   const { navigateToPatient } = usePatientNavigation();
