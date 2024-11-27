@@ -25,7 +25,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
-  flex-grow: 1;
+  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
   width: 376px;
   min-height: 318px;
   border: 1px solid ${Colors.outline};
@@ -206,7 +206,7 @@ const BookingsTimelineItem = ({ appointment }) => {
   );
 };
 
-export const TodayBookingsPane = () => {
+export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser } = useAuth();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
   const appointments =
@@ -233,7 +233,7 @@ export const TodayBookingsPane = () => {
   };
 
   return (
-    <Container>
+    <Container showTasks={showTasks}>
       <TitleContainer>
         <Heading4 margin={0}>
           <TranslatedText

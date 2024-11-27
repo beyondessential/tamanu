@@ -15,6 +15,7 @@ import { TodayBookingsPane } from './components/TodayBookingsPane';
 import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
 import { useAppointmentsQuery } from '../../api/queries';
 import { DashboardTaskPane } from '../../components/Tasks/DashboardTaskPane';
+import { useSettings } from '../../contexts/Settings';
 
 const TopBar = styled.div`
   position: sticky;
@@ -41,22 +42,24 @@ const NotificationIndicator = styled.div`
 const DashboardLayout = styled.div`
   display: flex;
   margin: 20px;
-  justify-content: space-between;
+  ${({ showTasks }) => showTasks && 'justify-content: space-between;'}
   gap: 20px;
   .MuiListItem-root {
     margin: 0 -20px 0 -20px;
   }
-  height: calc(100vh - 130px);
+  height: calc(100vh - 83px);
+  ${({ showTasks }) => !showTasks && 'flex-direction: column;'}
 `;
 
 const PatientsTasksContainer = styled.div`
-  flex-grow: 1;
+  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
 `;
 
 const SchedulePanesContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({ showTasks }) => (showTasks ? 'column' : 'row')};
   gap: 20px;
+  ${({ showTasks }) => !showTasks && 'flex-grow: 1;'}
 `;
 
 export const DashboardView = () => {
@@ -66,6 +69,7 @@ export const DashboardView = () => {
     {},
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
+  const { getSetting } = useSettings();
   const { currentUser, ability } = useAuth();
   const appointments =
     useAppointmentsQuery({
@@ -83,9 +87,13 @@ export const DashboardView = () => {
     }).data?.data ?? [];
   const canReadAppointments = ability.can('read', 'Appointment');
   const canListAppointments = ability.can('list', 'Appointment');
+  const canReadTasks = ability.can('read', 'Task');
 
+  const showTasks = canReadTasks && getSetting('features.enableTasking');
   const showBookings = canReadAppointments && canListAppointments && bookings.length > 0;
   const showAppointments = canReadAppointments && canListAppointments && appointments.length > 0;
+
+  const patientPerPage = showTasks && (showAppointments || showBookings) ? 4 : 6;
 
   return (
     <PageContainer>
@@ -116,14 +124,14 @@ export const DashboardView = () => {
         notifications={notifications}
         isLoading={isLoading}
       />
-      <DashboardLayout showBookings={showBookings} showAppointments={showAppointments}>
-        <PatientsTasksContainer>
-          <RecentlyViewedPatientsList isDashboard patientPerPage={showBookings ? 4 : 6} />
-          <DashboardTaskPane />
+      <DashboardLayout showTasks={showTasks}>
+        <PatientsTasksContainer showTasks={showTasks}>
+          <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
+          {showTasks && <DashboardTaskPane />}
         </PatientsTasksContainer>
-        <SchedulePanesContainer>
-          {showAppointments && <TodayAppointmentsPane />}
-          {showBookings && <TodayBookingsPane />}
+        <SchedulePanesContainer showTasks={showTasks}>
+          {showAppointments && <TodayAppointmentsPane showTasks={showTasks} />}
+          {showBookings && <TodayBookingsPane showTasks={showTasks} />}
         </SchedulePanesContainer>
       </DashboardLayout>
     </PageContainer>
