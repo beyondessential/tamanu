@@ -9,7 +9,7 @@ import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
 import { Icon, StyledExpandMore } from './FieldCommonComponents';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
-import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
+import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from '../Select';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -148,11 +148,9 @@ export const MultiselectInput = ({
           readOnly={isReadonly}
           InputProps={{
             endAdornment: (
-              <>
-                <Icon position="end">
-                  <StyledExpandMore />
-                </Icon>
-              </>
+              <Icon position="end">
+                <StyledExpandMore />
+              </Icon>
             ),
           }}
           {...props}

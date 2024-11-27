@@ -11,12 +11,7 @@ import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
-import {
-  convertBinaryToYesNo,
-  getResultName,
-  getSurveyAnswerRows,
-  separateColorText,
-} from './surveyAnswers';
+import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '../dateTime';
 
@@ -75,14 +70,12 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, type }) => {
-  switch (type) {
+const getAnswers = ({ answer, sourceType, type }) => {
+  switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
     }
-    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
-      return convertBinaryToYesNo(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
@@ -91,17 +84,21 @@ const getAnswers = ({ answer, type }) => {
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
+      return JSON.parse(answer).join(', ');
     default:
       return answer;
   }
 };
 
 const ResponseItem = ({ row }) => {
-  const { name, answer, type } = row;
+  const { name, answer, type, sourceType } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {getAnswers({ answer, type, sourceType })}
+      </Text>
     </View>
   );
 };

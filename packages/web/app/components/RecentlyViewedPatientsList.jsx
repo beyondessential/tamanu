@@ -42,7 +42,7 @@ const SectionLabel = styled.div`
 const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
-  width: 16%;
+  flex-grow: 1;
   margin-left: 1%;
   background-color: white;
   border-radius: 3px;
@@ -90,8 +90,7 @@ const CardListContainer = styled.div`
 
 const CardTitle = styled(Typography)`
   font-weight: bold;
-  font-size: ${p => (p.$isDashboard ? '11px' : '14px')};
-  ${p => (p.$isDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: 14px;
   color: ${getColorForEncounter};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -99,8 +98,7 @@ const CardTitle = styled(Typography)`
 `;
 
 const CardText = styled(Typography)`
-  font-size: ${p => (p.$isDashboard ? '11px' : '14px')};
-  ${p => (p.$isDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: 14px;
 `;
 
 const CapitalizedCardText = styled(CardText)`
@@ -117,8 +115,9 @@ const EncounterTypeIndicator = styled.div`
 `;
 
 const Container = styled(ListItem)`
+  grid-area: patients;
   margin: 10px 0px 20px 0px;
-  display: inherit;
+  display: block;
   position: inherit;
   padding: 0;
   &.MuiListItem-root {
@@ -180,7 +179,11 @@ const Card = ({ patient, handleClick, isDashboard }) => {
   );
 };
 
-export const RecentlyViewedPatientsList = ({ encounterType, isDashboard = false }) => {
+export const RecentlyViewedPatientsList = ({
+  encounterType,
+  inDashboard = false,
+  patientPerPage = PATIENTS_PER_PAGE,
+}) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -193,7 +196,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, isDashboard = false 
     () => api.get('user/recently-viewed-patients', { encounterType }),
   );
 
-  const pageCount = Math.ceil(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
+  const pageCount = Math.ceil(recentlyViewedPatients?.length / patientPerPage);
   const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
@@ -242,7 +245,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, isDashboard = false 
           )}
           <CardList>
             {recentlyViewedPatients
-              .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
+              .slice(pageIndex * patientPerPage, (pageIndex + 1) * patientPerPage)
               .map(patient => (
                 <Card
                   key={patient.id}

@@ -16,6 +16,7 @@ export class UserPreference extends Model {
           },
         },
         selectedGraphedVitalsOnFilter: Sequelize.STRING,
+        locationBookingFilters: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
@@ -25,6 +26,10 @@ export class UserPreference extends Model {
           },
         },
         clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
+        encounterTabOrders: {
+          type: DataTypes.JSONB,
+          defaultValue: {},
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

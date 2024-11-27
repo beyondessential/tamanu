@@ -6,7 +6,7 @@ import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Discharge extends Model {
-  static init({ primaryKey, ...options }, models) {
+  static init({ primaryKey, ...options }) {
     const validate = {
       mustHaveEncounter() {
         if (!this.deletedAt && !this.encounterId) {
@@ -38,11 +38,6 @@ export class Discharge extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate,
-        hooks: {
-          afterCreate: async (instance) => {
-            await models.Task.onEncounterDischarged(instance.encounterId);
-          },
-        },
       },
     );
   }

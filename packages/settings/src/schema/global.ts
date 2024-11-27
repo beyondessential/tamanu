@@ -50,7 +50,7 @@ export const globalSettings = {
       description: 'Toggle features on/off',
       properties: {
         mandateSpecimenType: {
-          description: '_',
+          description: 'Make specimen type a required field when creating a new lab request',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1031,9 +1031,8 @@ export const globalSettings = {
             scheduling: {
               description: '_',
               properties: {
-                schedulingAppointments: { properties: layoutModuleProperties },
-                schedulingCalendar: { properties: layoutModuleProperties },
-                schedulingNew: { properties: layoutModuleProperties },
+                schedulingOutpatients: { properties: layoutModuleProperties },
+                schedulingLocations: { properties: layoutModuleProperties },
               },
             },
             medication: {
@@ -1066,6 +1065,11 @@ export const globalSettings = {
               },
             },
           },
+        },
+        showLocationBookingsOnPatientView: {
+          description: 'Show location bookings component on patient view',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

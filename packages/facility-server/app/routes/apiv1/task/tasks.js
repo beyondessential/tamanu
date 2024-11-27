@@ -204,6 +204,7 @@ taskRoutes.delete(
 /**
  * Mark task as todo
  * Only tasks in COMPLETED & NON_COMPLETED status can be marked as todo
+ * - Only allow to set as todo for tasks that are not older than 48 hours
  * - Copy info from the selected task and set the new task status as todo, set todo info to the new task
  * - Delete the selected task
  */
@@ -213,7 +214,10 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: datetimeCustomValidation,
+  todoTime: datetimeCustomValidation.refine(
+    datetime => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
+    'Task is older than 48 hours',
+  ),
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
@@ -249,6 +253,7 @@ taskRoutes.put(
     if (!tasks.every(task => allowedStatuses.includes(task.status)))
       throw new ForbiddenError(`Task is not in ${allowedStatuses.join(', ')} status`);
 
+    const updateParentIdList = [];
     await req.db.transaction(async () => {
       for (const task of tasks) {
         //delete the selected task
@@ -268,6 +273,21 @@ taskRoutes.put(
             designationId: designation.id,
             taskId: newId,
           })),
+        );
+
+        if (task.isRepeatingTask() && !task.parentTaskId) {
+          updateParentIdList.push({ newId: newId, oldId: task.id });
+        }
+      }
+
+      for (const { newId, oldId } of updateParentIdList) {
+        await req.models.Task.update(
+          { parentTaskId: newId },
+          {
+            where: {
+              parentTaskId: oldId,
+            },
+          },
         );
       }
     });
