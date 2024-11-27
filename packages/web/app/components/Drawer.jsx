@@ -8,6 +8,7 @@ import { BodyText, Heading4 } from './Typography';
 
 const StyledCollapse = styled(Collapse)`
   &.${collapseClasses.root} {
+    z-index: 20;
     background-color: ${Colors.background};
     min-block-size: 100%;
     overflow-y: auto;
