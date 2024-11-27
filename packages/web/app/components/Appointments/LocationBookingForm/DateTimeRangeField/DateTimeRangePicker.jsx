@@ -15,7 +15,7 @@ export const DateTimeRangePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { setFieldValue, values } = useFormikContext();
+  const { setFieldValue, values, errors } = useFormikContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -48,6 +48,7 @@ export const DateTimeRangePicker = ({
         label={timePickerLabel}
         required={required}
         variant="range"
+        $error={errors.startTime}
       />
     </>
   );
