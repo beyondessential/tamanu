@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
@@ -13,15 +12,18 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
-import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
-import { PastBookingsModal } from './PastBookingsModal';
+import { Button } from '../Button';
+import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
+import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 12px 15px 10px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 4px 6px 4px 10px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
@@ -30,31 +32,15 @@ const TableTitleContainer = styled(Box)`
   height: 50px;
 `;
 
-const ViewPastBookingsButton = styled(Box)`
-  font-size: 11px;
-  font-weight: 400;
-  text-decoration: underline;
-  cursor: pointer;
-  &:hover {
-    color: ${Colors.primary};
-    font-weight: 500;
-  }
-`;
-
-const OvernightIcon = styled(Brightness2Icon)`
-  color: ${Colors.primary};
-  font-size: 12px;
-`;
-
 const StyledTable = styled(Table)`
   box-shadow: none;
   max-height: 186px;
   padding: 0 10px;
   .MuiTableHead-root {
+    background-color: ${Colors.white};
     tr {
       position: sticky;
       top: 50px;
-      background-color: ${Colors.white};
       z-index: 1;
     }
   }
@@ -164,16 +150,16 @@ const StyledTable = styled(Table)`
       }
     }
     &:nth-child(1) {
-      width: 26%;
+      width: 21%;
     }
     &:nth-child(2) {
-      width: 34%;
+      width: 35%;
     }
     &:nth-child(3) {
-      width: 23%;
+      width: 20%;
     }
     &:nth-child(4) {
-      width: 17%;
+      width: 24%;
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
@@ -184,11 +170,26 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const ViewPastBookingsButton = styled(Box)`
+  font-size: 11px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: pointer;
+  &:hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+  }
+`;
+
+const CustomCellContainer = styled(Box)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 const DateText = styled.div`
   text-transform: lowercase;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  min-width: 118px;
 `;
 
 const NoDataContainer = styled.div`
@@ -198,50 +199,11 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
-const TableHeader = ({ title, openPastBookingsModal }) => (
-  <TableTitleContainer>
-    <Box component={'span'} fontSize="16px" fontWeight={500}>
-      {title}
-    </Box>
-    <ViewPastBookingsButton component={'span'} onClick={openPastBookingsModal}>
-      <TranslatedText
-        stringId="patient.bookings.table.viewPastBookings"
-        fallback="View past bookings"
-      />
-    </ViewPastBookingsButton>
-  </TableTitleContainer>
+const getDate = ({ startTime }) => (
+  <DateText>
+    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
+  </DateText>
 );
-
-const getFormattedTime = time => {
-  return formatTime(time).replace(' ', '');
-};
-
-const getDate = ({ startTime, endTime }) => {
-  const startDate = toDateString(startTime);
-  const endDate = toDateString(endTime);
-  let dateTimeString;
-  const isOvernight = startDate !== endDate;
-
-  if (!isOvernight) {
-    dateTimeString = `${formatShortest(startTime)} ${getFormattedTime(
-      startTime,
-    )} - ${getFormattedTime(endTime)}`;
-  } else {
-    dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
-  }
-  return (
-    <DateText>
-      <div>{dateTimeString}</div>
-      {isOvernight && <OvernightIcon />}
-    </DateText>
-  );
-};
-
-const CustomCellContainer = styled(Box)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -258,7 +220,47 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-export const LocationBookingsTable = ({ patient }) => {
+const TableHeader = ({ title }) => {
+  const history = useHistory();
+  const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
+  return (
+    <TableTitleContainer>
+      <Box component={'span'} fontSize="16px" fontWeight={500}>
+        {title}
+      </Box>
+      <div>
+        <ViewPastBookingsButton
+          component={'span'}
+          onClick={() => setIsViewPastBookingsModalOpen(true)}
+          mr={2}
+        >
+          <TranslatedText
+            stringId="patient.appointments.table.viewPastAppointments"
+            fallback="View past appointments"
+          />
+        </ViewPastBookingsButton>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
+        >
+          <TranslatedText
+            stringId="patient.appointments.table.bookAppointment"
+            fallback="+ Book appointment"
+          />
+        </Button>
+      </div>
+      {isViewPastBookingsModalOpen && (
+        <PastAppointmentModal 
+          open={true} 
+          onClose={() => setIsViewPastBookingsModalOpen(false)}
+        />
+      )}
+    </TableTitleContainer>
+  );
+};
+
+export const OutpatientAppointmentsTable = ({ patient }) => {
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
@@ -266,7 +268,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const appointments =
     useAppointmentsQuery({
-      locationId: '',
+      locationGroupId: '',
       all: true,
       patientId: patient?.id,
       orderBy,
@@ -274,7 +276,6 @@ export const LocationBookingsTable = ({ patient }) => {
     }).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const history = useHistory();
 
@@ -287,40 +288,42 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId="patient.bookings.table.column.date" fallback="Date" />,
-      accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
+      title: <TranslatedText stringId="patient.appointments.table.column.date" fallback="Date" />,
+      accessor: getDate,
     },
     {
-      key: 'bookingArea',
-      title: <TranslatedText stringId="patient.bookings.table.column.area" fallback="Area" />,
-      accessor: ({ location }) => location?.locationGroup?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={243} />,
+      key: 'outpatientAppointmentArea',
+      title: <TranslatedText stringId="patient.appointments.table.column.area" fallback="Area" />,
+      accessor: ({ locationGroup }) => locationGroup?.name,
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={248} />,
     },
     {
-      key: 'location',
-      title: (
-        <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />
-      ),
-      accessor: ({ location }) => location?.name,
-      sortable: false,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={158} />,
-    },
-    {
-      key: 'bookingType',
+      key: 'clinician',
       title: (
         <TranslatedText
-          stringId="patient.bookings.table.column.bookingType"
-          fallback="Booking type"
+          stringId="patient.appointments.table.column.clinician"
+          fallback="Clinician"
         />
       ),
-      accessor: ({ bookingType }) => bookingType?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
+      accessor: ({ clinician }) => clinician?.displayName || '-',
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={139} />,
+    },
+    {
+      key: 'appointmentType',
+      title: (
+        <TranslatedText
+          stringId="patient.appointments.table.column.appointmentType"
+          fallback="Appointment type"
+        />
+      ),
+      accessor: ({ appointmentType }) => appointmentType?.name,
+      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={155} />,
     },
     {
       key: '',
@@ -341,18 +344,11 @@ export const LocationBookingsTable = ({ patient }) => {
         <TableHeader
           title={
             <TranslatedText
-              stringId="patient.bookings.table.noData"
-              fallback="No location bookings"
+              stringId="patient.appointments.table.noData"
+              fallback="No outpatient appointments"
             />
           }
-          openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
         />
-        {isViewPastBookingsModalOpen && (
-          <PastBookingsModal
-            patient={patient}
-            onClose={() => setIsViewPastBookingsModalOpen(false)}
-          />
-        )}
       </NoDataContainer>
     );
   }
@@ -367,11 +363,10 @@ export const LocationBookingsTable = ({ patient }) => {
           <TableHeader
             title={
               <TranslatedText
-                stringId="patient.bookings.table.title"
-                fallback="Location bookings"
+                stringId="patient.appointments.table.title"
+                fallback="Outpatient appointments"
               />
             }
-            openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
           />
         }
         onClickRow={handleRowClick}
@@ -379,17 +374,11 @@ export const LocationBookingsTable = ({ patient }) => {
         order={order}
         onChangeOrderBy={onChangeOrderBy}
       />
-      <CancelLocationBookingModal
+      <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
       />
-      {isViewPastBookingsModalOpen && (
-        <PastBookingsModal
-          patient={patient}
-          onClose={() => setIsViewPastBookingsModalOpen(false)}
-        />
-      )}
     </div>
   );
 };
