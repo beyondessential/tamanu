@@ -13,8 +13,8 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
 
   const { data: existingAppointments, isFetched } = useAppointmentsQuery(
     {
-      after: values.startTime ? toDateTimeString(startOfDay(new Date(values.startTime))) : null,
-      before: values.startTime ? toDateTimeString(endOfDay(new Date(values.startTime))) : null,
+      after: values.startTime ? toDateTimeString(startOfDay(parseISO(values.startTime))) : null,
+      before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,
       all: true,
       patientId: values.patientId,
     },
