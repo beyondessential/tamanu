@@ -1,25 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities';
+import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
 export const surveyResponse = express.Router();
-
-// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
-function getNameColumnForModel(modelName) {
-  switch (modelName) {
-    case 'User':
-      return 'displayName';
-    default:
-      return 'name';
-  }
-}
-
-// also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
-function getDisplayNameForModel(modelName, record) {
-  const columnName = getNameColumnForModel(modelName);
-  return record[columnName] || record.id;
-}
 
 surveyResponse.get(
   '/:id',
@@ -40,53 +24,22 @@ surveyResponse.get(
       where: { responseId: params.id },
     });
 
-    const autocompleteComponentMap = getAutocompleteComponentMap(components);
-
-    // Transform Autocomplete answers from: { body: ReferenceData.id } to: { body: ReferenceData.name, originalBody: ReferenceData.id }
-    const transformedAnswers = await Promise.all(
-      answers.map(async answer => {
-        const componentConfig = autocompleteComponentMap.get(answer.dataValues.dataElementId);
-        if (!componentConfig) {
-          return answer;
-        }
-
-        const model = models[componentConfig.source];
-        if (!model) {
-          throw new Error(
-            'Survey is misconfigured: Question config did not specify a valid source',
-          );
-        }
-
-        const result = await model.findByPk(answer.dataValues.body);
-        if (!result) {
-          // If the answer is empty, return it as is rather than throwing an error
-          if (answer.dataValues.body === '') {
-            return answer;
-          }
-
-          if (componentConfig.source === 'ReferenceData') {
-            throw new Error(
-              `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
-            );
-          }
-
-          throw new Error(
-            `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
-          );
-        }
-        const transformedAnswer = {
-          ...answer.dataValues,
-          originalBody: answer.dataValues.body,
-          body: getDisplayNameForModel(componentConfig.source, result),
-        };
-        return transformedAnswer;
-      }),
-    );
+    const transformedAnswers = await transformAnswers(models, answers, components, {
+      notTransformDate: true,
+    });
 
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: transformedAnswers,
+      answers: answers.map(answer => {
+        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+        return {
+          ...answer.dataValues,
+          originalBody: answer.body,
+          body: transformedAnswer?.body,
+          sourceType: transformedAnswer?.sourceType,
+        };
+      }),
     });
   }),
 );

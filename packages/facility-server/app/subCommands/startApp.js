@@ -68,7 +68,11 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
       ({ port } = config.sync.syncApiConnection);
 
       // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
-      startTasks({ skipMigrationCheck: false, taskClasses: [SyncTask] });
+      startTasks({
+        skipMigrationCheck: false,
+        taskClasses: [SyncTask],
+        syncManager: context.syncManager, // passing syncManager because it must be shared with SyncTask to prevent multiple syncs
+      });
       break;
     default:
       throw new Error(`Unknown app type: ${appType}`);

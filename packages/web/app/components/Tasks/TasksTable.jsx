@@ -53,10 +53,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      width: 15px;
-    }
-    &:nth-child(2) {
-      padding-left: 0px;
+      ${p => p.$canDoAction ? `width: 15px;` : ''}
     }
   }
   .MuiTableCell-body {
@@ -67,9 +64,11 @@ const StyledTable = styled(DataFetchingTable)`
     &:last-child {
       padding-right: 0px;
     }
-    &:first-child,
-    &:nth-child(2) {
+    &:first-child {
       padding-left: 0px;
+    }
+    &:nth-child(2) {
+      ${p => p.$canDoAction ? `padding-left: 0px;` : ''}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
@@ -94,6 +93,7 @@ const StyledTable = styled(DataFetchingTable)`
       white-space: nowrap;
       min-width: 188px;
     }
+    &:nth-child(2),
     &:nth-child(3) {
       position: relative;
     }
@@ -564,6 +564,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         refreshCount={refreshCount}
         defaultRowsPerPage={25}
         disableHoverEffect={!canDoAction}
+        $canDoAction={canDoAction}
       />
     </div>
   );

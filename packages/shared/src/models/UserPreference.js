@@ -25,6 +25,10 @@ export class UserPreference extends Model {
           },
         },
         clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
+        encounterTabOrders: {
+          type: DataTypes.JSONB,
+          defaultValue: {},
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

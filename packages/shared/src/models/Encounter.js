@@ -110,6 +110,11 @@ export class Encounter extends Model {
               individualHooks: true,
             });
           },
+          afterUpdate: async (encounter) => {
+            if (encounter.endDate && !encounter.previous('endDate')) {
+              await models.Task.onEncounterDischarged(encounter);
+            }
+          },
         },
       },
     );
