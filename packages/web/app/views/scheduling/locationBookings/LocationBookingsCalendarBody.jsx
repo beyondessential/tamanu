@@ -9,7 +9,6 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import {
-  appointmentToFormValues,
   partitionAppointmentsByDate,
   partitionAppointmentsByLocation,
 } from './utils';
