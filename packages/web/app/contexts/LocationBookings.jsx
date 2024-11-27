@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const LocationBookingsContext = createContext(null);
-
 import { scrollToCell } from '../views/scheduling/locationBookings/utils';
+
+const LocationBookingsContext = createContext(null);
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
