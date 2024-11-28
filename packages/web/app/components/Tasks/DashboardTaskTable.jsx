@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
@@ -15,6 +15,10 @@ import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
 import { useTableSorting } from '../Table/useTableSorting';
 
+const Container = styled.div`
+  height: calc(100% - 110px);
+`;
+
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
   font-size: 16px;
@@ -23,8 +27,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 `;
 
 const StyledTable = styled(Table)`
-  max-height: 467px;
-  min-height: ${p => (!p.isEmpty ? '467px' : '511px')};
+  height: 100%;
   border-left: 0px solid white;
   border-right: 0px solid white;
   border-radius: 0px;
@@ -115,14 +118,14 @@ const TooltipContainer = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  height: 477px;
+  height: 100%;
   font-weight: 500;
-  margin: 5px 3px 20px 3px;
+  margin: 20px 0px 20px 0px;
+  padding: 0 30px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 17%;
   white-space: normal;
   background: ${Colors.hoverGrey};
   color: ${Colors.primary};
@@ -140,6 +143,11 @@ const PaginatorContainer = styled.div`
   justify-content: flex-end;
   margin-top: -14px;
   margin-bottom: -18px;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin-top: 5px;
+  background-color: ${Colors.outline};
 `;
 
 const getStatus = row => {
@@ -241,7 +249,6 @@ const COLUMNS = [
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser } = useAuth();
-  const [tableCount, setTableCount] = useState(0);
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -254,25 +261,35 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
 
   const queryParams = { ...searchParameters, page, rowsPerPage, orderBy, order };
 
-  const { data: userTasks, isLoading } = useAutoUpdatingQuery(
+  const {
+    data: userTasks,
+    isLoading: isUserTasksLoading,
+    isPreviousData,
+  } = useAutoUpdatingQuery(
     `user/${currentUser?.id}/tasks`,
     queryParams,
     [
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${currentUser?.id}`,
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`,
     ],
+    { keepPreviousData: true },
   );
+  const isLoading = isUserTasksLoading || isPreviousData;
 
-  useEffect(() => {
-    userTasks?.count && setTableCount(userTasks.count);
-  }, [userTasks]);
+  if (!userTasks?.count && !isLoading) {
+    return (
+      <Container>
+        <StyledDivider />
+        <NoDataMessage />
+      </Container>
+    );
+  }
 
   return (
-    <div>
+    <Container>
       <StyledTable
         data={userTasks?.data}
         columns={COLUMNS}
-        noDataMessage={<NoDataMessage />}
         allowExport={false}
         isLoading={isLoading}
         refreshCount={refreshCount}
@@ -281,14 +298,13 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         orderBy={orderBy}
         order={order}
         hideHeader={!userTasks?.count}
-        isEmpty={!userTasks?.count && !isLoading}
       />
-      {!!userTasks?.count && !isLoading && (
+      {!isUserTasksLoading && (
         <PaginatorContainer>
           <Paginator
             page={page}
             colSpan={COLUMNS.length}
-            count={tableCount}
+            count={userTasks?.count}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
@@ -296,6 +312,6 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
           />
         </PaginatorContainer>
       )}
-    </div>
+    </Container>
   );
 };

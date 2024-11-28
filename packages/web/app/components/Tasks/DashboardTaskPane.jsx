@@ -8,6 +8,7 @@ import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferenc
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 
 const TabPane = styled.div`
+  flex-grow: 1;
   margin-top: 20px;
   border: 1px solid ${Colors.outline};
   border-radius: 4px;

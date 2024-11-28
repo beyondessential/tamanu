@@ -53,6 +53,8 @@ const DashboardLayout = styled.div`
 
 const PatientsTasksContainer = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
+  display: flex;
+  flex-direction: column;
 `;
 
 const SchedulePanesContainer = styled.div`
