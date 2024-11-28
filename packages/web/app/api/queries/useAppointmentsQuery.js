@@ -15,4 +15,4 @@ export const useOutpatientAppointmentsQuery = (fetchOptions, useQueryOptions = {
   useAppointmentsQuery({ locationGroupId: '', ...fetchOptions }, useQueryOptions);
 
 export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
-  useAppointmentsQuery({ locationId: '', locationGroupId: '', ...fetchOptions }, useQueryOptions);
+  useAppointmentsQuery({ locationId: '', ...fetchOptions }, useQueryOptions);
