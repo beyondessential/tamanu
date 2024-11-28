@@ -85,7 +85,6 @@ const RowHeaderCell = styled(HeaderCell)`
   inset-inline-start: 0;
   position: sticky;
   text-wrap: balance;
-  z-index
 `;
 
 const BodyCell = styled(BaseCell).attrs({

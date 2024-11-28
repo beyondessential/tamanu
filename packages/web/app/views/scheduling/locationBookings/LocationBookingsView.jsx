@@ -15,6 +15,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CalendarSearchBar } from './CalendarSearchBar';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { appointmentToFormValues } from './utils';
+import { parseISO } from 'date-fns';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -78,9 +79,9 @@ export const LocationBookingsView = () => {
   };
 
   const openBookingForm = async prepopulationValues => {
-    const { locationId, date } = prepopulationValues;
+    const { locationId, startTime } = prepopulationValues;
     await setSelectedAppointment(prepopulationValues);
-    setSelectedCell({ locationId, date });
+    setSelectedCell({ locationId, date: parseISO(startTime) });
     setIsDrawerOpen(true);
   };
 

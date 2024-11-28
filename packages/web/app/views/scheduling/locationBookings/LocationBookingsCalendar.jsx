@@ -85,7 +85,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
   const displayedDates = getDisplayableDates(monthOf);
 
   useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date)
+    if (selectedCell.date) setMonthOf(selectedCell.date);
   }, [selectedCell.date, setMonthOf]);
 
   const {
