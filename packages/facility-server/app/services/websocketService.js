@@ -29,6 +29,33 @@ export const defineWebsocketService = injector => {
     socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
+  onTableChanged(async payload => {
+    if (payload.table === 'tasks') {
+      const task = await injector.models.Task.count({
+        where: { id: payload.newId },
+        include: [
+          {
+            attributes: ['designationUsers'],
+            model: injector.models.ReferenceData,
+            as: 'destination',
+            required: true,
+            include: [
+              {
+                attributes: ['id'],
+                model: injector.models.User,
+                as: 'designationUsers',
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+      for (const user of task.destination.designationUsers) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${user.id}`, task);
+      }
+    }
+  });
+
   /**
    *
    * @param {string} eventName

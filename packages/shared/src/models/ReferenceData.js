@@ -58,7 +58,13 @@ export class ReferenceData extends Model {
 
     this.belongsToMany(models.Task, {
       through: models.TaskDesignation,
-      as: 'designation',
+      as: 'tasks',
+      foreignKey: 'designationId',
+    });
+
+    this.belongsToMany(models.User, {
+      through: models.UserDesignation,
+      as: 'designationUsers',
       foreignKey: 'designationId',
     });
 

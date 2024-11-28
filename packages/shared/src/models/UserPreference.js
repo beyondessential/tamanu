@@ -25,6 +25,7 @@ export class UserPreference extends Model {
             key: 'id',
           },
         },
+        clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
         encounterTabOrders: {
           type: DataTypes.JSONB,
           defaultValue: {},

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
@@ -14,6 +14,11 @@ import {
   makeDeletedAtIsNullFilter,
   makeFilter,
 } from '../../utils/query';
+import { z } from 'zod';
+import { TASK_STATUSES } from '@tamanu/constants';
+import config from 'config';
+import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { add } from 'date-fns';
 
 export const user = express.Router();
 
@@ -147,10 +152,15 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { selectedGraphedVitalsOnFilter, locationBookingFilters } = body;
+    const {
+      selectedGraphedVitalsOnFilter,
+      locationBookingFilters,
+      clinicianDashboardTaskingTableFilter,
+    } = body;
     const [userPreferences] = await UserPreference.upsert({
       selectedGraphedVitalsOnFilter,
       locationBookingFilters,
+      clinicianDashboardTaskingTableFilter,
       userId: currentUser.id,
       deletedAt: null,
     });
@@ -182,6 +192,97 @@ user.post(
 );
 
 user.get('/:id', simpleGet('User'));
+
+const clinicianTasksQuerySchema = z.object({
+  orderBy: z
+    .tuple([z.enum(['dueTime', 'name']), z.enum(['ASC', 'DESC'])])
+    .optional()
+    .default(['dueTime', 'ASC']),
+  designationId: z.string().optional(),
+  locationGroupId: z.string().optional(),
+  locationId: z.string().optional(),
+  highPriority: z.boolean().optional(),
+  skip: z.coerce
+    .number()
+    .optional()
+    .default(0),
+  take: z.coerce
+    .number()
+    .max(50)
+    .min(10)
+    .optional()
+    .default(25),
+});
+user.get(
+  '/:id/tasks',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'Task');
+    const { id: userId } = params;
+
+    const query = await clinicianTasksQuerySchema.parseAsync(req.query);
+
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+
+    const taskIds = await models.Task.findAll({
+      logging: true,
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      limit: query.take,
+      offset: query.skip,
+      attributes: ['id', 'dueTime', 'name', 'highPriority'],
+      where: {
+        status: TASK_STATUSES.TODO,
+        dueTime: {
+          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+        ...(query.highPriority && { highPriority: query.highPriority }),
+      },
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          where: { endDate: { [Op.is]: null } }, // only get tasks belong to active encounters
+          include: [
+            {
+              model: models.Location,
+              as: 'location',
+              ...(query.locationId && { where: { id: query.locationId } }),
+              include: [
+                {
+                  model: models.LocationGroup,
+                  as: 'locationGroup',
+                  ...(query.locationGroupId && { where: { id: query.locationGroupId } }),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          attributes: [],
+          model: models.ReferenceData,
+          as: 'designations',
+          ...(query.designationId && { where: { id: query.designationId } }),
+          required: true,
+          include: [
+            {
+              attributes: [],
+              model: models.User,
+              as: 'designationUsers',
+              where: { id: userId }, // only get tasks assigned to the current user
+            },
+          ],
+        },
+      ],
+    }).then(tasks => tasks.map(task => task.id));
+
+    const tasks = await models.Task.findAll({
+      where: { id: { [Op.in]: taskIds } },
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      include: [...models.Task.getFullReferenceAssociations()],
+    });
+    res.send(tasks);
+  }),
+);
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));

@@ -17,3 +17,7 @@ In the Vitals views, graphs can be filtered. This is remembered per user.
 {% docs user_preferences__location_booking_filters %}
 In the Location bookings calendar, bookings can be filtered. This is remembered per user.
 {% enddocs %}
+
+{% docs user_preferences__clinician_dashboard_tasking_table_filter %}
+In the Clinician dashboard, tasking tables can be filtered. This is remembered per user.
+{% enddocs %}
