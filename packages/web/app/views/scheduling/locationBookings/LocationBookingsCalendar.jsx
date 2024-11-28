@@ -41,9 +41,8 @@ const Carousel = styled.div`
 `;
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { selectedCell } = useLocationBookingsContext();
+  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
 
-  const [monthOf, setMonthOf] = useState(startOfToday());
   const displayedDates = getDisplayableDates(monthOf);
 
   useEffect(() => {

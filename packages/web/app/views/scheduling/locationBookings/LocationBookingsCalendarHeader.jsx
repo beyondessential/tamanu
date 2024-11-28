@@ -1,4 +1,4 @@
-import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router-dom';
@@ -9,8 +9,9 @@ import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../constants';
 import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
-import { scrollToCell } from './utils';
+
+export const thisWeekId = 'location-bookings-calendar__this-week';
+export const firstDisplayedDayId = 'location-bookings-calendar__beginning';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;
@@ -89,27 +90,8 @@ const MonthPicker = styled(MonthYearInput)`
   }
 `;
 
-const thisWeekId = 'location-bookings-calendar__this-week';
-const firstDisplayedDayId = 'location-bookings-calendar__beginning';
-
-const scrollToThisWeek = () =>
-  document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
-const scrollToBeginning = () =>
-  document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
-
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const { selectedCell } = useLocationBookingsContext();
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
-
-  // This controls the calendar scroll based on the selected month and cell
-  useEffect(() => {
-    if (selectedCell.date) {
-      scrollToCell(selectedCell);
-      return;
-    }
-    // This scroll logic only applies when changing month without a selectedCell
-    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
-  }, [monthOf, selectedCell, setMonthOf]);
 
   const location = useLocation();
   useEffect(() => {
