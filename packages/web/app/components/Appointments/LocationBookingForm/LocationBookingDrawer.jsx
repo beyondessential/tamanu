@@ -1,5 +1,4 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -9,6 +8,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors, FORM_TYPES } from '../../../constants';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -26,7 +26,6 @@ import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 const formStyles = {
   zIndex: 1000,
@@ -144,14 +143,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       setShowWarningModal(true);
     });
 
-  const queryClient = useQueryClient();
   const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
         onClose();
-        queryClient.invalidateQueries('appointments');
       },
       onError: error => {
         notifyError(
@@ -196,7 +193,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     };
 
     const resetFields = fields => {
-      for (const field of fields) setFieldValue(field, null);
+      for (const field of fields) void setFieldValue(field, null);
     };
 
     return (
