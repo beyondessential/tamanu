@@ -77,10 +77,12 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async prepopulationValues => {
-    const { locationId, date } = prepopulationValues;
-    await setSelectedAppointment(prepopulationValues);
+  const openBookingForm = async appointment => {
+    setSelectedAppointment(appointment);
+
+    const { locationId, date } = appointment;
     setSelectedCell({ locationId, date });
+
     setIsDrawerOpen(true);
   };
 
@@ -90,7 +92,7 @@ export const LocationBookingsView = () => {
   };
 
   const handleNewBooking = async () => {
-    await setSelectedAppointment(null);
+    setSelectedAppointment(null);
     openBookingForm({});
   };
 
