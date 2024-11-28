@@ -4,10 +4,9 @@ import {
   endOfMonth,
   endOfWeek,
   startOfMonth,
-  startOfToday,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
@@ -86,7 +85,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
   const displayedDates = getDisplayableDates(monthOf);
 
   useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date)
+    if (selectedCell.date) setMonthOf(selectedCell.date);
   }, [selectedCell.date, setMonthOf]);
 
   const {
