@@ -1,6 +1,8 @@
 import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
@@ -25,7 +27,7 @@ export const BookingsCell = ({
       id={generateIdFromCell({ locationId, date })}
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
-        openBookingForm({ startTime: date, locationId });
+        openBookingForm({ startTime: toDateTimeString(date), locationId });
       }}
       $selected={isSelected}
     >
