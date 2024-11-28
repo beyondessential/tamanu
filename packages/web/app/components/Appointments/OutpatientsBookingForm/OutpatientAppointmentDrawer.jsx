@@ -66,7 +66,7 @@ const getDescription = (isEdit, isLockedPatient) => {
   );
 };
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -324,6 +324,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <Field
             name="isHighPriority"
+            style={{ width: 'fit-content' }}
             label={
               <IconLabel>
                 <TranslatedText stringId="general.highPriority.label" fallback="High priority" />

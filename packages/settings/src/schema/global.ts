@@ -1066,10 +1066,20 @@ export const globalSettings = {
             },
           },
         },
-        showLocationBookingsOnPatientView: {
-          description: 'Show location bookings component on patient view',
-          type: yup.boolean(),
-          defaultValue: false,
+        patientView: {
+          description: 'The patient view in the facility',
+          properties: {
+            showLocationBookings: {
+              description: 'Show location bookings component on patient view',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            showOutpatientAppointments: {
+              description: 'Show outpatient appointments component on patient view',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          }
         },
       },
     },

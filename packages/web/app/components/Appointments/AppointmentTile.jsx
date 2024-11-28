@@ -105,10 +105,10 @@ export const AppointmentTile = ({
   const location = useLocation();
   useEffect(() => {
     const { appointmentId } = queryString.parse(location.search);
-    if (appointmentId && appointmentId === appointment.id) {
+    if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
-        setOpen(true)
-        ref.current.scrollIntoView({ block: 'center' });
+        setOpen(true);
+        ref.current.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
       });
     }
   }, [appointment.id, location.search]);

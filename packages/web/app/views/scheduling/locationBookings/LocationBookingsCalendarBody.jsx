@@ -1,18 +1,16 @@
-import { endOfDay, formatISO, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
-import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
-import { Colors } from '../../../constants';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import {
-  appointmentToFormValues,
   partitionAppointmentsByDate,
-  partitionAppointmentsByLocation,
+  generateIdFromCell,
 } from './utils';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 export const BookingsCell = ({
   appointments,
@@ -20,26 +18,32 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
-}) => (
-  <CarouselGrid.Cell
-    onClick={e => {
-      if (e.target.closest('.appointment-tile')) return;
-      // Open form for creating new booking
-      openBookingForm({ date, startDate: date, locationId });
-    }}
-  >
-    {appointments?.map(a => (
-      <AppointmentTile
-        appointment={a}
-        className="appointment-tile"
-        hideTime={!isSameDay(date, parseISO(a.startTime))}
-        key={a.id}
-        onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm(appointmentToFormValues(a))}
-      />
-    ))}
-  </CarouselGrid.Cell>
-);
+}) => {
+  const { selectedCell } = useLocationBookingsContext();
+  const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
+
+  return (
+    <CarouselGrid.Cell
+      id={generateIdFromCell({ locationId, date })}
+      onClick={e => {
+        if (e.target.closest('.appointment-tile')) return;
+        openBookingForm({ startTime: toDateTimeString(date), locationId });
+      }}
+      $selected={isSelected}
+    >
+      {appointments?.map(a => (
+        <AppointmentTile
+          appointment={a}
+          className="appointment-tile"
+          hideTime={!isSameDay(date, parseISO(a.startTime))}
+          key={a.id}
+          onCancel={() => openCancelModal(a)}
+          onEdit={() => openBookingForm(a)}
+        />
+      ))}
+    </CarouselGrid.Cell>
+  );
+};
 
 export const BookingsRow = ({
   appointments,
@@ -73,53 +77,17 @@ export const BookingsRow = ({
   );
 };
 
-const StyledRow = styled(CarouselGrid.Row)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  grid-template-columns: initial;
-  place-items: center;
-  margin-block: 0.5rem;
-`;
-
-const EmptyStateRow = () => (
-  <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
-);
-
 export const LocationBookingsCalendarBody = ({
+  appointmentsByLocation,
   displayedDates,
+  filteredLocations,
   locationsQuery,
   openBookingForm,
   openCancelModal,
 }) => {
-  const { data: locations = [], isLoading: locationsAreLoading } = locationsQuery;
+  if (locationsQuery.isLoading) return <SkeletonRows colCount={displayedDates.length} />;
 
-  const { filters } = useLocationBookingsContext();
-
-  const { data: appointmentsData = [] } = useAppointmentsQuery({
-    after: displayedDates[0],
-    before: endOfDay(displayedDates.at(-1)),
-    all: true,
-    locationId: '',
-    clinicianId: filters.clinicianId,
-    bookingTypeId: filters.bookingTypeId,
-    patientNameOrId: filters.patientNameOrId,
-  });
-
-  if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations.length === 0) return <EmptyStateRow />;
-
-  const appointments = appointmentsData.data ?? [];
-  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
-
-  const areFiltersActive = Object.values(filters).some(
-    filter => filter !== null && filter.length > 0,
-  );
-
-  const filteredLocations = areFiltersActive
-    ? locations.filter(location => appointmentsByLocation[location.id])
-    : locations;
-
-  if (filteredLocations.length === 0) return <EmptyStateRow />;
+  if (filteredLocations?.length === 0) return null;
 
   return filteredLocations?.map(location => (
     <BookingsRow
