@@ -32,7 +32,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 
 const Wrapper = styled(PageContainer)`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   max-block-size: 100%;
 `;
 
@@ -85,7 +85,7 @@ export const LocationBookingsView = () => {
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointmentToFormValues(appointment));
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
@@ -136,7 +136,7 @@ export const LocationBookingsView = () => {
       />
       {selectedAppointment && (
         <LocationBookingDrawer
-          initialValues={selectedAppointment}
+          initialValues={appointmentToFormValues(selectedAppointment)}
           open={isDrawerOpen}
           onClose={closeBookingForm}
         />
