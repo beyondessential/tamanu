@@ -153,10 +153,7 @@ export const TimeSlotPicker = ({
         if (newToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
           const newEnd = endOfSlotStartingAt(newStart);
-          updateSelection(newToggles, {
-            start: newStart,
-            end: newEnd,
-          });
+          updateSelection(newToggles, { start: newStart, end: newEnd });
           return;
         }
 
