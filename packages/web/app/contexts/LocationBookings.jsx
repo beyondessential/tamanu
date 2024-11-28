@@ -34,7 +34,10 @@ export const LocationBookingsContextProvider = ({ children }) => {
       const updatedCell = { ...prevCell, ...newCellData }
       if (updatedCell.locationId && updatedCell.date) {
         setMonthOf(updatedCell.date);
-        scrollToCell(updatedCell);
+        // TODO: this is a mega hack!
+        setTimeout(() => {
+          scrollToCell(updatedCell);
+        }, 1000)
       }
       return updatedCell;
     });
