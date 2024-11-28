@@ -4,7 +4,7 @@ import React from 'react';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { appointmentToFormValues, partitionAppointmentsByDate } from './utils';
+import { partitionAppointmentsByDate } from './utils';
 
 export const BookingsCell = ({
   appointments,
@@ -17,7 +17,7 @@ export const BookingsCell = ({
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, startDate: date, locationId });
+      openBookingForm({ startTime: date, locationId });
     }}
   >
     {appointments?.map(a => (
@@ -27,7 +27,7 @@ export const BookingsCell = ({
         hideTime={!isSameDay(date, parseISO(a.startTime))}
         key={a.id}
         onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm(appointmentToFormValues(a))}
+        onEdit={() => openBookingForm(a)}
       />
     ))}
   </CarouselGrid.Cell>
