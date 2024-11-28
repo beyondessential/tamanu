@@ -70,8 +70,21 @@ const StyledTable = styled(Table)`
       padding-left: 30px;
     }
   }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:first-child {
+        td {
+          padding-top: 18px;
+        }
+      }
+    }
+  }
   .MuiTableCell-body {
-    padding: 11px;
+    border-bottom: none;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 11px;
+    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -198,18 +211,18 @@ export const PastBookingsModal = ({ onClose, patient }) => {
   });
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
-  const bookings =
-    useLocationBookingsQuery(
-      {
-        all: true,
-        patientId: patient?.id,
-        before: beforeDate,
-        after: '1970-01-01 00:00',
-        orderBy,
-        order,
-      },
-      { keepPreviousData: true, refetchOnMount: true },
-    ).data?.data ?? [];
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
+      all: true,
+      patientId: patient?.id,
+      before: beforeDate,
+      after: '1970-01-01 00:00',
+      orderBy,
+      order,
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const bookings = data?.data ?? [];
 
   return (
     <StyledModal
@@ -222,6 +235,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     >
       <Container>
         <StyledTable
+          isLoading={isLoading}
           data={bookings}
           columns={COLUMNS}
           order={order}
