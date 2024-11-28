@@ -272,17 +272,17 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useLocationBookingsQuery(
-      {
-        all: true,
-        patientId: patient?.id,
-        orderBy,
-        order,
-        after: getCurrentDateTimeString(),
-      },
-      { keepPreviousData: true, refetchOnMount: true },
-    ).data?.data ?? [];
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
+      all: true,
+      patientId: patient?.id,
+      orderBy,
+      order,
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -346,7 +346,7 @@ export const LocationBookingsTable = ({ patient }) => {
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -371,6 +371,7 @@ export const LocationBookingsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}

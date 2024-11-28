@@ -273,17 +273,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useOutpatientAppointmentsQuery(
-      {
-        all: true,
-        patientId: patient?.id,
-        orderBy,
-        order,
-        after: getCurrentDateTimeString(),
-      },
-      { keepPreviousData: true, refetchOnMount: true },
-    ).data?.data ?? [];
+  const { data, isLoading } = useOutpatientAppointmentsQuery(
+    {
+      all: true,
+      patientId: patient?.id,
+      orderBy,
+      order,
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -348,7 +348,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -367,6 +367,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}
