@@ -19,15 +19,31 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
-import { useEncounterChartInstancesQuery } from '../../../api/queries/useEncounterChartInstancesQuery';
+import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
+import { keyBy } from 'lodash';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const StyledAddComplexChartButton = styled.span`
+const ComplexChartDataWrapper = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
+
+const ComplexChartInfoHeader = styled.span`
+  font-weight: 500;
+  margin-right: 5px;
+`;
+
+const ComplexChartInfoWrapper = styled.span`
+  margin-right: 20px;
+  color: ${Colors.darkText};
+`;
+
+const AddComplexChartButton = styled.span`
   color: ${Colors.primary};
   font-weight: 500;
   cursor: pointer;
@@ -42,7 +58,7 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
   }
 `;
 
-const StyledDisplayTabs = styled(TabDisplay)`
+const ComplexChartInstancesTab = styled(TabDisplay)`
   overflow: initial;
   max-width: 400px;
   .MuiTabs-root {
@@ -93,7 +109,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const { data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {} } = useChartSurveysQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentTab, setCurrenTab] = useState('');
+  const [currentComplexChartTab, setCurrenComplexChartTab] = useState('');
 
   // State for selected chart survey in the drop down
   const [selectedChartSurveyId, setSelectedChartSurveyId] = useState(
@@ -124,29 +140,29 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     selectedChartSurveyId,
   ]);
 
-  const { data: { data: chartInstances = [] } = {} } = useEncounterChartInstancesQuery({
+  const { data: { data: chartInstances = [] } = {} } = useEncounterComplexChartInstancesQuery({
     encounterId: encounter.id,
     chartSurveyId: coreComplexChartSurveyId,
-    enabled: !!coreComplexChartSurveyId,
+    enabled: !!coreComplexChartSurveyId, // only run when coreComplexChartSurveyId is available
   });
 
   // Create tabs for each chart instance
-  const chartInstanceTabs = useMemo(
+  const complexChartInstanceTabs = useMemo(
     () =>
       chartInstances.map(({ chartInstanceId, chartInstanceName }) => ({
         label: chartInstanceName,
         key: chartInstanceId,
-        render: () => true, //TODO: render responses
+        render: () => null, // no need to render anything, data is not displayed as content of a tab
       })),
     [chartInstances],
   );
 
   // Set default current tab if not set
   useEffect(() => {
-    if (!currentTab && chartInstanceTabs?.length) {
-      setCurrenTab(chartInstanceTabs[0].key);
+    if (!currentComplexChartTab && complexChartInstanceTabs?.length) {
+      setCurrenComplexChartTab(complexChartInstanceTabs[0].key);
     }
-  }, [chartInstanceTabs]);
+  }, [complexChartInstanceTabs]);
 
   const handleClose = () => setModalOpen(false);
 
@@ -187,21 +203,21 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           chartTypes={chartTypes}
         />
         {isComplexChart ? (
-          <StyledAddComplexChartButton
+          <AddComplexChartButton
             onClick={() => {
               setRecordChartSurveyId(coreComplexChartSurveyId);
               setModalOpen(true);
             }}
           >
             + Add
-          </StyledAddComplexChartButton>
+          </AddComplexChartButton>
         ) : null}
 
-        {chartInstanceTabs.length && currentTab ? (
-          <StyledDisplayTabs
-            tabs={chartInstanceTabs || []}
-            currentTab={currentTab}
-            onTabSelect={tabKey => setCurrenTab(tabKey)}
+        {complexChartInstanceTabs.length && currentComplexChartTab ? (
+          <ComplexChartInstancesTab
+            tabs={complexChartInstanceTabs}
+            currentTab={currentComplexChartTab}
+            onTabSelect={tabKey => setCurrenComplexChartTab(tabKey)}
           />
         ) : null}
 

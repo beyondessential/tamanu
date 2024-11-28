@@ -558,33 +558,41 @@ encounterRelations.get(
 
     const results = await db.query(
       `
+        WITH chart_instances AS (
+          SELECT
+            sr.id AS "chartInstanceId",
+            sr.survey_id AS "chartSurveyId",
+            MAX(CASE WHEN sra.data_element_id = :complexChartInstanceNameElementId THEN sra.body END) AS "chartInstanceName",
+            MAX(CASE WHEN sra.data_element_id = :complexChartDateElementId THEN sra.body END) AS "chartDate",
+            MAX(CASE WHEN sra.data_element_id = :complexChartTypeElementId THEN sra.body END) AS "chartType",
+            MAX(CASE WHEN sra.data_element_id = :complexChartSubTypeElementId THEN sra.body END) AS "chartSubType"
+          FROM
+            survey_responses sr
+          LEFT JOIN
+            survey_response_answers sra
+          ON
+            sr.id = sra.response_id
+          WHERE 
+            sr.survey_id = :chartSurveyId AND
+            sr.encounter_id = :encounterId AND
+            sr.deleted_at IS NULL
+          GROUP BY
+            sr.id
+        )
+
         SELECT 
-          surveys.id as "chartSurveyId",
-          survey_responses.id as "chartInstanceId",
-          survey_response_answers.body AS "chartInstanceName"
-        FROM surveys
-        JOIN 
-          survey_responses ON survey_responses.survey_id = surveys.id
-        JOIN 
-          survey_response_answers ON survey_responses.id = survey_response_answers.response_id
-        JOIN
-          encounters ON encounters.id = survey_responses.encounter_id
-        WHERE
-          survey_responses.encounter_id = :encounterId
-        AND 
-          survey_responses.survey_id = :chartSurveyId
-        AND
-          survey_responses.deleted_at IS NULL
-        AND
-          encounters.deleted_at is null
-        AND 
-          survey_response_answers.data_element_id = :complexChartInstanceNameElementId
+          * 
+        FROM chart_instances
+        ORDER BY "chartDate" DESC;
       `,
       {
         replacements: {
           encounterId,
           chartSurveyId,
           complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+          complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+          complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
+          complexChartSubTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubType,
         },
         type: QueryTypes.SELECT,
       },
