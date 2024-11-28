@@ -22,25 +22,9 @@ import { useApi } from '../../../api';
 import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
-import { keyBy } from 'lodash';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
-`;
-
-const ComplexChartDataWrapper = styled.div`
-  margin-top: 20px;
-  margin-bottom: 20px;
-`;
-
-const ComplexChartInfoHeader = styled.span`
-  font-weight: 500;
-  margin-right: 5px;
-`;
-
-const ComplexChartInfoWrapper = styled.span`
-  margin-right: 20px;
-  color: ${Colors.darkText};
 `;
 
 const AddComplexChartButton = styled.span`
