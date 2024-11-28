@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { isThisMonth, startOfToday } from 'date-fns';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
 import {
