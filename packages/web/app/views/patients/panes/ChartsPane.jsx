@@ -28,17 +28,17 @@ const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const ComplexChartDataWrapper = styled.div`
+const CoreComplexChartDataRow = styled.div`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
 
-const ComplexChartInfoHeader = styled.span`
+const CoreComplexChartInfoHeader = styled.span`
   font-weight: 500;
   margin-right: 5px;
 `;
 
-const ComplexChartInfoWrapper = styled.span`
+const CoreComplexChartInfoWrapper = styled.span`
   margin-right: 20px;
   color: ${Colors.darkText};
 `;
@@ -102,24 +102,29 @@ const ChartDropDown = ({ selectedChartSurveyId, setSelectedChartSurveyId, chartT
 const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
 
 const CoreComplexChartData = ({ date, type, subType }) => (
-  <ComplexChartDataWrapper>
-    <ComplexChartInfoWrapper>
-      <ComplexChartInfoHeader>
+  <CoreComplexChartDataRow>
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
         <TranslatedText stringId="complexChartInstance.date" fallback="Date & time of onset:" />
-      </ComplexChartInfoHeader>
+      </CoreComplexChartInfoHeader>
       <>{date}</>
-    </ComplexChartInfoWrapper>
+    </CoreComplexChartInfoWrapper>
 
-    <ComplexChartInfoWrapper>
-    <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
-    <>{type || '-'}</>
-    </ComplexChartInfoWrapper>
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+      </CoreComplexChartInfoHeader>
 
-    <ComplexChartInfoWrapper>
-    <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+      <>{type || '-'}</>
+    </CoreComplexChartInfoWrapper>
+
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+      </CoreComplexChartInfoHeader>
       <>{subType || '-'}</>
-    </ComplexChartInfoWrapper>
-  </ComplexChartDataWrapper>
+    </CoreComplexChartInfoWrapper>
+  </CoreComplexChartDataRow>
 );
 
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
