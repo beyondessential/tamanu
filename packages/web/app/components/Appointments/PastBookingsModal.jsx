@@ -6,7 +6,7 @@ import { Box } from '@material-ui/core';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
@@ -194,7 +194,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   const bookings =
-    useAppointmentsQuery(
+    useLocationBookingsQuery(
       {
         all: true,
         patientId: patient?.id,
@@ -202,8 +202,6 @@ export const PastBookingsModal = ({ onClose, patient }) => {
         after: '1970-01-01 00:00',
         orderBy,
         order,
-        locationId: '',
-        locationGroup: '',
       },
       { keepPreviousData: true, refetchOnMount: true },
     ).data?.data ?? [];

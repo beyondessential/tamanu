@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -273,9 +273,8 @@ export const LocationBookingsTable = ({ patient }) => {
   });
 
   const appointments =
-    useAppointmentsQuery(
+    useLocationBookingsQuery(
       {
-        locationId: '',
         all: true,
         patientId: patient?.id,
         orderBy,
