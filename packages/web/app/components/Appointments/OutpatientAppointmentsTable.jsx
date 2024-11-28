@@ -226,7 +226,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title }) => {
+const TableHeader = ({ title, patient }) => {
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   return (
@@ -257,7 +257,11 @@ const TableHeader = ({ title }) => {
         </Button>
       </div>
       {isViewPastBookingsModalOpen && (
-        <PastAppointmentModal open={true} onClose={() => setIsViewPastBookingsModalOpen(false)} />
+        <PastAppointmentModal
+          open={true}
+          onClose={() => setIsViewPastBookingsModalOpen(false)}
+          patient={patient}
+        />
       )}
     </TableTitleContainer>
   );
@@ -270,14 +274,16 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   });
 
   const appointments =
-    useOutpatientAppointmentsQuery({
-      all: true,
-      patientId: patient?.id,
-      orderBy,
-      order,
-      after: getCurrentDateTimeString(),
-    },
-    { keepPreviousData: true, refetchOnMount: true },).data?.data ?? [];
+    useOutpatientAppointmentsQuery(
+      {
+        all: true,
+        patientId: patient?.id,
+        orderBy,
+        order,
+        after: getCurrentDateTimeString(),
+      },
+      { keepPreviousData: true, refetchOnMount: true },
+    ).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -352,6 +358,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               fallback="No outpatient appointments"
             />
           }
+          patient={patient}
         />
       </NoDataContainer>
     );
@@ -371,6 +378,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
                 fallback="Outpatient appointments"
               />
             }
+            patient={patient}
           />
         }
         onClickRow={handleRowClick}
