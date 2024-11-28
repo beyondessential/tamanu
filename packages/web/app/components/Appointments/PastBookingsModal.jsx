@@ -15,6 +15,11 @@ import { Box } from '@material-ui/core';
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
     max-width: 922px;
+    overflow-y: unset;
+  }
+  .base-modal-container {
+    overflow: unset;
+    overflow-y: auto;
   }
   h2 {
     font-size: 18px;
@@ -43,6 +48,8 @@ const StyledTable = styled(Table)`
   padding-right: 10px;
   padding-bottom: 18px;
   max-height: 547px;
+  overflow: unset;
+  overflow-x: auto;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
@@ -59,19 +66,21 @@ const StyledTable = styled(Table)`
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
-      padding-right: 30px;
+      padding-right: 22px;
     }
     &:first-child {
-      padding-left: 30px;
+      padding-left: 22px;
     }
   }
   .MuiTableCell-body {
-    padding: 11px;
+    padding: 7.5px 11px;
+    border-bottom: none;
     &:last-child {
-      padding-right: 30px;
+      padding-top: 11px;
+      padding-right: 22px;
     }
     &:first-child {
-      padding-left: 30px;
+      padding-left: 22px;
     }
   }
   .MuiTableRow-root {
@@ -194,14 +203,17 @@ export const PastBookingsModal = ({ onClose, patient }) => {
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   const bookings =
-    useLocationBookingsQuery({
-      all: true,
-      patientId: patient?.id,
-      before: beforeDate,
-      after: '1970-01-01 00:00',
-      orderBy,
-      order,
-    }).data?.data ?? [];
+    useLocationBookingsQuery(
+      {
+        all: true,
+        patientId: patient?.id,
+        before: beforeDate,
+        after: '1970-01-01 00:00',
+        orderBy,
+        order,
+      },
+      { keepPreviousData: true },
+    ).data?.data ?? [];
 
   return (
     <StyledModal

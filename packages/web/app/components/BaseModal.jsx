@@ -158,7 +158,7 @@ export const BaseModal = memo(
             )}
           </Box>
         </ModalTitle>
-        <ModalContainer $color={color}>
+        <ModalContainer $color={color} className='base-modal-container'>
           <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>
