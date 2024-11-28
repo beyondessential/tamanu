@@ -1,10 +1,11 @@
-import { isValid } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
+import { useLocationBookingsContext } from '../../../../contexts/LocationBookings';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
@@ -16,6 +17,7 @@ export const DateTimeRangePicker = ({
   ...props
 }) => {
   const { setFieldValue, values, errors } = useFormikContext();
+  const { setSelectedCell } = useLocationBookingsContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -36,7 +38,10 @@ export const DateTimeRangePicker = ({
         helperText={dateFieldHelperText}
         label={datePickerLabel}
         name={datePickerName}
-        onChange={flushChangeToStartDateField}
+        onChange={e => {
+          setSelectedCell(prevCell => ({ ...prevCell, date: parseISO(e.target.value) }));
+          flushChangeToStartDateField(e);
+        }}
         required={required}
         {...props}
       />

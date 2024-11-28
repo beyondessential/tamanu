@@ -26,6 +26,7 @@ import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 const formStyles = {
   zIndex: 1000,
@@ -143,6 +144,7 @@ const validationSchema = yup.object({
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
+  const { setSelectedCell } = useLocationBookingsContext();
   const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -249,7 +251,10 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            onChange={e => {
+              setSelectedCell(prevCell => ({ ...prevCell, locationId: e.target.value }));
+              resetFields(['startTime', 'endDate', 'endTime']);
+            }}
             error={errors.locationId}
           />
           <Field

@@ -260,6 +260,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <Field
             name="isHighPriority"
+            style={{ width: 'fit-content' }}
             label={
               <IconLabel>
                 <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
