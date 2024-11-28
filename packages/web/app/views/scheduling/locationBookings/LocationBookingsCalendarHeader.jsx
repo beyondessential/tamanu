@@ -123,7 +123,14 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <MonthPicker value={monthOf} onAccept={setMonthOf} />
+        <MonthPicker
+          value={monthOf}
+          onAccept={setMonthOf}
+          onBlur={e => setMonthOf(new Date(e.target.value))}
+          onKeyDown={e => {
+            if (e.key === 'Enter') setMonthOf(new Date(e.target.value));
+          }}
+        />
         <StyledButton onClick={() => setMonthOf(startOfToday())}>This week</StyledButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
