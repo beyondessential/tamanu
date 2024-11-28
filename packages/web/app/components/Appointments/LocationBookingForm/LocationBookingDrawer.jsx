@@ -128,7 +128,7 @@ const validationSchema = yup.object({
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
-  const { setSelectedCell } = useLocationBookingsContext();
+  const { updateSelectedCell } = useLocationBookingsContext();
   const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -234,7 +234,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             onChange={e => {
-              setSelectedCell(({ locationId: e.target.value }));
+              updateSelectedCell(({ locationId: e.target.value }));
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
           />

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { isThisMonth, startOfToday } from 'date-fns';
 
-import { scrollToCell } from '../views/scheduling/locationBookings/utils';
+import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
 import {
   firstDisplayedDayId,
   thisWeekId,
@@ -13,6 +13,9 @@ const scrollToThisWeek = () =>
   document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
 const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
+ const scrollToCell = cell => {
+  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
+};
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
@@ -44,9 +47,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
     (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
   };
 
-  useEffect(() => {
-    scrollToCell(selectedCell);
-  }, [monthOf, selectedCell]);
+  useEffect(() => scrollToCell(selectedCell), [monthOf, selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
@@ -54,9 +55,9 @@ export const LocationBookingsContextProvider = ({ children }) => {
         filters,
         setFilters,
         selectedCell,
-        setSelectedCell: updateSelectedCell,
+        updateSelectedCell,
         monthOf,
-        setMonthOf: updateMonth,
+        updateMonth,
       }}
     >
       {children}

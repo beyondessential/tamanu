@@ -80,7 +80,7 @@ const emptyStateMessage = (
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { monthOf, setMonthOf } = useLocationBookingsContext();
+  const { monthOf, updateMonth } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -113,7 +113,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
-            setMonthOf={setMonthOf}
+            updateMonth={updateMonth}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody

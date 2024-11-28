@@ -62,7 +62,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, setFilters, setSelectedCell } = useLocationBookingsContext();
+  const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
 
   const handleFilterChange = useCallback(
@@ -74,14 +74,14 @@ export const LocationBookingsView = () => {
   );
 
   const closeBookingForm = () => {
-    setSelectedCell({ locationId: null, date: null });
+    updateSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
   const openBookingForm = async prepopulationValues => {
     const { locationId, startTime } = prepopulationValues;
     await setSelectedAppointment(prepopulationValues);
-    setSelectedCell({ locationId, date: parseISO(startTime) });
+    updateSelectedCell({ locationId, date: parseISO(startTime) });
     setIsDrawerOpen(true);
   };
 
