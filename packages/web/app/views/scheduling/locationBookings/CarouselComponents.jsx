@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { UnstyledHtmlButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -85,6 +85,7 @@ const RowHeaderCell = styled(HeaderCell)`
   inset-inline-start: 0;
   position: sticky;
   text-wrap: balance;
+  z-index
 `;
 
 const BodyCell = styled(BaseCell).attrs({
@@ -96,6 +97,13 @@ const BodyCell = styled(BaseCell).attrs({
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  ${({ $selected }) =>
+    $selected &&
+    css`
+      && {
+        border: max(0.0625rem, 1px) solid ${Colors.primary};
+      }
+    `}
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
     background-color: var(--weekend-color);

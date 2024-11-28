@@ -61,7 +61,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, setFilters } = useLocationBookingsContext();
+  const { filters, setFilters, setSelectedCell } = useLocationBookingsContext();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
 
   const handleFilterChange = useCallback(
@@ -73,16 +73,19 @@ export const LocationBookingsView = () => {
   );
 
   const closeBookingForm = () => {
+    setSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
   const openBookingForm = async prepopulationValues => {
+    const { locationId, date } = prepopulationValues;
     await setSelectedAppointment(prepopulationValues);
+    setSelectedCell({ locationId, date });
     setIsDrawerOpen(true);
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointmentToFormValues(appointment));
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
@@ -133,7 +136,7 @@ export const LocationBookingsView = () => {
       />
       {selectedAppointment && (
         <LocationBookingDrawer
-          initialValues={selectedAppointment}
+          initialValues={appointmentToFormValues(selectedAppointment)}
           open={isDrawerOpen}
           onClose={closeBookingForm}
         />
