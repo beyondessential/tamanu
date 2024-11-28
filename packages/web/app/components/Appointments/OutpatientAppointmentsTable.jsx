@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
@@ -199,6 +199,14 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
 const getDate = ({ startTime }) => (
   <DateText>
     {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
@@ -273,7 +281,9 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -332,7 +342,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
+          <StyledMenuButton actions={actions} disablePortal={false} />
         </div>
       ),
     },

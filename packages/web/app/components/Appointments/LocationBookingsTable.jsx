@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useAppointmentsQuery } from '../../api/queries';
@@ -243,6 +243,14 @@ const CustomCellContainer = styled(Box)`
   text-overflow: ellipsis;
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
@@ -265,13 +273,17 @@ export const LocationBookingsTable = ({ patient }) => {
   });
 
   const appointments =
-    useAppointmentsQuery({
-      locationId: '',
-      all: true,
-      patientId: patient?.id,
-      orderBy,
-      order,
-    }).data?.data ?? [];
+    useAppointmentsQuery(
+      {
+        locationId: '',
+        all: true,
+        patientId: patient?.id,
+        orderBy,
+        order,
+        after: getCurrentDateTimeString(),
+      },
+      { keepPreviousData: true, refetchOnMount: true },
+    ).data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -329,7 +341,7 @@ export const LocationBookingsTable = ({ patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
+          <StyledMenuButton actions={actions} disablePortal={false} />
         </div>
       ),
     },

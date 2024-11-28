@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+import { Box } from '@material-ui/core';
 
 import { Modal } from '../Modal';
 import { Table } from '../Table';
@@ -9,8 +11,6 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { Box } from '@material-ui/core';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -194,16 +194,19 @@ export const PastBookingsModal = ({ onClose, patient }) => {
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   const bookings =
-    useAppointmentsQuery({
-      all: true,
-      patientId: patient?.id,
-      before: beforeDate,
-      after: '1970-01-01 00:00',
-      orderBy,
-      order,
-      locationId: '',
-      locationGroup: '',
-    }).data?.data ?? [];
+    useAppointmentsQuery(
+      {
+        all: true,
+        patientId: patient?.id,
+        before: beforeDate,
+        after: '1970-01-01 00:00',
+        orderBy,
+        order,
+        locationId: '',
+        locationGroup: '',
+      },
+      { keepPreviousData: true, refetchOnMount: true },
+    ).data?.data ?? [];
 
   return (
     <StyledModal
