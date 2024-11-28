@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 
-export const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
+const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   const api = useApi();
   return useQuery(
     ['appointments', fetchOptions],
@@ -10,3 +10,9 @@ export const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
     useQueryOptions,
   );
 };
+
+export const useOutpatientAppointmentsQuery = (fetchOptions, useQueryOptions = {}) =>
+  useAppointmentsQuery({ locationGroupId: '', ...fetchOptions }, useQueryOptions);
+
+export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
+  useAppointmentsQuery({ locationId: '', locationGroupId: '', ...fetchOptions }, useQueryOptions);

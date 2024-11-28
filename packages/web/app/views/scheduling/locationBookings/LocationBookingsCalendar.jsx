@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
+import { useLocationBookingsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -93,11 +93,10 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     clinicianId?.length > 0 || bookingTypeId?.length > 0 || !!patientNameOrId;
   const { data: locations } = locationsQuery;
 
-  const { data: appointmentsData } = useAppointmentsQuery({
+  const { data: appointmentsData } = useLocationBookingsQuery({
     after: displayedDates[0],
     before: endOfDay(displayedDates.at(-1)),
     all: true,
-    locationId: '',
     clinicianId,
     bookingTypeId,
     patientNameOrId,

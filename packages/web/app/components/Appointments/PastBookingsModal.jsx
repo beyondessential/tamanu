@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
@@ -194,15 +194,13 @@ export const PastBookingsModal = ({ onClose, patient }) => {
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   const bookings =
-    useAppointmentsQuery({
+    useLocationBookingsQuery({
       all: true,
       patientId: patient?.id,
       before: beforeDate,
       after: '1970-01-01 00:00',
       orderBy,
       order,
-      locationId: '',
-      locationGroup: '',
     }).data?.data ?? [];
 
   return (
