@@ -4,10 +4,9 @@ import {
   endOfMonth,
   endOfWeek,
   startOfMonth,
-  startOfToday,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useAppointmentsQuery } from '../../../api/queries';
