@@ -101,6 +101,27 @@ const ChartDropDown = ({ selectedChartSurveyId, setSelectedChartSurveyId, chartT
 
 const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
 
+const CoreComplexChartData = ({ date, type, subType }) => (
+  <ComplexChartDataWrapper>
+    <ComplexChartInfoWrapper>
+      <ComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.date" fallback="Date & time of onset:" />
+      </ComplexChartInfoHeader>
+      <>{date}</>
+    </ComplexChartInfoWrapper>
+
+    <ComplexChartInfoWrapper>
+    <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+    <>{type || '-'}</>
+    </ComplexChartInfoWrapper>
+
+    <ComplexChartInfoWrapper>
+    <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+      <>{subType || '-'}</>
+    </ComplexChartInfoWrapper>
+  </ComplexChartDataWrapper>
+);
+
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const api = useApi();
   const { facilityId } = useAuth();
@@ -155,6 +176,15 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
         render: () => null, // no need to render anything, data is not displayed as content of a tab
       })),
     [chartInstances],
+  );
+
+  const complexChartInstancesById = useMemo(() => keyBy(chartInstances, 'chartInstanceId'), [
+    chartInstances,
+  ]);
+
+  const currentComplexChartInstance = useMemo(
+    () => complexChartInstancesById[currentComplexChartTab],
+    [complexChartInstancesById, currentComplexChartTab],
   );
 
   // Set default current tab if not set
@@ -236,6 +266,15 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           </StyledButtonWithPermissionCheck>
         ) : null}
       </TableButtonRow>
+
+      {currentComplexChartInstance ? (
+        <CoreComplexChartData
+          date={currentComplexChartInstance.chartDate}
+          type={currentComplexChartInstance.chartType}
+          subType={currentComplexChartInstance.chartSubType}
+        />
+      ) : null}
+
       <ChartsTable selectedSurveyId={selectedChartSurveyId} />
     </TabPane>
   );
