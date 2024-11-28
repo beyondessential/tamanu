@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { Table } from '../../Table';
 import { TranslatedText } from '../../Translation';
-import { useAppointmentsQuery } from '../../../api/queries';
+import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { formatShortest, formatTime } from '../../DateDisplay';
 import { Colors } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
@@ -107,11 +107,7 @@ const getDate = ({ startTime }) => (
   </LowercaseText>
 );
 
-const getStatus = ({ status }) => (
-  <StatusBadge $status={status}>
-    {status}
-  </StatusBadge>
-);
+const getStatus = ({ status }) => <StatusBadge $status={status}>{status}</StatusBadge>;
 
 const COLUMNS = [
   {
@@ -157,10 +153,9 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
   });
   const beforeDate = useMemo(() => new Date().toISOString(), []);
   const appointments =
-    useAppointmentsQuery({
+    useOutpatientAppointmentsQuery({
       all: true,
       patientId: patient?.id,
-      locationGroupId: '',
       before: beforeDate,
       after: '1970-01-01 00:00',
       orderBy,

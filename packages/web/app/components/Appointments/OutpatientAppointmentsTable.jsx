@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -16,6 +15,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
+import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -200,9 +200,7 @@ const NoDataContainer = styled.div`
 `;
 
 const getDate = ({ startTime }) => (
-  <DateText>
-    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
-  </DateText>
+  <DateText>{`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}</DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
@@ -251,10 +249,7 @@ const TableHeader = ({ title }) => {
         </Button>
       </div>
       {isViewPastBookingsModalOpen && (
-        <PastAppointmentModal 
-          open={true} 
-          onClose={() => setIsViewPastBookingsModalOpen(false)}
-        />
+        <PastAppointmentModal open={true} onClose={() => setIsViewPastBookingsModalOpen(false)} />
       )}
     </TableTitleContainer>
   );
@@ -267,8 +262,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   });
 
   const appointments =
-    useAppointmentsQuery({
-      locationGroupId: '',
+    useOutpatientAppointmentsQuery({
       all: true,
       patientId: patient?.id,
       orderBy,
