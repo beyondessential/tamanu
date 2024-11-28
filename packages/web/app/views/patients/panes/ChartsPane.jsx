@@ -22,7 +22,6 @@ import { useApi } from '../../../api';
 import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
-import { keyBy } from 'lodash';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
