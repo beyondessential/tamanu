@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';
@@ -243,6 +243,14 @@ const CustomCellContainer = styled(Box)`
   text-overflow: ellipsis;
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
@@ -264,13 +272,17 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useLocationBookingsQuery({
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
       all: true,
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -328,13 +340,13 @@ export const LocationBookingsTable = ({ patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
+          <StyledMenuButton actions={actions} disablePortal={false} />
         </div>
       ),
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -359,6 +371,7 @@ export const LocationBookingsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}
