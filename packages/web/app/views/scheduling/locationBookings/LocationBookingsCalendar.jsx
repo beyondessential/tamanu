@@ -47,7 +47,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
 
   useEffect(() => {
     if (selectedCell.date) setMonthOf(selectedCell.date)
-  }, [selectedCell, setMonthOf]);
+  }, [selectedCell.date, setMonthOf]);
 
   return (
     <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
