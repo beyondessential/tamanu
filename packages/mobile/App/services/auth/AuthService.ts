@@ -39,7 +39,7 @@ export class AuthService {
 
   async initialise(): Promise<void> {
     const server = await readConfig('syncServerLocation');
-    this.centralServer.connect(server);
+    await this.centralServer.connect(server);
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
@@ -115,7 +115,7 @@ export class AuthService {
     const server = syncServerLocation || params.server;
 
     // create the sync source and log in to it
-    this.centralServer.connect(server);
+    await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
     const {
       user,
@@ -153,13 +153,13 @@ export class AuthService {
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { server, email } = params;
-    this.centralServer.connect(server);
+    await this.centralServer.connect(server);
     await this.centralServer.post('resetPassword', {}, { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
     const { server, ...rest } = params;
-    this.centralServer.connect(server);
+    await this.centralServer.connect(server);
     await this.centralServer.post('changePassword', {}, { ...rest });
   }
 }

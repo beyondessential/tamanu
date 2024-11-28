@@ -230,10 +230,7 @@ export const TestSelectorInput = ({
                   onChange: handleChangeSearchQuery,
                 }}
                 label={
-                  <TranslatedText
-                    stringId="lab.testSelect.testCategory.label"
-                    fallback="Test category"
-                  />
+                  <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"

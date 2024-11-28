@@ -1,0 +1,1 @@
+../../central-server/public/lab_request_logs.md

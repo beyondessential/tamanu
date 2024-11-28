@@ -173,6 +173,9 @@ jobs:
           - name: frontend
             path: web
             target: frontend
+          - name: toolbox
+            path: none
+            target: toolbox
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -217,6 +220,13 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
+          images: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}
+          tags: |
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{version}}.${{ matrix.platform.arch }}
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{major}}.{{minor}}.${{ matrix.platform.arch }}
+            type=semver,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }},value=v${{ steps.version.outputs.version }},pattern=v{{major}}.${{ matrix.platform.arch }}
+            sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
+            type=raw,value=latest,enable=false
           labels: |
             org.opencontainers.image.vendor=BES
             org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
@@ -236,7 +246,9 @@ jobs:
           target: ${{ matrix.package.target }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
+          tags: ${{ steps.meta.outputs.tags }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
   multi-arch:
     needs:
@@ -249,28 +261,35 @@ jobs:
           - central
           - facility
           - frontend
+          - toolbox
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-manifest-tool
-
       - name: Combine images
         run: |
+          set -x
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          manifest-tool push from-args \
-            --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}
+          image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
 
-      - name: Combine images (release)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-        run: |
-          manifest-tool push from-args \
-            --platforms linux/amd64,linux/arm64 \
-            --template ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:sha-${{ needs.config.outputs.sha }}.ARCH \
-            --target ghcr.io/beyondessential/tamanu-${{ matrix.repo }}:${{ github.ref_name }}
+          retag() {
+            manifest-tool push from-args \
+              --platforms linux/amd64,linux/arm64 \
+              --template "$image:$1.ARCH" \
+              --target "$image:$1" \
+            || true
+          }
+
+          retag sha-${{ needs.config.outputs.sha }}
+
+          # quit now if we're not releasing
+          ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '' || 'exit' }}
+
+          retag v$(jq -r '.version' package.json)
+          retag v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
+          retag v$(jq -r '.version | split(".") | .[0]' package.json)
 
   deploy-up:
     needs:
@@ -368,7 +387,7 @@ jobs:
     steps:
       - uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           append_body: true
           body: |
             ## Container images 🚢
@@ -378,3 +397,4 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-toolbox` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-toolbox/${{ github.ref_name }}) |

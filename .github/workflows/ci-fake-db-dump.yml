@@ -68,21 +68,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
+      - run: npm install
+      - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      - run: yarn workspace scripts run generate-fake-db
+      - run: npm run --workspace scripts generate-fake-db
       - run: pg_dump fake --format custom --file $ARTIFACT_NAME.dump
       - uses: actions/upload-artifact@v4
         with:

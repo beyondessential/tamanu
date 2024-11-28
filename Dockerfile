@@ -3,7 +3,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY .yarnrc common.* ./
+COPY common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base
@@ -46,6 +46,7 @@ ARG PACKAGE_PATH
 # copy the built packages and their deps
 COPY --from=build-server /app/packages/ packages/
 COPY --from=build-server /app/node_modules/ node_modules/
+COPY alerts alerts/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
@@ -73,3 +74,39 @@ CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
 COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
 COPY --from=build-frontend /app/packages/web/dist/ .
+
+
+## Toolbox image
+FROM rust AS build-bestool
+RUN cargo install bestool --no-default-features \
+  -F completions \
+  -F crypto \
+  -F tamanu \
+  -F walg
+
+FROM ubuntu AS toolbox
+RUN apt update && apt install -y --no-install-recommends \
+  age \
+  ca-certificates \
+  curl \
+  fish \
+  jq \
+  minisign \
+  neovim \
+  pipx \
+  postgresql-client \
+  ripgrep \
+  wget \
+  zstd
+RUN \
+  curl -L --proto '=https' --tlsv1.2 -sSf -o step-cli.deb \
+    "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
+  && dpkg -i step-cli.deb \
+  && rm step-cli.deb
+RUN \
+  pipx ensurepath \
+  && pipx install dbt-core \
+  && pipx inject dbt-core dbt-postgres
+COPY --from=build-bestool /usr/local/cargo/bin/bestool /usr/bin/bestool
+COPY alerts /alerts
+COPY database /database

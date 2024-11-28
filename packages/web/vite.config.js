@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import { json5Plugin } from 'vite-plugin-json5';
+import json5Plugin from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 /** @see https://vitejs.dev/config */
@@ -16,7 +16,9 @@ export default async ({ mode }) => {
       // repo is dirty (has uncommited files)
       revision += '~';
     }
-  } catch (_) { /* ignore */ }
+  } catch (_) {
+    /* ignore */
+  }
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
@@ -27,6 +29,7 @@ export default async ({ mode }) => {
       react(),
       json5Plugin(),
       nodePolyfills({
+        include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
         globals: {
           Buffer: true,
         },
