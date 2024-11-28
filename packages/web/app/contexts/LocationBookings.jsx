@@ -2,7 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { isThisMonth, startOfToday } from 'date-fns';
 
 import { scrollToCell } from '../views/scheduling/locationBookings/utils';
-import { firstDisplayedDayId, thisWeekId } from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
+import {
+  firstDisplayedDayId,
+  thisWeekId,
+} from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
 
 const LocationBookingsContext = createContext(null);
 
@@ -26,19 +29,32 @@ export const LocationBookingsContextProvider = ({ children }) => {
 
   const [monthOf, setMonthOf] = useState(startOfToday());
 
-  // Calendar Scroll logic
-  useEffect(() => {
-    if (selectedCell.locationId && selectedCell.date) {
-      scrollToCell(selectedCell);
-      return;
-    }
-    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
-  }, [selectedCell, monthOf]);
-
+  const updateSelectedCell = newCellData => {
+    setSelectedCell(prevCell => {
+      const updatedCell = { ...prevCell, ...newCellData }
+      if (updatedCell.locationId && updatedCell.date) {
+        setMonthOf(updatedCell.date);
+        scrollToCell(updatedCell);
+      }
+      return updatedCell;
+    });
+  };
+  
+  const updateMonth = date => {
+    setMonthOf(date);
+    (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
+  }
 
   return (
     <LocationBookingsContext.Provider
-      value={{ filters, setFilters, selectedCell, setSelectedCell, monthOf, setMonthOf }}
+      value={{
+        filters,
+        setFilters,
+        selectedCell,
+        setSelectedCell: updateSelectedCell,
+        monthOf,
+        setMonthOf: updateMonth,
+      }}
     >
       {children}
     </LocationBookingsContext.Provider>

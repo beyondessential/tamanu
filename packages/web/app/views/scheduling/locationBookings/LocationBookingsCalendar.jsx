@@ -80,13 +80,9 @@ const emptyStateMessage = (
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
+  const { monthOf, setMonthOf } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date);
-  }, [selectedCell.date, setMonthOf]);
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },

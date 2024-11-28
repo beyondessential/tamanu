@@ -234,7 +234,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             onChange={e => {
-              setSelectedCell(prevCell => ({ ...prevCell, locationId: e.target.value }));
+              setSelectedCell(({ locationId: e.target.value }));
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
           />

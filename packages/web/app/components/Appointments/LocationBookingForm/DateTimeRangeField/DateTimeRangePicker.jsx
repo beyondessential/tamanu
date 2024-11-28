@@ -39,7 +39,7 @@ export const DateTimeRangePicker = ({
         label={datePickerLabel}
         name={datePickerName}
         onChange={e => {
-          setSelectedCell(prevCell => ({ ...prevCell, date: parseISO(e.target.value) }));
+          setSelectedCell({ date: parseISO(e.target.value) });
           flushChangeToStartDateField(e);
         }}
         required={required}
