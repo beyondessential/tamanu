@@ -1,20 +1,24 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+import { Box } from '@material-ui/core';
 
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { Box } from '@material-ui/core';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
     max-width: 922px;
+    overflow-y: visible;
+    div:nth-child(2) {
+      overflow: visible;
+    }
   }
   h2 {
     font-size: 18px;
@@ -42,7 +46,8 @@ const StyledTable = styled(Table)`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 18px;
-  max-height: 547px;
+  max-height: calc(100vh - 128.8px);
+  box-shadow: none;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
@@ -65,8 +70,21 @@ const StyledTable = styled(Table)`
       padding-left: 30px;
     }
   }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:first-child {
+        td {
+          padding-top: 18px;
+        }
+      }
+    }
+  }
   .MuiTableCell-body {
-    padding: 11px;
+    border-bottom: none;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 11px;
+    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -193,17 +211,18 @@ export const PastBookingsModal = ({ onClose, patient }) => {
   });
 
   const beforeDate = useMemo(() => new Date().toISOString(), []);
-  const bookings =
-    useAppointmentsQuery({
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
       all: true,
       patientId: patient?.id,
       before: beforeDate,
       after: '1970-01-01 00:00',
       orderBy,
       order,
-      locationId: '',
-      locationGroup: '',
-    }).data?.data ?? [];
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const bookings = data?.data ?? [];
 
   return (
     <StyledModal
@@ -216,6 +235,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     >
       <Container>
         <StyledTable
+          isLoading={isLoading}
           data={bookings}
           columns={COLUMNS}
           order={order}

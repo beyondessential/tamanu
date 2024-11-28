@@ -54,7 +54,6 @@ export class Appointment extends Model {
       foreignKey: 'locationGroupId',
     });
 
-    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',

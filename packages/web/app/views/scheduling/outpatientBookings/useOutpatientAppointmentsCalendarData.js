@@ -2,11 +2,11 @@ import { endOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { useAppointmentsQuery } from '../../../api/queries';
+import { combineQueries } from '../../../api';
+import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
-import { combineQueries } from '../../../api';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
   const locationGroupsQuery = useLocationGroupsQuery();
@@ -21,10 +21,9 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   );
   const { data: usersData } = usersQuery;
 
-  const appointmentsQuery = useAppointmentsQuery({
+  const appointmentsQuery = useOutpatientAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
-    locationGroupId: '',
     all: true,
   });
   const { data: appointmentsData } = appointmentsQuery;

@@ -4,13 +4,12 @@ import {
   endOfMonth,
   endOfWeek,
   startOfMonth,
-  startOfToday,
   startOfWeek,
 } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
+import { useLocationBookingsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -81,9 +80,13 @@ const emptyStateMessage = (
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const selectedMonthState = useState(startOfToday());
-  const [monthOf] = selectedMonthState;
+  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
+
   const displayedDates = getDisplayableDates(monthOf);
+
+  useEffect(() => {
+    if (selectedCell.date) setMonthOf(selectedCell.date);
+  }, [selectedCell.date, setMonthOf]);
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
@@ -93,11 +96,10 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     clinicianId?.length > 0 || bookingTypeId?.length > 0 || !!patientNameOrId;
   const { data: locations } = locationsQuery;
 
-  const { data: appointmentsData } = useAppointmentsQuery({
+  const { data: appointmentsData } = useLocationBookingsQuery({
     after: displayedDates[0],
     before: endOfDay(displayedDates.at(-1)),
     all: true,
-    locationId: '',
     clinicianId,
     bookingTypeId,
     patientNameOrId,
@@ -114,7 +116,8 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
       <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
-            selectedMonthState={selectedMonthState}
+            monthOf={monthOf}
+            setMonthOf={setMonthOf}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody

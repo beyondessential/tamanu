@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -16,6 +15,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
+import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -199,10 +199,16 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
 const getDate = ({ startTime }) => (
-  <DateText>
-    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
-  </DateText>
+  <DateText>{`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}</DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
@@ -220,7 +226,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title }) => {
+const TableHeader = ({ title, patient }) => {
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   return (
@@ -251,9 +257,10 @@ const TableHeader = ({ title }) => {
         </Button>
       </div>
       {isViewPastBookingsModalOpen && (
-        <PastAppointmentModal 
-          open={true} 
+        <PastAppointmentModal
+          open={true}
           onClose={() => setIsViewPastBookingsModalOpen(false)}
+          patient={patient}
         />
       )}
     </TableTitleContainer>
@@ -266,14 +273,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useAppointmentsQuery({
-      locationGroupId: '',
+  const { data, isLoading } = useOutpatientAppointmentsQuery(
+    {
       all: true,
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -332,13 +342,13 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
+          <StyledMenuButton actions={actions} disablePortal={false} />
         </div>
       ),
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -348,6 +358,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               fallback="No outpatient appointments"
             />
           }
+          patient={patient}
         />
       </NoDataContainer>
     );
@@ -356,6 +367,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}
@@ -367,6 +379,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
                 fallback="Outpatient appointments"
               />
             }
+            patient={patient}
           />
         }
         onClickRow={handleRowClick}
