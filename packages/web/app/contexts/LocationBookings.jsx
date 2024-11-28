@@ -31,22 +31,22 @@ export const LocationBookingsContextProvider = ({ children }) => {
 
   const updateSelectedCell = newCellData => {
     setSelectedCell(prevCell => {
-      const updatedCell = { ...prevCell, ...newCellData }
+      const updatedCell = { ...prevCell, ...newCellData };
       if (updatedCell.locationId && updatedCell.date) {
         setMonthOf(updatedCell.date);
-        // TODO: this is a mega hack!
-        setTimeout(() => {
-          scrollToCell(updatedCell);
-        }, 1000)
       }
       return updatedCell;
     });
   };
-  
+
   const updateMonth = date => {
     setMonthOf(date);
     (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
-  }
+  };
+
+  useEffect(() => {
+    scrollToCell(selectedCell);
+  }, [monthOf, selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
