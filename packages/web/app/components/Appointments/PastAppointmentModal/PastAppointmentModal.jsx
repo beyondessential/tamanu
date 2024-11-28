@@ -13,6 +13,10 @@ import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
     max-width: 922px;
+    overflow-y: visible;
+    div:nth-child(2) {
+      overflow: visible;
+    }
   }
   h2 {
     font-size: 18px;
@@ -40,7 +44,8 @@ const StyledTable = styled(Table)`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 18px;
-  max-height: 547px;
+  max-height: calc(100vh - 128.8px);
+  box-shadow: none;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
