@@ -58,13 +58,13 @@ const StyledDisplayTabs = styled(TabDisplay)`
   }
 `;
 
-const ChartDropDown = ({ selectedChartType, setSelectedChartType, chartTypes }) => {
+const ChartDropDown = ({ selectedChartSurveyId, setSelectedChartSurveyId, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
   const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
 
-    setSelectedChartType(newSelectedChartType);
+    setSelectedChartSurveyId(newSelectedChartType);
     userPreferencesMutation.mutate({
       key: 'selectedChartTypeId',
       value: newSelectedChartType,
@@ -75,7 +75,7 @@ const ChartDropDown = ({ selectedChartType, setSelectedChartType, chartTypes }) 
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={selectedChartType}
+      value={selectedChartSurveyId}
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
@@ -83,24 +83,30 @@ const ChartDropDown = ({ selectedChartType, setSelectedChartType, chartTypes }) 
   );
 };
 
+const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
+
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const api = useApi();
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { data: userPreferences } = useUserPreferencesQuery();
-  const { data: chartSurveys = [] } = useChartSurveysQuery();
+  const { data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {} } = useChartSurveysQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTab, setCurrenTab] = useState('');
-  const [selectedChartType, setSelectedChartType] = useState(userPreferences?.selectedChartTypeId);
-  const [chartSurveyId, setChartSurveyId] = useState();
 
+  // State for selected chart survey in the drop down
+  const [selectedChartSurveyId, setSelectedChartSurveyId] = useState(
+    userPreferences?.selectedChartTypeId,
+  );
+  // State for the chart survey to record responses in the modal
+  const [recordChartSurveyId, setRecordChartSurveyId] = useState();
+
+  // For selecting chart types in the drop down
   const chartTypes = useMemo(
     () =>
       chartSurveys
-        .filter(s =>
-          [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(s.surveyType),
-        )
+        .filter(s => [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(s.surveyType))
         .map(({ name, id }) => ({
           label: name,
           value: id,
@@ -108,20 +114,21 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     [chartSurveys],
   );
 
-  const findChartSurvey = chartId => chartSurveys.find(({ id }) => id === chartId);
+  const currentChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartSurveyId), [
+    chartSurveys,
+    selectedChartSurveyId,
+  ]);
 
-  // Find the complex chart survey that corresponds to the core chart survey
-  const findComplexChartSurveyFromCore = coreChartSurveyId => {
-    const coreChartSurvey = findChartSurvey(coreChartSurveyId);
-    return chartSurveys.find(
-      s => s.programId === coreChartSurvey.programId && s.surveyType === SURVEY_TYPES.COMPLEX_CHART,
-    )?.id;
-  };
+  const coreComplexChartSurveyId = useMemo(() => complexToCoreSurveysMap[selectedChartSurveyId], [
+    complexToCoreSurveysMap,
+    selectedChartSurveyId,
+  ]);
 
-  const { data: { data: chartInstances = [] } = {} } = useEncounterChartInstancesQuery(
-    encounter.id,
-    findChartSurvey(selectedChartType),
-  );
+  const { data: { data: chartInstances = [] } = {} } = useEncounterChartInstancesQuery({
+    encounterId: encounter.id,
+    chartSurveyId: coreComplexChartSurveyId,
+    enabled: !!coreComplexChartSurveyId,
+  });
 
   // Create tabs for each chart instance
   const chartInstanceTabs = useMemo(
@@ -154,37 +161,36 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
       answers: getAnswersFromData(data, survey),
       facilityId,
       metadata: {
-        chartInstanceResponseId: chartSurveyId,
+        chartInstanceResponseId: recordChartSurveyId,
       },
     });
     handleClose();
     await loadEncounter(encounter.id);
   };
 
-  const isComplexChart =
-    findChartSurvey(selectedChartType)?.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE;
+  const isComplexChart = currentChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
 
   return (
     <TabPane>
       <ChartModal
         open={modalOpen}
-        chartName={findChartSurvey(selectedChartType)?.name}
+        chartName={currentChartSurvey?.name}
         onClose={handleClose}
-        chartSurveyId={chartSurveyId}
+        chartSurveyId={recordChartSurveyId}
         onSubmit={handleSubmitChart}
       />
 
       <TableButtonRow variant="small" justifyContent={isComplexChart ? 'start' : 'space-between'}>
         <ChartDropDown
-          selectedChartType={selectedChartType}
-          setSelectedChartType={setSelectedChartType}
+          selectedChartSurveyId={selectedChartSurveyId}
+          setSelectedChartSurveyId={setSelectedChartSurveyId}
           chartTypes={chartTypes}
         />
         {isComplexChart ? (
           <StyledAddComplexChartButton
             onClick={() => {
+              setRecordChartSurveyId(coreComplexChartSurveyId);
               setModalOpen(true);
-              setChartSurveyId(selectedChartType);
             }}
           >
             + Add
@@ -199,17 +205,11 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           />
         ) : null}
 
-        {selectedChartType ? (
+        {selectedChartSurveyId ? (
           <StyledButtonWithPermissionCheck
             justifyContent="end"
             onClick={() => {
-              if (isComplexChart) {
-                const complexChartSurveyId = findComplexChartSurveyFromCore(selectedChartType);
-                setChartSurveyId(complexChartSurveyId);
-              } else {
-                setChartSurveyId(selectedChartType);
-              }
-
+              setRecordChartSurveyId(selectedChartSurveyId);
               setModalOpen(true);
             }}
             disabled={readonly}
@@ -220,7 +220,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           </StyledButtonWithPermissionCheck>
         ) : null}
       </TableButtonRow>
-      <ChartsTable selectedSurveyId={selectedChartType} />
+      <ChartsTable selectedSurveyId={selectedChartSurveyId} />
     </TabPane>
   );
 });
