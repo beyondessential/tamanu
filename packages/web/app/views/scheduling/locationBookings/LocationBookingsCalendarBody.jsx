@@ -1,10 +1,14 @@
-import { formatISO, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate } from './utils';
+import {
+  partitionAppointmentsByDate,
+  generateIdFromCell,
+} from './utils';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 export const BookingsCell = ({
   appointments,
@@ -12,26 +16,32 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
-}) => (
-  <CarouselGrid.Cell
-    onClick={e => {
-      if (e.target.closest('.appointment-tile')) return;
-      // Open form for creating new booking
-      openBookingForm({ startTime: date, locationId });
-    }}
-  >
-    {appointments?.map(a => (
-      <AppointmentTile
-        appointment={a}
-        className="appointment-tile"
-        hideTime={!isSameDay(date, parseISO(a.startTime))}
-        key={a.id}
-        onCancel={() => openCancelModal(a)}
-        onEdit={() => openBookingForm(a)}
-      />
-    ))}
-  </CarouselGrid.Cell>
-);
+}) => {
+  const { selectedCell } = useLocationBookingsContext();
+  const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
+
+  return (
+    <CarouselGrid.Cell
+      id={generateIdFromCell({ locationId, date })}
+      onClick={e => {
+        if (e.target.closest('.appointment-tile')) return;
+        openBookingForm({ startTime: date, locationId });
+      }}
+      $selected={isSelected}
+    >
+      {appointments?.map(a => (
+        <AppointmentTile
+          appointment={a}
+          className="appointment-tile"
+          hideTime={!isSameDay(date, parseISO(a.startTime))}
+          key={a.id}
+          onCancel={() => openCancelModal(a)}
+          onEdit={() => openBookingForm(a)}
+        />
+      ))}
+    </CarouselGrid.Cell>
+  );
+};
 
 export const BookingsRow = ({
   appointments,
