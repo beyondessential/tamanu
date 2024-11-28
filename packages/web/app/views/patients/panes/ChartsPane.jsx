@@ -29,13 +29,17 @@ const StyledTranslatedSelectField = styled(SelectField)`
 `;
 
 const CoreComplexChartDataRow = styled.div`
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 20px;
+  font-size: 14px;
+  padding-top: 15px;
+  border-top: 1px solid ${Colors.outline};
 `;
 
 const CoreComplexChartInfoHeader = styled.span`
   font-weight: 500;
   margin-right: 5px;
+  color: ${Colors.darkestText};
 `;
 
 const CoreComplexChartInfoWrapper = styled.span`
