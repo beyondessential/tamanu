@@ -7,11 +7,11 @@ export const useChartSurveysQuery = () => {
 
   return useQuery(['chartSurveys'], () => api.get('survey/charts'), {
     select: data => {
-      // Assuming `data` is an array of surveys
       const complexToCoreSurveysMap = {};
-      const complexChartSurveys = data.filter(
-        s => s.surveyType === SURVEY_TYPES.COMPLEX_CHART,
-      );
+      const complexChartSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.COMPLEX_CHART);
+
+      // For a program, there should only be 1 COMPLEX and COMPLEX_CORE survey
+      // So we can map the COMPLEX survey to the COMPLEX_CORE survey here
       complexChartSurveys.forEach(survey => {
         const coreSurvey = data.find(
           s => s.programId === survey.programId && s.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE,

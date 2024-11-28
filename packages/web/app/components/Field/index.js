@@ -32,5 +32,3 @@ export * from './Form';
 export * from './FormGroup';
 export * from './PaginatedForm';
 export * from './OuterLabelFieldWrapper';
-
-export * from './ComplexChartInstanceNameField';
