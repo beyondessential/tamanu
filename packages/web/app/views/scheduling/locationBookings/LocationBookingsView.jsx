@@ -81,7 +81,9 @@ export const LocationBookingsView = () => {
   const openBookingForm = async prepopulationValues => {
     const { locationId, startTime } = prepopulationValues;
     await setSelectedAppointment(prepopulationValues);
-    setSelectedCell({ locationId, date: parseISO(startTime) });
+    if (locationId && startTime) {
+      setSelectedCell({ locationId, date: parseISO(startTime) });
+    }
     setIsDrawerOpen(true);
   };
 
