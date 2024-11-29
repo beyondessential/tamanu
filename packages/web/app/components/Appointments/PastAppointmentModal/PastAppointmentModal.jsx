@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { Box } from '@material-ui/core';
 
-import { Modal } from '../Modal';
-import { Table } from '../Table';
-import { TranslatedText } from '../Translation';
-import { useLocationBookingsQuery } from '../../api/queries';
-import { formatShortest, formatTime } from '../DateDisplay';
-import { Colors } from '../../constants';
-import { useTableSorting } from '../Table/useTableSorting';
-import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
+import { Modal } from '../../Modal';
+import { Table } from '../../Table';
+import { TranslatedText } from '../../Translation';
+import { useOutpatientAppointmentsQuery } from '../../../api/queries';
+import { formatShortest, formatTime } from '../../DateDisplay';
+import { Colors } from '../../../constants';
+import { useTableSorting } from '../../Table/useTableSorting';
+import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -105,11 +103,8 @@ const Container = styled.div`
   margin: -18px -32px;
 `;
 
-const DateText = styled.div`
+const LowercaseText = styled.div`
   text-transform: lowercase;
-  white-space: pre;
-  display: flex;
-  align-items: center;
 `;
 
 const StatusBadge = styled.div`
@@ -124,94 +119,58 @@ const StatusBadge = styled.div`
   background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
-const getDate = ({ startTime, endTime, overnight }) => {
-  const formatShortestStartTime = formatShortest(startTime);
-  const formatShortestEndTime = formatShortest(endTime);
-  const formatTimeStartTime = formatTime(startTime).replace(' ', '');
-  const formatTimeEndTime = formatTime(endTime).replace(' ', '');
-
-  return (
-    <DateText>
-      {formatShortestStartTime === formatShortestEndTime
-        ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
-        : `${formatShortestStartTime} - ${formatShortestEndTime}`}
-      {overnight && (
-        <Box component={'span'} display={'flex'} color={Colors.primary} ml={0.5}>
-          <Brightness2Icon fontSize="inherit" />
-        </Box>
-      )}
-    </DateText>
-  );
-};
+const getDate = ({ startTime }) => (
+  <LowercaseText>
+    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
+  </LowercaseText>
+);
 
 const getStatus = ({ status }) => <StatusBadge $status={status}>{status}</StatusBadge>;
 
 const COLUMNS = [
   {
     key: 'startTime',
-    title: (
-      <TranslatedText stringId="bookings.modal.pastBookings.table.column.date" fallback="Date" />
-    ),
+    title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
     accessor: getDate,
   },
   {
-    key: 'bookingArea',
-    title: (
-      <TranslatedText stringId="bookings.modal.pastBookings.table.column.area" fallback="Area" />
-    ),
-    accessor: ({ location }) => location?.locationGroup?.name,
-  },
-  {
-    key: 'location',
-    title: (
-      <TranslatedText
-        stringId="bookings.modal.pastBookings.table.column.location"
-        fallback="Location"
-      />
-    ),
-    accessor: ({ location }) => location?.name || '-',
-    sortable: false,
+    key: 'outpatientAppointmentArea',
+    title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
+    accessor: ({ locationGroup }) => locationGroup?.name,
   },
   {
     key: 'clinician',
     title: (
       <TranslatedText
-        stringId="bookings.modal.pastBookings.table.column.clinician"
+        stringId="pastAppointment.modal.table.column.clinician"
         fallback="Clinician"
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
   },
   {
-    key: 'bookingType',
+    key: 'appointmentType',
     title: (
-      <TranslatedText
-        stringId="bookings.modal.pastBookings.table.column.type"
-        fallback="Booking type"
-      />
+      <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
     ),
-    accessor: ({ bookingType }) => bookingType?.name,
+    accessor: ({ appointmentType }) => appointmentType?.name,
   },
   {
     key: 'status',
     title: (
-      <TranslatedText
-        stringId="bookings.modal.pastBookings.table.column.status"
-        fallback="Status"
-      />
+      <TranslatedText stringId="pastAppointment.modal.table.column.status" fallback="Status" />
     ),
     accessor: getStatus,
   },
 ];
 
-export const PastBookingsModal = ({ onClose, patient }) => {
+export const PastAppointmentModal = ({ open, onClose, patient }) => {
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
   });
-
   const beforeDate = useMemo(() => new Date().toISOString(), []);
-  const { data, isLoading } = useLocationBookingsQuery(
+  const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
       patientId: patient?.id,
@@ -222,21 +181,24 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     },
     { keepPreviousData: true, refetchOnMount: true },
   );
-  const bookings = data?.data ?? [];
+  const appointments = data?.data ?? [];
 
   return (
     <StyledModal
       title={
-        <TranslatedText stringId="bookings.modal.pastBookings.title" fallback="Past bookings" />
+        <TranslatedText
+          stringId="appointment.modal.pastAppointments.title"
+          fallback="Past appointments"
+        />
       }
-      open
+      open={open}
       onClose={onClose}
       width="lg"
     >
       <Container>
         <StyledTable
           isLoading={isLoading}
-          data={bookings}
+          data={appointments}
           columns={COLUMNS}
           order={order}
           orderBy={orderBy}

@@ -44,6 +44,7 @@ export const MenuButton = React.memo(
     iconColor,
     disabled = false,
     placement = 'bottom-end',
+    disablePortal = true,
   }) => {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
@@ -75,7 +76,7 @@ export const MenuButton = React.memo(
           open={open}
           anchorEl={anchorRef.current}
           transition
-          disablePortal
+          disablePortal={disablePortal}
           placement={placement}
           style={{ zIndex: 10 }}
         >

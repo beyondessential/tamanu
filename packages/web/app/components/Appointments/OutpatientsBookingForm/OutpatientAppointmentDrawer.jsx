@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { isAfter, parseISO } from 'date-fns';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 
-import { AutocompleteField, DynamicSelectField, Field, Form, CheckField } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmModal } from '../../ConfirmModal';
-import { notifyError, notifySuccess } from '../../../utils';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
+import { notifyError, notifySuccess } from '../../../utils';
+import { FormSubmitCancelRow } from '../../ButtonRow';
+import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { AutocompleteField, CheckField, DynamicSelectField, Field, Form } from '../../Field';
+import { FormGrid } from '../../FormGrid';
+import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
+import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const IconLabel = styled.div`
   display: flex;
@@ -260,6 +260,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <Field
             name="isHighPriority"
+            style={{ width: 'fit-content' }}
             label={
               <IconLabel>
                 <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
