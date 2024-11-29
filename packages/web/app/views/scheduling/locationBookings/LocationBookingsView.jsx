@@ -12,7 +12,7 @@ import { LocationBookingDrawer } from '../../../components/Appointments/Location
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
-import { CalendarSearchBar } from './CalendarSearchBar';
+import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { appointmentToFormValues } from './utils';
 import { parseISO } from 'date-fns';
@@ -109,7 +109,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={handleFilterChange} />
+        <LocationBookingsFilter onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={handleNewBooking}>
           <PlusIcon />
           <TranslatedText
