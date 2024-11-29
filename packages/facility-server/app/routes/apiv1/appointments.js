@@ -51,7 +51,7 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
 
 appointments.post('/$', simplePost('Appointment'));
 
-// TODO - this will be used when PatientCommunication is implemented
+// TODO - this will be used when PatientCommunication push to central sync is implemented
 // appointments.post(
 //   '/$',
 //   asyncHandler(async (req, res) => {
@@ -75,8 +75,8 @@ appointments.post('/$', simplePost('Appointment'));
 //           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
 //           status: COMMUNICATION_STATUSES.QUEUED,
 //           destination: body.email,
-//           subject: 'Appointment Confirmation',
-//           content: `Your appointment has been confirmed for ${body.startTime} - ${body.endTime}`,
+//           subject: appointmentConfirmationTemplate.subject,
+//           content: appointmentConfirmationTemplate.body,
 //           patientId: body.patientId,
 //         });
 //       }
