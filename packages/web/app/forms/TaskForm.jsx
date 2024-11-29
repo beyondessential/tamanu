@@ -79,7 +79,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: {
-      types: [REFERENCE_TYPES.TASK_TEMPLATE, REFERENCE_TYPES.TASK_SET],
+      types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
       relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
     },
     formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
@@ -177,7 +177,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   allowCreatingCustomValue={canCreateReferenceData}
                   groupByKey="type"
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
-                  orderByValues={[REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE]}
                   required
                   onChange={e => handleTaskChange(e, { setFieldValue })}
                 />
