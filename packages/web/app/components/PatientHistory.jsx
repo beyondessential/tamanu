@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -18,8 +19,6 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
-import { Box, IconButton } from '@material-ui/core';
-import { Button } from './Button.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -55,17 +54,55 @@ const StyledTable = styled(DataFetchingTable)`
       width: 22px;
     }
   }
+  .MuiTableRow-root {
+    &:hover:not(:has(.menu-container:hover)) {
+      .MuiTableCell-body {
+        &:first-child {
+          &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -6px;
+            border-radius: 5px 0 0 5px;
+            display: block;
+            width: 6px;
+            height: 100%;
+            background-color: ${Colors.veryLightBlue};
+          }
+        }
+        &:last-child {
+          &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -6px;
+            border-radius: 0 5px 5px 0;
+            display: block;
+            width: 6px;
+            height: 100%;
+            background-color: ${Colors.veryLightBlue};
+          }
+        }
+      }
+    }
+  }
   .MuiTableCell-body {
     padding-top: 11px;
     padding-bottom: 11px;
     padding-left: 6px;
     padding-right: 6px;
+    position: relative;
     &:first-child {
       padding-left: 0px;
     }
     &:last-child {
       padding: 0;
       width: 22px;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root {
+    &:hover:has(.menu-container:hover) {
+      background-color: transparent;
     }
   }
   .MuiTableFooter-root {
@@ -93,6 +130,24 @@ const StatusIndicator = styled.div`
 
 const StyledIconButton = styled(IconButton)`
   font-size: 20px;
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 15px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
+  z-index: 1;
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
 `;
 
 const getDate = ({ startDate, endDate, encounterType }) => {
@@ -217,9 +272,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => (
-        <Box width='1px' onMouseEnter={() => setSelectedEncounterData(data)}>
-          <MenuButton actions={actions} />
-        </Box>
+        <MenuContainer
+          className="menu-container"
+          onMouseEnter={() => setSelectedEncounterData(data)}
+        >
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     });
   }
@@ -250,11 +308,11 @@ export const PatientHistory = ({ patient, onItemClick }) => {
             />
           </Heading4>
         }
-        ExportButton={
-          (props) => <StyledIconButton size="small" variant="outlined" {...props}>
+        ExportButton={props => (
+          <StyledIconButton size="small" variant="outlined" {...props}>
             <GetAppIcon />
           </StyledIconButton>
-        }
+        )}
       />
 
       <DeleteEncounterModal
