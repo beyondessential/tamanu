@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { isThisMonth, startOfToday } from 'date-fns';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
+import {
+  firstDisplayedDayId,
+  thisWeekId,
+} from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
 import { scrollToCell } from '../views/scheduling/locationBookings/utils';
-import { firstDisplayedDayId, thisWeekId } from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
 
 const LocationBookingsContext = createContext(null);
 
@@ -34,7 +37,6 @@ export const LocationBookingsContextProvider = ({ children }) => {
     }
     (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
   }, [selectedCell, monthOf]);
-
 
   return (
     <LocationBookingsContext.Provider

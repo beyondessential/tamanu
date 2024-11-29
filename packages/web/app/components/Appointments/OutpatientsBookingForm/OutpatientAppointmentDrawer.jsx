@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { isAfter, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 
 import {
@@ -15,19 +16,18 @@ import {
 } from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmModal } from '../../ConfirmModal';
-import { notifyError, notifySuccess } from '../../../utils';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
+import { notifyError, notifySuccess } from '../../../utils';
+import { FormSubmitCancelRow } from '../../ButtonRow';
+import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { FormGrid } from '../../FormGrid';
+import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { usePatientData } from '../../../api/queries/usePatientData';
 import { useAuth } from '../../../contexts/Auth';
+import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const IconLabel = styled.div`
   display: flex;
