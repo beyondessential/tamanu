@@ -234,7 +234,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               updateSelectedCell(({ locationId: e.target.value }));
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
-            filterByBookableGroups
+            locationGroupSuggesterType='bookableLocationGroup'
           />
           <Field
             name="overnight"

@@ -35,7 +35,7 @@ export const LocationInput = React.memo(
     onChange,
     form = {},
     enableLocationStatus = true,
-    filterByBookableGroups = false,
+    locationGroupSuggesterType = 'facilityLocationGroup',
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -52,9 +52,7 @@ export const LocationInput = React.memo(
       },
       baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester(
-      filterByBookableGroups ? 'bookableLocationGroup' : 'facilityLocationGroup',
-    );
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 
