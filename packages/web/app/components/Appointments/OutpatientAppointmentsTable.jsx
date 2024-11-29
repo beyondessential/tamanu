@@ -130,10 +130,6 @@ const StyledTable = styled(Table)`
     &:last-child {
       border-radius: 0 5px 5px 0;
       width: 28px;
-      button {
-        position: relative;
-        left: 11px;
-      }
       > div > div {
         overflow: visible;
       }
@@ -164,7 +160,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
-    &:hover {
+    &:hover:not(:has(.menu-container:hover)) {
       background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
@@ -204,6 +200,15 @@ const StyledMenuButton = styled(MenuButton)`
     &:hover {
       background-color: transparent;
     }
+  }
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 11px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
   }
 `;
 
@@ -341,9 +346,9 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} disablePortal={false} />
-        </div>
+        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     },
   ];
