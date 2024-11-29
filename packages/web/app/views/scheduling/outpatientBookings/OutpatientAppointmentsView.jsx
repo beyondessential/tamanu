@@ -1,33 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { pick } from 'lodash';
-import { startOfDay } from 'date-fns';
-import styled from 'styled-components';
-import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
+import Box from '@mui/material/Box';
+import { startOfDay } from 'date-fns';
+import { pick } from 'lodash';
 import queryString from 'query-string';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { DateSelector } from './DateSelector';
-import { Colors } from '../../../constants';
-import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
-import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
-import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
-
-const Placeholder = styled.div`
-  background-color: oklch(0% 0 0 / 3%);
-  max-block-size: 100%;
-  border: 1px solid oklch(0% 0 0 / 15%);
-  border-radius: 0.2rem;
-  color: oklch(0% 0 0 / 55%);
-  display: grid;
-  font-size: 1rem;
-  padding: 0.5rem;
-  place-items: center;
-  text-align: center;
-`;
+import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
+import { Colors } from '../../../constants';
+import { DateSelector } from './DateSelector';
+import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
+import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
+import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 
 const Container = styled(PageContainer)`
   display: flex;
@@ -61,22 +50,16 @@ const AppointmentTopBar = styled(TopBar).attrs({
   flex-grow: 0;
   & .MuiToolbar-root {
     justify-content: flex-start;
+    gap: 1rem;
   }
   & .MuiTypography-root {
     min-width: 7.188rem;
-    margin-inline-end: 1rem;
     flex: 0;
   }
 `;
 
-const Filters = styled('search')`
-  margin-left: auto;
-  display: flex;
-  gap: 1rem;
-`;
-
-const NewBookingButton = styled(Button)`
-  margin-left: 1rem;
+const GroupByToggle = styled(GroupByAppointmentToggle)`
+  margin-inline-end: auto;
 `;
 
 export const APPOINTMENT_GROUP_BY = {
@@ -137,15 +120,11 @@ export const OutpatientAppointmentsView = () => {
         onClose={() => setIsCancelModalOpen(false)}
       />
       <AppointmentTopBar>
-        <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
-        <Filters>
-          <Placeholder>Search</Placeholder>
-          <Placeholder>Clinician</Placeholder>
-          <Placeholder>Type</Placeholder>
-        </Filters>
-        <NewBookingButton onClick={() => handleOpenDrawer({})}>
+        <GroupByToggle value={groupBy} onChange={setGroupBy} />
+        <OutpatientAppointmentsFilter />
+        <Button onClick={() => handleOpenDrawer({})}>
           <AddIcon /> Book appointment
-        </NewBookingButton>
+        </Button>
       </AppointmentTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
