@@ -231,9 +231,10 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             onChange={e => {
-              updateSelectedCell(({ locationId: e.target.value }));
+              updateSelectedCell({ locationId: e.target.value });
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
+            locationGroupSuggesterType="bookableLocationGroup"
           />
           <Field
             name="overnight"
