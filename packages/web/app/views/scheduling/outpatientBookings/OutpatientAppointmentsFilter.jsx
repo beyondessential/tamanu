@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Field, Form, SearchField } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
 import { useTranslation } from '../../../contexts/Translation';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 const Fieldset = styled.fieldset`
   // Reset
@@ -17,29 +18,33 @@ const Fieldset = styled.fieldset`
 `;
 
 export const OutpatientAppointmentsFilter = props => {
+  const { setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
 
   const renderForm = () => (
     <Fieldset>
       <Field
-        name="patientNameOrId"
         component={SearchField}
+        name="patientNameOrId"
+        onChange={e => setFilters(prev => ({ ...prev, patientNameOrId: e.target.value }))}
         placeholder={getTranslation(
           'scheduling.filter.placeholder.patientNameOrId',
           'Search patient name or ID',
         )}
       />
       <Field
-        name="locationGroupIds"
-        label={getTranslation('general.area.label', 'Area')}
         component={FilterField}
         endpoint="bookableLocationGroup"
+        label={getTranslation('general.area.label', 'Area')}
+        name="locationGroupIds"
+        onChange={e => setFilters(prev => ({ ...prev, locationGroupIds: e.target.value }))}
       />
       <Field
-        name="bookingTypeId"
-        label={getTranslation('general.type.label', 'Type')}
         component={FilterField}
         endpoint="bookingType"
+        label={getTranslation('general.type.label', 'Type')}
+        name="bookingTypeId"
+        onChange={e => setFilters(prev => ({ ...prev, bookingTypeId: e.target.value }))}
       />
     </Fieldset>
   );

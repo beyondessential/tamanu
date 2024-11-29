@@ -13,6 +13,7 @@ import { Button, PageContainer, TopBar, TranslatedText } from '../../../componen
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
 import { Colors } from '../../../constants';
+import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
@@ -114,34 +115,36 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <CancelAppointmentModal
-        appointment={selectedAppointment}
-        open={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)}
-      />
-      <AppointmentTopBar>
-        <GroupByToggle value={groupBy} onChange={setGroupBy} />
-        <OutpatientAppointmentsFilter />
-        <Button onClick={() => handleOpenDrawer({})}>
-          <AddIcon aria-hidden /> Book appointment
-        </Button>
-      </AppointmentTopBar>
-      <CalendarWrapper>
-        <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <CalendarInnerWrapper>
-          <OutpatientBookingCalendar
-            onCancel={handleOpenCancelModal}
-            onOpenDrawer={handleOpenDrawer}
-            groupBy={groupBy}
-            selectedDate={selectedDate}
-          />
-          <OutpatientAppointmentDrawer
-            initialValues={selectedAppointment}
-            onClose={handleCloseDrawer}
-            open={drawerOpen}
-          />
-        </CalendarInnerWrapper>
-      </CalendarWrapper>
+      <OutpatientAppointmentsContextProvider>
+        <CancelAppointmentModal
+          appointment={selectedAppointment}
+          open={isCancelModalOpen}
+          onClose={() => setIsCancelModalOpen(false)}
+        />
+        <AppointmentTopBar>
+          <GroupByToggle value={groupBy} onChange={setGroupBy} />
+          <OutpatientAppointmentsFilter />
+          <Button onClick={() => handleOpenDrawer({})}>
+            <AddIcon aria-hidden /> Book appointment
+          </Button>
+        </AppointmentTopBar>
+        <CalendarWrapper>
+          <DateSelector value={selectedDate} onChange={handleChangeDate} />
+          <CalendarInnerWrapper>
+            <OutpatientBookingCalendar
+              onCancel={handleOpenCancelModal}
+              onOpenDrawer={handleOpenDrawer}
+              groupBy={groupBy}
+              selectedDate={selectedDate}
+            />
+            <OutpatientAppointmentDrawer
+              initialValues={selectedAppointment}
+              onClose={handleCloseDrawer}
+              open={drawerOpen}
+            />
+          </CalendarInnerWrapper>
+        </CalendarWrapper>
+      </OutpatientAppointmentsContextProvider>
     </Container>
   );
 };
