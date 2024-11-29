@@ -6,7 +6,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery } from '../../../api/queries';

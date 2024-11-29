@@ -47,7 +47,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
     (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
   };
 
-  useEffect(() => scrollToCell(selectedCell), [monthOf, selectedCell]);
+  useEffect(() => scrollToCell(selectedCell), [selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
