@@ -16,6 +16,7 @@ import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
 import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -212,6 +213,12 @@ const MenuContainer = styled.div`
   }
 `;
 
+const ActionRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
 const getDate = ({ startTime }) => (
   <DateText>{`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}</DateText>
 );
@@ -232,35 +239,40 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 };
 
 const TableHeader = ({ title, patient }) => {
+  const { ability } = useAuth();
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
   return (
     <TableTitleContainer>
       <Box component={'span'} fontSize="16px" fontWeight={500}>
         {title}
       </Box>
-      <div>
+      <ActionRow>
         <ViewPastBookingsButton
           component={'span'}
           onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr={2}
+          mr='6px'
         >
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"
             fallback="View past appointments"
           />
         </ViewPastBookingsButton>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
-        >
-          <TranslatedText
-            stringId="patient.appointments.table.bookAppointment"
-            fallback="+ Book appointment"
-          />
-        </Button>
-      </div>
+        {canCreateAppointment && (
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
+          >
+            <TranslatedText
+              stringId="patient.appointments.table.bookAppointment"
+              fallback="+ Book appointment"
+            />
+          </Button>
+        )}
+      </ActionRow>
       {isViewPastBookingsModalOpen && (
         <PastAppointmentModal
           open={true}
