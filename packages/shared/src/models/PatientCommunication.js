@@ -30,7 +30,7 @@ export class PatientCommunication extends Model {
         attachment: Sequelize.STRING,
         hash: Sequelize.INTEGER,
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL },
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 

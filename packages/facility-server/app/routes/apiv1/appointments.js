@@ -49,41 +49,41 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
   };
 };
 
-// TODO: i think this endpoint should handle creating a patient communication record??
 appointments.post('/$', simplePost('Appointment'));
 
-appointments.post(
-  '/$',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Appointment');
-    const {
-      models,
-      db,
-      body: { facilityId, ...body },
-      settings,
-    } = req;
-    const { Appointment } = models;
+// TODO - this will be used when PatientCommunication is implemented
+// appointments.post(
+//   '/$',
+//   asyncHandler(async (req, res) => {
+//     req.checkPermission('write', 'Appointment');
+//     const {
+//       models,
+//       db,
+//       body: { facilityId, ...body },
+//       settings,
+//     } = req;
+//     const { Appointment } = models;
 
-    await db.transaction(async () => {
-      const result = await Appointment.create(body);
-      if (body.email) {
-        const appointmentConfirmationTemplate = await settings[facilityId].get(
-          'templates.appointmentConfirmation',
-        );
-        await models.PatientCommunication.create({
-          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          status: COMMUNICATION_STATUSES.QUEUED,
-          destination: body.email,
-          subject: 'Appointment Confirmation',
-          content: `Your appointment has been confirmed for ${body.startTime} - ${body.endTime}`,
-          patientId: body.patientId,
-        });
-      }
-      res.status(201).send(result);
-    });
-  }),
-);
+//     await db.transaction(async () => {
+//       const result = await Appointment.create(body);
+//       if (body.email) {
+//         const appointmentConfirmationTemplate = await settings[facilityId].get(
+//           'templates.appointmentConfirmation',
+//         );
+//         await models.PatientCommunication.create({
+//           type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+//           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+//           status: COMMUNICATION_STATUSES.QUEUED,
+//           destination: body.email,
+//           subject: 'Appointment Confirmation',
+//           content: `Your appointment has been confirmed for ${body.startTime} - ${body.endTime}`,
+//           patientId: body.patientId,
+//         });
+//       }
+//       res.status(201).send(result);
+//     });
+//   }),
+// );
 
 appointments.put('/:id', simplePut('Appointment'));
 
