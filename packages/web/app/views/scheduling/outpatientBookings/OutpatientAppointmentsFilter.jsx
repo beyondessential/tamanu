@@ -19,32 +19,30 @@ const Fieldset = styled.fieldset`
 export const OutpatientAppointmentsFilter = props => {
   const { getTranslation } = useTranslation();
 
-  const renderForm = () => {
-    return (
-      <Fieldset>
-        <Field
-          name="patientNameOrId"
-          component={SearchField}
-          placeholder={getTranslation(
-            'scheduling.filter.placeholder.patientNameOrId',
-            'Search patient name or ID',
-          )}
-        />
-        <Field
-          name="locationGroupIds"
-          label={getTranslation('general.area.label', 'Area')}
-          component={FilterField}
-          endpoint="bookableLocationGroup"
-        />
-        <Field
-          name="bookingTypeId"
-          label={getTranslation('general.type.label', 'Type')}
-          component={FilterField}
-          endpoint="bookingType"
-        />
-      </Fieldset>
-    );
-  };
+  const renderForm = () => (
+    <Fieldset>
+      <Field
+        name="patientNameOrId"
+        component={SearchField}
+        placeholder={getTranslation(
+          'scheduling.filter.placeholder.patientNameOrId',
+          'Search patient name or ID',
+        )}
+      />
+      <Field
+        name="locationGroupIds"
+        label={getTranslation('general.area.label', 'Area')}
+        component={FilterField}
+        endpoint="bookableLocationGroup"
+      />
+      <Field
+        name="bookingTypeId"
+        label={getTranslation('general.type.label', 'Type')}
+        component={FilterField}
+        endpoint="bookingType"
+      />
+    </Fieldset>
+  );
 
   return <Form onSubmit={async () => {}} render={renderForm} {...props} />;
 };
