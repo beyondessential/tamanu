@@ -19,9 +19,9 @@ import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 
 const Container = styled(PageContainer)`
+  block-size: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
 `;
 
 const CalendarWrapper = styled(Box)`
@@ -30,17 +30,17 @@ const CalendarWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   margin: 1rem;
-  border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border-radius: 0.25rem;
+  border: max(0.0625rem, 1px) solid ${Colors.outline};
   background: ${Colors.white};
 `;
 
 const CalendarInnerWrapper = styled(Box)`
+  block-size: 100%;
   display: flex;
-  height: 100%;
-  width: 100%;
+  inline-size: 100%;
   overflow: auto;
-  border-block-start: 1px solid ${Colors.outline};
+  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
@@ -48,13 +48,13 @@ const AppointmentTopBar = styled(TopBar).attrs({
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
-  & .MuiToolbar-root {
+  .MuiToolbar-root {
     justify-content: flex-start;
     gap: 1rem;
   }
-  & .MuiTypography-root {
-    min-width: 7.188rem;
+  .MuiTypography-root {
     flex: 0;
+    min-inline-size: 7.188rem;
   }
 `;
 

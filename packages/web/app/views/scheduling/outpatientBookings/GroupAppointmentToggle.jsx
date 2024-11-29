@@ -10,13 +10,13 @@ const Wrapper = styled(Box)`
   cursor: pointer;
   display: flex;
   align-items: center;
-  height: 2.4rem;
+  block-size: 2.4rem;
   position: relative;
   justify-content: space-between;
   padding: 0.125rem;
   background-color: ${Colors.white};
-  border-radius: 50px;
-  border: 1px solid ${Colors.primary};
+  border-radius: calc(infinity * 1px);
+  border: max(0.0625rem, 1px) solid ${Colors.primary};
   user-select: none;
 `;
 
