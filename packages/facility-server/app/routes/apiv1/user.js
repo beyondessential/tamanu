@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
+import { QueryTypes, Op, Sequelize } from 'sequelize';
 
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
@@ -19,6 +19,7 @@ import { TASK_STATUSES } from '@tamanu/constants';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
+import { getOrderClause } from '../../database/utils';
 
 export const user = express.Router();
 
@@ -195,18 +196,26 @@ user.get('/:id', simpleGet('User'));
 
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
-    .tuple([z.enum(['dueTime', 'name']), z.enum(['ASC', 'DESC'])])
+    .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
     .optional()
-    .default(['dueTime', 'ASC']),
+    .default('dueTime'),
+  order: z
+    .enum(['asc', 'desc'])
+    .optional()
+    .default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().optional(),
-  highPriority: z.boolean().optional(),
-  skip: z.coerce
+  highPriority: z
+    .enum(['true', 'false'])
+    .transform(value => value === 'true')
+    .optional()
+    .default('false'),
+  page: z.coerce
     .number()
     .optional()
     .default(0),
-  take: z.coerce
+  rowsPerPage: z.coerce
     .number()
     .max(50)
     .min(10)
@@ -221,37 +230,82 @@ user.get(
     const { id: userId } = params;
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
+    const {
+      orderBy,
+      order,
+      page,
+      rowsPerPage,
+      highPriority,
+      locationId,
+      locationGroupId,
+      designationId,
+    } = query;
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
-    const taskIds = await models.Task.findAll({
-      logging: true,
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      limit: query.take,
-      offset: query.skip,
-      attributes: ['id', 'dueTime', 'name', 'highPriority'],
+    const defaultOrder = [
+      ['dueTime', 'ASC'],
+      ['highPriority', 'DESC'],
+      [
+        Sequelize.literal(
+          'LOWER(CONCAT("encounter->patient"."first_name", \' \', "encounter->patient"."last_name"))',
+        ),
+      ],
+      ['name', 'ASC'],
+    ];
+    const orderOptions = [];
+    if (orderBy) {
+      switch (orderBy) {
+        case 'locationName':
+          orderOptions.push([
+            Sequelize.literal(
+              'LOWER(CONCAT("encounter->location"."name", \' \', "encounter->location->locationGroup"."name"))',
+            ),
+            order,
+          ]);
+          break;
+        case 'patientName':
+          orderOptions.push([
+            Sequelize.literal(
+              'LOWER(CONCAT("encounter->patient"."first_name", \' \', "encounter->patient"."last_name"))',
+            ),
+            order,
+          ]);
+          break;
+        default:
+          orderOptions.push(getOrderClause(order, orderBy));
+      }
+    }
+
+    const baseQueryOptions = {
       where: {
         status: TASK_STATUSES.TODO,
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
-        ...(query.highPriority && { highPriority: query.highPriority }),
+        ...(highPriority && { highPriority }),
+        [Op.or]: [
+          { '$designations.designationUsers.id$': userId }, // get tasks assigned to the current user
+          { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
+        ],
       },
       include: [
+        'requestedBy',
         {
           model: models.Encounter,
           as: 'encounter',
           where: { endDate: { [Op.is]: null } }, // only get tasks belong to active encounters
           include: [
+            'patient',
             {
               model: models.Location,
               as: 'location',
-              ...(query.locationId && { where: { id: query.locationId } }),
+              ...(locationId && { where: { id: locationId } }),
               include: [
                 {
                   model: models.LocationGroup,
                   as: 'locationGroup',
-                  ...(query.locationGroupId && { where: { id: query.locationGroupId } }),
+                  ...(locationGroupId && { where: { id: locationGroupId } }),
                 },
               ],
             },
@@ -261,26 +315,30 @@ user.get(
           attributes: [],
           model: models.ReferenceData,
           as: 'designations',
-          ...(query.designationId && { where: { id: query.designationId } }),
-          required: true,
+          ...(designationId && { where: { id: designationId } }),
+          required: false,
           include: [
             {
               attributes: [],
               model: models.User,
               as: 'designationUsers',
-              where: { id: userId }, // only get tasks assigned to the current user
             },
           ],
         },
       ],
-    }).then(tasks => tasks.map(task => task.id));
+      order: [...orderOptions, ...defaultOrder],
+    };
 
     const tasks = await models.Task.findAll({
-      where: { id: { [Op.in]: taskIds } },
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      include: [...models.Task.getFullReferenceAssociations()],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
+      subQuery: false,
+      ...baseQueryOptions,
     });
-    res.send(tasks);
+
+    const count = await models.Task.count(baseQueryOptions);
+    res.send({ data: tasks, count });
   }),
 );
 
