@@ -58,7 +58,3 @@ export const partitionAppointmentsByDate = appointments =>
   }, {});
 
 export const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.date).valueOf()}`;
-
-export const scrollToCell = cell => {
-  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
-};

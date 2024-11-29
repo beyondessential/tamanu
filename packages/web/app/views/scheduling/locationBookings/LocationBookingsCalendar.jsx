@@ -6,7 +6,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
@@ -80,13 +80,9 @@ const emptyStateMessage = (
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
+  const { monthOf, updateMonth } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date);
-  }, [selectedCell.date, setMonthOf]);
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
@@ -117,7 +113,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
-            setMonthOf={setMonthOf}
+            updateMonth={updateMonth}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody
