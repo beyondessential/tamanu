@@ -14,7 +14,7 @@ import { APPOINTMENT_GROUP_BY } from '../../scheduling/outpatientBookings/Outpat
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 const Container = styled.div`
-  flex-grow: 1;
+  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
   width: 376px;
   min-height: 392px;
   border: 1px solid ${Colors.outline};
@@ -101,7 +101,7 @@ const NoDataContainer = styled.div`
   text-align: center;
 `;
 
-export const TodayAppointmentsPane = () => {
+export const TodayAppointmentsPane = ({ showTasks }) => {
   const history = useHistory();
   const { currentUser } = useAuth();
   const appointments =
@@ -125,7 +125,7 @@ export const TodayAppointmentsPane = () => {
   };
 
   return (
-    <Container>
+    <Container showTasks={showTasks}>
       <TitleContainer>
         <Heading4 margin={0}>
           <TranslatedText

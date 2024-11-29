@@ -31,14 +31,13 @@ export const defineWebsocketService = injector => {
 
   onTableChanged(async payload => {
     if (payload.table === 'tasks') {
-      const task = await injector.models.Task.count({
+      const task = await injector.models.Task.findOne({
         where: { id: payload.newId },
         include: [
           {
-            attributes: ['designationUsers'],
             model: injector.models.ReferenceData,
-            as: 'destination',
-            required: true,
+            as: 'designations',
+            required: false,
             include: [
               {
                 attributes: ['id'],
@@ -50,8 +49,15 @@ export const defineWebsocketService = injector => {
           },
         ],
       });
-      for (const user of task.destination.designationUsers) {
-        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${user.id}`, task);
+
+      const userIds = new Set(task?.designations?.flatMap(designation  => designation.designationUsers.map(user => user.id)) ?? []);
+
+      if (userIds.size === 0) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
+      } else {
+        for (const userId of userIds) {
+          socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${userId}`, task);
+        }
       }
     }
   });
