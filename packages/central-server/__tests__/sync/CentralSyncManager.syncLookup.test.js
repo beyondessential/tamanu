@@ -1,3 +1,5 @@
+import waitForExpect from 'wait-for-expect';
+
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   SYNC_DIRECTIONS,
@@ -16,7 +18,6 @@ import {
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
 import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
@@ -1512,12 +1513,24 @@ describe('Sync Lookup data', () => {
 
       const patient2 = await models.Patient.create(fake(models.Patient));
 
+      // eslint-disable-next-line require-atomic-updates
       encounter.patientId = patient2.id;
+
+      const newTick = 10;
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newTick);
+
       await encounter.save();
 
-      // Wait for the db listener (registered in registerSyncLookupUpdateListener.js)
+      // Expect the db listener (registered in registerSyncLookupUpdateListener.js)
       // to also update the dependent records of encounter
-      await sleepAsync(1000);
+      waitForExpect(async () => {
+        await encounter.reload();
+        await response.reload();
+        await answer.reload();
+        expect(encounter.updatedAtSyncTick).toBe(newTick);
+        expect(response.updatedAtSyncTick).toBe(newTick);
+        expect(encounterLookupData2.updatedAtSyncTick).toBe(newTick);
+      });
 
       await centralSyncManager.updateLookupTable();
 
