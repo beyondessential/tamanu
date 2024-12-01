@@ -62,15 +62,16 @@ appointments.post(
       body: { facilityId, ...body },
       settings,
     } = req;
-    const { Appointment, Patient, LocationGroup, Facility, User } = models;
+    const { Appointment, Facility } = models;
 
     await db.transaction(async () => {
       const result = await Appointment.create(body);
+      // Fetch relations for the new appointment
+      const { patient, locationGroup, clinician } = await Appointment.findByPk(result.id, {
+        include: ['patient', 'clinician', 'locationGroup'],
+      });
 
-      const patient = await Patient.findByPk(body.patientId);
-      const locationGroup = await LocationGroup.findByPk(body.locationGroupId);
       const facility = await Facility.findByPk(facilityId);
-      const clinician = await User.findByPk(body.clinicianId)
 
       if (body.email) {
         const appointmentConfirmationTemplate = await settings[facilityId].get(
@@ -86,7 +87,7 @@ appointments.post(
           locationName: locationGroup.name,
           clinicianName: clinician.displayName,
         });
-        
+
         await models.PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
