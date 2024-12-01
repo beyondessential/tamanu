@@ -2,11 +2,18 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { escapePatternWildcard } from '../../utils/query';
+
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  COMMUNICATION_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+} from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
 
@@ -44,41 +51,38 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
   };
 };
 
-appointments.post('/$', simplePost('Appointment'));
+appointments.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+    const {
+      models,
+      db,
+      body: { facilityId, ...body },
+      settings,
+    } = req;
+    const { Appointment } = models;
 
-// TODO - this will be used when PatientCommunication push to central sync is implemented
-// appointments.post(
-//   '/$',
-//   asyncHandler(async (req, res) => {
-//     req.checkPermission('write', 'Appointment');
-//     const {
-//       models,
-//       db,
-//       body: { facilityId, ...body },
-//       settings,
-//     } = req;
-//     const { Appointment } = models;
-
-//     await db.transaction(async () => {
-//       const result = await Appointment.create(body);
-//       if (body.email) {
-//         const appointmentConfirmationTemplate = await settings[facilityId].get(
-//           'templates.appointmentConfirmation',
-//         );
-//         await models.PatientCommunication.create({
-//           type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-//           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-//           status: COMMUNICATION_STATUSES.QUEUED,
-//           destination: body.email,
-//           subject: appointmentConfirmationTemplate.subject,
-//           content: appointmentConfirmationTemplate.body,
-//           patientId: body.patientId,
-//         });
-//       }
-//       res.status(201).send(result);
-//     });
-//   }),
-// );
+    await db.transaction(async () => {
+      const result = await Appointment.create(body);
+      if (body.email) {
+        const appointmentConfirmationTemplate = await settings[facilityId].get(
+          'templates.appointmentConfirmation',
+        );
+        await models.PatientCommunication.create({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          status: COMMUNICATION_STATUSES.QUEUED,
+          destination: body.email,
+          subject: appointmentConfirmationTemplate.subject,
+          content: appointmentConfirmationTemplate.body,
+          patientId: body.patientId,
+        });
+      }
+      res.status(201).send(result);
+    });
+  }),
+);
 
 appointments.put('/:id', simplePut('Appointment'));
 
