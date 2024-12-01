@@ -6,8 +6,8 @@ import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
-import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
+import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
   const locationGroupsQuery = useLocationGroupsQuery();
