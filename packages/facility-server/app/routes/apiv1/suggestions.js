@@ -67,7 +67,7 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      const translations = isTranslatable
+      const translatedResults = isTranslatable
         ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
             language,
             refDataType: dataType,
@@ -78,7 +78,7 @@ function createSuggesterRoute(
             limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-      const translatedMatchIds = translations.map(extractDataId);
+      const translatedMatchIds = translatedResults.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
@@ -108,28 +108,37 @@ function createSuggesterRoute(
         limit: MAX_SUGGESTED_RESULTS,
       });
 
+
+      // TODO: how does this fit in
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(r => mapper(r)));
+      // const data = await Promise.all(results.map(r => mapper(r)));
 
       if (!isTranslatable) {
         res.send(untranslatedResults)
       }
 
-      const results = [...translatedResults, ...untranslatedResults].sort((a, b) => {
-        const startsWithA = a.startsWith(searchQuery);
-        const startsWithB = b.startsWith(searchQuery);
+      const updatedTranslatedResults = translatedResults.map(translation => ({
+        id: extractDataId(translation),
+        name: translation.text
+      }))
+
+      const results = [...updatedTranslatedResults, ...untranslatedResults]
+      .sort(({name: aName}, {name: bName}) => {
+        const startsWithA = aName.startsWith(searchQuery);
+        const startsWithB = bName.startsWith(searchQuery);
 
         if (startsWithA && !startsWithB) return -1;
         if (startsWithB && !startsWithA) return 1;
 
-        const includesA = a.includes(searchQuery);
-        const includesB = b.includes(searchQuery);
+        const includesA = aName.includes(searchQuery);
+        const includesB = bName.includes(searchQuery);
 
         if (includesA && !includesB) return -1;
         if (includesB && !includesA) return 1;
 
-        return a.localeCompare(b);
-      }).slice(0, MAX_SUGGESTED_RESULTS)
+        return aName.localeCompare(bName);
+      })
+      .slice(0, MAX_SUGGESTED_RESULTS)
 
       res.send(results);
     }),
