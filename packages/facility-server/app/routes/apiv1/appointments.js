@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfToday } from 'date-fns';
+import { format, startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
@@ -12,6 +12,7 @@ import {
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -61,21 +62,38 @@ appointments.post(
       body: { facilityId, ...body },
       settings,
     } = req;
-    const { Appointment } = models;
+    const { Appointment, Patient, LocationGroup, Facility, User } = models;
 
     await db.transaction(async () => {
       const result = await Appointment.create(body);
+
+      const patient = await Patient.findByPk(body.patientId);
+      const locationGroup = await LocationGroup.findByPk(body.locationGroupId);
+      const facility = await Facility.findByPk(facilityId);
+      const clinician = await User.findByPk(body.clinicianId)
+
       if (body.email) {
         const appointmentConfirmationTemplate = await settings[facilityId].get(
           'templates.appointmentConfirmation',
         );
+
+        const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          facilityName: facility.name,
+          startDate: format(new Date(body.startTime), 'dd-MM-yyyy'),
+          startTime: format(new Date(body.startTime), 'hh:mm a'),
+          locationName: locationGroup.name,
+          clinicianName: clinician.displayName,
+        });
+        
         await models.PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
           status: COMMUNICATION_STATUSES.QUEUED,
           destination: body.email,
           subject: appointmentConfirmationTemplate.subject,
-          content: appointmentConfirmationTemplate.body,
+          content,
           patientId: body.patientId,
         });
       }
