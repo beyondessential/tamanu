@@ -36,8 +36,9 @@ export const makeDeletedAtIsNullFilter = table => {
 };
 
 // Escape wildcard characters _, % and backslash in pattern match
+const wildcardRegex = /([_%\\])/g;
 export const escapePatternWildcard = value => {
-  return value.replace(/([_%\\])/g, '\\$1');
+  return value.replace(wildcardRegex, '\\$1');
 };
 
 export const getWhereClausesAndReplacementsFromFilters = (allFilters, params = {}) => {
