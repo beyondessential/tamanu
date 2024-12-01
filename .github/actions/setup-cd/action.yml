@@ -36,7 +36,7 @@ runs:
     - name: Prepare pulumi
       shell: bash
       working-directory: ops/pulumi
-      run: npm ci
+      run: npm i
 
     - name: Pre-install pulumi
       uses: pulumi/actions@v5
