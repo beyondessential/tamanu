@@ -9,7 +9,6 @@ import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQue
 
 const TabPane = styled.div`
   flex-grow: 1;
-  margin-top: 20px;
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
   padding: 2px 12px 4px 12px;
