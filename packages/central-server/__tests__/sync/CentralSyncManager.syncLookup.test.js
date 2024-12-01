@@ -1523,14 +1523,14 @@ describe('Sync Lookup data', () => {
 
       // Expect the db listener (registered in registerSyncLookupUpdateListener.js)
       // to also update the dependent records of encounter
-      waitForExpect(async () => {
+      await waitForExpect(async () => {
         await encounter.reload();
         await response.reload();
         await answer.reload();
         expect(encounter.updatedAtSyncTick).toBe(newTick);
         expect(response.updatedAtSyncTick).toBe(newTick);
         expect(encounterLookupData2.updatedAtSyncTick).toBe(newTick);
-      }, 10000);
+      });
 
       await centralSyncManager.updateLookupTable();
 
