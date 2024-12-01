@@ -78,6 +78,7 @@ function createSuggesterRoute(
             limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
+        
       const translatedMatchIds = translatedStringsResult.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);

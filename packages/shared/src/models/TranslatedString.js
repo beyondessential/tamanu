@@ -100,6 +100,7 @@ export class TranslatedString extends Model {
     refDataType,
     queryString,
     limit,
+    order
   }) => {
     return this.findAll({
       where: {
@@ -112,6 +113,7 @@ export class TranslatedString extends Model {
       attributes: ['stringId', 'text'],
       raw: true,
       limit,
+      order
     });
   };
 
