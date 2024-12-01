@@ -67,7 +67,7 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      const translatedResults = isTranslatable
+      const translatedStringsResult = isTranslatable
         ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
             language,
             refDataType: dataType,
@@ -78,7 +78,7 @@ function createSuggesterRoute(
             limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-      const translatedMatchIds = translatedResults.map(extractDataId);
+      const translatedMatchIds = translatedStringsResult.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
@@ -117,12 +117,12 @@ function createSuggesterRoute(
         res.send(untranslatedResults)
       }
 
-      const updatedTranslatedResults = translatedResults.map(translation => ({
+      const translatedResults = translatedStringsResult.map(translation => ({
         id: extractDataId(translation),
         name: translation.text
       }))
 
-      const results = [...updatedTranslatedResults, ...untranslatedResults]
+      const results = [...translatedResults, ...untranslatedResults]
       .sort(({name: aName}, {name: bName}) => {
         const startsWithA = aName.startsWith(searchQuery);
         const startsWithB = bName.startsWith(searchQuery);
