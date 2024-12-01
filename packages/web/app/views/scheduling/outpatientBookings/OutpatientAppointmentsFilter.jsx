@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { Field, Form, SearchField } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
-import { useTranslation } from '../../../contexts/Translation';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
+import { useTranslation } from '../../../contexts/Translation';
 
 const Fieldset = styled.fieldset`
   // Reset
