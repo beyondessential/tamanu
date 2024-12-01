@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { css, styled } from '@mui/material/styles';
@@ -152,6 +152,10 @@ const DayButton = ({ date, selected, onClick }) => {
 
 export const DateSelector = ({ value, onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
+
+  useEffect(() => {
+    setViewedDays(getMonthInterval(value));
+  }, [value]);
 
   const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
   const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
