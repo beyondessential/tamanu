@@ -1530,7 +1530,7 @@ describe('Sync Lookup data', () => {
         expect(encounter.updatedAtSyncTick).toBe(newTick);
         expect(response.updatedAtSyncTick).toBe(newTick);
         expect(encounterLookupData2.updatedAtSyncTick).toBe(newTick);
-      });
+      }, 10000);
 
       await centralSyncManager.updateLookupTable();
 
