@@ -1,18 +1,14 @@
-import React from 'react';
-import { omit } from 'lodash';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
+import { omit } from 'lodash';
+import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../../constants';
-import {
-  APPOINTMENT_CALENDAR_CLASS,
-  BodyText,
-  SmallBodyText,
-  TranslatedText,
-} from '../../../components';
+import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
+import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
 export const ColumnWrapper = styled(Box)`
