@@ -1527,9 +1527,11 @@ describe('Sync Lookup data', () => {
         await encounter.reload();
         await response.reload();
         await answer.reload();
-        expect(encounter.updatedAtSyncTick).toBe(newTick);
-        expect(response.updatedAtSyncTick).toBe(newTick);
-        expect(encounterLookupData2.updatedAtSyncTick).toBe(newTick);
+
+        // sequelize returns bigint as string
+        expect(parseInt(encounter.updatedAtSyncTick, 10)).toBe(newTick);
+        expect(parseInt(response.updatedAtSyncTick, 10)).toBe(newTick);
+        expect(parseInt(answer.updatedAtSyncTick, 10)).toBe(newTick);
       });
 
       await centralSyncManager.updateLookupTable();
