@@ -22,7 +22,7 @@ import { customAlphabet } from 'nanoid';
 
 export const suggestions = express.Router();
 
-const defaultLimit = 25;
+const MAX_SUGGESTED_RESULTS = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
@@ -72,19 +72,21 @@ function createSuggesterRoute(
             language,
             refDataType: dataType,
             queryString: searchQuery,
-            limit: defaultLimit,
+            order: [literal(
+              `POSITION(LOWER(:positionMatch) in LOWER("translated_strings", "text")) > 1`
+            )],
+            limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-      const suggestedIds = translations.map(extractDataId);
+      const translatedMatchIds = translations.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
       const where = {
-        [Op.or]: [
+        [Op.and]: [
           whereQuery,
           {
-            id: { [Op.in]: suggestedIds },
-            ...omit(whereQuery, 'name'),
+            id: { [Op.notIn]: translatedMatchIds },
           },
         ],
       };
@@ -95,7 +97,7 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
 
-      const results = await model.findAll({
+      const untranslatedResults = await model.findAll({
         where,
         include,
         order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
@@ -103,13 +105,33 @@ function createSuggesterRoute(
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
         },
-        limit: defaultLimit,
+        limit: MAX_SUGGESTED_RESULTS,
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(r => mapper(r)));
 
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      if (!isTranslatable) {
+        res.send(untranslatedResults)
+      }
+
+      const results = [...translatedResults, ...untranslatedResults].sort((a, b) => {
+        const startsWithA = a.startsWith(searchQuery);
+        const startsWithB = b.startsWith(searchQuery);
+
+        if (startsWithA && !startsWithB) return -1;
+        if (startsWithB && !startsWithA) return 1;
+
+        const includesA = a.includes(searchQuery);
+        const includesB = b.includes(searchQuery);
+
+        if (includesA && !includesB) return -1;
+        if (includesB && !includesA) return 1;
+
+        return a.localeCompare(b);
+      }).slice(0, MAX_SUGGESTED_RESULTS)
+
+      res.send(results);
     }),
   );
 }
