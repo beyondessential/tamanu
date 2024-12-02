@@ -37,7 +37,7 @@ export async function up(query) {
   `);
   await query.removeColumn('user_preferences', 'id');
   await query.addColumn('user_preferences', 'id', {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     allowNull: true,
   });
   await query.sequelize.query(`
@@ -48,7 +48,7 @@ export async function up(query) {
     );
   `);
   await query.changeColumn('user_preferences', 'id', {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     allowNull: false,
     defaultValue: Sequelize.fn('uuid_generate_v4'),
   });

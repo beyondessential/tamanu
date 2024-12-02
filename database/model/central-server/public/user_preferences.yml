@@ -10,7 +10,7 @@ sources:
           - system
         columns:
           - name: id
-            data_type: character varying(255)
+            data_type: uuid
             description: "{{ doc('generic__id') }} in user_preferences."
             data_tests:
               - unique
