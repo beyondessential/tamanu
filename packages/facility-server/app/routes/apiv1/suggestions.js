@@ -67,11 +67,6 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      console.log(model.tableName, dataType, searchColumn, searchQuery);
-
-      /**
-       * With example of nested join
-       */
       const results = await req.db.query(
         `
            with trd as (
@@ -79,13 +74,16 @@ function createSuggesterRoute(
             left join translated_strings ts on ts.string_id = 'refData.${dataType}.' || rd.id
             ${model.tableName === 'reference_data' ? `where type = '${dataType}'` : ''}
           )
-          select trd.*, json_build_object('id', f.id, 'name', f.name) AS facility, trd.check as ${searchColumn} from trd
-          join facilities f on f.id = trd.facility_id
-          where lower(trd.check) ilike '%' || :searchQuery || '%' ${
-            query.locationGroupId ? `and location_group_id = :locationGroupId` : ''
-          }
-          order by position(lower(:searchQuery) in LOWER(trd.check)) > 1, trd.check asc
-          limit ${MAX_SUGGESTED_RESULTS}
+           with matching as (
+            select trd.*, trd.check as ${searchColumn} from trd
+            where lower(trd.check) ilike '%' || :searchQuery || '%' ${
+              query.locationGroupId ? `and location_group_id = :locationGroupId` : ''
+            }
+            order by position(lower(:searchQuery) in LOWER(trd.check)) > 1, trd.check asc
+            limit ${MAX_SUGGESTED_RESULTS}
+            )
+            select * from matching;
+            ## include query can go here
         `,
         {
           type: Sequelize.QueryTypes.SELECT,
