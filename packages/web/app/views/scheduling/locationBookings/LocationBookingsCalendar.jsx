@@ -10,7 +10,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
-import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';

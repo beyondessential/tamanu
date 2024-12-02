@@ -25,6 +25,7 @@ surveyResponseAnswer.get(
         {
           model: models.SurveyResponse,
           as: 'surveyResponse',
+          required: true,
           include: [
             {
               model: models.Encounter,
