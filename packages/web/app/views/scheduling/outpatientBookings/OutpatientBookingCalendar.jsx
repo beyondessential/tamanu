@@ -1,86 +1,93 @@
-import React from 'react';
-import { omit } from 'lodash';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
+import { omit } from 'lodash';
+import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../../constants/index';
-import {
-  APPOINTMENT_CALENDAR_CLASS,
-  BodyText,
-  SmallBodyText,
-  TranslatedText,
-} from '../../../components';
+import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
+import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
-export const CELL_WIDTH_PX = 224;
-
 export const ColumnWrapper = styled(Box)`
+  --column-width: 14rem;
   display: flex;
   flex-direction: column;
-  width: ${CELL_WIDTH_PX}px;
+  inline-size: var(--column-width);
   min-block-size: max-content;
+
+  > * {
+    padding-inline: 0.5rem;
+  }
+
+  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
   &:not(:first-child) {
-    border-inline-start: 1px solid ${Colors.outline};
+    border-inline-start: var(--border-style);
   }
   &:last-child {
-    border-inline-end: 1px solid ${Colors.outline};
+    border-inline-end: var(--border-style);
   }
 `;
 
 const HeadCellWrapper = styled(Box)`
-  inset-block-start: 0;
-  position: sticky;
+  align-items: center;
   background: ${Colors.white};
   display: flex;
   flex-direction: column;
-  align-items: center;
+  inline-size: calc(var(--column-width) - 2px);
+  inset-block-start: 0;
   justify-content: center;
-  width: calc(${CELL_WIDTH_PX}px - 2px);
+  position: sticky;
   text-align: center;
 `;
 
-const AppointmentNumber = styled(Box)`
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  height: 1.1rem;
-  gap: 0.25rem;
-  padding-inline-end: 1rem;
-  border-block: 1px solid ${Colors.outline};
+const AppointmentCountLabel = styled(SmallBodyText)`
+  block-size: 1.1rem;
+  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  color: ${Colors.midText};
+  inline-size: 100%;
+  letter-spacing: 0.02em;
+  padding-inline: 0.8125rem;
+  text-align: end;
+`;
+
+const AppointmentCount = styled('span')`
+  color: ${Colors.darkestText};
+  display: contents;
+  font-weight: 500;
 `;
 
 const HeadCellTextWrapper = styled(Box)`
-  height: 4rem;
+  block-size: 4rem;
   display: flex;
-  justify-content: center;
   flex-direction: column;
+  justify-content: center;
 `;
 
 const HeadCellText = styled(BodyText)`
-  font-weight: 400;
-  display: -webkit-box;
-  padding-inline: 0.5rem;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  display: -webkit-box;
+  font-weight: 400;
+  -webkit-line-clamp: 2;
   overflow: hidden;
+  padding-inline: 0.5rem;
 `;
 
 const AppointmentColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
   gap: 0.5rem;
+  padding-block: 0.5rem;
 `;
 
 const StatusText = styled(BodyText)`
-  width: 100%;
-  text-align: center;
-  padding-top: 1rem;
-  font-weight: 500;
   color: ${Colors.primary};
+  font-weight: 500;
+  inline-size: 100%;
+  padding-block-start: 1rem;
+  text-align: center;
 `;
 
 const ErrorText = styled(StatusText)`
@@ -100,41 +107,44 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 `;
 
 export const HeadCell = ({ title, count }) => (
-  <HeadCellWrapper>
-    <HeadCellTextWrapper>
-      <ThemedTooltip title={title}>
-        <HeadCellText>{title}</HeadCellText>
-      </ThemedTooltip>
-    </HeadCellTextWrapper>
-    <AppointmentNumber>
+  <>
+    <HeadCellWrapper>
+      <HeadCellTextWrapper>
+        <ThemedTooltip title={title}>
+          <HeadCellText>{title}</HeadCellText>
+        </ThemedTooltip>
+      </HeadCellTextWrapper>
+    </HeadCellWrapper>
+    <AppointmentCountLabel>
       {Number.isInteger(count) && (
         <>
-          <SmallBodyText>{count}</SmallBodyText>
-          <SmallBodyText color="textTertiary">
-            {count === 1 ? (
-              <TranslatedText
-                stringId="appointments.outpatientCalendar.appointmentAbbreviation"
-                fallback="appt"
-              />
-            ) : (
-              <TranslatedText
-                stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
-                fallback="appts"
-              />
-            )}
-          </SmallBodyText>
+          <AppointmentCount>{count}</AppointmentCount>&nbsp;
+          {count === 1 ? (
+            <TranslatedText
+              stringId="appointments.outpatientCalendar.appointmentAbbreviation"
+              fallback="appt"
+            />
+          ) : (
+            <TranslatedText
+              stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
+              fallback="appts"
+            />
+          )}
         </>
       )}
-    </AppointmentNumber>
-  </HeadCellWrapper>
+    </AppointmentCountLabel>
+  </>
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
-  const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
+  const {
+    data: { headData = [], cellData, titleKey },
+    isLoading,
+    error,
+  } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
   });
-  const { headData = [], cellData, titleKey } = data;
 
   if (isLoading) {
     return <LoadingSkeleton />;

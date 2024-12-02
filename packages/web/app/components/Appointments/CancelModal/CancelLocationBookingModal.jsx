@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { toast } from 'react-toastify';
 
@@ -112,8 +111,6 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 );
 
 export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
-  const queryClient = useQueryClient();
-
   const { mutateAsync: updateBooking } = useLocationBookingMutation(
     { isEdit: true, skipConflictCheck: true },
     {
@@ -124,7 +121,6 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
             fallback="Booking cancelled successfully"
           />,
         );
-        queryClient.invalidateQueries('appointments');
         onClose();
       },
       onError: () => {
