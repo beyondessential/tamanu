@@ -8,12 +8,10 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          // User preference records use a user_id as the primary key, acting as a
-          // db-level enforcement of one per user, and simplifying sync
-          type: `TEXT GENERATED ALWAYS AS ("user_id")`,
-          set() {
-            // any sets of the convenience generated "id" field can be ignored, so do nothing here
-          },
+          type: DataTypes.UUID,
+          allowNull: false,
+          primaryKey: true,
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
         key: {
           type: DataTypes.STRING,
@@ -23,16 +21,12 @@ export class UserPreference extends Model {
           type: Sequelize.JSONB,
           allowNull: false,
         },
-        userId: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-          references: {
-            model: 'users',
-            key: 'id',
-          },
-        },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [{ fields: ['user_id', 'key'], unique: true }],
+      },
     );
   }
 
