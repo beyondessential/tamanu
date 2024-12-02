@@ -323,7 +323,7 @@ export const TimeSlotPicker = ({
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} error={error} {...props}>
-        {isFetchingTodaysBookings ? (
+        {isFetchingExistingBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
