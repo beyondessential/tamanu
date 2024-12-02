@@ -181,7 +181,6 @@ const EmailFields = ({ patientId }) => {
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
   const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
-  const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -364,7 +363,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
         onClose();
-        queryClient.invalidateQueries('appointments');
       },
       onError: error => {
         notifyError(<ErrorMessage isEdit={isEdit} error={error} />);

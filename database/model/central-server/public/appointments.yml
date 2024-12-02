@@ -106,3 +106,6 @@ sources:
             description: "{{ doc('appointments__is_high_priority') }}"
             data_tests:
               - not_null
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('appointments__encounter_id') }}"
