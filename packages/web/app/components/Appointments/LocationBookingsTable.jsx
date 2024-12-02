@@ -144,10 +144,6 @@ const StyledTable = styled(Table)`
     &:last-child {
       border-radius: 0 5px 5px 0;
       width: 28px;
-      button {
-        position: relative;
-        left: 11px;
-      }
       > div > div {
         overflow: visible;
       }
@@ -178,7 +174,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
-    &:hover {
+    &:hover:not(:has(.menu-container:hover)) {
       background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
@@ -196,6 +192,27 @@ const NoDataContainer = styled.div`
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
+`;
+
+const CustomCellContainer = styled(Box)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    background-color: transparent;
+  }
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 11px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
 `;
 
 const TableHeader = ({ title, openPastBookingsModal }) => (
@@ -236,20 +253,6 @@ const getDate = ({ startTime, endTime }) => {
     </DateText>
   );
 };
-
-const CustomCellContainer = styled(Box)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
-const StyledMenuButton = styled(MenuButton)`
-  .MuiIconButton-root {
-    &:hover {
-      background-color: transparent;
-    }
-  }
-`;
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -339,9 +342,9 @@ export const LocationBookingsTable = ({ patient }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} disablePortal={false} />
-        </div>
+        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     },
   ];

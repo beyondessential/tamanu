@@ -1,11 +1,11 @@
 import { isThisMonth, startOfToday } from 'date-fns';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
 import {
   firstDisplayedDayId,
   thisWeekId,
 } from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
-import { scrollToCell } from '../views/scheduling/locationBookings/utils';
 
 const LocationBookingsContext = createContext(null);
 
@@ -13,6 +13,9 @@ const scrollToThisWeek = () =>
   document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
 const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
+ const scrollToCell = cell => {
+  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
+};
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
@@ -29,18 +32,33 @@ export const LocationBookingsContextProvider = ({ children }) => {
 
   const [monthOf, setMonthOf] = useState(startOfToday());
 
-  // Calendar Scroll logic
-  useEffect(() => {
-    if (selectedCell.locationId && selectedCell.date) {
-      scrollToCell(selectedCell);
-      return;
-    }
-    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
-  }, [selectedCell, monthOf]);
+  const updateSelectedCell = newCellData => {
+    setSelectedCell(prevCell => {
+      const updatedCell = { ...prevCell, ...newCellData };
+      if (updatedCell.locationId && updatedCell.date) {
+        setMonthOf(updatedCell.date);
+      }
+      return updatedCell;
+    });
+  };
+
+  const updateMonth = date => {
+    setMonthOf(date);
+    (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
+  };
+
+  useEffect(() => scrollToCell(selectedCell), [selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
-      value={{ filters, setFilters, selectedCell, setSelectedCell, monthOf, setMonthOf }}
+      value={{
+        filters,
+        setFilters,
+        selectedCell,
+        updateSelectedCell,
+        monthOf,
+        updateMonth,
+      }}
     >
       {children}
     </LocationBookingsContext.Provider>

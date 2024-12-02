@@ -6,11 +6,12 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
-import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
@@ -80,13 +81,9 @@ const emptyStateMessage = (
 );
 
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
+  const { monthOf, updateMonth } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date);
-  }, [selectedCell.date, setMonthOf]);
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
@@ -117,7 +114,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
-            setMonthOf={setMonthOf}
+            updateMonth={updateMonth}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody
