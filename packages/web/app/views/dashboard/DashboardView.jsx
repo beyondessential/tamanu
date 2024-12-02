@@ -13,7 +13,7 @@ import { NotificationDrawer } from '../../components/Notification/NotificationDr
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { TodayBookingsPane } from './components/TodayBookingsPane';
 import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery, useOutpatientAppointmentsQuery } from '../../api/queries';
 import { DashboardTaskPane } from '../../components/Tasks/DashboardTaskPane';
 import { useSettings } from '../../contexts/Settings';
 
@@ -74,15 +74,13 @@ export const DashboardView = () => {
   const { getSetting } = useSettings();
   const { currentUser, ability } = useAuth();
   const appointments =
-    useAppointmentsQuery({
-      locationGroupId: '',
+    useOutpatientAppointmentsQuery({
       all: true,
       after: '1970-01-01 00:00',
       clinicianId: currentUser?.id,
     }).data?.data ?? [];
   const bookings =
-    useAppointmentsQuery({
-      locationId: '',
+    useLocationBookingsQuery({
       all: true,
       after: '1970-01-01 00:00',
       clinicianId: currentUser?.id,
