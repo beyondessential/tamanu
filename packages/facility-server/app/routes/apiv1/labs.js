@@ -10,7 +10,6 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
@@ -59,7 +58,6 @@ labRequest.put(
     }
 
     await db.transaction(async () => {
-      let shouldPushNotification = false;
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
         if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
         await models.LabRequestLog.create({
@@ -67,21 +65,12 @@ labRequest.put(
           labRequestId: params.id,
           updatedById: userId,
         });
-        shouldPushNotification = [
-          LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-          LAB_REQUEST_STATUSES.PUBLISHED,
-          LAB_REQUEST_STATUSES.INVALIDATED,
-        ].includes(labRequestData.status);
       }
 
       if (labRequestData.specimenTypeId !== undefined) {
         labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
       }
-      const newLabRequestRecord = await labRequestRecord.update(labRequestData);
-
-      if (shouldPushNotification) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
-      }
+      await labRequestRecord.update(labRequestData);
     });
 
     res.send(labRequestRecord);

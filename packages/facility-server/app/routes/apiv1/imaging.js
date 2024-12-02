@@ -7,7 +7,6 @@ import {
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
-  NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
@@ -160,14 +159,13 @@ imagingRequest.put(
       user,
       body: { areas, note, areaNote, newResult, facilityId, ...imagingRequestData },
     } = req;
-    const { ImagingRequest, ImagingResult, Notification } = models;
+    const { ImagingRequest, ImagingResult } = models;
     req.checkPermission('read', 'ImagingRequest');
 
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
 
-    const previousStatus = imagingRequestObject.status;
     await imagingRequestObject.update(imagingRequestData);
 
     // Updates the reference data associations for the areas to be imaged
@@ -229,10 +227,6 @@ imagingRequest.put(
         imagingRequestObject.results.push(imagingResult);
       } else {
         imagingRequestObject.results = [imagingResult];
-      }
-
-      if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-        await Notification.pushNotification(NOTIFICATION_TYPES.IMAGING_REQUEST, imagingRequestObject);
       }
     }
 
