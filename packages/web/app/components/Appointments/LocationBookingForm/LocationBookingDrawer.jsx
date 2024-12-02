@@ -310,6 +310,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         suppressErrorDialog
         validationSchema={validationSchema}
         style={formStyles}
+        validateOnChange
       />
       <WarningModal
         open={warningModalOpen}
