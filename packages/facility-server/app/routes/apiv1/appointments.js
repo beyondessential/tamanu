@@ -51,6 +51,7 @@ const searchableFields = [
   'startTime',
   'endTime',
   'type',
+  'appointmentTypeId',
   'bookingTypeId',
   'status',
   'clinicianId',
