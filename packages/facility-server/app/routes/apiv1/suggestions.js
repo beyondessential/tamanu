@@ -73,8 +73,8 @@ function createSuggesterRoute(
             select rd.*, coalesce(text, rd.${searchColumn}) check from ${model.tableName} rd
             left join translated_strings ts on ts.string_id = 'refData.${dataType}.' || rd.id
             ${model.tableName === 'reference_data' ? `where type = '${dataType}'` : ''}
-          )
-           with matching as (
+          ),
+           matching as (
             select trd.*, trd.check as ${searchColumn} from trd
             where lower(trd.check) ilike '%' || :searchQuery || '%' ${
               query.locationGroupId ? `and location_group_id = :locationGroupId` : ''
@@ -83,7 +83,7 @@ function createSuggesterRoute(
             limit ${MAX_SUGGESTED_RESULTS}
             )
             select * from matching;
-            ## include query can go here
+            -- include query can go here
         `,
         {
           type: Sequelize.QueryTypes.SELECT,
