@@ -205,7 +205,9 @@ describe('Sync Lookup data', () => {
       fake(PatientSecondaryId, { patientId: patient.id, typeId: referenceData.id }),
     );
     await Permission.create(fake(Permission, { roleId: role.id }));
-    await Appointment.create(fake(Appointment, { patientId: patient.id }));
+    await Appointment.create(
+      fake(Appointment, { patientId: patient.id, locationGroupId: locationGroup.id }),
+    );
     encounter1 = await Encounter.create(
       fake(Encounter, {
         patientId: patient.id,
@@ -574,7 +576,7 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      '',
+      facility.id,
       null,
       simplestSessionConfig,
       simplestConfig,
@@ -594,12 +596,15 @@ describe('Sync Lookup data', () => {
         );
       }
 
+      // except for appointments, patient linked models should not spit out facilityId;
+      const expectedFacility = model.tableName === 'appointments' ? facility.id : null;
+
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
-          facilityId: null, // patient linked models should not spit out facilityId
+          facilityId: expectedFacility,
           isDeleted: false,
         }),
       );
