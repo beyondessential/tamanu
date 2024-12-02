@@ -89,16 +89,17 @@ export class Notification extends Model {
         case NOTIFICATION_TYPES.IMAGING_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter.patientId;
+          patientId = encounter?.patientId;
           break;
         }
         case NOTIFICATION_TYPES.LAB_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter.patientId;
+          patientId = encounter?.patientId;
           break;
         }
-        default: return;
+        default:
+          return;
       }
 
       await this.create({
@@ -107,7 +108,7 @@ export class Notification extends Model {
         userId,
         patientId,
         createdTime: getCurrentDateTimeString(),
-      })
+      });
     } catch (error) {
       log.error('Error pushing notification', error);
     }

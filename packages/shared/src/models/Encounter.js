@@ -72,6 +72,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           async afterDestroy(encounter, opts) {
+            /** clean up all tasks */
             const deletionReason = await models.ReferenceData.findByPk(
               TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
             );
@@ -109,10 +110,21 @@ export class Encounter extends Model {
               transaction: opts.transaction,
               individualHooks: true,
             });
+
+            /** clean up all notifications */
+            await models.Notification.destroy({
+              where: {
+                metadata: {
+                  [Op.contains]: { encounterId: encounter.id },
+                },
+              },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
           },
-          afterUpdate: async (encounter) => {
+          afterUpdate: async (encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
-              await models.Task.onEncounterDischarged(encounter);
+              await models.Task.onEncounterDischarged(encounter, opts.transaction);
             }
           },
         },

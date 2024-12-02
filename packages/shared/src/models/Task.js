@@ -298,7 +298,7 @@ export class Task extends Model {
     }
   }
 
-  static async onEncounterDischarged(encounter) {
+  static async onEncounterDischarged(encounter, transaction) {
     const { models } = this.sequelize;
     const encounterId = encounter.id;
     const endTime = encounter.endDate;
@@ -319,6 +319,7 @@ export class Task extends Model {
           frequencyValue: { [Op.not]: null },
           frequencyUnit: { [Op.not]: null },
         },
+        transaction,
       },
     );
 
@@ -336,6 +337,7 @@ export class Task extends Model {
           frequencyValue: { [Op.not]: null },
           frequencyUnit: { [Op.not]: null },
         },
+        transaction,
       },
     );
 
@@ -347,6 +349,7 @@ export class Task extends Model {
         frequencyValue: { [Op.not]: null },
         frequencyUnit: { [Op.not]: null },
       },
+      transaction,
       individualHooks: true,
     });
   }
