@@ -379,7 +379,7 @@ export const TimeSlotPicker = ({
         )}
       </ToggleGroup>
       {/* TODO: style properly and show correct message */}
-      {error && <FormHelperText sx={{fontWeight: 500}} error>*Required</FormHelperText>}
+      {error && <FormHelperText sx={{ fontSize: '12px', fontWeight: 500}} error>*Required</FormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };
