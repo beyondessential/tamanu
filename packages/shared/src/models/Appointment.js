@@ -34,6 +34,7 @@ export class Appointment extends Model {
       'locationGroup',
       'appointmentType',
       'bookingType',
+      'encounter',
     ];
   }
 
@@ -66,6 +67,11 @@ export class Appointment extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'appointmentTypeId',
       as: 'appointmentType',
+    });
+
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
+      as: 'encounter',
     });
   }
 

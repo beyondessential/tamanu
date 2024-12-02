@@ -57,6 +57,7 @@ const CalendarInnerWrapper = styled(Box)`
 const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
   & .MuiToolbar-root {
     justify-content: flex-start;
@@ -92,9 +93,10 @@ export const OutpatientAppointmentsView = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const { newAppointment, date } = queryString.parse(location.search);
-    if (newAppointment) {
-      setDrawerOpen(newAppointment);
+    const { patientId, date } = queryString.parse(location.search);
+    if (patientId) {
+      setSelectedAppointment({ patientId });
+      setDrawerOpen(true);
     }
     if (date) {
       setSelectedDate(parseDate(date));

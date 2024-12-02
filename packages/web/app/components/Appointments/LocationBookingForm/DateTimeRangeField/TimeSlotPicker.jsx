@@ -19,7 +19,7 @@ import styled, { css } from 'styled-components';
 
 import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../../../api/queries';
+import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -107,7 +107,10 @@ export const TimeSlotPicker = ({
   const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
   const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
-  const { data: existingBookings, isFetching: isFetchingExistingBookings } = useAppointmentsQuery(
+  const {
+    data: existingBookings,
+    isFetching: isFetchingExistingBookings,
+  } = useLocationBookingsQuery(
     {
       after: earliestRelevantTime,
       before: latestRelevantTime,

@@ -90,7 +90,7 @@ const MonthPicker = styled(MonthYearInput)`
   }
 `;
 
-export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
+export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayedDates }) => {
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   const location = useLocation();
@@ -98,22 +98,22 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
     const { date } = queryString.parse(location.search);
     if (date) {
       const parsedDate = parseISO(date);
-      setMonthOf(parsedDate);
+      updateMonth(parsedDate);
     }
-  }, [location.search, setMonthOf]);
+  }, [location.search, updateMonth]);
 
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
         <MonthPicker
           value={monthOf}
-          onAccept={setMonthOf}
-          onBlur={e => setMonthOf(new Date(e.target.value))}
+          onAccept={updateMonth}
+          onBlur={e => updateMonth(new Date(e.target.value))}
           onKeyDown={e => {
-            if (e.key === 'Enter') setMonthOf(new Date(e.target.value));
+            if (e.key === 'Enter') updateMonth(new Date(e.target.value));
           }}
         />
-        <StyledButton onClick={() => setMonthOf(startOfToday())}>This week</StyledButton>
+        <StyledButton onClick={() => updateMonth(startOfToday())}>This week</StyledButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)

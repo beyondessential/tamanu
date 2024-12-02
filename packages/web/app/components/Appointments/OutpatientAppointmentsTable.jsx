@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -16,6 +15,8 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
+import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -130,10 +131,6 @@ const StyledTable = styled(Table)`
     &:last-child {
       border-radius: 0 5px 5px 0;
       width: 28px;
-      button {
-        position: relative;
-        left: 11px;
-      }
       > div > div {
         overflow: visible;
       }
@@ -164,7 +161,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
-    &:hover {
+    &:hover:not(:has(.menu-container:hover)) {
       background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
@@ -199,10 +196,31 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 11px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
+`;
+
+const ActionRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
 const getDate = ({ startTime }) => (
-  <DateText>
-    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
-  </DateText>
+  <DateText>{`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}</DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
@@ -220,40 +238,46 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title }) => {
+const TableHeader = ({ title, patient }) => {
+  const { ability } = useAuth();
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
   return (
     <TableTitleContainer>
       <Box component={'span'} fontSize="16px" fontWeight={500}>
         {title}
       </Box>
-      <div>
+      <ActionRow>
         <ViewPastBookingsButton
           component={'span'}
           onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr={2}
+          mr='6px'
         >
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"
             fallback="View past appointments"
           />
         </ViewPastBookingsButton>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => history.push('/appointments/outpatients?newAppointment=true')}
-        >
-          <TranslatedText
-            stringId="patient.appointments.table.bookAppointment"
-            fallback="+ Book appointment"
-          />
-        </Button>
-      </div>
+        {canCreateAppointment && (
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
+          >
+            <TranslatedText
+              stringId="patient.appointments.table.bookAppointment"
+              fallback="+ Book appointment"
+            />
+          </Button>
+        )}
+      </ActionRow>
       {isViewPastBookingsModalOpen && (
-        <PastAppointmentModal 
-          open={true} 
+        <PastAppointmentModal
+          open={true}
           onClose={() => setIsViewPastBookingsModalOpen(false)}
+          patient={patient}
         />
       )}
     </TableTitleContainer>
@@ -266,14 +290,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useAppointmentsQuery({
-      locationGroupId: '',
+  const { data, isLoading } = useOutpatientAppointmentsQuery(
+    {
       all: true,
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -331,14 +358,14 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
-        </div>
+        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -348,6 +375,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               fallback="No outpatient appointments"
             />
           }
+          patient={patient}
         />
       </NoDataContainer>
     );
@@ -356,6 +384,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}
@@ -367,6 +396,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
                 fallback="Outpatient appointments"
               />
             }
+            patient={patient}
           />
         }
         onClickRow={handleRowClick}
