@@ -9,6 +9,7 @@ import { formatShortest, formatTime } from '../../DateDisplay';
 import { Colors } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
 import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
+import { LimitedLinesCell } from '../../FormattedTableCell';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -53,14 +54,11 @@ const StyledTable = styled(Table)`
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
     background-color: ${Colors.white};
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px;
     span {
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -68,25 +66,14 @@ const StyledTable = styled(Table)`
       padding-left: 30px;
     }
   }
-  .MuiTableBody-root {
-    .MuiTableRow-root {
-      &:first-child {
-        td {
-          padding-top: 18px;
-        }
-      }
-    }
-  }
   .MuiTableCell-body {
     border-bottom: none;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 11px;
-    padding-right: 11px;
+    padding: 12px 8px 0 8px;
     &:last-child {
       padding-right: 30px;
     }
     &:first-child {
+      position: relative;
       padding-left: 30px;
     }
   }
@@ -132,11 +119,13 @@ const COLUMNS = [
     key: 'startTime',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
     accessor: getDate,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'outpatientAppointmentArea',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
     accessor: ({ locationGroup }) => locationGroup?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -147,6 +136,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'appointmentType',
@@ -154,6 +144,7 @@ const COLUMNS = [
       <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',

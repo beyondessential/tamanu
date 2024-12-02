@@ -11,6 +11,8 @@ import { formatShortest, formatTime } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
+import { LimitedLinesCell } from '../FormattedTableCell';
+import { ThemedTooltip } from '../Tooltip';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -55,14 +57,11 @@ const StyledTable = styled(Table)`
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
     background-color: ${Colors.white};
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px;
     span {
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -70,25 +69,14 @@ const StyledTable = styled(Table)`
       padding-left: 30px;
     }
   }
-  .MuiTableBody-root {
-    .MuiTableRow-root {
-      &:first-child {
-        td {
-          padding-top: 18px;
-        }
-      }
-    }
-  }
   .MuiTableCell-body {
     border-bottom: none;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 11px;
-    padding-right: 11px;
+    padding: 12px 8px 0 8px;
     &:last-child {
       padding-right: 30px;
     }
     &:first-child {
+      position: relative;
       padding-left: 30px;
     }
   }
@@ -107,9 +95,10 @@ const Container = styled.div`
 
 const DateText = styled.div`
   text-transform: lowercase;
-  white-space: pre;
-  display: flex;
-  align-items: center;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const StatusBadge = styled.div`
@@ -124,23 +113,45 @@ const StatusBadge = styled.div`
   background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
-const getDate = ({ startTime, endTime, overnight }) => {
+const OvernightIcon = styled.span`
+  position: absolute;
+  top: 17px;
+  left: 146px;
+  color: ${Colors.primary};
+`;
+
+const getDate = ({ startTime, endTime }) => {
   const formatShortestStartTime = formatShortest(startTime);
   const formatShortestEndTime = formatShortest(endTime);
   const formatTimeStartTime = formatTime(startTime).replace(' ', '');
   const formatTimeEndTime = formatTime(endTime).replace(' ', '');
 
+  const isOvernight = formatShortestStartTime !== formatShortestEndTime;
+
   return (
-    <DateText>
-      {formatShortestStartTime === formatShortestEndTime
-        ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
-        : `${formatShortestStartTime} - ${formatShortestEndTime}`}
-      {overnight && (
-        <Box component={'span'} display={'flex'} color={Colors.primary} ml={0.5}>
-          <Brightness2Icon fontSize="inherit" />
+    <ThemedTooltip
+      title={
+        <Box style={{ textTransform: 'lowercase', fontWeight: 400 }}>
+          {isOvernight
+            ? `${formatShortestStartTime} - ${formatShortestEndTime}`
+            : <div>
+                <div>{formatShortestStartTime}</div>
+                <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
+              </div>}
         </Box>
-      )}
-    </DateText>
+      }
+    >
+      <DateText>
+        {!isOvernight
+          ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
+          : `${formatShortestStartTime} - ${formatShortestEndTime}`}
+        {isOvernight && (
+          <OvernightIcon>
+            <Brightness2Icon fontSize="inherit" />
+          </OvernightIcon>
+        )}
+      </DateText>
+    </ThemedTooltip>
   );
 };
 
@@ -160,6 +171,7 @@ const COLUMNS = [
       <TranslatedText stringId="bookings.modal.pastBookings.table.column.area" fallback="Area" />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'location',
@@ -171,6 +183,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -181,6 +194,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'bookingType',
@@ -191,6 +205,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',
