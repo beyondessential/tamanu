@@ -99,6 +99,7 @@ export class TranslatedString extends Model {
     language = ENGLISH_LANGUAGE_CODE,
     refDataType,
     queryString,
+    limit,
   }) => {
     return this.findAll({
       where: {
@@ -110,6 +111,7 @@ export class TranslatedString extends Model {
       },
       attributes: ['stringId', 'text'],
       raw: true,
+      limit,
     });
   };
 
