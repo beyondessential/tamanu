@@ -112,18 +112,16 @@ function createSuggesterRoute(
       })).map(r => mapper(r)));
 
 
-      // TODO: how does this fit in
-      // Allow for async mapping functions (currently only used by location suggester)
-      // const data = await Promise.all(results.map(r => mapper(r)));
-
       if (!isTranslatable) {
         res.send(untranslatedResults)
       }
 
-      const translatedResults = translatedStringsResult.map(translation => ({
+      // We actully need code here too pretty sure
+      const translatedResults = await Promise.all(translatedStringsResult.map(translation => mapper({
         id: extractDataId(translation),
-        name: translation.text
-      }))
+        name: translation.text,
+        type: dataType
+      })))
 
       const results = [...translatedResults, ...untranslatedResults]
       .sort(({name: aName}, {name: bName}) => {
