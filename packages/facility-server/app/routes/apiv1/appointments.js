@@ -120,8 +120,10 @@ appointments.get(
         }
       : null;
 
-    const patientNameOrIdQuery = patientNameOrId
-      ? {
+    const ilikePatientNameOrId = { [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%` };
+    const patientNameOrIdQuery = !patientNameOrId
+      ? null
+      : {
           [Op.or]: [
             Sequelize.where(
               Sequelize.fn(
@@ -130,18 +132,11 @@ appointments.get(
                 ' ',
                 Sequelize.col('patient.last_name'),
               ),
-              {
-                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
-              },
+              ilikePatientNameOrId,
             ),
-            {
-              '$patient.display_id$': {
-                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
-              },
-            },
+            { '$patient.display_id$': ilikePatientNameOrId },
           ],
-        }
-      : {};
+        };
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
@@ -150,11 +145,10 @@ appointments.get(
       if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
         return _filters;
       }
-      let column = queryField;
-      // querying on a joined table (associations)
-      if (queryField.includes('.')) {
-        column = `$${queryField}$`;
-      }
+
+      const column = queryField.includes('.') // querying on a joined table (associations)
+        ? `$${queryField}$`
+        : queryField;
       _filters[column] = Array.isArray(queryValue)
         ? { [Op.in]: queryValue }
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
