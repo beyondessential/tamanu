@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { ButtonGroup } from '@material-ui/core';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
@@ -23,6 +24,12 @@ import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/use
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 
+const StyledButtonGroup = styled(ButtonGroup)`
+  .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
+    margin-top: 10px;
+    margin-left: 10px;
+  }
+`;
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
@@ -180,22 +187,24 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
         onSubmit={handleSubmitChart}
       />
 
-      <TableButtonRow variant="small" justifyContent={isComplexChart ? 'start' : 'space-between'}>
-        <ChartDropDown
-          selectedChartSurveyId={selectedChartSurveyId}
-          setSelectedChartSurveyId={setSelectedChartSurveyId}
-          chartTypes={chartTypes}
-        />
-        {isComplexChart ? (
-          <AddComplexChartButton
-            onClick={() => {
-              setRecordChartSurveyId(coreComplexChartSurveyId);
-              setModalOpen(true);
-            }}
-          >
-            + Add
-          </AddComplexChartButton>
-        ) : null}
+      <TableButtonRow variant="small" justifyContent="space-between">
+        <StyledButtonGroup>
+          <ChartDropDown
+            selectedChartSurveyId={selectedChartSurveyId}
+            setSelectedChartSurveyId={setSelectedChartSurveyId}
+            chartTypes={chartTypes}
+          />
+          {isComplexChart ? (
+            <AddComplexChartButton
+              onClick={() => {
+                setRecordChartSurveyId(coreComplexChartSurveyId);
+                setModalOpen(true);
+              }}
+            >
+              + Add
+            </AddComplexChartButton>
+          ) : null}
+        </StyledButtonGroup>
 
         {complexChartInstanceTabs.length && currentComplexChartTab ? (
           <ComplexChartInstancesTab
