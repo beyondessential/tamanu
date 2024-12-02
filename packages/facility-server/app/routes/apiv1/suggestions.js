@@ -130,14 +130,14 @@ function createSuggesterRoute(
         const startsWithA = aName.startsWith(searchQuery);
         const startsWithB = bName.startsWith(searchQuery);
 
-        if (startsWithA && !startsWithB) return -1;
-        if (startsWithB && !startsWithA) return 1;
+        if (startsWithA && !startsWithB) return 1;
+        if (startsWithB && !startsWithA) return -1;
 
         const includesA = aName.includes(searchQuery);
         const includesB = bName.includes(searchQuery);
 
-        if (includesA && !includesB) return -1;
-        if (includesB && !includesA) return 1;
+        if (includesA && !includesB) return 1;
+        if (includesB && !includesA) return -1;
 
         return aName.localeCompare(bName);
       })
