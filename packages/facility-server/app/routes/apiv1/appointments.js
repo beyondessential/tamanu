@@ -62,33 +62,37 @@ appointments.post(
       body: { facilityId, ...body },
       settings,
     } = req;
-    const { Appointment, Facility } = models;
+    const { Appointment, Facility, PatientCommunication } = models;
 
     await db.transaction(async () => {
       const result = await Appointment.create(body);
       // Fetch relations for the new appointment
-      const { patient, locationGroup, clinician } = await Appointment.findByPk(result.id, {
-        include: ['patient', 'clinician', 'locationGroup'],
-      });
+      const [appointment, facility] = await Promise.all([
+        Appointment.findByPk(result.id, {
+          include: ['patient', 'clinician', 'locationGroup'],
+        }),
+        Facility.findByPk(facilityId),
+      ]);
 
-      const facility = await Facility.findByPk(facilityId);
+      const { patient, locationGroup, clinician } = appointment;
 
       if (body.email) {
         const appointmentConfirmationTemplate = await settings[facilityId].get(
           'templates.appointmentConfirmation',
         );
 
+        const start = new Date(body.startTime)
         const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
           firstName: patient.firstName,
           lastName: patient.lastName,
           facilityName: facility.name,
-          startDate: format(new Date(body.startTime), 'dd-MM-yyyy'),
-          startTime: format(new Date(body.startTime), 'hh:mm a'),
+          startDate: format(start, 'dd-MM-yyyy'),
+          startTime: format(start, 'hh:mm a'),
           locationName: locationGroup.name,
           clinicianName: clinician.displayName,
         });
 
-        await models.PatientCommunication.create({
+        await PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
           status: COMMUNICATION_STATUSES.QUEUED,

@@ -193,14 +193,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+
+  const requiredMessage = getTranslation('validation.required.inline', '*Required');
   const validationSchema = yup.object().shape({
     locationGroupId: yup
       .string()
-      .required(getTranslation('validation.required.inline', '*Required')),
+      .required(requiredMessage),
     appointmentTypeId: yup
       .string()
-      .required(getTranslation('validation.required.inline', '*Required')),
-    startTime: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+      .required(requiredMessage),
+    startTime: yup.string().required(requiredMessage),
     endTime: yup
       .string()
       .nullable()
@@ -217,20 +219,20 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           return isAfter(endTime, startTime);
         },
       ),
-    patientId: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+    patientId: yup.string().required(requiredMessage),
     shouldEmailAppointment: yup.boolean(),
     email: yup.string().when('shouldEmailAppointment', {
       is: true,
       then: yup
         .string()
-        .required(getTranslation('validation.required.inline', '*Required'))
+        .required(requiredMessage)
         .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
     }),
     confirmEmail: yup.string().when('shouldEmailAppointment', {
       is: true,
       then: yup
         .string()
-        .required(getTranslation('validation.required.inline', '*Required'))
+        .required(requiredMessage)
         .oneOf(
           [yup.ref('email')],
           getTranslation('validation.rule.emailsMatch', 'Emails must match'),
