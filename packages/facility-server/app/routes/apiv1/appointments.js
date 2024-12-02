@@ -81,7 +81,7 @@ appointments.post(
           'templates.appointmentConfirmation',
         );
 
-        const start = new Date(body.startTime)
+        const start = new Date(body.startTime);
         const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
           firstName: patient.firstName,
           lastName: patient.lastName,
@@ -89,7 +89,7 @@ appointments.post(
           startDate: format(start, 'dd-MM-yyyy'),
           startTime: format(start, 'hh:mm a'),
           locationName: locationGroup.name,
-          clinicianName: clinician.displayName,
+          clincianName: clinician.displayName ? `Clinician: ${clinician.displayName}` : '',
         });
 
         await PatientCommunication.create({
