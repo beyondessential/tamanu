@@ -34,16 +34,16 @@ export const OutpatientAppointmentsFilter = props => {
       />
       <Field
         component={FilterField}
-        endpoint="bookableLocationGroup"
+        endpoint="locationGroup"
         label={getTranslation('general.area.label', 'Area')}
-        name="locationGroupIds"
-        onChange={e => setFilters(prev => ({ ...prev, locationGroupIds: e.target.value }))}
+        name="locationGroupId"
+        onChange={e => setFilters(prev => ({ ...prev, locationGroupId: e.target.value }))}
       />
       <Field
         component={FilterField}
-        endpoint="bookingType"
+        endpoint="appointmentType"
         label={getTranslation('general.type.label', 'Type')}
-        name="bookingTypeId"
+        name="appointmentTypeId"
         onChange={e => setFilters(prev => ({ ...prev, bookingTypeId: e.target.value }))}
       />
     </Fieldset>
