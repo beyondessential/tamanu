@@ -66,6 +66,13 @@ function createSuggesterRoute(
       const dataType = getDataType(endpoint);
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
+      // Could do includes like this
+      console.log(
+        Object.values(model.rawAttributes)
+          .map(obj => `${model.tableName}.${obj.field} as "${model.tableName}.${obj.fieldName}"`)
+          .join(','),
+        // model.rawAttributes,
+      );
 
       const results = await req.db.query(
         `
@@ -74,7 +81,7 @@ function createSuggesterRoute(
             left join translated_strings ts on ts.string_id = 'refData.${dataType}.' || rd.id
             ${model.tableName === 'reference_data' ? `where type = '${dataType}'` : ''}
           ),
-           matching as (
+           matches as (
             select trd.*, trd.check as ${searchColumn} from trd
             where lower(trd.check) ilike '%' || :searchQuery || '%' ${
               query.locationGroupId ? `and location_group_id = :locationGroupId` : ''
@@ -82,7 +89,9 @@ function createSuggesterRoute(
             order by position(lower(:searchQuery) in LOWER(trd.check)) > 1, trd.check asc
             limit ${MAX_SUGGESTED_RESULTS}
             )
-            select * from matching;
+           SELECT  matches.* from matches
+          LEFT JOIN reference_data_relations rdr ON matches.id = rdr.reference_data_id
+          LEFT JOIN reference_data parent ON parent.id = rdr.reference_data_parent_id
             -- include query can go here
         `,
         {
@@ -400,6 +409,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
         if (!parentId) return undefined;
+
+        const rawQuery = `
+          SELECT parent.id, parent.name, parent.code, parent.type, parent.visibility_status from matches
+          JOIN reference_data_relations rdr ON matches.id = rdr.reference_data_id
+          JOIN reference_data parent ON parent.id = rdr.reference_data_parent_id
+        `;
 
         return {
           model: ReferenceData,
