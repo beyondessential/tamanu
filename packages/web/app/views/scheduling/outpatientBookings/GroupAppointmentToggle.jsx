@@ -38,7 +38,7 @@ const ToggleButton = styled('button')`
     color: ${Colors.white};
   }
 `;
-ToggleButton.defaultProps = { 'aria-role': 'radio' };
+ToggleButton.defaultProps = { role: 'radio' };
 
 const AnimatedBackground = styled('div')`
   position: absolute;

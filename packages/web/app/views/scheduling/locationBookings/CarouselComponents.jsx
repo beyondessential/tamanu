@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { UnstyledHtmlButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -24,7 +24,7 @@ const Grid = styled.div`
     );
 `;
 
-const Row = styled.div`
+const Row = styled.div.attrs({ role: 'row' })`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -42,7 +42,7 @@ const HeaderRow = styled(Row)`
   z-index: 2;
 `;
 
-const BaseCell = styled.div`
+const BaseCell = styled.div.attrs({ role: 'cell' })`
   min-block-size: var(--row-height);
   padding-block: 0.25rem;
   padding-inline: 0.5rem 1.5rem;
@@ -87,12 +87,22 @@ const RowHeaderCell = styled(HeaderCell)`
   text-wrap: balance;
 `;
 
-const BodyCell = styled(BaseCell).attrs({ as: UnstyledHtmlButton })`
+const BodyCell = styled(BaseCell).attrs({
+  as: UnstyledHtmlButton,
+  role: undefined,
+})`
   align-items: stretch;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  ${({ $selected }) =>
+    $selected &&
+    css`
+      && {
+        border: max(0.0625rem, 1px) solid ${Colors.primary};
+      }
+    `}
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
     background-color: var(--weekend-color);
