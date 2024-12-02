@@ -1079,7 +1079,7 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-          }
+          },
         },
       },
     },
@@ -1102,7 +1102,7 @@ export const globalSettings = {
                 .trim()
                 .min(1),
               defaultValue:
-                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$\n$clincianName$\n\nDo not respond to this email.',
+                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
             },
           },
         },

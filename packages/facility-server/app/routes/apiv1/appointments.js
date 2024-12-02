@@ -89,7 +89,7 @@ appointments.post(
           startDate: format(start, 'dd-MM-yyyy'),
           startTime: format(start, 'hh:mm a'),
           locationName: locationGroup.name,
-          clincianName: clinician.displayName ? `Clinician: ${clinician.displayName}` : '',
+          clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
         });
 
         await PatientCommunication.create({
