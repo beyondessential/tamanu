@@ -81,7 +81,14 @@ function createSuggesterRoute(
             limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-      const translatedMatchIds = translatedStringsResult.map(extractDataId);
+
+      const translatedMatchDict = translatedStringsResult.reduce((acc, translatedString)=> ({
+        ...acc,
+        [extractDataId(translatedString)]: translatedString.text
+      }), {});
+
+      const translatedMatchIds = Object.keys(translatedMatchDict);
+
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
@@ -116,11 +123,13 @@ function createSuggesterRoute(
         res.send(untranslatedResults)
       }
 
-      // We actully need code here too pretty sure
-      const translatedResults = await Promise.all(translatedStringsResult.map(translation => mapper({
-        id: extractDataId(translation),
-        name: translation.text,
-        type: dataType
+      const translatedResults = await Promise.all((await model.findAll({
+        where: {
+          id: translatedMatchIds
+        }
+      })).map(refData => mapper({
+        ...refData,
+        name: translatedMatchDict[refData.id]
       })))
 
       const results = [...translatedResults, ...untranslatedResults]
