@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy, omit } from 'lodash';
+import { camelCase, keyBy } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -100,7 +100,7 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
 
-      const untranslatedResults = await model.findAll({
+      const untranslatedResults = await Promise.all((await model.findAll({
         where,
         include,
         order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
@@ -109,7 +109,7 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: MAX_SUGGESTED_RESULTS,
-      });
+      })).map(r => mapper(r)));
 
 
       // TODO: how does this fit in
