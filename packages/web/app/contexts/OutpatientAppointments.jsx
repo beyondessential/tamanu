@@ -4,9 +4,9 @@ const OutpatientAppointmentsContext = createContext(null);
 
 export const OutpatientAppointmentsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
-    patientNameOrId: '',
-    locationGroupIds: [],
-    bookingTypeId: [],
+    appointmentTypeId: [],
+    locationGroupId: [],
+    patientNameOrId: null,
   });
 
   return (
