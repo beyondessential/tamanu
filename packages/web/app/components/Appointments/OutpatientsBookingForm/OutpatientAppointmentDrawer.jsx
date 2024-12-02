@@ -1,5 +1,4 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { useQueryClient } from '@tanstack/react-query';
 import { isAfter, parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -135,7 +134,6 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
   const { getTranslation } = useTranslation();
-  const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
