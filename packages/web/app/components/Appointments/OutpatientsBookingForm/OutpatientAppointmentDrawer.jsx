@@ -293,7 +293,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
         onClose();
-        queryClient.invalidateQueries('appointments');
       },
       onError: error => {
         notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
