@@ -3,15 +3,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 
-export const useAppointmentMutation = ({ isEdit = false }, useMutationOptions) => {
+export const useAppointmentMutation = (existingAppointmentId = null, useMutationOptions) => {
   const { facilityId } = useAuth();
   const api = useApi();
   const queryClient = useQueryClient();
+  const isEdit = !!existingAppointmentId
 
   return useMutation(
     payload =>
       isEdit
-        ? api.put(`appointments/${payload.id}`, { ...payload, facilityId }, { throwResponse: true })
+        ? api.put(`appointments/${existingAppointmentId}`, { ...payload, facilityId }, { throwResponse: true })
         : api.post('appointments', { ...payload, facilityId }, { throwResponse: true }),
     {
       ...useMutationOptions,

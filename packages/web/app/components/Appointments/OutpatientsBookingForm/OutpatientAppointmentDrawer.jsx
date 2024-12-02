@@ -193,15 +193,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
   const validationSchema = yup.object().shape({
-    locationGroupId: yup
-      .string()
-      .required(requiredMessage),
-    appointmentTypeId: yup
-      .string()
-      .required(requiredMessage),
+    locationGroupId: yup.string().required(requiredMessage),
+    appointmentTypeId: yup.string().required(requiredMessage),
     startTime: yup.string().required(requiredMessage),
     endTime: yup
       .string()
@@ -364,7 +359,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     });
 
   const { mutateAsync: handleSubmit } = useAppointmentMutation(
-    { isEdit },
+    initialValues.id,
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);

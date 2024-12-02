@@ -40,10 +40,7 @@ export const CheckInButton = ({ appointment }) => {
   const closeModal = () => setIsModalOpen(false);
 
   const { mutate: mutateAppointment, isLoading: isUpdatingAppointment } = useAppointmentMutation(
-    {
-      appointmentId: appointment?.id,
-      isEdit: true,
-    },
+    appointment.id,
     {
       onSuccess: () => {
         closeModal();
