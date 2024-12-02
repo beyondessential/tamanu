@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy } from 'lodash';
+import { camelCase, keyBy, replace } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -67,95 +67,90 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      const translatedStringsResult = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: dataType,
-            queryString: searchQuery,
-            order: [literal(
-              `POSITION(LOWER(:positionMatch) in LOWER("TranslatedString"."text")) > 1`
-            )],
-            replacements: {
-              positionMatch: searchQuery
-            },
-            limit: MAX_SUGGESTED_RESULTS,
-          })
-        : [];
+      console.log(model.tableName, dataType, searchColumn, searchQuery);
 
-      const translatedMatchDict = translatedStringsResult.reduce((acc, translatedString)=> ({
-        ...acc,
-        [extractDataId(translatedString)]: translatedString.text
-      }), {});
-
-      const translatedMatchIds = Object.keys(translatedMatchDict);
-
-
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
-
-      const where = {
-        [Op.and]: [
-          whereQuery,
-          {
-            id: { [Op.notIn]: translatedMatchIds },
+      const results = await req.db.query(
+        `
+           with trd as (
+            select rd.*, coalesce(text, ${searchColumn}) check from reference_data rd
+            left join translated_strings ts on ts.string_id = 'refData.${dataType}.' || rd.id
+            ${model.tableName === 'reference_data' ? `where type = '${dataType}'` : ''}
+          )
+          select *, trd.check as ${searchColumn} from trd
+          where lower(trd.check) ilike '%' || :searchQuery || '%' ${
+            query.locationGroupId ? `and location_group_id = :locationGroupId` : ''
+          }
+          order by position(lower(:searchQuery) in LOWER(trd.check)) > 1, trd.check asc
+          limit ${MAX_SUGGESTED_RESULTS}
+        `,
+        {
+          type: Sequelize.QueryTypes.SELECT,
+          replacements: {
+            searchQuery,
+            locationGroupId: query.locationGroupId,
           },
-        ],
-      };
-
-      if (endpoint === 'location' && query.locationGroupId) {
-        where.locationGroupId = query.locationGroupId;
-      }
-
-      const include = includeBuilder?.(req);
-
-      const untranslatedResults = await Promise.all((await model.findAll({
-        where,
-        include,
-        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
-        replacements: {
-          positionMatch: searchQuery,
-          ...extraReplacementsBuilder(query),
         },
-        limit: MAX_SUGGESTED_RESULTS,
-      })).map(r => mapper(r)));
+      );
+      console.log(results);
 
+      // const untranslatedResults = await Promise.all(
+      //   (
+      //     await model.findAll({
+      //       where,
+      //       include,
+      //       order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+      //       replacements: {
+      //         positionMatch: searchQuery,
+      //         ...extraReplacementsBuilder(query),
+      //       },
+      //       limit: MAX_SUGGESTED_RESULTS,
+      //     })
+      //   ).map(r => mapper(r)),
+      // );
 
-      if (!isTranslatable) {
-        res.send(untranslatedResults)
-      }
+      // if (!isTranslatable) {
+      //   res.send(untranslatedResults);
+      // }
 
-      const translatedResults = await Promise.all((await model.findAll({
-        where: {
-          [Op.and]: [
-            whereQuery,
-            {
-              id: { [Op.in]: translatedMatchIds },
-            },
-          ],
-        }
-      })).map(refData => mapper({
-        ...refData,
-        name: translatedMatchDict[refData.id]
-      })))
+      // const translatedResults = await Promise.all(
+      //   (
+      //     await model.findAll({
+      //       where: {
+      //         [Op.and]: [
+      //           whereQuery,
+      //           {
+      //             id: { [Op.in]: translatedMatchIds },
+      //           },
+      //         ],
+      //       },
+      //     })
+      //   ).map(refData =>
+      //     mapper({
+      //       ...refData,
+      //       name: translatedMatchDict[refData.id],
+      //     }),
+      //   ),
+      // );
 
-      const results = [...translatedResults, ...untranslatedResults]
-      .sort(({name: aName}, {name: bName}) => {
-        const startsWithA = aName.startsWith(searchQuery);
-        const startsWithB = bName.startsWith(searchQuery);
+      // const results = [...translatedResults, ...untranslatedResults]
+      //   .sort(({ name: aName }, { name: bName }) => {
+      //     const startsWithA = aName.startsWith(searchQuery);
+      //     const startsWithB = bName.startsWith(searchQuery);
 
-        if (startsWithA && !startsWithB) return 1;
-        if (startsWithB && !startsWithA) return -1;
+      //     if (startsWithA && !startsWithB) return 1;
+      //     if (startsWithB && !startsWithA) return -1;
 
-        const includesA = aName.includes(searchQuery);
-        const includesB = bName.includes(searchQuery);
+      //     const includesA = aName.includes(searchQuery);
+      //     const includesB = bName.includes(searchQuery);
 
-        if (includesA && !includesB) return 1;
-        if (includesB && !includesA) return -1;
+      //     if (includesA && !includesB) return 1;
+      //     if (includesB && !includesA) return -1;
 
-        return aName.localeCompare(bName);
-      })
-      .slice(0, MAX_SUGGESTED_RESULTS)
+      //     return aName.localeCompare(bName);
+      //   })
+      //   .slice(0, MAX_SUGGESTED_RESULTS);
 
-      res.send(results);
+      res.send(await Promise.all(results.map(result => mapper(result))));
     }),
   );
 }
