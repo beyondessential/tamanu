@@ -23,12 +23,15 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const { data: usersData } = usersQuery;
 
   const { filters } = useOutpatientAppointmentsContext();
-  const appointmentsQuery = useOutpatientAppointmentsQuery({
-    ...filters,
-    after: selectedDate,
-    before: endOfDay(selectedDate),
-    all: true,
-  });
+  const appointmentsQuery = useOutpatientAppointmentsQuery(
+    {
+      ...filters,
+      after: selectedDate,
+      before: endOfDay(selectedDate),
+      all: true,
+    },
+    { enabled: !!filters },
+  );
   const { data: appointmentsData } = appointmentsQuery;
 
   const combinedQuery = combineQueries([locationGroupsQuery, usersQuery, appointmentsQuery]);
