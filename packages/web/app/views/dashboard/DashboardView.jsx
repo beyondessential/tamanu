@@ -171,7 +171,6 @@ export const DashboardView = () => {
   const { currentUser, ability } = useAuth();
   const appointments =
     useOutpatientAppointmentsQuery({
-      locationGroupId: '',
       all: true,
       after: '1970-01-01 00:00',
       clinicianId: currentUser?.id,

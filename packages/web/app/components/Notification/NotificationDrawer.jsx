@@ -17,7 +17,7 @@ import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
-import { reloadImagingRequest } from '../../store';
+import { reloadImagingRequest, reloadPatient } from '../../store';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
@@ -108,7 +108,7 @@ const CardContainer = styled.div`
 const NotificationList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 14px;
 `;
 const CardDatetime = styled.div`
   font-size: 11px;
@@ -119,11 +119,12 @@ const CardDatetime = styled.div`
 `;
 const CardIndicator = styled.div`
   width: 3px;
-  height: 100%;
+  height: calc(100% + 11px);
   position: absolute;
   background-color: ${Colors.primary};
-  top: 0;
+  top: -6px;
   left: 0;
+  border-radius: 5px;
 `;
 
 const ReadTitle = styled.div`
@@ -162,9 +163,11 @@ const Card = ({ notification }) => {
       await loadLabRequest(id);
     }
     if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
-      await loadEncounter(encounterId);
       await dispatch(reloadImagingRequest(metadata.id));
     }
+    await loadEncounter(encounterId);
+    if (patient?.id) await dispatch(reloadPatient(patient.id));
+
     history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
   };
   return (
