@@ -1,1 +1,1 @@
-export { AppointmentDetailPopper, APPOINTMENT_CALENDAR_CLASS } from './AppointmentDetailPopper';
+export { APPOINTMENT_CALENDAR_CLASS } from './AppointmentDetailPopper';

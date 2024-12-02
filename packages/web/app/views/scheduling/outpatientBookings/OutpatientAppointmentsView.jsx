@@ -77,9 +77,10 @@ export const OutpatientAppointmentsView = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const { newAppointment, date } = queryString.parse(location.search);
-    if (newAppointment) {
-      setDrawerOpen(newAppointment);
+    const { patientId, date } = queryString.parse(location.search);
+    if (patientId) {
+      setSelectedAppointment({ patientId });
+      setDrawerOpen(true);
     }
     if (date) {
       setSelectedDate(parseDate(date));
