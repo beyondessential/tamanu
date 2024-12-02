@@ -125,7 +125,12 @@ function createSuggesterRoute(
 
       const translatedResults = await Promise.all((await model.findAll({
         where: {
-          id: translatedMatchIds
+          [Op.and]: [
+            whereQuery,
+            {
+              id: { [Op.in]: translatedMatchIds },
+            },
+          ],
         }
       })).map(refData => mapper({
         ...refData,
