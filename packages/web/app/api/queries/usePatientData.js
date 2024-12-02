@@ -4,5 +4,7 @@ import { useApi } from '../useApi';
 export const usePatientData = patientId => {
   const api = useApi();
 
-  return useQuery(['patientDetails', patientId], () => api.get(`patient/${patientId}`));
+  return useQuery(['patientDetails', patientId], () => api.get(`patient/${patientId}`), {
+    enabled: !!patientId,
+  });
 };

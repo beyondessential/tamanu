@@ -1,9 +1,18 @@
+import React, { useEffect, useState } from 'react';
+import * as yup from 'yup';
+import styled from 'styled-components';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isAfter, parseISO } from 'date-fns';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import * as yup from 'yup';
+import { useFormikContext } from 'formik';
 
+import {
+  AutocompleteField,
+  DynamicSelectField,
+  Field,
+  Form,
+  CheckField,
+  TextField,
+} from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { Colors, FORM_TYPES } from '../../../constants';
@@ -12,10 +21,11 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import { AutocompleteField, CheckField, DynamicSelectField, Field, Form } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
+import { usePatientData } from '../../../api/queries/usePatientData';
+import { useAuth } from '../../../contexts/Auth';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const IconLabel = styled.div`
@@ -132,7 +142,43 @@ const ErrorMessage = ({ isEdit = false, error }) => {
   );
 };
 
+const EmailFields = ({ patientId }) => {
+  const { setFieldValue } = useFormikContext();
+  const { data: patient } = usePatientData(patientId);
+
+  // Keep form state up to date with relevant selected patient email
+  useEffect(() => {
+    setFieldValue('email', patient?.email ?? '');
+    setFieldValue('confirmEmail', '');
+  }, [patient?.email, setFieldValue]);
+
+  return (
+    <>
+      <Field
+        name="email"
+        label={
+          <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
+        }
+        required
+        component={TextField}
+      />
+      <Field
+        name="confirmEmail"
+        label={
+          <TranslatedText
+            stringId="appointment.confirmEmailAddress.label"
+            fallback="Confirm email address"
+          />
+        }
+        required
+        component={TextField}
+      />
+    </>
+  );
+};
+
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
+  const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -145,14 +191,11 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+  const requiredMessage = getTranslation('validation.required.inline', '*Required');
   const validationSchema = yup.object().shape({
-    locationGroupId: yup
-      .string()
-      .required(getTranslation('validation.required.inline', '*Required')),
-    appointmentTypeId: yup
-      .string()
-      .required(getTranslation('validation.required.inline', '*Required')),
-    startTime: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+    locationGroupId: yup.string().required(requiredMessage),
+    appointmentTypeId: yup.string().required(requiredMessage),
+    startTime: yup.string().required(requiredMessage),
     endTime: yup
       .string()
       .nullable()
@@ -169,7 +212,25 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           return isAfter(endTime, startTime);
         },
       ),
-    patientId: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+    patientId: yup.string().required(requiredMessage),
+    shouldEmailAppointment: yup.boolean(),
+    email: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
+    }),
+    confirmEmail: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .oneOf(
+          [yup.ref('email')],
+          getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+        ),
+    }),
   });
 
   const renderForm = ({ values, resetForm, dirty }) => {
@@ -272,7 +333,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={CheckField}
           />
-
+          <Field
+            name="shouldEmailAppointment"
+            label={
+              <TranslatedText
+                stringId="appointment.emailAppointment.label"
+                fallback="Email appointment"
+              />
+            }
+            component={CheckField}
+          />
+          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>
@@ -286,7 +357,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     });
 
   const { mutateAsync: handleSubmit } = useAppointmentMutation(
-    { isEdit },
+    initialValues.id,
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
@@ -301,7 +372,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     <>
       <Form
         onSubmit={async (values, { resetForm }) => {
-          await handleSubmit(values);
+          await handleSubmit({ ...values, facilityId });
           resetForm();
         }}
         style={formStyles}
