@@ -34,7 +34,7 @@ export const OutpatientAppointmentsFilter = props => {
       />
       <Field
         component={FilterField}
-        endpoint="locationGroup"
+        endpoint="facilityLocationGroup"
         label={getTranslation('general.area.label', 'Area')}
         name="locationGroupId"
         onChange={e => setFilters(prev => ({ ...prev, locationGroupId: e.target.value }))}
