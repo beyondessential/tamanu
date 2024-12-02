@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Field, Form, SearchField } from '../../../components';
+import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
@@ -14,14 +14,21 @@ const Fieldset = styled.fieldset`
 
   display: grid;
   gap: 0.625rem;
-  grid-template-columns: minmax(auto, 18rem) repeat(2, minmax(5.75rem, max-content));
+  grid-template-columns: minmax(auto, 18rem) repeat(2, minmax(5.75rem, max-content)) auto;
+`;
+
+const ResetButton = styled(TextButton).attrs({
+  type: 'reset',
+})`
+  text-decoration: underline;
+  font-size: 0.6875rem;
 `;
 
 export const OutpatientAppointmentsFilter = props => {
   const { setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
 
-  const renderForm = () => (
+  const renderForm = ({ resetForm }) => (
     <Fieldset>
       <Field
         component={SearchField}
@@ -46,6 +53,9 @@ export const OutpatientAppointmentsFilter = props => {
         name="appointmentTypeId"
         onChange={e => setFilters(prev => ({ ...prev, bookingTypeId: e.target.value }))}
       />
+      <ResetButton onClick={resetForm} type="reset">
+        <TranslatedText stringId="general.action.clear" fallback="Clear" />
+      </ResetButton>
     </Fieldset>
   );
 
