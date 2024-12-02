@@ -273,6 +273,11 @@ export class Encounter extends Model {
       as: 'encounterHistory',
     });
 
+    this.hasMany(models.Appointment, {
+      foreignKey: 'encounterId',
+      as: 'appointments',
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }

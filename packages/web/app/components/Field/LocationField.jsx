@@ -33,8 +33,10 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    size = 'medium',
     form = {},
     enableLocationStatus = true,
+    locationGroupSuggesterType = 'facilityLocationGroup',
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -51,10 +53,9 @@ export const LocationInput = React.memo(
       },
       baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester('bookableLocationGroup');
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
-
 
     useEffect(() => {
       if (!initialValues) return;
@@ -62,6 +63,12 @@ export const LocationInput = React.memo(
       setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
+
+    useEffect(() => {
+      if (value) {
+        setLocationId(value);
+      }
+    }, [value]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -112,6 +119,7 @@ export const LocationInput = React.memo(
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
+          size={size}
         />
         <AutocompleteInput
           label={label}
@@ -125,6 +133,7 @@ export const LocationInput = React.memo(
           onChange={handleChange}
           className={className}
           autofill={!value} // do not autofill if there is a pre-filled value
+          size={size}
         />
       </>
     );

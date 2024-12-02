@@ -19,7 +19,7 @@ import styled, { css } from 'styled-components';
 
 import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../../../api/queries';
+import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -105,7 +105,10 @@ export const TimeSlotPicker = ({
   const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
   const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
-  const { data: existingBookings, isFetching: isFetchingTodaysBookings } = useAppointmentsQuery(
+  const {
+    data: existingBookings,
+    isFetching: isFetchingExistingBookings,
+  } = useLocationBookingsQuery(
     {
       after: earliestRelevantTime,
       before: latestRelevantTime,
@@ -138,7 +141,7 @@ export const TimeSlotPicker = ({
    * coerces this into a contiguous selection. Note that this array has set semantics, and is not
    * guaranteed to have its elements in natural order.
    */
-  const handleChange = (event, newTogglesUnsorted) => {
+  const handleChange = (_event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
 
     switch (variant) {
@@ -318,7 +321,7 @@ export const TimeSlotPicker = ({
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
-        {isFetchingTodaysBookings ? (
+        {isFetchingExistingBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {

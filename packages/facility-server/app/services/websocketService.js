@@ -29,6 +29,39 @@ export const defineWebsocketService = injector => {
     socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
+  onTableChanged(async payload => {
+    if (payload.table === 'tasks') {
+      const task = await injector.models.Task.findOne({
+        where: { id: payload.newId },
+        include: [
+          {
+            model: injector.models.ReferenceData,
+            as: 'designations',
+            required: false,
+            include: [
+              {
+                attributes: ['id'],
+                model: injector.models.User,
+                as: 'designationUsers',
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      const userIds = new Set(task?.designations?.flatMap(designation  => designation.designationUsers.map(user => user.id)) ?? []);
+
+      if (userIds.size === 0) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
+      } else {
+        for (const userId of userIds) {
+          socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${userId}`, task);
+        }
+      }
+    }
+  });
+
   /**
    *
    * @param {string} eventName

@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { pick } from 'lodash';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
+import queryString from 'query-string';
+import { useLocation } from 'react-router-dom';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from './DateSelector';
@@ -54,6 +57,7 @@ const CalendarInnerWrapper = styled(Box)`
 const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
   & .MuiToolbar-root {
     justify-content: flex-start;
@@ -81,11 +85,26 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const location = useLocation();
+  const defaultGroupBy =
+    new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
+  const [groupBy, setGroupBy] = useState(defaultGroupBy);
+
+  useEffect(() => {
+    const { patientId, date } = queryString.parse(location.search);
+    if (patientId) {
+      setSelectedAppointment({ patientId });
+      setDrawerOpen(true);
+    }
+    if (date) {
+      setSelectedDate(parseDate(date));
+    }
+  }, [location.search]);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);

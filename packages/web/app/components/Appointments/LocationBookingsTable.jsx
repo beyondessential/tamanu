@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -21,7 +21,7 @@ const TableTitleContainer = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0px;
+  padding: 15px 12px 15px 10px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
@@ -32,8 +32,13 @@ const TableTitleContainer = styled(Box)`
 
 const ViewPastBookingsButton = styled(Box)`
   font-size: 11px;
+  font-weight: 400;
   text-decoration: underline;
   cursor: pointer;
+  &:hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+  }
 `;
 
 const OvernightIcon = styled(Brightness2Icon)`
@@ -42,8 +47,9 @@ const OvernightIcon = styled(Brightness2Icon)`
 `;
 
 const StyledTable = styled(Table)`
+  box-shadow: none;
   max-height: 186px;
-  padding: 0 20px;
+  padding: 0 10px;
   .MuiTableHead-root {
     tr {
       position: sticky;
@@ -64,7 +70,52 @@ const StyledTable = styled(Table)`
     padding-left: 6px;
     padding-right: 6px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        right: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        right: 0;
+      }
+    }
+    &:last-child {
+      position: relative;
+      padding-right: 10px;
+      border-bottom: none;
+      border-top: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        top: 0;
+        left: 0;
+      }
     }
   }
   .MuiTableCell-body {
@@ -72,7 +123,18 @@ const StyledTable = styled(Table)`
     padding-top: 2px;
     padding-bottom: 2px;
     &:first-child {
-      padding-left: 0px;
+      position: relative;
+      padding-left: 10px;
+      border-radius: 5px 0 0 5px;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+      }
     }
     > div > div {
       overflow: hidden;
@@ -80,13 +142,21 @@ const StyledTable = styled(Table)`
       text-overflow: ellipsis;
     }
     &:last-child {
+      border-radius: 0 5px 5px 0;
       width: 28px;
-      button {
-        position: relative;
-        left: 21px;
-      }
       > div > div {
         overflow: visible;
+      }
+      position: relative;
+      border-bottom: none;
+      &:before {
+        content: '';
+        position: absolute;
+        width: calc(100% - 10px);
+        height: 1px;
+        background-color: ${Colors.outline};
+        bottom: 0;
+        left: 0;
       }
     }
     &:nth-child(1) {
@@ -104,7 +174,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
-    &:hover {
+    &:hover:not(:has(.menu-container:hover)) {
       background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
@@ -118,19 +188,39 @@ const DateText = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  padding: 0 20px;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
 `;
 
-const TableHeader = ({ title }) => (
+const CustomCellContainer = styled(Box)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    background-color: transparent;
+  }
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 11px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
+`;
+
+const TableHeader = ({ title, openPastBookingsModal }) => (
   <TableTitleContainer>
     <Box component={'span'} fontSize="16px" fontWeight={500}>
       {title}
     </Box>
-    <ViewPastBookingsButton component={'span'}>
+    <ViewPastBookingsButton component={'span'} onClick={openPastBookingsModal}>
       <TranslatedText
         stringId="patient.bookings.table.viewPastBookings"
         fallback="View past bookings"
@@ -164,12 +254,6 @@ const getDate = ({ startTime, endTime }) => {
   );
 };
 
-const CustomCellContainer = styled(Box)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
@@ -191,14 +275,17 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useAppointmentsQuery({
-      locationId: '',
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
       all: true,
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -255,14 +342,14 @@ export const LocationBookingsTable = ({ patient }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
-        </div>
+        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -272,7 +359,14 @@ export const LocationBookingsTable = ({ patient }) => {
               fallback="No location bookings"
             />
           }
+          openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
         />
+        {isViewPastBookingsModalOpen && (
+          <PastBookingsModal
+            patient={patient}
+            onClose={() => setIsViewPastBookingsModalOpen(false)}
+          />
+        )}
       </NoDataContainer>
     );
   }
@@ -280,6 +374,7 @@ export const LocationBookingsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}
@@ -291,6 +386,7 @@ export const LocationBookingsTable = ({ patient }) => {
                 fallback="Location bookings"
               />
             }
+            openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
           />
         }
         onClickRow={handleRowClick}

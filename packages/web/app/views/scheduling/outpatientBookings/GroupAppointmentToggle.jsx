@@ -1,6 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+import { useHistory } from 'react-router-dom';
 
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
@@ -37,7 +38,7 @@ const ToggleButton = styled('button')`
     color: ${Colors.white};
   }
 `;
-ToggleButton.defaultProps = { 'aria-role': 'radio' };
+ToggleButton.defaultProps = { role: 'radio' };
 
 const AnimatedBackground = styled('div')`
   position: absolute;
@@ -52,13 +53,17 @@ const AnimatedBackground = styled('div')`
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
 export const GroupByAppointmentToggle = ({ value, onChange }) => {
+  const history = useHistory();
+
   const handleChange = () => {
-    onChange(
+    const newValue =
       value === APPOINTMENT_GROUP_BY.LOCATION_GROUP
         ? APPOINTMENT_GROUP_BY.CLINICIAN
-        : APPOINTMENT_GROUP_BY.LOCATION_GROUP,
-    );
+        : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+    onChange(newValue);
+    history.push(`?groupBy=${newValue}`);
   };
+
   return (
     <Wrapper onClick={handleChange} role="radiogroup">
       <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
