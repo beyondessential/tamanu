@@ -73,12 +73,14 @@ function createSuggesterRoute(
             refDataType: dataType,
             queryString: searchQuery,
             order: [literal(
-              `POSITION(LOWER(:positionMatch) in LOWER("translated_strings", "text")) > 1`
+              `POSITION(LOWER(:positionMatch) in LOWER("TranslatedString"."text")) > 1`
             )],
+            replacements: {
+              positionMatch: searchQuery
+            },
             limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-        
       const translatedMatchIds = translatedStringsResult.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
