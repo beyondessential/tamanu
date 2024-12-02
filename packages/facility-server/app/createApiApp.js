@@ -2,6 +2,9 @@ import config from 'config';
 import defineExpress from 'express';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { NOTIFY_CHANNELS } from '@tamanu/constants';
+
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -12,7 +15,6 @@ import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
-import { defineDbNotifier } from './services/dbNotifier';
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -27,7 +29,11 @@ export async function createApiApp({
   const express = defineExpress();
   const server = createServer(express);
 
-  const dbNotifier = await defineDbNotifier(sequelize.config);
+  const dbNotifier = await defineDbNotifier(sequelize.config, [
+    NOTIFY_CHANNELS.TABLE_CHANGED,
+    NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
+  ]);
+
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 

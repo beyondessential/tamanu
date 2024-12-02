@@ -106,6 +106,7 @@
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",
+    "wait-for-expect": "^3.0.2",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "xlsx": "^0.18.5",

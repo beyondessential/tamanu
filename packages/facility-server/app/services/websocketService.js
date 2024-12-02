@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 
-import { WS_EVENTS } from '@tamanu/constants';
+import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
@@ -18,11 +18,14 @@ export const defineWebsocketService = injector => {
 
   const getSocketServer = () => socketServer;
 
-  injector.dbNotifier.onMaterializedViewRefreshed(viewName =>
+  const onMaterializedViewRefreshed =
+    injector.dbNotifier.listeners[NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED];
+  onMaterializedViewRefreshed(viewName =>
     socketServer.emit(`${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${viewName}`),
   );
 
-  injector.dbNotifier.onTableChanged(payload => {
+  const onTableChanged = injector.dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
+  onTableChanged(payload => {
     socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
