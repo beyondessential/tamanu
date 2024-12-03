@@ -71,7 +71,7 @@ export class LabRequest extends Model {
             if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.LAB_REQUEST,
-                labRequest,
+                labRequest.dataValues,
                 opts.transaction,
               );
             }
