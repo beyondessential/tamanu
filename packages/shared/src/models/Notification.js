@@ -77,7 +77,8 @@ export class Notification extends Model {
     ];
   }
 
-  static async pushNotification(type, metadata, transaction) {
+  static async pushNotification(type, metadata) {
+    try {
       if (!config.notification?.enabled) return;
 
       const { models } = this.sequelize;
@@ -101,15 +102,15 @@ export class Notification extends Model {
           return;
       }
 
-      await models.Notification.create(
-        {
-          type,
-          metadata,
-          userId,
-          patientId,
-          createdTime: getCurrentDateTimeString(),
-        },
-        { transaction },
-      );
+      await models.Notification.create({
+        type,
+        metadata,
+        userId,
+        patientId,
+        createdTime: getCurrentDateTimeString(),
+      });
+    } catch (error) {
+      log.error('Error pushing notification', error);
+    }
   }
 }
