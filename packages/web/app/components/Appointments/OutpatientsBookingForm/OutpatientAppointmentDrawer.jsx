@@ -183,7 +183,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
-  const locationGroupSuggester = useSuggester('bookableLocationGroup');
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
