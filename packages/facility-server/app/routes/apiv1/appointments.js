@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfToday } from 'date-fns';
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, literal } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
@@ -105,11 +105,9 @@ appointments.get(
     // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
     const shouldQueryByOverlap = !!before;
     const timeQueryWhereClause = shouldQueryByOverlap
-      ? {
-          [Op.or]: Sequelize.literal(
-            '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
-          ),
-        }
+      ? literal(
+          '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
+        )
       : {
           startTime: { [Op.gte]: after },
         };
@@ -119,6 +117,10 @@ appointments.get(
           beforeDateTime: `'${toDateTimeString(before)}'`,
         }
       : null;
+
+    const cancelledStatusQuery = includeCancelled
+      ? null
+      : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
     const ilikePatientNameOrId = { [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%` };
     const patientNameOrIdQuery = !patientNameOrId
@@ -149,24 +151,25 @@ appointments.get(
       const column = queryField.includes('.') // querying on a joined table (associations)
         ? `$${queryField}$`
         : queryField;
-      _filters[column] = Array.isArray(queryValue)
+
+      const comparison = Array.isArray(queryValue)
         ? { [Op.in]: queryValue }
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+
+      _filters.push({ [column]: comparison });
+
       return _filters;
-    }, {});
+    }, []);
 
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        ...timeQueryWhereClause,
-        ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
-        ...(patientNameOrId ? patientNameOrIdQuery : null),
-        ...filters,
+        [Op.and]: [timeQueryWhereClause, cancelledStatusQuery, patientNameOrIdQuery, ...filters],
       },
       include: [...Appointment.getListReferenceAssociations()],
-      bind: { ...timeQueryBindParams },
+      bind: timeQueryBindParams,
     });
 
     res.send({
