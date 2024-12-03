@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { format, startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
+import { has } from 'lodash';
 
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
@@ -15,7 +16,6 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
-import { has } from 'lodash';
 
 export const appointments = express.Router();
 
