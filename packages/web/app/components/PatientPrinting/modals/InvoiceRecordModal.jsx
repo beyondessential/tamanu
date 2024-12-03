@@ -16,6 +16,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useSettings } from '../../../contexts/Settings';
 
 export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const { getTranslation } = useTranslation();
@@ -26,6 +27,8 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
+  const { getSetting } = useSettings()
+  const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
   const { encounter, loadEncounter, isLoadingEncounter } = useEncounter();
@@ -81,6 +84,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
           invoice={invoice}
+          enablePatientInsurer={enablePatientInsurer}
         />
       </PDFLoader>
     </Modal>

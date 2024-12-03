@@ -451,6 +451,7 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
+  enablePatientInsurer,
 }) => {
   const { watermark, logo } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
@@ -481,7 +482,12 @@ const InvoiceRecordPrintoutComponent = ({
           clinicianText={clinicianText}
         />
         <SectionSpacing />
-        <InvoiceDetails encounter={encounter} invoice={invoice} patient={patientData} />
+        <InvoiceDetails
+          encounter={encounter}
+          invoice={invoice}
+          patient={patientData}
+          enablePatientInsurer={enablePatientInsurer}
+        />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
           <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />
