@@ -324,7 +324,7 @@ describe('Labs', () => {
       patientId,
     });
     const { id: requestId } = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId, requestedById: user.id, encounterId: encounter.id }),
+      await randomLabRequest(models, { patientId, requestedById: user.body.id, encounterId: encounter.id }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
     const response = await app
