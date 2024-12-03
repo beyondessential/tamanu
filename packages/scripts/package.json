@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.19.5",
+  "version": "2.19.6",
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "scripts": {
