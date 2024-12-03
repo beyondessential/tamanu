@@ -1,17 +1,16 @@
+import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   APPOINTMENT_STATUSES,
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
