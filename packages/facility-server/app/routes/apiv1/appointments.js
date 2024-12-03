@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { format, startOfToday } from 'date-fns';
+import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
@@ -150,8 +150,12 @@ appointments.get(
     const {
       models,
       query: {
-        after = startOfToday(),
-        before,
+        /**
+         * Midnight today
+         * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-VALUES
+         */
+        after = 'today',
+        before = 'infinity',
         rowsPerPage = 10,
         page = 0,
         all = false,
@@ -164,7 +168,6 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
     const shouldQueryByOverlap = !!before;
     const timeQueryWhereClause = shouldQueryByOverlap
       ? {
@@ -177,8 +180,8 @@ appointments.get(
         };
     const timeQueryBindParams = shouldQueryByOverlap
       ? {
-          afterDateTime: `'${toDateTimeString(after)}'`,
-          beforeDateTime: `'${toDateTimeString(before)}'`,
+          afterDateTime: `'${after}'`,
+          beforeDateTime: `'${before}'`,
         }
       : null;
 
