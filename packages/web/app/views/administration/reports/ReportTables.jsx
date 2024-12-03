@@ -72,12 +72,17 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
           key: 'name',
         },
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.lastUpdated" fallback="Last updated" />,
+          title: <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />,
           key: 'lastUpdated',
           accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.versionCount" fallback="Version count" />,
+          title: (
+            <TranslatedText
+              stringId="admin.report.list.table.column.versionCount"
+              fallback="Version count"
+            />
+          ),
           key: 'versionCount',
           numeric: true,
         },
@@ -107,16 +112,28 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
       onRowClick={onRowClick}
       columns={[
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.versionNumber" fallback="Version" />,
+          title: (
+            <TranslatedText
+              stringId="admin.report.list.table.column.versionNumber"
+              fallback="Version"
+            />
+          ),
           key: 'versionNumber',
         },
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.createdAt" fallback="Created time" />,
+          title: (
+            <TranslatedText
+              stringId="admin.report.list.table.column.createdAt"
+              fallback="Created time"
+            />
+          ),
           key: 'createdAt',
           accessor: ({ updatedAt }) => getDateTime(updatedAt),
         },
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.status" fallback="Status" />,
+          title: (
+            <TranslatedText stringId="admin.report.list.table.column.status" fallback="Status" />
+          ),
           key: 'status',
           sortable: false,
           accessor: ({ status, active }) => <ReportStatusTag status={active ? 'active' : status} />,

@@ -85,6 +85,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        enableTasking: {
+          description: 'Enable tasking tab/module on encounter view',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         registerNewPatient: {
           description: 'Allow the creation of new patient on mobile',
           type: yup.boolean(),
@@ -1011,6 +1016,10 @@ export const globalSettings = {
         sidebar: {
           description: 'The sidebar tabs in the facility',
           properties: {
+            dashboard: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
             patients: {
               description: '_',
               properties: {

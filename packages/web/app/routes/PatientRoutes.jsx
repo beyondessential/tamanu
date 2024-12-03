@@ -23,6 +23,7 @@ import { PatientProgramRegistryView } from '../views/programRegistry/PatientProg
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 
 export const usePatientRoutes = () => {
   const {
@@ -33,6 +34,9 @@ export const usePatientRoutes = () => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   const queryParams = useUrlSearchParams();
+  // prefetch userPreferences
+  useUserPreferencesQuery();
+
   return [
     {
       path: PATIENT_PATHS.PATIENT,

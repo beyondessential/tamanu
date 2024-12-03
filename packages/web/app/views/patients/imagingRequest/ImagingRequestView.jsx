@@ -105,7 +105,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
-          <TranslatedText stringId="imaging.requestedDate.label" fallback="Request date and time" />
+          <TranslatedText stringId="general.requestDateTime.label" fallback="Request date & time" />
         }
         disabled
       />

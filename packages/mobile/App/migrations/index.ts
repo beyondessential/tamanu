@@ -55,6 +55,7 @@ import { addClinicianToEncounterDiagnosis1721636585000 } from './1721636585000-a
 import { addUserFacilityTable1723076064000 } from './1723076064000-addUserFacilityTable';
 import { surveyCompletionNotification1724205895000 } from './1724205895000-surveyCompletionNotification';
 import { removeSettingsValueNotNullConstraint1724900789000 } from './1724900789000-removeSettingsValueNotNullConstraint';
+import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-updateReferenceDataRelationIndex';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -113,4 +114,5 @@ export const migrationList = [
   addUserFacilityTable1723076064000,
   surveyCompletionNotification1724205895000,
   removeSettingsValueNotNullConstraint1724900789000,
+  updateReferenceDataRelationIndex1714605577000
 ];
