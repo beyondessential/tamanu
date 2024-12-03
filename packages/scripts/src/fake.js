@@ -315,6 +315,7 @@ async function generateData(models) {
       orderedByUserId: examiner.id,
     }),
   );
+
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
