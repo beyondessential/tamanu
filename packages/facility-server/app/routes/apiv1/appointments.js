@@ -15,6 +15,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
+import { has } from 'lodash';
 
 export const appointments = express.Router();
 
@@ -206,14 +207,13 @@ appointments.get(
         }
       : {};
 
+    const facilityIdField = has(queries, 'locationGroupId')
+      ? '$locationGroup.facility_id$'
+      : '$location.facility_id$';
+
     const facilityIdQuery = facilityId
       ? {
-          [Op.and]: {
-            [Op.or]: {
-              '$location.facility_id$': facilityId,
-              '$locationGroup.facility_id$': facilityId,
-            },
-          },
+          [facilityIdField]: facilityId,
         }
       : {};
 
@@ -235,13 +235,21 @@ appointments.get(
       return _filters;
     }, {});
 
+    console.log({
+      ...facilityIdQuery,
+      ...timeQueryWhereClause,
+      ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
+      ...(patientNameOrId ? patientNameOrIdQuery : null),
+      ...filters,
+    });
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        ...timeQueryWhereClause,
         ...facilityIdQuery,
+        ...timeQueryWhereClause,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
