@@ -1,4 +1,5 @@
 export const ENCOUNTER_TAB_NAMES = {
+  TASKS: 'tasks',
   VITALS: 'vitals',
   CHARTS: 'charts',
   NOTES: 'notes',

@@ -157,6 +157,28 @@ user.post(
   }),
 );
 
+user.post(
+  '/userPreferences/reorderEncounterTab',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+      body,
+    } = req;
+
+    req.checkPermission('write', currentUser);
+
+    const { encounterTabOrders } = body;
+    const [userPreferences] = await UserPreference.upsert({
+      encounterTabOrders,
+      userId: currentUser.id,
+      deletedAt: null,
+    });
+
+    res.send(userPreferences);
+  }),
+);
+
 user.get('/:id', simpleGet('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');

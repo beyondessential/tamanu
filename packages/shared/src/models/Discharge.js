@@ -34,7 +34,11 @@ export class Discharge extends Model {
           allowNull: true,
         },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, validate },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        validate,
+      },
     );
   }
 

@@ -73,10 +73,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               <LocalisedField
                 name="requestedById"
                 label={
-                  <TranslatedText
-                    stringId="general.localisedField.requestedById.label"
-                    fallback="Requested by"
-                  />
+                  <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />
                 }
                 saveDateAsString
                 component={AutocompleteField}
@@ -222,12 +219,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       {isCompletedTable && (
         <LocalisedField
           name="requestedById"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.requestedById.label"
-              fallback="Requested by"
-            />
-          }
+          label={<TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />}
           component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TabDisplay } from '../../components/TabDisplay';
 import { useApi } from '../../api';
 import {
   DocumentsPane,
@@ -21,6 +21,7 @@ import {
   ProcedurePane,
   VitalsPane,
   ChartsPane,
+  TasksPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
@@ -29,10 +30,24 @@ import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
+import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
+import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
+import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
+import { isEqual } from 'lodash';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const TABS = [
+  {
+    label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
+    key: ENCOUNTER_TAB_NAMES.TASKS,
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Tasking">
+        <TasksPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
+    condition: getSetting => getSetting('features.enableTasking'),
+  },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
@@ -82,9 +97,12 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <EncounterInvoicingPane {...props} />,
-    condition: (getSetting, ability) =>
-      getSetting('features.enableInvoicing') && ability.can('read', 'Invoice'),
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Invoice">
+        <EncounterInvoicingPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
+    condition: getSetting => getSetting('features.enableInvoicing'),
   },
 ];
 
@@ -113,7 +131,7 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
-const StyledTabDisplay = styled(TabDisplay)`
+const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -132,20 +150,71 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getSetting } = useSettings();
-  const { facilityId, ability } = useAuth();
+  const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
+  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const { mutate: reorderEncounterTabs } = useReorderEncounterTabs();
+
+  const [currentTab, setCurrentTab] = useState(query.get('tab'));
+  const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || patient.death;
+
+  const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
 
-  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
+  useEffect(() => {
+    if (!userPreferences?.encounterTabOrders) return;
+    if (!currentTab) {
+      setCurrentTab(visibleTabs[0].key);
+    }
+    const newTabs = visibleTabs.sort((a, b) => {
+      const aOrder = userPreferences?.encounterTabOrders[a.key] || 0;
+      const bOrder = userPreferences?.encounterTabOrders[b.key] || 0;
+      return aOrder - bOrder;
+    });
+    if (!isEqual(newTabs, tabs)) {
+      setTabs([...newTabs]);
+    }
+  }, [userPreferences?.encounterTabOrders]);
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting, ability));
+  useEffect(() => {
+    if (!currentTab) {
+      setCurrentTab(visibleTabs[0].key);
+    }
+  }, [isLoadingUserPreferences]);
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  const handleDragEnd = result => {
+    if (!result.destination) {
+      return;
+    }
+
+    const currentVisibleTabs = visibleTabs;
+    const newTabs = reorder(currentVisibleTabs, result.source.index, result.destination.index);
+    setTabs([...newTabs]);
+
+    const newTabOrders = newTabs.reduce((curr, tab, index) => {
+      curr[tab.key] = index + 1;
+      return curr;
+    }, {});
+    reorderEncounterTabs(newTabOrders, {
+      onError: () => setTabs(currentVisibleTabs),
+    });
+  };
+
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   return (
     <GridColumnContainer>
@@ -185,13 +254,14 @@ export const EncounterView = () => {
       />
       <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
       <ContentPane>
-        <StyledTabDisplay
+        <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
           patient={patient}
           disabled={disabled}
+          handleDragEnd={handleDragEnd}
         />
       </ContentPane>
     </GridColumnContainer>

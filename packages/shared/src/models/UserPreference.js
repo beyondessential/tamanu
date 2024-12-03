@@ -21,6 +21,10 @@ export class UserPreference extends Model {
           type: Sequelize.JSONB,
           allowNull: false,
         },
+        encounterTabOrders: {
+          type: DataTypes.JSONB,
+          defaultValue: {},
+        },
       },
       {
         ...options,

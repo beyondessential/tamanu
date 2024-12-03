@@ -168,10 +168,35 @@ export class User extends Model {
         deletedAt: null,
       },
     });
+
+    this.hasMany(models.UserDesignation, {
+      foreignKey: 'userId',
+      as: 'designations',
+    });
   }
 
   static buildSyncFilter() {
     return null; // syncs everywhere
+  }
+
+  static getFullReferenceAssociations() {
+    const { models } = this.sequelize;
+
+    return [
+      {
+        model: models.UserDesignation,
+        as: 'designations',
+        include: {
+          model: models.ReferenceData,
+          as: 'referenceData',
+        },
+      },
+      {
+        model: models.Facility,
+        as: 'facilities',
+        attributes: ['id'],
+      },
+    ];
   }
 
   static buildSyncLookupQueryDetails() {
