@@ -1,15 +1,17 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { useOutpatientAppointmentsQuery } from '../../../api/queries';
+import { Colors } from '../../../constants';
+import { formatShortest, formatTime } from '../../DateDisplay';
+import { LimitedLinesCell } from '../../FormattedTableCell';
 import { Modal } from '../../Modal';
 import { Table } from '../../Table';
-import { TranslatedText } from '../../Translation';
-import { useOutpatientAppointmentsQuery } from '../../../api/queries';
-import { formatShortest, formatTime } from '../../DateDisplay';
-import { Colors } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
+import { TranslatedText } from '../../Translation';
 import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
-import { LimitedLinesCell } from '../../FormattedTableCell';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -160,13 +162,13 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
   });
-  const beforeDate = useMemo(() => new Date().toISOString(), []);
+
   const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
       patientId: patient?.id,
-      before: beforeDate,
-      after: '1970-01-01 00:00',
+      before: getCurrentDateTimeString(),
+      after: '-infinity',
       orderBy,
       order,
     },
