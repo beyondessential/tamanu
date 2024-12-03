@@ -78,7 +78,6 @@ export class Notification extends Model {
   }
 
   static async pushNotification(type, metadata, transaction) {
-    try {
       if (!config.notification?.enabled) return;
 
       const { models } = this.sequelize;
@@ -112,8 +111,5 @@ export class Notification extends Model {
         },
         { transaction },
       );
-    } catch (error) {
-      log.error('Error pushing notification', error);
-    }
   }
 }
