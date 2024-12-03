@@ -329,6 +329,7 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await app.get(`/api/labRequest/${requestId}`);
+    console.log({ labRequest })
     expect(labRequest).toHaveProperty('status', status);
   });
 
