@@ -20,8 +20,12 @@ const Fieldset = styled.fieldset`
 const ResetButton = styled(TextButton).attrs({
   type: 'reset',
 })`
-  text-decoration: underline;
   font-size: 0.6875rem;
+
+  &,
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const OutpatientAppointmentsFilter = props => {
