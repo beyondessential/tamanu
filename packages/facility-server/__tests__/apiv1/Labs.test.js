@@ -330,7 +330,7 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
     console.log({response})
 
-    await sleepAsync(1000);
+    await sleepAsync(3000);
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     console.log({labRequest})
