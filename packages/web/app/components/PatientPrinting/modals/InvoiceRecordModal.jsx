@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
 
@@ -15,13 +15,9 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import { useEncounterData } from '../../../api/queries';
+import { useEncounter } from '../../../contexts/Encounter';
 
-export const InvoiceRecordModal = ({ 
-  open, 
-  onClose, 
-  invoice,
-}) => {
+export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const { getTranslation } = useTranslation();
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',
@@ -32,8 +28,13 @@ export const InvoiceRecordModal = ({
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
-  const encounterQuery = useEncounterData(invoice.encounter.id);
-  const { data: encounter } = encounterQuery;
+  const { encounter, loadEncounter, isLoadingEncounter } = useEncounter();
+
+  useEffect(() => {
+    if (invoice.encounter.id) {
+      loadEncounter(invoice.encounter.id);
+    }
+  }, [invoice.encounter.id]);
 
   const patientQuery = usePatientData(invoice.encounter.patientId);
   const patient = patientQuery.data;
@@ -44,13 +45,7 @@ export const InvoiceRecordModal = ({
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.data;
 
-  const allQueries = combineQueries([
-    encounterQuery,
-    patientQuery,
-    certificateQuery,
-    villageQuery,
-    padDataQuery,
-  ]);
+  const allQueries = combineQueries([patientQuery, certificateQuery, villageQuery, padDataQuery]);
 
   const modalProps = {
     title: (
@@ -76,10 +71,9 @@ export const InvoiceRecordModal = ({
     }
   }
 
-
   return (
     <Modal {...modalProps} onPrint={() => printPDF('invoice-record')}>
-      <PDFLoader isLoading={allQueries.isFetching} id="invoice-record">
+      <PDFLoader isLoading={allQueries.isFetching || isLoadingEncounter} id="invoice-record">
         <InvoiceRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}

@@ -12,16 +12,19 @@ import { DataItem } from './DataItem';
 import { Col } from '../Layout';
 import { formatShort } from '../../dateTime';
 
-export const InvoiceDetails = ({ encounter, invoice }) => {
+export const InvoiceDetails = ({ encounter, invoice, patient }) => {
+  const { additionalData: { insurer, insurerPolicyNumber } } = patient;
   return (
     <>
       <DataSection title="Invoice details" hideBottomRule>
         <Col>
           <DataItem label="Date" value={formatShort(invoice.date)} />
+          <DataItem label="Insurer" value={insurer.name} />
           <DataItem label="Invoice status" value={INVOICE_STATUS_LABELS[invoice.status]} />
         </Col>
         <Col>
           <DataItem label="Admission" value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]} />
+          <DataItem label="Policy number" value={insurerPolicyNumber} />
           <DataItem
             label="Payment status"
             value={
