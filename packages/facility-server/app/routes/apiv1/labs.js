@@ -73,8 +73,6 @@ labRequest.put(
       await labRequestRecord.update(labRequestData);
     });
 
-    await labRequestData.reload();
-
     res.send(labRequestRecord);
   }),
 );

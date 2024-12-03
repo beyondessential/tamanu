@@ -13,7 +13,6 @@ import { chance, fake } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 describe('Labs', () => {
   let patientId = null;
@@ -328,12 +327,8 @@ describe('Labs', () => {
       .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
-    console.log({response})
-
-    await sleepAsync(3000);
 
     const labRequest = await models.LabRequest.findByPk(requestId);
-    console.log({labRequest})
     expect(labRequest).toHaveProperty('status', status);
   });
 
