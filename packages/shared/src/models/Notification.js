@@ -77,7 +77,7 @@ export class Notification extends Model {
     ];
   }
 
-  static async pushNotification(type, metadata) {
+  static async pushNotification(type, metadata, transaction) {
     try {
       if (!config.notification?.enabled) return;
 
@@ -102,13 +102,16 @@ export class Notification extends Model {
           return;
       }
 
-      await this.create({
-        type,
-        metadata,
-        userId,
-        patientId,
-        createdTime: getCurrentDateTimeString(),
-      });
+      await this.create(
+        {
+          type,
+          metadata,
+          userId,
+          patientId,
+          createdTime: getCurrentDateTimeString(),
+        },
+        { transaction },
+      );
     } catch (error) {
       log.error('Error pushing notification', error);
     }
