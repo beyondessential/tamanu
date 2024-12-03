@@ -107,7 +107,6 @@ export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayed
       <StyledFirstHeaderCell>
         <MonthPicker
           value={monthOf}
-          onAccept={updateMonth}
           onChange={updateMonth}
         />
         <StyledButton onClick={() => updateMonth(startOfToday())}>This week</StyledButton>
