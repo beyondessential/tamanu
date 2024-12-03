@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { format, startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import { has } from 'lodash';
 
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
@@ -207,9 +206,8 @@ appointments.get(
         }
       : {};
 
-    const facilityIdField = has(queries, 'locationGroupId')
-      ? '$locationGroup.facility_id$'
-      : '$location.facility_id$';
+    const facilityIdField =
+      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
 
     const facilityIdQuery = facilityId
       ? {
