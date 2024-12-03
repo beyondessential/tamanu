@@ -78,7 +78,6 @@ export class Notification extends Model {
   }
 
   static async pushNotification(type, metadata) {
-    try {
       if (!config.notification?.enabled) return;
 
       const { models } = this.sequelize;
@@ -109,8 +108,5 @@ export class Notification extends Model {
         patientId,
         createdTime: getCurrentDateTimeString(),
       });
-    } catch (error) {
-      log.error('Error pushing notification', error);
-    }
   }
 }
