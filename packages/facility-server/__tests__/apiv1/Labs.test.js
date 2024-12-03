@@ -323,10 +323,12 @@ describe('Labs', () => {
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
     const user = await app.get('/api/user/me');
+    console.log(`now1: ${new Date().toISOString()}`);
     const response = await app
       .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
+    console.log(`now2: ${new Date().toISOString()}`);
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);

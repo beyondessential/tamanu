@@ -102,7 +102,7 @@ export class Notification extends Model {
           return;
       }
 
-      await this.create(
+      await models.Notification.create(
         {
           type,
           metadata,

@@ -62,6 +62,9 @@ export class LabRequest extends Model {
         ...options,
         hooks: {
           afterUpdate: async (labRequest, opts) => {
+            await new Promise(res => {
+              setTimeout(() => res(true), 5000);
+            });
             const shouldPushNotification = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
               LAB_REQUEST_STATUSES.PUBLISHED,
