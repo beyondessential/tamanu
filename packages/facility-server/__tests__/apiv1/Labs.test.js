@@ -327,6 +327,7 @@ describe('Labs', () => {
       .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
+    console.log({ response })
 
     const noti = await models.Notification.findOne({
       where: { patientId }
