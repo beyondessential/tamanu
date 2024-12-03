@@ -328,7 +328,7 @@ describe('Labs', () => {
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
-    const labRequest = await models.LabRequest.findByPk(requestId);
+    const labRequest = await app.get(`/api/labRequest/${requestId}`);
     expect(labRequest).toHaveProperty('status', status);
   });
 
