@@ -318,8 +318,8 @@ jobs:
       - name: Check model is up to date
         run: |
           npm run dbt-generate-model --fail-on-missing-config
-          if [[ -n $(git status --porcelain=v2) ]]; then
-              git diff
+          if [[ -n $(git status --porcelain=v2 database) ]]; then
+              git diff -- database
               echo "The dbt model is behind the Tamanu database!"
               echo "Run 'npm run dbt-generate-model' and commit the result."
               exit 1
