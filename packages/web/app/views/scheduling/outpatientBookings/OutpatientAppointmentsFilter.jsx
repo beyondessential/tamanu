@@ -55,7 +55,7 @@ export const OutpatientAppointmentsFilter = props => {
         endpoint="appointmentType"
         label={getTranslation('general.type.label', 'Type')}
         name="appointmentTypeId"
-        onChange={e => setFilters(prev => ({ ...prev, bookingTypeId: e.target.value }))}
+        onChange={e => setFilters(prev => ({ ...prev, appointmentTypeId: e.target.value }))}
       />
       <ResetButton onClick={resetForm} type="reset">
         <TranslatedText stringId="general.action.clear" fallback="Clear" />
