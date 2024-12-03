@@ -117,9 +117,7 @@ const searchableFields = [
   'status',
   'clinicianId',
   'locationId',
-  'location.facility_id',
   'locationGroupId',
-  'locationGroup.facility_id',
   'patientId',
   'patient.first_name',
   'patient.last_name',
@@ -154,6 +152,7 @@ appointments.get(
       query: {
         after = startOfToday(),
         before,
+        facilityId,
         rowsPerPage = 10,
         page = 0,
         all = false,
@@ -207,6 +206,17 @@ appointments.get(
         }
       : {};
 
+    const facilityIdQuery = facilityId
+      ? {
+          [Op.and]: {
+            [Op.or]: {
+              '$location.facility_id$': facilityId,
+              '$locationGroup.facility_id$': facilityId,
+            },
+          },
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -231,6 +241,7 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         ...timeQueryWhereClause,
+        ...facilityIdQuery,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
