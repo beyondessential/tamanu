@@ -328,6 +328,11 @@ describe('Labs', () => {
       .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
+    const noti = await models.Notification.findOne({
+      where: { patientId }
+    })
+    console.log({ noti })
+
     const labRequest = await models.LabRequest.findByPk(requestId);
     console.log(labRequest)
     expect(labRequest).toHaveProperty('status', status);
