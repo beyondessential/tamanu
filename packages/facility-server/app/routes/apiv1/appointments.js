@@ -217,7 +217,6 @@ appointments.get(
       let column = queryField;
       // querying on a joined table (associations)
       if (queryField.includes('.')) {
-        console.log(queryField);
         column = `$${queryField}$`;
       }
       _filters[column] = Array.isArray(queryValue)
