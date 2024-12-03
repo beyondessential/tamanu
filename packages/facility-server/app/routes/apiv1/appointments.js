@@ -117,7 +117,9 @@ const searchableFields = [
   'status',
   'clinicianId',
   'locationId',
+  'location.facility_id',
   'locationGroupId',
+  'locationGroup.facility_id',
   'patientId',
   'patient.first_name',
   'patient.last_name',
@@ -215,6 +217,7 @@ appointments.get(
       let column = queryField;
       // querying on a joined table (associations)
       if (queryField.includes('.')) {
+        console.log(queryField);
         column = `$${queryField}$`;
       }
       _filters[column] = Array.isArray(queryValue)
