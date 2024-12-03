@@ -82,6 +82,28 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
+const buildPatientNameOrIdQuery = patientNameOrId => {
+  if (!patientNameOrId) return null;
+
+  const ilikeClause = {
+    [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+  };
+  return {
+    [Op.or]: [
+      Sequelize.where(
+        Sequelize.fn(
+          'concat',
+          Sequelize.col('patient.first_name'),
+          ' ',
+          Sequelize.col('patient.last_name'),
+        ),
+        ilikeClause,
+      ),
+      { '$patient.display_id$': ilikeClause },
+    ],
+  };
+};
+
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
@@ -122,24 +144,6 @@ appointments.get(
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
-    const ilikePatientNameOrId = { [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%` };
-    const patientNameOrIdQuery = !patientNameOrId
-      ? null
-      : {
-          [Op.or]: [
-            Sequelize.where(
-              Sequelize.fn(
-                'concat',
-                Sequelize.col('patient.first_name'),
-                ' ',
-                Sequelize.col('patient.last_name'),
-              ),
-              ilikePatientNameOrId,
-            ),
-            { '$patient.display_id$': ilikePatientNameOrId },
-          ],
-        };
-
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -166,7 +170,12 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        [Op.and]: [timeQueryWhereClause, cancelledStatusQuery, patientNameOrIdQuery, ...filters],
+        [Op.and]: [
+          timeQueryWhereClause,
+          cancelledStatusQuery,
+          buildPatientNameOrIdQuery(patientNameOrId),
+          ...filters,
+        ],
       },
       include: [...Appointment.getListReferenceAssociations()],
       bind: timeQueryBindParams,
