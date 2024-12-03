@@ -198,10 +198,6 @@ export const DateSelector = ({ value, onChange }) => {
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
       <StyledMonthYearInput
-        onBlur={e => handleMonthYearChange(new Date(e.target.value))}
-        onKeyDown={e => {
-          if (e.key === 'Enter') handleMonthYearChange(new Date(e.target.value))
-        }}
         value={viewedDays[0]}
         onChange={handleMonthYearChange}
       />
