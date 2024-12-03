@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { LAB_REQUEST_STATUSES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import {
@@ -12,7 +12,7 @@ import { generateDisplayId } from '../utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabRequest extends Model {
-  static init({ primaryKey, ...options }, models) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
@@ -60,22 +60,22 @@ export class LabRequest extends Model {
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         ...options,
-        hooks: {
-          afterUpdate: async labRequest => {
-            const shouldPushNotification = [
-              LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-              LAB_REQUEST_STATUSES.PUBLISHED,
-              LAB_REQUEST_STATUSES.INVALIDATED,
-            ].includes(labRequest.status);
+        // hooks: {
+        //   afterUpdate: async labRequest => {
+        //     const shouldPushNotification = [
+        //       LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+        //       LAB_REQUEST_STATUSES.PUBLISHED,
+        //       LAB_REQUEST_STATUSES.INVALIDATED,
+        //     ].includes(labRequest.status);
 
-            if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
-              await models.Notification.pushNotification(
-                NOTIFICATION_TYPES.LAB_REQUEST,
-                labRequest,
-              );
-            }
-          },
-        },
+        //     if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
+        //       await models.Notification.pushNotification(
+        //         NOTIFICATION_TYPES.LAB_REQUEST,
+        //         labRequest,
+        //       );
+        //     }
+        //   },
+        // },
       },
     );
   }
