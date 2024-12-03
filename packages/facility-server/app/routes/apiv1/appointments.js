@@ -87,7 +87,7 @@ appointments.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Appointment');
     const {
-      models,
+      models: { Appointment },
       query: {
         after = startOfToday(),
         before,
@@ -101,7 +101,6 @@ appointments.get(
         ...queries
       },
     } = req;
-    const { Appointment } = models;
 
     // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
     const shouldQueryByOverlap = !!before;
