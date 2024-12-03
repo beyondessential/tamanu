@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isAfter, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 
-import {
-  AutocompleteField,
-  DynamicSelectField,
-  Field,
-  Form,
-  CheckField,
-  TextField,
-} from '../../Field';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
+import { usePatientData } from '../../../api/queries/usePatientData';
 import { Colors, FORM_TYPES } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
+import {
+  AutocompleteField,
+  CheckField,
+  DynamicSelectField,
+  Field,
+  Form,
+  TextField,
+} from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
-import { usePatientData } from '../../../api/queries/usePatientData';
-import { useAuth } from '../../../contexts/Auth';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const IconLabel = styled.div`
@@ -183,7 +183,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
-  const locationGroupSuggester = useSuggester('bookableLocationGroup');
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
@@ -356,18 +356,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       setShowWarningModal(true);
     });
 
-  const { mutateAsync: handleSubmit } = useAppointmentMutation(
-    initialValues.id,
-    {
-      onSuccess: () => {
-        notifySuccess(<SuccessMessage isEdit={isEdit} />);
-        onClose();
-      },
-      onError: error => {
-        notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
-      },
+  const { mutateAsync: handleSubmit } = useAppointmentMutation(initialValues.id, {
+    onSuccess: () => {
+      notifySuccess(<SuccessMessage isEdit={isEdit} />);
+      onClose();
     },
-  );
+    onError: error => {
+      notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
+    },
+  });
   return (
     <>
       <Form
