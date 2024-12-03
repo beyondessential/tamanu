@@ -19,7 +19,7 @@ const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
-    [question],
+    [question, answer],
   );
   if (!refData) {
     return null;
