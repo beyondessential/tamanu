@@ -9,6 +9,8 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { useLocationBookingsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
@@ -94,8 +96,8 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
   const { data: locations } = locationsQuery;
 
   const { data: appointmentsData } = useLocationBookingsQuery({
-    after: displayedDates[0],
-    before: endOfDay(displayedDates.at(-1)),
+    after: toDateTimeString(displayedDates[0]),
+    before: toDateTimeString(endOfDay(displayedDates.at(-1))),
     all: true,
     clinicianId,
     bookingTypeId,

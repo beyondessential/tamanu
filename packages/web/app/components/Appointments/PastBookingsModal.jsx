@@ -1,18 +1,20 @@
-import React, { useMemo } from 'react';
-import styled from 'styled-components';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { Box } from '@material-ui/core';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+import React from 'react';
+import styled from 'styled-components';
 
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { useLocationBookingsQuery } from '../../api/queries';
+import { Colors } from '../../constants';
+import { formatShortest, formatTime } from '../DateDisplay';
+import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
-import { TranslatedText } from '../Translation';
-import { useLocationBookingsQuery } from '../../api/queries';
-import { formatShortest, formatTime } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
-import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { LimitedLinesCell } from '../FormattedTableCell';
 import { ThemedTooltip } from '../Tooltip';
+import { TranslatedText } from '../Translation';
+import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -132,12 +134,14 @@ const getDate = ({ startTime, endTime }) => {
     <ThemedTooltip
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }}>
-          {isOvernight
-            ? `${formatShortestStartTime} - ${formatShortestEndTime}`
-            : <div>
-                <div>{formatShortestStartTime}</div>
-                <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
-              </div>}
+          {isOvernight ? (
+            `${formatShortestStartTime} - ${formatShortestEndTime}`
+          ) : (
+            <div>
+              <div>{formatShortestStartTime}</div>
+              <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
+            </div>
+          )}
         </Box>
       }
     >
@@ -225,12 +229,11 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     initialSortDirection: 'desc',
   });
 
-  const beforeDate = useMemo(() => new Date().toISOString(), []);
   const { data, isLoading } = useLocationBookingsQuery(
     {
       all: true,
       patientId: patient?.id,
-      before: beforeDate,
+      before: getCurrentDateTimeString(),
       after: '1970-01-01 00:00',
       orderBy,
       order,
