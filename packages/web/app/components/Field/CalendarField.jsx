@@ -143,6 +143,10 @@ export const MonthYearInput = ({
       minDate={minDate}
       maxDate={maxDate}
       value={value}
+      onBlur={e => onChange(new Date(e.target.value))}
+      onKeyDown={e => {
+        if (e.key === 'Enter') onChange(new Date(e.target.value));
+      }}
       {...props}
     />
   );
