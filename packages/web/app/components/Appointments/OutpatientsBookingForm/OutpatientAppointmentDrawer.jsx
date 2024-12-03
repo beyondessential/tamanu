@@ -356,9 +356,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       setShowWarningModal(true);
     });
 
-  const { mutateAsync: handleSubmit } = useAppointmentMutation(
-    initialValues.id,
-    {
+  const { mutateAsync: handleSubmit } = useAppointmentMutation(initialValues.id, {
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
         onClose();
@@ -366,8 +364,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       onError: error => {
         notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
       },
-    },
-  );
+  });
   return (
     <>
       <Form
