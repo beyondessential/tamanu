@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
-import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
+import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
@@ -155,7 +155,7 @@ export const EncounterView = () => {
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
-  const { mutate: reorderEncounterTabs } = useReorderEncounterTabs();
+  const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
@@ -209,7 +209,7 @@ export const EncounterView = () => {
       curr[tab.key] = index + 1;
       return curr;
     }, {});
-    reorderEncounterTabs(newTabOrders, {
+    reorderEncounterTabs({ key: 'encounterTabOrders', value: newTabOrders }, {
       onError: () => setTabs(currentVisibleTabs),
     });
   };
