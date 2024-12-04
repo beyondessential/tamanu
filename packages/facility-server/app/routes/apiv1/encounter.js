@@ -605,4 +605,33 @@ encounterRelations.get(
   }),
 );
 
+encounterRelations.delete(
+  '/:id/chartInstances/:chartInstanceResponseId',
+  asyncHandler(async (req, res) => {
+    const { db, params, models } = req;
+    req.checkPermission('delete', 'Charting');
+
+    const { chartInstanceResponseId } = params;
+
+    await db.transaction(async () => {
+      await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
+
+      await db.query(
+        `
+          DELETE FROM survey_responses
+          WHERE metadata->>'chartInstanceId' = :chartInstanceResponseId
+        `,
+        {
+          replacements: {
+            chartInstanceResponseId,
+          },
+          type: QueryTypes.SELECT,
+        },
+      );
+    });
+
+    res.send({});
+  }),
+);
+
 encounter.use(encounterRelations);

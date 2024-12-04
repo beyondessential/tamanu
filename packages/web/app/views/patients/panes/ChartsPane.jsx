@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { keyBy } from 'lodash';
@@ -9,9 +9,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { TabPane } from '../components';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
-import { SelectField } from '../../../components/Field';
 import { useChartSurveysQuery } from '../../../api/queries';
-import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 import { ChartModal } from '../../../components/ChartModal';
 import { ChartsTable } from '../../../components/ChartsTable';
@@ -24,34 +22,15 @@ import { useApi } from '../../../api';
 import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
+import { useQueryClient } from '@tanstack/react-query';
+import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
+import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
 
 const StyledButtonGroup = styled(ButtonGroup)`
   .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
     margin-top: 10px;
     margin-left: 10px;
   }
-`;
-const StyledTranslatedSelectField = styled(SelectField)`
-  width: 200px;
-`;
-
-const CoreComplexChartDataRow = styled.div`
-  margin-top: 10px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  padding-top: 15px;
-  border-top: 1px solid ${Colors.outline};
-`;
-
-const CoreComplexChartInfoHeader = styled.span`
-  font-weight: 500;
-  margin-right: 5px;
-  color: ${Colors.darkestText};
-`;
-
-const CoreComplexChartInfoWrapper = styled.span`
-  margin-right: 20px;
-  color: ${Colors.darkText};
 `;
 
 const AddComplexChartButton = styled.span`
@@ -85,61 +64,11 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
   }
 `;
 
-const ChartDropDown = ({ selectedChartSurveyId, setSelectedChartSurveyId, chartTypes }) => {
-  const userPreferencesMutation = useUserPreferencesMutation();
-
-  const handleChange = newValues => {
-    const newSelectedChartType = newValues.target.value;
-
-    setSelectedChartSurveyId(newSelectedChartType);
-    userPreferencesMutation.mutate({
-      key: 'selectedChartTypeId',
-      value: newSelectedChartType,
-    });
-  };
-
-  return (
-    <StyledTranslatedSelectField
-      options={chartTypes}
-      onChange={handleChange}
-      value={selectedChartSurveyId}
-      name="chartType"
-      prefix="chart.property.type"
-      isClearable={false}
-    />
-  );
-};
-
 const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
-
-const CoreComplexChartData = ({ date, type, subType }) => (
-  <CoreComplexChartDataRow>
-    <CoreComplexChartInfoWrapper>
-      <CoreComplexChartInfoHeader>
-        <TranslatedText stringId="complexChartInstance.date" fallback="Date & time of onset:" />
-      </CoreComplexChartInfoHeader>
-      <>{date}</>
-    </CoreComplexChartInfoWrapper>
-
-    <CoreComplexChartInfoWrapper>
-      <CoreComplexChartInfoHeader>
-        <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
-      </CoreComplexChartInfoHeader>
-
-      <>{type || '-'}</>
-    </CoreComplexChartInfoWrapper>
-
-    <CoreComplexChartInfoWrapper>
-      <CoreComplexChartInfoHeader>
-        <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
-      </CoreComplexChartInfoHeader>
-      <>{subType || '-'}</>
-    </CoreComplexChartInfoWrapper>
-  </CoreComplexChartDataRow>
-);
 
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { data: userPreferences } = useUserPreferencesQuery();
@@ -148,12 +77,12 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentComplexChartTab, setCurrenComplexChartTab] = useState('');
 
-  // State for selected chart survey in the drop down
-  const [selectedChartSurveyId, setSelectedChartSurveyId] = useState(
+  // State for the ID of the selected chart survey in the drop down
+  const [selectedChartTypeId, setSelectedChartTypeId] = useState(
     userPreferences?.selectedChartTypeId,
   );
   // State for the chart survey to record responses in the modal
-  const [recordChartSurveyId, setRecordChartSurveyId] = useState();
+  const [chartSurveyIdToSubmit, setChartSurveyIdToSubmit] = useState();
 
   // For selecting chart types in the drop down
   const chartTypes = useMemo(
@@ -167,14 +96,20 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     [chartSurveys],
   );
 
-  const currentChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartSurveyId), [
+  // Full data of the selected chart from the dropdown
+  const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
     chartSurveys,
-    selectedChartSurveyId,
+    selectedChartTypeId,
   ]);
 
-  const coreComplexChartSurveyId = useMemo(() => complexToCoreSurveysMap[selectedChartSurveyId], [
+  const chartSurveyToSubmit = useMemo(() => findChartSurvey(chartSurveys, chartSurveyIdToSubmit), [
+    chartSurveys,
+    chartSurveyIdToSubmit,
+  ]);
+
+  const coreComplexChartSurveyId = useMemo(() => complexToCoreSurveysMap[selectedChartTypeId], [
     complexToCoreSurveysMap,
-    selectedChartSurveyId,
+    selectedChartTypeId,
   ]);
 
   const { data: { data: chartInstances = [] } = {} } = useEncounterComplexChartInstancesQuery({
@@ -208,13 +143,13 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
     if (!currentComplexChartTab && complexChartInstanceTabs?.length) {
       setCurrenComplexChartTab(complexChartInstanceTabs[0].key);
     }
-  }, [complexChartInstanceTabs]);
+  }, [complexChartInstanceTabs, currentComplexChartTab]);
 
-  const handleClose = () => setModalOpen(false);
+  const handleCloseModal = () => setModalOpen(false);
 
   const handleSubmitChart = async ({ survey, ...data }) => {
     const submittedTime = getCurrentDateTimeString();
-    await api.post('surveyResponse', {
+    const responseData = {
       surveyId: survey.id,
       startTime: submittedTime,
       patientId: patient.id,
@@ -222,37 +157,68 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
       endTime: submittedTime,
       answers: getAnswersFromData(data, survey),
       facilityId,
-      metadata: {
-        chartInstanceResponseId: recordChartSurveyId,
-      },
-    });
-    handleClose();
+    };
+
+    if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART) {
+      responseData.metadata = {
+        chartInstanceResponseId: currentComplexChartInstance.chartInstanceId,
+      };
+    }
+
+    await api.post('surveyResponse', responseData);
+    handleCloseModal();
     await loadEncounter(encounter.id);
   };
 
-  const isComplexChart = currentChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
+  const handleDeleteChart = useCallback(async () => {
+    await api.delete(
+      `encounter/${encounter.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
+    );
+    handleCloseModal();
+    setCurrenComplexChartTab(null);
+
+    // reload the chart instance tabs
+    queryClient.invalidateQueries([
+      'encounterComplexChartInstances',
+      encounter.id,
+      coreComplexChartSurveyId,
+    ]);
+    await loadEncounter(encounter.id);
+  }, [
+    api,
+    encounter.id,
+    currentComplexChartInstance?.chartInstanceId,
+    queryClient,
+    coreComplexChartSurveyId,
+    loadEncounter,
+  ]);
+
+  const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
+  const chartModalTitle = `${selectedChartSurvey?.name} | ${
+    chartSurveyToSubmit?.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE ? 'Add' : 'Record'
+  }`;
 
   return (
     <TabPane>
       <ChartModal
         open={modalOpen}
-        chartName={currentChartSurvey?.name}
-        onClose={handleClose}
-        chartSurveyId={recordChartSurveyId}
+        title={chartModalTitle}
+        onClose={handleCloseModal}
+        chartSurveyId={chartSurveyIdToSubmit}
         onSubmit={handleSubmitChart}
       />
 
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledButtonGroup>
-          <ChartDropDown
-            selectedChartSurveyId={selectedChartSurveyId}
-            setSelectedChartSurveyId={setSelectedChartSurveyId}
+          <ChartDropdown
+            selectedChartTypeId={selectedChartTypeId}
+            setSelectedChartTypeId={setSelectedChartTypeId}
             chartTypes={chartTypes}
           />
           {isComplexChart ? (
             <AddComplexChartButton
               onClick={() => {
-                setRecordChartSurveyId(coreComplexChartSurveyId);
+                setChartSurveyIdToSubmit(coreComplexChartSurveyId);
                 setModalOpen(true);
               }}
             >
@@ -269,11 +235,11 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           />
         ) : null}
 
-        {selectedChartSurveyId ? (
+        {selectedChartTypeId ? (
           <StyledButtonWithPermissionCheck
             justifyContent="end"
             onClick={() => {
-              setRecordChartSurveyId(selectedChartSurveyId);
+              setChartSurveyIdToSubmit(selectedChartTypeId);
               setModalOpen(true);
             }}
             disabled={readonly}
@@ -287,13 +253,14 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
 
       {currentComplexChartInstance ? (
         <CoreComplexChartData
+          handleDeleteChart={handleDeleteChart}
           date={currentComplexChartInstance.chartDate}
           type={currentComplexChartInstance.chartType}
           subType={currentComplexChartInstance.chartSubType}
         />
       ) : null}
 
-      <ChartsTable selectedSurveyId={selectedChartSurveyId} />
+      <ChartsTable selectedSurveyId={selectedChartTypeId} />
     </TabPane>
   );
 });
