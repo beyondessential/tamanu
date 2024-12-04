@@ -1,6 +1,8 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 const SELECTED_GRAPHED_VITALS_ON_FILTER_KEY = 'selectedGraphedVitalsOnFilter';
+const ENCOUNTER_TAB_ORDERS_KEY = 'encounterTabOrders';
+const MOMENTARY_KEY = 'momentaryKeyUsedForThisMigration';
 
 export async function up(query) {
   await query.addColumn('user_preferences', 'key', {
@@ -11,24 +13,6 @@ export async function up(query) {
   await query.addColumn('user_preferences', 'value', {
     type: DataTypes.JSONB,
     allowNull: true,
-  });
-
-  await query.sequelize.query(`
-    UPDATE user_preferences
-    SET key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', value = (to_json(selected_graphed_vitals_on_filter::text)::jsonb)
-    WHERE selected_graphed_vitals_on_filter IS NOT NULL;
-  `);
-
-  await query.removeColumn('user_preferences', 'selected_graphed_vitals_on_filter');
-
-  await query.changeColumn('user_preferences', 'key', {
-    type: DataTypes.STRING,
-    allowNull: false,
-  });
-
-  await query.changeColumn('user_preferences', 'value', {
-    type: DataTypes.JSONB,
-    allowNull: false,
   });
 
   await query.sequelize.query(`
@@ -59,6 +43,36 @@ export async function up(query) {
     fields: ['user_id', 'key'],
     type: 'unique',
   });
+
+  await query.sequelize.query(`
+    INSERT INTO user_preferences (user_id, key, value)
+    SELECT user_id, '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', to_json(selected_graphed_vitals_on_filter::text)::jsonb
+    FROM user_preferences
+    WHERE selected_graphed_vitals_on_filter IS NOT NULL;
+  `);
+
+  await query.sequelize.query(`
+    INSERT INTO user_preferences (user_id, key, value)
+    SELECT user_id, '${ENCOUNTER_TAB_ORDERS_KEY}', encounter_tab_orders
+    FROM user_preferences
+    WHERE encounter_tab_orders IS NOT NULL;
+  `);
+
+  await query.sequelize.query(`
+    DELETE FROM user_preferences
+    WHERE selected_graphed_vitals_on_filter IS NOT NULL OR encounter_tab_orders IS NOT NULL;
+  `);
+
+  await query.removeColumn('user_preferences', 'selected_graphed_vitals_on_filter');
+  await query.removeColumn('user_preferences', 'encounter_tab_orders');
+  await query.changeColumn('user_preferences', 'key', {
+    type: DataTypes.STRING,
+    allowNull: false,
+  });
+  await query.changeColumn('user_preferences', 'value', {
+    type: DataTypes.JSONB,
+    allowNull: false,
+  });
 }
 
 export async function down(query) {
@@ -66,17 +80,26 @@ export async function down(query) {
     type: DataTypes.STRING,
     allowNull: true,
   });
+  await query.addColumn('user_preferences', 'encounter_tab_orders', {
+    type: DataTypes.JSONB,
+    defaultValue: {},
+  });
 
   await query.sequelize.query(`
-    UPDATE user_preferences
-    SET selected_graphed_vitals_on_filter = value
-    WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
+    WITH
+      graph_preferences AS (SELECT user_id, value as "graph_value" FROM user_preferences WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
+      encounter_preferences AS (SELECT user_id, value as "encounter_value" FROM user_preferences WHERE key = '${ENCOUNTER_TAB_ORDERS_KEY}'),
+      merged_preferences AS (SELECT gp.user_id, graph_value, encounter_value FROM graph_preferences gp FULL OUTER JOIN encounter_preferences ep ON gp.user_id = ep.user_id)
+
+    INSERT INTO user_preferences (user_id, selected_graphed_vitals_on_filter, encounter_tab_orders, key, value)
+    SELECT user_id, graph_value, encounter_value, '${MOMENTARY_KEY}', to_jsonb(''::text)
+    FROM merged_preferences
   `);
 
   // Down migration would result in data loss on user preference!
   await query.sequelize.query(`
     DELETE FROM user_preferences
-    WHERE key != '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
+    WHERE key NOT != '${MOMENTARY_KEY}'
   `);
 
   await query.sequelize.query(`
