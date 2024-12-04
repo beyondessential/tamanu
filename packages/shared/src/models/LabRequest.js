@@ -61,7 +61,7 @@ export class LabRequest extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         ...options,
         hooks: {
-          afterUpdate: async (labRequest) => {
+          afterUpdate: async labRequest => {
             const shouldPushNotification = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
               LAB_REQUEST_STATUSES.PUBLISHED,
@@ -73,6 +73,21 @@ export class LabRequest extends Model {
                 NOTIFICATION_TYPES.LAB_REQUEST,
                 labRequest.dataValues,
               );
+            }
+
+            const shouldDeleteNotification = [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+            ].includes(labRequest.status);
+
+            if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
+              await models.Notification.destroy({
+                where: {
+                  metadata: {
+                    id: labRequest.id,
+                  },
+                },
+              });
             }
           },
         },
