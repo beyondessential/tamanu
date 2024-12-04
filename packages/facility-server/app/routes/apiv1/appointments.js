@@ -178,6 +178,7 @@ appointments.get(
          */
         after = 'today',
         before = 'infinity',
+        facilityId,
         rowsPerPage = 10,
         page = 0,
         all = false,
@@ -201,6 +202,10 @@ appointments.get(
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
+    const facilityIdField =
+      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
+    const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -212,7 +217,6 @@ appointments.get(
       const column = queryField.includes('.') // querying on a joined table (associations)
         ? `$${queryField}$`
         : queryField;
-
       const comparison = Array.isArray(queryValue)
         ? { [Op.in]: queryValue }
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
@@ -228,6 +232,7 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         [Op.and]: [
+          facilityIdQuery,
           timeQueryWhereClause,
           cancelledStatusQuery,
           buildPatientNameOrIdQuery(patientNameOrId),
