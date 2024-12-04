@@ -53,3 +53,8 @@ sources:
           - name: service_provider
             data_type: jsonb
             description: "{{ doc('fhir__encounters__service_provider') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in encounters."
+            data_tests:
+              - not_null

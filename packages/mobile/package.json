@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.20.0",
+  "version": "2.22.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -41,7 +41,6 @@
     "@sayem314/react-native-keep-awake": "^1.0.4",
     "@storybook/addon-actions": "^5.2.8",
     "@storybook/react-native": "^5.2.8",
-    "@tamanu/constants": "*",
     "@tamanu/shared": "*",
     "@testing-library/react-native": "^12.5.3",
     "chance": "^1.1.4",

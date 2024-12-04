@@ -38,3 +38,8 @@ sources:
           - name: telecom
             data_type: jsonb
             description: "{{ doc('fhir__practitioners__telecom') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in practitioners."
+            data_tests:
+              - not_null
