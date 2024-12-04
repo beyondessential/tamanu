@@ -1,17 +1,16 @@
+import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { format, startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   APPOINTMENT_STATUSES,
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -150,8 +149,12 @@ appointments.get(
     const {
       models,
       query: {
-        after = startOfToday(),
-        before,
+        /**
+         * Midnight today
+         * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-VALUES
+         */
+        after = 'today',
+        before = 'infinity',
         facilityId,
         rowsPerPage = 10,
         page = 0,
@@ -165,7 +168,6 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
     const shouldQueryByOverlap = !!before;
     const timeQueryWhereClause = shouldQueryByOverlap
       ? {
@@ -178,8 +180,8 @@ appointments.get(
         };
     const timeQueryBindParams = shouldQueryByOverlap
       ? {
-          afterDateTime: `'${toDateTimeString(after)}'`,
-          beforeDateTime: `'${toDateTimeString(before)}'`,
+          afterDateTime: `'${after}'`,
+          beforeDateTime: `'${before}'`,
         }
       : null;
 
