@@ -397,7 +397,6 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
-      {/* TODO: style properly and show correct message */}
       {error && <StyledFormHelperText error>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
