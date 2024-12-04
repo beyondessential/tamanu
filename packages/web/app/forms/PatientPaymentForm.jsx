@@ -27,14 +27,17 @@ const IconButton = styled.div`
   color: ${Colors.primary};
   position: absolute;
   top: 6px;
-  right: -30px;
+  right: -23px;
 `;
 
 const FormRow = styled.div`
   display: flex;
-  gap: 5px;
   margin-top: 6px;
   margin-bottom: 6px;
+`;
+
+const FieldContainer = styled(Box)`
+  padding-right: 5px;
 `;
 
 export const PatientPaymentForm = ({
@@ -42,7 +45,9 @@ export const PatientPaymentForm = ({
   editingPayment = {},
   updateRefreshCount,
   updateEditingPayment,
+  onDataChange = () => {},
   invoice,
+  showChequeNumberColumn,
 }) => {
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
@@ -71,39 +76,40 @@ export const PatientPaymentForm = ({
   };
 
   const onRecord = (data, { resetForm }) => {
-    const { date, methodId, receiptNumber, amount } = data;
-    if (!editingPayment?.id) {
-      createPatientPayment(
-        {
-          date,
-          methodId,
-          receiptNumber,
-          amount: amount.toFixed(2),
-        },
-        {
-          onSuccess: () => {
-            updateRefreshCount();
-            setAmount('');
-            resetForm();
-          },
-        },
-      );
-    } else {
-      updatePatientPayment(
-        {
-          date,
-          methodId,
-          receiptNumber,
-          amount,
-        },
-        {
-          onSuccess: () => {
-            updateRefreshCount();
-            updateEditingPayment({});
-          },
-        },
-      );
-    }
+    const { date, methodId, receiptNumber, amount, chequeNumber } = data;
+    console.log('data', data);
+    // if (!editingPayment?.id) {
+    //   createPatientPayment(
+    //     {
+    //       date,
+    //       methodId,
+    //       receiptNumber,
+    //       amount: amount.toFixed(2),
+    //     },
+    //     {
+    //       onSuccess: () => {
+    //         updateRefreshCount();
+    //         setAmount('');
+    //         resetForm();
+    //       },
+    //     },
+    //   );
+    // } else {
+    //   updatePatientPayment(
+    //     {
+    //       date,
+    //       methodId,
+    //       receiptNumber,
+    //       amount,
+    //     },
+    //     {
+    //       onSuccess: () => {
+    //         updateRefreshCount();
+    //         updateEditingPayment({});
+    //       },
+    //     },
+    //   );
+    // }
   };
 
   const handleSubmit = (data, { resetForm }) => {
@@ -126,19 +132,25 @@ export const PatientPaymentForm = ({
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          <FieldContainer width="19%">
             <Field name="date" required component={DateField} saveDateAsString size="small" />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          </FieldContainer>
+          <FieldContainer width="19%">
             <Field
               name="methodId"
               required
               component={AutocompleteField}
               suggester={paymentMethodSuggester}
               size="small"
+              onChange={e => onDataChange({ paymentMethod: e.target })}
             />
-          </Box>
-          <Box sx={{ width: 'calc(15% - 5px)' }}>
+          </FieldContainer>
+          {showChequeNumberColumn && (
+            <FieldContainer width="15%">
+              <Field name="chequeNumber" component={TextField} size="small" />
+            </FieldContainer>
+          )}
+          <FieldContainer width="13%">
             <Field
               name="amount"
               required
@@ -149,8 +161,8 @@ export const PatientPaymentForm = ({
               value={amount}
               onChange={e => setAmount(e.target.value)}
             />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
+          </FieldContainer>
+          <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
             <Field
               name="receiptNumber"
               required
@@ -170,7 +182,7 @@ export const PatientPaymentForm = ({
                 <CachedIcon />
               </IconButton>
             </ThemedTooltip>
-          </Box>
+          </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }}>
             <Button
               size="small"

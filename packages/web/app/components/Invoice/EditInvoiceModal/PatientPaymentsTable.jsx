@@ -7,12 +7,15 @@ import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/uti
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { Colors, denseTableStyle } from '../../../constants';
+import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';
 import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../../assets/icons/PencilIcon';
+import { LimitedLinesCell } from '../../FormattedTableCell';
+import useOverflow from '../../../hooks/useOverflow';
+import { ConditionalTooltip } from '../../Tooltip';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -32,6 +35,22 @@ const TooltipContainer = styled.div`
   text-align: center;
 `;
 
+const ChequeNumberContainer = styled.div`
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const getChequeNumber = () => {
+  const [ref, isOverflowing] = useOverflow();
+  return (
+    <ConditionalTooltip title="123456789" visible={isOverflowing}>
+      <ChequeNumberContainer ref={ref}>123456789123456789123456789</ChequeNumberContainer>
+    </ConditionalTooltip>
+  );
+};
+
 const getRowTooltipText = updatedByUser =>
   updatedByUser?.displayName ? (
     <TooltipContainer>
@@ -44,10 +63,14 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments
     .filter(payment => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
+  console.log('patientPayments', patientPayments);
   const [refreshCount, setRefreshCount] = useState(0);
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
+  const showChequeNumberColumn =
+    selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ||
+    patientPayments.some(payment => payment.patientPayment?.methodId === CHEQUE_PAYMENT_METHOD_ID);
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
@@ -72,6 +95,21 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
+    ...(showChequeNumberColumn
+      ? [
+          {
+            key: 'chequeNumber',
+            title: (
+              <TranslatedText
+                stringId="invoice.table.payment.column.chequeNumber"
+                fallback="Chq no."
+              />
+            ),
+            sortable: false,
+            accessor: getChequeNumber,
+          },
+        ]
+      : []),
     {
       key: 'amount',
       title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
@@ -105,25 +143,26 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const sliceIndex = patientPayments.findIndex(payment => payment.id === editingPayment.id);
 
   const cellsWidthString = `
-      &:nth-child(1) {
-        width 20%;
+    &:nth-child(1) {
+      width 19%;
+    }
+    &:nth-child(2) {
+      width 19%;
+    }
+    &:nth-child(3) {
+      width ${showChequeNumberColumn ? '15%' : '13%'};
+    }
+    &:nth-child(4) {
+      width ${showChequeNumberColumn ? '13%' : '18%'};
+    }
+    ${showChequeNumberColumn ? `&:nth-child(5) { width 18%; }` : ''}
+    &.MuiTableCell-body {
+      padding: 12px 12px 12px 0px;
+      &:last-child {
+        padding-right: 5px;
       }
-      &:nth-child(2) {
-        width 20%;
-      }
-      &:nth-child(3) {
-        width 15%;
-      }
-      &:nth-child(4) {
-        width 20%;
-      }
-      &.MuiTableCell-body {
-        padding: 12px 12px 12px 0px;
-        &:last-child {
-          padding-right: 5px;
-        }
-      }
-    `;
+    }
+  `;
 
   const tableProps = {
     columns: COLUMNS,
@@ -138,6 +177,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
     disablePagination: true,
     refreshCount: refreshCount,
     noDataMessage: '',
+  };
+
+  const onDataChange = ({ paymentMethod }) => {
+    setSelectedPaymentMethodId(paymentMethod.value);
   };
 
   return (
@@ -172,6 +215,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
             invoice={invoice}
             updateRefreshCount={updateRefreshCount}
             updateEditingPayment={updateEditingPayment}
+            onDataChange={onDataChange}
+            showChequeNumberColumn={showChequeNumberColumn}
           />
           <Divider />
         </>
@@ -192,6 +237,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
           updateRefreshCount={updateRefreshCount}
           updateEditingPayment={updateEditingPayment}
+          onDataChange={onDataChange}
+          showChequeNumberColumn={showChequeNumberColumn}
         />
       )}
     </TableContainer>
