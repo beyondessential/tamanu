@@ -43,11 +43,24 @@ export const LocationBookingsContextProvider = ({ children }) => {
   };
 
   const updateMonth = date => {
-    setMonthOf(date);
+    setMonthOf(startOfMonth(date));
     (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
   };
 
-  useEffect(() => scrollToCell(selectedCell), [selectedCell]);
+  useEffect(
+    () => {
+      const { date, locationId } = selectedCell;
+      if (date && locationId && isSameMonth(date, monthOf)) {
+        scrollToCell(selectedCell);
+        return;
+      }
+
+      (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
+    },
+    // Don’t fire this useEffect when the month changes while a cell happens to be selected
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedCell],
+  );
 
   return (
     <LocationBookingsContext.Provider
