@@ -80,7 +80,7 @@ export const LocationBookingsView = () => {
 
   const openBookingForm = async appointment => {
     const { locationId, startTime } = appointment;
-    await setSelectedAppointment(appointment);
+    setSelectedAppointment(appointment);
     if (locationId && startTime) {
       updateSelectedCell({ locationId, date: parseISO(startTime) });
     }
@@ -93,7 +93,7 @@ export const LocationBookingsView = () => {
   };
 
   const handleNewBooking = async () => {
-    await setSelectedAppointment(null);
+    setSelectedAppointment(null);
     openBookingForm({});
   };
 
