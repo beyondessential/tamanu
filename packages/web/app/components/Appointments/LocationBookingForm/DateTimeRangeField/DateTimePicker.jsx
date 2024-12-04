@@ -46,7 +46,6 @@ const DateTimePicker = ({
         name={timePickerName}
         required={required}
         variant={timePickerVariant}
-        error={errors[timePickerName]}
       />
     </>
   );

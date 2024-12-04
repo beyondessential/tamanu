@@ -62,13 +62,14 @@ export const TimeSlotPicker = ({
   label,
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
-  error,
+  name,
   ...props
 }) => {
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
+    errors,
   } = useFormikContext();
 
   const initialTimeRange = useMemo(() => {
@@ -320,9 +321,18 @@ export const TimeSlotPicker = ({
     ],
   );
 
+  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
+  const error = errors[errorKey];
+
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
-      <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} error={error} {...props}>
+      <ToggleGroup
+        disabled={disabled}
+        value={selectedToggles}
+        onChange={handleChange}
+        error={error}
+        {...props}
+      >
         {isFetchingExistingBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
@@ -379,7 +389,11 @@ export const TimeSlotPicker = ({
         )}
       </ToggleGroup>
       {/* TODO: style properly and show correct message */}
-      {error && <FormHelperText sx={{ fontSize: '12px', fontWeight: 500}} error>*Required</FormHelperText>}
+      {error && (
+        <FormHelperText sx={{ fontSize: '12px', fontWeight: 500 }} error>
+          *Required
+        </FormHelperText>
+      )}
     </OuterLabelFieldWrapper>
   );
 };
