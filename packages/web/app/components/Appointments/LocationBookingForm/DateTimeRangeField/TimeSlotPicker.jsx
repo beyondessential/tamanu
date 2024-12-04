@@ -56,6 +56,13 @@ const ToggleGroup = styled(ToggleButtonGroup)`
     `}
 `;
 
+const StyledFormHelperText = styled(FormHelperText)`
+  && {
+    font-size: 12px;
+    font-weight: 500;
+  }
+`;
+
 export const TimeSlotPicker = ({
   date,
   disabled = false,
@@ -69,12 +76,8 @@ export const TimeSlotPicker = ({
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
-    setFieldTouched,
-    touched,
     errors,
   } = useFormikContext();
-
-  console.log(touched)
 
   const formikKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
   const error = errors[formikKey];
@@ -330,12 +333,6 @@ export const TimeSlotPicker = ({
     ],
   );
 
-  // useEffect(() => {
-  //   if (!touched[formikKey] && values[formikKey]) {
-  //     setFieldTouched(formikKey);
-  //   }
-  // }, [formikKey, touched, setFieldTouched, values]);
-
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup
@@ -401,11 +398,7 @@ export const TimeSlotPicker = ({
         )}
       </ToggleGroup>
       {/* TODO: style properly and show correct message */}
-      {touched[formikKey] && error && (
-        <FormHelperText sx={{ fontSize: '12px', fontWeight: 500 }} error>
-          *Required
-        </FormHelperText>
-      )}
+      {error && <StyledFormHelperText error>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };
