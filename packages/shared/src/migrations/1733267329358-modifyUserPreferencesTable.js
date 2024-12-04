@@ -45,15 +45,15 @@ export async function up(query) {
   });
 
   await query.sequelize.query(`
-    INSERT INTO user_preferences (user_id, key, value)
-    SELECT user_id, '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', to_json(selected_graphed_vitals_on_filter::text)::jsonb
+    INSERT INTO user_preferences (user_id, key, value, encounter_tab_orders)
+    SELECT user_id, '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', to_jsonb(selected_graphed_vitals_on_filter::text), NULL
     FROM user_preferences
     WHERE selected_graphed_vitals_on_filter IS NOT NULL;
   `);
 
   await query.sequelize.query(`
-    INSERT INTO user_preferences (user_id, key, value)
-    SELECT user_id, '${ENCOUNTER_TAB_ORDERS_KEY}', encounter_tab_orders
+    INSERT INTO user_preferences (user_id, key, value, encounter_tab_orders)
+    SELECT user_id, '${ENCOUNTER_TAB_ORDERS_KEY}', encounter_tab_orders, NULL
     FROM user_preferences
     WHERE encounter_tab_orders IS NOT NULL;
   `);
@@ -87,7 +87,7 @@ export async function down(query) {
 
   await query.sequelize.query(`
     WITH
-      graph_preferences AS (SELECT user_id, value as "graph_value" FROM user_preferences WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
+      graph_preferences AS (SELECT user_id, replace(value, '"', '') as "graph_value" FROM user_preferences WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
       encounter_preferences AS (SELECT user_id, value as "encounter_value" FROM user_preferences WHERE key = '${ENCOUNTER_TAB_ORDERS_KEY}'),
       merged_preferences AS (SELECT gp.user_id, graph_value, encounter_value FROM graph_preferences gp FULL OUTER JOIN encounter_preferences ep ON gp.user_id = ep.user_id)
 
@@ -99,7 +99,7 @@ export async function down(query) {
   // Down migration would result in data loss on user preference!
   await query.sequelize.query(`
     DELETE FROM user_preferences
-    WHERE key NOT != '${MOMENTARY_KEY}'
+    WHERE key != '${MOMENTARY_KEY}'
   `);
 
   await query.sequelize.query(`
