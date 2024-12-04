@@ -70,7 +70,7 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
 
 export const useEncounterChartsQuery = (encounterId, surveyId) => {
   const api = useApi();
-  const chartQuery = useQuery(['encounterCharts', encounterId], () =>
+  const chartQuery = useQuery(['encounterCharts', encounterId, surveyId], () =>
     api.get(
       `encounter/${encounterId}/charts/${surveyId}`,
       { rowsPerPage: 50 },
