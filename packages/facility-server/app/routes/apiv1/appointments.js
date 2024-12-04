@@ -1,12 +1,19 @@
+import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { escapePatternWildcard } from '../../utils/query';
+
+import {
+  APPOINTMENT_STATUSES,
+  COMMUNICATION_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+} from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
+
+import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
 
@@ -44,7 +51,61 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
   };
 };
 
-appointments.post('/$', simplePost('Appointment'));
+appointments.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+    const {
+      models,
+      db,
+      body: { facilityId, ...body },
+      settings,
+    } = req;
+    const { Appointment, Facility, PatientCommunication } = models;
+
+    await db.transaction(async () => {
+      const result = await Appointment.create(body);
+      // Fetch relations for the new appointment
+      const [appointment, facility] = await Promise.all([
+        Appointment.findByPk(result.id, {
+          include: ['patient', 'clinician', 'locationGroup'],
+        }),
+        Facility.findByPk(facilityId),
+      ]);
+
+      const { patient, locationGroup, clinician } = appointment;
+
+      if (body.email) {
+        const appointmentConfirmationTemplate = await settings[facilityId].get(
+          'templates.appointmentConfirmation',
+        );
+
+        const start = new Date(body.startTime);
+        const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          facilityName: facility.name,
+          startDate: format(start, 'dd-MM-yyyy'),
+          startTime: format(start, 'hh:mm a'),
+          locationName: locationGroup.name,
+          clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
+        });
+
+        await PatientCommunication.create({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          status: COMMUNICATION_STATUSES.QUEUED,
+          destination: body.email,
+          subject: appointmentConfirmationTemplate.subject,
+          content,
+          patientId: body.patientId,
+        });
+      }
+      res.status(201).send(result);
+    });
+  }),
+);
+
 appointments.put('/:id', simplePut('Appointment'));
 
 const searchableFields = [
@@ -89,8 +150,13 @@ appointments.get(
     const {
       models,
       query: {
-        after = startOfToday(),
-        before,
+        /**
+         * Midnight today
+         * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-VALUES
+         */
+        after = 'today',
+        before = 'infinity',
+        facilityId,
         rowsPerPage = 10,
         page = 0,
         all = false,
@@ -103,7 +169,6 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    // If only an ‘after’ time is provided, use legacy behaviour and query only by appointment start times
     const shouldQueryByOverlap = !!before;
     const timeQueryWhereClause = shouldQueryByOverlap
       ? {
@@ -116,8 +181,8 @@ appointments.get(
         };
     const timeQueryBindParams = shouldQueryByOverlap
       ? {
-          afterDateTime: `'${toDateTimeString(after)}'`,
-          beforeDateTime: `'${toDateTimeString(before)}'`,
+          afterDateTime: `'${after}'`,
+          beforeDateTime: `'${before}'`,
         }
       : null;
 
@@ -139,6 +204,15 @@ appointments.get(
           ],
         };
 
+    const facilityIdField =
+      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
+
+    const facilityIdQuery = facilityId
+      ? {
+          [facilityIdField]: facilityId,
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -156,11 +230,20 @@ appointments.get(
       return _filters;
     }, {});
 
+    console.log({
+      ...facilityIdQuery,
+      ...timeQueryWhereClause,
+      ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
+      ...(patientNameOrId ? patientNameOrIdQuery : null),
+      ...filters,
+    });
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
+        ...facilityIdQuery,
         ...timeQueryWhereClause,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),

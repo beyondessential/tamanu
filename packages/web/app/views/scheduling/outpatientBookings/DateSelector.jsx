@@ -197,7 +197,10 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <StyledMonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <StyledMonthYearInput
+        value={viewedDays[0]}
+        onChange={handleMonthYearChange}
+      />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>
