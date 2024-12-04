@@ -3,6 +3,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
+  NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -18,7 +19,7 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
 export class ImagingRequest extends Model {
-  static init(options) {
+  static init(options, models) {
     super.init(
       {
         id: {
@@ -70,6 +71,23 @@ export class ImagingRequest extends Model {
           mustHaveValidRequester() {
             if (!this.requestedById) {
               throw new InvalidOperationError('An imaging request must have a valid requester.');
+            }
+          },
+        },
+        hooks: {
+          afterUpdate: async imagingRequest => {
+            const shouldPushNotification = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED].includes(
+              imagingRequest.status,
+            );
+
+            if (
+              shouldPushNotification &&
+              imagingRequest.status !== imagingRequest.previous('status')
+            ) {
+              await models.Notification.pushNotification(
+                NOTIFICATION_TYPES.IMAGING_REQUEST,
+                imagingRequest,
+              );
             }
           },
         },

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { IconButton } from '@material-ui/core';
+import { Box, IconButton } from '@material-ui/core';
 import { WS_EVENTS } from '@tamanu/constants';
+import { useQuery } from '@tanstack/react-query';
 
 import { Heading1, Heading5, PageContainer } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
@@ -16,8 +17,10 @@ import { TodayAppointmentsPane } from './components/TodayAppointmentsPane';
 import { useLocationBookingsQuery, useOutpatientAppointmentsQuery } from '../../api/queries';
 import { DashboardTaskPane } from '../../components/Tasks/DashboardTaskPane';
 import { useSettings } from '../../contexts/Settings';
+import { useApi } from '../../api';
+import welcomingSrc from '../../assets/images/welcoming.svg';
 
-const TopBar = styled.div`
+const TopBarContainer = styled.div`
   position: sticky;
   height: 90px;
   top: 0;
@@ -55,6 +58,7 @@ const PatientsTasksContainer = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
   display: flex;
   flex-direction: column;
+  gap: 20px;
 `;
 
 const SchedulePanesContainer = styled.div`
@@ -64,18 +68,109 @@ const SchedulePanesContainer = styled.div`
   ${({ showTasks }) => !showTasks && 'flex-grow: 1;'}
 `;
 
-export const DashboardView = () => {
+const WelcomeContainer = styled.div`
+  margin: 20px;
+  display: flex;
+  background-color: ${Colors.white};
+  padding: 0 50px;
+  width: calc(100% - 40px);
+  height: calc(100vh - 131px);
+  justify-content: space-between;
+  flex-direction: column;
+  border-radius: 3px;
+`;
+
+const WelcomeImage = styled.img`
+  width: 100%;
+  height: fit-content;
+`;
+
+const WelcomeMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+`;
+
+const TopBar = () => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
     'notifications',
     {},
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
+  const { currentUser } = useAuth();
+
+  return (
+    <TopBarContainer>
+      <div>
+        <Heading1 margin={0}>
+          <TranslatedText
+            stringId="view.dashboard.topbar.title"
+            fallback="Hi :username!  👋"
+            replacements={{ username: currentUser?.displayName }}
+          />
+        </Heading1>
+        <Heading5 margin={0}>
+          <TranslatedText
+            stringId="view.dashboard.topbar.subtitle"
+            fallback="Take a moment to review new notifications and upcoming tasks during your shift."
+          />
+        </Heading5>
+      </div>
+      <IconButton onClick={() => setNotificationOpen(true)}>
+        <NotificationIcon />
+        {!!notifications.unreadNotifications?.length && <NotificationIndicator />}
+      </IconButton>
+      <NotificationDrawer
+        open={notificationOpen}
+        onClose={() => setNotificationOpen(false)}
+        notifications={notifications}
+        isLoading={isLoading}
+      />
+    </TopBarContainer>
+  );
+};
+
+const WelcomePane = () => (
+  <>
+    <TopBar />
+    <WelcomeContainer>
+      <WelcomeMessage>
+        <Heading1>
+          <TranslatedText stringId="view.dashboard.welcome.title" fallback="Welcome to Tamanu!" />
+        </Heading1>
+        <Box>
+          <TranslatedText stringId="view.dashboard.welcome.subtitle" fallback="Take a moment to have a look around using the left hand menu." />
+        </Box>
+        <Box mt={4} color={Colors.darkText}>
+          <TranslatedText stringId="view.dashboard.welcome.description" fallback="This is the Tamanu Dashboard - at the moment, you do not have permission to see bookings, appointments, or tasking so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect." />
+        </Box>
+      </WelcomeMessage>
+      <WelcomeImage src={welcomingSrc} />
+    </WelcomeContainer>
+  </>
+);
+
+export const DashboardView = () => {
+  const api = useApi();
+
+  const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
+    ['recentlyViewedPatients'],
+    () => api.get('user/recently-viewed-patients'),
+  );
+
   const { getSetting } = useSettings();
   const { currentUser, ability } = useAuth();
   const appointments =
     useOutpatientAppointmentsQuery({
-      locationGroupId: '',
       all: true,
       after: '1970-01-01 00:00',
       clinicianId: currentUser?.id,
@@ -96,35 +191,16 @@ export const DashboardView = () => {
 
   const patientPerPage = showTasks && (showAppointments || showBookings) ? 4 : 6;
 
+  const showWelcomeMessage =
+    !recentlyViewedPatients.length && !showTasks && !showAppointments && !showBookings;
+
+  if (showWelcomeMessage) {
+    return <WelcomePane />;
+  }
+
   return (
     <PageContainer>
-      <TopBar>
-        <div>
-          <Heading1 margin={0}>
-            <TranslatedText
-              stringId="view.dashboard.title"
-              fallback="Hi :username!  👋"
-              replacements={{ username: currentUser?.displayName }}
-            />
-          </Heading1>
-          <Heading5 margin={0}>
-            <TranslatedText
-              stringId="view.dashboard.subtitle"
-              fallback="Take a moment to review new notifications and upcoming tasks during your shift."
-            />
-          </Heading5>
-        </div>
-        <IconButton onClick={() => setNotificationOpen(true)}>
-          <NotificationIcon />
-          {!!notifications.unreadNotifications?.length && <NotificationIndicator />}
-        </IconButton>
-      </TopBar>
-      <NotificationDrawer
-        open={notificationOpen}
-        onClose={() => setNotificationOpen(false)}
-        notifications={notifications}
-        isLoading={isLoading}
-      />
+      <TopBar />
       <DashboardLayout showTasks={showTasks}>
         <PatientsTasksContainer showTasks={showTasks}>
           <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
