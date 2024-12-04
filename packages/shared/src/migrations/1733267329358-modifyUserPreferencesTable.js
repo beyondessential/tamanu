@@ -87,7 +87,7 @@ export async function down(query) {
 
   await query.sequelize.query(`
     WITH
-      graph_preferences AS (SELECT user_id, replace(value, '"', '') as "graph_value" FROM user_preferences WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
+      graph_preferences AS (SELECT user_id, replace(value::text, '"', '') as "graph_value" FROM user_preferences WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
       encounter_preferences AS (SELECT user_id, value as "encounter_value" FROM user_preferences WHERE key = '${ENCOUNTER_TAB_ORDERS_KEY}'),
       merged_preferences AS (SELECT gp.user_id, graph_value, encounter_value FROM graph_preferences gp FULL OUTER JOIN encounter_preferences ep ON gp.user_id = ep.user_id)
 
