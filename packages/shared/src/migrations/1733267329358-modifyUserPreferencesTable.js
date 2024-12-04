@@ -4,6 +4,9 @@ const SELECTED_GRAPHED_VITALS_ON_FILTER_KEY = 'selectedGraphedVitalsOnFilter';
 const ENCOUNTER_TAB_ORDERS_KEY = 'encounterTabOrders';
 const MOMENTARY_KEY = 'momentaryKeyUsedForThisMigration';
 
+const GRAPH_UUID_NAMESPACE = 'ec4774c7-4d06-597a-8fb9-df656b17b6a9';
+const ENCOUNTER_UUID_NAMESPACE = '4a3a08af-63f1-563b-bd3a-e9ec4001daeb';
+
 export async function up(query) {
   await query.addColumn('user_preferences', 'key', {
     type: DataTypes.STRING,
@@ -45,15 +48,25 @@ export async function up(query) {
   });
 
   await query.sequelize.query(`
-    INSERT INTO user_preferences (user_id, key, value, encounter_tab_orders)
-    SELECT user_id, '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', to_jsonb(selected_graphed_vitals_on_filter::text), NULL
+    INSERT INTO user_preferences (id, user_id, key, value, encounter_tab_orders)
+    SELECT
+      uuid_generate_v5('${GRAPH_UUID_NAMESPACE}', user_id || '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'),
+      user_id,
+      '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}',
+      to_jsonb(selected_graphed_vitals_on_filter::text),
+      NULL
     FROM user_preferences
     WHERE selected_graphed_vitals_on_filter IS NOT NULL;
   `);
 
   await query.sequelize.query(`
-    INSERT INTO user_preferences (user_id, key, value, encounter_tab_orders)
-    SELECT user_id, '${ENCOUNTER_TAB_ORDERS_KEY}', encounter_tab_orders, NULL
+    INSERT INTO user_preferences (id, user_id, key, value, encounter_tab_orders)
+    SELECT
+      uuid_generate_v5('${ENCOUNTER_UUID_NAMESPACE}', user_id || '${ENCOUNTER_TAB_ORDERS_KEY}'),
+      user_id,
+      '${ENCOUNTER_TAB_ORDERS_KEY}',
+      encounter_tab_orders,
+      NULL
     FROM user_preferences
     WHERE encounter_tab_orders IS NOT NULL;
   `);
