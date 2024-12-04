@@ -17,7 +17,7 @@ import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
+import { maxValidDate, minValidDate, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -110,8 +110,8 @@ export const TimeSlotPicker = ({
     isFetching: isFetchingExistingBookings,
   } = useLocationBookingsQuery(
     {
-      after: earliestRelevantTime,
-      before: latestRelevantTime,
+      after: toDateTimeString(earliestRelevantTime),
+      before: toDateTimeString(latestRelevantTime),
       all: true,
       locationId: values.locationId,
     },

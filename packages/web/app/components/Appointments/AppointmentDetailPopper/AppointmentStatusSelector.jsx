@@ -33,10 +33,7 @@ const PlaceholderStatusSelector = () => (
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
   const { mutateAsync: updateAppointment } = useAppointmentMutation(
-    {
-      appointmentId: appointment.id,
-      isEdit: true,
-    },
+    appointment.id,
     {
       onSuccess: () =>
         toast.success(
