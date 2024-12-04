@@ -10,8 +10,8 @@ import { Button, MonthYearInput, formatShort, formatWeekdayShort } from '../../.
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 
-export const thisWeekId = 'location-bookings-calendar__this-week';
-export const firstDisplayedDayId = 'location-bookings-calendar__beginning';
+export const THIS_WEEK_ID = 'location-bookings-calendar__this-week';
+export const FIRST_DISPLAYED_DAY_ID = 'location-bookings-calendar__beginning';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;
@@ -105,17 +105,14 @@ export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayed
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <MonthPicker
-          value={monthOf}
-          onChange={updateMonth}
-        />
+        <MonthPicker value={monthOf} onChange={updateMonth} />
         <StyledButton onClick={() => updateMonth(startOfToday())}>This week</StyledButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
-          ? thisWeekId
+          ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-          ? firstDisplayedDayId
+          ? FIRST_DISPLAYED_DAY_ID
           : null;
         return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
       })}
