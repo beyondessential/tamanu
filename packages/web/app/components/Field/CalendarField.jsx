@@ -138,15 +138,19 @@ export const MonthYearInput = ({
         textField: TextInput,
         popper: StyledPopper,
       }}
-      slotProps={{ textField: props }}
+      slotProps={{
+        textField: {
+          onBlur: e => onChange(new Date(e.target.value)),
+          onKeyDown: e => {
+            if (e.key === 'Enter') onChange(new Date(e.target.value));
+          },
+          ...props,
+        },
+      }}
       onAccept={date => onChange?.(date)}
       minDate={minDate}
       maxDate={maxDate}
       value={value}
-      onBlur={e => onChange(new Date(e.target.value))}
-      onKeyDown={e => {
-        if (e.key === 'Enter') onChange(new Date(e.target.value));
-      }}
       {...props}
     />
   );
