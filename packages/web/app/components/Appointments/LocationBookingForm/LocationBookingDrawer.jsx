@@ -211,8 +211,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       for (const field of fields) void setFieldValue(field, null);
     };
 
-    console.log(errors)
-
     return (
       <Drawer
         open={open}

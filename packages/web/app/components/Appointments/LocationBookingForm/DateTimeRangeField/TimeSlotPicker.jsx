@@ -14,7 +14,7 @@ import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import ms from 'ms';
 import { PropTypes } from 'prop-types';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { maxValidDate, minValidDate, toDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -69,8 +69,15 @@ export const TimeSlotPicker = ({
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
+    setFieldTouched,
+    touched,
     errors,
   } = useFormikContext();
+
+  console.log(touched)
+
+  const formikKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
+  const error = errors[formikKey];
 
   const initialTimeRange = useMemo(() => {
     return isValid(initialStart) && isValid(initialEnd)
@@ -146,6 +153,8 @@ export const TimeSlotPicker = ({
    */
   const handleChange = (_event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
+
+    // setFieldTouched(formikKey);
 
     switch (variant) {
       case TIME_SLOT_PICKER_VARIANTS.RANGE: {
@@ -321,8 +330,11 @@ export const TimeSlotPicker = ({
     ],
   );
 
-  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
-  const error = errors[errorKey];
+  // useEffect(() => {
+  //   if (!touched[formikKey] && values[formikKey]) {
+  //     setFieldTouched(formikKey);
+  //   }
+  // }, [formikKey, touched, setFieldTouched, values]);
 
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
@@ -389,7 +401,7 @@ export const TimeSlotPicker = ({
         )}
       </ToggleGroup>
       {/* TODO: style properly and show correct message */}
-      {error && (
+      {touched[formikKey] && error && (
         <FormHelperText sx={{ fontSize: '12px', fontWeight: 500 }} error>
           *Required
         </FormHelperText>
