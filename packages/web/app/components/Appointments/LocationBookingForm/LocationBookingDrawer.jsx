@@ -120,18 +120,18 @@ const validationSchema = yup.object({
   overnight: yup.boolean(),
   date: yup.string().when('overnight', {
     is: value => !value,
-    then: yup.string().required('*Required'),
+    then: yup.string().nullable().required('*Required'),
     otherwise: yup.string().nullable(),
   }),
   startDate: yup.string().when('overnight', {
     is: true,
-    then: yup.string().required('*Required'),
+    then: yup.string().nullable().required('*Required'),
     otherwise: yup.string().nullable(),
   }),
 
   endDate: yup.string().when('overnight', {
     is: true,
-    then: yup.string().required('*Required'),
+    then: yup.string().nullable().required('*Required'),
     otherwise: yup.string().nullable(),
   }),
   startTime: yup.date().required('*Required'),
