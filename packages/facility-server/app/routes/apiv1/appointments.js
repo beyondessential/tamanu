@@ -155,6 +155,7 @@ appointments.get(
          */
         after = 'today',
         before = 'infinity',
+        facilityId,
         rowsPerPage = 10,
         page = 0,
         all = false,
@@ -207,6 +208,15 @@ appointments.get(
         }
       : {};
 
+    const facilityIdField =
+      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
+
+    const facilityIdQuery = facilityId
+      ? {
+          [facilityIdField]: facilityId,
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -225,11 +235,20 @@ appointments.get(
       return _filters;
     }, {});
 
+    console.log({
+      ...facilityIdQuery,
+      ...timeQueryWhereClause,
+      ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
+      ...(patientNameOrId ? patientNameOrIdQuery : null),
+      ...filters,
+    });
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
+        ...facilityIdQuery,
         ...timeQueryWhereClause,
         ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
         ...(patientNameOrId ? patientNameOrIdQuery : null),
