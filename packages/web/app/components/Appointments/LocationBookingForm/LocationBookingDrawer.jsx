@@ -172,16 +172,18 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
     { resetForm },
   ) => {
-    mutateBooking({
-      id: initialValues.id, // Undefined when creating new booking
-      locationId,
-      startTime: toDateTimeString(startTime),
-      endTime: toDateTimeString(endTime),
-      patientId,
-      bookingTypeId,
-      clinicianId,
-    });
-    resetForm();
+    mutateBooking(
+      {
+        id: initialValues.id, // Undefined when creating new booking
+        locationId,
+        startTime: toDateTimeString(startTime),
+        endTime: toDateTimeString(endTime),
+        patientId,
+        bookingTypeId,
+        clinicianId,
+      },
+      { onSuccess: resetForm },
+    );
   };
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
