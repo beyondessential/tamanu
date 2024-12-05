@@ -48,7 +48,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -94,11 +94,16 @@ function createSuggesterRoute(
       }
 
       const include = includeBuilder?.(req);
+      const order = orderBuilder?.(req);
 
       const results = await model.findAll({
         where,
         include,
-        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+        order: [
+          ...(order ? [order] : []),
+          positionQuery,
+          [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
+        ],
         replacements: {
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
@@ -330,6 +335,24 @@ createSuggester(
           },
           where: VISIBILITY_CRITERIA,
         },
+      ];
+    },
+    orderBuilder: req => {
+      const { query } = req;
+      const types = query.types
+      if (!types?.length) return;
+
+      const caseStatement = query.types
+        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+        .join(' ');
+
+      return [
+        Sequelize.literal(`
+        CASE "ReferenceData"."type"
+          ${caseStatement}
+          ELSE ${query.types.length + 1}
+        END
+      `),
       ];
     },
     mapper: item => item,
