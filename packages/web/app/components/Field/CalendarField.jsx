@@ -1,7 +1,7 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { add, endOfYear, startOfToday, startOfYear } from 'date-fns';
-import React, { useState } from 'react';
+import { add, endOfYear, isValid, startOfToday, startOfYear } from 'date-fns';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../constants';
@@ -125,6 +125,7 @@ export const MonthYearInput = ({
   ...props
 }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <StyledDatePicker
       onOpen={() => setOpen(true)}
@@ -140,16 +141,13 @@ export const MonthYearInput = ({
       }}
       slotProps={{
         textField: {
-          onBlur: e => onChange(new Date(e.target.value)),
-          onKeyDown: e => {
-            if (e.key === 'Enter') onChange(new Date(e.target.value));
+          onBlur: e => {
+            const newMonth = new Date(e.target.value);
+            if (isValid(newMonth)) onChange(newMonth);
           },
-          onClick: e => {
-            if (open) {
-              e.stopPropagation();
-              return;
-            }
-            setOpen(true);
+          onKeyDown: e => {
+            const newMonth = new Date(e.target.value);
+            if (e.key === 'Enter' && isValid(newMonth)) onChange(newMonth);
           },
           ...props,
         },
