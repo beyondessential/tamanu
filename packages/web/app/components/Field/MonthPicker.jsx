@@ -116,7 +116,7 @@ const StyledDatePicker = styled(DatePicker).attrs({
   }
 `;
 
-export const MonthYearInput = ({
+export const MonthPicker = ({
   defaultValue = startOfToday(),
   minDate = getMinDate(),
   maxDate = getMaxDate(),
