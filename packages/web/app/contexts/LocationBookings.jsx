@@ -3,16 +3,16 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
 import {
-  firstDisplayedDayId,
-  thisWeekId,
+  FIRST_DISPLAYED_DAY_ID,
+  THIS_WEEK_ID,
 } from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
 
 const LocationBookingsContext = createContext(null);
 
 const scrollToThisWeek = () =>
-  document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
+  document.getElementById(THIS_WEEK_ID)?.scrollIntoView({ inline: 'start' });
 const scrollToBeginning = () =>
-  document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
+  document.getElementById(FIRST_DISPLAYED_DAY_ID)?.scrollIntoView({ inline: 'start' });
  const scrollToCell = cell => {
   document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
 };
