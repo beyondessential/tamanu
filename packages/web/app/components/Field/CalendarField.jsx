@@ -156,7 +156,6 @@ export const MonthYearInput = ({
       minDate={minDate}
       maxDate={maxDate}
       value={value}
-      open={open}
       {...props}
     />
   );
