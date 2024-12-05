@@ -108,6 +108,8 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
+const isStringOrArray = obj => typeof obj === 'string' && Array.isArray(obj);
+
 const searchableFields = [
   'startTime',
   'endTime',
@@ -202,15 +204,13 @@ appointments.get(
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
-    const facilityIdField =
-      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
+    const facilityIdField = !isStringOrArray(queries.locationGroupId)
+      ? '$locationGroup.facility_id$'
+      : '$location.facility_id$';
     const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField)) {
-        return _filters;
-      }
-      if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
+      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
 
