@@ -245,7 +245,7 @@
     },
     "syncLookupRefresher": {
       "enabled": true,
-      "schedule": "*/1 * * * *"
+      "schedule": "*/20 * * * * *"
     }
   },
   "integrations": {

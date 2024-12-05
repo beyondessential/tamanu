@@ -372,6 +372,7 @@ export const ReportGeneratorForm = () => {
                       label={label}
                       parameterValues={values}
                       parameterField={parameterField}
+                      parameters={parameters}
                       onChange={() => resetDownload()}
                       {...restOfProps}
                     />

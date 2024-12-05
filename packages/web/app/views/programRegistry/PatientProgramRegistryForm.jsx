@@ -15,7 +15,7 @@ import {
   Form,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow, getReferenceDataStringId, TranslatedText } from '../../components';
+import { ConfirmCancelRow, getReferenceDataStringId, TranslatedReferenceData, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -166,11 +166,18 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={BaseMultiselectField}
                   options={conditions?.map?.(condition => ({
-                    label: getTranslation(
+                    label: (
+                      <TranslatedReferenceData
+                        fallback={condition.name}
+                        value={condition.id}
+                        category="condition"
+                      />
+                    ),
+                    value: condition.id,
+                    searchString: getTranslation(
                       getReferenceDataStringId(condition.id, 'condition'),
                       condition.name,
                     ),
-                    value: condition.id,
                   }))}
                   disabled={!conditions || conditions.length === 0}
                 />

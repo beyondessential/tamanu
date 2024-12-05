@@ -18,7 +18,6 @@ export class PatientContact extends Model {
           allowNull: false,
         },
         connectionDetails: Sequelize.JSONB,
-        deletionStatus: Sequelize.TEXT,
       },
       {
         ...options,
