@@ -209,7 +209,11 @@ export const EncounterView = () => {
       curr[tab.key] = index + 1;
       return curr;
     }, {});
+<<<<<<< HEAD
     reorderEncounterTabs({ key: 'encounterTabOrders', value: newTabOrders }, {
+=======
+    reorderEncounterTabs(newTabOrders, {
+>>>>>>> main
       onError: () => setTabs(currentVisibleTabs),
     });
   };
