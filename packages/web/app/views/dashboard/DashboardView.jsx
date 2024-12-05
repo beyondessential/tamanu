@@ -50,12 +50,12 @@ const DashboardLayout = styled.div`
   .MuiListItem-root {
     margin: 0 -20px 0 -20px;
   }
-  height: calc(100vh - 83px);
+  height: calc(100vh - 131px);
   ${({ showTasks }) => !showTasks && 'flex-direction: column;'}
 `;
 
 const PatientsTasksContainer = styled.div`
-  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
+  ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 69%;'}
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -65,7 +65,7 @@ const SchedulePanesContainer = styled.div`
   display: flex;
   flex-direction: ${({ showTasks }) => (showTasks ? 'column' : 'row')};
   gap: 20px;
-  ${({ showTasks }) => !showTasks && 'flex-grow: 1;'}
+  ${({ showTasks }) => !showTasks ? 'flex-grow: 1;' : 'width: 31%;'}
 `;
 
 const WelcomeContainer = styled.div`
@@ -81,8 +81,10 @@ const WelcomeContainer = styled.div`
 `;
 
 const WelcomeImage = styled.img`
-  width: 100%;
+  width: 1042px;
   height: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const WelcomeMessage = styled.div`
@@ -99,7 +101,11 @@ const WelcomeMessage = styled.div`
   margin-bottom: 20px;
 `;
 
-const TopBar = () => {
+const WelcomeText = styled(Box)`
+  text-align: center;
+`;
+
+const TopBar = ({ subtitle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
     'notifications',
@@ -118,12 +124,7 @@ const TopBar = () => {
             replacements={{ username: currentUser?.displayName }}
           />
         </Heading1>
-        <Heading5 margin={0}>
-          <TranslatedText
-            stringId="view.dashboard.topbar.subtitle"
-            fallback="Take a moment to review new notifications and upcoming tasks during your shift."
-          />
-        </Heading5>
+        <Heading5 margin={0}>{subtitle}</Heading5>
       </div>
       <IconButton onClick={() => setNotificationOpen(true)}>
         <NotificationIcon />
@@ -141,18 +142,28 @@ const TopBar = () => {
 
 const WelcomePane = () => (
   <>
-    <TopBar />
+    <TopBar
+      subtitle={
+        <TranslatedText stringId="view.dashboard.welcome.title" fallback="Welcome to Tamanu!" />
+      }
+    />
     <WelcomeContainer>
       <WelcomeMessage>
         <Heading1>
           <TranslatedText stringId="view.dashboard.welcome.title" fallback="Welcome to Tamanu!" />
         </Heading1>
-        <Box>
-          <TranslatedText stringId="view.dashboard.welcome.subtitle" fallback="Take a moment to have a look around using the left hand menu." />
-        </Box>
-        <Box mt={4} color={Colors.darkText}>
-          <TranslatedText stringId="view.dashboard.welcome.description" fallback="This is the Tamanu Dashboard - at the moment, you do not have permission to see bookings, appointments, or tasking so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect." />
-        </Box>
+        <WelcomeText>
+          <TranslatedText
+            stringId="view.dashboard.welcome.subtitle"
+            fallback="Take a moment to have a look around using the left hand menu."
+          />
+        </WelcomeText>
+        <WelcomeText mt={4} color={Colors.darkText}>
+          <TranslatedText
+            stringId="view.dashboard.welcome.description"
+            fallback="This is the Tamanu Dashboard - at the moment, you do not have permission to see bookings, appointments, or tasking so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect."
+          />
+        </WelcomeText>
       </WelcomeMessage>
       <WelcomeImage src={welcomingSrc} />
     </WelcomeContainer>
@@ -200,16 +211,25 @@ export const DashboardView = () => {
 
   return (
     <PageContainer>
-      <TopBar />
+      <TopBar
+        subtitle={
+          <TranslatedText
+            stringId="view.dashboard.topbar.subtitle"
+            fallback="Take a moment to review new notifications and upcoming tasks during your shift."
+          />
+        }
+      />
       <DashboardLayout showTasks={showTasks}>
         <PatientsTasksContainer showTasks={showTasks}>
           <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
           {showTasks && <DashboardTaskPane />}
         </PatientsTasksContainer>
-        <SchedulePanesContainer showTasks={showTasks}>
-          {showAppointments && <TodayAppointmentsPane showTasks={showTasks} />}
-          {showBookings && <TodayBookingsPane showTasks={showTasks} />}
-        </SchedulePanesContainer>
+        {showAppointments && showBookings && (
+          <SchedulePanesContainer showTasks={showTasks}>
+            {showAppointments && <TodayAppointmentsPane showTasks={showTasks} />}
+            {showBookings && <TodayBookingsPane showTasks={showTasks} />}
+          </SchedulePanesContainer>
+        )}
       </DashboardLayout>
     </PageContainer>
   );

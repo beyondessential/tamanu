@@ -12,7 +12,7 @@ const TabPane = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
   padding: 2px 12px 4px 12px;
-  min-height: 460px;
+  min-height: 0px;
   background-color: ${Colors.white};
 `;
 

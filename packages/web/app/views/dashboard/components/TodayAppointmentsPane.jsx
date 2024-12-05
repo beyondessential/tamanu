@@ -15,8 +15,9 @@ import { AppointmentTile } from '../../../components/Appointments/AppointmentTil
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
-  width: 376px;
-  min-height: 392px;
+  width: 100%;
+  min-width: 366px;
+  min-height: 51%;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding-top: 15px;
@@ -136,7 +137,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         <ActionLink onClick={onViewAll}>
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.viewAll"
-            fallback="View All..."
+            fallback="View all..."
           />
         </ActionLink>
       </TitleContainer>

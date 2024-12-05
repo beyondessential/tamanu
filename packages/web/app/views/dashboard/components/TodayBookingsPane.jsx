@@ -26,8 +26,9 @@ import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
-  width: 376px;
-  min-height: 318px;
+  width: 100%;
+  min-width: 366px;
+  min-height: 41%;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding-top: 15px;
@@ -244,7 +245,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         <ActionLink onClick={onViewAll}>
           <TranslatedText
             stringId="dashboard.bookings.todayBookings.viewAll"
-            fallback="View All..."
+            fallback="View all..."
           />
         </ActionLink>
       </TitleContainer>
