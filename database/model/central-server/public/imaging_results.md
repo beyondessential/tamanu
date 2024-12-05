@@ -29,5 +29,5 @@ When this result was completed.
 {% enddocs %}
 
 {% docs imaging_results__result_image_url %}
-TODO
+Link to external imaging result viewer.
 {% enddocs %}
