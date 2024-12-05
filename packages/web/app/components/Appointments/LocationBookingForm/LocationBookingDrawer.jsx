@@ -146,10 +146,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
-      onSuccess: () => {
-        notifySuccess(<SuccessMessage isEdit={isEdit} />);
-        onClose();
-      },
+      onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
         notifyError(
           error.message == 409 ? (
@@ -172,16 +169,23 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
     { resetForm },
   ) => {
-    mutateBooking({
-      id: initialValues.id, // Undefined when creating new booking
-      locationId,
-      startTime: toDateTimeString(startTime),
-      endTime: toDateTimeString(endTime),
-      patientId,
-      bookingTypeId,
-      clinicianId,
-    });
-    resetForm();
+    mutateBooking(
+      {
+        id: initialValues.id, // Undefined when creating new booking
+        locationId,
+        startTime: toDateTimeString(startTime),
+        endTime: toDateTimeString(endTime),
+        patientId,
+        bookingTypeId,
+        clinicianId,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+          resetForm();
+        },
+      },
+    );
   };
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
@@ -190,6 +194,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       if (!confirmed) return;
       onClose();
       resetForm();
+      updateSelectedCell({ locationId: null, date: null });
     };
 
     const resetFields = fields => {

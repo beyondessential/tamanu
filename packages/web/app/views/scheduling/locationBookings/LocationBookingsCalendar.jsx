@@ -6,7 +6,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -19,7 +19,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
-import { partitionAppointmentsByLocation } from './utils';
+import { partitionAppointmentsByLocation, scrollToThisWeek } from './utils';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -82,8 +82,13 @@ const emptyStateMessage = (
   </EmptyState>
 );
 
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { monthOf, updateMonth } = useLocationBookingsContext();
+export const LocationBookingsCalendar = ({
+  locationsQuery,
+  openBookingForm,
+  openCancelModal,
+  ...props
+}) => {
+  const { monthOf, setMonthOf } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -112,11 +117,11 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
 
   return (
     <>
-      <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
+      <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props}>
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
-            updateMonth={updateMonth}
+            setMonthOf={setMonthOf}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody

@@ -1,21 +1,12 @@
-import { isThisMonth, startOfToday } from 'date-fns';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
+import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  firstDisplayedDayId,
-  thisWeekId,
-} from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
+  scrollToBeginning,
+  scrollToCell,
+  scrollToThisWeek,
+} from '../views/scheduling/locationBookings/utils';
 
 const LocationBookingsContext = createContext(null);
-
-const scrollToThisWeek = () =>
-  document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
-const scrollToBeginning = () =>
-  document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
- const scrollToCell = cell => {
-  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
-};
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
@@ -31,23 +22,36 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
+  useEffect(
+    () => {
+      if (isSameMonth(selectedCell.date, monthOf)) {
+        scrollToCell(selectedCell, { behavior: 'instant' });
+      } else {
+        (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)({ behavior: 'instant' });
+      }
+    },
+    // If selected cell changes within a given month, autoscroll is handled imperatively by
+    // `updateSelectedCell`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [monthOf],
+  );
 
   const updateSelectedCell = newCellData => {
     setSelectedCell(prevCell => {
       const updatedCell = { ...prevCell, ...newCellData };
-      if (updatedCell.locationId && updatedCell.date) {
-        setMonthOf(updatedCell.date);
-      }
+
+      const { date, locationId } = updatedCell;
+      if (locationId && date)
+        if (isSameMonth(date, monthOf)) {
+          scrollToCell(updatedCell);
+        } else {
+          setMonthOf(date);
+          // Rely on useEffect to autoscroll to correct place after browser repaint
+        }
+
       return updatedCell;
     });
   };
-
-  const updateMonth = date => {
-    setMonthOf(date);
-    (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
-  };
-
-  useEffect(() => scrollToCell(selectedCell), [selectedCell]);
 
   return (
     <LocationBookingsContext.Provider
@@ -57,7 +61,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
         selectedCell,
         updateSelectedCell,
         monthOf,
-        updateMonth,
+        setMonthOf,
       }}
     >
       {children}
