@@ -6,7 +6,7 @@ import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
-import { Button, MonthYearInput, formatShort, formatWeekdayShort } from '../../../components';
+import { Button, MonthPicker, formatShort, formatWeekdayShort } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
@@ -80,7 +80,7 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
   );
 };
 
-const MonthPicker = styled(MonthYearInput)`
+const StyledMonthPicker = styled(MonthPicker)`
   .MuiInputBase-root,
   .MuiInputBase-input {
     font-size: inherit;
@@ -115,7 +115,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <MonthPicker value={monthOf} onChange={setMonthOf} />
+        <StyledMonthPicker value={monthOf} onChange={setMonthOf} />
         <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
