@@ -97,18 +97,18 @@ export const DateHeadCell = React.memo(({ value }) => (
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  ${({ maxLines, isOneLine }) =>
-    maxLines <= 1 && !isOneLine
+  ${({ maxLines }) =>
+    maxLines <= 1
       ? ''
       : `
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: ${isOneLine ? 1 : maxLines};
+    -webkit-line-clamp: ${maxLines};
   `}
   ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
-export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = false }) => {
+export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -133,12 +133,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}
     >
-      <LimitedLinesCellWrapper
-        ref={contentRef}
-        maxLines={maxLines}
-        maxWidth={maxWidth}
-        isOneLine={isOneLine}
-      >
+      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines} maxWidth={maxWidth}>
         {value}
       </LimitedLinesCellWrapper>
     </TableTooltip>
