@@ -25,7 +25,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
   useEffect(
     () => {
       if (isSameMonth(selectedCell.date, monthOf)) {
-        scrollToCell(selectedCell);
+        scrollToCell(selectedCell, { behavior: 'instant' });
       } else {
         (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)({ behavior: 'instant' });
       }
