@@ -117,11 +117,6 @@
       "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     }
   },
-  "disk": {
-    "freeSpaceRequired": {
-      "gigabytesForUploadingDocuments": 4
-    }
-  },
   "notifications": {
     "certificates": {
       "labTestCategoryIds": [

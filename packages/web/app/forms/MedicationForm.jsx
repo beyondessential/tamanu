@@ -24,7 +24,6 @@ import {
 } from '../components';
 import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 import { useQuery } from '@tanstack/react-query';
@@ -123,8 +122,7 @@ export const MedicationForm = React.memo(
     const api = useApi();
 
     const { getTranslation } = useTranslation();
-    const { getLocalisation } = useLocalisation();
-    const weightUnit = getLocalisation('fields.weightUnit.longLabel');
+    const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
     const patient = useSelector(state => state.patient);
     const age = getAgeDurationFromDate(patient.dateOfBirth).years;

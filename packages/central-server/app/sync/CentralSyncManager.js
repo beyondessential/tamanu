@@ -394,7 +394,7 @@ export class CentralSyncManager {
         SELECT EXISTS (
           SELECT 1
           FROM settings
-          WHERE key = 'syncAllLabRequests'
+          WHERE key = 'sync.syncAllLabRequests'
             AND scope = :scope
             AND facility_id IN (:facilityIds)
             AND value = 'true'

@@ -9,6 +9,7 @@ import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
+  SETTING_KEYS,
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
@@ -1021,7 +1022,7 @@ describe('CentralSyncManager', () => {
           // Enable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
-            key: 'syncAllLabRequests',
+            key: 'sync.syncAllLabRequests',
             value: true,
             scope: SETTINGS_SCOPES.FACILITY,
           });
@@ -1067,7 +1068,7 @@ describe('CentralSyncManager', () => {
           // Disable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
-            key: 'syncAllLabRequests',
+            key: SETTING_KEYS.SYNC_ALL_LAB_REQUESTS,
             value: false,
             scope: SETTINGS_SCOPES.FACILITY,
           });

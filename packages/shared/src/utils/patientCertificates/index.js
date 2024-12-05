@@ -16,3 +16,4 @@ export * from './MultipleLabRequestsPrintout'
 export * from './PrescriptionPrintout';
 export * from './IDCardPrintout'
 export * from './IDLabelPrintout';
+export * from './SurveyResponsesPrintout';

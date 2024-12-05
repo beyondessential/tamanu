@@ -168,9 +168,12 @@ function imagingCode(upstream) {
   const { label } = imagingTypes[imagingType] || {};
   if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
-  return new FhirCodeableConcept({
-    text: label,
-  });
+  return generateCodings(
+    imagingType,
+    undefined,
+    label,
+    config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,
+  );
 }
 
 // Match the priority to a FHIR ServiceRequest priority where possible

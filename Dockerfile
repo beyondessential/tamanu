@@ -50,9 +50,12 @@ COPY --from=build-server /app/node_modules/ node_modules/
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
 
-# explicitly reconfigure the port
-RUN echo '{"port":3000}' > config/local.json
+# explicitly configure the port
+ENV PORT=3000
 EXPOSE 3000
+
+# read configuration from source and from /config
+ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
 ## Build the frontend

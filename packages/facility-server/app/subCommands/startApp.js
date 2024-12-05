@@ -41,7 +41,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   if (appType === APP_TYPES.API) {

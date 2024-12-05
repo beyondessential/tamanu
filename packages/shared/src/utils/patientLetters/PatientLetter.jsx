@@ -6,7 +6,7 @@ import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
@@ -34,6 +34,7 @@ const detailsSectionStyle = {
 };
 
 const DetailsSection = ({ getLocalisation, data }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -42,7 +43,10 @@ const DetailsSection = ({ getLocalisation, data }) => {
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
-              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+              const label =
+                getTranslation(`general.localisedFields.${key}.label.short`) ||
+                getTranslation(`general.localisedFields.${key}.label`) ||
+                defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
@@ -67,7 +71,6 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
             letterheadConfig={letterheadConfig}

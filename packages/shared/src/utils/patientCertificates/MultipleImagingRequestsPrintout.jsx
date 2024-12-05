@@ -136,7 +136,6 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
           />
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Imaging Request"

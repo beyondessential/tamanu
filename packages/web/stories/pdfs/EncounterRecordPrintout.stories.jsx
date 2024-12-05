@@ -11,21 +11,14 @@ export default {
 
 const getLocalisation = key => {
   const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    'fields.clinician.shortLabel': 'Clinician',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
 };
 
 const certificateData = {
+  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+  subTitle: 'PO Box 12345, Melbourne, Australia',
   logo: Logo,
   watermark: Watermark,
 };

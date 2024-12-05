@@ -5,6 +5,7 @@ import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisp
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useCertificate } from '../../utils/useCertificate';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
@@ -12,6 +13,7 @@ import { useAuth } from '../../contexts/Auth';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const api = useApi();
   const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
@@ -50,6 +52,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           handoverNotes={handoverNotes}
           locationGroupName={locationGroup.name}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           letterheadConfig={letterheadConfig}
         />
       </PDFLoader>

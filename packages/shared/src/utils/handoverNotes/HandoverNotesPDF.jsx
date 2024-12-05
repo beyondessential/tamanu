@@ -11,6 +11,7 @@ const HandoverNotesPDFComponent = ({
   locationGroupName,
   logoSrc,
   getLocalisation,
+  getSetting,
   letterheadConfig,
 }) => (
   <Document>
@@ -33,6 +34,7 @@ const HandoverNotesPDFComponent = ({
               notes={notes}
               isEdited={isEdited}
               getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
           ),
         )}

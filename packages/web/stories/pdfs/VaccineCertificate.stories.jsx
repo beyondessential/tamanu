@@ -33,14 +33,6 @@ const vdsData = {
 };
 
 const localisation = {
-  'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-  'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-  'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-  'templates.vaccineCertificate.contactNumber': '123456',
-  'fields.firstName.longLabel': 'First Name',
-  'fields.lastName.longLabel': 'Last Name',
-  'fields.dateOfBirth.longLabel': 'Date of Birth',
-  'fields.sex.longLabel': 'Sex',
   previewUvciFormat: 'tamanu',
 };
 
@@ -111,6 +103,13 @@ const vaccinations = [
   },
 ];
 
+const certificateData = {
+  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+  subTitle: 'PO Box 12345, Melbourne, Australia',
+};
+
+const healthFacility = 'State level'
+
 export const VaccineCertificate = () => {
   const [vdsSrc, setVdsSrc] = useState();
 
@@ -131,6 +130,8 @@ export const VaccineCertificate = () => {
         logoSrc={Logo}
         vdsSrc={vdsSrc}
         localisation={localisation}
+        certificateData={certificateData}
+        healthFacility={healthFacility}
       />
     </PDFViewer>
   );

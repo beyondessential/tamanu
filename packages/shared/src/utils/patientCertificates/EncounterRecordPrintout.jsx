@@ -488,7 +488,6 @@ const EncounterRecordPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle="Patient encounter record"
             letterheadConfig={certificateData}

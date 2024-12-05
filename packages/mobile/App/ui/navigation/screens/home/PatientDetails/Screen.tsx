@@ -4,7 +4,7 @@ import { compose } from 'redux';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
-import { joinNames, getGender } from '~/ui/helpers/user';
+import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
 import {
   FullView,
@@ -20,7 +20,6 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedPatientDetailsLayout } from './layouts/LocalisedPatientDetailsLayout';
 import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
@@ -28,18 +27,15 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '~/constants';
+import { useSettings } from '/contexts/SettingsContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
 
-  const [isReminderContactEnabled] = useBackendEffect(
-    async ({ models }) => {
-      const isReminderContactEnabled = await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
-      return isReminderContactEnabled;
-    },
-    [],
-  );
+  const [isReminderContactEnabled] = useBackendEffect(async ({ models }) => {
+    return await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
+  }, []);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -49,8 +45,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
 
   const onNavigateReminder = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
@@ -106,7 +102,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
                 }
                 fontSize={screenPercentageToDP(2, Orientation.Height)}
                 fontWeight={500}
-                alignItems='center'
+                alignItems="center"
                 onPress={onNavigateReminder}
                 outline
                 borderColor={theme.colors.WHITE}

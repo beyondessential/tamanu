@@ -5,7 +5,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
 
-import { Colors } from '../../../constants';
+import { Colors } from '../../../../constants';
 
 const THEMES = {
   VIEW: 'dawn',
@@ -15,6 +15,7 @@ const THEMES = {
 const StyledJSONEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
+  z-index: 0;
   .error-marker {
     position: absolute;
     background-color: ${Colors.alert};
@@ -24,7 +25,7 @@ const StyledJSONEditor = styled(AceEditor)`
 const generateAnnotationFromJSONError = (errorMessage, json) => {
   const rows = json.split('\n');
   let charCount = 0;
-  let row;
+  let row = 0;
   let column;
 
   const positionString = errorMessage.match(/position (\d+)/)?.[1];
@@ -47,7 +48,7 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
 };
 
 export const JSONEditor = React.memo(
-  ({ value, onChange, editMode, error, placeholderText, fontSize }) => {
+  ({ value, onChange, editMode, error, placeholder, fontSize, ...props }) => {
     const [errorAnnotation, setErrorAnnotation] = useState(null);
     const [marker, setMarker] = useState(null);
 
@@ -80,11 +81,11 @@ export const JSONEditor = React.memo(
 
     return (
       <StyledJSONEditor
-        height="600px"
         width="100%"
+        height="100%"
         mode="json"
         showPrintMargin={false}
-        placeholder={placeholderText}
+        placeholder={placeholder}
         fontSize={fontSize}
         theme={editMode ? THEMES.EDIT : THEMES.VIEW}
         onChange={onChange}
@@ -97,6 +98,7 @@ export const JSONEditor = React.memo(
         tabSize={2}
         markers={marker ? [marker] : null}
         wrapEnabled={!editMode}
+        {...props}
       />
     );
   },

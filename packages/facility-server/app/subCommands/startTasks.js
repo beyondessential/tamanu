@@ -32,7 +32,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);

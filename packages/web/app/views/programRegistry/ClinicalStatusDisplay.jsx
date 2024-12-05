@@ -5,10 +5,10 @@ import { ThemedTooltip } from '../../components/Tooltip';
 
 export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
   if (!clinicalStatus) return <></>;
-  const { background, color } = STATUS_COLOR[clinicalStatus.color || 'grey'];
+  const color = STATUS_COLOR[clinicalStatus.color];
   return (
     <ThemedTooltip visible title="Current status">
-      <TableCellTag $background={background} $color={color} $position="initial">
+      <TableCellTag $color={color} $position="initial">
         {clinicalStatus.name || 'n/a'}
       </TableCellTag>
     </ThemedTooltip>

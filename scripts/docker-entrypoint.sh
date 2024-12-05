@@ -3,19 +3,6 @@
 ### This expects to be run in the production docker container in /Dockerfile.
 # While not strictly required, it is prefered to run with an init process.
 
-if [[ -d /config ]]; then
-  # copy the config file(s) from the configurator into the expected place
-  cp -v /config/*.json* ./config/
-fi
-
-if [[ -d /meta ]]; then
-  # expose the build metadata as environment variables
-  # these are then pulled by Tamanu into the OpenTelemetry context
-  for f in /meta/*; do
-    export "OTEL_CONTEXT_$(basename $f)"="$(cat $f)"
-  done
-fi
-
 if [[ "$1" == "healthcheck" ]]; then
   # used as healthcheck command in ECS
   set -eo pipefail
