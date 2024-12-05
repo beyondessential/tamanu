@@ -152,12 +152,9 @@ export const MonthYearInput = ({
           onClick: e => {
             if (open) {
               e.stopPropagation();
-            } else {
-              setOpen(true);
-              setTimeout(() => {
-                e.target.focus();
-              }, 100);
-            }
+              return
+            } 
+            setOpen(true);
           },
           ...props,
         },
