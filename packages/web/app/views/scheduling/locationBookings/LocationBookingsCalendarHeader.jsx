@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
-import { Button, MonthYearInput, formatShort, formatWeekdayShort } from '../../../components';
+import { Button, MonthPicker, formatShort, formatWeekdayShort } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+import { scrollToThisWeek } from './utils';
 
-export const thisWeekId = 'location-bookings-calendar__this-week';
-export const firstDisplayedDayId = 'location-bookings-calendar__beginning';
+export const THIS_WEEK_ID = 'location-bookings-calendar__this-week';
+export const FIRST_DISPLAYED_DAY_ID = 'location-bookings-calendar__beginning';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;
@@ -20,7 +21,7 @@ const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   align-items: center;
 `;
 
-const StyledButton = styled(Button).attrs({ variant: 'text' })`
+const GoToThisWeekButton = styled(Button).attrs({ variant: 'text' })`
   font-size: 0.75rem;
   font-weight: 400;
   min-inline-size: 4rem; // Prevent hover effect from affecting layout
@@ -79,7 +80,7 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
   );
 };
 
-const MonthPicker = styled(MonthYearInput)`
+const StyledMonthPicker = styled(MonthPicker)`
   .MuiInputBase-root,
   .MuiInputBase-input {
     font-size: inherit;
@@ -90,7 +91,7 @@ const MonthPicker = styled(MonthYearInput)`
   }
 `;
 
-export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayedDates }) => {
+export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   const location = useLocation();
@@ -98,25 +99,30 @@ export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayed
     const { date } = queryString.parse(location.search);
     if (date) {
       const parsedDate = parseISO(date);
-      updateMonth(parsedDate);
+      setMonthOf(parsedDate);
     }
-  }, [location.search, updateMonth]);
+  }, [location.search, setMonthOf]);
+
+  const goToThisWeek = () => {
+    if (isThisMonth(monthOf)) {
+      scrollToThisWeek();
+    } else {
+      setMonthOf(startOfToday());
+      // In this case, useEffect in LocationBookings context handles auto-scroll
+    }
+  };
 
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <MonthPicker
-          value={monthOf}
-          onAccept={updateMonth}
-          onChange={updateMonth}
-        />
-        <StyledButton onClick={() => updateMonth(startOfToday())}>This week</StyledButton>
+        <StyledMonthPicker value={monthOf} onChange={setMonthOf} />
+        <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
-          ? thisWeekId
+          ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-          ? firstDisplayedDayId
+          ? FIRST_DISPLAYED_DAY_ID
           : null;
         return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
       })}

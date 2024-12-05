@@ -222,7 +222,6 @@ appointments.get(
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
 
       _filters.push({ [column]: comparison });
-
       return _filters;
     }, []);
 

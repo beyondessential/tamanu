@@ -17,6 +17,8 @@ import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { appointmentToFormValues } from './utils';
 import { parseISO } from 'date-fns';
 
+export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
+
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
@@ -79,8 +81,11 @@ export const LocationBookingsView = () => {
   };
 
   const openBookingForm = async appointment => {
-    const { locationId, startTime } = appointment;
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
+
+    const { locationId, startTime } = appointment;
     if (locationId && startTime) {
       updateSelectedCell({ locationId, date: parseISO(startTime) });
     }
@@ -93,6 +98,8 @@ export const LocationBookingsView = () => {
   };
 
   const handleNewBooking = async () => {
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
     await setSelectedAppointment(null);
     openBookingForm({});
   };
@@ -127,6 +134,7 @@ export const LocationBookingsView = () => {
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
+          id={LOCATION_BOOKINGS_CALENDAR_ID}
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}

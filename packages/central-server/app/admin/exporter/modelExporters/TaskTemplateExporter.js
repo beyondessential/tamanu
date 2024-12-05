@@ -32,7 +32,7 @@ export class TaskTemplateExporter extends ReferenceDataExporter {
           ? ms(ms(`${task.taskTemplate.frequencyValue} ${task.taskTemplate.frequencyUnit}`), {
               long: true,
             })
-          : '',
+          : null,
     }));
   }
 

@@ -1,7 +1,7 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { add, endOfYear, startOfToday, startOfYear } from 'date-fns';
-import React, { useState } from 'react';
+import { add, endOfYear, isValid, startOfToday, startOfYear } from 'date-fns';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../constants';
@@ -9,7 +9,7 @@ import { StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
 import { TextInput } from './TextField';
 
 const getMaxDate = () => {
-  return endOfYear(add(new Date(), { years: 8 }));
+  return endOfYear(add(new Date(), { years: 4 }));
 };
 
 const getMinDate = () => {
@@ -116,7 +116,7 @@ const StyledDatePicker = styled(DatePicker).attrs({
   }
 `;
 
-export const MonthYearInput = ({
+export const MonthPicker = ({
   defaultValue = startOfToday(),
   minDate = getMinDate(),
   maxDate = getMaxDate(),
@@ -125,6 +125,7 @@ export const MonthYearInput = ({
   ...props
 }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <StyledDatePicker
       onOpen={() => setOpen(true)}
@@ -138,15 +139,23 @@ export const MonthYearInput = ({
         textField: TextInput,
         popper: StyledPopper,
       }}
-      slotProps={{ textField: props }}
+      slotProps={{
+        textField: {
+          onBlur: e => {
+            const newMonth = new Date(e.target.value);
+            if (isValid(newMonth)) onChange(newMonth);
+          },
+          onKeyDown: e => {
+            const newMonth = new Date(e.target.value);
+            if (e.key === 'Enter' && isValid(newMonth)) onChange(newMonth);
+          },
+          ...props,
+        },
+      }}
       onAccept={date => onChange?.(date)}
       minDate={minDate}
       maxDate={maxDate}
       value={value}
-      onBlur={e => onChange(new Date(e.target.value))}
-      onKeyDown={e => {
-        if (e.key === 'Enter') onChange(new Date(e.target.value));
-      }}
       {...props}
     />
   );
