@@ -1,21 +1,14 @@
-import { isThisMonth, startOfToday } from 'date-fns';
+import { isSameMonth, isThisMonth, startOfMonth, startOfToday } from 'date-fns';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
 import {
   FIRST_DISPLAYED_DAY_ID,
   THIS_WEEK_ID,
 } from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
+import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
+import { LOCATION_BOOKINGS_CALENDAR_ID } from '../views/scheduling/locationBookings/LocationBookingsView';
 
 const LocationBookingsContext = createContext(null);
-
-const scrollToThisWeek = () =>
-  document.getElementById(THIS_WEEK_ID)?.scrollIntoView({ inline: 'start' });
-const scrollToBeginning = () =>
-  document.getElementById(FIRST_DISPLAYED_DAY_ID)?.scrollIntoView({ inline: 'start' });
- const scrollToCell = cell => {
-  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
-};
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const [filters, setFilters] = useState({
@@ -43,24 +36,8 @@ export const LocationBookingsContextProvider = ({ children }) => {
   };
 
   const updateMonth = date => {
-    setMonthOf(startOfMonth(date));
-    (isThisMonth(date) ? scrollToThisWeek : scrollToBeginning)();
+    setMonthOf(date);
   };
-
-  useEffect(
-    () => {
-      const { date, locationId } = selectedCell;
-      if (date && locationId && isSameMonth(date, monthOf)) {
-        scrollToCell(selectedCell);
-        return;
-      }
-
-      (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
-    },
-    // Don’t fire this useEffect when the month changes while a cell happens to be selected
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedCell],
-  );
 
   return (
     <LocationBookingsContext.Provider

@@ -17,6 +17,8 @@ import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { appointmentToFormValues } from './utils';
 import { parseISO } from 'date-fns';
 
+export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
+
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
@@ -127,6 +129,7 @@ export const LocationBookingsView = () => {
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
+          id={LOCATION_BOOKINGS_CALENDAR_ID}
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}

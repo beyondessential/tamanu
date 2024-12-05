@@ -3,10 +3,12 @@ import {
   endOfDay,
   endOfMonth,
   endOfWeek,
+  isSameMonth,
+  isThisMonth,
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -18,8 +20,9 @@ import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
-import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
-import { partitionAppointmentsByLocation } from './utils';
+import { LocationBookingsCalendarHeader, THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
+import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
+import { generateIdFromCell, partitionAppointmentsByLocation } from './utils';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -82,8 +85,30 @@ const emptyStateMessage = (
   </EmptyState>
 );
 
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { monthOf, updateMonth } = useLocationBookingsContext();
+const scrollToThisWeek = () =>
+  document.getElementById(THIS_WEEK_ID)?.scrollIntoView({ inline: 'start' });
+const scrollToBeginning = () =>
+  document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0 });
+const scrollToCell = cell =>
+  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
+
+export const LocationBookingsCalendar = ({
+  locationsQuery,
+  openBookingForm,
+  openCancelModal,
+  ...props
+}) => {
+  const { monthOf, updateMonth, selectedCell } = useLocationBookingsContext();
+
+  useEffect(() => {
+    const { date, locationId } = selectedCell;
+    if (date && locationId && isSameMonth(date, monthOf)) {
+      scrollToCell(selectedCell);
+      return;
+    }
+
+    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
+  }, [monthOf, selectedCell]);
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -112,7 +137,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
 
   return (
     <>
-      <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
+      <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props}>
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
