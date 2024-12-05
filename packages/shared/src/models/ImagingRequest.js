@@ -89,6 +89,24 @@ export class ImagingRequest extends Model {
                 imagingRequest,
               );
             }
+
+            const shouldDeleteNotification = [
+              IMAGING_REQUEST_STATUS_TYPES.DELETED,
+              IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            ].includes(imagingRequest.status);
+
+            if (
+              shouldDeleteNotification &&
+              imagingRequest.status !== imagingRequest.previous('status')
+            ) {
+              await models.Notification.destroy({
+                where: {
+                  metadata: {
+                    id: imagingRequest.id,
+                  },
+                },
+              });
+            }
           },
         },
       },

@@ -5,6 +5,8 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { log } from '../services/logging';
 import config from 'config';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class Notification extends Model {
   static init({ primaryKey, ...options }) {
@@ -52,12 +54,10 @@ export class Notification extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static getFullReferenceAssociations() {
