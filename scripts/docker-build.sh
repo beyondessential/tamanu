@@ -12,16 +12,16 @@ common() {
   rm package.json.working
 
   # put cache in packages/ so it's carried between stages
-  yarn config set cache-folder /app/packages/.yarn-cache
+  npm config set cache /app/packages/.npm
 
   # install dependencies
-  yarn install --non-interactive --frozen-lockfile
+  npm install --no-interactive --package-lock
 }
 
 remove_irrelevant_packages() {
-  # remove from yarn workspace list all packages that aren't the ones we're building
+  # remove from npm workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
-  scripts/list-packages.mjs --no-shared --paths \
+  scripts/list-packages.mjs -- --no-shared -- --paths \
     | jq \
       --arg wanted "$1" \
       '(. - ["packages/\($wanted)"])' \
@@ -51,7 +51,7 @@ build_server() {
   remove_irrelevant_packages "$package"
 
   # build the world
-  yarn build
+  npm run build
 
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
@@ -68,18 +68,17 @@ build_server() {
   rm package.json.working
 
   # remove build dependencies
-  yarn install --non-interactive --frozen-lockfile
+  npm install --no-interactive --package-lock
 
   # cleanup
-  yarn cache clean
-  yarn config delete cache-folder
-  rm -rf packages/.yarn-cache || true
+  npm cache clean --force
+  rm -rf packages/.npm || true
   rm $0
 }
 
 build_web() {
-  yarn build-shared
-  yarn workspace @tamanu/web-frontend build
+  npm run build-shared
+  npm run build --workspace @tamanu/web-frontend
   scripts/precompress-assets.sh packages/web/dist
 }
 

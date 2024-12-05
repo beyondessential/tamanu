@@ -38,25 +38,25 @@ Enable corepack (once):
 $ corepack enable
 ```
 
-Install dependencies with yarn:
+Install dependencies with npm:
 
 ```bash
 $ cd tamanu
-$ yarn
+$ npm install
 ```
 
 Build all packages:
 
 ```bash
-$ yarn build
+$ npm run build
 ```
 
 Run the Tamanu components (in different terminals):
 
 ```bash
-$ yarn central-start-dev
-$ yarn facility-start-dev
-$ yarn web-start-dev
+$ npm run central-start-dev
+$ npm run facility-start-dev
+$ npm run web-start-dev
 ```
 
 You'll need to install postgres and configure databases for central and facility.
@@ -116,9 +116,9 @@ By default, the Central server will not run migrations automatically. To enable 
 #### Run
 
 ```bash
-yarn install
-yarn workspace central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
-yarn central-start-dev
+npm install
+npm run --workspace central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
+npm run central-start-dev
 ```
 
 #### Pull data from remote
@@ -146,7 +146,7 @@ local development, this can just be another process on the same host.
 #### Run
 
 ```bash
-$ yarn facility-start-dev
+$ npm run facility-start-dev
 ```
 
 This will start a build & watch process on the Facility server and the shared directory.
@@ -166,9 +166,9 @@ As soon as you have postgres available, set the appropriate connection variables
 Once there is a Facility server up and running, run this to start the Electron app for development.
 
 ```bash
-$ yarn web-start-dev
+$ npm run web-start-dev
 ```
 
 Note that we also use storybook to develop components in isolation, which you can run from within
-the web directory using `yarn storybook`.
+the web directory using `npm run storybook`.
 </details>

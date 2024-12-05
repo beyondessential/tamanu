@@ -5,11 +5,11 @@ module.exports = {
     'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
   ],
   transform: {
-    '^.+\\.(js)$': '<rootDir>/node_modules/babel-jest',
-    '\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
+    '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
   },
   testEnvironment: 'node',
-  testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
+  testPathIgnorePatterns: ['\\.snap$', '<rootDir>/../../node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {

@@ -337,7 +337,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <ContentItem>
           <ContentLabel>
             <TranslatedText
-              stringId="patient.encounterSummary.reasonForEncounter"
+              stringId="encounter.reasonForEncounter.label"
               fallback="Reason for encounter"
             />
             :

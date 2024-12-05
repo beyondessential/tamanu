@@ -1,0 +1,62 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: lab_request_attachments
+        description: '{{ doc("table__lab_request_attachments") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_request_attachments."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in lab_request_attachments."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in lab_request_attachments."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in lab_request_attachments."
+          - name: attachment_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_attachments__attachment_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'attachments')
+                  field: id
+          - name: lab_request_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_attachments__lab_request_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'lab_requests')
+                  field: id
+          - name: title
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_attachments__title') }}"
+          - name: replaced_by_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_attachments__replaced_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_request_attachments')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              lab_request_attachments."
+            data_tests:
+              - not_null

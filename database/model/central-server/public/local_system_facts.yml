@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: local_system_facts
+        description: '{{ doc("table__local_system_facts") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in local_system_facts."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in local_system_facts."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in local_system_facts."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in local_system_facts."
+          - name: key
+            data_type: character varying(255)
+            description: "{{ doc('local_system_facts__key') }}"
+            data_tests:
+              - not_null
+          - name: value
+            data_type: text
+            description: "{{ doc('local_system_facts__value') }}"

@@ -24,6 +24,10 @@ export class UserPreference extends Model {
             key: 'id',
           },
         },
+        encounterTabOrders: {
+          type: DataTypes.JSONB,
+          defaultValue: {},
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

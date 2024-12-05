@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: fhir__tamanu
+    schema: fhir
+    description: "{{ doc('fhir__generic__schema') }}"
+    tables:
+      - name: job_workers
+        description: '{{ doc("fhir__table__job_workers") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__id') }} in job_workers."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__job_workers__created_at') }}"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__job_workers__updated_at') }}"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__job_workers__deleted_at') }}"
+          - name: metadata
+            data_type: jsonb
+            description: "{{ doc('fhir__job_workers__metadata') }}"
+            data_tests:
+              - not_null
