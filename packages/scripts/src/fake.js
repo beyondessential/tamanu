@@ -322,7 +322,6 @@ async function generateData(models) {
     }),
   );
 
-  // stub to generate
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
       requestedById: examiner.id,
