@@ -190,6 +190,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       if (!confirmed) return;
       onClose();
       resetForm();
+      updateSelectedCell({ locationId: null, date: null });
     };
 
     const resetFields = fields => {
