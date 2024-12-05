@@ -253,6 +253,7 @@ export const practitioner = [
   { verb: 'write', noun: 'Template' },
 
   { verb: 'read', noun: 'Chart' },
+
   { verb: 'read', noun: 'Tasking' },
   { verb: 'list', noun: 'Tasking' },
   { verb: 'create', noun: 'Tasking' },
