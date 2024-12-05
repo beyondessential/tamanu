@@ -233,7 +233,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     }),
   });
 
-  const renderForm = ({ values, resetForm, dirty }) => {
+  const renderForm = ({ values, resetForm, dirty, setFieldValue }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -342,6 +342,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
               />
             }
             component={CheckField}
+            onChange={e => {
+              if (!e.target.checked) {
+                setFieldValue('email', '');
+                setFieldValue('confirmEmail', '');
+              }
+            }}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
