@@ -183,7 +183,7 @@ export const DashboardView = () => {
     }).data?.data ?? [];
   const canReadAppointments = ability.can('read', 'Appointment');
   const canListAppointments = ability.can('list', 'Appointment');
-  const canReadTasks = ability.can('read', 'Task');
+  const canReadTasks = ability.can('read', 'Tasking');
 
   const showTasks = canReadTasks && getSetting('features.enableTasking');
   const showBookings = canReadAppointments && canListAppointments && bookings.length > 0;
