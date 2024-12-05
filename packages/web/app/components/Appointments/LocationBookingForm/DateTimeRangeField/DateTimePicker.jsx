@@ -20,7 +20,7 @@ const DateTimePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   timePickerName,
 }) => {
-  const { values, setFieldValue, errors } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const dateFieldValue = values[datePickerName];
   const date = dateFieldValue ? new Date(dateFieldValue) : null;
   const isValidDate = isValid(date);

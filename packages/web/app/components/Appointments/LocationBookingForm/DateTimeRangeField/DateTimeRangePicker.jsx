@@ -16,7 +16,7 @@ export const DateTimeRangePicker = ({
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
 }) => {
-  const { setFieldValue, values, errors } = useFormikContext();
+  const { setFieldValue, values } = useFormikContext();
   const { updateSelectedCell } = useLocationBookingsContext();
 
   const hasSelectedLocation = !!values.locationId;
