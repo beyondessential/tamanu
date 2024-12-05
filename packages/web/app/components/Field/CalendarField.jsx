@@ -86,6 +86,11 @@ const StyledPopper = styled(Popper)`
 
   .MuiPickersCalendarHeader-labelContainer {
   }
+
+  .MuiYearCalendar-root {
+    height: 65px;
+    overflow: scroll;
+  }
 `;
 
 const StyledDatePicker = styled(DatePicker).attrs({
