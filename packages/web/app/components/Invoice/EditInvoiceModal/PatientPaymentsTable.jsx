@@ -36,17 +36,18 @@ const TooltipContainer = styled.div`
 `;
 
 const ChequeNumberContainer = styled.div`
-  max-width: 72px;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
-const getChequeNumber = () => {
+const getChequeNumber = ({ patientPayment }) => {
+  const { chequeNumber } = patientPayment;
   const [ref, isOverflowing] = useOverflow();
   return (
-    <ConditionalTooltip title="123456789" visible={isOverflowing}>
-      <ChequeNumberContainer ref={ref}>123456789123456789123456789</ChequeNumberContainer>
+    <ConditionalTooltip title={chequeNumber} visible={isOverflowing}>
+      <ChequeNumberContainer ref={ref}>{chequeNumber}</ChequeNumberContainer>
     </ConditionalTooltip>
   );
 };
@@ -63,14 +64,14 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments
     .filter(payment => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  console.log('patientPayments', patientPayments);
+
   const [refreshCount, setRefreshCount] = useState(0);
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
   const showChequeNumberColumn =
     selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ||
-    patientPayments.some(payment => payment.patientPayment?.methodId === CHEQUE_PAYMENT_METHOD_ID);
+    patientPayments.some(payment => !!payment.patientPayment?.chequeNumber);
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');

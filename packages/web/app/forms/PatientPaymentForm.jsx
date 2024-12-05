@@ -76,40 +76,35 @@ export const PatientPaymentForm = ({
   };
 
   const onRecord = (data, { resetForm }) => {
-    const { date, methodId, receiptNumber, amount, chequeNumber } = data;
-    console.log('data', data);
-    // if (!editingPayment?.id) {
-    //   createPatientPayment(
-    //     {
-    //       date,
-    //       methodId,
-    //       receiptNumber,
-    //       amount: amount.toFixed(2),
-    //     },
-    //     {
-    //       onSuccess: () => {
-    //         updateRefreshCount();
-    //         setAmount('');
-    //         resetForm();
-    //       },
-    //     },
-    //   );
-    // } else {
-    //   updatePatientPayment(
-    //     {
-    //       date,
-    //       methodId,
-    //       receiptNumber,
-    //       amount,
-    //     },
-    //     {
-    //       onSuccess: () => {
-    //         updateRefreshCount();
-    //         updateEditingPayment({});
-    //       },
-    //     },
-    //   );
-    // }
+    const { amount, ...others } = data;
+    if (!editingPayment?.id) {
+      createPatientPayment(
+        {
+          ...others,
+          amount: amount.toFixed(2),
+        },
+        {
+          onSuccess: () => {
+            updateRefreshCount();
+            setAmount('');
+            resetForm();
+          },
+        },
+      );
+    } else {
+      updatePatientPayment(
+        {
+          ...others,
+          amount,
+        },
+        {
+          onSuccess: () => {
+            updateRefreshCount();
+            updateEditingPayment({});
+          },
+        },
+      );
+    }
   };
 
   const handleSubmit = (data, { resetForm }) => {
@@ -208,6 +203,7 @@ export const PatientPaymentForm = ({
         methodId: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />),
+        chequeNumber: yup.string(),
         amount: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />)
@@ -243,6 +239,7 @@ export const PatientPaymentForm = ({
       initialValues={{
         date: editingPayment.date,
         methodId: editingPayment.patientPayment?.methodId,
+        chequeNumber: editingPayment.patientPayment?.chequeNumber,
         amount: editingPayment.amount,
         receiptNumber: editingPayment.receiptNumber,
       }}
