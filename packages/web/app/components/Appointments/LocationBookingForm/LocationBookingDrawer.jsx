@@ -146,10 +146,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
-      onSuccess: () => {
-        notifySuccess(<SuccessMessage isEdit={isEdit} />);
-        onClose();
-      },
+      onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
         notifyError(
           error.message == 409 ? (
@@ -182,7 +179,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         bookingTypeId,
         clinicianId,
       },
-      { onSuccess: resetForm },
+      {
+        onSuccess: () => {
+          onClose();
+          resetForm();
+        },
+      },
     );
   };
 
