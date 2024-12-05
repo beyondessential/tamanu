@@ -1,7 +1,7 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { add, endOfYear, startOfToday, startOfYear } from 'date-fns';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../constants';
@@ -144,14 +144,12 @@ export const MonthYearInput = ({
           onKeyDown: e => {
             if (e.key === 'Enter') onChange(new Date(e.target.value));
           },
-          onClick: (e) => {
-            e.stopPropagation();
+          onClick: e => {
+            if (open) {
+              e.stopPropagation();
+            }
             setOpen(true);
-            setTimeout(() => {
-              e.target.focus();
-            }, 100)
           },
-          autoFocus: open,
           ...props,
         },
       }}
