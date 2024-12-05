@@ -18,6 +18,6 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  query.removeColumn('invoice_item_discounts', 'type');
-  query.renameColumn('invoice_item_discounts', 'amount', 'percentage');
+  query.removeColumn('invoice_item_discounts', 'type', {});
+  query.renameColumn('invoice_item_discounts', 'amount', 'percentage', {});
 }
