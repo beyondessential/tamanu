@@ -79,6 +79,7 @@ export const TimeSlotPicker = ({
     errors,
   } = useFormikContext();
 
+  // TODO: dont really like this 
   const formikKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
   const error = errors[formikKey];
 
