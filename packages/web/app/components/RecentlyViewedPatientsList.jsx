@@ -42,7 +42,7 @@ const SectionLabel = styled.div`
 const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
-  width: ${p => p.$isDashboard ? '25%' : '16%'};
+  width: ${p => p.patientPerPage === 4 ? '25%' : '16%'};
   margin-left: 1%;
   background-color: white;
   border-radius: 3px;
@@ -156,9 +156,9 @@ const SectionTitle = styled.div`
 
 const PATIENTS_PER_PAGE = 6;
 
-const Card = ({ patient, handleClick, isDashboard }) => {
+const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
   return (
-    <CardComponent onClick={() => handleClick(patient.id)} $isDashboard={isDashboard}>
+    <CardComponent onClick={() => handleClick(patient.id)} patientPerPage={patientPerPage}>
       <EncounterTypeIndicator $encounterType={patient.encounter_type} />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
@@ -252,6 +252,7 @@ export const RecentlyViewedPatientsList = ({
                   patient={patient}
                   handleClick={cardOnClick}
                   isDashboard={isDashboard}
+                  patientPerPage={patientPerPage}
                 />
               ))}
           </CardList>
