@@ -9,7 +9,7 @@ import { StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
 import { TextInput } from './TextField';
 
 const getMaxDate = () => {
-  return endOfYear(add(new Date(), { years: 8 }));
+  return endOfYear(add(new Date(), { years: 4 }));
 };
 
 const getMinDate = () => {
@@ -86,11 +86,6 @@ const StyledPopper = styled(Popper)`
 
   .MuiPickersCalendarHeader-labelContainer {
   }
-
-  .MuiYearCalendar-root {
-    height: 65px;
-    overflow: scroll;
-  }
 `;
 
 const StyledDatePicker = styled(DatePicker).attrs({
@@ -152,8 +147,8 @@ export const MonthYearInput = ({
           onClick: e => {
             if (open) {
               e.stopPropagation();
-              return
-            } 
+              return;
+            }
             setOpen(true);
           },
           ...props,
