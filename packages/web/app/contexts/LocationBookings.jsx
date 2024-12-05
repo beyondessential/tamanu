@@ -1,12 +1,10 @@
-import { isSameMonth, isThisMonth, startOfMonth, startOfToday } from 'date-fns';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
+import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  FIRST_DISPLAYED_DAY_ID,
-  THIS_WEEK_ID,
-} from '../views/scheduling/locationBookings/LocationBookingsCalendarHeader';
-import { generateIdFromCell } from '../views/scheduling/locationBookings/utils';
-import { LOCATION_BOOKINGS_CALENDAR_ID } from '../views/scheduling/locationBookings/LocationBookingsView';
+  scrollToBeginning,
+  scrollToCell,
+  scrollToThisWeek,
+} from '../views/scheduling/locationBookings/utils';
 
 const LocationBookingsContext = createContext(null);
 
@@ -24,19 +22,35 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
+  useEffect(
+    () => {
+      if (isSameMonth(selectedCell.date, monthOf)) {
+        scrollToCell(selectedCell);
+      } else {
+        (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)({ behavior: 'instant' });
+      }
+    },
+    // If selected cell changes within a given month, autoscroll is handled imperatively by
+    // `updateSelectedCell`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [monthOf],
+  );
 
   const updateSelectedCell = newCellData => {
     setSelectedCell(prevCell => {
       const updatedCell = { ...prevCell, ...newCellData };
-      if (updatedCell.locationId && updatedCell.date) {
-        setMonthOf(updatedCell.date);
-      }
+
+      const { date, locationId } = updatedCell;
+      if (locationId && date)
+        if (isSameMonth(date, monthOf)) {
+          scrollToCell(updatedCell);
+        } else {
+          setMonthOf(date);
+          // Rely on useEffect to autoscroll to correct place after browser repaint
+        }
+
       return updatedCell;
     });
-  };
-
-  const updateMonth = date => {
-    setMonthOf(date);
   };
 
   return (
@@ -47,7 +61,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
         selectedCell,
         updateSelectedCell,
         monthOf,
-        updateMonth,
+        setMonthOf,
       }}
     >
       {children}

@@ -3,8 +3,6 @@ import {
   endOfDay,
   endOfMonth,
   endOfWeek,
-  isSameMonth,
-  isThisMonth,
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
@@ -20,9 +18,8 @@ import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
-import { LocationBookingsCalendarHeader, THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
-import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
-import { generateIdFromCell, partitionAppointmentsByLocation } from './utils';
+import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
+import { partitionAppointmentsByLocation, scrollToThisWeek } from './utils';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -85,30 +82,15 @@ const emptyStateMessage = (
   </EmptyState>
 );
 
-const scrollToThisWeek = () =>
-  document.getElementById(THIS_WEEK_ID)?.scrollIntoView({ inline: 'start' });
-const scrollToBeginning = () =>
-  document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0 });
-const scrollToCell = cell =>
-  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
-
 export const LocationBookingsCalendar = ({
   locationsQuery,
   openBookingForm,
   openCancelModal,
   ...props
 }) => {
-  const { monthOf, updateMonth, selectedCell } = useLocationBookingsContext();
+  useEffect(scrollToThisWeek, []);
 
-  useEffect(() => {
-    const { date, locationId } = selectedCell;
-    if (date && locationId && isSameMonth(date, monthOf)) {
-      scrollToCell(selectedCell);
-      return;
-    }
-
-    (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)();
-  }, [monthOf, selectedCell]);
+  const { monthOf, setMonthOf } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -141,7 +123,7 @@ export const LocationBookingsCalendar = ({
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
-            updateMonth={updateMonth}
+            setMonthOf={setMonthOf}
             displayedDates={displayedDates}
           />
           <LocationBookingsCalendarBody

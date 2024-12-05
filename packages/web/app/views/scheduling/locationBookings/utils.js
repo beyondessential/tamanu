@@ -2,6 +2,9 @@ import { eachDayOfInterval, isSameDay, isValid, parseISO, startOfDay } from 'dat
 
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 
+import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
+import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
+
 export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
 
@@ -57,4 +60,17 @@ export const partitionAppointmentsByDate = appointments =>
     return acc;
   }, {});
 
-export const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.date).valueOf()}`;
+export const generateIdFromCell = cell => `${cell.locationId}.${cell.date.valueOf()}`;
+
+export const scrollToThisWeek = scrollIntoViewOptions =>
+  document
+    .getElementById(THIS_WEEK_ID)
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
+
+export const scrollToBeginning = scrollToOptions =>
+  document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0, ...scrollToOptions });
+
+export const scrollToCell = (cell, scrollIntoViewOptions) =>
+  document
+    .getElementById(generateIdFromCell(cell))
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });

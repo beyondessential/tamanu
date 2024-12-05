@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
@@ -9,6 +9,7 @@ import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 import { Button, MonthYearInput, formatShort, formatWeekdayShort } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+import { scrollToThisWeek } from './utils';
 
 export const THIS_WEEK_ID = 'location-bookings-calendar__this-week';
 export const FIRST_DISPLAYED_DAY_ID = 'location-bookings-calendar__beginning';
@@ -90,7 +91,7 @@ const MonthPicker = styled(MonthYearInput)`
   }
 `;
 
-export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayedDates }) => {
+export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   const location = useLocation();
@@ -98,15 +99,22 @@ export const LocationBookingsCalendarHeader = ({ monthOf, updateMonth, displayed
     const { date } = queryString.parse(location.search);
     if (date) {
       const parsedDate = parseISO(date);
-      updateMonth(parsedDate);
+      setMonthOf(parsedDate);
     }
-  }, [location.search, updateMonth]);
+  }, [location.search, setMonthOf]);
 
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <MonthPicker value={monthOf} onChange={updateMonth} />
-        <StyledButton onClick={() => updateMonth(startOfToday())}>This week</StyledButton>
+        <MonthPicker value={monthOf} onChange={setMonthOf} />
+        <StyledButton
+          onClick={() => {
+            if (isThisMonth(monthOf)) scrollToThisWeek();
+            else setMonthOf(startOfToday());
+          }}
+        >
+          This week
+        </StyledButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
