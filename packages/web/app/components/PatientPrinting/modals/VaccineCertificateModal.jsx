@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
@@ -24,7 +25,7 @@ const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -45,6 +46,10 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const vaccinations =
     vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
+  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
+  );
+
   const createVaccineCertificateNotification = useCallback(
     data =>
       api.post('certificateNotification', {
@@ -56,14 +61,18 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         createdBy: printedBy,
         createdAt: getCurrentDateString(),
       }),
-    [api, patient.id, printedBy, facility.name],
+    [api, patient.id, printedBy, facility?.name],
   );
 
   const { data: village, isFetching: isVillageFetching } = useReferenceData(patient.villageId);
   const patientData = { ...patient, village, additionalData };
 
   const isLoading =
-    isVaccineFetching || isAdditionalDataFetching || isVillageFetching || isCertificateFetching;
+    isVaccineFetching ||
+    isAdditionalDataFetching ||
+    isVillageFetching ||
+    isFacilityLoading ||
+    isCertificateFetching;
 
   return (
     <Modal
@@ -85,7 +94,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           patient={patientData}
           watermarkSrc={watermark}
           logoSrc={logo}
-          facilityName={facility.name}
+          facilityName={facility?.name}
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}

@@ -1,6 +1,9 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 
 export const globalDefaults = {
+  auth: {
+    restrictUsersToFacilities: false,
+  },
   customisations: {
     componentVersions: {},
   },

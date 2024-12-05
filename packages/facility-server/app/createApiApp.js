@@ -1,7 +1,7 @@
 import config from 'config';
 import defineExpress from 'express';
 
-import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -46,10 +46,11 @@ export async function createApiApp({
     next();
   });
 
-  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
   express.use(versionCompatibility);
 
   express.use(getAuditMiddleware());
+
+  express.use(settingsReaderMiddleware);
 
   // index route for debugging connectivity
   express.get('/$', (req, res) => {
@@ -70,5 +71,8 @@ export async function createApiApp({
   }
   express.use(errorHandler);
 
-  return { express, server };
+  return {
+    express,
+    server,
+  };
 }

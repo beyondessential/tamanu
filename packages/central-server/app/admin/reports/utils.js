@@ -35,7 +35,7 @@ export async function verifyQuery(
   dbSchema,
 ) {
   try {
-    const replacements = await getReportQueryReplacements(store, parameters);
+    const replacements = await getReportQueryReplacements(parameters);
     const instance = reportSchemaStores?.[dbSchema]
       ? reportSchemaStores[dbSchema]?.sequelize
       : store.sequelize;

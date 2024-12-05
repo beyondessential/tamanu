@@ -309,7 +309,11 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
-      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+      const isGeolocateType = type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE;
+      const mandatory = isGeolocateType
+        ? false
+        : checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -400,10 +404,11 @@ export const checkMandatory = (mandatory, values) => {
     notifyError(
       <TranslatedText
         stringId="general.notification.useMandatoryFailed"
-        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
-          }`}
+        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(
+          mandatory,
+        )}, error: ${error.message}`}
         replacements={{ mandatory: JSON.stringify(mandatory), message: error.message }}
-      />
+      />,
     );
     return false;
   }

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   checkMandatory,
   getComponentForQuestionType,
@@ -8,10 +9,40 @@ import {
 } from '../../utils';
 import { Field } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
+import { Box, Typography } from '@material-ui/core';
+import { Colors } from '../../constants';
+import { TranslatedText } from '../Translation';
 
 const Text = styled.div`
   margin-bottom: 10px;
 `;
+
+const OuterLabelRequired = styled.span`
+  color: ${Colors.alert};
+  padding-left: 3px;
+`;
+
+const GeolocateQuestion = ({ text, component, required }) => {
+  return (
+    <Box>
+      <Typography style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}>
+        {text}
+        {required && <OuterLabelRequired>*</OuterLabelRequired>}
+      </Typography>
+      <Typography style={{ fontSize: '14px', color: Colors.darkText }}>
+        {component.detail}
+      </Typography>
+      <Typography
+        style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
+      >
+        <TranslatedText
+          stringId="program.modal.surveyResponse.geolocateNotSupported"
+          fallback="The Geolocate question type is not supported by Tamanu Desktop. Please complete the form on Tamanu Mobile if required."
+        />
+      </Typography>
+    </Box>
+  );
+};
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
   const {
@@ -35,6 +66,9 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   });
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
+  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
+    return <GeolocateQuestion text={text} component={component} required={required} />;
+  }
   if (!FieldComponent) return <Text>{text}</Text>;
 
   return (

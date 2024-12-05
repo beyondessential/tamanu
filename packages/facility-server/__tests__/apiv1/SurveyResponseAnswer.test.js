@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -7,6 +8,8 @@ import {
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
@@ -23,6 +26,50 @@ describe('SurveyResponseAnswer', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
+
+  describe('getDefaultId', () => {
+    const [facilityId] = selectFacilityIds(config);
+    beforeAll(async () => {
+      const { Setting, Department } = models;
+      await Department.create({
+        id: 'test-department-id',
+        code: 'test-department-code',
+        name: 'Test Department',
+        facilityId,
+      });
+      await Setting.set(
+        'survey.defaultCodes.department',
+        'test-department-code',
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+    });
+    afterAll(async () => {
+      const { Setting } = models;
+      await Setting.truncate();
+    });
+
+    it('should return the default id for a resource from settings', async () => {
+      const departmentId = await models.SurveyResponseAnswer.getDefaultId(
+        'department',
+        ctx.settings[facilityId],
+      );
+      expect(departmentId).toEqual('test-department-id');
+    });
+    it('should return the default id from config if no settings facility override defined', async () => {
+      const locationId = await models.SurveyResponseAnswer.getDefaultId(
+        'location',
+        ctx.settings[facilityId],
+      );
+      const location = await models.Location.findOne({
+        where: {
+          code: config.survey.defaultCodes.location,
+        },
+        attributes: ['id'],
+      });
+      expect(locationId).toBe(location.id);
+    });
+  });
 
   describe('vitals', () => {
     let dataElements;
@@ -280,11 +327,13 @@ describe('SurveyResponseAnswer', () => {
           answer => answer.dataElementId === dataElements[2].id,
         );
 
-        const result = await app.put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
-          reasonForChange: 'test5',
-          newValue: chance.integer({ min: 0, max: 100 }),
-          date: getCurrentDateTimeString(),
-        });
+        const result = await app
+          .put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`)
+          .send({
+            reasonForChange: 'test5',
+            newValue: chance.integer({ min: 0, max: 100 }),
+            date: getCurrentDateTimeString(),
+          });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(404);
       });

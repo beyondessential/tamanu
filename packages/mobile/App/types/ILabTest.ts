@@ -6,6 +6,7 @@ import { IReferenceData } from './IReferenceData';
 export enum LabTestStatus {
   RECEPTION_PENDING = 'reception_pending',
   RESULTS_PENDING = 'results_pending',
+  INTERIM_RESULTS = 'interim_results',
   TO_BE_VERIFIED = 'to_be_verified',
   VERIFIED = 'verified',
   PUBLISHED = 'published',

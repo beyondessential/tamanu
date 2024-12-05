@@ -10,7 +10,7 @@ import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
@@ -64,7 +64,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
+    onCreateEncounterMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {
@@ -288,7 +288,7 @@ export class Encounter extends Model {
           SELECT DISTINCT encounter_id
           FROM lab_requests
           WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
-        ) AS new_labs ON new_labs.encounter_id = encounters.id 
+        ) AS new_labs ON new_labs.encounter_id = encounters.id
       `,
       where: `
         encounters.updated_at_sync_tick > :since -- to include including normal encounters
@@ -351,6 +351,24 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addTriageScoreNote(triageRecord, submittedTime, user) {
+    const department = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
+    await this.addSystemNote(
+      `${department.name} triage score: ${triageRecord.score}`,
       submittedTime,
       user,
     );

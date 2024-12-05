@@ -9,6 +9,7 @@ import { IDepartment } from './IDepartment';
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
   RESULTS_PENDING = 'results_pending',
+  INTERIM_RESULTS = 'interim_results',
   TO_BE_VERIFIED = 'to_be_verified',
   VERIFIED = 'verified',
   PUBLISHED = 'published',

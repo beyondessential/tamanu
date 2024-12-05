@@ -1,8 +1,10 @@
 import config from 'config';
 import Sequelize from 'sequelize';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 module.exports = {
   up: async query => {
+    const isFacility = !!selectFacilityIds(config);
     await query.createTable(
       'patient_facilities',
       {
@@ -49,7 +51,7 @@ module.exports = {
         // push up to the central server after upgrading to the new sync model
         updated_at_sync_tick: {
           type: Sequelize.BIGINT,
-          defaultValue: config.serverFacilityId ? -999 : 0, // -999 on facility, 0 on central server
+          defaultValue: isFacility ? -999 : 0, // -999 on facility, 0 on central server
         },
       },
       {

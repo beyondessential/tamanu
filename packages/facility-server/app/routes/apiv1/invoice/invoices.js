@@ -45,8 +45,11 @@ invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
+    const {
+      body: { facilityId, ...body },
+    } = req;
 
-    const { data, error } = await createInvoiceSchema.safeParseAsync(req.body);
+    const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
 
     // get encounter
@@ -59,7 +62,9 @@ invoiceRoute.post(
       where: { patientId: encounter.patientId },
       attributes: ['insurerId'],
     }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.settings.get(SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION);
+    const insurerPercentage = await req.settings[facilityId].get(
+      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION,
+    );
     const defaultInsurer =
       insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
 

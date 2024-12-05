@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';

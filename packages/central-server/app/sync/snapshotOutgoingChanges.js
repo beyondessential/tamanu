@@ -15,7 +15,7 @@ const snapshotChangesForModel = async (
   patientCount,
   markedForSyncPatientsTable,
   sessionId,
-  facilityId,
+  facilityIds,
   sessionConfig,
   config,
 ) => {
@@ -106,7 +106,7 @@ const snapshotChangesForModel = async (
           since,
           // include replacement params used in some model specific sync filters outside of this file
           // see e.g. Referral.buildSyncFilter
-          facilityId,
+          facilityIds,
           limit: CHUNK_SIZE,
           fromId,
         },
@@ -135,7 +135,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
     sessionConfig,
     config,
   ) => {
@@ -164,7 +164,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
           config,
         );
@@ -218,7 +218,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
     deviceId,
     sessionConfig,
     config,
@@ -258,7 +258,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND id > :fromId` : ''}
         AND (
-          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
+          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
           ${getPatientRelatedWhereClause(
             store.models,
@@ -271,7 +271,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           AND (
             facility_id IS NULL
             OR
-            facility_id = :facilityId
+            facility_id in (:facilityIds)
           )
           --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
           ${
@@ -302,7 +302,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             since,
             // include replacement params used in some model specific sync filters outside of this file
             // see e.g. Referral.buildSyncFilter
-            facilityId,
+            facilityIds,
             limit: CHUNK_SIZE,
             fromId,
             recordTypes,
@@ -336,7 +336,7 @@ export const snapshotOutgoingChanges = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
     deviceId,
     sessionConfig,
     config,
@@ -355,7 +355,7 @@ export const snapshotOutgoingChanges = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           deviceId,
           sessionConfig,
           config,
@@ -366,7 +366,7 @@ export const snapshotOutgoingChanges = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
           config,
         );

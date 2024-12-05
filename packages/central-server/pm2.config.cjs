@@ -10,57 +10,36 @@ const defaultApiScale = Math.min(maximumApiScale, Math.max(minimumApiScale, Math
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 
+function task(name, args, instances = 1, env = {}) {
+  const base = {
+    name,
+    cwd,
+    script: './dist/index.js',
+    args,
+    interpreter_args: `--max_old_space_size=${memory}`,
+    instances,
+    exec_mode: 'fork',
+    restart_delay: 5000,
+    env: {
+      NODE_ENV: 'production',
+      ...env,
+    },
+  };
+
+  if (env?.PORT) {
+    base.increment_var = 'PORT';
+  }
+
+  return base;
+}
+
 module.exports = {
   apps: [
-    {
-      name: 'tamanu-api',
-      cwd,
-      script: './dist/index.js',
-      args: 'startApi',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: +process.env.TAMANU_API_SCALE || defaultApiScale,
-      exec_mode: 'fork',
-      increment_var: 'PORT',
-      env: {
-        PORT: +process.env.TAMANU_API_PORT || 3000,
-        NODE_ENV: 'production',
-      },
-    },
-    {
-      name: 'tamanu-tasks',
-      cwd,
-      script: './dist/index.js',
-      args: 'startTasks',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
-    {
-      name: 'tamanu-fhir-worker-refresh',
-      cwd,
-      script: './dist/index.js',
-      args: 'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
-    {
-      name: 'tamanu-fhir-worker-resolver',
-      cwd,
-      script: './dist/index.js',
-      args: 'startFhirWorker --topics=fhir.resolver',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
+    task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
+      PORT: +process.env.TAMANU_API_PORT || 3000,
+    }),
+    task('tamanu-tasks', 'startTasks'),
+    task('tamanu-fhir-refresh', 'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream'),
+    task('tamanu-fhir-resolve', 'startFhirWorker --topics=fhir.resolver'),
   ],
 };

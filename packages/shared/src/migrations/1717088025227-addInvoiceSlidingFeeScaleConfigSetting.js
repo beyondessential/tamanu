@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS = {
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  if (config.serverFacilityId) return;
+  if (config.serverFacilityId || config.serverFacilityIds) return;
   await query.bulkInsert(
     'settings',
     Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
@@ -37,7 +37,7 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  if (config.serverFacilityId) return;
+  if (config.serverFacilityId || config.serverFacilityIds) return;
   await query.bulkDelete('settings', {
     key: {
       [Op.in]: Object.keys(DEFAULT_SETTINGS),

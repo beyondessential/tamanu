@@ -88,7 +88,11 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+    "useHardcodedPermissions": true,
+
+    // Authentication "cookie" secret. Set to a random value so sessions don't
+    // expire when the server restarts.
+    // "secret": "some long secret value",
   },
   "survey": {
     "defaultCodes": {
@@ -96,7 +100,8 @@
       "location": "GeneralClinic"
     }
   },
-  "serverFacilityId": "",
+  "serverFacilityId": null,
+  "serverFacilityIds": null,
   "debugging": {
     "requestFailureRate": 0
   },

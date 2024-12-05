@@ -20,6 +20,7 @@ function task(name, args, instances = 1, env = {}) {
     interpreter_args: `--max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
+    restart_delay: 5000,
     env: {
       NODE_ENV: 'production',
       ...env,

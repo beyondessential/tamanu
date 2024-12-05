@@ -1,20 +1,16 @@
-import React, { useEffect, useMemo } from 'react';
-import { useApi } from '../../api';
+import React, { useEffect } from 'react';
+import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 import { LocalisedField } from './LocalisedField';
 import { useFormikContext } from 'formik';
-import { Suggester } from '../../utils/suggester';
 
 export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, fieldData }) => {
-  const api = useApi();
   const { setFieldValue, dirty } = useFormikContext();
 
-  const suggester = useMemo(() => {
-    return new Suggester(api, fieldData.referenceType, {
-      enable: isFirstLevel || !!parentId,
-      baseQueryParameters: !isFirstLevel && { parentId, relationType },
-    });
-  }, [api, fieldData.referenceType, isFirstLevel, parentId, relationType]);
+  const suggester = useSuggester(fieldData.referenceType, {
+    enable: isFirstLevel || !!parentId,
+    baseQueryParameters: !isFirstLevel && { parentId, relationType },
+  });
 
   // Clear the value of the field when the parent field changes
   useEffect(() => {

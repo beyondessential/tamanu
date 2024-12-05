@@ -81,7 +81,8 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => <EncounterInvoicingPane {...props} />,
-    condition: (getLocalisation, ability) => getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
+    condition: (getLocalisation, ability) =>
+      getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
   },
 ];
 
@@ -129,7 +130,7 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
-  const { facility, ability } = useAuth();
+  const { facilityId, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -148,15 +149,18 @@ export const EncounterView = () => {
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={encounter.location?.facility
-          && <TranslatedReferenceData
-            fallback={encounter.location.facility.name}
-            value={encounter.location.facility.id}
-            category="facility"
-          />}
+        subTitle={
+          encounter.location?.facility && (
+            <TranslatedReferenceData
+              fallback={encounter.location.facility.name}
+              value={encounter.location.facility.id}
+              category="facility"
+            />
+          )
+        }
         encounter={encounter}
       >
-        {(facility.id === encounter.location.facilityId || encounter.endDate) &&
+        {(facilityId === encounter.location.facilityId || encounter.endDate) &&
           // Hide all actions if encounter type is Vaccination or Survey Response,
           // as they should only contain 1 survey response or vaccination and discharged automatically,
           // no need to show any summaries or actions
@@ -167,18 +171,17 @@ export const EncounterView = () => {
       <EncounterInfoPane
         encounter={encounter}
         getLocalisation={getLocalisation}
-        patientBillingType={patientBillingTypeData
-          && <TranslatedReferenceData
-            fallback={patientBillingTypeData.name}
-            value={patientBillingTypeData.id}
-            category="patientBillingType"
-          />}
+        patientBillingType={
+          patientBillingTypeData && (
+            <TranslatedReferenceData
+              fallback={patientBillingTypeData.name}
+              value={patientBillingTypeData.id}
+              category="patientBillingType"
+            />
+          )
+        }
       />
-      <DiagnosisView
-        encounter={encounter}
-        isTriage={getIsTriage(encounter)}
-        disabled={disabled}
-      />
+      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}

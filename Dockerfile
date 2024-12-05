@@ -27,7 +27,7 @@ CMD ["serve"]
 
 
 ## Build the target server
-FROM build-base as build-server
+FROM build-base AS build-server
 ARG PACKAGE_PATH
 
 # copy all packages
@@ -38,7 +38,7 @@ RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Normal final target for servers
-FROM run-base as server
+FROM run-base AS server
 # restart from a fresh base without the build tools
 ARG PACKAGE_PATH
 # FROM resets the ARGs, so we need to redeclare it
@@ -56,14 +56,14 @@ EXPOSE 3000
 
 
 ## Build the frontend
-FROM build-base as build-frontend
+FROM build-base AS build-frontend
 RUN apk add zstd brotli
 COPY packages/ packages/
 RUN scripts/docker-build.sh web
 
 
 ## Minimal image to serve the frontend
-FROM alpine as frontend
+FROM alpine AS frontend
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

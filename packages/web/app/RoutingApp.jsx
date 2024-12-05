@@ -17,12 +17,13 @@ import {
   PatientsRoutes,
   ProgramRegistryRoutes,
 } from './routes';
-import { Sidebar, SYNC_MENU_ITEMS, useFacilitySidebar } from './components/Sidebar';
+import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
+import { getServerType } from './store';
 
 export const RoutingApp = () => {
-  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.CENTRAL);
-  return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+  const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
+  return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
 export const RoutingFacilityApp = React.memo(() => {
@@ -46,11 +47,14 @@ export const RoutingFacilityApp = React.memo(() => {
   );
 });
 
-export const RoutingAdminApp = React.memo(() => (
-  <App sidebar={<Sidebar items={SYNC_MENU_ITEMS} />}>
-    <Switch>
-      <Redirect exact path="/" to="/admin" />
-      <Route path="/admin" component={AdministrationRoutes} />
-    </Switch>
-  </App>
-));
+export const RoutingAdminApp = React.memo(() => {
+  const sidebarMenuItems = useCentralSidebar();
+  return (
+    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <Switch>
+        <Redirect exact path="/" to="/admin" />
+        <Route path="/admin" component={AdministrationRoutes} />
+      </Switch>
+    </App>
+  );
+});

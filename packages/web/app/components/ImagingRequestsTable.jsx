@@ -15,6 +15,7 @@ import { TableCellTag } from './Tag';
 import { useImagingRequests } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 const StatusDisplay = React.memo(({ status }) => {
   const {
@@ -41,6 +42,7 @@ const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
   const params = useParams();
+  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
@@ -113,7 +115,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     [loadEncounter, dispatch, params.patientId, params.category, encounterId, isRowsDisabled],
   );
 
-  const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters };
+  const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters, facilityId };
 
   return (
     <SearchTableWithPermissionCheck

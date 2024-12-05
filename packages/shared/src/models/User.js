@@ -1,9 +1,18 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 import { Model } from './Model';
+import { Permission } from './Permission';
+import { getAbilityForUser } from '../permissions/rolesToPermissions';
+import { ForbiddenError } from '../errors';
+import { getSubjectName } from '../permissions/middleware';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
@@ -56,7 +65,6 @@ export class User extends Model {
   }
 
   static async getForAuthByEmail(email) {
-    // gets the user, as a plain object, with password hash, for use in auth
     const user = await this.scope('withPassword').findOne({
       where: {
         // email addresses are case insensitive so compare them as such
@@ -72,7 +80,7 @@ export class User extends Model {
       return null;
     }
 
-    return user.get({ plain: true });
+    return user;
   }
 
   static init({ primaryKey, ...options }) {
@@ -153,12 +161,12 @@ export class User extends Model {
       foreignKey: 'userId',
     });
 
-    this.hasMany(models.UserFacility, {
-      foreignKey: 'facilityId',
-    });
-
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
+      as: 'facilities',
+      where: {
+        deletedAt: null,
+      },
     });
   }
 
@@ -168,5 +176,82 @@ export class User extends Model {
 
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
+  }
+
+  isSuperUser() {
+    return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
+  }
+
+  async checkPermission(action, subject, field = '') {
+    const ability = await getAbilityForUser({ Permission }, this);
+    const subjectName = getSubjectName(subject);
+    const hasPermission = ability.can(action, subject, field);
+
+    if (!hasPermission) {
+      const rule = ability.relevantRuleFor(action, subject, field);
+      const reason =
+        (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
+
+      throw new ForbiddenError(reason);
+    }
+  }
+
+  async hasPermission(action, subject, field = '') {
+    try {
+      await this.checkPermission(action, subject, field);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async checkCanAccessAllFacilities() {
+    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
+      'auth.restrictUsersToFacilities',
+    );
+    if (!restrictUsersToFacilities) return true;
+    if (this.isSuperUser()) return true;
+    // Allow for roles that have access to all facilities configured via permissions
+    // (e.g. a custom "AdminICT" role)
+    if (await this.hasPermission('login', 'Facility')) return true;
+    return false;
+  }
+
+  async allowedFacilities() {
+    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
+    if (canAccessAllFacilities) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
+
+    if (!this.facilities) {
+      await this.reload({ include: 'facilities' });
+    }
+
+    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+  }
+
+  async allowedFacilityIds() {
+    const allowedFacilities = await this.allowedFacilities();
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
+    return allowedFacilities.map(f => f.id);
+  }
+
+  async canAccessFacility(id) {
+    const allowed = await this.allowedFacilityIds();
+    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+
+    return allowed?.includes(id) ?? false;
+  }
+
+  static async filterAllowedFacilities(allowedFacilities, facilityIds) {
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
+        where: { id: facilityIds },
+      });
+      return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
+    }
+    return allowedFacilities.filter(f => facilityIds.includes(f.id));
   }
 }

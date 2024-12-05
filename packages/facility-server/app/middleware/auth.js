@@ -5,10 +5,11 @@ import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { CentralServerConnection } from '../sync';
 
@@ -20,10 +21,11 @@ const jwtSecretKey = secret || crypto.randomUUID();
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 
-export async function getToken(user, expiresIn = tokenDuration) {
+export async function buildToken(user, facilityId, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
+      facilityId,
     },
     jwtSecretKey,
     { expiresIn },
@@ -55,6 +57,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
+      facilityIds: selectFacilityIds(config),
     },
     backoff: {
       maxAttempts: 1,
@@ -62,7 +65,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, settings } = response;
+  const { user, localisation, allowedFacilities } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -79,7 +82,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  return { central: true, user, localisation, settings };
+  return { central: true, user, localisation, allowedFacilities };
 }
 
 async function localLogin(models, email, password) {
@@ -92,12 +95,19 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
+  const allowedFacilities = await user.allowedFacilities();
+
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
     order: [['createdAt', 'DESC']],
   });
 
-  return { central: false, user, localisation };
+  return {
+    central: false,
+    user: user.get({ plain: true }),
+    allowedFacilities,
+    localisation,
+  };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
@@ -126,23 +136,35 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, deviceId, settings } = req;
+  const { body, models, deviceId } = req;
   const { email, password } = body;
 
   // no permission needed for login
   req.flagPermissionChecked();
 
   try {
-    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
-      models,
-      email,
-      password,
-      deviceId,
+    const {
+      central,
+      user,
+      localisation,
+      allowedFacilities,
+    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+
+    // check if user has access to any facilities on this server
+    const serverFacilities = selectFacilityIds(config);
+    const availableFacilities = await models.User.filterAllowedFacilities(
+      allowedFacilities,
+      serverFacilities,
     );
-    const [facility, permissions, token, role] = await Promise.all([
-      models.Facility.findByPk(config.serverFacilityId),
+    if (availableFacilities.length === 0) {
+      throw new BadAuthenticationError(
+        'User does not have access to any facilities on this server',
+      );
+    }
+
+    const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      getToken(user),
+      buildToken(user),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -151,11 +173,29 @@ export async function loginHandler(req, res, next) {
       localisation,
       permissions,
       role: role?.forResponse() ?? null,
-      server: {
-        facility: facility?.forResponse() ?? null,
-      },
-      settings: await settings.getFrontEndSettings(),
+      serverType: SERVER_TYPES.FACILITY,
+      availableFacilities,
     });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function setFacilityHandler(req, res, next) {
+  const { user, body } = req;
+  const { facilityId } = body;
+
+  try {
+    // Run after auth middleware, requires valid token but no other permission
+    req.flagPermissionChecked();
+
+    const hasAccess = await user.canAccessFacility(facilityId);
+    if (!hasAccess) {
+      throw new BadAuthenticationError('User does not have access to this facility');
+    }
+    const token = await buildToken(user, facilityId);
+    const settings = await req.settings[facilityId]?.getFrontEndSettings();
+    res.send({ token, settings });
   } catch (e) {
     next(e);
   }
@@ -167,32 +207,13 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await getToken(user);
+  const token = await buildToken(user);
   res.send({ token });
 }
 
-function decodeToken(token) {
-  return verify(token, jwtSecretKey);
-}
-
-async function getUserFromToken(request) {
-  const { models, headers } = request;
-  const authHeader = headers.authorization || '';
-  if (!authHeader) return null;
-
-  const bearer = authHeader.match(/Bearer (\S*)/);
-  if (!bearer) {
-    throw new BadAuthenticationError('Missing auth token header');
-  }
-
-  const token = bearer[1];
+async function decodeToken(token) {
   try {
-    const { userId } = await decodeToken(token);
-    const user = await models.User.findByPk(userId);
-    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new Error('User is not visible to the system'); // will be caught immediately
-    }
-    return user;
+    return await verify(token, jwtSecretKey);
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
@@ -200,22 +221,55 @@ async function getUserFromToken(request) {
   }
 }
 
+function getTokenFromHeaders(request) {
+  const { headers } = request;
+  const authHeader = headers.authorization || '';
+  if (!authHeader) {
+    throw new ForbiddenError();
+  }
+  const bearer = authHeader.match(/Bearer (\S*)/);
+  if (!bearer) {
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
+  }
+
+  const token = bearer[1];
+  return token;
+}
+
+async function getUser(models, userId) {
+  const user = await models.User.findByPk(userId);
+  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
+  }
+  return user;
+}
+
 export const authMiddleware = async (req, res, next) => {
+  const { models } = req;
   try {
-    // eslint-disable-next-line require-atomic-updates
-    req.user = await getUserFromToken(req);
+    const token = getTokenFromHeaders(req);
+    const { userId, facilityId } = await decodeToken(token);
+    const user = await getUser(models, userId);
+    req.user = user; // eslint-disable-line require-atomic-updates
+    req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
 
-    const spanAttributes = req.user
-      ? {
-          'enduser.id': req.user.id,
-          'enduser.role': req.user.role,
-        }
-      : {};
+    const spanAttributes = {};
+    if (req.user) {
+      spanAttributes['enduser.id'] = req.user.id;
+      spanAttributes['enduser.role'] = req.user.role;
+    }
+    if (req.facilityId) {
+      spanAttributes['session.facilityId'] = req.facilityId;
+    }
 
     // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes(spanAttributes);

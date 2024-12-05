@@ -14,6 +14,7 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedText, TranslatedTextElement } from '../../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown
@@ -58,24 +59,33 @@ export const BatchField = (): JSX.Element => (
   />
 );
 
-export const InjectionSiteField = (): JSX.Element => (
-  <Field
-    component={InjectionSiteDropdown}
-    name="injectionSite"
-    label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />}
-    selectPlaceholderText="Select"
-  />
-);
+export const InjectionSiteField = (): JSX.Element => {
+  const { getTranslation } = useTranslation();
+  return (
+    <Field
+      component={InjectionSiteDropdown}
+      name="injectionSite"
+      label={
+        <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />
+      }
+      selectPlaceholderText={getTranslation('general.action.select', 'Select')}
+    />
+  );
+};
 
-export const NotGivenReasonField = (): JSX.Element => (
-  <Field
-    component={SuggesterDropdown}
-    name="notGivenReasonId"
-    label={<TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />}
-    selectPlaceholderText="Select"
-    referenceDataType={ReferenceDataType.VaccineNotGivenReason}
-  />
-);
+export const NotGivenReasonField = (): JSX.Element => {
+  const { getTranslation } = useTranslation();
+
+  return (
+    <Field
+      component={SuggesterDropdown}
+      name="notGivenReasonId"
+      label={<TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />}
+      selectPlaceholderText={getTranslation('general.action.select', 'Select')}
+      referenceDataType={ReferenceDataType.VaccineNotGivenReason}
+    />
+  );
+};
 
 export const VaccineLocationField = ({ navigation }: NavigationFieldProps): JSX.Element => (
   <LocationField navigation={navigation} required />

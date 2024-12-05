@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.16.14",
+  "version": "2.17.5",
   "private": true,
   "description": "BES - Settings",
   "main": "dist/cjs/index.js",
@@ -17,6 +17,10 @@
     "./defaults": {
       "import": "./dist/mjs/defaults/index.js",
       "require": "./dist/cjs/defaults/index.js"
+    },
+    "./test": {
+      "import": "./dist/mjs/test/index.js",
+      "require": "./dist/cjs/test/index.js"
     },
     "./reader": {
       "import": "./dist/mjs/reader/index.js",

@@ -121,11 +121,10 @@ describe('Create DiagnosticReport', () => {
       for (let index = 0; index < statuses.length; index++) {
         body.status = statuses[index];
         let expectedLabRequestStatus;
-        if (
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED ||
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._
-        ) {
+        if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INTERIM_RESULTS;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
@@ -302,6 +301,50 @@ describe('Create DiagnosticReport', () => {
           ],
         });
         expect(response.status).toBe(400);
+      });
+
+      it('reports invalid if using unsupported statuses', async () => {
+        const statuses = [
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
+        ];
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            isWithPanels: true,
+          },
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          },
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = postBody(serviceRequestId);
+
+        for (let index = 0; index < statuses.length; index++) {
+          const status = statuses[index];
+          body.status = status;
+          const response = await app.post(endpoint).send(body);
+          await labRequest.reload();
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: `${status} workflow unsupported`,
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }
       });
 
       it('reports invalid if using invalid statuses', async () => {

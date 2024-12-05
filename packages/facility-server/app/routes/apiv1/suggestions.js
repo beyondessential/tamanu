@@ -2,7 +2,6 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import config from 'config';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { camelCase, keyBy, omit } from 'lodash';
 import {
@@ -73,13 +72,14 @@ function createSuggesterRoute(
             language,
             refDataType: dataType,
             queryString: searchQuery,
+            limit: defaultLimit,
           })
         : [];
       const suggestedIds = translations.map(extractDataId);
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
       const visibilityStatus = whereQuery.visibilityStatus;
 
       const where = {
@@ -95,7 +95,7 @@ function createSuggesterRoute(
                   },
                 }
               : {}),
-            ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
+            ...(filterByFacility ? { facilityId: query.facilityId } : {}),
           },
         ],
       };
@@ -183,7 +183,7 @@ function createAllRecordsRoute(
       const { models, query } = req;
 
       const model = models[modelName];
-      const where = whereBuilder('%', query);
+      const where = whereBuilder('%', query, req);
       const results = await model.findAll({
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
@@ -334,7 +334,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
 
   return {
     ...baseWhere,
-    facilityId: config.serverFacilityId,
+    facilityId: query.facilityId,
   };
 };
 

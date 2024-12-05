@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
+import { useApi, useSuggester } from '../api';
 
 import { FormModal } from './FormModal';
 import { NoteForm } from '../forms/NoteForm';
@@ -43,7 +42,7 @@ export const NoteModal = ({
 
   const noteContentHasChanged = (noteContent || '') !== (note?.content || '');
 
-  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const practitionerSuggester = useSuggester('practitioner');
 
   useEffect(() => {
     (async () => {

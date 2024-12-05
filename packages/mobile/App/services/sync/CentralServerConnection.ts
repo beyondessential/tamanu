@@ -4,6 +4,7 @@ import { readConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
+  forbiddenFacilityMessage,
   generalErrorMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
@@ -13,6 +14,7 @@ import {
 import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
+import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 const API_PREFIX = 'api';
 
@@ -154,7 +156,7 @@ export class CentralServerConnection {
       {
         urgent,
         lastSyncedTick,
-        facilityId,
+        facilityIds: [facilityId],
         deviceId: this.deviceId,
       },
     );
@@ -188,7 +190,7 @@ export class CentralServerConnection {
     const facilityId = await readConfig('facilityId', '');
     const body = {
       since,
-      facilityId,
+      facilityIds: [facilityId],
       tablesToInclude: tableNames,
       tablesForFullResync,
       isMobile: true,
@@ -292,7 +294,18 @@ export class CentralServerConnection {
         { backoff: { maxAttempts: 1 } },
       );
 
-      if (!data.token || !data.refreshToken || !data.user) {
+      const facilityId = await readConfig('facilityId', '');
+      const { token, refreshToken, user, allowedFacilities } = data;
+      if (
+        facilityId &&
+        allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
+        !allowedFacilities.map(f => f.id).includes(facilityId)
+      ) {
+        console.warn('User doesnt have permission for this facility: ', facilityId);
+        throw new AuthenticationError(forbiddenFacilityMessage);
+      }
+
+      if (!token || !refreshToken || !user) {
         // auth failed in some other regard
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
