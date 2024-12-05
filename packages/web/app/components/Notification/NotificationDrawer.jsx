@@ -84,6 +84,10 @@ const ActionLink = styled.span`
   text-decoration: underline;
   cursor: pointer;
   font-size: 14px;
+  &:hover {
+    font-weight: 500;
+    color: ${Colors.primary};
+  }
 `;
 
 const CloseButton = styled.div`
