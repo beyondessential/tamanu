@@ -88,8 +88,6 @@ export const LocationBookingsCalendar = ({
   openCancelModal,
   ...props
 }) => {
-  useEffect(scrollToThisWeek, []);
-
   const { monthOf, setMonthOf } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
