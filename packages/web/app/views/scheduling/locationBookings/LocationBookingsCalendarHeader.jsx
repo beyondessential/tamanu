@@ -21,7 +21,7 @@ const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   align-items: center;
 `;
 
-const StyledButton = styled(Button).attrs({ variant: 'text' })`
+const GoToThisWeekButton = styled(Button).attrs({ variant: 'text' })`
   font-size: 0.75rem;
   font-weight: 400;
   min-inline-size: 4rem; // Prevent hover effect from affecting layout
@@ -103,18 +103,20 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
     }
   }, [location.search, setMonthOf]);
 
+  const goToThisWeek = () => {
+    if (isThisMonth(monthOf)) {
+      scrollToThisWeek();
+    } else {
+      setMonthOf(startOfToday());
+      // In this case, useEffect in LocationBookings context handles auto-scroll
+    }
+  };
+
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
         <MonthPicker value={monthOf} onChange={setMonthOf} />
-        <StyledButton
-          onClick={() => {
-            if (isThisMonth(monthOf)) scrollToThisWeek();
-            else setMonthOf(startOfToday());
-          }}
-        >
-          This week
-        </StyledButton>
+        <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
