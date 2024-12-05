@@ -81,8 +81,11 @@ export const LocationBookingsView = () => {
   };
 
   const openBookingForm = async appointment => {
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
+    await setSelectedAppointment(appointment);
+
     const { locationId, startTime } = appointment;
-    setSelectedAppointment(appointment);
     if (locationId && startTime) {
       updateSelectedCell({ locationId, date: parseISO(startTime) });
     }
@@ -95,7 +98,9 @@ export const LocationBookingsView = () => {
   };
 
   const handleNewBooking = async () => {
-    setSelectedAppointment(null);
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
+    await setSelectedAppointment(null);
     openBookingForm({});
   };
 
