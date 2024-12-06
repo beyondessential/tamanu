@@ -58,7 +58,7 @@ const ToggleGroup = styled(ToggleButtonGroup)`
 
 const StyledFormHelperText = styled(FormHelperText)`
   && {
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 500;
   }
 `;
