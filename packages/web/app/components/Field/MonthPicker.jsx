@@ -1,7 +1,7 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { add, endOfYear, isValid, startOfToday, startOfYear } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../constants';
