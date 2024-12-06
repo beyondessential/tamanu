@@ -21,7 +21,7 @@ import {
   subMonths,
 } from 'date-fns';
 
-import { BodyText, MonthYearInput, TextButton } from '../../../components';
+import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
@@ -115,7 +115,7 @@ const StepperButton = styled(IconButton)`
   }
 `;
 
-const StyledMonthYearInput = styled(MonthYearInput)`
+const StyledMonthPicker = styled(MonthPicker)`
   inline-size: 6.3rem;
   & .MuiInputBase-root > input {
     block-size: 1.039rem;
@@ -197,10 +197,7 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <StyledMonthYearInput
-        value={viewedDays[0]}
-        onChange={handleMonthYearChange}
-      />
+      <StyledMonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>

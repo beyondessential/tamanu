@@ -235,14 +235,6 @@ appointments.get(
       return _filters;
     }, {});
 
-    console.log({
-      ...facilityIdQuery,
-      ...timeQueryWhereClause,
-      ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
-      ...(patientNameOrId ? patientNameOrIdQuery : null),
-      ...filters,
-    });
-
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,

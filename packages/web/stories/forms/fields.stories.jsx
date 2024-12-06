@@ -11,7 +11,7 @@ import {
   AutocompleteInput,
   DateInput,
   DateTimeInput,
-  MonthYearInput,
+  MonthPicker,
   MultiselectInput,
   NullableBooleanInput,
   NumberInput,
@@ -314,6 +314,6 @@ addStories('IdInput', props => (
 
 addStories('CalendarInput', props => (
   <LocalizationProvider dateAdapter={AdapterDateFns}>
-    <StoryControlWrapper Component={MonthYearInput} label="Date" {...props} />
+    <StoryControlWrapper Component={MonthPicker} label="Date" {...props} />
   </LocalizationProvider>
 ));
