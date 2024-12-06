@@ -1,4 +1,5 @@
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
+import FormHelperText from '@mui/material/FormHelperText';
 import {
   addMilliseconds,
   areIntervalsOverlapping,
@@ -33,7 +34,6 @@ import {
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
 } from './utils';
-import { FormHelperText } from '@mui/material';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
