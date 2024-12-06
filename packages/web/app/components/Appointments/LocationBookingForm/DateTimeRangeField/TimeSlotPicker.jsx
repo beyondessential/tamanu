@@ -165,8 +165,6 @@ export const TimeSlotPicker = ({
   const handleChange = (_event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
 
-    // setFieldTouched(formikKey);
-
     switch (variant) {
       case TIME_SLOT_PICKER_VARIANTS.RANGE: {
         // Deselecting the only selected time slot
