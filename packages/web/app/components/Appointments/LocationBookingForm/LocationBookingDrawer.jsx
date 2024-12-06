@@ -120,21 +120,36 @@ const validationSchema = yup.object({
   overnight: yup.boolean(),
   date: yup.string().when('overnight', {
     is: value => !value,
-    then: yup.string().nullable().required('*Required'),
+    then: yup
+      .string()
+      .nullable()
+      .required('*Required'),
     otherwise: yup.string().nullable(),
   }),
   startDate: yup.string().when('overnight', {
     is: true,
-    then: yup.string().nullable().required('*Required'),
+    then: yup
+      .string()
+      .nullable()
+      .required('*Required'),
     otherwise: yup.string().nullable(),
   }),
   endDate: yup.string().when('overnight', {
     is: true,
-    then: yup.string().nullable().required('*Required'),
+    then: yup
+      .string()
+      .nullable()
+      .required('*Required'),
     otherwise: yup.string().nullable(),
   }),
-  startTime: yup.date().nullable().required('*Required'),
-  endTime: yup.date().nullable().required('*Required'),
+  startTime: yup
+    .date()
+    .nullable()
+    .required('*Required'),
+  endTime: yup
+    .date()
+    .nullable()
+    .required('*Required'),
   patientId: yup.string().required('*Required'),
   bookingTypeId: yup.string().required('*Required'),
   clinicianId: yup.string(),

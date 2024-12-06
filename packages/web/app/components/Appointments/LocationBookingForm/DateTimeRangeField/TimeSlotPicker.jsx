@@ -77,9 +77,16 @@ export const TimeSlotPicker = ({
     setFieldValue,
     values,
     errors,
+    isSubmitting,
   } = useFormikContext();
 
-  // TODO: dont really like this 
+  // TODO: dont really like this error handling at all
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+  useEffect(() => {
+    if (isSubmitting) setHasAttemptedSubmit(true);
+  }, [isSubmitting]);
+
   const formikKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
   const error = errors[formikKey];
 
@@ -340,7 +347,7 @@ export const TimeSlotPicker = ({
         disabled={disabled}
         value={selectedToggles}
         onChange={handleChange}
-        error={error}
+        error={hasAttemptedSubmit && error}
         {...props}
       >
         {isFetchingExistingBookings ? (
@@ -398,7 +405,7 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
-      {error && <StyledFormHelperText error>{error}</StyledFormHelperText>}
+      {hasAttemptedSubmit && error && <StyledFormHelperText error>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };
