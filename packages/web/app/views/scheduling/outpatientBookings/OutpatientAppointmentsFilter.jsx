@@ -3,7 +3,10 @@ import styled from 'styled-components';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
-import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
+import {
+  OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE,
+  useOutpatientAppointmentsContext,
+} from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
 
 const Fieldset = styled.fieldset`
@@ -57,7 +60,13 @@ export const OutpatientAppointmentsFilter = props => {
         name="appointmentTypeId"
         onChange={e => setFilters(prev => ({ ...prev, appointmentTypeId: e.target.value }))}
       />
-      <ResetButton onClick={resetForm} type="reset">
+      <ResetButton
+        onClick={() => {
+          resetForm();
+          setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+        }}
+        type="reset"
+      >
         <TranslatedText stringId="general.action.clear" fallback="Clear" />
       </ResetButton>
     </Fieldset>

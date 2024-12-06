@@ -2,12 +2,14 @@ import React, { createContext, useContext, useState } from 'react';
 
 const OutpatientAppointmentsContext = createContext(null);
 
+export const OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE = {
+  appointmentTypeId: [],
+  locationGroupId: [],
+  patientNameOrId: null,
+};
+
 export const OutpatientAppointmentsContextProvider = ({ children }) => {
-  const [filters, setFilters] = useState({
-    appointmentTypeId: [],
-    locationGroupId: [],
-    patientNameOrId: null,
-  });
+  const [filters, setFilters] = useState(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters }}>
