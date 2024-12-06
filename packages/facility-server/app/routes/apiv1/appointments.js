@@ -108,7 +108,7 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
-const isStringOrArray = obj => typeof obj === 'string' && Array.isArray(obj);
+const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
