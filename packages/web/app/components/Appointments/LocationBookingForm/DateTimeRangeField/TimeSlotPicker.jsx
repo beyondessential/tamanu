@@ -80,7 +80,6 @@ export const TimeSlotPicker = ({
     isSubmitting,
   } = useFormikContext();
 
-  // TODO: dont really like this error handling at all
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   useEffect(() => {
