@@ -87,8 +87,9 @@ export const TimeSlotPicker = ({
     if (isSubmitting) setHasAttemptedSubmit(true);
   }, [isSubmitting]);
 
-  const formikKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
-  const error = errors[formikKey];
+  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
+  const error = errors[errorKey];
+  const showError = hasAttemptedSubmit && error;
 
   const initialTimeRange = useMemo(() => {
     return isValid(initialStart) && isValid(initialEnd)
@@ -345,7 +346,7 @@ export const TimeSlotPicker = ({
         disabled={disabled}
         value={selectedToggles}
         onChange={handleChange}
-        error={hasAttemptedSubmit && error}
+        error={showError}
         {...props}
       >
         {isFetchingExistingBookings ? (
@@ -403,7 +404,7 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
-      {hasAttemptedSubmit && error && <StyledFormHelperText error>{error}</StyledFormHelperText>}
+      {showError && <StyledFormHelperText error>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };
