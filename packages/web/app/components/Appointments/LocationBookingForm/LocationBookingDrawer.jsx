@@ -115,46 +115,6 @@ const SuccessMessage = ({ isEdit = false }) =>
     />
   );
 
-const validationSchema = yup.object({
-  locationId: yup.string().required('*Required'),
-  overnight: yup.boolean(),
-  date: yup.string().when('overnight', {
-    is: value => !value,
-    then: yup
-      .string()
-      .nullable()
-      .required('*Required'),
-    otherwise: yup.string().nullable(),
-  }),
-  startDate: yup.string().when('overnight', {
-    is: true,
-    then: yup
-      .string()
-      .nullable()
-      .required('*Required'),
-    otherwise: yup.string().nullable(),
-  }),
-  endDate: yup.string().when('overnight', {
-    is: true,
-    then: yup
-      .string()
-      .nullable()
-      .required('*Required'),
-    otherwise: yup.string().nullable(),
-  }),
-  startTime: yup
-    .date()
-    .nullable()
-    .required('*Required'),
-  endTime: yup
-    .date()
-    .nullable()
-    .required('*Required'),
-  patientId: yup.string().required('*Required'),
-  bookingTypeId: yup.string().required('*Required'),
-  clinicianId: yup.string(),
-});
-
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationBookingsContext();
@@ -213,6 +173,48 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     });
     resetForm();
   };
+
+  const requiredMessage = getTranslation('validation.required.inline', '*Required');
+
+  const validationSchema = yup.object({
+    locationId: yup.string().required(requiredMessage),
+    overnight: yup.boolean(),
+    date: yup.string().when('overnight', {
+      is: value => !value,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    startDate: yup.string().when('overnight', {
+      is: true,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    endDate: yup.string().when('overnight', {
+      is: true,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    patientId: yup.string().required(requiredMessage),
+    bookingTypeId: yup.string().required(requiredMessage),
+    clinicianId: yup.string(),
+  });
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
