@@ -9,6 +9,10 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
+/**
+ * Schema to follow iCalendar standard for recurring events.
+ * @see https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
+ */
 export class AppointmentSchedule extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
