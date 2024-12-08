@@ -29,7 +29,7 @@ export async function up(query) {
       allowNull: true,
     },
     nth_weekday: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: true,
     },
     occurrence_count: {

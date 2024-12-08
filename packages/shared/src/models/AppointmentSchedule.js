@@ -30,7 +30,7 @@ export class AppointmentSchedule extends Model {
           allowNull: true,
         },
         nthWeekday: {
-          type: Sequelize.STRING,
+          type: Sequelize.INTEGER,
           allowNull: true,
         },
         occurrenceCount: {
