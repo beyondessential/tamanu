@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
 import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
@@ -30,13 +27,10 @@ export async function up(query) {
     days_of_week: {
       type: Sequelize.ARRAY(Sequelize.STRING),
       allowNull: true,
-      comment: 'Days of the week (e.g., ["MO", "WE", "FR"]). Null for non-weekly recurrences.',
     },
     nth_weekday: {
       type: Sequelize.STRING,
       allowNull: true,
-      comment:
-        'Ordinal weekday in a month (e.g., "2TU" for 2nd Tuesday, "-1FR" for Last Friday). Null for weekly patterns.',
     },
     occurrence_count: {
       type: DataTypes.INTEGER,
