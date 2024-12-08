@@ -10,6 +10,7 @@ import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
+import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
@@ -18,7 +19,7 @@ const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
-    [question],
+    [question, answer],
   );
   if (!refData) {
     return null;
@@ -97,7 +98,7 @@ const isFromBackend = ({ config, dataElement }): Boolean => {
   return false;
 };
 
-const renderAnswer = (question, answer): ReactElement => {
+export const renderAnswer = (question, answer): ReactElement => {
   if (isFromBackend(question)) {
     return <BackendAnswer question={question} answer={answer} />;
   }
@@ -107,6 +108,8 @@ const renderAnswer = (question, answer): ReactElement => {
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.SURVEY_ANSWER:
+      return <SurveyAnswerResult question={question} answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
