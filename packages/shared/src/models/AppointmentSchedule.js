@@ -1,5 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY_VALUES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -12,9 +17,12 @@ export class AppointmentSchedule extends Model {
         startDate: dateTimeType('startDate', { allowNull: false }),
         untilDate: dateTimeType('untilDate'),
         interval: { type: Sequelize.INTEGER, allowNull: false },
-        frequency: { type: Sequelize.ENUM, values: ['weekly', 'monthly'], allowNull: false },
+        frequency: {
+          type: Sequelize.ENUM(REPEAT_FREQUENCY_VALUES),
+          allowNull: false,
+        },
         daysOfWeek: {
-          type: Sequelize.ARRAY(Sequelize.ENUM('MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU')),
+          type: Sequelize.ARRAY(Sequelize.ENUM(DAYS_OF_WEEK)),
           allowNull: true,
         },
         nthWeekday: {
@@ -30,9 +38,7 @@ export class AppointmentSchedule extends Model {
     );
   }
 
-  static getListReferenceAssociations() {
-
-  }
+  static getListReferenceAssociations() {}
 
   static initRelations(models) {
     this.hasMany(models.Appointment, {
