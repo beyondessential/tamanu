@@ -217,9 +217,15 @@ appointments.get(
       const column = queryField.includes('.') // querying on a joined table (associations)
         ? `$${queryField}$`
         : queryField;
-      const comparison = Array.isArray(queryValue)
-        ? { [Op.in]: queryValue }
-        : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+
+      let comparison;
+      if (queryValue === '' || queryValue.length === 0) {
+        comparison = { [Op.not]: null };
+      } else if (typeof queryValue === 'string') {
+        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+      } else {
+        comparison = { [Op.in]: queryValue };
+      }
 
       _filters.push({ [column]: comparison });
       return _filters;
