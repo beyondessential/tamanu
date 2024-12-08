@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { pick } from 'lodash';
-import { isValid, startOfDay } from 'date-fns';
+import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
