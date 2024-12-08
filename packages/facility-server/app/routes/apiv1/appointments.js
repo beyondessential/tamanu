@@ -204,7 +204,7 @@ appointments.get(
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
-    const facilityIdField = !isStringOrArray(queries.locationGroupId)
+    const facilityIdField = isStringOrArray(queries.locationGroupId)
       ? '$locationGroup.facility_id$'
       : '$location.facility_id$';
     const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
