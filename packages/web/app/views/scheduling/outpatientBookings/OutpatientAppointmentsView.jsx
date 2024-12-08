@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { pick } from 'lodash';
-import { startOfDay } from 'date-fns';
+import { isValid, startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
@@ -104,6 +104,7 @@ export const OutpatientAppointmentsView = () => {
   }, [location.search]);
 
   const handleChangeDate = event => {
+    if (!isValid(event.target.value)) return;
     setSelectedDate(event.target.value);
   };
 

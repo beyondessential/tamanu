@@ -152,7 +152,9 @@ export const MonthPicker = ({
           ...props,
         },
       }}
-      onAccept={date => onChange?.(date)}
+      onAccept={date => {
+        if (isValid(date)) onChange?.(date);
+      }}
       minDate={minDate}
       maxDate={maxDate}
       value={value}
