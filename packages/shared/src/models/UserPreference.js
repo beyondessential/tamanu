@@ -17,6 +17,7 @@ export class UserPreference extends Model {
         },
         selectedGraphedVitalsOnFilter: Sequelize.STRING,
         locationBookingFilters: Sequelize.JSONB,
+        outpatientAppointmentFilters: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
