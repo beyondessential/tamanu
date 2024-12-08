@@ -73,6 +73,11 @@ export class Appointment extends Model {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
+
+    this.belongsTo(models.AppointmentSchedule, {
+      foreignKey: 'scheduleId',
+      as: 'schedule',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
