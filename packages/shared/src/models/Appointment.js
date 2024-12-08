@@ -34,6 +34,7 @@ export class Appointment extends Model {
       'locationGroup',
       'appointmentType',
       'bookingType',
+      'encounter',
     ];
   }
 
@@ -53,7 +54,6 @@ export class Appointment extends Model {
       foreignKey: 'locationGroupId',
     });
 
-    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
@@ -67,6 +67,11 @@ export class Appointment extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'appointmentTypeId',
       as: 'appointmentType',
+    });
+
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
+      as: 'encounter',
     });
   }
 
@@ -92,7 +97,11 @@ export class Appointment extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
+        facilityId: 'location_groups.facility_id',
       }),
+      joins: `
+        JOIN location_groups ON appointments.location_group_id = location_groups.id
+      `,
     };
   }
 }

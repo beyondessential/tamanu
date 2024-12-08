@@ -1,5 +1,5 @@
 // simple fields
-export * from './CalendarField';
+export * from './MonthPicker';
 export * from './CheckField';
 export * from './DateField';
 export * from './Field';

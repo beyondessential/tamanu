@@ -1,20 +1,28 @@
-import React, { useMemo } from 'react';
+import { Box } from '@material-ui/core';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+import React from 'react';
 import styled from 'styled-components';
 
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { useLocationBookingsQuery } from '../../api/queries';
+import { Colors } from '../../constants';
+import { formatShortest, formatTime } from '../DateDisplay';
+import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
-import { TranslatedText } from '../Translation';
-import { useAppointmentsQuery } from '../../api/queries';
-import { formatShortest, formatTime } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
+import { ThemedTooltip } from '../Tooltip';
+import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { Box } from '@material-ui/core';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
     max-width: 922px;
+    overflow-y: visible;
+    div:nth-child(2) {
+      overflow: visible;
+    }
   }
   h2 {
     font-size: 18px;
@@ -42,7 +50,8 @@ const StyledTable = styled(Table)`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 18px;
-  max-height: 547px;
+  max-height: calc(100vh - 128.8px);
+  box-shadow: none;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
@@ -50,14 +59,11 @@ const StyledTable = styled(Table)`
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
     background-color: ${Colors.white};
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px;
     span {
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -66,11 +72,13 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 11px;
+    border-bottom: none;
+    padding: 12px 8px 0 8px;
     &:last-child {
       padding-right: 30px;
     }
     &:first-child {
+      position: relative;
       padding-left: 30px;
     }
   }
@@ -89,9 +97,10 @@ const Container = styled.div`
 
 const DateText = styled.div`
   text-transform: lowercase;
-  white-space: pre;
-  display: flex;
-  align-items: center;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const StatusBadge = styled.div`
@@ -106,23 +115,47 @@ const StatusBadge = styled.div`
   background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
-const getDate = ({ startTime, endTime, overnight }) => {
+const OvernightIcon = styled.span`
+  position: absolute;
+  top: 17px;
+  left: 146px;
+  color: ${Colors.primary};
+`;
+
+const getDate = ({ startTime, endTime }) => {
   const formatShortestStartTime = formatShortest(startTime);
   const formatShortestEndTime = formatShortest(endTime);
   const formatTimeStartTime = formatTime(startTime).replace(' ', '');
   const formatTimeEndTime = formatTime(endTime).replace(' ', '');
 
+  const isOvernight = formatShortestStartTime !== formatShortestEndTime;
+
   return (
-    <DateText>
-      {formatShortestStartTime === formatShortestEndTime
-        ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
-        : `${formatShortestStartTime} - ${formatShortestEndTime}`}
-      {overnight && (
-        <Box component={'span'} display={'flex'} color={Colors.primary} ml={0.5}>
-          <Brightness2Icon fontSize="inherit" />
+    <ThemedTooltip
+      title={
+        <Box style={{ textTransform: 'lowercase', fontWeight: 400 }}>
+          {isOvernight ? (
+            `${formatShortestStartTime} - ${formatShortestEndTime}`
+          ) : (
+            <div>
+              <div>{formatShortestStartTime}</div>
+              <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
+            </div>
+          )}
         </Box>
-      )}
-    </DateText>
+      }
+    >
+      <DateText>
+        {!isOvernight
+          ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
+          : `${formatShortestStartTime} - ${formatShortestEndTime}`}
+        {isOvernight && (
+          <OvernightIcon>
+            <Brightness2Icon fontSize="inherit" />
+          </OvernightIcon>
+        )}
+      </DateText>
+    </ThemedTooltip>
   );
 };
 
@@ -142,6 +175,7 @@ const COLUMNS = [
       <TranslatedText stringId="bookings.modal.pastBookings.table.column.area" fallback="Area" />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'location',
@@ -153,6 +187,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -163,6 +198,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'bookingType',
@@ -173,6 +209,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',
@@ -192,18 +229,18 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     initialSortDirection: 'desc',
   });
 
-  const beforeDate = useMemo(() => new Date().toISOString(), []);
-  const bookings =
-    useAppointmentsQuery({
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
       all: true,
       patientId: patient?.id,
-      before: beforeDate,
-      after: '1970-01-01 00:00',
+      before: getCurrentDateTimeString(),
+      after: '-infinity',
       orderBy,
       order,
-      locationId: '',
-      locationGroup: '',
-    }).data?.data ?? [];
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const bookings = data?.data ?? [];
 
   return (
     <StyledModal
@@ -216,6 +253,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     >
       <Container>
         <StyledTable
+          isLoading={isLoading}
           data={bookings}
           columns={COLUMNS}
           order={order}

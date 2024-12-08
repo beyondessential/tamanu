@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { css, styled } from '@mui/material/styles';
@@ -21,7 +21,7 @@ import {
   subMonths,
 } from 'date-fns';
 
-import { BodyText, MonthYearInput, TextButton } from '../../../components';
+import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
@@ -115,7 +115,7 @@ const StepperButton = styled(IconButton)`
   }
 `;
 
-const StyledMonthYearInput = styled(MonthYearInput)`
+const StyledMonthPicker = styled(MonthPicker)`
   inline-size: 6.3rem;
   & .MuiInputBase-root > input {
     block-size: 1.039rem;
@@ -152,6 +152,10 @@ const DayButton = ({ date, selected, onClick }) => {
 
 export const DateSelector = ({ value, onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
+
+  useEffect(() => {
+    setViewedDays(getMonthInterval(value));
+  }, [value]);
 
   const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
   const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
@@ -193,7 +197,7 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <StyledMonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <StyledMonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>

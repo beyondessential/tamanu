@@ -26,27 +26,33 @@ function getEncounterTypeLabel(encounterType) {
 }
 
 export const CheckInModal = React.memo(
-  ({ open, onClose, onSubmitEncounter, patientId, referral, patientBillingTypeId, ...props }) => {
+  ({
+    open,
+    onClose,
+    onSubmitEncounter,
+    patientId,
+    referral,
+    patientBillingTypeId,
+    initialValues,
+    ...props
+  }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
     const dispatch = useDispatch();
 
     const onCreateEncounter = useCallback(
       async data => {
-        const newEncounter = {
+        const newEncounter = await createEncounter({
           patientId,
           referralId: referral?.id,
           ...data,
-        };
+        });
 
-        await createEncounter(newEncounter);
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
-        if (typeof onSubmitEncounter === 'function') {
-          onSubmitEncounter(newEncounter);
-        }
+        onSubmitEncounter?.(newEncounter);
 
         onClose();
 
@@ -71,6 +77,7 @@ export const CheckInModal = React.memo(
           onSubmit={onCreateEncounter}
           onCancel={onClose}
           patientBillingTypeId={patientBillingTypeId}
+          initialValues={initialValues}
           {...props}
         />
       </FormModal>

@@ -1,5 +1,4 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -8,7 +7,8 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -52,7 +52,7 @@ const OvernightStayLabel = styled.span`
   gap: 0.25rem;
 `;
 
-export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -60,16 +60,30 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   return (
     <ConfirmModal
       title={
-        <TranslatedText
-          stringId="locationBooking.cancelWarningModal.title"
-          fallback="Cancel new booking"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="locationBooking.cancelWarningModal.edit.title"
+            fallback="Cancel booking modification"
+          />
+        ) : (
+          <TranslatedText
+            stringId="locationBooking.cancelWarningModal.create.title"
+            fallback="Cancel new booking"
+          />
+        )
       }
       subText={
-        <TranslatedText
-          stringId="locationBooking.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new booking?"
-        />
+        isEdit ? (
+          <TranslatedText
+            stringId="locationBooking.cancelWarningModal.edit.subtext"
+            fallback="Are you sure you would like to cancel modifying the booking?"
+          />
+        ) : (
+          <TranslatedText
+            stringId="locationBooking.cancelWarningModal.create.subtext"
+            fallback="Are you sure you would like to cancel the new booking?"
+          />
+        )
       }
       open={open}
       onConfirm={() => {
@@ -91,8 +105,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
 const SuccessMessage = ({ isEdit = false }) =>
   isEdit ? (
     <TranslatedText
-      stringId="locationBooking.notification.bookingSuccessfullyEdited"
-      fallback="Booking successfully edited"
+      stringId="locationBooking.notification.bookingSuccessfullyModified"
+      fallback="Booking successfully modified"
     />
   ) : (
     <TranslatedText
@@ -113,6 +127,7 @@ const validationSchema = yup.object({
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
+  const { updateSelectedCell } = useLocationBookingsContext();
   const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -128,15 +143,10 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       setShowWarningModal(true);
     });
 
-  const queryClient = useQueryClient();
   const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
-      onSuccess: () => {
-        notifySuccess(<SuccessMessage />);
-        onClose();
-        queryClient.invalidateQueries('appointments');
-      },
+      onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
         notifyError(
           error.message == 409 ? (
@@ -159,16 +169,23 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
     { resetForm },
   ) => {
-    mutateBooking({
-      id: initialValues.id, // Undefined when creating new booking
-      locationId,
-      startTime: toDateTimeString(startTime),
-      endTime: toDateTimeString(endTime),
-      patientId,
-      bookingTypeId,
-      clinicianId,
-    });
-    resetForm();
+    mutateBooking(
+      {
+        id: initialValues.id, // Undefined when creating new booking
+        locationId,
+        startTime: toDateTimeString(startTime),
+        endTime: toDateTimeString(endTime),
+        patientId,
+        bookingTypeId,
+        clinicianId,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+          resetForm();
+        },
+      },
+    );
   };
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
@@ -177,10 +194,11 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       if (!confirmed) return;
       onClose();
       resetForm();
+      updateSelectedCell({ locationId: null, date: null });
     };
 
     const resetFields = fields => {
-      for (const field of fields) setFieldValue(field, null);
+      for (const field of fields) void setFieldValue(field, null);
     };
 
     return (
@@ -217,7 +235,11 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            onChange={e => {
+              updateSelectedCell({ locationId: e.target.value });
+              resetFields(['startTime', 'endDate', 'endTime']);
+            }}
+            locationGroupSuggesterType="bookableLocationGroup"
           />
           <Field
             name="overnight"
@@ -268,6 +290,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       <Form
         enableReinitialize
         initialValues={initialValues}
+        formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         onSubmit={handleSubmit}
         render={renderForm}
         suppressErrorDialog
@@ -278,6 +301,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        isEdit={isEdit}
       />
     </>
   );

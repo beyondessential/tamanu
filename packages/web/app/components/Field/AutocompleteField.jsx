@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, groupBy, map, sortBy } from 'lodash';
+import { debounce, groupBy, map } from 'lodash';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -407,18 +407,11 @@ export class AutocompleteInput extends Component {
   };
 
   groupSuggestionsByKey = suggestions => {
-    const { groupByKey, orderByValues } = this.props;
+    const { groupByKey } = this.props;
     const groupedSuggestions = map(groupBy(suggestions, groupByKey), (data, groupByKey) => ({
       [this.props.groupByKey]: groupByKey,
       data,
     }));
-    if (orderByValues) {
-      const orderedSuggestions = sortBy(groupedSuggestions, item => {
-        const index = orderByValues.indexOf(item.type);
-        return index === -1 ? Infinity : index;
-      });
-      return orderedSuggestions;
-    }
 
     return groupedSuggestions;
   };
