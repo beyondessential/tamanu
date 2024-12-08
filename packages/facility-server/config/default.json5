@@ -109,7 +109,7 @@
         // every 10 mins
         "schedule": "*/10 * * * *"
       },
-    }
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -132,5 +132,13 @@
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false
+  "allowMismatchedTimeZones": false,
+  "tasking": {
+    "upcomingTasksTimeFrame": 8, // hours,
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "notification": {
+    "enabled": true,
+    "recentNotificationsTimeFrame": 48, // hours
+  },
 }

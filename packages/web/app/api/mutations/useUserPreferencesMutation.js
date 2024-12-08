@@ -9,7 +9,7 @@ export const useUserPreferencesMutation = () => {
 
   return useMutation({
     mutationKey: ['userPreferences'],
-    mutationFn: async newUserPreferences => {
+    mutationFn: newUserPreferences => {
       return api.post(`user/userPreferences`, {
         ...newUserPreferences,
       });

@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, Document } from '@react-pdf/renderer';
-import { getDOB, getName, getSex } from '../patientAccessors';
+import { getDob, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 
 const fontSize = 11;
@@ -49,7 +49,7 @@ const Row = props => <View style={styles.row} {...props} />;
 const Col = props => <View style={styles.col} {...props} />;
 const BarcodeContainer = props => <View style={styles.barcodeContainer} {...props} />;
 
-const IDLabel = ({ patient }) => {
+const IDLabel = ({ patient, getTranslation }) => {
   return (
     <View style={styles.idLabel}>
       <Row>
@@ -70,7 +70,7 @@ const IDLabel = ({ patient }) => {
             {getSex(patient)}
           </P>
           <P mb={0} fontSize={fontSize} style={styles.text}>
-            {getDOB(patient)}
+            {getDob(patient, { getTranslation })}
           </P>
         </Col>
       </Row>
@@ -84,6 +84,7 @@ const IDLabel = ({ patient }) => {
 };
 
 const IDLabelPrintoutComponent = ({ patient, measures }) => {
+  const { getTranslation } = useLanguageContext();
   const pageStyles = StyleSheet.create({
     grid: {
       display: 'flex',
@@ -113,7 +114,7 @@ const IDLabelPrintoutComponent = ({ patient, measures }) => {
         <View style={pageStyles.grid} wrap={false}>
           {[...Array(30)].map((_, i) => (
             <View style={pageStyles.gridItem} key={`label-${i}`}>
-              <IDLabel patient={patient} key={i} />
+              <IDLabel patient={patient} getTranslation={getTranslation} key={i} />
             </View>
           ))}
         </View>

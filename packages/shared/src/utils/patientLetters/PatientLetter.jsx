@@ -4,7 +4,7 @@ import { Document, View } from '@react-pdf/renderer';
 import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertificates/Layout';
 import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
-import { getDOB, getName, getSex } from '../patientAccessors';
+import { getDob, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -18,7 +18,7 @@ const DETAIL_FIELDS = [
   {
     key: 'dateOfBirth',
     label: 'DOB',
-    accessor: getDOB,
+    accessor: getDob,
   },
   { key: 'clinicianName', label: 'Clinician' },
   { key: 'sex', label: 'Sex', accessor: getSex },
@@ -42,7 +42,8 @@ const DetailsSection = ({ getLocalisation, data }) => {
         <Col style={{ marginBottom: 5 }}>
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
-              const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
+              const value =
+                (accessor ? accessor(data, { getLocalisation, getTranslation }) : data[key]) || '';
               const label =
                 getTranslation(`general.localisedFields.${key}.label.short`) ||
                 getTranslation(`general.localisedFields.${key}.label`) ||

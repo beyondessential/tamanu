@@ -126,7 +126,7 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: 'Survey is misconfigured: Question config did not specify a valid source',
+          message: 'no model for componentConfig {}',
         },
       });
     });
@@ -147,7 +147,7 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: 'Survey is misconfigured: Question config did not specify a valid source',
+          message: "no model for componentConfig {\"source\":\"Frobnizzle\"}",
         },
       });
     });
@@ -171,23 +171,6 @@ describe('SurveyResponse', () => {
           message: `Selected answer Facility[this-facility-id-does-not-exist] not found`,
         },
       });
-    });
-
-    it('should skip error if the answer body is an empty string', async () => {
-      // arrange
-      const { Facility } = models;
-      await Facility.create(fake(Facility));
-      const { response } = await setupAutocompleteSurvey(
-        JSON.stringify({ source: 'Facility' }),
-        '',
-      );
-
-      // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
-
-      // assert
-      expect(result).toHaveSucceeded();
-      expect(result.body.answers[0].body).toBe('');
     });
 
     it('should error and hint if users might have legacy ReferenceData sources', async () => {

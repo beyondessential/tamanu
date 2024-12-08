@@ -10,6 +10,7 @@ export class Suggester {
       formatter = defaultFormatter,
       filterer = () => true,
       baseQueryParameters = {},
+      baseBodyParameters = {},
       enable = true,
     } = {},
   ) {
@@ -18,6 +19,7 @@ export class Suggester {
     this.formatter = formatter;
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;
+    this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
   }
 
@@ -53,7 +55,11 @@ export class Suggester {
 
   createSuggestion = async body => {
     if (!this.enable) throw new Error('Suggester is disabled');
-    const data = await this.api.post(`${this.endpoint}/create`, body);
+
+    const data = await this.api.post(`${this.endpoint}/create`, {
+      ...this.baseBodyParameters,
+      ...body,
+    });
     return this.formatter(data);
   };
 }

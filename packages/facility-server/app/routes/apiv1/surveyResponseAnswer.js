@@ -7,8 +7,64 @@ import {
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
+import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
 export const surveyResponseAnswer = express.Router();
+
+surveyResponseAnswer.get(
+  '/latest-answer/:dataElementCode',
+  asyncHandler(async (req, res) => {
+    const { models, query, params } = req;
+    const { patientId } = query;
+    const { dataElementCode } = params;
+
+    req.checkPermission('read', 'SurveyResponse');
+
+    const answer = await models.SurveyResponseAnswer.findOne({
+      include: [
+        {
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+          required: true,
+          include: [
+            {
+              model: models.Encounter,
+              as: 'encounter',
+              where: { patientId },
+            },
+          ],
+        },
+        {
+          model: models.ProgramDataElement,
+          where: { code: dataElementCode },
+          include: [
+            {
+              model: models.SurveyScreenComponent,
+              as: 'surveyScreenComponent',
+              include: models.SurveyScreenComponent.getListReferenceAssociations(true),
+            },
+          ],
+        },
+      ],
+      order: [['surveyResponse', 'startTime', 'DESC']],
+    });
+
+    if (!answer) {
+      throw new NotFoundError('No answer found');
+    }
+
+    const transformedAnswers = await transformAnswers(
+      models,
+      [answer],
+      [answer.ProgramDataElement.surveyScreenComponent],
+      { notTransformDate: true }
+    );
+    answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
+    answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
+
+    res.send(answer);
+  }),
+);
 
 surveyResponseAnswer.put(
   '/vital/:id',
