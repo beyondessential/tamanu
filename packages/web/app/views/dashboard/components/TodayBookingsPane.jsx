@@ -25,8 +25,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 
 const Container = styled.div`
-  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
-  width: 100%;
+  ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
   min-width: 366px;
   min-height: 41%;
   border: 1px solid ${Colors.outline};

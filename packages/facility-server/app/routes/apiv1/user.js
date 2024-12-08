@@ -243,6 +243,11 @@ user.get(
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
+    const user = await models.User.findByPk(userId, {
+      include: 'designations',
+    });
+    const userDesignationIds = user.designations.map(d => d.designationId);
+  
     const defaultOrder = [
       ['dueTime', 'ASC'],
       ['highPriority', 'DESC'],
@@ -284,9 +289,11 @@ user.get(
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
+        // get tasks assigned to the current user designation or tasks that are not assigned to anyone
         [Op.or]: [
-          { '$designations.designationUsers.id$': userId }, // get tasks assigned to the current user
-          { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
+          {
+            '$designations.id$': { [Op.or]: [{ [Op.in]: userDesignationIds }, { [Op.is]: null }] },
+          },
         ],
       },
       include: [
