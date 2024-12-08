@@ -55,6 +55,8 @@ const ToggleGroup = styled(ToggleButtonGroup)`
     `}
 `;
 
+const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
+
 export const TimeSlotPicker = ({
   date,
   disabled = false,
@@ -325,6 +327,7 @@ export const TimeSlotPicker = ({
             const isBooked = bookedIntervals.some(bookedInterval =>
               areIntervalsOverlapping(timeSlot, bookedInterval),
             );
+            const id = idOfTimeSlot(timeSlot);
 
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
@@ -362,12 +365,12 @@ export const TimeSlotPicker = ({
                 conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
                 inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
-                key={timeSlot.start.valueOf()}
+                key={id}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverRange(null)}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
-                value={timeSlot.start.valueOf()}
+                value={id}
               />
             );
           })
