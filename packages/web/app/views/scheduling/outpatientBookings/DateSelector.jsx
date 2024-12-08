@@ -197,7 +197,11 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <StyledMonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <StyledMonthPicker
+        key={value.valueOf()}
+        value={viewedDays[0]}
+        onChange={handleMonthYearChange}
+      />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>
