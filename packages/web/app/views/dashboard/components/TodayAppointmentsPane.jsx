@@ -104,7 +104,7 @@ const NoDataContainer = styled.div`
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
   const history = useHistory();
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -114,6 +114,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         before: toDateTimeString(endOfDay(new Date())),
         clinicianId: currentUser?.id,
         all: true,
+        facilityId,
       },
       `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
     ).data?.data ?? [];

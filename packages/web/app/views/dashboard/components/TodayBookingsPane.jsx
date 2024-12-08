@@ -208,7 +208,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 };
 
 export const TodayBookingsPane = ({ showTasks }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
   const appointments =
     useAutoUpdatingQuery(
@@ -219,6 +219,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         after: toDateTimeString(startOfDay(new Date())),
         before: toDateTimeString(endOfDay(new Date())),
         clinicianId: currentUser?.id,
+        facilityId,
       },
       `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
     ).data?.data ?? [];
