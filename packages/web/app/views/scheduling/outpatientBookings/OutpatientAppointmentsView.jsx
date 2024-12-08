@@ -104,7 +104,6 @@ export const OutpatientAppointmentsView = () => {
   }, [location.search]);
 
   const handleChangeDate = event => {
-    if (!isValid(event.target.value)) return;
     setSelectedDate(event.target.value);
   };
 
