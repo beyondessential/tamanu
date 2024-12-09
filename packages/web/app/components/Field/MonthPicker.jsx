@@ -1,6 +1,6 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { add, endOfYear, isValid, startOfToday, startOfYear } from 'date-fns';
+import { add, endOfYear, isValid, parse, startOfToday, startOfYear } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -127,9 +127,8 @@ export const MonthPicker = ({
   const [open, setOpen] = useState(false);
 
   const handleMonthChange = monthString => {
-    if (monthString.includes('MMMM')) return; // MUI workaround: Dont attempt change if placeholder month present
-    const newMonth = new Date(monthString);
-    if (isValid(newMonth)) onChange(newMonth);
+    const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
+    if (isValid(parsedDateString)) onChange(parsedDateString);
   };
 
   return (
