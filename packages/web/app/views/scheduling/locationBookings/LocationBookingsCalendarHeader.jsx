@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
@@ -93,6 +93,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
+  const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
 
   const location = useLocation();
   useEffect(() => {
@@ -106,6 +107,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   const goToThisWeek = () => {
     if (isThisMonth(monthOf)) {
       scrollToThisWeek();
+      setForcedRefreshCount(prev => prev + 1);
     } else {
       setMonthOf(startOfToday());
       // In this case, useEffect in LocationBookings context handles auto-scroll
@@ -115,7 +117,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <StyledMonthPicker value={monthOf} onChange={setMonthOf} />
+        <StyledMonthPicker key={forcedRefreshCount} value={monthOf} onChange={setMonthOf} />
         <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
