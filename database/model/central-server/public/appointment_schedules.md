@@ -1,18 +1,20 @@
 {% docs table__appointment_schedules %}
-TODO
+Defines recurring patterns for appointments
 {% enddocs %}
 
 {% docs appointment_schedules__start_date %}
-TODO
+the first date of the recurrence, also specifies the time of day that repeated appointments occur.
 {% enddocs %}
 
 {% docs appointment_schedules__until_date %}
-TODO
+The end date for the recurrence. No occurrences will be generated beyond this date. 
+Both `until_date` and `occurrence_count` cannot be null at the same time to ensure the recurrence has an end condition.
 {% enddocs %}
 
 {% docs appointment_schedules__interval %}
-the recurrence interval
-
+The recurrence interval. For example:
+- For a `frequency` of `Weekly`, an `interval` of 1 means "Once a week."
+- For a `frequency` of `Monthly`, an `interval` of 3 means "Every 3 months."
 {% enddocs %}
 
 {% docs appointment_schedules__frequency %}
@@ -39,7 +41,7 @@ One of:
 {% enddocs %}
 
 {% docs appointment_schedules__nth_weekday %}
-Ordinal weekday for monthly recurrence interpreted with `days_of_week` as follows
+Ordinal weekday for monthly recurrence interpreted with `days_of_week` for example:
 - `1` with `days_of_week = ['Mo']` =  First Monday of the month
 - `2` with `days_of_week = ['Tu']` =  Second Tuesday of the month
 - `-1` with `days_of_week = ['Fr']` = Last Friday of the month
