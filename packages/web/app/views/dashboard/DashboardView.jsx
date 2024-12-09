@@ -65,7 +65,7 @@ const SchedulePanesContainer = styled.div`
   display: flex;
   flex-direction: ${({ showTasks }) => (showTasks ? 'column' : 'row')};
   gap: 20px;
-  ${({ showTasks }) => !showTasks ? 'flex-grow: 1;' : 'width: 31%;'}
+  ${({ showTasks }) => (!showTasks ? 'flex-grow: 1;' : 'width: 31%;')}
 `;
 
 const WelcomeContainer = styled.div`
@@ -224,7 +224,7 @@ export const DashboardView = () => {
           <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
           {showTasks && <DashboardTaskPane />}
         </PatientsTasksContainer>
-        {showAppointments && showBookings && (
+        {(showAppointments || showBookings) && (
           <SchedulePanesContainer showTasks={showTasks}>
             {showAppointments && <TodayAppointmentsPane showTasks={showTasks} />}
             {showBookings && <TodayBookingsPane showTasks={showTasks} />}
