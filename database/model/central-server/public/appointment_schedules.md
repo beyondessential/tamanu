@@ -47,5 +47,6 @@ Ordinal weekday for monthly recurrence interpreted with `days_of_week` as follow
 {% enddocs %}
 
 {% docs appointment_schedules__occurrence_count %}
-TODO
+When this value is set, the recurrence ends after generating the specified number of occurrences
+At least one of `occurrence_count` or `until_date` must be set.
 {% enddocs %}
