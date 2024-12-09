@@ -26,3 +26,7 @@ Identifier of the row in the public schema that is the upstream source of this F
 {% docs fhir__generic__last_updated %}
 Timestamp of when this FHIR recource was last materialised.
 {% enddocs %}
+
+{% docs fhir__generic__is_live %}
+Whether or not a FHIR resource is live. If a resource is not live, it won't be rematerialised if upstream changes are made.
+{% enddocs %}

@@ -1,24 +1,20 @@
-import { DefaultDataExporter } from './DefaultDataExporter';
+import { ModelExporter } from './ModelExporter';
 
-export class UserExporter extends DefaultDataExporter {
+export class UserExporter extends ModelExporter {
   async getData() {
-    const users = await this.models.User.findAll({
-      include: [
-        {
-          model: this.models.Facility,
-          as: 'facilities',
-          attributes: ['id'],
-        },
-      ],
+    const modelName = 'User';
+    const users = await this.models[modelName].findAll({
+      include: this.models.User.getFullReferenceAssociations(),
     });
 
-    return users.map(({ dataValues: { facilities, ...rest } }) => ({
-      ...rest,
-      allowedFacilities: facilities.map(({ id }) => id).join(','),
+    return users.map(user => ({
+      ...user.dataValues,
+      designations: user.designations.map(it => it.referenceData.id).join(', '),
+      allowedFacilities: user.facilities.map(({ id }) => id).join(','),
     }));
   }
 
-  getHeadersFromData(data) {
-    return Object.keys(data[0]);
+  customHiddenColumns() {
+    return ['type', 'allowedFacilities'];
   }
 }

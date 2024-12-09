@@ -3,3 +3,4 @@ packages/mobile
 node_modules
 .ssh
 .tmp
+database/docs

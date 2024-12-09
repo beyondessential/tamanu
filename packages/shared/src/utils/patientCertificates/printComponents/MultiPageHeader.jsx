@@ -33,6 +33,7 @@ export const useTextStyles = styles => {
 };
 
 export const MultiPageHeader = ({ documentName, documentSubname, patientName, patientId }) => {
+  const { getTranslation } = useLanguageContext();
   const valueStyles = useTextStyles(styles.valueText);
   const labelStyles = useTextStyles(styles.labelText);
 
@@ -49,10 +50,10 @@ export const MultiPageHeader = ({ documentName, documentSubname, patientName, pa
         </>
       )}
       <ValueText>|</ValueText>
-      <LabelText> Patient name</LabelText>
+      <LabelText> {getTranslation('general.patientName.label', 'Patient name')}</LabelText>
       <ValueText>: {patientName} </ValueText>
       <ValueText>|</ValueText>
-      <LabelText> Patient ID</LabelText>
+      <LabelText> {getTranslation('general.patientId.label', 'Patient ID')}</LabelText>
       <ValueText>: {patientId}</ValueText>
     </>
   );

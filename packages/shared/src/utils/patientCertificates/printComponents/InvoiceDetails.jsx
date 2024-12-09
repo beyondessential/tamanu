@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ENCOUNTER_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   INVOICE_STATUSES,
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
@@ -21,7 +21,7 @@ export const InvoiceDetails = ({ encounter, invoice }) => {
           <DataItem label="Invoice status" value={INVOICE_STATUS_LABELS[invoice.status]} />
         </Col>
         <Col>
-          <DataItem label="Admission" value={ENCOUNTER_LABELS[encounter?.encounterType]} />
+          <DataItem label="Admission" value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]} />
           <DataItem
             label="Payment status"
             value={
