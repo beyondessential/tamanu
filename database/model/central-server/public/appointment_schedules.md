@@ -27,8 +27,8 @@ One of:
 
 {% docs appointment_schedules__days_of_week %}
 Stores an array of ISO weekday abbreviations. 
-Given `Weekly` frequency `days_of_week` determines the weekday that the repeated appointment occurs on. 
-Given `Monthly` frequency `days_of_week` is combined with `nth_weekday` to determine the date in each month that the repeated appointment occurs on.
+Given `WEEKLY` frequency `days_of_week` determines the weekday that the repeated appointment occurs on. 
+Given `MONTHLY` frequency `days_of_week` is combined with `nth_weekday` to determine the date in each month that the repeated appointment occurs on.
 
 One of: 
 - `MO`
