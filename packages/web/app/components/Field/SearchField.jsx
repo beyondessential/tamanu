@@ -68,10 +68,10 @@ export const SearchField = props => {
           </StyledIconButton>
         ),
       }}
+      {...props}
       placeholder={
         placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }
-      {...props}
       value={searchValue}
     />
   );
