@@ -65,5 +65,5 @@ export async function up(query) {
 export async function down(query) {
   await query.removeIndex('appointments', ['schedule_id']);
   await query.removeColumn('appointments', 'schedule_id');
-  await query.dropTable('appointment_schedules');
+  await query.dropTable('appointment_schedules', {});
 }
