@@ -1,4 +1,4 @@
-import { endOfDay, isValid, parseISO, startOfDay } from 'date-fns';
+import { endOfDay, isValid, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
@@ -30,18 +30,18 @@ const DateTimePicker = ({
   /** Keep synchronised with date field for non-overnight bookings */
   const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
 
-  const startDateString = values.startDate
-    ? toDateTimeString(endOfDay(parseISO(values.startDate)))
+  const startDateTimeString = values.startDate
+    ? toDateTimeString(endOfDay(new Date(values.startDate)))
     : null;
-  const endDateString = values.endDate
-    ? toDateTimeString(startOfDay(parseISO(values.endDate)))
+  const endDateTimeString = values.endDate
+    ? toDateTimeString(startOfDay(new Date(values.endDate)))
     : null;
 
   // Check for any booked timeslots between dates in overnight bookings
   const { data } = useLocationBookingsQuery(
     {
-      after: startDateString,
-      before: endDateString,
+      after: startDateTimeString,
+      before: endDateTimeString,
       all: true,
       locationId: values.locationId,
     },
@@ -63,7 +63,12 @@ const DateTimePicker = ({
         required={required}
         helperText={
           showUnavailableLocationWarning && (
-            <FormHelperText error>Location not available </FormHelperText>
+            <FormHelperText error>
+              <TranslatedText
+                stringId="locationBooking.timePicker.locationNotAvailableWarning"
+                fallback="Location not available"
+              />
+            </FormHelperText>
           )
         }
         saveDateAsString
