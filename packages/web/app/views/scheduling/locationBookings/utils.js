@@ -12,8 +12,8 @@ export const appointmentToFormValues = appointment => {
   const startIsValidDate = isValid(startTime);
   const endIsValidDate = isValid(endTime);
 
-  const startDate = startIsValidDate ? startTime.toISOString() : null;
-  const endDate = endIsValidDate ? endTime.toISOString() : null;
+  const startDate = startIsValidDate ? toDateString(startTime) : null;
+  const endDate = endIsValidDate ? toDateString(startTime) : null;
   const overnight = endIsValidDate && !isSameDay(new Date(startDate), new Date(endDate));
 
   return {

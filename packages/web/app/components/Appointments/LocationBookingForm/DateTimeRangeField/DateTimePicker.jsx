@@ -66,6 +66,7 @@ const DateTimePicker = ({
             <FormHelperText error>Location not available </FormHelperText>
           )
         }
+        saveDateAsString
       />
       <TimeSlotPicker
         date={isValidDate ? date : null}
