@@ -39,7 +39,3 @@ These are sent by the `SurveyCompletionNotifierProcessor` scheduled task.
 {% docs surveys__notify_email_addresses %}
 If `notifiable` is true, where to send the notification.
 {% enddocs %}
-
-{% docs surveys__metadata %}
-TODO
-{% enddocs %}

@@ -76,6 +76,3 @@ sources:
             description: "{{ doc('generic__visibility_status') }} in surveys."
             data_tests:
               - not_null
-          - name: metadata
-            data_type: jsonb
-            description: "{{ doc('surveys__metadata') }}"
