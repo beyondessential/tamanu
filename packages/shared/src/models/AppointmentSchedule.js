@@ -1,10 +1,5 @@
 import { Sequelize } from 'sequelize';
-import {
-  APPOINTMENT_STATUSES,
-  DAYS_OF_WEEK,
-  REPEAT_FREQUENCY_VALUES,
-  SYNC_DIRECTIONS,
-} from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY_VALUES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
