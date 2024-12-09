@@ -16,7 +16,6 @@ import {
   isToday,
   isWeekend,
   startOfMonth,
-  startOfToday,
   subDays,
   subMonths,
 } from 'date-fns';
