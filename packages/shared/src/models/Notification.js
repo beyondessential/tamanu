@@ -4,7 +4,6 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { log } from '../services/logging';
-import config from 'config';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
@@ -79,8 +78,6 @@ export class Notification extends Model {
 
   static async pushNotification(type, metadata) {
     try {
-      if (!config.notification?.enabled) return;
-
       const { models } = this.sequelize;
 
       let patientId;
