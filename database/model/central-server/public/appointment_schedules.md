@@ -25,9 +25,10 @@ One of:
 {% enddocs %}
 
 {% docs appointment_schedules__days_of_week %}
-Stores an array of ISO weekday abbreviations
+Stores an array of ISO weekday abbreviations. 
+Given `Weekly` frequency `days_of_week` determines the weekday that the repeated appointment occurs on. 
+Given `Monthly` frequency `days_of_week` is combined with `nth_weekday` to determine which day in each month to create repeated appointments on.
 
-Array containing weekdays
 One of: 
 - `MO`
 - `TU`
