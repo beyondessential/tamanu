@@ -1,5 +1,5 @@
 {% docs table__appointment_schedules %}
-Defines recurring patterns for appointments
+Defines recurrence rules for appointments.
 {% enddocs %}
 
 {% docs appointment_schedules__start_date %}
