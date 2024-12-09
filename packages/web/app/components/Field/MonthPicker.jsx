@@ -128,7 +128,6 @@ export const MonthPicker = ({
 
   return (
     <StyledDatePicker
-      key={value.valueOf()}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       yearsPerRow={4}
