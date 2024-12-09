@@ -1,7 +1,8 @@
-import React from 'react';
+import { useFormikContext } from 'formik';
+import { debounce, omit } from 'lodash';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { debounce, omit } from 'lodash';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useUserPreferencesQuery } from '../../../api/queries';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
@@ -34,8 +35,19 @@ const ResetButton = styled(TextButton).attrs({
   }
 `;
 
-export const OutpatientAppointmentsFilter = props => {
+/**
+ * @privateRemarks Formik doesn’t call change handlers when the form is reinitialised, so we resort
+ * to using `useEffect`. Otherwise, when `outpatientAppointmentFilters` is initially loaded, it
+ * doesn’t get reflected in the displayed appointments (only in the form fields).
+ */
+const FormListener = () => {
+  const { values } = useFormikContext();
   const { setFilters } = useOutpatientAppointmentsContext();
+  useEffect(() => setFilters(values), [values, setFilters]);
+};
+
+export const OutpatientAppointmentsFilter = props => {
+  const { filters, setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
@@ -67,26 +79,14 @@ export const OutpatientAppointmentsFilter = props => {
           endpoint="facilityLocationGroup"
           label={getTranslation('general.area.label', 'Area')}
           name="locationGroupId"
-          onChange={e =>
-            setFilters(prev => {
-              const newFilters = { ...prev, locationGroupId: e.target.value };
-              updateUserPreferences(newFilters);
-              return newFilters;
-            })
-          }
+          onChange={e => updateUserPreferences({ ...filters, locationGroupId: e.target.value })}
         />
         <Field
           component={FilterField}
           endpoint="appointmentType"
           label={getTranslation('general.type.label', 'Type')}
           name="appointmentTypeId"
-          onChange={e =>
-            setFilters(prev => {
-              const newFilters = { ...prev, appointmentTypeId: e.target.value };
-              updateUserPreferences(newFilters);
-              return newFilters;
-            })
-          }
+          onChange={e => updateUserPreferences({ ...filters, appointmentTypeId: e.target.value })}
         />
         <ResetButton
           disabled={isUserPreferencesLoading}
@@ -98,6 +98,7 @@ export const OutpatientAppointmentsFilter = props => {
         >
           <TranslatedText stringId="general.action.clear" fallback="Clear" />
         </ResetButton>
+        <FormListener />
       </Fieldset>
     );
   };
