@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { keyBy } from 'lodash';
 import { ButtonGroup } from '@material-ui/core';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -32,6 +33,25 @@ const StyledButtonGroup = styled(ButtonGroup)`
 `;
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
+`;
+
+const CoreComplexChartDataRow = styled.div`
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  padding-top: 15px;
+  border-top: 1px solid ${Colors.outline};
+`;
+
+const CoreComplexChartInfoHeader = styled.span`
+  font-weight: 500;
+  margin-right: 5px;
+  color: ${Colors.darkestText};
+`;
+
+const CoreComplexChartInfoWrapper = styled.span`
+  margin-right: 20px;
+  color: ${Colors.darkText};
 `;
 
 const AddComplexChartButton = styled.span`
@@ -92,6 +112,32 @@ const ChartDropDown = ({ selectedChartSurveyId, setSelectedChartSurveyId, chartT
 
 const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
 
+const CoreComplexChartData = ({ date, type, subType }) => (
+  <CoreComplexChartDataRow>
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.date" fallback="Date & time of onset:" />
+      </CoreComplexChartInfoHeader>
+      <>{date}</>
+    </CoreComplexChartInfoWrapper>
+
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+      </CoreComplexChartInfoHeader>
+
+      <>{type || '-'}</>
+    </CoreComplexChartInfoWrapper>
+
+    <CoreComplexChartInfoWrapper>
+      <CoreComplexChartInfoHeader>
+        <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+      </CoreComplexChartInfoHeader>
+      <>{subType || '-'}</>
+    </CoreComplexChartInfoWrapper>
+  </CoreComplexChartDataRow>
+);
+
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const api = useApi();
   const { facilityId } = useAuth();
@@ -146,6 +192,15 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
         render: () => null, // no need to render anything, data is not displayed as content of a tab
       })),
     [chartInstances],
+  );
+
+  const complexChartInstancesById = useMemo(() => keyBy(chartInstances, 'chartInstanceId'), [
+    chartInstances,
+  ]);
+
+  const currentComplexChartInstance = useMemo(
+    () => complexChartInstancesById[currentComplexChartTab],
+    [complexChartInstancesById, currentComplexChartTab],
   );
 
   // Set default current tab if not set
@@ -229,6 +284,15 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           </StyledButtonWithPermissionCheck>
         ) : null}
       </TableButtonRow>
+
+      {currentComplexChartInstance ? (
+        <CoreComplexChartData
+          date={currentComplexChartInstance.chartDate}
+          type={currentComplexChartInstance.chartType}
+          subType={currentComplexChartInstance.chartSubType}
+        />
+      ) : null}
+
       <ChartsTable selectedSurveyId={selectedChartSurveyId} />
     </TabPane>
   );
