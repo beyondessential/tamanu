@@ -25,11 +25,11 @@ export async function up(query) {
       allowNull: false,
     },
     days_of_week: {
-      type: Sequelize.ARRAY(Sequelize.STRING),
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
     },
     nth_weekday: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     occurrence_count: {
@@ -39,12 +39,12 @@ export async function up(query) {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.fn('NOW'),
+      defaultValue: Sequelize.fn('NOW'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.fn('NOW'),
+      defaultValue: Sequelize.fn('NOW'),
     },
     deleted_at: {
       type: DataTypes.DATE,
