@@ -206,7 +206,7 @@ appointments.get(
 
     const facilityIdField = isStringOrArray(queries.locationGroupId)
       ? '$locationGroup.facility_id$'
-      : '$location.facility_id$';
+      : '$location.locationGroup.facility_id$';
     const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
