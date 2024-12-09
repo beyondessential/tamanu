@@ -83,3 +83,11 @@ Boolean specify if the appointment is high priority.
 {% docs appointments__encounter_id %}
 Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) linked to this appointment
 {% enddocs %}
+
+{% docs appointments__type %}
+TODO
+{% enddocs %}
+
+{% docs appointments__schedule_id %}
+TODO
+{% enddocs %}
