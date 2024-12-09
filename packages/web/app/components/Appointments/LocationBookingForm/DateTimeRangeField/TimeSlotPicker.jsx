@@ -57,7 +57,7 @@ const ToggleGroup = styled(ToggleButtonGroup)`
 `;
 
 const StyledFormHelperText = styled(FormHelperText)`
-  && {
+  &.MuiFormHelperText-root {
     font-size: 0.75rem;
     font-weight: 500;
   }
