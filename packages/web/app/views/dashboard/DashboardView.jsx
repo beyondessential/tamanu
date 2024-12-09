@@ -210,8 +210,6 @@ const WelcomePane = ({ patientPerPage }) => {
 };
 
 export const DashboardView = () => {
-  const api = useApi();
-
   const { getSetting } = useSettings();
   const { currentUser, ability } = useAuth();
   const appointments =
