@@ -192,8 +192,6 @@ user.post(
   }),
 );
 
-user.get('/:id', simpleGet('User'));
-
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -223,11 +221,10 @@ const clinicianTasksQuerySchema = z.object({
     .default(25),
 });
 user.get(
-  '/:id/tasks',
+  '/tasks',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models } = req;
     req.checkPermission('read', 'Task');
-    const { id: userId } = params;
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -243,7 +240,7 @@ user.get(
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
-    const user = await models.User.findByPk(userId, {
+    const user = await models.User.findByPk(req.user.id, {
       include: 'designations',
     });
     const userDesignationIds = user.designations.map(d => d.designationId);
@@ -352,3 +349,5 @@ user.get(
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));
 user.use(globalUserRequests);
+
+user.get('/:id', simpleGet('User'));
