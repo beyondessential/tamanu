@@ -126,6 +126,13 @@ export const MonthPicker = ({
 }) => {
   const [open, setOpen] = useState(false);
 
+  const handleMonthChange = dateString => {
+    // Check valid date string first
+    if (dateString.substring(0, 4) === 'MMMM') return;
+    const newMonth = new Date(dateString);
+    if (isValid(newMonth)) onChange(newMonth);
+  };
+
   return (
     <StyledDatePicker
       onOpen={() => setOpen(true)}
@@ -141,13 +148,11 @@ export const MonthPicker = ({
       }}
       slotProps={{
         textField: {
-          onBlur: e => {
-            const newMonth = new Date(e.target.value);
-            if (isValid(newMonth)) onChange(newMonth);
-          },
+          onBlur: e => handleMonthChange(e.target.value),
           onKeyDown: e => {
-            const newMonth = new Date(e.target.value);
-            if (e.key === 'Enter' && isValid(newMonth)) onChange(newMonth);
+            if (e.key === 'Enter') {
+              handleMonthChange(e.target.value);
+            }
           },
           ...props,
         },
