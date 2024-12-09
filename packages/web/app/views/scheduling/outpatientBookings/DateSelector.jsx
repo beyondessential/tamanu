@@ -115,6 +115,14 @@ const StepperButton = styled(IconButton)`
   }
 `;
 
+const StyledMonthPicker = styled(MonthPicker)`
+  inline-size: 6.3rem;
+  & .MuiInputBase-root > input {
+    block-size: 1.039rem;
+    font-size: 0.875rem;
+  }
+`;
+
 const StepperWrapper = styled(Box)`
   display: flex;
   align-items: center;
@@ -189,7 +197,7 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <MonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <StyledMonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>
