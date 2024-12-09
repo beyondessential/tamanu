@@ -52,35 +52,37 @@ export class AppointmentSchedule extends Model {
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return null;
-    // TODO: Implement if necessary
-    // if (patientCount === 0) {
-    //   return null;
-    // }
-    // return `
-    //   JOIN
-    //     location_groups
-    //   ON
-    //     appointments.location_group_id = location_groups.id
-    //   WHERE
-    //     appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
-    //   AND
-    //     location_groups.facility_id in (:facilityIds)
-    //   AND
-    //     appointments.updated_at_sync_tick > :since
-    // `;
+    if (patientCount === 0) {
+      return null;
+    }
+    return `
+      JOIN
+        appointments
+      ON
+        appointments.schedule_id = appointment_schedule.id
+      JOIN
+        location_groups
+      ON
+        appointments.location_group_id = location_groups.id
+      WHERE
+        appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
+      AND
+        location_groups.facility_id in (:facilityIds)
+      AND
+        appointment_schedules.updated_at_sync_tick > :since
+    `;
   }
 
   static buildSyncLookupQueryDetails() {
     return {
-      // TODO: Implement if necessary
-      // select: buildSyncLookupSelect(this, {
-      //   patientId: `${this.tableName}.patient_id`,
-      //   facilityId: 'location_groups.facility_id',
-      // }),
-      // joins: `
-      //   JOIN location_groups ON appointments.location_group_id = location_groups.id
-      // `,
+      select: buildSyncLookupSelect(this, {
+        patientId: 'appointments.patient_id',
+        facilityId: 'location_groups.facility_id',
+      }),
+      joins: `
+        JOIN appointments ON appointments.schedule_id = appointment_schedule.id
+        JOIN location_groups ON appointments.location_group_id = location_groups.id
+      `,
     };
   }
 }
