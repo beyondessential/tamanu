@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
+import { debounce, omit } from 'lodash';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useUserPreferencesQuery } from '../../../api/queries';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
@@ -10,8 +11,6 @@ import {
   useOutpatientAppointmentsContext,
 } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
-import { debounce, omit } from 'lodash';
-import { Skeleton, skeletonClasses } from '@mui/material';
 
 const Fieldset = styled.fieldset`
   // Reset
