@@ -127,8 +127,7 @@ export const MonthPicker = ({
   const [open, setOpen] = useState(false);
 
   const handleMonthChange = monthString => {
-    // Dont attempt change if placeholder month present
-    if (monthString.includes('MMMM')) return;
+    if (monthString.includes('MMMM')) return; // MUI workaround: Dont attempt change if placeholder month present
     const newMonth = new Date(monthString);
     if (isValid(newMonth)) onChange(newMonth);
   };
