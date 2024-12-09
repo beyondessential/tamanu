@@ -84,7 +84,7 @@ export const TimeSlotPicker = ({
 
   useEffect(() => {
     if (isSubmitting) setHasAttemptedSubmit(true);
-  }, [isSubmitting]);
+  }, [isSubmitting, setHasAttemptedSubmit]);
 
   const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
   const error = errors[errorKey];
