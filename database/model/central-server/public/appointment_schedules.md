@@ -13,16 +13,16 @@ Both `until_date` and `occurrence_count` cannot be null at the same time to ensu
 
 {% docs appointment_schedules__interval %}
 The recurrence interval. For example:
-- For a `frequency` of `Weekly`, an `interval` of 1 means "Once a week."
-- For a `frequency` of `Monthly`, an `interval` of 3 means "Every 3 months."
+- For a `frequency` of `WEEKLY`, an `interval` of 1 means "Once a week."
+- For a `frequency` of `MONTHLY`, an `interval` of 3 means "Every 3 months."
 {% enddocs %}
 
 {% docs appointment_schedules__frequency %}
 How often the the recurrence occurs.
 
 One of:
-- `Weekly`
-- `Monthly`
+- `WEEKLY`
+- `MONTHLY`
 {% enddocs %}
 
 {% docs appointment_schedules__days_of_week %}
@@ -42,9 +42,9 @@ One of:
 
 {% docs appointment_schedules__nth_weekday %}
 Ordinal weekday for monthly recurrence interpreted with `days_of_week` for example:
-- `1` with `days_of_week = ['Mo']` =  First Monday of the month
-- `2` with `days_of_week = ['Tu']` =  Second Tuesday of the month
-- `-1` with `days_of_week = ['Fr']` = Last Friday of the month
+- `1` with `days_of_week = ['MO']` =  First Monday of the month
+- `2` with `days_of_week = ['TU']` =  Second Tuesday of the month
+- `-1` with `days_of_week = ['FR']` = Last Friday of the month
 
 {% enddocs %}
 
