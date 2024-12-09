@@ -53,7 +53,7 @@ export const SearchField = props => {
     setFieldValue?.(name, '');
 
     // For some reason, using `clearSearch` doesn’t fire the `SearchField`’s change event
-    onChange({
+    onChange?.({
       target: {
         value: '',
         type: 'change',
