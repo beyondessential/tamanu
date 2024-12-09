@@ -48,7 +48,8 @@ const DateTimePicker = ({
     { enabled: !!(values.startDate && values.endDate && values.locationId) },
   );
 
-  const showUnavailableLocationWarning = datePickerName === 'endDate' && data?.count > 0;
+  const showUnavailableLocationWarning =
+    datePickerName === 'endDate' && !values.id && data?.count > 0;
 
   return (
     <>
