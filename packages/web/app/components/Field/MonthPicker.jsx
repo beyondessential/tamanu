@@ -128,7 +128,7 @@ export const MonthPicker = ({
 
   const handleMonthChange = monthString => {
     const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
-    if (isValid(parsedDateString)) onChange(parsedDateString);
+    if (isValid(parsedDateString)) onChange?.(parsedDateString);
   };
 
   return (
@@ -156,7 +156,7 @@ export const MonthPicker = ({
         },
       }}
       onAccept={date => {
-        if (isValid(date)) onChange(date);
+        if (isValid(date)) onChange?.(date);
       }}
       minDate={minDate}
       maxDate={maxDate}
