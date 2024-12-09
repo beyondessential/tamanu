@@ -64,8 +64,6 @@ describe('Lab test publisher', () => {
     const labTest = await models.LabTest.create({
       labRequestId: labRequest.id,
       labTestTypeId: testType,
-      encounterId: encounter.id,
-      requestedById: examiner.id,
     });
     return { encounter, labRequest, labTest };
   };
