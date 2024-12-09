@@ -127,7 +127,7 @@ export const MonthPicker = ({
   const [open, setOpen] = useState(false);
 
   const handleMonthChange = monthString => {
-    // Dont parse string if placeholder month present
+    // Dont attempt change if placeholder month present
     if (monthString.includes('MMMM')) return;
     const newMonth = new Date(monthString);
     if (isValid(newMonth)) onChange(newMonth);

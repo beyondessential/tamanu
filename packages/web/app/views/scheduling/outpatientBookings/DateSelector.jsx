@@ -171,7 +171,7 @@ export const DateSelector = ({ value, onChange }) => {
     setViewedDays(getMonthInterval(day));
   };
 
-  const handleChangeToday = () => handleChange(startOfToday());
+  const handleChangeToday = () => handleChange(new Date());
 
   const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
@@ -197,7 +197,11 @@ export const DateSelector = ({ value, onChange }) => {
 
   return (
     <Wrapper onKeyDown={handleOnKeyDown}>
-      <StyledMonthPicker value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <StyledMonthPicker
+        key={value.valueOf()}
+        value={viewedDays[0]}
+        onChange={handleMonthYearChange}
+      />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
         <StepperButton onClick={handleDecrement}>
