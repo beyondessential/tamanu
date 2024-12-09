@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, literal } from 'sequelize';
 
 import {
   APPOINTMENT_STATUSES,
@@ -108,10 +108,13 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
+const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
+
 const searchableFields = [
   'startTime',
   'endTime',
   'type',
+  'appointmentTypeId',
   'bookingTypeId',
   'status',
   'clinicianId',
@@ -142,12 +145,34 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
+const buildPatientNameOrIdQuery = patientNameOrId => {
+  if (!patientNameOrId) return null;
+
+  const ilikeClause = {
+    [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+  };
+  return {
+    [Op.or]: [
+      Sequelize.where(
+        Sequelize.fn(
+          'concat',
+          Sequelize.col('patient.first_name'),
+          ' ',
+          Sequelize.col('patient.last_name'),
+        ),
+        ilikeClause,
+      ),
+      { '$patient.display_id$': ilikeClause },
+    ],
+  };
+};
+
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Appointment');
     const {
-      models,
+      models: { Appointment },
       query: {
         /**
          * Midnight today
@@ -166,88 +191,61 @@ appointments.get(
         ...queries
       },
     } = req;
-    const { Appointment } = models;
 
-    const shouldQueryByOverlap = !!before;
-    const timeQueryWhereClause = shouldQueryByOverlap
-      ? {
-          [Op.or]: Sequelize.literal(
-            '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
-          ),
-        }
-      : {
-          startTime: { [Op.gte]: after },
-        };
-    const timeQueryBindParams = shouldQueryByOverlap
-      ? {
-          afterDateTime: `'${after}'`,
-          beforeDateTime: `'${before}'`,
-        }
-      : null;
+    const timeQueryWhereClause = literal(
+      '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
+    );
+    const timeQueryBindParams = {
+      afterDateTime: `'${after}'`,
+      beforeDateTime: `'${before}'`,
+    };
 
-    const patientNameOrIdQuery = patientNameOrId
-      ? {
-          [Op.or]: [
-            Sequelize.where(
-              Sequelize.fn(
-                'concat',
-                Sequelize.col('patient.first_name'),
-                ' ',
-                Sequelize.col('patient.last_name'),
-              ),
-              {
-                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
-              },
-            ),
-            {
-              '$patient.display_id$': {
-                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
-              },
-            },
-          ],
-        }
-      : {};
+    const cancelledStatusQuery = includeCancelled
+      ? null
+      : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
-    const facilityIdField =
-      'locationGroupId' in queries ? '$locationGroup.facility_id$' : '$location.facility_id$';
-
-    const facilityIdQuery = facilityId
-      ? {
-          [facilityIdField]: facilityId,
-        }
-      : {};
+    const facilityIdField = isStringOrArray(queries.locationGroupId)
+      ? '$locationGroup.facility_id$'
+      : '$location.facility_id$';
+    const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField)) {
+      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
-      if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
-        return _filters;
+
+      const column = queryField.includes('.') // querying on a joined table (associations)
+        ? `$${queryField}$`
+        : queryField;
+
+      let comparison;
+      if (queryValue === '' || queryValue.length === 0) {
+        comparison = { [Op.not]: null };
+      } else if (typeof queryValue === 'string') {
+        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+      } else {
+        comparison = { [Op.in]: queryValue };
       }
-      let column = queryField;
-      // querying on a joined table (associations)
-      if (queryField.includes('.')) {
-        column = `$${queryField}$`;
-      }
-      _filters[column] = Array.isArray(queryValue)
-        ? { [Op.in]: queryValue }
-        : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+
+      _filters.push({ [column]: comparison });
       return _filters;
-    }, {});
+    }, []);
 
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
-        ...facilityIdQuery,
-        ...timeQueryWhereClause,
-        ...(includeCancelled ? {} : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } }),
-        ...(patientNameOrId ? patientNameOrIdQuery : null),
-        ...filters,
+        [Op.and]: [
+          facilityIdQuery,
+          timeQueryWhereClause,
+          cancelledStatusQuery,
+          buildPatientNameOrIdQuery(patientNameOrId),
+          ...filters,
+        ],
       },
-      include: [...Appointment.getListReferenceAssociations()],
-      bind: { ...timeQueryBindParams },
+      include: Appointment.getListReferenceAssociations(),
+      bind: timeQueryBindParams,
     });
 
     res.send({
