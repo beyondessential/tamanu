@@ -62,8 +62,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: props => <LimitedTextField {...props} limit={15} />,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => <DateTimeField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: props => (
+    <LimitedTextField {...props} limit={15} />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => (
+    <DateTimeField {...props} saveDateAsString />
+  ),
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
 };
@@ -190,6 +194,14 @@ export const getPatientDataDbLocation = columnName => {
     modelName,
     fieldName,
   };
+};
+
+export const getTooltip = (type, config, getTranslation) => {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    return getTranslation('complexChartInstance.tooltip', 'Will be displayed as chart name');
+  }
+
+  return config.tooltip;
 };
 
 function transformPatientData(patient, additionalData, patientProgramRegistration, config) {

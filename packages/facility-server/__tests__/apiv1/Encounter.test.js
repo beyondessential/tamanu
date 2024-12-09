@@ -17,6 +17,7 @@ import {
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
@@ -471,6 +472,71 @@ describe('Encounter', () => {
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
       expect(result.body.data[0].notes[0].content).toEqual(note.content);
+    });
+  });
+
+  describe('GET encounter chart instances', () => {
+    it('should get a list of chart instances of a chart for an encounter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const program = await models.Program.create({ ...fake(models.Program) });
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        code: 'complex-chart-core',
+        programId: program.id,
+        surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+      });
+      const dataElement = await models.ProgramDataElement.create({
+        ...fake(models.ProgramDataElement),
+        id: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+      });
+      const response1 = await models.SurveyResponse.create({
+        ...fake(models.SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const response2 = await models.SurveyResponse.create({
+        ...fake(models.SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const chartInstance1Answer1 = await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response1.id,
+        body: 'Chart 1',
+      });
+      const chartInstance1Answer2 = await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response2.id,
+        body: 'Chart 2',
+      });
+
+      const result = await app.get(
+        `/api/encounter/${encounter.id}/charts/${survey.id}/chartInstances`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 2,
+        data: expect.any(Array),
+      });
+      const chartInstance1 = result.body.data.find(x => x.chartInstanceId === response1.id);
+      const chartInstance2 = result.body.data.find(x => x.chartInstanceId === response2.id);
+
+      expect(chartInstance1).toMatchObject({
+        chartSurveyId: survey.id,
+        chartInstanceId: response1.id,
+        chartInstanceName: chartInstance1Answer1.body,
+      });
+
+      expect(chartInstance2).toMatchObject({
+        chartSurveyId: survey.id,
+        chartInstanceId: response2.id,
+        chartInstanceName: chartInstance1Answer2.body,
+      });
     });
   });
 

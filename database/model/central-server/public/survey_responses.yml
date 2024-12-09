@@ -75,3 +75,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in survey_responses."
             data_tests:
               - not_null
+          - name: metadata
+            data_type: jsonb
+            description: "{{ doc('survey_responses__metadata') }}"
