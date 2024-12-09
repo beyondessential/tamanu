@@ -1,4 +1,4 @@
-import { eachDayOfInterval, isSameDay, isValid, parseISO, startOfDay } from 'date-fns';
+import { eachDayOfInterval, isSameDay, isValid, parseISO } from 'date-fns';
 
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 
@@ -15,9 +15,9 @@ export const appointmentToFormValues = appointment => {
   const startIsValidDate = isValid(startTime);
   const endIsValidDate = isValid(endTime);
 
-  const startDate = startIsValidDate ? startOfDay(startTime) : null;
-  const endDate = endIsValidDate ? startOfDay(endTime) : null;
-  const overnight = endIsValidDate && !isSameDay(startDate, endDate);
+  const startDate = startIsValidDate ? toDateString(startTime) : null;
+  const endDate = endIsValidDate ? toDateString(startTime) : null;
+  const overnight = endIsValidDate && !isSameDay(new Date(startDate), new Date(endDate));
 
   return {
     // Semantically significant values
