@@ -54,7 +54,7 @@ export class AppointmentSchedule extends Model {
       JOIN
         appointments
       ON
-        appointments.schedule_id = appointment_schedule.id
+        appointments.schedule_id = appointment_schedules.id
       JOIN
         location_groups
       ON
@@ -75,7 +75,7 @@ export class AppointmentSchedule extends Model {
         facilityId: 'location_groups.facility_id',
       }),
       joins: `
-        JOIN appointments ON appointments.schedules_id = appointment_schedules.id
+        JOIN appointments ON appointments.schedule_id = appointment_schedules.id
         JOIN location_groups ON appointments.location_group_id = location_groups.id
       `,
     };
