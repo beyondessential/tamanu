@@ -11,19 +11,39 @@ TODO
 {% enddocs %}
 
 {% docs appointment_schedules__interval %}
-TODO
+the recurrence interval
+
+
 {% enddocs %}
 
 {% docs appointment_schedules__frequency %}
-TODO
+How often the the recurrence occurs.
+
+One of:
+- `Weekly`
+- `Monthly`
 {% enddocs %}
 
 {% docs appointment_schedules__days_of_week %}
-TODO
+Stores an array of ISO weekday abbreviations
+
+Array containing weekdays
+One of: 
+- `MO`
+- `TU`
+- `WE`
+- `TH`
+- `FR`
+- `SA`
+- `SU`
 {% enddocs %}
 
 {% docs appointment_schedules__nth_weekday %}
-TODO
+Ordinal weekday for monthly recurrence interpreted with `days_of_week` as follows
+- `1` with `days_of_week = ['Mo']` =  First Monday of the month
+- `2` with `days_of_week = ['Tu']` =  Second Tuesday of the month
+- `-1` with `days_of_week = ['Fr']` = Last Friday of the month
+
 {% enddocs %}
 
 {% docs appointment_schedules__occurrence_count %}
