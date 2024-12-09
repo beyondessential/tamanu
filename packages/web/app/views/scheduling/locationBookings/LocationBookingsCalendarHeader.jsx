@@ -93,7 +93,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
-  const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+  const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
   const location = useLocation();
   useEffect(() => {
@@ -107,7 +107,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   const goToThisWeek = () => {
     if (isThisMonth(monthOf)) {
       scrollToThisWeek();
-      setForcedRefreshCount(prev => prev + 1);
+      setMonthPickerRefreshKey(Date.now()); // We need to trigger a refresh of picker state here to repopulate date
     } else {
       setMonthOf(startOfToday());
       // In this case, useEffect in LocationBookings context handles auto-scroll
@@ -117,7 +117,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   return (
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
-        <StyledMonthPicker key={forcedRefreshCount} value={monthOf} onChange={setMonthOf} />
+        <StyledMonthPicker key={monthPickerRefreshKey} value={monthOf} onChange={setMonthOf} />
         <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
