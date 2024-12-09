@@ -55,14 +55,18 @@ export class AppointmentSchedule extends Model {
         appointments
       ON
         appointments.schedule_id = appointment_schedules.id
-      JOIN
+      LEFT JOIN
         location_groups
       ON
         appointments.location_group_id = location_groups.id
+      LEFT JOIN
+        locations
+      ON
+        location_groups.facility_id = locations.facility_id
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id in (:facilityIds)
+        COALESCE(location_groups.facility_id, locations.facility_id) in (:facilityIds)
       AND
         appointment_schedules.updated_at_sync_tick > :since
     `;
@@ -72,11 +76,12 @@ export class AppointmentSchedule extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'appointments.patient_id',
-        facilityId: 'location_groups.facility_id',
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `
         JOIN appointments ON appointments.schedule_id = appointment_schedules.id
-        JOIN location_groups ON appointments.location_group_id = location_groups.id
+        LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
+        LEFT JOIN locations ON appointment.location_id = locations.id
       `,
     };
   }
