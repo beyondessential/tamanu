@@ -1,6 +1,6 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { add, endOfYear, isValid, startOfToday, startOfYear } from 'date-fns';
+import { add, endOfYear, isValid, parse, startOfToday, startOfYear } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -126,6 +126,11 @@ export const MonthPicker = ({
 }) => {
   const [open, setOpen] = useState(false);
 
+  const handleMonthChange = monthString => {
+    const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
+    if (isValid(parsedDateString)) onChange?.(parsedDateString);
+  };
+
   return (
     <StyledDatePicker
       onOpen={() => setOpen(true)}
@@ -141,18 +146,18 @@ export const MonthPicker = ({
       }}
       slotProps={{
         textField: {
-          onBlur: e => {
-            const newMonth = new Date(e.target.value);
-            if (isValid(newMonth)) onChange(newMonth);
-          },
+          onBlur: e => handleMonthChange(e.target.value),
           onKeyDown: e => {
-            const newMonth = new Date(e.target.value);
-            if (e.key === 'Enter' && isValid(newMonth)) onChange(newMonth);
+            if (e.key === 'Enter') {
+              handleMonthChange(e.target.value);
+            }
           },
           ...props,
         },
       }}
-      onAccept={date => onChange?.(date)}
+      onAccept={date => {
+        if (isValid(date)) onChange?.(date);
+      }}
       minDate={minDate}
       maxDate={maxDate}
       value={value}
