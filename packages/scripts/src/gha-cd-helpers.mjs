@@ -131,6 +131,15 @@ const OPTIONS = [
     defaultValue: 'tamanu',
     parse: input => (['tamanu'].includes(input) ? input : 'tamanu'),
   },
+  {
+    /*
+     * Specifies the subdomain names of the Facility servers.
+     * Comma-separated.
+     */
+    key: 'facilityNames',
+    defaultValue: null,
+    parse: input => input.split(','),
+  },
 ];
 
 function stripPercent(str) {
@@ -184,6 +193,7 @@ export function configMap(deployName, imageTag, options) {
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
+      facilityNames: options.facilityNames,
       timezone: options.timezone,
       ipAllowList: options.ip,
 
@@ -201,7 +211,7 @@ export function configMap(deployName, imageTag, options) {
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
-    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
+    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
 
