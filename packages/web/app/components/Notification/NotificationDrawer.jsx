@@ -192,7 +192,11 @@ const Card = ({ notification }) => {
 
 export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) => {
   const { mutate: markAllAsRead, isLoading: isMarkingAllAsRead } = useMarkAllAsRead();
-  const { unreadNotifications = [], readNotifications = [] } = notifications;
+  const {
+    unreadNotifications = [],
+    readNotifications = [],
+    recentNotificationsTimeFrame = 48,
+  } = notifications;
 
   const onMarkAllAsRead = () => {
     if (isMarkingAllAsRead) return;
@@ -257,8 +261,9 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
           {!!readNotifications.length && (
             <ReadTitle>
               <TranslatedText
-                fallback="Recent (last 48 hours)"
+                fallback="Recent (last :recentNotificationsTimeFrame hours)"
                 stringId="dashboard.notification.recent.title"
+                replacements={{ recentNotificationsTimeFrame }}
               />
             </ReadTitle>
           )}
