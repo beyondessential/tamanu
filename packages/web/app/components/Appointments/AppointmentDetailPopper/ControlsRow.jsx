@@ -18,7 +18,6 @@ const ControlsContainer = styled('div')`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-    width: 3.625rem;
   }
 
   .MuiPopper-root {
