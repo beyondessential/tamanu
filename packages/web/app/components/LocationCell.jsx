@@ -40,7 +40,7 @@ export const LocationGroupCell = ({
   locationGroupId,
   plannedLocationGroupName,
   plannedLocationGroupId,
-  $minWidth = 100,
+  style,
 }) => {
   return (
     <LocationCell
@@ -48,7 +48,7 @@ export const LocationGroupCell = ({
       locationId={locationGroupId}
       plannedLocationName={plannedLocationGroupName}
       plannedLocationId={plannedLocationGroupId}
-      style={{ minWidth: $minWidth }}
+      style={style}
       category="locationGroup"
     />
   );

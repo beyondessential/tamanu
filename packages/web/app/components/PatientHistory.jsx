@@ -246,7 +246,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     {
       key: 'locationGroupName',
       title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
-      accessor: props => <LocationGroupCell $minWidth={45} {...props} />,
+      accessor: props => <LocationGroupCell style={{ minWidth: 45 }} {...props} />,
       CellComponent: LimitedLinesCell,
     },
     {
