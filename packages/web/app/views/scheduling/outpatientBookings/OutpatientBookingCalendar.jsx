@@ -1,15 +1,16 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import { omit } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
+import { BodyText, FormModal, SmallBodyText, TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -146,6 +147,12 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     selectedDate,
   });
 
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  const sendAppointmentEmail = data => {
+    // apo.post(data)
+  };
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -201,6 +208,16 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                       ),
                       action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
                     },
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.emailAppointment"
+                          fallback="Email appointment"
+                        />
+                      ),
+                      // TODO: prepopulate with relevant email
+                      action: () => setIsEmailModalOpen(true),
+                    },
                   ]}
                 />
               ))}
@@ -208,6 +225,20 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           </ColumnWrapper>
         );
       })}
+      <FormModal
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        open={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+      >
+        <EmailAddressConfirmationForm
+          // TODO: send request to new(?) endpoint that triggers patient communication email
+          onSubmit={async data => {
+            sendAppointmentEmail(data);
+            setIsEmailModalOpen(false);
+          }}
+          onCancel={() => setIsEmailModalOpen(false)}
+        />
+      </FormModal>
     </Box>
   );
 };
