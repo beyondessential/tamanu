@@ -192,8 +192,6 @@ user.post(
   }),
 );
 
-user.get('/:id', simpleGet('User'));
-
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -223,11 +221,10 @@ const clinicianTasksQuerySchema = z.object({
     .default(25),
 });
 user.get(
-  '/:id/tasks',
+  '/tasks',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('read', 'Task');
-    const { id: userId } = params;
+    const { models } = req;
+    req.checkPermission('read', 'Tasking');
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -285,7 +282,7 @@ user.get(
         },
         ...(highPriority && { highPriority }),
         [Op.or]: [
-          { '$designations.designationUsers.id$': userId }, // get tasks assigned to the current user
+          { '$designations.designationUsers.id$': req.user.id }, // get tasks assigned to the current user
           { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
         ],
       },
@@ -341,6 +338,8 @@ user.get(
     res.send({ data: tasks, count });
   }),
 );
+
+user.get('/:id', simpleGet('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));
