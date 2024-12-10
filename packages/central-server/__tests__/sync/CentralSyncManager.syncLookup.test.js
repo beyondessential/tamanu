@@ -112,6 +112,7 @@ describe('Sync Lookup data', () => {
       LabTestPanelLabTestTypes,
       Location,
       Appointment,
+      AppointmentSchedule,
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
@@ -232,6 +233,15 @@ describe('Sync Lookup data', () => {
     await Permission.create(fake(Permission, { roleId: role.id }));
     await Appointment.create(
       fake(Appointment, { patientId: patient.id, locationGroupId: locationGroup.id }),
+    );
+
+    const appointmentSchedule = await AppointmentSchedule.create(fake(AppointmentSchedule));
+    await Appointment.create(
+      fake(Appointment, {
+        patientId: patient.id,
+        locationGroupId: locationGroup.id,
+        scheduleId: appointmentSchedule.id,
+      }),
     );
     encounter1 = await Encounter.create(
       fake(Encounter, {
