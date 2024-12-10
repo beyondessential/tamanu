@@ -115,16 +115,6 @@ const SuccessMessage = ({ isEdit = false }) =>
     />
   );
 
-const validationSchema = yup.object({
-  locationId: yup.string().required('*Required'),
-  date: yup.string().required('*Required'),
-  startTime: yup.date().required('*Required'),
-  endTime: yup.date().required('*Required'),
-  patientId: yup.string().required('*Required'),
-  bookingTypeId: yup.string().required('*Required'),
-  clinicianId: yup.string(),
-});
-
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationBookingsContext();
@@ -188,7 +178,49 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     );
   };
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
+  const requiredMessage = getTranslation('validation.required.inline', '*Required');
+
+  const validationSchema = yup.object({
+    locationId: yup.string().required(requiredMessage),
+    overnight: yup.boolean(),
+    date: yup.string().when('overnight', {
+      is: value => !value,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    startDate: yup.string().when('overnight', {
+      is: true,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    endDate: yup.string().when('overnight', {
+      is: true,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
+      otherwise: yup.string().nullable(),
+    }),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    patientId: yup.string().required(requiredMessage),
+    bookingTypeId: yup.string().required(requiredMessage),
+    clinicianId: yup.string(),
+  });
+
+  const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -239,6 +271,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               updateSelectedCell({ locationId: e.target.value });
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
+            error={errors.locationId}
             locationGroupSuggesterType="bookableLocationGroup"
           />
           <Field
@@ -279,7 +312,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </StyledFormGrid>
       </Drawer>
     );
@@ -296,6 +329,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         suppressErrorDialog
         validationSchema={validationSchema}
         style={formStyles}
+        validateOnChange
       />
       <WarningModal
         open={warningModalOpen}
