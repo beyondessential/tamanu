@@ -13,7 +13,6 @@ import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';
 import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../../assets/icons/PencilIcon';
-import { LimitedLinesCell } from '../../FormattedTableCell';
 import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../Tooltip';
 
@@ -42,7 +41,7 @@ const ChequeNumberContainer = styled.div`
   white-space: nowrap;
 `;
 
-const getChequeNumber = ({ patientPayment }) => {
+const ChequeNumberDisplay = ({ patientPayment }) => {
   const { chequeNumber } = patientPayment;
   const [ref, isOverflowing] = useOverflow();
   return (
@@ -107,7 +106,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
               />
             ),
             sortable: false,
-            accessor: getChequeNumber,
+            accessor: prop => <ChequeNumberDisplay {...prop} />,
           },
         ]
       : []),
