@@ -236,7 +236,7 @@ describe('Sync Lookup data', () => {
       fake(Appointment, {
         patientId: patient.id,
         locationGroupId: locationGroup.id,
-        scheduleId: schedule,
+        scheduleId: schedule.id,
       }),
     );
     encounter1 = await Encounter.create(
