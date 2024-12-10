@@ -141,7 +141,7 @@ const OPTIONS = [
      * Specifies the subdomain names of the Facility servers.
      * Comma-separated.
      */
-    key: 'facilityNames',
+    key: 'facilitynames',
     defaultValue: null,
     parse: input => input.split(','),
   },
