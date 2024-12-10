@@ -38,7 +38,6 @@ const Header = styled.div`
   grid-template-columns: 1fr auto;
   padding-block: 1rem 0.25rem;
   position: sticky;
-  z-index: 1;
 `;
 
 const Title = styled(Heading4)`
