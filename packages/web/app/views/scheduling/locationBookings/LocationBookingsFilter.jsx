@@ -41,7 +41,7 @@ const emptyValues = {
   patientNameOrId: '',
 };
 
-export const CalendarSearchBar = ({ onFilterChange }) => {
+export const LocationBookingsFilter = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();

@@ -43,6 +43,7 @@ export const DateTimeRangePicker = ({
           flushChangeToStartDateField(e);
         }}
         required={required}
+        saveDateAsString
         {...props}
       />
       <TimeSlotPicker
