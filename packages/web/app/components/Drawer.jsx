@@ -32,13 +32,13 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.div`
+  align-items: baseline;
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   display: grid;
   grid-template-columns: 1fr auto;
+  padding-block: 1rem 0.25rem;
   position: sticky;
   z-index: 1;
-  padding-block: 1rem 0.25rem;
-  align-items: baseline;
 `;
 
 const Title = styled(Heading4)`
