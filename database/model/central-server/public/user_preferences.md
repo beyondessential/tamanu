@@ -21,3 +21,7 @@ In the Location bookings calendar, bookings can be filtered. This is remembered 
 {% docs user_preferences__clinician_dashboard_tasking_table_filter %}
 In the Clinician dashboard, tasking tables can be filtered. This is remembered per user.
 {% enddocs %}
+
+{% docs user_preferences__outpatient_appointment_filters %}
+In the outpatient appointments calendar, appointments can be filtered. This is remembered per user.
+{% enddocs %}
