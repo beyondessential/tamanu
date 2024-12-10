@@ -8,10 +8,7 @@ import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
-import {
-  OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE,
-  useOutpatientAppointmentsContext,
-} from '../../../contexts/OutpatientAppointments';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
