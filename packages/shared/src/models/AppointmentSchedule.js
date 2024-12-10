@@ -79,7 +79,7 @@ export class AppointmentSchedule extends Model {
       joins: `
         JOIN appointments ON appointments.schedule_id = appointment_schedules.id
         LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
-        LEFT JOIN locations ON appointment.location_id = locations.id
+        LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
   }
