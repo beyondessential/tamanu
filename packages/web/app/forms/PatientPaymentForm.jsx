@@ -27,14 +27,17 @@ const IconButton = styled.div`
   color: ${Colors.primary};
   position: absolute;
   top: 6px;
-  right: -30px;
+  right: -23px;
 `;
 
 const FormRow = styled.div`
   display: flex;
-  gap: 5px;
   margin-top: 6px;
   margin-bottom: 6px;
+`;
+
+const FieldContainer = styled(Box)`
+  padding-right: 5px;
 `;
 
 export const PatientPaymentForm = ({
@@ -42,7 +45,9 @@ export const PatientPaymentForm = ({
   editingPayment = {},
   updateRefreshCount,
   updateEditingPayment,
+  onDataChange = () => {},
   invoice,
+  showChequeNumberColumn,
 }) => {
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
@@ -71,13 +76,11 @@ export const PatientPaymentForm = ({
   };
 
   const onRecord = (data, { resetForm }) => {
-    const { date, methodId, receiptNumber, amount } = data;
+    const { amount, ...others } = data;
     if (!editingPayment?.id) {
       createPatientPayment(
         {
-          date,
-          methodId,
-          receiptNumber,
+          ...others,
           amount: amount.toFixed(2),
         },
         {
@@ -91,9 +94,7 @@ export const PatientPaymentForm = ({
     } else {
       updatePatientPayment(
         {
-          date,
-          methodId,
-          receiptNumber,
+          ...others,
           amount,
         },
         {
@@ -126,19 +127,25 @@ export const PatientPaymentForm = ({
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          <FieldContainer width="19%">
             <Field name="date" required component={DateField} saveDateAsString size="small" />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          </FieldContainer>
+          <FieldContainer width="19%">
             <Field
               name="methodId"
               required
               component={AutocompleteField}
               suggester={paymentMethodSuggester}
               size="small"
+              onChange={e => onDataChange({ paymentMethod: e.target })}
             />
-          </Box>
-          <Box sx={{ width: 'calc(15% - 5px)' }}>
+          </FieldContainer>
+          {showChequeNumberColumn && (
+            <FieldContainer width="15%">
+              <Field name="chequeNumber" component={TextField} size="small" />
+            </FieldContainer>
+          )}
+          <FieldContainer width="13%">
             <Field
               name="amount"
               required
@@ -149,8 +156,8 @@ export const PatientPaymentForm = ({
               value={amount}
               onChange={e => setAmount(e.target.value)}
             />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
+          </FieldContainer>
+          <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
             <Field
               name="receiptNumber"
               required
@@ -170,7 +177,7 @@ export const PatientPaymentForm = ({
                 <CachedIcon />
               </IconButton>
             </ThemedTooltip>
-          </Box>
+          </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }}>
             <Button
               size="small"
@@ -196,6 +203,7 @@ export const PatientPaymentForm = ({
         methodId: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />),
+        chequeNumber: yup.string(),
         amount: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />)
@@ -231,6 +239,7 @@ export const PatientPaymentForm = ({
       initialValues={{
         date: editingPayment.date,
         methodId: editingPayment.patientPayment?.methodId,
+        chequeNumber: editingPayment.patientPayment?.chequeNumber,
         amount: editingPayment.amount,
         receiptNumber: editingPayment.receiptNumber,
       }}
