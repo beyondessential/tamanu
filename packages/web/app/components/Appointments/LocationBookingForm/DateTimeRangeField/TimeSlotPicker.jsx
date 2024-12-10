@@ -1,5 +1,5 @@
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import FormHelperText from '@mui/material/FormHelperText';
+import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import {
   addMilliseconds,
   areIntervalsOverlapping,
@@ -57,7 +57,7 @@ const ToggleGroup = styled(ToggleButtonGroup)`
 `;
 
 const StyledFormHelperText = styled(FormHelperText)`
-  &.MuiFormHelperText-root {
+  &.${formHelperTextClasses.root} {
     font-size: 0.75rem;
     font-weight: 500;
   }
