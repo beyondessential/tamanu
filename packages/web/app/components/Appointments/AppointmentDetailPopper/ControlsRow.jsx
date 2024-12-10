@@ -7,6 +7,7 @@ import { MenuButton } from '../../MenuButton';
 import { TranslatedText } from '../../Translation';
 
 const ControlsContainer = styled('div')`
+  z-index: 1;
   display: flex;
   flex-direction: row;
   gap: 0.125rem;
@@ -18,7 +19,6 @@ const ControlsContainer = styled('div')`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-    width: 3.625rem;
   }
 
   .MuiPopper-root {
@@ -41,7 +41,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-export const ControlsRow = ({ onClose, onCancel, onEdit }) => {
+export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
@@ -51,6 +51,7 @@ export const ControlsRow = ({ onClose, onCancel, onEdit }) => {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: onCancel,
     },
+    ...additionalActions,
   ];
 
   return (
