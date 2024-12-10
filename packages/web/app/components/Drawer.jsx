@@ -17,10 +17,6 @@ const StyledCollapse = styled(Collapse)`
     &:not(.${collapseClasses.hidden}) {
       border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
     }
-
-    * {
-      /* outline: 1px solid magenta; */
-    }
   }
 `;
 
