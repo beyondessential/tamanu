@@ -32,7 +32,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
       all: true,
       ...filters,
       // Providing [] here omits the `?locationGroupId=` param, but the  `GET /appointments` relies
-      // on its presence/absence to determine whether we are quering for location bookings or
+      // on its presence/absence to determine whether we are querying for location bookings or
       // outpatient appointments
       locationGroupId: filters.locationGroupId.length === 0 ? '' : filters.locationGroupId,
     },
