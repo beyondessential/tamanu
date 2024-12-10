@@ -192,6 +192,8 @@ user.post(
   }),
 );
 
+user.get('/:id', simpleGet('User'));
+
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -221,10 +223,11 @@ const clinicianTasksQuerySchema = z.object({
     .default(25),
 });
 user.get(
-  '/tasks',
+  '/:id/tasks',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, params } = req;
     req.checkPermission('read', 'Task');
+    const { id: userId } = params;
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -240,11 +243,6 @@ user.get(
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
-    const user = await models.User.findByPk(req.user.id, {
-      include: 'designations',
-    });
-    const userDesignationIds = user.designations.map(d => d.designationId);
-  
     const defaultOrder = [
       ['dueTime', 'ASC'],
       ['highPriority', 'DESC'],
@@ -286,11 +284,9 @@ user.get(
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
-        // get tasks assigned to the current user designation or tasks that are not assigned to anyone
         [Op.or]: [
-          {
-            '$designations.id$': { [Op.or]: [{ [Op.in]: userDesignationIds }, { [Op.is]: null }] },
-          },
+          { '$designations.designationUsers.id$': userId }, // get tasks assigned to the current user
+          { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
         ],
       },
       include: [
@@ -349,5 +345,3 @@ user.get(
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));
 user.use(globalUserRequests);
-
-user.get('/:id', simpleGet('User'));

@@ -266,7 +266,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     isLoading: isUserTasksLoading,
     isPreviousData,
   } = useAutoUpdatingQuery(
-    'user/tasks',
+    `user/${currentUser?.id}/tasks`,
     queryParams,
     [
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${currentUser?.id}`,

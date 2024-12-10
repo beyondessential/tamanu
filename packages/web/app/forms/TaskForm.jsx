@@ -137,7 +137,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
     }
     createTasks(payload, {
       onSuccess: () => {
-        queryClient.invalidateQueries([`user/tasks`]);
+        queryClient.invalidateQueries([`user/${currentUser?.id}/tasks`]);
         refreshTaskTable();
         onClose();
       },
