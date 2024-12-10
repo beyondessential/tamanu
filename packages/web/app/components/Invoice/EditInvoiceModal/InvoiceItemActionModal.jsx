@@ -31,7 +31,7 @@ const preventInvalid = event => {
 
 const validateDecimalPlaces = e => {
   const value = e.target.value;
-  if (value.startsWith('-')) {
+  if (/^[−-]/.test(value)) {
     e.target.value = '';
     return;
   }
