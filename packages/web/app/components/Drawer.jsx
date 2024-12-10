@@ -1,6 +1,6 @@
 import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
