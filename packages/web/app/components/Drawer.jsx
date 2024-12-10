@@ -36,15 +36,14 @@ const Header = styled.div`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   display: grid;
   grid-template-columns: 1fr auto;
-  padding-block: 1rem 0.25rem;
+  padding-block: 1rem 0.75rem;
   position: sticky;
 `;
 
 const Title = styled(Heading4)`
   background-color: ${Colors.background};
   font-size: 1rem;
-  inset-block-start: 0;
-  margin-block: 0 0.5625rem;
+  margin-block: 0;
 `;
 
 const DrawerBody = styled.section`
