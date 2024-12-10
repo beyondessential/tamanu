@@ -41,7 +41,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-export const ControlsRow = ({ onClose, onCancel, onEdit }) => {
+export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
@@ -51,6 +51,7 @@ export const ControlsRow = ({ onClose, onCancel, onEdit }) => {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: onCancel,
     },
+    ...additionalActions,
   ];
 
   return (
