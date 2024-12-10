@@ -198,7 +198,7 @@ export function configMap(deployName, imageTag, options) {
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
-      facilityNames: options.facilitynames,
+      facilityNames: options.facilityname && JSON.stringify(options.facilitynames),
       timezone: options.timezone,
       ipAllowList: options.ip,
       nodeEnv: options.env,
