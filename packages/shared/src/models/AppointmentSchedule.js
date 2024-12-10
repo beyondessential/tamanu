@@ -37,8 +37,6 @@ export class AppointmentSchedule extends Model {
     );
   }
 
-  static getListReferenceAssociations() {}
-
   static initRelations(models) {
     this.hasMany(models.Appointment, {
       as: 'appointments',
