@@ -21,7 +21,6 @@ import { Colors, FORM_TYPES } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
-import { useQueryClient } from '@tanstack/react-query';
 
 const IconButton = styled.div`
   cursor: pointer;
@@ -45,7 +44,6 @@ export const PatientPaymentForm = ({
   updateEditingPayment,
   invoice,
 }) => {
-  const queryClient = useQueryClient();
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const [amount, setAmount] = useState(editingPayment?.amount ?? '');
@@ -72,12 +70,6 @@ export const PatientPaymentForm = ({
     }
   };
 
-  const handleRecordPaymentSuccessfully = () => {
-    queryClient.invalidateQueries({
-      queryKey: [`patient/${invoice.encounter?.patientId}/invoices/totalOutstandingBalance`],
-    });
-  };
-
   const onRecord = (data, { resetForm }) => {
     const { date, methodId, receiptNumber, amount } = data;
     if (!editingPayment?.id) {
@@ -93,7 +85,6 @@ export const PatientPaymentForm = ({
             updateRefreshCount();
             setAmount('');
             resetForm();
-            handleRecordPaymentSuccessfully();
           },
         },
       );
@@ -109,7 +100,6 @@ export const PatientPaymentForm = ({
           onSuccess: () => {
             updateRefreshCount();
             updateEditingPayment({});
-            handleRecordPaymentSuccessfully();
           },
         },
       );
