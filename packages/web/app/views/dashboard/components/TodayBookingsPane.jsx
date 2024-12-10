@@ -57,8 +57,7 @@ const StyledTimeline = styled(Timeline)`
   padding-left: 12px;
   margin: 0;
   margin-bottom: -16px;
-  flex: 1;
-  height: 0;
+  flex-grow: 0;
   overflow-y: auto;
 `;
 
@@ -79,7 +78,6 @@ const StyledTimelineConnector = styled(TimelineConnector)`
 
 const StyledTimelineItem = styled(TimelineItem)`
   min-height: 60px;
-  cursor: pointer;
   &:before {
     content: none;
   }
@@ -132,8 +130,9 @@ const TimeText = styled.div`
 `;
 
 const Footer = styled.div`
-  margin: 11px 20px 0;
-  height: 20px;
+  margin: 17px 20px 0;
+  flex-grow: 1;
+  min-height: 20px;
   border-top: 1px solid ${Colors.outline};
   position: sticky;
   background-color: ${Colors.white};
@@ -151,6 +150,7 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
+  max-width: 324px;
 `;
 
 const Link = styled.div`

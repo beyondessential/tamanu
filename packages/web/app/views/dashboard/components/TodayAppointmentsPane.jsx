@@ -99,6 +99,7 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
+  max-width: 324px;
 `;
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
