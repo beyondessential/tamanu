@@ -80,7 +80,7 @@ export const Drawer = ({
           </IconButton>
         </Header>
         <DrawerBody ref={drawerBodyRef}>
-          <Description>{description}</Description>
+          {description && <Description>{description}</Description>}
           {children}
         </DrawerBody>
       </Wrapper>
