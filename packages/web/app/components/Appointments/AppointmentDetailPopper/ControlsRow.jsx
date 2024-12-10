@@ -7,6 +7,7 @@ import { MenuButton } from '../../MenuButton';
 import { TranslatedText } from '../../Translation';
 
 const ControlsContainer = styled('div')`
+  z-index: 1;
   display: flex;
   flex-direction: row;
   gap: 0.125rem;
