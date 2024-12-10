@@ -1,13 +1,15 @@
-import { isValid } from 'date-fns';
+import { endOfDay, isValid, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
+import { FormHelperText } from '@material-ui/core';
+import { useLocationBookingsQuery } from '../../../../api/queries';
 
 const DateTimePicker = ({
   disabled = false,
@@ -28,6 +30,27 @@ const DateTimePicker = ({
   /** Keep synchronised with date field for non-overnight bookings */
   const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
 
+  const startDateTimeString = values.startDate
+    ? toDateTimeString(endOfDay(new Date(values.startDate)))
+    : null;
+  const endDateTimeString = values.endDate
+    ? toDateTimeString(startOfDay(new Date(values.endDate)))
+    : null;
+
+  // Check for any booked timeslots between dates in overnight bookings
+  const { data } = useLocationBookingsQuery(
+    {
+      after: startDateTimeString,
+      before: endDateTimeString,
+      all: true,
+      locationId: values.locationId,
+    },
+    { enabled: !!(values.startDate && values.endDate && values.locationId) },
+  );
+
+  const showUnavailableLocationWarning =
+    datePickerName === 'endDate' && !values.id && data?.count > 0;
+
   return (
     <>
       <Field
@@ -38,6 +61,17 @@ const DateTimePicker = ({
         name={datePickerName}
         onChange={flushChangeToDateField}
         required={required}
+        helperText={
+          showUnavailableLocationWarning && (
+            <FormHelperText error>
+              <TranslatedText
+                stringId="locationBooking.timePicker.locationNotAvailableWarning"
+                fallback="Location not available"
+              />
+            </FormHelperText>
+          )
+        }
+        saveDateAsString
       />
       <TimeSlotPicker
         date={isValidDate ? date : null}

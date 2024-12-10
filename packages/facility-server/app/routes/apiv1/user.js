@@ -148,20 +148,21 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body,
+      body: {
+        locationBookingFilters,
+        outpatientAppointmentFilters,
+        selectedGraphedVitalsOnFilter,
+        clinicianDashboardTaskingTableFilter,
+      },
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const {
-      selectedGraphedVitalsOnFilter,
-      locationBookingFilters,
-      clinicianDashboardTaskingTableFilter,
-    } = body;
     const [userPreferences] = await UserPreference.upsert({
       selectedGraphedVitalsOnFilter,
       locationBookingFilters,
       clinicianDashboardTaskingTableFilter,
+      outpatientAppointmentFilters,
       userId: currentUser.id,
       deletedAt: null,
     });
