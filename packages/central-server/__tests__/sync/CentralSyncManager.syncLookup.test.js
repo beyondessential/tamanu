@@ -231,16 +231,12 @@ describe('Sync Lookup data', () => {
       fake(PatientSecondaryId, { patientId: patient.id, typeId: referenceData.id }),
     );
     await Permission.create(fake(Permission, { roleId: role.id }));
-    await Appointment.create(
-      fake(Appointment, { patientId: patient.id, locationGroupId: locationGroup.id }),
-    );
-
-    const appointmentSchedule = await AppointmentSchedule.create(fake(AppointmentSchedule));
+    const schedule = await AppointmentSchedule.create(fake(AppointmentSchedule));
     await Appointment.create(
       fake(Appointment, {
         patientId: patient.id,
         locationGroupId: locationGroup.id,
-        scheduleId: appointmentSchedule.id,
+        scheduleId: schedule,
       }),
     );
     encounter1 = await Encounter.create(
