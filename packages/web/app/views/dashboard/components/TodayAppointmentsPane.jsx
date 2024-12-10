@@ -14,8 +14,7 @@ import { APPOINTMENT_GROUP_BY } from '../../scheduling/outpatientBookings/Outpat
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 const Container = styled.div`
-  ${({ showTasks }) => showTasks && 'flex-grow: 1;'}
-  width: 100%;
+  ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
   min-width: 366px;
   min-height: 51%;
   border: 1px solid ${Colors.outline};
