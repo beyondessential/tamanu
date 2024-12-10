@@ -62,7 +62,7 @@ export class AppointmentSchedule extends Model {
       LEFT JOIN
         locations
       ON
-        location_groups.facility_id = locations.facility_id
+        appointments.location_id = locations.id
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
