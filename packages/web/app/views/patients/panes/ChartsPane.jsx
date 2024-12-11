@@ -9,7 +9,6 @@ import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { SelectField } from '../../../components/Field';
 import { useChartSurveysQuery } from '../../../api/queries';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
-import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 import { ChartModal } from '../../../components/ChartModal';
 import { ChartsTable } from '../../../components/ChartsTable';
 import { getAnswersFromData } from '../../../utils';
@@ -18,6 +17,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
+import { useChartData } from '../../../contexts/ChartData';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
@@ -53,10 +53,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const [modalOpen, setModalOpen] = useState(false);
-  const { data: userPreferences } = useUserPreferencesQuery();
-  const [selectedChartTypeId, setSelectedChartTypeId] = useState(
-    userPreferences?.selectedChartTypeId,
-  );
+  const { selectedChartTypeId, setSelectedChartTypeId } = useChartData();
   const { data: chartSurveys = [] } = useChartSurveysQuery();
   const chartTypes = useMemo(
     () =>

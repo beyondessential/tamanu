@@ -34,6 +34,7 @@ import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermi
 import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'lodash';
+import { ChartDataProvider } from '../../contexts/ChartData';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -56,7 +57,11 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
     key: ENCOUNTER_TAB_NAMES.CHARTS,
-    render: props => <ChartsPane {...props} />,
+    render: props => (
+      <ChartDataProvider>
+        <ChartsPane {...props} />
+      </ChartDataProvider>
+    ),
     condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
