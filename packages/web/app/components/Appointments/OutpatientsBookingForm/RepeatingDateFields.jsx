@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Colors } from '../../../constants';
-import { DateInput, NumberInput, SelectInput } from '../../Field';
+import { DateInput, NumberField, NumberInput, SelectInput } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../../Typography';
@@ -22,6 +22,7 @@ import {
 } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
+import { Field } from 'formik';
 
 const Container = styled('div')`
   width: 100%;
@@ -33,7 +34,7 @@ const Container = styled('div')`
   border: 0.063rem solid ${Colors.outline};
 `;
 
-const StyledNumberInput = styled(NumberInput)`
+const StyledNumberField = styled(NumberField)`
   width: 117px;
   & .label-field {
     font-size: 12px;
@@ -125,23 +126,22 @@ const getRepeatText = (reportUnit, repeatN, value) => {
   }
 };
 
-export const RepeatingDateFields = ({ value, field }) => {
-  const [repeatN, setRepeatN] = useState(1);
+export const RepeatingDateFields = ({ value, values, field }) => {
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
   const [repeatDate, setRepeatDate] = useState(addMonths(value, 6));
-  const [repeatAfter, setRepeatAfter] = useState(2);
 
+  console.log(values);
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
-        <StyledNumberInput
+        <Field
           name="appointmentSchedule.interval"
-          value={repeatN}
           min={1}
           label={
             <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
           }
+          component={StyledNumberField}
         />
         <StyledSelectInput
           placeholder=""
@@ -157,7 +157,7 @@ export const RepeatingDateFields = ({ value, field }) => {
       <Box>
         <SmallBodyText>
           Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={repeatUnit} />{' '}
-          {getRepeatText(repeatUnit, repeatN, value)}
+          {getRepeatText(repeatUnit, values.interval, value)}
         </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
@@ -174,19 +174,19 @@ export const RepeatingDateFields = ({ value, field }) => {
               value={repeatType === 'on' && repeatDate}
               onChange={e => setRepeatDate(e.target.value)}
               disabled={repeatType !== 'on'}
-              min={format(add(value, { [`${repeatUnit}s`]: repeatN }), 'yyyy-MM-dd')}
+              min={format(add(value, { [`${repeatUnit}s`]: values.interval }), 'yyyy-MM-dd')}
             />
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
-            <StyledNumberInput
+            <Field
+              name="appointmentSchedule.occurrenceCount"
               sx={{
                 width: '60px',
               }}
-              value={repeatType === 'after' && repeatAfter}
-              onChange={e => setRepeatAfter(e.target.value)}
               min={0}
               disabled={repeatType !== 'after'}
+              component={StyledNumberField}
             />
             <SmallBodyText color="textTertiary">occurrences</SmallBodyText>
           </Box>

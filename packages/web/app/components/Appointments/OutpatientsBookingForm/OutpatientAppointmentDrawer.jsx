@@ -28,6 +28,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingDateFields } from './RepeatingDateFields';
+import { omit } from 'lodash';
 
 const IconLabel = styled.div`
   display: flex;
@@ -234,12 +235,25 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     }),
   });
 
-  const renderForm = ({ values, resetForm, dirty, setFieldValue }) => {
+  const renderForm = ({ values, resetForm, dirty, setFieldValue, setValues }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
+    };
+
+    const handleChangeIsRepeatedAppointment = e => {
+      if (!e.target.checked) {
+        setValues(omit(values, ['appointmentSchedule']));
+        return;
+      }
+      setValues({
+        ...values,
+        appointmentSchedule: {
+          interval: 1,
+        },
+      });
     };
 
     return (
@@ -353,6 +367,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
             name="isRepeatingAppointment"
+            onChange={handleChangeIsRepeatedAppointment}
             disabled={!values.startTime}
             label={
               <TranslatedText
@@ -363,7 +378,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
           />
           {values.isRepeatingAppointment && (
-            <RepeatingDateFields value={parseISO(values.startTime)} />
+            <RepeatingDateFields values={values} value={parseISO(values.startTime)} />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
