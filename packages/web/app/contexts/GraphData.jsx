@@ -12,12 +12,13 @@ export const GraphDataProviderFactory = ({ visualisationConfigQueryFn, Context, 
   ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
   const { data } = visualisationConfigQueryFn();
-  const { visualisationConfigs } = data;
+  const { visualisationConfigs, allGraphedChartKeys } = data;
 
   return (
     <Context.Provider
       value={{
         visualisationConfigs,
+        allGraphedChartKeys,
         vitalChartModalOpen,
         setVitalChartModalOpen,
         chartKeys,

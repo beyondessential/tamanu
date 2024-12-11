@@ -13,9 +13,7 @@ import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDispla
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { getNormalRangeByAge } from '../utils';
-import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
-import { combineQueries } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const getExportOverrideTitle = date => {
@@ -78,18 +76,13 @@ const MeasureCell = React.memo(({ value, data }) => {
 
 const TitleCell = React.memo(({ value }) => {
   const {
+    allGraphedChartKeys,
     setChartKeys,
     setModalTitle,
     setVitalChartModalOpen,
     setIsInMultiChartsView,
   } = useVitalChartData();
-  const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
-  const userPreferencesQuery = useUserPreferencesQuery();
-  const {
-    data: [vitalsVisualisationConfigs, userPreferences],
-    isSuccess,
-    isLoading,
-  } = combineQueries([vitalsVisualisationConfigsQuery, userPreferencesQuery]);
+  const { data: userPreferences, isSuccess, isLoading } = useUserPreferencesQuery();
 
   let chartKeys = [];
   if (isSuccess) {
@@ -97,7 +90,6 @@ const TitleCell = React.memo(({ value }) => {
       selectedGraphedVitalsOnFilter: rawSelectedGraphedVitalsOnFilter = 'select-all',
     } = userPreferences;
     const selectedGraphedVitalsOnFilter = rawSelectedGraphedVitalsOnFilter.trim();
-    const { allGraphedChartKeys } = vitalsVisualisationConfigs;
 
     chartKeys = ['select-all', ''].includes(selectedGraphedVitalsOnFilter)
       ? allGraphedChartKeys
@@ -107,7 +99,7 @@ const TitleCell = React.memo(({ value }) => {
   return (
     <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
       {value}
-      {isSuccess && vitalsVisualisationConfigs?.allGraphedChartKeys.length > 0 && (
+      {isSuccess && allGraphedChartKeys.length > 0 && (
           <IconButton
             size="small"
             onClick={() => {

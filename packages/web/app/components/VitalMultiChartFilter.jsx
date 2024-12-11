@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
 import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
-import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useVitalChartData } from '../contexts/VitalChartData';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
@@ -66,12 +65,14 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
-  const { chartKeys, setChartKeys } = useVitalChartData();
-  const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
+  const {
+    chartKeys,
+    setChartKeys,
+    visualisationConfigs,
+    allGraphedChartKeys,
+  } = useVitalChartData();
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const { data } = vitalsVisualisationConfigsQuery;
-  const { visualisationConfigs = [], allGraphedChartKeys = [] } = data;
   const filterOptions = visualisationConfigs
     .filter(({ key }) => allGraphedChartKeys.includes(key))
     .map(({ key, name }) => ({ value: key, label: name }));

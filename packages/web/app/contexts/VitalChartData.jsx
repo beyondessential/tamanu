@@ -5,6 +5,7 @@ import { useChartsVisualisationConfigsQuery } from '../api/queries/useChartsVisu
 
 export const VitalChartDataContext = React.createContext({
   visualisationConfigs: [],
+  allGraphedChartKeys: [],
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
   setChartKeys: () => {},
