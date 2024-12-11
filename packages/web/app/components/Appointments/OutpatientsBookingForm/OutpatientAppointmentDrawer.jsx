@@ -27,6 +27,7 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { RepeatingDateField } from '../RepeatingDateField';
 
 const IconLabel = styled.div`
   display: flex;
@@ -350,6 +351,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
+          <Field
+            name="isRepeatingAppointment"
+            label={
+              <TranslatedText
+                stringId="appointment.isRepeatingAppointment.label"
+                fallback="Repeat appointment"
+              />
+            }
+            component={CheckField}
+          />
+          {values.isRepeatingAppointment && (
+            <RepeatingDateField value={parseISO(values.startTime)} />
+          )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>

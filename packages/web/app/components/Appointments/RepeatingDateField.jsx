@@ -133,8 +133,6 @@ export const RepeatingDateField = ({ value, field }) => {
         <StyledNumberInput
           value={repeatN}
           min={1}
-          //TODO: Discuss sensible max value
-          max={99}
           onChange={e => setRepeatN(e.target.value)}
           label={
             <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
