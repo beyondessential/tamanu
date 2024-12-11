@@ -156,7 +156,7 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     <DateWrapper>
       <StatusIndicator patientStatus={patientStatus} />
       <DateDisplay date={startDate} />
-      {' - '}
+      &nbsp;&ndash;{' '}
       {endDate ? (
         <DateDisplay date={endDate} />
       ) : (
