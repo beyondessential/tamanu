@@ -18,7 +18,7 @@ import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
-import { usePatientCurrentEncounter } from '../../api/queries';
+import { usePatientCurrentEncounterQuery } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
@@ -232,7 +232,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     data: currentEncounter,
     error: currentEncounterError,
     isLoading: currentEncounterLoading,
-  } = usePatientCurrentEncounter(patient.id);
+  } = usePatientCurrentEncounterQuery(patient.id);
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', patient.id],

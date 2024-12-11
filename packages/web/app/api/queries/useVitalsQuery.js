@@ -10,7 +10,7 @@ function hasHistoricalData(answer) {
   return Object.values(records).some(record => record.body);
 }
 
-export const useVitals = encounterId => {
+export const useVitalsQuery = encounterId => {
   const api = useApi();
   const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
     api.get(

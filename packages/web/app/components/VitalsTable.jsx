@@ -13,7 +13,7 @@ import {
   RangeTooltipCell,
   RangeValidatedCell,
 } from './FormattedTableCell';
-import { useVitals } from '../api/queries/useVitals';
+import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
@@ -166,7 +166,7 @@ const TitleCell = React.memo(({ value }) => {
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const { data, recordedDates, error, isLoading } = useVitalsQuery(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const { getSetting } = useSettings();

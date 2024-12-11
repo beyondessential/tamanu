@@ -18,7 +18,7 @@ import {
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
-import { useImagingRequests } from '../../contexts/ImagingRequests';
+import { useImagingRequestsQuery } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
@@ -43,7 +43,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
   const requesterSuggester = useSuggester('practitioner');
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
 
-  const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
+  const { searchParameters, setSearchParameters } = useImagingRequestsQuery(memoryKey);
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
     advancedFields,

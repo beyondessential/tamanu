@@ -10,7 +10,7 @@ const transformData = response => {
     .map(patientCondition => ({ ...patientCondition, diagnosis: patientCondition.condition }))
     .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 };
-export const usePatientConditions = patientId => {
+export const usePatientConditionsQuery = patientId => {
   const api = useApi();
   return useQuery(['conditions', patientId], () => api.get(`patient/${patientId}/conditions`), {
     placeholderData: [],

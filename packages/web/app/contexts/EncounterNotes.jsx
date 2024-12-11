@@ -6,7 +6,7 @@ const EncounterNotesContext = createContext({
   resetNoteContext: () => {},
 });
 
-export const useEncounterNotes = () => {
+export const useEncounterNotesQuery = () => {
   const { noteType, setNoteType, resetNoteContext } = useContext(EncounterNotesContext);
   return { noteType, setNoteType, resetNoteContext };
 };

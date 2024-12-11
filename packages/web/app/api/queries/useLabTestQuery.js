@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useLabTest = labTestId => {
+export const useLabTestQuery = labTestId => {
   const api = useApi();
   
   return useQuery(

@@ -9,7 +9,7 @@ import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientCurrentEncounter } from '../../../api/queries';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
 
 const PATIENT_STATUS_COLORS = {
@@ -183,7 +183,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const { getLocalisation } = useLocalisation();
-  const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
+  const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
