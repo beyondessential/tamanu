@@ -1,5 +1,5 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { isAfter, parseISO } from 'date-fns';
+import { addMonths, isAfter, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -34,10 +34,6 @@ const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
-
-const repeatingAppointmentInitialValues = {
-  interval: 1,
-};
 
 const formStyles = {
   overflowY: 'auto',
@@ -254,7 +250,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       }
       setValues({
         ...values,
-        appointmentSchedule: repeatingAppointmentInitialValues,
+        appointmentSchedule: {
+          interval: 1,
+          untilDate: addMonths(parseISO(values.startTime), 6),
+        },
       });
     };
 

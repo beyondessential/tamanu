@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Colors } from '../../../constants';
-import { DateInput, NumberField, NumberInput, SelectInput } from '../../Field';
+import { DateField, NumberField, SelectInput } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../../Typography';
@@ -11,15 +11,7 @@ import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
 } from '@tamanu/constants';
-import {
-  format,
-  add,
-  addMonths,
-  eachDayOfInterval,
-  startOfMonth,
-  endOfMonth,
-  isSameDay,
-} from 'date-fns';
+import { format, add, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
 import { Field } from 'formik';
@@ -83,7 +75,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-const StyledDateInput = styled(DateInput)`
+const StyledDateField = styled(DateField)`
   & .MuiInputBase-input {
     padding-block: 10px;
     padding-inline: 13px 10px;
@@ -129,8 +121,6 @@ const getRepeatText = (reportUnit, repeatN, value) => {
 export const RepeatingDateFields = ({ value, values, field }) => {
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
-  const [repeatDate, setRepeatDate] = useState(addMonths(value, 6));
-
   console.log(values);
   return (
     <Container>
@@ -170,11 +160,11 @@ export const RepeatingDateFields = ({ value, values, field }) => {
         >
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
-            <StyledDateInput
-              value={repeatType === 'on' && repeatDate}
-              onChange={e => setRepeatDate(e.target.value)}
+            <Field
+              name="appointmentSchedule.untilDate"
               disabled={repeatType !== 'on'}
               min={format(add(value, { [`${repeatUnit}s`]: values.interval }), 'yyyy-MM-dd')}
+              component={StyledDateField}
             />
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
