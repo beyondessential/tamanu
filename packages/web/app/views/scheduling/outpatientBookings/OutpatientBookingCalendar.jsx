@@ -11,6 +11,8 @@ import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
+import { useApi } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -138,6 +140,8 @@ export const HeadCell = ({ title, count }) => (
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+  const api = useApi();
+  const { facilityId } = useAuth();
   const {
     data: { headData = [], cellData, titleKey },
     isLoading,
@@ -147,10 +151,14 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     selectedDate,
   });
 
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailModalId, setEmailModalId] = useState(null);
 
-  const sendAppointmentEmail = data => {
-    // apo.post(data)
+  const sendAppointmentEmail = async email => {
+    await api.post(`appointments/emailReminder`, {
+      appointmentId: emailModalId,
+      email,
+      facilityId,
+    });
   };
 
   if (isLoading) {
@@ -216,7 +224,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                         />
                       ),
                       // TODO: prepopulate with relevant email
-                      action: () => setIsEmailModalOpen(true),
+                      action: () => setEmailModalId(a.id),
                     },
                   ]}
                 />
@@ -227,16 +235,15 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       })}
       <FormModal
         title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
-        open={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
+        open={!!emailModalId}
+        onClose={() => setEmailModalId(null)}
       >
         <EmailAddressConfirmationForm
-          // TODO: send request to new(?) endpoint that triggers patient communication email
-          onSubmit={async data => {
-            sendAppointmentEmail(data);
-            setIsEmailModalOpen(false);
+          onSubmit={async ({ email }) => {
+            sendAppointmentEmail(email);
+            setEmailModalId(null);
           }}
-          onCancel={() => setIsEmailModalOpen(false)}
+          onCancel={() => setEmailModalId(null)}
         />
       </FormModal>
     </Box>

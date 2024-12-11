@@ -118,10 +118,10 @@ appointments.post(
     req.checkPermission('read', 'Appointment');
     const {
       models,
-      body: { facilityId, id, email },
+      body: { facilityId, appointmentId, email },
       settings,
     } = req;
-    await sendAppointmentReminder(id, email, facilityId, models, settings);
+    await sendAppointmentReminder(appointmentId, email, facilityId, models, settings);
     res.status(200).send();
   }),
 );
