@@ -22,6 +22,7 @@ import {
 } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
+
 const Container = styled('div')`
   width: 100%;
   background: ${Colors.white};
@@ -173,7 +174,16 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
           name="repeats"
         >
           <Box display="flex" alignItems="center" gap="10px">
-            <StyledFormControlLabel value={REPEAT_TYPES.ON} control={<StyledRadio />} label="On" />
+            <StyledFormControlLabel
+              value={REPEAT_TYPES.ON}
+              control={<StyledRadio />}
+              label={
+                <TranslatedText
+                  stringId="outpatientAppointment.repeatAppointment.on.label"
+                  fallback="On"
+                />
+              }
+            />
             <Field
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
@@ -190,7 +200,12 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
             <StyledFormControlLabel
               value={REPEAT_TYPES.AFTER}
               control={<StyledRadio />}
-              label="After"
+              label={
+                <TranslatedText
+                  stringId="outpatientAppointment.repeatAppointment.after.label"
+                  fallback="After"
+                />
+              }
             />
             <Field
               name="appointmentSchedule.occurrenceCount"
