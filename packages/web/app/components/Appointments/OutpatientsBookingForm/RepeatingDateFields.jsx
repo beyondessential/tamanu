@@ -146,7 +146,7 @@ export const RepeatingDateFields = ({ values }) => {
       <Box>
         <SmallBodyText>
           Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />{' '}
-          {getRepeatText(frequency, interval, value)}
+          {getRepeatText(frequency, interval, values.startTime)}
         </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
