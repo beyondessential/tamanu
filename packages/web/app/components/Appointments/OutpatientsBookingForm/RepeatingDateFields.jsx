@@ -11,7 +11,15 @@ import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
 } from '@tamanu/constants';
-import { format, add, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
+import {
+  format,
+  add,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
+  isSameDay,
+  parseISO,
+} from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
 const Container = styled('div')`
@@ -146,7 +154,7 @@ export const RepeatingDateFields = ({ values }) => {
       <Box>
         <SmallBodyText>
           Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />{' '}
-          {getRepeatText(frequency, interval, values.startTime)}
+          {getRepeatText(frequency, interval, parseISO(values.startTime))}
         </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
@@ -163,7 +171,7 @@ export const RepeatingDateFields = ({ values }) => {
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== 'on'}
               min={format(
-                add(values.startTime, {
+                add(parseISO(values.startTime), {
                   [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: values.interval,
                 }),
                 'yyyy-MM-dd',
