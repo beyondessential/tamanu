@@ -18,6 +18,8 @@ import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
 import { useChartData } from '../../../contexts/ChartData';
+import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
+import { VitalChartsModal } from '../../../components/VitalChartsModal';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
@@ -90,32 +92,35 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
 
   return (
     <TabPane>
-      <ChartModal
-        open={modalOpen}
-        chartName={findChartName(selectedChartTypeId)}
-        onClose={handleClose}
-        chartSurveyId={selectedChartTypeId}
-        onSubmit={handleSubmitChart}
-      />
-
-      <TableButtonRow variant="small" justifyContent="space-between">
-        <ChartDropDown
-          selectedChartTypeId={selectedChartTypeId}
-          setSelectedChartTypeId={setSelectedChartTypeId}
-          chartTypes={chartTypes}
+      <ChartGraphDataProvider>
+        <ChartModal
+          open={modalOpen}
+          chartName={findChartName(selectedChartTypeId)}
+          onClose={handleClose}
+          chartSurveyId={selectedChartTypeId}
+          onSubmit={handleSubmitChart}
         />
-        {selectedChartTypeId ? (
-          <ButtonWithPermissionCheck
-            onClick={() => setModalOpen(true)}
-            disabled={readonly}
-            verb="submit"
-            noun="SurveyResponse"
-          >
-            <TranslatedText stringId="chart.action.record" fallback="Record" />
-          </ButtonWithPermissionCheck>
-        ) : null}
-      </TableButtonRow>
-      <ChartsTable selectedSurveyId={selectedChartTypeId} />
+        <VitalChartsModal />
+
+        <TableButtonRow variant="small" justifyContent="space-between">
+          <ChartDropDown
+            selectedChartTypeId={selectedChartTypeId}
+            setSelectedChartTypeId={setSelectedChartTypeId}
+            chartTypes={chartTypes}
+          />
+          {selectedChartTypeId ? (
+            <ButtonWithPermissionCheck
+              onClick={() => setModalOpen(true)}
+              disabled={readonly}
+              verb="submit"
+              noun="SurveyResponse"
+            >
+              <TranslatedText stringId="chart.action.record" fallback="Record" />
+            </ButtonWithPermissionCheck>
+          ) : null}
+        </TableButtonRow>
+        <ChartsTable selectedSurveyId={selectedChartTypeId} />
+      </ChartGraphDataProvider>
     </TabPane>
   );
 });
