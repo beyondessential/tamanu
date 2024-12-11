@@ -193,7 +193,7 @@ export function configMap(deployName, imageTag, options) {
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
-      facilityNames: options.facilityname && JSON.stringify(options.facilitynames),
+      facilityNames: options.facilitynames && JSON.stringify(options.facilitynames),
       timezone: options.timezone,
       ipAllowList: options.ip,
 
