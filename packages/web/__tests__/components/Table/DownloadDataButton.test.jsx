@@ -95,8 +95,9 @@ describe('DownloadDataButton', () => {
   it('when given a custom ExportButton, is rendered with a translated button label', () => {
     const stringId = chance.string();
     const translationFallback = chance.string();
+    const testId = chance.string();
     const ExportButton = props => (
-      <button {...props}>
+      <button data-testid={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>
     );
@@ -110,7 +111,7 @@ describe('DownloadDataButton', () => {
       />,
     );
 
-    const button = screen.getByTestId('download-data-button');
+    const button = screen.getByTestId(testId);
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
     expect(getTranslationSpy).toHaveBeenCalledWith(
       stringId,
