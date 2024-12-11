@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from '@react-pdf/renderer';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { getLocationName } from '../../patientAccessors';
@@ -7,14 +8,18 @@ import { HorizontalRule } from './HorizontalRule';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { formatShort } from '../../dateTime';
 import { P } from '../Typography';
-import { View } from '@react-pdf/renderer';
 
 export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 
-  const primaryDiagnoses = diagnoses.filter(diagnosis => diagnosis.isPrimary);
-  const secondaryDiagnoses = diagnoses.filter(diagnosis => !diagnosis.isPrimary);
+  const primaryDiagnoses = diagnoses
+    .filter(diagnosis => diagnosis.isPrimary)
+    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+
+  const secondaryDiagnoses = diagnoses
+    .filter(diagnosis => !diagnosis.isPrimary)
+    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
   return (
     <>
       <DataSection
@@ -47,30 +52,34 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
         </Col>
       </DataSection>
       {!!diagnoses?.length && <HorizontalRule width="1px" />}
-      {!!primaryDiagnoses?.length && <Row>
-        <P style={{ marginVertical: 3, marginRight: 12.5 }} bold fontSize={9}>
-          {getTranslation('encounter.primaryDiagnoses.label', 'Primary diagnoses')}:{' '}
-        </P>
-        <View style={{ marginVertical: 3 }}>
-          {primaryDiagnoses.map(diagnosis => (
-            <P style={{ marginVertical: 0 }} fontSize={9}>
-              {diagnosis.diagnosis.name}
-            </P>
-          ))}
-        </View>
-      </Row>}
-      {!!secondaryDiagnoses?.length && <Row>
-        <P style={{ marginVertical: 3 }} bold fontSize={9}>
-          {getTranslation('encounter.secondaryDiagnoses.label', 'Secondary diagnoses')}:{' '}
-        </P>
-        <View style={{ marginVertical: 3 }}>
-          {secondaryDiagnoses.map(diagnosis => (
-            <P style={{ marginVertical: 0 }} fontSize={9}>
-              {diagnosis.diagnosis.name}
-            </P>
-          ))}
-        </View>
-      </Row>}
+      {!!primaryDiagnoses?.length && (
+        <Row>
+          <P style={{ marginVertical: 3, marginRight: 12.5 }} bold fontSize={9}>
+            {getTranslation('encounter.primaryDiagnoses.label', 'Primary diagnoses')}:{' '}
+          </P>
+          <View style={{ marginVertical: 3 }}>
+            {primaryDiagnoses.map(diagnosis => (
+              <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
+                {diagnosis.diagnosis.name}
+              </P>
+            ))}
+          </View>
+        </Row>
+      )}
+      {!!secondaryDiagnoses?.length && (
+        <Row>
+          <P style={{ marginVertical: 3 }} bold fontSize={9}>
+            {getTranslation('encounter.secondaryDiagnoses.label', 'Secondary diagnoses')}:{' '}
+          </P>
+          <View style={{ marginVertical: 3 }}>
+            {secondaryDiagnoses.map(diagnosis => (
+              <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
+                {diagnosis.diagnosis.name}
+              </P>
+            ))}
+          </View>
+        </Row>
+      )}
       <HorizontalRule width="2px" />
     </>
   );
