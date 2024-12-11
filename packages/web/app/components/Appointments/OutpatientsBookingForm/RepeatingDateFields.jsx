@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Colors } from '../../../constants';
-import { DateField, NumberField, SelectField } from '../../Field';
+import { DateField, Field, NumberField, SelectField } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../../Typography';
@@ -14,8 +14,6 @@ import {
 import { format, add, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
-import { Field } from 'formik';
-
 const Container = styled('div')`
   width: 100%;
   background: ${Colors.white};
@@ -119,9 +117,11 @@ const getRepeatText = (reportUnit, repeatN, value) => {
 };
 
 export const RepeatingDateFields = ({ value, values, field }) => {
-  const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
 
+  const { interval, frequency } = values.appointmentSchedule;
+
+  // TODO translated enum select
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -146,8 +146,8 @@ export const RepeatingDateFields = ({ value, values, field }) => {
       </Box>
       <Box>
         <SmallBodyText>
-          Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={repeatUnit} />{' '}
-          {getRepeatText(repeatUnit, values.interval, value)}
+          Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />{' '}
+          {getRepeatText(frequency, interval, value)}
         </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
@@ -163,7 +163,7 @@ export const RepeatingDateFields = ({ value, values, field }) => {
             <Field
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== 'on'}
-              min={format(add(value, { [`${repeatUnit}s`]: values.interval }), 'yyyy-MM-dd')}
+              min={format(add(value, { [`${frequency}s`]: values.interval }), 'yyyy-MM-dd')}
               component={StyledDateField}
             />
           </Box>
