@@ -117,23 +117,43 @@ const addSixFrequencyToDate = (date, frequency) =>
 // TODO: translated everything
 const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
-    return `on a ${format(value, 'EEEE')}`;
+    return (
+      <TranslatedText
+        stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
+        fallback="on a :weekday"
+        replacements={{
+          weekday: format(value, 'EEEE'),
+        }}
+      />
+    );
   }
   if (reportUnit === REPEAT_FREQUENCY.MONTHLY) {
-    let text = `on the `;
     const weeksInMonth = eachDayOfInterval({
       start: startOfMonth(value),
       end: endOfMonth(value, 1),
     });
     const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
     const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
-    if (sameDay.length === nOfWeek + 1) {
-      text += 'last';
-    } else {
-      text += ['first', 'second', 'third', 'fourth'][nOfWeek];
-    }
 
-    return `${text} ${format(value, 'EEEE')}`;
+    const getOrdinal = n => {
+      if (sameDay.length === n + 1) {
+        return <TranslatedText stringId="general.ordinalAdverbs.last" fallback="last" />;
+      }
+      return [
+        <TranslatedText key="first" stringId="general.ordinalAdverbs.first" fallback="first" />,
+        <TranslatedText key="second" stringId="general.ordinalAdverbs.second" fallback="second" />,
+        <TranslatedText key="third" stringId="general.ordinalAdverbs.third" fallback="third" />,
+        <TranslatedText key="forth" stringId="general.ordinalAdverbs.fourth" fallback="fourth" />,
+      ][n];
+    };
+
+    return (
+      <TranslatedText
+        stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
+        fallback="on the :nth :weekday"
+        replacements={{ nth: getOrdinal(nOfWeek), weekday: format(value, 'EEEE') }}
+      />
+    );
   }
 };
 
