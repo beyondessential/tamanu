@@ -140,6 +140,7 @@ export const OutpatientAppointmentsView = () => {
             />
             <OutpatientAppointmentDrawer
               initialValues={selectedAppointment}
+              key={selectedAppointment.id}
               onClose={handleCloseDrawer}
               open={drawerOpen}
             />

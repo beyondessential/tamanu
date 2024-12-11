@@ -32,7 +32,7 @@ const normalizeRecursively = (element, normalizeFn) => {
   });
 };
 
-export function DownloadDataButton({ exportName, columns, data }) {
+export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
@@ -144,13 +144,23 @@ export function DownloadDataButton({ exportName, columns, data }) {
   };
 
   return (
-    <GreyOutlinedButton
-      onClick={onDownloadData}
-      data-test-class="download-data-button"
-      data-testid="download-data-button"
-      startIcon={<GetAppIcon />}
-    >
-      <TranslatedText stringId="general.table.action.export" fallback="Export" />
-    </GreyOutlinedButton>
+    <>
+      {ExportButton ? (
+        <ExportButton
+          onClick={onDownloadData}
+          data-test-class="download-data-button"
+          data-testid="download-data-button"
+        />
+      ) : (
+        <GreyOutlinedButton
+          onClick={onDownloadData}
+          startIcon={<GetAppIcon />}
+          data-test-class="download-data-button"
+          data-testid="download-data-button"
+        >
+          <TranslatedText stringId="general.action.download" fallback="Download" />
+        </GreyOutlinedButton>
+      )}
+    </>
   );
 }
