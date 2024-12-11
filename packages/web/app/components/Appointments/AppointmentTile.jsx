@@ -12,7 +12,7 @@ import { Colors } from '../../constants';
 import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { ThemedTooltip } from '../Tooltip';
-import { AppointmentDetailPopper } from './AppointmentDetailPopper';
+import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
@@ -95,29 +95,28 @@ export const AppointmentTile = ({
     patient,
     startTime: startTimeStr,
     endTime: endTimeStr,
-    status: appointmentStatus,
+    status,
     isHighPriority,
   } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
-  const [localStatus, setLocalStatus] = useState(appointmentStatus);
 
   const location = useLocation();
   useEffect(() => {
     const { appointmentId } = queryString.parse(location.search);
-    if (appointmentId && appointmentId === appointment.id) {
+    if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
-        setOpen(true)
-        ref.current.scrollIntoView({ block: 'center' });
+        setOpen(true);
+        ref.current.scrollIntoView({ block: 'center', inline: 'start' });
       });
     }
-  }, [appointment.id, location.search]);
+  }, [appointment.id, hideTime, location.search]);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
   const isLocationBooking = !!appointment.location;
-  const isOvernight = isLocationBooking && !isSameDay(startTime, endTime);
+  const isOvernightLocationBooking = isLocationBooking && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -130,13 +129,13 @@ export const AppointmentTile = ({
     <>
       <ThemedTooltip title={tileText}>
         <Tile
-          $color={APPOINTMENT_STATUS_COLORS[localStatus]}
+          $color={APPOINTMENT_STATUS_COLORS[status]}
           $selected={open}
           ref={ref}
           onClick={() => setOpen(true)}
           {...props}
         >
-          <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
+          <Label $strikethrough={status === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>
           <IconGroup>
             {isHighPriority && (
               <HighPriorityIcon
@@ -146,15 +145,15 @@ export const AppointmentTile = ({
                 style={{ fontSize: 15 }}
               />
             )}
-            {isOvernight && (
+            {isOvernightLocationBooking && (
               <OvernightIcon
                 aria-label="Overnight booking"
                 aria-hidden={undefined}
-                htmlColor="#326699"
+                htmlColor={Colors.primary}
                 style={{ fontSize: 15 }}
               />
             )}
-            <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
+            <StatusIndicator appointmentStatus={status} width={15} height={15} />
           </IconGroup>
         </Tile>
       </ThemedTooltip>
@@ -163,10 +162,9 @@ export const AppointmentTile = ({
         onClose={() => setOpen(false)}
         anchorEl={ref.current}
         appointment={appointment}
-        isOvernight={isOvernight}
+        isOvernight={isOvernightLocationBooking}
         onEdit={onEdit}
         onCancel={onCancel}
-        onStatusChange={setLocalStatus}
         actions={actions}
         // px conversions of height / width from CarouselComponents
         preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}

@@ -12,9 +12,12 @@ import { LocationBookingDrawer } from '../../../components/Appointments/Location
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
-import { CalendarSearchBar } from './CalendarSearchBar';
+import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { appointmentToFormValues } from './utils';
+import { parseISO } from 'date-fns';
+
+export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -32,7 +35,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 
 const Wrapper = styled(PageContainer)`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   max-block-size: 100%;
 `;
 
@@ -61,7 +64,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, setFilters } = useLocationBookingsContext();
+  const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
 
   const handleFilterChange = useCallback(
@@ -73,17 +76,32 @@ export const LocationBookingsView = () => {
   );
 
   const closeBookingForm = () => {
+    updateSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = prepopulationValues => {
-    setSelectedAppointment(prepopulationValues);
+  const openBookingForm = async appointment => {
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
+    await setSelectedAppointment(appointment);
+
+    const { locationId, startTime } = appointment;
+    if (locationId && startTime) {
+      updateSelectedCell({ locationId, date: parseISO(startTime) });
+    }
     setIsDrawerOpen(true);
   };
 
   const openCancelModal = appointment => {
-    setSelectedAppointment(appointmentToFormValues(appointment));
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
+  };
+
+  const handleNewBooking = async () => {
+    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // correctly cleared upon resetForm()
+    await setSelectedAppointment(null);
+    openBookingForm({});
   };
 
   const locationsQuery = useLocationsQuery({
@@ -98,8 +116,8 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={() => openBookingForm({})}>
+        <LocationBookingsFilter onFilterChange={handleFilterChange} />
+        <NewBookingButton onClick={handleNewBooking}>
           <PlusIcon />
           <TranslatedText
             stringId="locationBooking.calendar.bookLocation"
@@ -116,6 +134,7 @@ export const LocationBookingsView = () => {
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
+          id={LOCATION_BOOKINGS_CALENDAR_ID}
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
@@ -126,11 +145,13 @@ export const LocationBookingsView = () => {
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
       />
-      <LocationBookingDrawer
-        initialValues={selectedAppointment}
-        open={isDrawerOpen}
-        onClose={closeBookingForm}
-      />
+      {selectedAppointment && (
+        <LocationBookingDrawer
+          initialValues={appointmentToFormValues(selectedAppointment)}
+          open={isDrawerOpen}
+          onClose={closeBookingForm}
+        />
+      )}
     </Wrapper>
   );
 };

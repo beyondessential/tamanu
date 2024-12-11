@@ -34,6 +34,7 @@ export class Appointment extends Model {
       'locationGroup',
       'appointmentType',
       'bookingType',
+      'encounter',
     ];
   }
 
@@ -53,7 +54,6 @@ export class Appointment extends Model {
       foreignKey: 'locationGroupId',
     });
 
-    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
@@ -68,6 +68,16 @@ export class Appointment extends Model {
       foreignKey: 'appointmentTypeId',
       as: 'appointmentType',
     });
+
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
+      as: 'encounter',
+    });
+
+    this.belongsTo(models.AppointmentSchedule, {
+      foreignKey: 'scheduleId',
+      as: 'schedule',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -75,14 +85,17 @@ export class Appointment extends Model {
       return null;
     }
     return `
-      JOIN
+      LEFT JOIN
         location_groups
       ON
         appointments.location_group_id = location_groups.id
+      LEFT JOIN
+        locations
+      ON appointments.location_id = locations.id
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id in (:facilityIds)
+        COALESCE(location_groups.facility_id, locations.facility_id) IN (:facilityIds)
       AND
         appointments.updated_at_sync_tick > :since
     `;
@@ -92,7 +105,12 @@ export class Appointment extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
+      joins: `
+        LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
+        LEFT JOIN locations ON appointments.location_id = locations.id
+      `,
     };
   }
 }

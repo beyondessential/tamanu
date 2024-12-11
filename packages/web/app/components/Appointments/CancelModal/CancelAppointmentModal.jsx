@@ -98,7 +98,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
 
   const { mutateAsync: mutateAppointment } = useAppointmentMutation(
-    { isEdit: true },
+    appointment.id,
     {
       onSuccess: () => {
         toast.success(

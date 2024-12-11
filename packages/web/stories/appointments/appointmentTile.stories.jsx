@@ -31,13 +31,12 @@ export default {
 };
 
 const chance = new Chance();
-const patientId = chance.guid();
 
 const partialAppointment = {
   id: chance.guid(),
   startTime: '2024-09-05 13:57:00',
   endTime: '2024-09-05 14:57:00',
-  patient: createDummyPatient(null, { id: patientId }),
+  patient: createDummyPatient(null, { id: chance.guid() }),
   clinician: fakePractitioner(),
   location: { name: 'Bed 1', id: 'bed1' },
   locationGroup: { name: 'Ward 1', id: 'ward1' },

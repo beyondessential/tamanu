@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 
@@ -9,6 +9,7 @@ export const useLocationBookingMutation = (
   useMutationOptions,
 ) => {
   const api = useApi();
+  const queryClient = useQueryClient();
 
   return useMutation(
     payload =>
@@ -19,6 +20,12 @@ export const useLocationBookingMutation = (
             { throwResponse: true },
           )
         : api.post(BASE_URL, payload, { throwResponse: true }),
-    useMutationOptions,
+    {
+      ...useMutationOptions,
+      onSuccess: (data, variables, context) => {
+        void queryClient.invalidateQueries(['appointments']);
+        useMutationOptions.onSuccess?.(data, variables, context);
+      },
+    },
   );
 };

@@ -1,4 +1,3 @@
-export * from './Appointments';
 export * from './Button';
 export * from './ButtonRow';
 export * from './Card';
