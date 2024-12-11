@@ -101,6 +101,11 @@ const StyledRadioGroup = styled(RadioGroup)`
   gap: 10px;
 `;
 
+const REPEAT_TYPES = {
+  ON: 'on',
+  AFTER: 'after',
+};
+
 // TODO: translated everything
 const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
@@ -124,10 +129,12 @@ const getRepeatText = (reportUnit, repeatN, value) => {
   }
 };
 
-export const RepeatingDateFields = ({ values }) => {
-  const [repeatType, setRepeatType] = useState('on');
+export const RepeatingDateFields = ({ values, setFieldValue }) => {
+  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
 
   const { interval, frequency } = values.appointmentSchedule;
+
+  const handleHChangeFrequency = e => {};
 
   return (
     <Container>
@@ -166,10 +173,10 @@ export const RepeatingDateFields = ({ values }) => {
           name="repeats"
         >
           <Box display="flex" alignItems="center" gap="10px">
-            <StyledFormControlLabel value="on" control={<StyledRadio />} label="On" />
+            <StyledFormControlLabel value={REPEAT_TYPES.ON} control={<StyledRadio />} label="On" />
             <Field
               name="appointmentSchedule.untilDate"
-              disabled={repeatType !== 'on'}
+              disabled={repeatType !== REPEAT_TYPES.ON}
               min={format(
                 add(parseISO(values.startTime), {
                   [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: values.interval,
@@ -180,14 +187,18 @@ export const RepeatingDateFields = ({ values }) => {
             />
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
-            <StyledFormControlLabel value="after" control={<StyledRadio />} label="After" />
+            <StyledFormControlLabel
+              value={REPEAT_TYPES.AFTER}
+              control={<StyledRadio />}
+              label="After"
+            />
             <Field
               name="appointmentSchedule.occurrenceCount"
               sx={{
                 width: '60px',
               }}
               min={0}
-              disabled={repeatType !== 'after'}
+              disabled={repeatType !== REPEAT_TYPES.AFTER}
               component={StyledNumberField}
             />
             <SmallBodyText color="textTertiary">occurrences</SmallBodyText>
