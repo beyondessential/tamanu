@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Colors } from '../../../constants';
-import { DateField, NumberField, SelectInput } from '../../Field';
+import { DateField, NumberField, SelectField } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../../Typography';
@@ -38,7 +38,7 @@ const StyledNumberField = styled(NumberField)`
   }
 `;
 
-const StyledSelectInput = styled(SelectInput)`
+const StyledSelectField = styled(SelectField)`
   & .MuiFormControl-root {
     > div > div:first-of-type {
       font-size: 12px;
@@ -121,7 +121,7 @@ const getRepeatText = (reportUnit, repeatN, value) => {
 export const RepeatingDateFields = ({ value, values, field }) => {
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
-  console.log(values);
+
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -133,15 +133,15 @@ export const RepeatingDateFields = ({ value, values, field }) => {
           }
           component={StyledNumberField}
         />
-        <StyledSelectInput
+        <Field
           placeholder=""
-          value={repeatUnit}
+          name="appointmentSchedule.frequency"
           isClearable={false}
-          onChange={e => setRepeatUnit(e.target.value)}
           options={Object.entries(REPEAT_FREQUENCY_UNIT_LABELS).map(([key, value]) => ({
             value: key,
             label: upperFirst(value),
           }))}
+          component={StyledSelectField}
         />
       </Box>
       <Box>

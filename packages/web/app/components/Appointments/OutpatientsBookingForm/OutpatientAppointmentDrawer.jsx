@@ -29,6 +29,7 @@ import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarni
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingDateFields } from './RepeatingDateFields';
 import { omit } from 'lodash';
+import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
 const IconLabel = styled.div`
   display: flex;
@@ -252,6 +253,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         ...values,
         appointmentSchedule: {
           interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
           untilDate: addMonths(parseISO(values.startTime), 6),
         },
       });
