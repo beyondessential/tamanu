@@ -107,6 +107,9 @@ const REPEAT_TYPES = {
   AFTER: 'after',
 };
 
+const addSixFrequencyToDate = (date, frequency) =>
+  add(date, { [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: 6 });
+
 // TODO: translated everything
 const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
@@ -135,7 +138,11 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
 
   const { interval, frequency } = values.appointmentSchedule;
 
-  const handleHChangeFrequency = e => {};
+  const handleHChangeFrequency = e =>
+    setFieldValue(
+      'appointmentSchedule.frequency',
+      addSixFrequencyToDate(parseISO(values.startTime), e.target.value),
+    );
 
   return (
     <Container>
@@ -156,6 +163,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
             value: key,
             label: upperFirst(value),
           }))}
+          onChange={handleHChangeFrequency}
           component={StyledSelectField}
         />
       </Box>
@@ -188,9 +196,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
               min={format(
-                add(parseISO(values.startTime), {
-                  [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: values.interval,
-                }),
+                addSixFrequencyToDate(parseISO(values.startTime), frequency),
                 'yyyy-MM-dd',
               )}
               component={StyledDateField}
