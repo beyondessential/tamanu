@@ -631,4 +631,61 @@ encounterRelations.get(
   }),
 );
 
+encounterRelations.get(
+  '/:id/charts/:chartSurveyId/chartInstances',
+  asyncHandler(async (req, res) => {
+    const { db, params } = req;
+    req.checkPermission('list', 'Charting');
+
+    const { id: encounterId, chartSurveyId } = params;
+
+    const results = await db.query(
+      `
+        WITH chart_instances AS (
+          SELECT
+            sr.id AS "chartInstanceId",
+            sr.survey_id AS "chartSurveyId",
+            MAX(CASE WHEN sra.data_element_id = :complexChartInstanceNameElementId THEN sra.body END) AS "chartInstanceName",
+            MAX(CASE WHEN sra.data_element_id = :complexChartDateElementId THEN sra.body END) AS "chartDate",
+            MAX(CASE WHEN sra.data_element_id = :complexChartTypeElementId THEN sra.body END) AS "chartType",
+            MAX(CASE WHEN sra.data_element_id = :complexChartSubTypeElementId THEN sra.body END) AS "chartSubType"
+          FROM
+            survey_responses sr
+          LEFT JOIN
+            survey_response_answers sra
+          ON
+            sr.id = sra.response_id
+          WHERE 
+            sr.survey_id = :chartSurveyId AND
+            sr.encounter_id = :encounterId AND
+            sr.deleted_at IS NULL
+          GROUP BY
+            sr.id
+        )
+
+        SELECT 
+          * 
+        FROM chart_instances
+        ORDER BY "chartDate" DESC;
+      `,
+      {
+        replacements: {
+          encounterId,
+          chartSurveyId,
+          complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+          complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+          complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
+          complexChartSubTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubType,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      count: results.length,
+      data: results,
+    });
+  }),
+);
+
 encounter.use(encounterRelations);
