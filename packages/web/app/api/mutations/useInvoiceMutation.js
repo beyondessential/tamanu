@@ -50,6 +50,9 @@ export const useFinaliseInvoice = invoice => {
     mutationFn: async () => {
       await api.put(`invoices/${invoice?.id}/finalize`);
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+      await queryClient.invalidateQueries({
+        queryKey: [`patient/${invoice.encounter?.patientId}/invoices/totalOutstandingBalance`],
+      });
     },
     onError: error => notifyError(error.message),
   });

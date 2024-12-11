@@ -80,7 +80,11 @@ export class Appointment extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
+        facilityId: 'location_groups.facility_id',
       }),
+      joins: `
+        JOIN location_groups ON appointments.location_group_id = location_groups.id
+      `,
     };
   }
 }

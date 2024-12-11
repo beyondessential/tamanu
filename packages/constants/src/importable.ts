@@ -32,7 +32,6 @@ export const REFERENCE_TYPES = {
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
   PLACE_OF_BIRTH: 'placeOfBirth',
-  MARITAL_STATUS: 'maritalStatus',
   RELIGION: 'religion',
   REACTION: 'reaction',
   FAMILY_RELATION: 'familyRelation',

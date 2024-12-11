@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -166,17 +166,23 @@ const updateInvoiceSchema = z
               .string()
               .uuid()
               .default(uuidv4),
-            percentage: z.coerce
-              .number()
-              .min(-1)
-              .max(1)
-              .transform(amount => round(amount, 2)),
+            type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
+            amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().optional(),
           })
           .strip()
           .optional(),
       })
       .strip()
+      .refine(item => {
+        if (!item.discount) return true;
+        if (item.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
+          return item.discount.amount < 0
+            ? true
+            : item.discount.amount <= 1 && item.discount.amount > 0;
+        }
+        return item.discount.amount <= item.productPrice * item.quantity;
+      }, 'Invalid discount amount')
       .array(),
   })
   .strip();
