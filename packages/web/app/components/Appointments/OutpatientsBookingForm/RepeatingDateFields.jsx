@@ -132,18 +132,18 @@ const getRepeatText = (reportUnit, repeatN, value) => {
       start: startOfMonth(value),
       end: endOfMonth(value, 1),
     });
-    const sameDay = weeksInMonth.filter(day => day.getDay() === value.getDay());
-    const nOfWeek = sameDay.findIndex(day => isSameDay(day, value));
+    const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === value.getDay());
+    const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, value));
 
     const getOrdinal = n => {
-      if (sameDay.length === n + 1) {
-        return <TranslatedText stringId="general.ordinalAdverbs.last" fallback="last" />;
+      if (weekdayMatchesInMonth.length === n + 1) {
+        return <TranslatedText stringId="general.ordinals.last" fallback="last" />;
       }
       return [
-        <TranslatedText key="first" stringId="general.ordinalAdverbs.first" fallback="first" />,
-        <TranslatedText key="second" stringId="general.ordinalAdverbs.second" fallback="second" />,
-        <TranslatedText key="third" stringId="general.ordinalAdverbs.third" fallback="third" />,
-        <TranslatedText key="forth" stringId="general.ordinalAdverbs.fourth" fallback="fourth" />,
+        <TranslatedText key="first" stringId="general.ordinals.first" fallback="first" />,
+        <TranslatedText key="second" stringId="general.ordinals.second" fallback="second" />,
+        <TranslatedText key="third" stringId="general.ordinals.third" fallback="third" />,
+        <TranslatedText key="forth" stringId="general.ordinals.fourth" fallback="fourth" />,
       ][n];
     };
 
@@ -151,7 +151,7 @@ const getRepeatText = (reportUnit, repeatN, value) => {
       <TranslatedText
         stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
         fallback="on the :nth :weekday"
-        replacements={{ nth: getOrdinal(nOfWeek), weekday: format(value, 'EEEE') }}
+        replacements={{ nth: getOrdinal(weekdayInMonthIndex), weekday: format(value, 'EEEE') }}
       />
     );
   }
