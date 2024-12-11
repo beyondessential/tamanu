@@ -102,6 +102,7 @@ const StyledRadioGroup = styled(RadioGroup)`
   gap: 10px;
 `;
 
+// TODO: translated everything
 const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
     return `on ${format(value, 'EEEE')}s`;
