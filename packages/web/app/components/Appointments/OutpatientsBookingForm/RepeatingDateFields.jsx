@@ -142,11 +142,13 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
 
   const { interval, frequency } = values.appointmentSchedule;
 
-  const handleHChangeFrequency = e =>
+  const handleChangeFrequency = e => {
     setFieldValue(
       'appointmentSchedule.untilDate',
       addSixFrequencyToDate(parseISO(values.startTime), e.target.value),
     );
+    setFieldValue('appointmentSchedule.frequency', e.target.value);
+  };
 
   return (
     <Container>
@@ -167,7 +169,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
             value: key,
             label: upperFirst(value),
           }))}
-          onChange={handleHChangeFrequency}
+          onChange={handleChangeFrequency}
           component={StyledSelectField}
         />
       </Box>

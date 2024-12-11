@@ -381,7 +381,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
           />
           {values.isRepeatingAppointment && (
-            <RepeatingDateFields values={values} value={parseISO(values.startTime)} />
+            <RepeatingDateFields values={values} setFieldValue={setFieldValue} />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
