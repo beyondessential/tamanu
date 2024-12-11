@@ -1,11 +1,11 @@
 import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import { Colors } from '../../constants';
-import { DateInput, NumberInput, SelectInput } from '../Field';
-import { TranslatedEnum, TranslatedText } from '../Translation';
+import { Colors } from '../../../constants';
+import { DateInput, NumberInput, SelectInput } from '../../Field';
+import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { upperFirst } from 'lodash';
-import { SmallBodyText } from '../Typography';
+import { SmallBodyText } from '../../Typography';
 import {
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_LABELS,
@@ -105,7 +105,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 // TODO: translated everything
 const getRepeatText = (reportUnit, repeatN, value) => {
   if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
-    return `on ${format(value, 'EEEE')}s`;
+    return `on a ${format(value, 'EEEE')}`;
   }
   if (reportUnit === REPEAT_FREQUENCY.MONTHLY) {
     let text = `on the `;
@@ -125,7 +125,7 @@ const getRepeatText = (reportUnit, repeatN, value) => {
   }
 };
 
-export const RepeatingDateField = ({ value, field }) => {
+export const RepeatingDateFields = ({ value, field }) => {
   const [repeatN, setRepeatN] = useState(1);
   const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
@@ -136,9 +136,9 @@ export const RepeatingDateField = ({ value, field }) => {
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
         <StyledNumberInput
+          name="appointmentSchedule.interval"
           value={repeatN}
           min={1}
-          onChange={e => setRepeatN(e.target.value)}
           label={
             <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
           }
@@ -156,7 +156,7 @@ export const RepeatingDateField = ({ value, field }) => {
       </Box>
       <Box>
         <SmallBodyText>
-          Repeats <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={repeatUnit} />{' '}
+          Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={repeatUnit} />{' '}
           {getRepeatText(repeatUnit, repeatN, value)}
         </SmallBodyText>
       </Box>
