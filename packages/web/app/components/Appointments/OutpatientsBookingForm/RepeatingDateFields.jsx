@@ -144,7 +144,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
 
   const handleHChangeFrequency = e =>
     setFieldValue(
-      'appointmentSchedule.frequency',
+      'appointmentSchedule.untilDate',
       addSixFrequencyToDate(parseISO(values.startTime), e.target.value),
     );
 
