@@ -353,6 +353,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
             name="isRepeatingAppointment"
+            disabled={!values.startTime}
             label={
               <TranslatedText
                 stringId="appointment.isRepeatingAppointment.label"
