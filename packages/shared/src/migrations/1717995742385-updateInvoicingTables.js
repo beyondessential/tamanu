@@ -341,7 +341,7 @@ export async function down(query) {
   //   'invoice_item_discounts_invoice_item_id_unique',
   // );
 
-  await query.dropTable('invoice_item_discounts');
+  await query.dropTable('invoice_item_discounts', {});
   await query.dropTable('invoice_items');
   await query.dropTable('invoice_insurers');
   await query.dropTable('invoice_discounts');
