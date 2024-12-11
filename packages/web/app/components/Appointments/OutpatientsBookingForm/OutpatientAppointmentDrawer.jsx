@@ -35,6 +35,10 @@ const IconLabel = styled.div`
   align-items: center;
 `;
 
+const repeatingAppointmentInitialValues = {
+  interval: 1,
+};
+
 const formStyles = {
   overflowY: 'auto',
   minWidth: 'fit-content',
@@ -250,9 +254,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       }
       setValues({
         ...values,
-        appointmentSchedule: {
-          interval: 1,
-        },
+        appointmentSchedule: repeatingAppointmentInitialValues,
       });
     };
 
