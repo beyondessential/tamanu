@@ -116,12 +116,11 @@ const getRepeatText = (reportUnit, repeatN, value) => {
   }
 };
 
-export const RepeatingDateFields = ({ value, values, field }) => {
+export const RepeatingDateFields = ({ values }) => {
   const [repeatType, setRepeatType] = useState('on');
 
   const { interval, frequency } = values.appointmentSchedule;
 
-  // TODO translated enum select
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -163,7 +162,12 @@ export const RepeatingDateFields = ({ value, values, field }) => {
             <Field
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== 'on'}
-              min={format(add(value, { [`${frequency}s`]: values.interval }), 'yyyy-MM-dd')}
+              min={format(
+                add(values.startTime, {
+                  [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: values.interval,
+                }),
+                'yyyy-MM-dd',
+              )}
               component={StyledDateField}
             />
           </Box>
