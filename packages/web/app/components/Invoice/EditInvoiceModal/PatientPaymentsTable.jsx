@@ -41,12 +41,19 @@ const ChequeNumberContainer = styled.div`
   white-space: nowrap;
 `;
 
-const ChequeNumberDisplay = ({ patientPayment }) => {
+const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
   const { chequeNumber } = patientPayment;
   const [ref, isOverflowing] = useOverflow();
+
   return (
     <ConditionalTooltip title={chequeNumber} visible={isOverflowing}>
-      <ChequeNumberContainer ref={ref}>{chequeNumber}</ChequeNumberContainer>
+      <ChequeNumberContainer
+        onMouseEnter={() => setShowRowTooltip(false)}
+        onMouseLeave={() => setShowRowTooltip(true)}
+        ref={ref}
+      >
+        {chequeNumber}
+      </ChequeNumberContainer>
     </ConditionalTooltip>
   );
 };
@@ -68,6 +75,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
+  const [showRowTooltip, setShowRowTooltip] = useState(false);
+
   const showChequeNumberColumn =
     selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ||
     patientPayments.some(payment => !!payment.patientPayment?.chequeNumber);
@@ -106,7 +115,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
               />
             ),
             sortable: false,
-            accessor: prop => <ChequeNumberDisplay {...prop} />,
+            accessor: prop => (
+              <ChequeNumberDisplay {...prop} setShowRowTooltip={setShowRowTooltip} />
+            ),
           },
         ]
       : []),
@@ -183,6 +194,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
     setSelectedPaymentMethodId(paymentMethod.value);
   };
 
+  const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
+
   return (
     <TableContainer>
       <Title>
@@ -205,7 +218,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       <Table
         {...tableProps}
         data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : {}}
-        getRowTooltip={({ updatedByUser }) => getRowTooltipText(updatedByUser)}
+        {...(showRowTooltip && { getRowTooltip })}
       />
       {editingPayment?.id && (
         <>
@@ -229,7 +242,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
             : patientPayments
         }
         hideHeader
-        getRowTooltip={({ updatedByUser }) => getRowTooltipText(updatedByUser)}
+        {...(showRowTooltip && { getRowTooltip })}
       />
       {!hideRecordPaymentForm && canCreatePayment && (
         <PatientPaymentForm
