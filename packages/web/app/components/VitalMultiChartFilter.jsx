@@ -3,10 +3,12 @@ import { ClickAwayListener, Popover } from '@material-ui/core';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import styled from 'styled-components';
 
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
 import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalChartData } from '../contexts/VitalChartData';
+import { useChartData } from '../contexts/ChartData';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   width: 105px;
@@ -72,6 +74,7 @@ export const VitalMultiChartFilter = () => {
     allGraphedChartKeys,
   } = useVitalChartData();
   const userPreferencesMutation = useUserPreferencesMutation();
+  const { selectedChartTypeId } = useChartData();
 
   const filterOptions = visualisationConfigs
     .filter(({ key }) => allGraphedChartKeys.includes(key))
@@ -85,18 +88,21 @@ export const VitalMultiChartFilter = () => {
 
     setChartKeys(sortedSelectedChartKeys);
 
-    const selectedGraphedVitalsOnFilter =
-      sortedSelectedChartKeys.length === allGraphedChartKeys.length
-        ? 'select-all'
-        : sortedSelectedChartKeys.join(',');
+    const graphPreferenceKey = selectedChartTypeId === null
+      ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
+      : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
+
+    const selectedKeys = sortedSelectedChartKeys.length === allGraphedChartKeys.length
+      ? 'select-all'
+      : sortedSelectedChartKeys.join(',');
     userPreferencesMutation.mutate({
-      key: 'selectedGraphedVitalsOnFilter',
-      value: selectedGraphedVitalsOnFilter,
+      key: graphPreferenceKey,
+      value: selectedKeys,
     });
   };
 
   const field = {
-    name: 'selectedGraphedVitalsOnFilter',
+    name: 'selectedKeys',
     value: chartKeys,
     onChange: handleChange,
   };

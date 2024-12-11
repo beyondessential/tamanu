@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
@@ -15,6 +15,7 @@ import { useVitalChartData } from '../contexts/VitalChartData';
 import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useChartData } from '../contexts/ChartData';
 
 const getExportOverrideTitle = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
@@ -82,18 +83,23 @@ const TitleCell = React.memo(({ value }) => {
     setVitalChartModalOpen,
     setIsInMultiChartsView,
   } = useVitalChartData();
+  const { selectedChartTypeId } = useChartData();
   const { data: userPreferences, isSuccess, isLoading } = useUserPreferencesQuery();
+
+  const graphPreferenceKey = selectedChartTypeId === null
+    ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
+    : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
 
   let chartKeys = [];
   if (isSuccess) {
     const {
-      selectedGraphedVitalsOnFilter: rawSelectedGraphedVitalsOnFilter = 'select-all',
+      [graphPreferenceKey]: rawGraphFilter = 'select-all',
     } = userPreferences;
-    const selectedGraphedVitalsOnFilter = rawSelectedGraphedVitalsOnFilter.trim();
+    const graphFilter = rawGraphFilter.trim();
 
-    chartKeys = ['select-all', ''].includes(selectedGraphedVitalsOnFilter)
+    chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : selectedGraphedVitalsOnFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
