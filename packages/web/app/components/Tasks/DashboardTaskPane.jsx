@@ -6,6 +6,7 @@ import { CheckInput, Heading4, LocationInput, TranslatedText } from '../../compo
 import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
+import { useAuth } from '../../contexts/Auth';
 
 const TabPane = styled.div`
   flex-grow: 1;
@@ -54,9 +55,11 @@ const FilterGrid = styled.div`
 `;
 
 export const DashboardTaskPane = React.memo(() => {
+  const { facilityId } = useAuth();
   const userPreferencesMutation = useUserPreferencesMutation();
   const { data: userPreferences } = useUserPreferencesQuery();
-  const { clinicianDashboardTaskingTableFilter = {} } = userPreferences || {};
+  const clinicianDashboardTaskingTableFilter =
+    userPreferences?.clinicianDashboardTaskingTableFilter[facilityId] || {};
 
   const onLocationIdChange = e => {
     const { value } = e.target;
@@ -66,7 +69,9 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'locationId');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: newParams,
+      clinicianDashboardTaskingTableFilter: {
+        [facilityId]: newParams,
+      },
     });
   };
 
@@ -78,14 +83,16 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: newParams,
+      clinicianDashboardTaskingTableFilter: {
+        [facilityId]: newParams,
+      },
     });
   };
 
   return (
     <TabPane>
       <TopBar>
-        <Heading4 whiteSpace='nowrap'>
+        <Heading4 whiteSpace="nowrap">
           <TranslatedText
             stringId="dashboard.tasks.upcomingTasks.title"
             fallback="Upcoming tasks"
@@ -110,6 +117,7 @@ export const DashboardTaskPane = React.memo(() => {
                 />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
+              autofill={false}
             />
             <StyledCheckInput
               label={
