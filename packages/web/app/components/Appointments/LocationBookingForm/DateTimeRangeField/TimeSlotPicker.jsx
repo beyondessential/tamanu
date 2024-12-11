@@ -1,4 +1,5 @@
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
+import FormHelperText from '@mui/material/FormHelperText';
 import {
   addMilliseconds,
   areIntervalsOverlapping,
@@ -14,12 +15,12 @@ import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import ms from 'ms';
 import { PropTypes } from 'prop-types';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { maxValidDate, minValidDate } from '@tamanu/shared/utils/dateTime';
+import { maxValidDate, minValidDate, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../../../api/queries';
+import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -36,7 +37,7 @@ import {
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
-  border: max(0.0625rem, 1px) solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
+  border: max(0.0625rem, 1px) solid ${({ error }) => (error ? Colors.alert : Colors.outline)};
   padding-block: 0.75rem;
   padding-inline: 0.85rem;
 
@@ -55,19 +56,39 @@ const ToggleGroup = styled(ToggleButtonGroup)`
     `}
 `;
 
+const StyledFormHelperText = styled(FormHelperText)`
+  &.MuiFormHelperText-root {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+`;
+
 export const TimeSlotPicker = ({
   date,
   disabled = false,
   label,
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
+  name,
   ...props
 }) => {
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
     values,
+    errors,
+    isSubmitting,
   } = useFormikContext();
+
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+  useEffect(() => {
+    if (isSubmitting) setHasAttemptedSubmit(true);
+  }, [isSubmitting, setHasAttemptedSubmit]);
+
+  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
+  const error = errors[errorKey];
+  const showError = hasAttemptedSubmit && error;
 
   const initialTimeRange = useMemo(() => {
     return isValid(initialStart) && isValid(initialEnd)
@@ -105,10 +126,13 @@ export const TimeSlotPicker = ({
   const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
   const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
 
-  const { data: existingBookings, isFetching: isFetchingExistingBookings } = useAppointmentsQuery(
+  const {
+    data: existingBookings,
+    isFetching: isFetchingExistingBookings,
+  } = useLocationBookingsQuery(
     {
-      after: earliestRelevantTime,
-      before: latestRelevantTime,
+      after: toDateTimeString(earliestRelevantTime),
+      before: toDateTimeString(latestRelevantTime),
       all: true,
       locationId: values.locationId,
     },
@@ -317,7 +341,13 @@ export const TimeSlotPicker = ({
 
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
-      <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
+      <ToggleGroup
+        disabled={disabled}
+        value={selectedToggles}
+        onChange={handleChange}
+        error={showError}
+        {...props}
+      >
         {isFetchingExistingBookings ? (
           <SkeletonTimeSlotToggles />
         ) : (
@@ -373,6 +403,7 @@ export const TimeSlotPicker = ({
           })
         )}
       </ToggleGroup>
+      {showError && <StyledFormHelperText error>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };

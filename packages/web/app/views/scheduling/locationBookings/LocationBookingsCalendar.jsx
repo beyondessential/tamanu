@@ -6,11 +6,14 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
-import { APPOINTMENT_CALENDAR_CLASS, TranslatedText } from '../../../components';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { useLocationBookingsQuery } from '../../../api/queries';
+import { TranslatedText } from '../../../components';
+import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
@@ -79,14 +82,15 @@ const emptyStateMessage = (
   </EmptyState>
 );
 
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, openCancelModal }) => {
-  const { selectedCell, monthOf, setMonthOf } = useLocationBookingsContext();
+export const LocationBookingsCalendar = ({
+  locationsQuery,
+  openBookingForm,
+  openCancelModal,
+  ...props
+}) => {
+  const { monthOf, setMonthOf } = useLocationBookingsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  useEffect(() => {
-    if (selectedCell.date) setMonthOf(selectedCell.date)
-  }, [selectedCell.date, setMonthOf]);
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
@@ -96,11 +100,10 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
     clinicianId?.length > 0 || bookingTypeId?.length > 0 || !!patientNameOrId;
   const { data: locations } = locationsQuery;
 
-  const { data: appointmentsData } = useAppointmentsQuery({
-    after: displayedDates[0],
-    before: endOfDay(displayedDates.at(-1)),
+  const { data: appointmentsData } = useLocationBookingsQuery({
+    after: toDateTimeString(displayedDates[0]),
+    before: toDateTimeString(endOfDay(displayedDates.at(-1))),
     all: true,
-    locationId: '',
     clinicianId,
     bookingTypeId,
     patientNameOrId,
@@ -114,7 +117,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, open
 
   return (
     <>
-      <Carousel className={APPOINTMENT_CALENDAR_CLASS}>
+      <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props}>
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <LocationBookingsCalendarHeader
             monthOf={monthOf}

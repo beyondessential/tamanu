@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
-import { useAppointmentsQuery } from '../../api/queries';
+import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -144,10 +144,6 @@ const StyledTable = styled(Table)`
     &:last-child {
       border-radius: 0 5px 5px 0;
       width: 28px;
-      button {
-        position: relative;
-        left: 11px;
-      }
       > div > div {
         overflow: visible;
       }
@@ -178,7 +174,7 @@ const StyledTable = styled(Table)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
-    &:hover {
+    &:hover:not(:has(.menu-container:hover)) {
       background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
@@ -196,6 +192,27 @@ const NoDataContainer = styled.div`
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
+`;
+
+const CustomCellContainer = styled(Box)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    background-color: transparent;
+  }
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 11px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
 `;
 
 const TableHeader = ({ title, openPastBookingsModal }) => (
@@ -237,12 +254,6 @@ const getDate = ({ startTime, endTime }) => {
   );
 };
 
-const CustomCellContainer = styled(Box)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
@@ -264,14 +275,17 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const appointments =
-    useAppointmentsQuery({
-      locationId: '',
+  const { data, isLoading } = useLocationBookingsQuery(
+    {
       all: true,
       patientId: patient?.id,
       orderBy,
       order,
-    }).data?.data ?? [];
+      after: getCurrentDateTimeString(),
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -328,14 +342,14 @@ export const LocationBookingsTable = ({ patient }) => {
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedAppointment(data)}>
-          <MenuButton actions={actions} />
-        </div>
+        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     },
   ];
 
-  if (!appointments.length) {
+  if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
         <TableHeader
@@ -360,6 +374,7 @@ export const LocationBookingsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
+        isLoading={isLoading}
         data={appointments}
         columns={COLUMNS}
         allowExport={false}

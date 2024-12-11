@@ -4,14 +4,14 @@ import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { useAppointmentsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../Translation';
 import { DateTimeField } from '../..';
+import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
   const { values } = useFormikContext();
 
-  const { data: existingAppointments, isFetched } = useAppointmentsQuery(
+  const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
       after: values.startTime ? toDateTimeString(startOfDay(parseISO(values.startTime))) : null,
       before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,

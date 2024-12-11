@@ -1,6 +1,9 @@
-import { eachDayOfInterval, isSameDay, isValid, parseISO, startOfDay } from 'date-fns';
+import { eachDayOfInterval, isSameDay, isValid, parseISO } from 'date-fns';
 
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+
+import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
+import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
 
 export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
@@ -12,9 +15,9 @@ export const appointmentToFormValues = appointment => {
   const startIsValidDate = isValid(startTime);
   const endIsValidDate = isValid(endTime);
 
-  const startDate = startIsValidDate ? startOfDay(startTime) : null;
-  const endDate = endIsValidDate ? startOfDay(endTime) : null;
-  const overnight = endIsValidDate && !isSameDay(startDate, endDate);
+  const startDate = startIsValidDate ? toDateString(startTime) : null;
+  const endDate = endIsValidDate ? toDateString(startTime) : null;
+  const overnight = endIsValidDate && !isSameDay(new Date(startDate), new Date(endDate));
 
   return {
     // Semantically significant values
@@ -57,8 +60,17 @@ export const partitionAppointmentsByDate = appointments =>
     return acc;
   }, {});
 
-export const generateIdFromCell = cell => `${cell.locationId}.${new Date(cell.date).valueOf()}`;
+export const generateIdFromCell = cell => `${cell.locationId}.${cell.date.valueOf()}`;
 
-export const scrollToCell = cell => {
-  document.getElementById(generateIdFromCell(cell))?.scrollIntoView({ inline: 'start' });
-};
+export const scrollToThisWeek = scrollIntoViewOptions =>
+  document
+    .getElementById(THIS_WEEK_ID)
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
+
+export const scrollToBeginning = scrollToOptions =>
+  document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0, ...scrollToOptions });
+
+export const scrollToCell = (cell, scrollIntoViewOptions) =>
+  document
+    .getElementById(generateIdFromCell(cell))
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });

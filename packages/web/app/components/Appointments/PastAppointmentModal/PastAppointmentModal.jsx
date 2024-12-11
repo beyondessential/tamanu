@@ -1,18 +1,25 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { useOutpatientAppointmentsQuery } from '../../../api/queries';
+import { Colors } from '../../../constants';
+import { formatShortest, formatTime } from '../../DateDisplay';
+import { LimitedLinesCell } from '../../FormattedTableCell';
 import { Modal } from '../../Modal';
 import { Table } from '../../Table';
-import { TranslatedText } from '../../Translation';
-import { useAppointmentsQuery } from '../../../api/queries';
-import { formatShortest, formatTime } from '../../DateDisplay';
-import { Colors } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
+import { TranslatedText } from '../../Translation';
 import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
     max-width: 922px;
+    overflow-y: visible;
+    div:nth-child(2) {
+      overflow: visible;
+    }
   }
   h2 {
     font-size: 18px;
@@ -40,7 +47,8 @@ const StyledTable = styled(Table)`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 18px;
-  max-height: 547px;
+  max-height: calc(100vh - 128.8px);
+  box-shadow: none;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
@@ -48,14 +56,11 @@ const StyledTable = styled(Table)`
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
     background-color: ${Colors.white};
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px;
     span {
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
     &:last-child {
       padding-right: 30px;
     }
@@ -64,11 +69,13 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 11px;
+    border-bottom: none;
+    padding: 12px 8px 0 8px;
     &:last-child {
       padding-right: 30px;
     }
     &:first-child {
+      position: relative;
       padding-left: 30px;
     }
   }
@@ -107,22 +114,20 @@ const getDate = ({ startTime }) => (
   </LowercaseText>
 );
 
-const getStatus = ({ status }) => (
-  <StatusBadge $status={status}>
-    {status}
-  </StatusBadge>
-);
+const getStatus = ({ status }) => <StatusBadge $status={status}>{status}</StatusBadge>;
 
 const COLUMNS = [
   {
     key: 'startTime',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
     accessor: getDate,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'outpatientAppointmentArea',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
     accessor: ({ locationGroup }) => locationGroup?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -133,6 +138,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'appointmentType',
@@ -140,6 +146,7 @@ const COLUMNS = [
       <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',
@@ -155,17 +162,19 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
   });
-  const beforeDate = useMemo(() => new Date().toISOString(), []);
-  const appointments =
-    useAppointmentsQuery({
+
+  const { data, isLoading } = useOutpatientAppointmentsQuery(
+    {
       all: true,
       patientId: patient?.id,
-      locationGroupId: '',
-      before: beforeDate,
-      after: '1970-01-01 00:00',
+      before: getCurrentDateTimeString(),
+      after: '-infinity',
       orderBy,
       order,
-    }).data?.data ?? [];
+    },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
+  const appointments = data?.data ?? [];
 
   return (
     <StyledModal
@@ -181,6 +190,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
     >
       <Container>
         <StyledTable
+          isLoading={isLoading}
           data={appointments}
           columns={COLUMNS}
           order={order}

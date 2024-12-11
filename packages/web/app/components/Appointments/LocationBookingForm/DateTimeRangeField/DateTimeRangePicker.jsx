@@ -17,7 +17,7 @@ export const DateTimeRangePicker = ({
   ...props
 }) => {
   const { setFieldValue, values } = useFormikContext();
-  const { setSelectedCell } = useLocationBookingsContext();
+  const { updateSelectedCell } = useLocationBookingsContext();
 
   const hasSelectedLocation = !!values.locationId;
 
@@ -39,10 +39,11 @@ export const DateTimeRangePicker = ({
         label={datePickerLabel}
         name={datePickerName}
         onChange={e => {
-          setSelectedCell(prevCell => ({ ...prevCell, date: parseISO(e.target.value) }));
+          updateSelectedCell({ date: parseISO(e.target.value) });
           flushChangeToStartDateField(e);
         }}
         required={required}
+        saveDateAsString
         {...props}
       />
       <TimeSlotPicker

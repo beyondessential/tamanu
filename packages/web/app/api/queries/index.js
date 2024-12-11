@@ -1,5 +1,6 @@
-export { useAppointmentsQuery } from './useAppointmentsQuery';
+export { useOutpatientAppointmentsQuery, useLocationBookingsQuery } from './useAppointmentsQuery';
 export { useLocationsQuery } from './useLocationsQuery';
+export { useUserPreferencesQuery } from './useUserPreferencesQuery';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';

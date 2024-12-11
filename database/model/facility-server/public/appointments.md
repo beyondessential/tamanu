@@ -77,3 +77,7 @@ Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
 {% docs appointments__is_high_priority %}
 Boolean specify if the appointment is high priority.
 {% enddocs %}
+
+{% docs appointments__encounter_id %}
+TODO
+{% enddocs %}
