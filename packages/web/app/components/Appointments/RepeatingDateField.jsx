@@ -6,7 +6,11 @@ import { DateInput, NumberInput, SelectInput } from '../Field';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
-import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
+import {
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_LABELS,
+  REPEAT_FREQUENCY_UNIT_LABELS,
+} from '@tamanu/constants';
 import {
   format,
   add,
@@ -99,10 +103,10 @@ const StyledRadioGroup = styled(RadioGroup)`
 `;
 
 const getRepeatText = (reportUnit, repeatN, value) => {
-  if (reportUnit === REPEAT_INTERVAL_UNITS.WEEK) {
-    return `on a ${format(value, 'EEEE')}`;
+  if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
+    return `on ${format(value, 'EEEE')}s`;
   }
-  if (reportUnit === REPEAT_INTERVAL_UNITS.MONTH) {
+  if (reportUnit === REPEAT_FREQUENCY.MONTHLY) {
     let text = `on the `;
     const weeksInMonth = eachDayOfInterval({
       start: startOfMonth(value),
@@ -122,7 +126,7 @@ const getRepeatText = (reportUnit, repeatN, value) => {
 
 export const RepeatingDateField = ({ value, field }) => {
   const [repeatN, setRepeatN] = useState(1);
-  const [repeatUnit, setRepeatUnit] = useState(REPEAT_INTERVAL_UNITS.WEEK);
+  const [repeatUnit, setRepeatUnit] = useState(REPEAT_FREQUENCY.WEEKLY);
   const [repeatType, setRepeatType] = useState('on');
   const [repeatDate, setRepeatDate] = useState(addMonths(value, 6));
   const [repeatAfter, setRepeatAfter] = useState(2);
@@ -143,15 +147,15 @@ export const RepeatingDateField = ({ value, field }) => {
           value={repeatUnit}
           isClearable={false}
           onChange={e => setRepeatUnit(e.target.value)}
-          options={Object.values(REPEAT_INTERVAL_UNITS).map(unit => ({
-            value: unit,
-            label: upperFirst(unit),
+          options={Object.entries(REPEAT_FREQUENCY_UNIT_LABELS).map(([key, value]) => ({
+            value: key,
+            label: upperFirst(value),
           }))}
         />
       </Box>
       <Box>
         <SmallBodyText>
-          Repeats on: <TranslatedEnum enumValues={REPEAT_INTERVAL_LABELS} value={repeatUnit} />{' '}
+          Repeats <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={repeatUnit} />{' '}
           {getRepeatText(repeatUnit, repeatN, value)}
         </SmallBodyText>
       </Box>
