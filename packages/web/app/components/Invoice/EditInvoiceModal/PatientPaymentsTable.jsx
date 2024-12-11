@@ -14,7 +14,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../../assets/icons/PencilIcon';
 import useOverflow from '../../../hooks/useOverflow';
-import { ConditionalTooltip } from '../../Tooltip';
+import { ThemedTooltip } from '../../Tooltip';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -45,16 +45,23 @@ const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
   const { chequeNumber } = patientPayment;
   const [ref, isOverflowing] = useOverflow();
 
+  const renderChequeNumber = () => (
+    <ChequeNumberContainer
+      onMouseEnter={() => setShowRowTooltip(false)}
+      onMouseLeave={() => setShowRowTooltip(true)}
+      ref={ref}
+    >
+      {chequeNumber}
+    </ChequeNumberContainer>
+  );
+
+  if (!isOverflowing) {
+    return renderChequeNumber();
+  }
   return (
-    <ConditionalTooltip title={chequeNumber} visible={isOverflowing}>
-      <ChequeNumberContainer
-        onMouseEnter={() => setShowRowTooltip(false)}
-        onMouseLeave={() => setShowRowTooltip(true)}
-        ref={ref}
-      >
-        {chequeNumber}
-      </ChequeNumberContainer>
-    </ConditionalTooltip>
+    <ThemedTooltip title={chequeNumber}>
+      {renderChequeNumber()}
+    </ThemedTooltip>
   );
 };
 
