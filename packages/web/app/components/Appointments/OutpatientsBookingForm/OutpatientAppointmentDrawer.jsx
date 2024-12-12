@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { omit } from 'lodash';
+import { nth, omit } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
@@ -250,6 +250,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         frequency: yup.string().required(requiredMessage),
         occurrenceCount: yup.number().nullable(),
         untilDate: yup.string().nullable(),
+        daysOfWeek: yup.array().of(yup.string().oneOf(['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'])),
+        nthWeekday: yup
+          .number()
+          .nullable()
+          .min(-1)
+          .max(4),
       }),
     }),
   });
