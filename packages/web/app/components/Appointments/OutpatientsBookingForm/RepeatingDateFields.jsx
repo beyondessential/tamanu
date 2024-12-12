@@ -120,7 +120,7 @@ const useRepeatText = (frequency, interval, startTime) => {
   const weekday = format(startTime, 'EEEE');
   const weeksInMonth = eachDayOfInterval({
     start: startOfMonth(startTime),
-    end: endOfMonth(startTime, 1),
+    end: endOfMonth(startTime),
   });
   const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === startTime.getDay());
   const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, startTime));
@@ -254,7 +254,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
               value={repeatType === REPEAT_TYPES.ON ? untilDate : ''}
-              min={format(addSixFrequencyToDate(startTimeDate, frequency), 'yyyy-MM-dd')}
+              min={format(addSixFrequencyToDate(startTimeDate, frequency, interval), 'yyyy-MM-dd')}
               component={StyledDateField}
             />
           </Box>
