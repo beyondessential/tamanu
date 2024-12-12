@@ -150,7 +150,6 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
-  max-width: 324px;
 `;
 
 const Link = styled.div`
@@ -253,7 +252,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
       </TitleContainer>
       {!appointments.length ? (
         <NoDataContainer>
-          <div>
+          <Box maxWidth={285}>
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.noBookings"
               fallback="You have no bookings scheduled for today. To view other bookings, visit"
@@ -264,7 +263,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
                 fallback="Location bookings"
               />
             </Link>
-          </div>
+          </Box>
         </NoDataContainer>
       ) : (
         <>

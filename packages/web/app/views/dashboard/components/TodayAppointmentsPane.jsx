@@ -99,7 +99,6 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
-  max-width: 324px;
 `;
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
@@ -146,7 +145,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       </TitleContainer>
       {!appointments.length ? (
         <NoDataContainer>
-          <div>
+          <Box maxWidth={285}>
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.noAppointments"
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
@@ -160,7 +159,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
                 fallback="Outpatient appointments"
               />
             </Link>
-          </div>
+          </Box>
         </NoDataContainer>
       ) : (
         <>
