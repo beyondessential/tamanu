@@ -88,6 +88,7 @@ const DateTimePicker = ({
       <TimeSlotPicker
         date={isValidDate ? date : null}
         disabled={disabled || !isValidDate || hasConflict}
+        hasNoLegalSelection={hasConflict}
         label={timePickerLabel}
         name={timePickerName}
         required={required}
