@@ -150,7 +150,7 @@ const RepeatText = ({ startTimeDate, frequency, interval }) => {
       />{' '}
       {interval > 1 ? (
         <TranslatedText
-          stringId="general.every"
+          stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
           fallback="Every :interval :frequency"
           replacements={{
             interval: interval,
