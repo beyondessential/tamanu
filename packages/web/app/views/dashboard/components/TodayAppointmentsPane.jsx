@@ -85,7 +85,7 @@ const StyledAppointmentTile = styled(AppointmentTile)`
   time {
     font-weight: 500;
   }
-`
+`;
 
 const NoDataContainer = styled.div`
   flex: 1;
@@ -99,7 +99,6 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
-  max-width: 324px;
 `;
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
@@ -135,16 +134,18 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
             fallback="Today's appointments"
           />
         </Heading4>
-        <ActionLink onClick={onViewAll}>
-          <TranslatedText
-            stringId="dashboard.appointments.todayAppointments.viewAll"
-            fallback="View all..."
-          />
-        </ActionLink>
+        {!!appointments.length && (
+          <ActionLink onClick={onViewAll}>
+            <TranslatedText
+              stringId="dashboard.appointments.todayAppointments.viewAll"
+              fallback="View all..."
+            />
+          </ActionLink>
+        )}
       </TitleContainer>
       {!appointments.length ? (
         <NoDataContainer>
-          <div>
+          <Box maxWidth={285}>
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.noAppointments"
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
@@ -158,7 +159,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
                 fallback="Outpatient appointments"
               />
             </Link>
-          </div>
+          </Box>
         </NoDataContainer>
       ) : (
         <>
@@ -177,7 +178,11 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
             </StyledProgressBarContainer>
             <AppointmentListContainer>
               {appointments.map(appointment => (
-                <StyledAppointmentTile key={appointment.id} appointment={appointment} allowViewDetail={false} />
+                <StyledAppointmentTile
+                  key={appointment.id}
+                  appointment={appointment}
+                  allowViewDetail={false}
+                />
               ))}
             </AppointmentListContainer>
           </StyledContentContainer>

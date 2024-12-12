@@ -57,8 +57,8 @@ const StyledTimeline = styled(Timeline)`
   padding-left: 12px;
   margin: 0;
   margin-bottom: -16px;
-  flex-grow: 0;
   overflow-y: auto;
+  ${({ length }) => `max-height: calc(60px * ${length} + 21px);`}
 `;
 
 const StyledTimelineContent = styled(TimelineContent)`
@@ -130,7 +130,7 @@ const TimeText = styled.div`
 `;
 
 const Footer = styled.div`
-  margin: 17px 20px 0;
+  margin: 4px 20px 0;
   flex-grow: 1;
   min-height: 20px;
   border-top: 1px solid ${Colors.outline};
@@ -150,7 +150,6 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
   background-color: ${Colors.hoverGrey};
   text-align: center;
-  max-width: 324px;
 `;
 
 const Link = styled.div`
@@ -242,16 +241,18 @@ export const TodayBookingsPane = ({ showTasks }) => {
             fallback="Today's Bookings"
           />
         </Heading4>
-        <ActionLink onClick={onViewAll}>
-          <TranslatedText
-            stringId="dashboard.bookings.todayBookings.viewAll"
-            fallback="View all..."
-          />
-        </ActionLink>
+        {!!appointments.length && (
+          <ActionLink onClick={onViewAll}>
+            <TranslatedText
+              stringId="dashboard.bookings.todayBookings.viewAll"
+              fallback="View all..."
+            />
+          </ActionLink>
+        )}
       </TitleContainer>
       {!appointments.length ? (
         <NoDataContainer>
-          <div>
+          <Box maxWidth={285}>
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.noBookings"
               fallback="You have no bookings scheduled for today. To view other bookings, visit"
@@ -262,11 +263,11 @@ export const TodayBookingsPane = ({ showTasks }) => {
                 fallback="Location bookings"
               />
             </Link>
-          </div>
+          </Box>
         </NoDataContainer>
       ) : (
         <>
-          <StyledTimeline>
+          <StyledTimeline length={appointments.length}>
             {appointments.map(appointment => (
               <BookingsTimelineItem key={appointment.id} appointment={appointment} />
             ))}

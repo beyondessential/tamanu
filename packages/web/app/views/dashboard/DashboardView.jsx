@@ -170,7 +170,7 @@ const WelcomePane = ({ patientPerPage }) => {
   if (recentlyViewedPatients.length) {
     subtitle = (
       <TranslatedText
-        stringId="view.dashboard.welcome.subtitleNoPermissions"
+        stringId="view.dashboard.welcome.subtitle.noPermissions"
         fallback="Take a moment to review new notifications."
       />
     );
@@ -242,15 +242,22 @@ export const DashboardView = () => {
 
   let subtitle = (
     <TranslatedText
-      stringId="view.dashboard.topbar.subtitle"
-      fallback="Take a moment to review new notifications and upcoming tasks during your shift."
+      stringId="view.dashboard.topbar.subtitle.full"
+      fallback="Take a moment to review new notifications, upcoming tasks and scheduling during your shift."
     />
   );
   if (!showTasks) {
     subtitle = (
       <TranslatedText
-        stringId="view.dashboard.topbar.subtitleNoTasks"
-        fallback="Take a moment to review new notifications during your shift."
+        stringId="view.dashboard.topbar.subtitle.noTasks"
+        fallback="Take a moment to review new notifications and upcoming scheduling during your shift."
+      />
+    );
+  } else if (!showAppointments && !showBookings) {
+    subtitle = (
+      <TranslatedText
+        stringId="view.dashboard.topbar.subtitle.noAppointments"
+        fallback="Take a moment to review new notifications and upcoming tasks during your shift."
       />
     );
   }
