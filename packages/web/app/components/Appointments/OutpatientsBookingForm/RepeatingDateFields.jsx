@@ -119,8 +119,16 @@ const REPEAT_TYPES = {
   AFTER: 'after',
 };
 
-export const addSixFrequencyToDate = (date, frequency, interval) =>
-  add(date, { [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: 6 * interval });
+export const getNthWeekday = date => {
+  const weeksInMonth = eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
+  });
+  const matchingWeekdays = weeksInMonth.filter(day => day.getDay() === date.getDay());
+  const nth = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
+
+  return nth === matchingWeekdays.length ? -1 : nth;
+};
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
@@ -148,7 +156,7 @@ const IntervalText = ({ interval, frequency }) => {
     return <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />;
   return (
     <TranslatedText
-      stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
+      stringId="outpatientAppointments.repeating.onNthWeekdayText"
       fallback="Every :interval :frequency"
       replacements={{
         interval,
@@ -164,7 +172,7 @@ const FrequencyText = ({ frequency, startTimeDate }) => {
   if (frequency === REPEAT_FREQUENCY.WEEKLY) {
     return (
       <TranslatedText
-        stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
+        stringId="outpatientAppointments.repeating.onWeekdayText"
         fallback="on a :weekday"
         replacements={{
           weekday,
@@ -174,8 +182,8 @@ const FrequencyText = ({ frequency, startTimeDate }) => {
   }
   return (
     <TranslatedText
-      stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
-      fallback="on the :nth :weekday"
+      stringId="outpatientAppointments.repeating.onNthWeekdayText"
+      fallback="on :nth :weekday"
       replacements={{
         nth: ordinalText,
         weekday,
@@ -187,7 +195,7 @@ const FrequencyText = ({ frequency, startTimeDate }) => {
 const RepeatText = ({ startTimeDate, frequency, interval }) => (
   <>
     <TranslatedText
-      stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
+      stringId="outpatientAppointment.repeating.repeatsOnText"
       fallback="Repeats on:"
     />
     &nbsp;
@@ -207,7 +215,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   const handleChangeRepeatType = e => {
     const newValue = e.target.value;
     if (newValue === REPEAT_TYPES.ON) {
-      handleResetUntilDate(startTimeDate, frequency, interval);
+      handleResetUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
       setFieldValue(
@@ -221,8 +229,10 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
 
   const handleFrequencyChange = e => {
     const newValue = e.target.value;
-    if (repeatType !== REPEAT_TYPES.ON) return;
-    handleResetUntilDate(startTimeDate, newValue, interval);
+    setFieldValue(
+      'appointmentSchedule.nthWeekday',
+      newValue === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
+    );
   };
 
   return (
@@ -233,7 +243,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           min={1}
           label={
             <TranslatedText
-              stringId="outpatientAppointment.repeatAppointment.repeatEvery.label"
+              stringId="outpatientAppointment.repeating.repeatEvery.label"
               fallback="Repeats every"
             />
           }
@@ -243,7 +253,9 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           placeholder=""
           name="appointmentSchedule.frequency"
           isClearable={false}
-          enumValues={REPEAT_FREQUENCY_UNIT_LABELS}
+          enumValues={
+            interval > 1 ? REPEAT_FREQUENCY_UNIT_PLURAL_LABELS : REPEAT_FREQUENCY_UNIT_LABELS
+          }
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
         />
@@ -255,10 +267,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
       </Box>
       <FormControl variant="standard">
         <StyledFormLabel id="ends-radio">
-          <TranslatedText
-            stringId="outpatientAppointment.repeatAppointment.ends.label"
-            fallback="Ends"
-          />
+          <TranslatedText stringId="outpatientAppointment.repeating.ends.label" fallback="Ends" />
         </StyledFormLabel>
         <StyledRadioGroup
           aria-labelledby="ends-radio"
@@ -272,7 +281,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               control={<StyledRadio />}
               label={
                 <TranslatedText
-                  stringId="outpatientAppointment.repeatAppointment.ends.option.on"
+                  stringId="outpatientAppointment.repeating.ends.option.on"
                   fallback="On"
                 />
               }
@@ -281,7 +290,12 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
               value={repeatType === REPEAT_TYPES.ON ? untilDate : ''}
-              min={format(addSixFrequencyToDate(startTimeDate, frequency, interval), 'yyyy-MM-dd')}
+              min={format(
+                add(startTimeDate, {
+                  [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
+                }),
+                'yyyy-MM-dd',
+              )}
               component={StyledDateField}
             />
           </Box>
@@ -291,7 +305,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               control={<StyledRadio />}
               label={
                 <TranslatedText
-                  stringId="outpatientAppointment.repeatAppointment.ends.option.after"
+                  stringId="outpatientAppointment.repeating.ends.option.after"
                   fallback="After"
                 />
               }
@@ -308,7 +322,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
             />
             <SmallBodyText color="textTertiary">
               <TranslatedText
-                stringId="outpatientAppointment.repeatAppointment.occurrenceCount.label"
+                stringId="outpatientAppointment.repeating.occurrenceCount.label"
                 fallback="occurrences"
               />
             </SmallBodyText>

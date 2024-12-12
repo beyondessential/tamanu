@@ -1,5 +1,5 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { isAfter, parseISO } from 'date-fns';
+import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -28,12 +28,11 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import {
-  addSixFrequencyToDate,
+  getNthWeekday,
   repeatingAppointmentInitialValues,
   RepeatingDateFields,
 } from './RepeatingDateFields';
 import { omit } from 'lodash';
-import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
 const IconLabel = styled.div`
   display: flex;
@@ -248,6 +247,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       resetForm();
     };
 
+    const handleResetUntilDate = startTime => {
+      setFieldValue('appointmentSchedule.untilDate', add(startTime, { months: 6 }));
+    };
+
     const handleChangeIsRepeatingAppointment = e => {
       if (!e.target.checked) {
         setValues(omit(values, ['appointmentSchedule']));
@@ -257,20 +260,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         ...values,
         appointmentSchedule: repeatingAppointmentInitialValues,
       });
-      handleResetUntilDate(parseISO(values.startTime), REPEAT_FREQUENCY.WEEKLY, 1);
-    };
-
-    const handleResetUntilDate = (startTime, frequency, interval) => {
-      setFieldValue(
-        'appointmentSchedule.untilDate',
-        addSixFrequencyToDate(startTime, frequency, interval),
-      );
+      handleResetUntilDate(parseISO(values.startTime));
     };
 
     const handleChangeStartTime = e => {
       if (!values.isRepeatingAppointment) return;
-      const { frequency, interval } = values.appointmentSchedule;
-      handleResetUntilDate(parseISO(e.target.value), frequency, interval);
+      const newDate = parseISO(e.target.value);
+      setFieldValue('appointmentSchedule.nthWeekday', getNthWeekday(newDate));
+      setFieldValue('appointmentSchedule.daysOfWeek', [format(newDate, 'iiiiii').toUpperCase()]);
+      if (!values.appointmentSchedule.untilDate) return;
+      handleResetUntilDate(newDate);
     };
 
     return (
