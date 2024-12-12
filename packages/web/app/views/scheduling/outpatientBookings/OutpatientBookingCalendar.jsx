@@ -11,8 +11,8 @@ import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { useApi } from '../../../api';
-import { useAuth } from '../../../contexts/Auth';
+import { useSendAppointmentEmail } from '../../../api/mutations';
+import { toast } from 'react-toastify';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -140,8 +140,6 @@ export const HeadCell = ({ title, count }) => (
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
-  const api = useApi();
-  const { facilityId } = useAuth();
   const {
     data: { headData = [], cellData, titleKey },
     isLoading,
@@ -152,13 +150,13 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   });
 
   const [emailModalState, setEmailModalState] = useState(null);
-
-  const sendAppointmentEmail = async email =>
-    api.post(`appointments/emailReminder`, {
-      appointmentId: emailModalState.id,
-      email,
-      facilityId,
-    });
+  const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
+    emailModalState?.appointmentId,
+    {
+      onSuccess: () => toast.success('Email sent succesfully'),
+      onError: () => toast.error('Error sending email'),
+    },
+  );
 
   if (isLoading) {
     return <LoadingSkeleton />;
