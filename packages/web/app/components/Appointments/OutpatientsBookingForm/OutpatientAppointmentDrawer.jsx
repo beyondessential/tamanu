@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { omit } from 'lodash';
+import { omit, set } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { REPEAT_FREQUENCY } from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -43,7 +43,7 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
-const DEFAULT_UNTIL_MONTH_INCREMENT = 6;
+const DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT = 6;
 
 const appointmentScheduleInitialValues = {
   interval: 1,
@@ -251,8 +251,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         interval: yup.number().required(requiredMessage),
         frequency: yup.string().required(requiredMessage),
         occurrenceCount: yup.number().nullable(),
-        untilDate: yup.string().nullable(),
-        daysOfWeek: yup.array().of(yup.string().oneOf(['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'])),
+        untilDate: yup
+          .string()
+          .nullable()
+          .isAfter(yup.ref('startTime')),
+        daysOfWeek: yup
+          .array()
+          .of(yup.string().oneOf(DAYS_OF_WEEK))
+          // Note: currently supports a single day of the week
+          .length(1),
         nthWeekday: yup
           .number()
           .nullable()
@@ -262,7 +269,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     }),
   });
 
-  const renderForm = ({ values, resetForm, dirty, setFieldValue, setValues }) => {
+  const renderForm = ({
+    values,
+    resetForm,
+    dirty,
+    setFieldValue,
+    setFieldTouched,
+    setValues,
+    touched,
+  }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -270,38 +285,45 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       resetForm();
     };
 
-    const handleResetUntilDate = startTime => {
+    const handleResetRepeatUntilDate = startTimeDate => {
       setFieldValue(
         'appointmentSchedule.untilDate',
-        add(startTime, { months: DEFAULT_UNTIL_MONTH_INCREMENT }),
+        add(startTimeDate, { months: DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT }),
       );
     };
 
-    const handleChangeIsRepeatingAppointment = e => {
-      if (!e.target.checked) {
-        // Strip appointmentSchedule values if repeating appointment is unchecked
-        setValues(omit(values, ['appointmentSchedule']));
-        return;
-      }
-      setFieldValue('appointmentSchedule', appointmentScheduleInitialValues);
-      handleResetUntilDate(parseISO(values.startTime));
+    const handleResetEmailFields = e => {
+      if (e.target.checked) return;
+      setFieldValue('email', '');
+      setFieldValue('confirmEmail', '');
     };
 
-    const handleChangeStartTime = e => {
-      if (!values.isRepeatingAppointment) return;
+    const handleChangeIsRepeatingAppointment = async e => {
+      if (!e.target.checked) {
+        setFieldTouched('appointmentSchedule', false);
+        setValues(omit(values, ['appointmentSchedule']));
+      } else {
+        setValues(set(values, 'appointmentSchedule', appointmentScheduleInitialValues));
+        handleInitAppointmentSchedule(parseISO(values.startTime));
+      }
+    };
+
+    const handleInitAppointmentSchedule = startTimeDate => {
+      if (!values.appointmentSchedule) return;
       const { frequency, untilDate } = values.appointmentSchedule;
-      const newDate = parseISO(e.target.value);
       // Update the ordinal positioning of the new date
       setFieldValue(
         'appointmentSchedule.nthWeekday',
-        frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(newDate) : null,
+        frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(newDate)]);
+      setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(startTimeDate)]);
 
-      // TODO: Should untilDate reset when startTime changes
-      if (!untilDate) return;
-      handleResetUntilDate(newDate);
+      if (!untilDate || touched.appointmentSchedule?.untilDate) return;
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        add(startTimeDate, { months: DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT }),
+      );
     };
 
     return (
@@ -371,7 +393,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning isEdit={isEdit} onChange={handleChangeStartTime} />
+          <DateTimeFieldWithSameDayWarning
+            isEdit={isEdit}
+            onChange={e => {
+              handleInitAppointmentSchedule(parseISO(e.target.value));
+            }}
+          />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -405,12 +432,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
               />
             }
             component={CheckField}
-            onChange={e => {
-              if (!e.target.checked) {
-                setFieldValue('email', '');
-                setFieldValue('confirmEmail', '');
-              }
-            }}
+            onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
@@ -429,7 +451,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             <RepeatingDateFields
               values={values}
               setFieldValue={setFieldValue}
-              handleResetUntilDate={handleResetUntilDate}
+              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
             />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />

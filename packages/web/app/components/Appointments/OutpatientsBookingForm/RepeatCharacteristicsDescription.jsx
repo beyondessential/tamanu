@@ -17,7 +17,7 @@ export const getNthWeekday = date => {
     end: endOfMonth(date),
   }).filter(day => day.getDay() === date.getDay());
 
-  // Ordinal positioning is 1-based, -1 means the date is the last occurrence weekday of the month
+  // Ordinal positioning is 1-based, -1 means the date is the last occurrence of the weekday in the month
   const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
   return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
 };

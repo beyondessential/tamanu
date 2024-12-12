@@ -110,7 +110,7 @@ const END_MODES = {
   AFTER: 'after',
 };
 
-export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDate }) => {
+export const RepeatingDateFields = ({ values, setFieldValue, handleResetRepeatUntilDate }) => {
   const { startTime, appointmentSchedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
   const [endsMode, setEndsMode] = useState(END_MODES.ON);
@@ -119,7 +119,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
     if (newModeValue === END_MODES.ON) {
-      handleResetUntilDate(startTimeDate);
+      handleResetRepeatUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else if (newModeValue === END_MODES.AFTER) {
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
@@ -129,10 +129,11 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   };
 
   const handleFrequencyChange = e => {
-    setFieldValue(
-      'appointmentSchedule.nthWeekday',
-      e.target.value === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
-    );
+    if (e.target.value === REPEAT_FREQUENCY.MONTHLY) {
+      setFieldValue('appointmentSchedule.nthWeekday', getNthWeekday(startTimeDate));
+    } else if (e.target.value === REPEAT_FREQUENCY.WEEKLY) {
+      setFieldValue('appointmentSchedule.nthWeekday', null);
+    }
   };
 
   const validateKeyboardEnteredNumber = (name, min = 1, max = 99) => {
