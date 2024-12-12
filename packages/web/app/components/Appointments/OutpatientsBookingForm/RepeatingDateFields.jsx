@@ -1,9 +1,12 @@
 import { styled } from '@mui/material/styles';
 import React, { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Radio from '@mui/material/Radio';
+import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormControlLabel';
+import Radio, { radioClasses } from '@mui/material/Radio';
+import { typographyClasses } from '@mui/material/Typography';
 import RadioGroup from '@mui/material/RadioGroup';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import {
   format,
   add,
@@ -13,7 +16,6 @@ import {
   isSameDay,
   parseISO,
 } from 'date-fns';
-import { FormControl, FormLabel } from '@material-ui/core';
 
 import {
   REPEAT_FREQUENCY,
@@ -64,7 +66,7 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
 `;
 
 const StyledRadio = styled(Radio)`
-  &.MuiRadio-root {
+  &.${radioClasses.root} {
     color: ${Colors.primary};
     padding: 2px;
   }
@@ -75,10 +77,10 @@ const StyledRadio = styled(Radio)`
 `;
 
 const StyledFormControlLabel = styled(FormControlLabel)`
-  &.MuiFormControlLabel-root {
+  &.${formControlLabelClasses.root} {
     margin-left: 0;
     margin-right: 0;
-    & .MuiTypography-root {
+    & .${typographyClasses.root} {
       width: 40px;
       margin-left: 0.5rem;
       font-size: 12px;
@@ -251,7 +253,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           <RepeatText startTimeDate={startTimeDate} frequency={frequency} interval={interval} />
         </SmallBodyText>
       </Box>
-      <FormControl sx={{ m: 3 }} variant="standard">
+      <FormControl variant="standard">
         <StyledFormLabel id="ends-radio">
           <TranslatedText
             stringId="outpatientAppointment.repeatAppointment.ends.label"
