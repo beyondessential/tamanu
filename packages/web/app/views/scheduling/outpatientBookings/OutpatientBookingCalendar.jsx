@@ -245,7 +245,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
             setEmailModalState(null);
           }}
           onCancel={() => setEmailModalState(null)}
-          initialEmailOverride={emailModalState?.email}
+          emailOverride={emailModalState?.email}
         />
       </FormModal>
     </Box>
