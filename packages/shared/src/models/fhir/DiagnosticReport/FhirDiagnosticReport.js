@@ -130,28 +130,55 @@ export class FhirDiagnosticReport extends FhirResource {
   }
 
   getLabRequestStatus() {
-    switch (this.status) {
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
-        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
-        return LAB_REQUEST_STATUSES.INTERIM_RESULTS;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY:
-        return LAB_REQUEST_STATUSES.VERIFIED;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL:
-        return LAB_REQUEST_STATUSES.PUBLISHED;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED:
-        return LAB_REQUEST_STATUSES.CANCELLED;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR:
-        return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._:
-        return LAB_REQUEST_STATUSES.INVALIDATED;
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
-        // no workflow for these yet
-        throw new Invalid(`${this.status} workflow unsupported`);
-      default:
-        throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED) {
+      return LAB_REQUEST_STATUSES.RESULTS_PENDING;
     }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._) {
+      if (this.presentedForm) {
+        return LAB_REQUEST_STATUSES.INTERIM_RESULTS;
+      } else {
+        return LAB_REQUEST_STATUSES.RESULTS_PENDING;
+      }
+    }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY) {
+      if (this.presentedForm) {
+        return LAB_REQUEST_STATUSES.INTERIM_RESULTS;
+      } else {
+        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+      }
+    }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
+      if (this.presentedForm) {
+        return LAB_REQUEST_STATUSES.PUBLISHED;
+      } else {
+        return LAB_REQUEST_STATUSES.VERIFIED;
+      }
+    }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
+      return LAB_REQUEST_STATUSES.CANCELLED;
+    }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {
+      return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+    }
+
+    if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
+      return LAB_REQUEST_STATUSES.INVALIDATED;
+    }
+
+    if (
+      this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED ||
+      this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED
+    ) {
+      // no workflow for these yet
+      throw new Invalid(`${this.status} workflow unsupported`);
+    }
+
+    throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
   }
 
   /**
