@@ -55,7 +55,6 @@ const Description = styled(BodyText)`
   color: ${Colors.midText};
   font-size: 0.75rem;
   margin-block-end: 1rem;
-  text-wrap: balance;
 `;
 
 export const Drawer = ({
