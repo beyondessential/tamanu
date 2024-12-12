@@ -230,10 +230,8 @@ export class User extends Model {
     }
   }
 
-  async canSync(facilityIds) {
-    const restrictUsersToSync = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToSync',
-    );
+  async canSync(facilityIds, { settings }) {
+    const restrictUsersToSync = await settings.get('auth.restrictUsersToSync');
     if (!restrictUsersToSync) return true;
     if (this.isSuperUser()) return true;
 

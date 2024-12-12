@@ -24,7 +24,7 @@ export const buildSyncRoutes = ctx => {
       } = req;
 
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!await userInstance.canSync(facilityIds)) {
+      if (!await userInstance.canSync(facilityIds, req)) {
         throw new ForbiddenError('User cannot sync');
       }
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
