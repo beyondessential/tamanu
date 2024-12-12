@@ -26,19 +26,23 @@ export const CheckControl = React.memo(({ value, ...props }) => (
 const ControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
 
-  i,
   .MuiTypography-root {
     font-size: 16px;
     line-height: 18px;
   }
-  i.fa-check-square {
+
+  i {
+    background-color: white;
+    font-size: 16px;
+    line-height: 14px;
+    margin: 1px 0;
+  }
+  i.fa-check-square,
+  i.fa-minus-square {
     color: ${props => props.$color || Colors.primary};
   }
   i.fa-square {
     color: ${props => props.$color || Colors.softText};
-  }
-  i.fa-minus-square {
-    color: ${props => props.$color || Colors.primary};
   }
 `;
 
