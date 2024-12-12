@@ -43,8 +43,6 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
-const DEFAULT_UNTIL_MONTH_INCREMENT = 6;
-
 const appointmentScheduleInitialValues = {
   interval: 1,
   frequency: REPEAT_FREQUENCY.WEEKLY,
@@ -265,10 +263,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleResetUntilDate = startTime => {
-      setFieldValue(
-        'appointmentSchedule.untilDate',
-        add(startTime, { months: DEFAULT_UNTIL_MONTH_INCREMENT }),
-      );
+      setFieldValue('appointmentSchedule.untilDate', add(startTime, { months: 6 }));
     };
 
     const handleChangeIsRepeatingAppointment = e => {
