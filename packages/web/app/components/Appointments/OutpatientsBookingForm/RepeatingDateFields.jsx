@@ -120,15 +120,15 @@ const REPEAT_TYPES = {
 export const addSixFrequencyToDate = (date, frequency, interval) =>
   add(date, { [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: 6 * interval });
 
-const useRepeatText = (frequency, interval, startTime) => {
+const RepeatText = ({ startTimeDate, frequency, interval }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  const weekday = format(startTime, 'EEEE');
+  const weekday = format(startTimeDate, 'EEEE');
   const weeksInMonth = eachDayOfInterval({
-    start: startOfMonth(startTime),
-    end: endOfMonth(startTime),
+    start: startOfMonth(startTimeDate),
+    end: endOfMonth(startTimeDate),
   });
-  const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === startTime.getDay());
-  const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, startTime));
+  const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === startTimeDate.getDay());
+  const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, startTimeDate));
 
   const getOrdinalText = n => {
     if (weekdayMatchesInMonth.length === n + 1) {
@@ -183,7 +183,6 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   const { startTime, appointmentSchedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
-  const repeatText = useRepeatText(frequency, interval, startTimeDate);
 
   const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
 
@@ -193,7 +192,10 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
       handleResetUntilDate(startTimeDate, frequency, interval);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
-      setFieldValue('appointmentSchedule.occurrenceCount', 2);
+      setFieldValue(
+        'appointmentSchedule.occurrenceCount',
+        repeatingAppointmentInitialValues.occurrenceCount,
+      );
       setFieldValue('appointmentSchedule.untilDate', null);
     }
     setRepeatType(newValue);
@@ -229,7 +231,9 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
         />
       </Box>
       <Box>
-        <SmallBodyText>{repeatText}</SmallBodyText>
+        <SmallBodyText>
+          <RepeatText startTimeDate={startTimeDate} frequency={frequency} interval={interval} />
+        </SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
         <StyledFormLabel id="ends-radio">
