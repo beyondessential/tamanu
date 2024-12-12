@@ -48,6 +48,8 @@ const appointmentScheduleInitialValues = {
   frequency: REPEAT_FREQUENCY.WEEKLY,
 };
 
+const getISODayOfWeek = date => format(date, 'iiiiii').toUpperCase();
+
 const getDescription = (isEdit, isLockedPatient) => {
   if (isEdit) {
     return (
@@ -257,27 +259,28 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     const handleChangeIsRepeatingAppointment = e => {
       if (!e.target.checked) {
+        // Strip appointmentSchedule values if repeating appointment is unchecked
         setValues(omit(values, ['appointmentSchedule']));
         return;
       }
-      setValues({
-        ...values,
-        appointmentSchedule: appointmentScheduleInitialValues,
-      });
+      setFieldValue('appointmentSchedule', appointmentScheduleInitialValues);
       handleResetUntilDate(parseISO(values.startTime));
     };
 
     const handleChangeStartTime = e => {
       if (!values.isRepeatingAppointment) return;
-      const { frequency } = values.appointmentSchedule;
+      const { frequency, untilDate } = values.appointmentSchedule;
       const newDate = parseISO(e.target.value);
-
+      // Update the ordinal positioning of the new date
       setFieldValue(
         'appointmentSchedule.nthWeekday',
         frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(newDate) : null,
       );
-      setFieldValue('appointmentSchedule.daysOfWeek', [format(newDate, 'iiiiii').toUpperCase()]);
-      if (!values.appointmentSchedule.untilDate) return;
+      // Note: currently supports a single day of the week
+      setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(newDate)]);
+
+      // TODO: Should untilDate reset when startTime changes
+      if (!untilDate) return;
       handleResetUntilDate(newDate);
     };
 
