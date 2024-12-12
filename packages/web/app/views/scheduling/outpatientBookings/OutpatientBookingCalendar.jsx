@@ -151,11 +151,11 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     selectedDate,
   });
 
-  const [emailModalId, setEmailModalId] = useState(null);
+  const [emailModalState, setEmailModalState] = useState(null);
 
   const sendAppointmentEmail = async email => {
     await api.post(`appointments/emailReminder`, {
-      appointmentId: emailModalId,
+      appointmentId: emailModalState.id,
       email,
       facilityId,
     });
@@ -224,7 +224,8 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                         />
                       ),
                       // TODO: prepopulate with relevant email
-                      action: () => setEmailModalId(a.id),
+                      action: () =>
+                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
                     },
                   ]}
                 />
@@ -235,15 +236,16 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       })}
       <FormModal
         title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
-        open={!!emailModalId}
-        onClose={() => setEmailModalId(null)}
+        open={!!emailModalState}
+        onClose={() => setEmailModalState(null)}
       >
         <EmailAddressConfirmationForm
           onSubmit={async ({ email }) => {
             sendAppointmentEmail(email);
-            setEmailModalId(null);
+            setEmailModalState(null);
           }}
-          onCancel={() => setEmailModalId(null)}
+          onCancel={() => setEmailModalState(null)}
+          initialEmailOverride={emailModalState?.email}
         />
       </FormModal>
     </Box>
