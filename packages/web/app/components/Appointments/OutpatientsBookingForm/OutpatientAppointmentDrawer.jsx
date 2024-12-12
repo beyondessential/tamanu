@@ -1,9 +1,12 @@
+import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { omit } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
-import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+
+import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -27,9 +30,7 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { repeatingAppointmentInitialValues, RepeatingDateFields } from './RepeatingDateFields';
-import { omit } from 'lodash';
-import { REPEAT_FREQUENCY } from '@tamanu/constants';
+import { RepeatingDateFields } from './RepeatingDateFields';
 import { getNthWeekday } from './RepeatCharacteristicsDescription';
 
 const IconLabel = styled.div`
