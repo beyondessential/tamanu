@@ -117,15 +117,15 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
-    const newValue = e.target.value;
-    if (newValue === END_MODES.ON) {
+    const newModeValue = e.target.value;
+    if (newModeValue === END_MODES.ON) {
       handleResetUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
-    } else if (newValue === END_MODES.AFTER) {
+    } else if (newModeValue === END_MODES.AFTER) {
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
     }
-    setEndsMode(newValue);
+    setEndsMode(newModeValue);
   };
 
   const handleFrequencyChange = e => {
@@ -135,14 +135,13 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
     );
   };
 
-  const validateKeyboardEnteredInterval = () => {
-    if (interval > 99) {
-      setFieldValue('appointmentSchedule.interval', 99);
-    } else if (interval < 1 || interval === '') {
-      setFieldValue('appointmentSchedule.interval', 1);
+  const validateKeyboardEnteredInterval = (min = 1, max = 99) => {
+    if (interval > max) {
+      setFieldValue('appointmentSchedule.interval', max);
+    } else if (interval < min || interval === '') {
+      setFieldValue('appointmentSchedule.interval', min);
     }
-  }
-
+  };
 
   return (
     <Container>
@@ -229,7 +228,9 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               sx={{
                 width: '60px',
               }}
-              min={0}
+              min={2}
+              max={99}
+              onBlur={() => validateKeyboardEnteredInterval(2)}
               value={endsMode === END_MODES.AFTER ? occurrenceCount : ''}
               disabled={endsMode !== END_MODES.AFTER}
               component={StyledNumberField}
