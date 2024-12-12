@@ -130,7 +130,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',
-  REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatUnit',
+  REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatFrequencyUnit',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
   REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',

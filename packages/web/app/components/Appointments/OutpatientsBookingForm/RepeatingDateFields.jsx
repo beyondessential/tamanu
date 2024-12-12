@@ -116,55 +116,29 @@ const addSixFrequencyToDate = (date, frequency) =>
   add(date, { [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: 6 });
 
 // TODO: translated everything
-const getRepeatText = (reportUnit, repeatN, value) => {
-  if (reportUnit === REPEAT_FREQUENCY.WEEKLY) {
-    return (
-      <TranslatedText
-        stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
-        fallback="on a :weekday"
-        replacements={{
-          weekday: format(value, 'EEEE'),
-        }}
-      />
-    );
-  }
-  if (reportUnit === REPEAT_FREQUENCY.MONTHLY) {
-    const weeksInMonth = eachDayOfInterval({
-      start: startOfMonth(value),
-      end: endOfMonth(value, 1),
-    });
-    const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === value.getDay());
-    const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, value));
-
-    const getOrdinal = n => {
-      if (weekdayMatchesInMonth.length === n + 1) {
-        return <TranslatedText stringId="general.ordinals.last" fallback="last" />;
-      }
-      return [
-        <TranslatedText key="first" stringId="general.ordinals.first" fallback="first" />,
-        <TranslatedText key="second" stringId="general.ordinals.second" fallback="second" />,
-        <TranslatedText key="third" stringId="general.ordinals.third" fallback="third" />,
-        <TranslatedText key="forth" stringId="general.ordinals.fourth" fallback="fourth" />,
-      ][n];
-    };
-
-    return (
-      <TranslatedText
-        stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
-        fallback="on the :nth :weekday"
-        replacements={{ nth: getOrdinal(weekdayInMonthIndex), weekday: format(value, 'EEEE') }}
-      />
-    );
-  }
-};
-
-export const RepeatingDateFields = ({ values, setFieldValue }) => {
+const useRepeatText = (frequency, interval, startTime) => {
   const { getTranslation } = useTranslation();
-  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
+  const weekday = format(startTime, 'EEEE');
+  const weeksInMonth = eachDayOfInterval({
+    start: startOfMonth(startTime),
+    end: endOfMonth(startTime, 1),
+  });
+  const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === startTime.getDay());
+  const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, startTime));
 
-  const { interval, frequency, occurrenceCount, untilDate } = values.appointmentSchedule;
+  const getOrdinalText = n => {
+    if (weekdayMatchesInMonth.length === n + 1) {
+      return <TranslatedText stringId="general.ordinals.last" fallback="last" />;
+    }
+    return [
+      <TranslatedText key="first" stringId="general.ordinals.first" fallback="first" />,
+      <TranslatedText key="second" stringId="general.ordinals.second" fallback="second" />,
+      <TranslatedText key="third" stringId="general.ordinals.third" fallback="third" />,
+      <TranslatedText key="forth" stringId="general.ordinals.fourth" fallback="fourth" />,
+    ][n];
+  };
 
-  const formatOrdinals = n => {
+  const getOrdinalNumber = n => {
     const pr = new Intl.PluralRules('default', { type: 'ordinal' });
     const suffixes = new Map([
       ['one', getTranslation('general.ordinals.suffix.one', 'st')],
@@ -176,6 +150,53 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
     const suffix = suffixes.get(rule);
     return `${n}${suffix}`;
   };
+
+  return (
+    <>
+      <TranslatedText
+        stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
+        fallback="Repeats on:"
+      />{' '}
+      {interval > 1 ? (
+        <TranslatedText
+          stringId="general.every"
+          fallback="Every :interval :frequency"
+          replacements={{
+            interval: getOrdinalNumber(interval),
+            frequency: getTranslation(
+              `scheduling.property.repeatFrequencyUnit.${frequency}`,
+              REPEAT_FREQUENCY_UNIT_LABELS[frequency],
+            ),
+          }}
+        />
+      ) : (
+        <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />
+      )}{' '}
+      {frequency === REPEAT_FREQUENCY.WEEKLY ? (
+        <TranslatedText
+          stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
+          fallback="on a :weekday"
+          replacements={{
+            weekday,
+          }}
+        />
+      ) : (
+        <TranslatedText
+          stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
+          fallback="on the :nth :weekday"
+          replacements={{ nth: getOrdinalText(weekdayInMonthIndex), weekday }}
+        />
+      )}
+    </>
+  );
+};
+
+export const RepeatingDateFields = ({ values, setFieldValue }) => {
+  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
+
+  const { interval, frequency, occurrenceCount, untilDate } = values.appointmentSchedule;
+
+  const repeatText = useRepeatText(frequency, interval, parseISO(values.startTime));
 
   const handleChangeFrequency = e => {
     setFieldValue(
@@ -224,27 +245,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
         />
       </Box>
       <Box>
-        <SmallBodyText>
-          <TranslatedText
-            stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
-            fallback="Repeats on:"
-          />{' '}
-          {interval > 1 ? (
-            <>
-              <TranslatedText
-                stringId="general.every"
-                fallback="Every :interval"
-                replacements={{
-                  interval: formatOrdinals(interval),
-                }}
-              />
-              <TranslatedEnum enumValues={REPEAT_FREQUENCY_UNIT_LABELS} value={frequency} />
-            </>
-          ) : (
-            <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />
-          )}{' '}
-          {getRepeatText(frequency, interval, parseISO(values.startTime))}
-        </SmallBodyText>
+        <SmallBodyText>{repeatText}</SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
         <StyledFormLabel id="ends-radio">Ends</StyledFormLabel>
