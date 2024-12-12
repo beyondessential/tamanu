@@ -153,13 +153,12 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
 
   const [emailModalState, setEmailModalState] = useState(null);
 
-  const sendAppointmentEmail = async email => {
-    await api.post(`appointments/emailReminder`, {
+  const sendAppointmentEmail = async email =>
+    api.post(`appointments/emailReminder`, {
       appointmentId: emailModalState.id,
       email,
       facilityId,
     });
-  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
