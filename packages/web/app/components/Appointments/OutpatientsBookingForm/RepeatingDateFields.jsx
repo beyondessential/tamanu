@@ -228,9 +228,14 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               sx={{
                 width: '60px',
               }}
-              min={2}
+              min={DEFAULT_OCCURRENCE_COUNT}
               max={99}
-              onBlur={() => validateKeyboardEnteredNumber('appointmentSchedule.occurrenceCount', 2)}
+              onBlur={() =>
+                validateKeyboardEnteredNumber(
+                  'appointmentSchedule.occurrenceCount',
+                  DEFAULT_OCCURRENCE_COUNT,
+                )
+              }
               value={endsMode === END_MODES.AFTER ? occurrenceCount : ''}
               disabled={endsMode !== END_MODES.AFTER}
               component={StyledNumberField}

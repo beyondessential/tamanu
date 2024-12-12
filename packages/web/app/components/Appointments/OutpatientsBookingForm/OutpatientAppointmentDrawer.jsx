@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { nth, omit } from 'lodash';
+import { omit } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
@@ -42,6 +42,8 @@ const formStyles = {
   overflowY: 'auto',
   minWidth: 'fit-content',
 };
+
+const DEFAULT_UNTIL_MONTH_INCREMENT = 6;
 
 const appointmentScheduleInitialValues = {
   interval: 1,
@@ -269,7 +271,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleResetUntilDate = startTime => {
-      setFieldValue('appointmentSchedule.untilDate', add(startTime, { months: 6 }));
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        add(startTime, { months: DEFAULT_UNTIL_MONTH_INCREMENT }),
+      );
     };
 
     const handleChangeIsRepeatingAppointment = e => {
