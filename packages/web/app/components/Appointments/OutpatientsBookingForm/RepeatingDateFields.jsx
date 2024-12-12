@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -20,6 +20,7 @@ import {
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
 
 import { Colors } from '../../../constants';
@@ -137,19 +138,6 @@ const useRepeatText = (frequency, interval, startTime) => {
     ][n];
   };
 
-  const getOrdinalNumber = n => {
-    const pluralRules = new Intl.PluralRules('default', { type: 'ordinal' });
-    const suffixes = new Map([
-      ['one', getTranslation('general.ordinals.suffix.one', 'st')],
-      ['two', getTranslation('general.ordinals.suffix.two', 'nd')],
-      ['few', getTranslation('general.ordinals.suffix.few', 'rd')],
-      ['other', getTranslation('general.ordinals.suffix.other', 'th')],
-    ]);
-    const rule = pluralRules.select(n);
-    const suffix = suffixes.get(rule);
-    return `${n}${suffix}`;
-  };
-
   return (
     <>
       <TranslatedText
@@ -161,8 +149,8 @@ const useRepeatText = (frequency, interval, startTime) => {
           stringId="general.every"
           fallback="Every :interval :frequency"
           replacements={{
-            interval: getOrdinalNumber(interval),
-            frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_LABELS, frequency),
+            interval: interval,
+            frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
           }}
         />
       ) : (
@@ -214,6 +202,15 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
     }
     setRepeatType(e.target.value);
   };
+
+  useEffect(() => {
+    if (repeatType === REPEAT_TYPES.ON) {
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        addSixFrequencyToDate(startTimeDate, frequency),
+      );
+    }
+  }, [frequency, repeatType, setFieldValue, startTimeDate, values.startTime]);
 
   return (
     <Container>
