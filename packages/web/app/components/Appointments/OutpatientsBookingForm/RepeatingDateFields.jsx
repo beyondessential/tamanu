@@ -203,6 +203,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
     setRepeatType(e.target.value);
   };
 
+  // TODO - remove useEffect?
   useEffect(() => {
     if (repeatType === REPEAT_TYPES.ON) {
       setFieldValue(
