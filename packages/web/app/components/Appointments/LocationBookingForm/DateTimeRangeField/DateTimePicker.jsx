@@ -5,11 +5,16 @@ import styled from 'styled-components';
 
 import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
+import { useLocationBookingsQuery } from '../../../../api/queries';
+import { Colors } from '../../../../constants';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import { FormHelperText } from '@material-ui/core';
-import { useLocationBookingsQuery } from '../../../../api/queries';
+
+const ErrorSpan = styled.span`
+  color: ${Colors.alert};
+  display: contents;
+`;
 
 const DateTimePicker = ({
   disabled = false,
@@ -45,7 +50,14 @@ const DateTimePicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: !!(values.startDate && values.endDate && values.locationId) },
+    {
+      enabled: !!(
+        datePickerName === 'endDate' &&
+        values.startDate &&
+        values.endDate &&
+        values.locationId
+      ),
+    },
   );
 
   const showUnavailableLocationWarning =
@@ -63,12 +75,12 @@ const DateTimePicker = ({
         required={required}
         helperText={
           showUnavailableLocationWarning && (
-            <FormHelperText error>
+            <ErrorSpan>
               <TranslatedText
                 stringId="locationBooking.timePicker.locationNotAvailableWarning"
                 fallback="Location not available"
               />
-            </FormHelperText>
+            </ErrorSpan>
           )
         }
         saveDateAsString
@@ -88,7 +100,9 @@ const DateTimePicker = ({
 export const StartDateTimePicker = styled(DateTimePicker).attrs({
   datePickerLabel: <TranslatedText stringId="general.startDate.label" fallback="Start date" />,
   datePickerName: 'startDate',
-  timePickerLabel: <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
+  timePickerLabel: (
+    <TranslatedText stringId="general.bookingStartTime.label" fallback="Booking start time" />
+  ),
   timePickerName: 'startTime',
   timePickerVariant: 'start',
 })``;
@@ -96,7 +110,9 @@ export const StartDateTimePicker = styled(DateTimePicker).attrs({
 export const EndDateTimePicker = styled(DateTimePicker).attrs({
   datePickerLabel: <TranslatedText stringId="general.endDate.label" fallback="End date" />,
   datePickerName: 'endDate',
-  timePickerLabel: <TranslatedText stringId="general.endTime.label" fallback="End time" />,
+  timePickerLabel: (
+    <TranslatedText stringId="general.bookingEndTime.label" fallback="Booking end time" />
+  ),
   timePickerName: 'endTime',
   timePickerVariant: 'end',
 })``;
