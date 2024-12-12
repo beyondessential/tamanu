@@ -14,7 +14,6 @@ import {
   parseISO,
 } from 'date-fns';
 import { FormControl, FormLabel } from '@material-ui/core';
-import { upperFirst } from 'lodash';
 
 import {
   REPEAT_FREQUENCY,
@@ -24,7 +23,7 @@ import {
 } from '@tamanu/constants';
 
 import { Colors } from '../../../constants';
-import { DateField, Field, NumberField, SelectField } from '../../Field';
+import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
 import { useTranslation } from '../../../contexts/Translation';
@@ -51,7 +50,7 @@ const StyledNumberField = styled(NumberField)`
   }
 `;
 
-const StyledSelectField = styled(SelectField)`
+const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   & .MuiFormControl-root {
     > div > div:first-of-type {
       font-size: 12px;
@@ -196,8 +195,9 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   };
 
   const handleFrequencyChange = e => {
+    const newValue = e.target.value;
     if (repeatType !== REPEAT_TYPES.ON) return;
-    handleResetUntilDate(startTimeDate, e.target.value, interval);
+    handleResetUntilDate(startTimeDate, newValue, interval);
   };
 
   return (
@@ -207,7 +207,10 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           name="appointmentSchedule.interval"
           min={1}
           label={
-            <TranslatedText stringId="scheduling.repeatEvery.label" fallback="Repeats every" />
+            <TranslatedText
+              stringId="outpatientAppointment.repeatAppointment.repeatEvery.label"
+              fallback="Repeats every"
+            />
           }
           component={StyledNumberField}
         />
@@ -215,19 +218,21 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           placeholder=""
           name="appointmentSchedule.frequency"
           isClearable={false}
-          options={Object.entries(REPEAT_FREQUENCY_UNIT_LABELS).map(([key, value]) => ({
-            value: key,
-            label: upperFirst(value),
-          }))}
+          enumValues={REPEAT_FREQUENCY_UNIT_LABELS}
           onChange={handleFrequencyChange}
-          component={StyledSelectField}
+          component={StyledTranslatedSelectField}
         />
       </Box>
       <Box>
         <SmallBodyText>{repeatText}</SmallBodyText>
       </Box>
       <FormControl sx={{ m: 3 }} variant="standard">
-        <StyledFormLabel id="ends-radio">Ends</StyledFormLabel>
+        <StyledFormLabel id="ends-radio">
+          <TranslatedText
+            stringId="outpatientAppointment.repeatAppointment.ends.label"
+            fallback="Ends"
+          />
+        </StyledFormLabel>
         <StyledRadioGroup
           aria-labelledby="ends-radio"
           value={repeatType}
@@ -240,7 +245,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               control={<StyledRadio />}
               label={
                 <TranslatedText
-                  stringId="outpatientAppointment.repeatAppointment.on.label"
+                  stringId="outpatientAppointment.repeatAppointment.ends.option.on"
                   fallback="On"
                 />
               }
@@ -259,7 +264,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               control={<StyledRadio />}
               label={
                 <TranslatedText
-                  stringId="outpatientAppointment.repeatAppointment.after.label"
+                  stringId="outpatientAppointment.repeatAppointment.ends.option.after"
                   fallback="After"
                 />
               }
