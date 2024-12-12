@@ -9,6 +9,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Colors } from '../../constants';
 
+// TODO: finish the checkbox styling
+
 const BaseBox = styled.div`
   border: 1px ${Colors.outline} solid;
   height: 14px;

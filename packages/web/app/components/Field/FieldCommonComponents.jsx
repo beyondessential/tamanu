@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons';
 
+// TODO: changes to this file have caused
+
 export const Icon = styled(InputAdornment)`
   margin-inline-start: 0;
   .MuiSvgIcon-root {
