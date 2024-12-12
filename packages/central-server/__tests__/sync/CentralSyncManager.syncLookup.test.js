@@ -662,6 +662,7 @@ describe('Sync Lookup data', () => {
 
       // except for appointments and appointment_schedules, patient linked models should not spit out facilityId;
       const expectedFacility = ['appointments', 'appointment_schedules'].includes(model.tableName);
+
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
