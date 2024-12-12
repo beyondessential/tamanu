@@ -113,16 +113,15 @@ const END_MODES = {
 export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDate }) => {
   const { startTime, appointmentSchedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
-  const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
-
   const [endsMode, setEndsMode] = useState(END_MODES.ON);
+  const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
     const newValue = e.target.value;
     if (newValue === END_MODES.ON) {
       handleResetUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
-    } else {
+    } else if (newValue === END_MODES.AFTER) {
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
     }
