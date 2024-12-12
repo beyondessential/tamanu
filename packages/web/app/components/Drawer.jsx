@@ -49,6 +49,15 @@ const Title = styled(Heading4)`
 const DrawerBody = styled.section`
   overflow-y: auto;
   padding-block: 1rem 2.5rem;
+
+  // A bit blunt but the base form fields are going to have their size tweaked in a
+  // later card so this is a bridging solution just for this drawer
+  .label-field,
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label,
+  div {
+    font-size: 0.75rem;
+  }
 `;
 
 const Description = styled(BodyText)`

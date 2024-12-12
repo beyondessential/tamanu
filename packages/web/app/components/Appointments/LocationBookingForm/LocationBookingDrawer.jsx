@@ -36,17 +36,6 @@ const formStyles = {
   insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
 };
 
-// A bit blunt but the base form fields are going to have their size tweaked in a
-// later card so this is a bridging solution just for this form
-const StyledFormGrid = styled(FormGrid)`
-  .label-field,
-  .MuiInputBase-input,
-  .MuiFormControlLabel-label,
-  div {
-    font-size: 0.75rem;
-  }
-`;
-
 const OvernightStayLabel = styled.span`
   display: flex;
   gap: 0.25rem;
@@ -261,7 +250,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           )
         }
       >
-        <StyledFormGrid nested columns={1}>
+        <FormGrid nested columns={1}>
           <Field
             enableLocationStatus={false}
             name="locationId"
@@ -313,7 +302,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             suggester={clinicianSuggester}
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
-        </StyledFormGrid>
+        </FormGrid>
       </Drawer>
     );
   };
