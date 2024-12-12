@@ -85,7 +85,7 @@ const StyledAppointmentTile = styled(AppointmentTile)`
   time {
     font-weight: 500;
   }
-`
+`;
 
 const NoDataContainer = styled.div`
   flex: 1;
@@ -135,12 +135,14 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
             fallback="Today's appointments"
           />
         </Heading4>
-        <ActionLink onClick={onViewAll}>
-          <TranslatedText
-            stringId="dashboard.appointments.todayAppointments.viewAll"
-            fallback="View all..."
-          />
-        </ActionLink>
+        {!!appointments.length && (
+          <ActionLink onClick={onViewAll}>
+            <TranslatedText
+              stringId="dashboard.appointments.todayAppointments.viewAll"
+              fallback="View all..."
+            />
+          </ActionLink>
+        )}
       </TitleContainer>
       {!appointments.length ? (
         <NoDataContainer>
@@ -177,7 +179,11 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
             </StyledProgressBarContainer>
             <AppointmentListContainer>
               {appointments.map(appointment => (
-                <StyledAppointmentTile key={appointment.id} appointment={appointment} allowViewDetail={false} />
+                <StyledAppointmentTile
+                  key={appointment.id}
+                  appointment={appointment}
+                  allowViewDetail={false}
+                />
               ))}
             </AppointmentListContainer>
           </StyledContentContainer>
