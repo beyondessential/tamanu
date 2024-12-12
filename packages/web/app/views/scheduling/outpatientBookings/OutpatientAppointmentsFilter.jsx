@@ -68,7 +68,6 @@ export const OutpatientAppointmentsFilter = props => {
           component={SearchField}
           disabled={isUserPreferencesLoading}
           name="patientNameOrId"
-          onChange={e => setFilters(prev => ({ ...prev, patientNameOrId: e.target.value }))}
           placeholder={getTranslation(
             'scheduling.filter.placeholder.patientNameOrId',
             'Search patient name or ID',
