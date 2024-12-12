@@ -223,7 +223,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                           fallback="Email appointment"
                         />
                       ),
-                      // TODO: prepopulate with relevant email
                       action: () =>
                         setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
                     },
