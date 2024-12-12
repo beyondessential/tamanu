@@ -21,14 +21,15 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit, em
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .nullable()
-          .required(),
+          .required(getTranslation('validation.required.inline', '*Required')),
         confirmEmail: Yup.string()
           .oneOf(
             [Yup.ref('email'), null],
             getTranslation('validation.rule.emailsMatch', 'Emails must match'),
           )
-          .required(),
+          .required(getTranslation('validation.required.inline', '*Required')),
       })}
+      suppressErrorDialog
       render={({ submitForm }) => (
         <FormGrid columns={1}>
           <Field
