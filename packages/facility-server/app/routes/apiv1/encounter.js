@@ -696,21 +696,13 @@ encounterRelations.delete(
 
     const { chartInstanceResponseId } = params;
 
+    // all answers will also be soft deleted automatically
     await db.transaction(async () => {
       await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
 
-      await db.query(
-        `
-          DELETE FROM survey_responses
-          WHERE metadata->>'chartInstanceId' = :chartInstanceResponseId
-        `,
-        {
-          replacements: {
-            chartInstanceResponseId,
-          },
-          type: QueryTypes.SELECT,
-        },
-      );
+      await models.SurveyResponse.destroy({
+        where: { 'metadata.chartInstanceResponseId': chartInstanceResponseId },
+      });
     });
 
     res.send({});
