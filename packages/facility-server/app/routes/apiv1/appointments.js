@@ -79,7 +79,7 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
     clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
   });
 
-  await PatientCommunication.create({
+  return await PatientCommunication.create({
     type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
     channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
@@ -127,8 +127,14 @@ appointments.post(
       body: { facilityId, appointmentId, email },
       settings,
     } = req;
-    await sendAppointmentReminder({ appointmentId, email, facilityId, models, settings });
-    res.status(200).send();
+    const response = await sendAppointmentReminder({
+      appointmentId,
+      email,
+      facilityId,
+      models,
+      settings,
+    });
+    res.status(200).send(response);
   }),
 );
 
