@@ -206,8 +206,8 @@ export const PatientPaymentForm = ({
         chequeNumber: yup.string().matches(/^[A-Za-z0-9]+$/, {
           message: (
             <TranslatedText
-              stringId="invoice.payment.validation.invalidReceiptNumber"
-              fallback="Invalid receipt number - alphanumeric characters only"
+              stringId="invoice.payment.validation.invalidChequeNumber"
+              fallback="Invalid cheque number - alphanumeric characters only"
             />
           ),
         }),
