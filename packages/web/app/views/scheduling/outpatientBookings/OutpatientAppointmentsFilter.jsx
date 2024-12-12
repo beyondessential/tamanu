@@ -93,6 +93,7 @@ export const OutpatientAppointmentsFilter = props => {
           onClick={() => {
             setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
             setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+            updateUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
           }}
           type="reset"
         >
