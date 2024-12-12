@@ -27,13 +27,10 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import {
-  getNthWeekday,
-  repeatingAppointmentInitialValues,
-  RepeatingDateFields,
-} from './RepeatingDateFields';
+import { repeatingAppointmentInitialValues, RepeatingDateFields } from './RepeatingDateFields';
 import { omit } from 'lodash';
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
+import { getNthWeekday } from './RepeatCharacteristicsDescription';
 
 const IconLabel = styled.div`
   display: flex;

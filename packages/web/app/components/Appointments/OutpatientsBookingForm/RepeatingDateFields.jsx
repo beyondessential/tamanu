@@ -7,28 +7,22 @@ import { typographyClasses } from '@mui/material/Typography';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-import {
-  format,
-  add,
-  eachDayOfInterval,
-  startOfMonth,
-  endOfMonth,
-  isSameDay,
-  parseISO,
-} from 'date-fns';
+import { format, add, parseISO } from 'date-fns';
 
 import {
   REPEAT_FREQUENCY,
-  REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
 
 import { Colors } from '../../../constants';
 import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
+import { TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
-import { useTranslation } from '../../../contexts/Translation';
+import {
+  getNthWeekday,
+  RepeatCharacteristicsDescription,
+} from './RepeatCharacteristicsDescription';
 
 const Container = styled('div')`
   width: 100%;
@@ -119,89 +113,6 @@ const END_MODES = {
   AFTER: 'after',
 };
 
-export const getNthWeekday = date => {
-  // Filter out days from month that are not the same weekday as the date
-  const matchingWeekdays = eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  }).filter(day => day.getDay() === date.getDay());
-
-  // Ordinal positioning is 1-based, -1 means the date is the last occurrence weekday of the month
-  const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
-  return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
-};
-
-const useOrdinalText = (date, frequency) => {
-  const { getTranslation } = useTranslation();
-  if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
-
-  // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
-  const atIndex = Math.max(getNthWeekday(date) - 1, -1);
-
-  return [
-    getTranslation('general.ordinals.first', 'first'),
-    getTranslation('general.ordinals.second', 'second'),
-    getTranslation('general.ordinals.third', 'third'),
-    getTranslation('general.ordinals.fourth', 'fourth'),
-    getTranslation('general.ordinals.last', 'last'),
-  ].at(atIndex);
-};
-
-const IntervalText = ({ interval, frequency }) => {
-  const { getEnumTranslation } = useTranslation();
-  if (interval === 1)
-    return <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />;
-  return (
-    <TranslatedText
-      stringId="outpatientAppointments.repeating.onNthWeekdayText"
-      fallback="Every :interval :frequency"
-      replacements={{
-        interval,
-        frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
-      }}
-    />
-  );
-};
-
-const FrequencyText = ({ frequency, startTimeDate }) => {
-  const weekday = format(startTimeDate, 'EEEE');
-  const ordinalText = useOrdinalText(startTimeDate, frequency);
-  if (frequency === REPEAT_FREQUENCY.WEEKLY) {
-    return (
-      <TranslatedText
-        stringId="outpatientAppointments.repeating.onWeekdayText"
-        fallback="on a :weekday"
-        replacements={{
-          weekday,
-        }}
-      />
-    );
-  }
-  return (
-    <TranslatedText
-      stringId="outpatientAppointments.repeating.onNthWeekdayText"
-      fallback="on :nth :weekday"
-      replacements={{
-        nth: ordinalText,
-        weekday,
-      }}
-    />
-  );
-};
-
-const RepeatText = ({ startTimeDate, frequency, interval }) => (
-  <>
-    <TranslatedText
-      stringId="outpatientAppointment.repeating.repeatsOnText"
-      fallback="Repeats on:"
-    />
-    &nbsp;
-    <IntervalText frequency={frequency} interval={interval} />
-    &nbsp;
-    <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
-  </>
-);
-
 export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDate }) => {
   const { startTime, appointmentSchedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
@@ -258,7 +169,11 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
       </Box>
       <Box>
         <SmallBodyText>
-          <RepeatText startTimeDate={startTimeDate} frequency={frequency} interval={interval} />
+          <RepeatCharacteristicsDescription
+            startTimeDate={startTimeDate}
+            frequency={frequency}
+            interval={interval}
+          />
         </SmallBodyText>
       </Box>
       <FormControl variant="standard">
