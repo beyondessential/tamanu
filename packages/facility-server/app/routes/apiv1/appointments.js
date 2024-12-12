@@ -51,7 +51,7 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
   };
 };
 
-const sendAppointmentReminder = async (appointmentId, email, facilityId, models, settings) => {
+const sendAppointmentReminder = async ({ appointmentId, email, facilityId, models, settings }) => {
   const { Appointment, Facility, PatientCommunication } = models;
 
   // Fetch appointment relations
@@ -105,7 +105,13 @@ appointments.post(
     await db.transaction(async () => {
       const result = await Appointment.create(body);
       if (body.email) {
-        await sendAppointmentReminder(result.id, body.email, facilityId, models, settings);
+        await sendAppointmentReminder({
+          appointmentId: result.id,
+          email: body.email,
+          facilityId,
+          models,
+          settings,
+        });
       }
       res.status(201).send(result);
     });
@@ -121,7 +127,7 @@ appointments.post(
       body: { facilityId, appointmentId, email },
       settings,
     } = req;
-    await sendAppointmentReminder(appointmentId, email, facilityId, models, settings);
+    await sendAppointmentReminder({ appointmentId, email, facilityId, models, settings });
     res.status(200).send();
   }),
 );
