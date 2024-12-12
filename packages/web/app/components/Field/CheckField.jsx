@@ -11,16 +11,25 @@ import { Colors } from '../../constants';
 
 // TODO: finish the checkbox styling
 
-const BaseBox = styled.div`
+const BoxIcon = styled.div`
   border: 1px ${Colors.outline} solid;
   height: 14px;
   width: 14px;
   background-color: white;
   border-radius: 3px;
   display: flex;
+  .MuiSvgIcon-root {
+    font-size: 12px;
+    color: ${Colors.primary};
+  }
 `;
 
-const SelectedBox = styled(BaseBox)`
+// TODO: unsure if correct color
+const DisabledBoxIcon = styled(BoxIcon)`
+  border: 1px ${Colors.softOutline} solid;
+`;
+
+const SelectedBoxIcon = styled(BoxIcon)`
   border: 1px ${Colors.primary} solid;
 `;
 
@@ -31,16 +40,16 @@ const SelectedBox = styled(BaseBox)`
 */
 export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    icon={props.disabled ? <i className="fas fa-square" /> : <BaseBox />}
+    icon={props.disabled ? <DisabledBoxIcon /> : <BoxIcon />}
     checkedIcon={
-      <SelectedBox>
-        <CheckIcon color="primary" sx={{ fontSize: '12px' }} />
-      </SelectedBox>
+      <SelectedBoxIcon>
+        <CheckIcon />
+      </SelectedBoxIcon>
     }
     indeterminateIcon={
-      <SelectedBox>
-        <RemoveIcon color="primary" sx={{ fontSize: '12px' }} />
-      </SelectedBox>
+      <SelectedBoxIcon>
+        <RemoveIcon />
+      </SelectedBoxIcon>
     }
     {...props}
     checked={Boolean(value)}
@@ -51,19 +60,9 @@ export const CheckControl = React.memo(({ value, ...props }) => (
 const ControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
 
-  i,
   .MuiTypography-root {
     font-size: 16px;
     line-height: 18px;
-  }
-  i.fa-check-square {
-    color: ${props => props.$color || Colors.primary};
-  }
-  i.fa-square {
-    color: ${props => props.$color || Colors.softText};
-  }
-  i.fa-minus-square {
-    color: ${props => props.$color || Colors.primary};
   }
 `;
 
