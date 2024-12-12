@@ -245,6 +245,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           getTranslation('validation.rule.emailsMatch', 'Emails must match'),
         ),
     }),
+    appointmentSchedule: yup.object().when('isRepeatingAppointment', {
+      is: true,
+      then: yup.object().shape({
+        interval: yup.number().required(requiredMessage),
+        frequency: yup.string().required(requiredMessage),
+        occurrenceCount: yup.number().nullable(),
+        untilDate: yup.string().nullable(),
+      }),
+    }),
   });
 
   const renderForm = ({ values, resetForm, dirty, setFieldValue, setValues }) => {

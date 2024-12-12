@@ -77,13 +77,22 @@ const FrequencyText = ({ frequency, startTimeDate }) => {
   );
 };
 
-export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) => (
-  <>
-    <TranslatedText
-      stringId="outpatientAppointment.repeating.repeatsOnText"
-      fallback="Repeats on:"
-    />{' '}
-    <IntervalText frequency={frequency} interval={interval} />{' '}
-    <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
-  </>
-);
+export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) => {
+  if (!interval)
+    return (
+      <TranslatedText
+        stringId="outpatientAppointment.repeating.error.invalidInterval"
+        fallback="Invalid interval"
+      />
+    );
+  return (
+    <>
+      <TranslatedText
+        stringId="outpatientAppointment.repeating.repeatsOnText"
+        fallback="Repeats on:"
+      />{' '}
+      <IntervalText frequency={frequency} interval={interval} />{' '}
+      <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
+    </>
+  );
+};

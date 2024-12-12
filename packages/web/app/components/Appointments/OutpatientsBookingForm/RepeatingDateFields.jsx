@@ -135,12 +135,23 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
     );
   };
 
+  const validateKeyboardEnteredInterval = () => {
+    if (interval > 99) {
+      setFieldValue('appointmentSchedule.interval', 99);
+    } else if (interval < 1 || interval === '') {
+      setFieldValue('appointmentSchedule.interval', 1);
+    }
+  }
+
+
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
         <Field
           name="appointmentSchedule.interval"
           min={1}
+          max={99}
+          onBlur={validateKeyboardEnteredInterval}
           label={
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
