@@ -22,7 +22,7 @@ export const appointments = express.Router();
  * @param {string} intervalEnd Some valid PostgreSQL Date/Time input.
  * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-INPUT
  */
-const buildTimeOverlapQuery = (intervalStart, intervalEnd) => {
+const buildTimeQuery = (intervalStart, intervalEnd) => {
   const whereClause = literal(
     '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($apptTimeQueryStart, $apptTimeQueryEnd)',
   );
@@ -175,7 +175,7 @@ appointments.get(
       },
     } = req;
 
-    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeOverlapQuery(after, before);
+    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
 
     const cancelledStatusQuery = includeCancelled
       ? null
@@ -243,12 +243,16 @@ appointments.post('/locationBooking', async (req, res) => {
 
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
-      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeOverlapQuery(startTime, endTime);
+      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
       const bookingTimeAlreadyTaken = await Appointment.findOne({
         where: {
-          locationId,
-          status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-          ...[timeQueryWhereClause],
+          [Op.and]: [
+            { locationId },
+            {
+              status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+            },
+            timeQueryWhereClause,
+          ],
         },
         bind: timeQueryBindParams,
         transaction,
@@ -285,15 +289,16 @@ appointments.put('/locationBooking/:id', async (req, res) => {
       }
 
       if (!skipConflictCheck) {
-        const [timeQueryWhereClause, timeQueryBindParams] = buildTimeOverlapQuery(
-          startTime,
-          endTime,
-        );
+        const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
         const bookingTimeAlreadyTaken = await Appointment.findOne({
           where: {
-            id: { [Op.ne]: id },
-            locationId,
-            ...[timeQueryWhereClause],
+            [Op.and]: [
+              {
+                id: { [Op.ne]: id },
+              },
+              { locationId },
+              timeQueryWhereClause,
+            ],
           },
           bind: timeQueryBindParams,
           transaction,
