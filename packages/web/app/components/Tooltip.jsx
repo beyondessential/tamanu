@@ -17,6 +17,7 @@ export const ThemedTooltip = styled(props => (
 `;
 
 export const ConditionalTooltip = ({ visible, children, ...restProps }) => {
+  console.log('visibleeee', visible);
   if (!visible) return children;
   return (
     //  Below div is needed to make ThemedTooltip work

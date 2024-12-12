@@ -8,11 +8,24 @@ import { Colors } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
-import { TranslatedText } from './Translation/TranslatedText';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
 
-export const ChartsTable = React.memo(({ selectedSurveyId }) => {
+export const EmptyChartsTable = ({ noDataMessage }) => (
+  <Table
+    columns={[]}
+    data={[]}
+    elevated={false}
+    noDataBackgroundColor={Colors.background}
+    noDataMessage={
+      <Box color={Colors.primary} fontWeight={500}>
+        {noDataMessage}
+      </Box>
+    }
+  />
+);
+
+export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
@@ -39,7 +52,9 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
     onCellClick,
   );
 
-  if (isLoading) {
+  // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
+  // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
+  if (selectedSurveyId && isLoading) {
     return (
       <Box mt={2}>
         <LoadingIndicator height="400px" />
@@ -48,29 +63,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
   }
 
   if (data.length === 0) {
-    return (
-      <Table
-        columns={[]}
-        data={[]}
-        elevated={false}
-        noDataBackgroundColor={Colors.background}
-        noDataMessage={
-          <Box color={Colors.primary} fontWeight={500}>
-            {selectedSurveyId === '' ? (
-              <TranslatedText
-                stringId="chart.table.noChart"
-                fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
-              />
-            ) : (
-              <TranslatedText
-                stringId="chart.table.noData"
-                fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-              />
-            )}
-          </Box>
-        }
-      />
-    );
+    return <EmptyChartsTable noDataMessage={noDataMessage} />;
   }
 
   return (

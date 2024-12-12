@@ -53,6 +53,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       validateOnChange
       validateOnBlur
       render={({ submitForm, values, setFieldValue }) => (
+        <>
         <SurveyScreen
           allComponents={visibleComponents}
           patient={patient}
@@ -67,6 +68,8 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
             />
           }
         />
+        </>
+        
       )}
     />
   );

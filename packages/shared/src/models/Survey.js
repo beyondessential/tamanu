@@ -75,6 +75,7 @@ export class Survey extends Model {
             SURVEY_TYPES.COMPLEX_CHART,
           ],
         },
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       order: [['name', 'ASC']],
     });

@@ -6,12 +6,13 @@ import { FormModal } from './FormModal';
 import { ChartForm } from '../forms/ChartForm';
 import { ChartInstanceInfoSection } from './Charting/ChartInstanceInfoSection';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { COMPLEX_CHART_FORM_MODES } from './Charting/constants';
 
 const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
   margin-bottom: 20px;
 `;
 
-export const ChartModal = ({
+export const ComplexChartModal = ({
   open,
   onClose,
   onSubmit,
@@ -19,7 +20,7 @@ export const ChartModal = ({
   title,
   chartSurveyId,
   complexChartInstance,
-  isRecordingChartEntry,
+  complexChartFormMode,
   fieldVisibility,
 }) => {
   const { chartInstanceName, chartDate, chartType, chartSubType } = complexChartInstance || {};
@@ -27,10 +28,10 @@ export const ChartModal = ({
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubType] === VISIBILITY_STATUSES.CURRENT;
-
+  
   return (
-    <FormModal title={title} open={open} onClose={onClose} width="md">
-      {isRecordingChartEntry ? (
+    <FormModal title={title} open={open} onClose={onClose}>
+      {complexChartFormMode === COMPLEX_CHART_FORM_MODES.RECORD_CHART_ENTRY ? (
         <StyledChartInstanceInfoSection
           location={chartInstanceName}
           date={chartDate}
@@ -50,7 +51,7 @@ export const ChartModal = ({
   );
 };
 
-ChartModal.propTypes = {
+ComplexChartModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,

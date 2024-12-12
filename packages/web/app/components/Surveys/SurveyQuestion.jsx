@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   checkMandatory,
   getComponentForQuestionType,
@@ -50,6 +50,24 @@ const GeolocateQuestion = ({ text, component, required }) => {
   );
 };
 
+const getCustomComponentForQuestion = (component, required, FieldComponent) => {
+  const text = component.text || component.dataElement.defaultText;
+
+  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
+    return <Text>{`${text} ${component.detail}`}</Text>;
+  }
+
+  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
+    return <GeolocateQuestion text={text} component={component} required={required} />;
+  }
+
+  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded) {
+    return <FullWidthCol>{FieldComponent}</FullWidthCol>;
+  }
+
+  return null;
+};
+
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
   const {
     dataElement,
@@ -73,11 +91,9 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   });
   const tooltip = getTooltip(type, configObject, getTranslation);
 
-  if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
-  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
-    return <GeolocateQuestion text={text} component={component} required={required} />;
+  if (!FieldComponent) {
+    return <Text>{text}</Text>;
   }
-  if (!FieldComponent) return <Text>{text}</Text>;
 
   const WrapperFieldComponent = tooltip ? FieldWithTooltip : Field;
   const fieldComponent = (
@@ -96,5 +112,10 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     />
   );
 
-  return configObject.fullWidth ? <FullWidthCol>{fieldComponent}</FullWidthCol> : fieldComponent;
+  const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
+  if (customComponent) {
+    return customComponent;
+  }
+
+  return fieldComponent;
 };

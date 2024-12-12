@@ -5,7 +5,7 @@ import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferenc
 import { SelectField } from '../Field';
 
 const StyledTranslatedSelectField = styled(SelectField)`
-  width: 200px;
+  width: 300px;
 `;
 
 export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {

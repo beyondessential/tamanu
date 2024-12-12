@@ -6,12 +6,11 @@ import { TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
 import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
+import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const CoreComplexChartDataRow = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 14px;
-  padding-top: 15px;
-  border-top: 1px solid ${Colors.outline};
   display: flex;
   justify-content: space-between;
 `;
@@ -32,7 +31,13 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
   color: ${Colors.darkText};
 `;
 
-export const CoreComplexChartData = ({ handleDeleteChart, date, type, subType }) => {
+export const CoreComplexChartData = ({
+  handleDeleteChart,
+  date,
+  type,
+  subType,
+  fieldVisibility,
+}) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
   const actions = [
@@ -44,6 +49,11 @@ export const CoreComplexChartData = ({ handleDeleteChart, date, type, subType })
       },
     },
   ];
+
+  const isTypeVisible =
+    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
+  const isSubTypeVisible =
+    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubType] === VISIBILITY_STATUSES.CURRENT;
 
   return (
     <>
@@ -64,20 +74,24 @@ export const CoreComplexChartData = ({ handleDeleteChart, date, type, subType })
             <>{date}</>
           </CoreComplexChartSingleInfoWrapper>
 
-          <CoreComplexChartSingleInfoWrapper>
-            <CoreComplexChartInfoHeader>
-              <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
-            </CoreComplexChartInfoHeader>
+          {isTypeVisible ? (
+            <CoreComplexChartSingleInfoWrapper>
+              <CoreComplexChartInfoHeader>
+                <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+              </CoreComplexChartInfoHeader>
 
-            <>{type || '-'}</>
-          </CoreComplexChartSingleInfoWrapper>
+              <>{type || '-'}</>
+            </CoreComplexChartSingleInfoWrapper>
+          ) : null}
 
-          <CoreComplexChartSingleInfoWrapper>
-            <CoreComplexChartInfoHeader>
-              <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
-            </CoreComplexChartInfoHeader>
-            <>{subType || '-'}</>
-          </CoreComplexChartSingleInfoWrapper>
+          {isSubTypeVisible ? (
+            <CoreComplexChartSingleInfoWrapper>
+              <CoreComplexChartInfoHeader>
+                <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+              </CoreComplexChartInfoHeader>
+              <>{subType || '-'}</>
+            </CoreComplexChartSingleInfoWrapper>
+          ) : null}
         </CoreComplexChartInfoWrapper>
         <MenuButton actions={actions} />
       </CoreComplexChartDataRow>
