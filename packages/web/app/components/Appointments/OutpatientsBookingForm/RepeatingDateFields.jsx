@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -113,8 +113,8 @@ const REPEAT_TYPES = {
   AFTER: 'after',
 };
 
-const addSixFrequencyToDate = (date, frequency) =>
-  add(date, { [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: 6 });
+export const addSixFrequencyToDate = (date, frequency, interval) =>
+  add(date, { [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: 6 * interval });
 
 const useRepeatText = (frequency, interval, startTime) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -175,43 +175,30 @@ const useRepeatText = (frequency, interval, startTime) => {
   );
 };
 
-export const RepeatingDateFields = ({ values, setFieldValue }) => {
-  const { interval, frequency, occurrenceCount, untilDate } = values.appointmentSchedule;
-  const startTimeDate = useMemo(() => parseISO(values.startTime), [values.startTime]);
-  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
+export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDate }) => {
+  const { startTime, appointmentSchedule } = values;
+  const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
+  const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
   const repeatText = useRepeatText(frequency, interval, startTimeDate);
 
-  const handleChangeFrequency = e => {
-    setFieldValue(
-      'appointmentSchedule.untilDate',
-      addSixFrequencyToDate(startTimeDate, e.target.value),
-    );
-    setFieldValue('appointmentSchedule.frequency', e.target.value);
-  };
+  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
 
   const handleChangeRepeatType = e => {
-    if (e.target.value === REPEAT_TYPES.ON) {
-      setFieldValue(
-        'appointmentSchedule.untilDate',
-        addSixFrequencyToDate(startTimeDate, frequency),
-      );
+    const newValue = e.target.value;
+    if (newValue === REPEAT_TYPES.ON) {
+      handleResetUntilDate(startTimeDate, frequency, interval);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
       setFieldValue('appointmentSchedule.occurrenceCount', 2);
       setFieldValue('appointmentSchedule.untilDate', null);
     }
-    setRepeatType(e.target.value);
+    setRepeatType(newValue);
   };
 
-  // TODO - remove useEffect?
-  useEffect(() => {
-    if (repeatType === REPEAT_TYPES.ON) {
-      setFieldValue(
-        'appointmentSchedule.untilDate',
-        addSixFrequencyToDate(startTimeDate, frequency),
-      );
-    }
-  }, [frequency, repeatType, setFieldValue, startTimeDate, values.startTime]);
+  const handleFrequencyChange = e => {
+    if (repeatType !== REPEAT_TYPES.ON) return;
+    handleResetUntilDate(startTimeDate, e.target.value, interval);
+  };
 
   return (
     <Container>
@@ -232,7 +219,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
             value: key,
             label: upperFirst(value),
           }))}
-          onChange={handleChangeFrequency}
+          onChange={handleFrequencyChange}
           component={StyledSelectField}
         />
       </Box>

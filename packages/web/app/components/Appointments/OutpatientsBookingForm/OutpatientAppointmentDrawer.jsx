@@ -1,5 +1,5 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { addMonths, isAfter, parseISO } from 'date-fns';
+import { isAfter, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -27,7 +27,7 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { RepeatingDateFields } from './RepeatingDateFields';
+import { addSixFrequencyToDate, RepeatingDateFields } from './RepeatingDateFields';
 import { omit } from 'lodash';
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
@@ -254,9 +254,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         appointmentSchedule: {
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
-          untilDate: addMonths(parseISO(values.startTime), 6),
+          untilDate: addSixFrequencyToDate(parseISO(values.startTime), REPEAT_FREQUENCY.WEEKLY, 1),
         },
       });
+    };
+
+    const handleResetUntilDate = (startDate, frequency, interval) => {
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        addSixFrequencyToDate(startDate, frequency, interval),
+      );
     };
 
     return (
@@ -326,7 +333,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
+          <DateTimeFieldWithSameDayWarning
+            isEdit={isEdit}
+            onChange={e => {
+              if (!values.isRepeatingAppointment) return;
+              handleResetUntilDate(
+                parseISO(e.target.value),
+                values.appointmentSchedule.frequency,
+                values.appointmentSchedule.interval,
+              );
+            }}
+          />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -381,7 +398,11 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
           />
           {values.isRepeatingAppointment && (
-            <RepeatingDateFields values={values} setFieldValue={setFieldValue} />
+            <RepeatingDateFields
+              values={values}
+              setFieldValue={setFieldValue}
+              handleResetUntilDate={handleResetUntilDate}
+            />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
