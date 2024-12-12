@@ -34,6 +34,45 @@ const buildTimeQuery = (intervalStart, intervalEnd) => {
   return [whereClause, bindParams];
 };
 
+const sendAppointmentReminder = async ({ appointmentId, email, facilityId, models, settings }) => {
+  const { Appointment, Facility, PatientCommunication } = models;
+
+  // Fetch appointment relations
+  const [appointment, facility] = await Promise.all([
+    Appointment.findByPk(appointmentId, {
+      include: ['patient', 'clinician', 'locationGroup'],
+    }),
+    Facility.findByPk(facilityId),
+  ]);
+
+  const { patient, locationGroup, clinician } = appointment;
+
+  const appointmentConfirmationTemplate = await settings[facilityId].get(
+    'templates.appointmentConfirmation',
+  );
+
+  const start = new Date(appointment.startTime);
+  const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    facilityName: facility.name,
+    startDate: format(start, 'dd-MM-yyyy'),
+    startTime: format(start, 'hh:mm a'),
+    locationName: locationGroup.name,
+    clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
+  });
+
+  return await PatientCommunication.create({
+    type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    status: COMMUNICATION_STATUSES.QUEUED,
+    destination: email,
+    subject: appointmentConfirmationTemplate.subject,
+    content,
+    patientId: patient.id,
+  });
+};
+
 appointments.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -44,48 +83,41 @@ appointments.post(
       body: { facilityId, ...body },
       settings,
     } = req;
-    const { Appointment, Facility, PatientCommunication } = models;
+    const { Appointment } = models;
 
     await db.transaction(async () => {
       const result = await Appointment.create(body);
-      // Fetch relations for the new appointment
-      const [appointment, facility] = await Promise.all([
-        Appointment.findByPk(result.id, {
-          include: ['patient', 'clinician', 'locationGroup'],
-        }),
-        Facility.findByPk(facilityId),
-      ]);
-
-      const { patient, locationGroup, clinician } = appointment;
-
       if (body.email) {
-        const appointmentConfirmationTemplate = await settings[facilityId].get(
-          'templates.appointmentConfirmation',
-        );
-
-        const start = new Date(body.startTime);
-        const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
-          firstName: patient.firstName,
-          lastName: patient.lastName,
-          facilityName: facility.name,
-          startDate: format(start, 'dd-MM-yyyy'),
-          startTime: format(start, 'hh:mm a'),
-          locationName: locationGroup.name,
-          clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
-        });
-
-        await PatientCommunication.create({
-          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          status: COMMUNICATION_STATUSES.QUEUED,
-          destination: body.email,
-          subject: appointmentConfirmationTemplate.subject,
-          content,
-          patientId: body.patientId,
+        await sendAppointmentReminder({
+          appointmentId: result.id,
+          email: body.email,
+          facilityId,
+          models,
+          settings,
         });
       }
       res.status(201).send(result);
     });
+  }),
+);
+
+appointments.post(
+  '/emailReminder',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Appointment');
+    const {
+      models,
+      body: { facilityId, appointmentId, email },
+      settings,
+    } = req;
+    const response = await sendAppointmentReminder({
+      appointmentId,
+      email,
+      facilityId,
+      models,
+      settings,
+    });
+    res.status(200).send(response);
   }),
 );
 
