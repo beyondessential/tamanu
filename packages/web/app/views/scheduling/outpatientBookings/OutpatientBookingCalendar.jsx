@@ -240,7 +240,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       >
         <EmailAddressConfirmationForm
           onSubmit={async ({ email }) => {
-            sendAppointmentEmail(email);
+            await sendAppointmentEmail(email);
             setEmailModalState(null);
           }}
           onCancel={() => setEmailModalState(null)}
