@@ -107,6 +107,11 @@ const StyledRadioGroup = styled(RadioGroup)`
   gap: 10px;
 `;
 
+export const repeatingAppointmentInitialValues = {
+  interval: 1,
+  frequency: REPEAT_FREQUENCY.WEEKLY,
+};
+
 const REPEAT_TYPES = {
   ON: 'on',
   AFTER: 'after',

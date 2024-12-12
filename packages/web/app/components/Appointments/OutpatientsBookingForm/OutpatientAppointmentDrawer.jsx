@@ -27,7 +27,11 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { addSixFrequencyToDate, RepeatingDateFields } from './RepeatingDateFields';
+import {
+  addSixFrequencyToDate,
+  repeatingAppointmentInitialValues,
+  RepeatingDateFields,
+} from './RepeatingDateFields';
 import { omit } from 'lodash';
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
@@ -244,26 +248,29 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       resetForm();
     };
 
-    const handleChangeIsRepeatedAppointment = e => {
+    const handleChangeIsRepeatingAppointment = e => {
       if (!e.target.checked) {
         setValues(omit(values, ['appointmentSchedule']));
         return;
       }
       setValues({
         ...values,
-        appointmentSchedule: {
-          interval: 1,
-          frequency: REPEAT_FREQUENCY.WEEKLY,
-          untilDate: addSixFrequencyToDate(parseISO(values.startTime), REPEAT_FREQUENCY.WEEKLY, 1),
-        },
+        appointmentSchedule: repeatingAppointmentInitialValues,
       });
+      handleResetUntilDate(parseISO(values.startTime), REPEAT_FREQUENCY.WEEKLY, 1);
     };
 
-    const handleResetUntilDate = (startDate, frequency, interval) => {
+    const handleResetUntilDate = (startTime, frequency, interval) => {
       setFieldValue(
         'appointmentSchedule.untilDate',
-        addSixFrequencyToDate(startDate, frequency, interval),
+        addSixFrequencyToDate(startTime, frequency, interval),
       );
+    };
+
+    const handleChangeStartTime = e => {
+      if (!values.isRepeatingAppointment) return;
+      const { frequency, interval } = values.appointmentSchedule;
+      handleResetUntilDate(parseISO(e.target.value), frequency, interval);
     };
 
     return (
@@ -333,17 +340,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning
-            isEdit={isEdit}
-            onChange={e => {
-              if (!values.isRepeatingAppointment) return;
-              handleResetUntilDate(
-                parseISO(e.target.value),
-                values.appointmentSchedule.frequency,
-                values.appointmentSchedule.interval,
-              );
-            }}
-          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} onChange={handleChangeStartTime} />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -387,7 +384,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
             name="isRepeatingAppointment"
-            onChange={handleChangeIsRepeatedAppointment}
+            onChange={handleChangeIsRepeatingAppointment}
             disabled={!values.startTime}
             label={
               <TranslatedText
