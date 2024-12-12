@@ -35,14 +35,15 @@ const DateTimePicker = ({
   /** Keep synchronised with date field for non-overnight bookings */
   const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
 
-  const startDateTimeString = values.startDate
-    ? toDateTimeString(endOfDay(new Date(values.startDate)))
-    : null;
-  const endDateTimeString = values.endDate
-    ? toDateTimeString(startOfDay(new Date(values.endDate)))
-    : null;
+  const startDateTimeString =
+    values.startDate && toDateTimeString(endOfDay(parseISO(values.startDate)));
+  const endDateTimeString =
+    values.endDate && toDateTimeString(startOfDay(parseISO(values.endDate)));
 
-  // Check for any booked timeslots between dates in overnight bookings
+  /**
+   * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
+   * handles conflicts in the “bookend” days, so this query effectively uses an open interval.
+   */
   const { data } = useLocationBookingsQuery(
     {
       after: startDateTimeString,
@@ -60,8 +61,7 @@ const DateTimePicker = ({
     },
   );
 
-  const showUnavailableLocationWarning =
-    datePickerName === 'endDate' && !values.id && data?.count > 0;
+  const hasConflict = datePickerName === 'endDate' && !values.id && data?.count > 0;
 
   return (
     <>
@@ -74,7 +74,7 @@ const DateTimePicker = ({
         onChange={flushChangeToDateField}
         required={required}
         helperText={
-          showUnavailableLocationWarning && (
+          hasConflict && (
             <ErrorSpan>
               <TranslatedText
                 stringId="locationBooking.timePicker.locationNotAvailableWarning"
@@ -87,7 +87,7 @@ const DateTimePicker = ({
       />
       <TimeSlotPicker
         date={isValidDate ? date : null}
-        disabled={disabled || !isValidDate}
+        disabled={disabled || !isValidDate || hasConflict}
         label={timePickerLabel}
         name={timePickerName}
         required={required}
