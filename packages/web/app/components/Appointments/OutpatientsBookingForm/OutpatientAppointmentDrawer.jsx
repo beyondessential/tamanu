@@ -42,6 +42,11 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
+const appointmentScheduleInitialValues = {
+  interval: 1,
+  frequency: REPEAT_FREQUENCY.WEEKLY,
+};
+
 const getDescription = (isEdit, isLockedPatient) => {
   if (isEdit) {
     return (
@@ -256,7 +261,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       }
       setValues({
         ...values,
-        appointmentSchedule: repeatingAppointmentInitialValues,
+        appointmentSchedule: appointmentScheduleInitialValues,
       });
       handleResetUntilDate(parseISO(values.startTime));
     };

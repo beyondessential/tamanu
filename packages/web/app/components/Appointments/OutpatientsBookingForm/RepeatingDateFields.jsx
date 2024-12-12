@@ -103,10 +103,7 @@ const StyledRadioGroup = styled(RadioGroup)`
   gap: 10px;
 `;
 
-export const repeatingAppointmentInitialValues = {
-  interval: 1,
-  frequency: REPEAT_FREQUENCY.WEEKLY,
-};
+const DEFAULT_OCCURRENCE_COUNT = 2;
 
 const END_MODES = {
   ON: 'on',
@@ -126,10 +123,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
       handleResetUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
-      setFieldValue(
-        'appointmentSchedule.occurrenceCount',
-        repeatingAppointmentInitialValues.occurrenceCount,
-      );
+      setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
     }
     setEndsMode(newValue);
