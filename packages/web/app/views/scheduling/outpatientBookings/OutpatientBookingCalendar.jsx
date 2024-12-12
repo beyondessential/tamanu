@@ -153,8 +153,20 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
     emailModalState?.appointmentId,
     {
-      onSuccess: () => toast.success('Email sent succesfully'),
-      onError: () => toast.error('Error sending email'),
+      onSuccess: () =>
+        toast.success(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.success"
+            fallback="Email successfully sent"
+          />,
+        ),
+      onError: () =>
+        toast.error(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.error"
+            fallback="Error sending email"
+          />,
+        ),
     },
   );
 
