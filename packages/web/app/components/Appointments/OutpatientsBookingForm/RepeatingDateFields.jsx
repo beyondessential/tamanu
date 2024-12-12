@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -115,9 +115,8 @@ const REPEAT_TYPES = {
 const addSixFrequencyToDate = (date, frequency) =>
   add(date, { [`${REPEAT_FREQUENCY_UNIT_LABELS[frequency]}s`]: 6 });
 
-// TODO: translated everything
 const useRepeatText = (frequency, interval, startTime) => {
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const weekday = format(startTime, 'EEEE');
   const weeksInMonth = eachDayOfInterval({
     start: startOfMonth(startTime),
@@ -128,25 +127,25 @@ const useRepeatText = (frequency, interval, startTime) => {
 
   const getOrdinalText = n => {
     if (weekdayMatchesInMonth.length === n + 1) {
-      return <TranslatedText stringId="general.ordinals.last" fallback="last" />;
+      return getTranslation('general.ordinals.last', 'last');
     }
     return [
-      <TranslatedText key="first" stringId="general.ordinals.first" fallback="first" />,
-      <TranslatedText key="second" stringId="general.ordinals.second" fallback="second" />,
-      <TranslatedText key="third" stringId="general.ordinals.third" fallback="third" />,
-      <TranslatedText key="forth" stringId="general.ordinals.fourth" fallback="fourth" />,
+      getTranslation('general.ordinals.first', 'first'),
+      getTranslation('general.ordinals.second', 'second'),
+      getTranslation('general.ordinals.third', 'third'),
+      getTranslation('general.ordinals.fourth', 'fourth'),
     ][n];
   };
 
   const getOrdinalNumber = n => {
-    const pr = new Intl.PluralRules('default', { type: 'ordinal' });
+    const pluralRules = new Intl.PluralRules('default', { type: 'ordinal' });
     const suffixes = new Map([
       ['one', getTranslation('general.ordinals.suffix.one', 'st')],
       ['two', getTranslation('general.ordinals.suffix.two', 'nd')],
       ['few', getTranslation('general.ordinals.suffix.few', 'rd')],
       ['other', getTranslation('general.ordinals.suffix.other', 'th')],
     ]);
-    const rule = pr.select(n);
+    const rule = pluralRules.select(n);
     const suffix = suffixes.get(rule);
     return `${n}${suffix}`;
   };
@@ -163,10 +162,7 @@ const useRepeatText = (frequency, interval, startTime) => {
           fallback="Every :interval :frequency"
           replacements={{
             interval: getOrdinalNumber(interval),
-            frequency: getTranslation(
-              `scheduling.property.repeatFrequencyUnit.${frequency}`,
-              REPEAT_FREQUENCY_UNIT_LABELS[frequency],
-            ),
+            frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_LABELS, frequency),
           }}
         />
       ) : (
@@ -192,16 +188,15 @@ const useRepeatText = (frequency, interval, startTime) => {
 };
 
 export const RepeatingDateFields = ({ values, setFieldValue }) => {
-  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
-
   const { interval, frequency, occurrenceCount, untilDate } = values.appointmentSchedule;
-
-  const repeatText = useRepeatText(frequency, interval, parseISO(values.startTime));
+  const startTimeDate = useMemo(() => parseISO(values.startTime), [values.startTime]);
+  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
+  const repeatText = useRepeatText(frequency, interval, startTimeDate);
 
   const handleChangeFrequency = e => {
     setFieldValue(
       'appointmentSchedule.untilDate',
-      addSixFrequencyToDate(parseISO(values.startTime), e.target.value),
+      addSixFrequencyToDate(startTimeDate, e.target.value),
     );
     setFieldValue('appointmentSchedule.frequency', e.target.value);
   };
@@ -210,17 +205,16 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
     if (e.target.value === REPEAT_TYPES.ON) {
       setFieldValue(
         'appointmentSchedule.untilDate',
-        addSixFrequencyToDate(parseISO(values.startTime), frequency),
+        addSixFrequencyToDate(startTimeDate, frequency),
       );
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
-      setFieldValue('appointmentSchedule.untilDate', null);
       setFieldValue('appointmentSchedule.occurrenceCount', 2);
+      setFieldValue('appointmentSchedule.untilDate', null);
     }
     setRepeatType(e.target.value);
   };
 
-  console.log(values);
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -270,10 +264,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
               value={repeatType === REPEAT_TYPES.ON ? untilDate : ''}
-              min={format(
-                addSixFrequencyToDate(parseISO(values.startTime), frequency),
-                'yyyy-MM-dd',
-              )}
+              min={format(addSixFrequencyToDate(startTimeDate, frequency), 'yyyy-MM-dd')}
               component={StyledDateField}
             />
           </Box>
@@ -298,7 +289,12 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
               disabled={repeatType !== REPEAT_TYPES.AFTER}
               component={StyledNumberField}
             />
-            <SmallBodyText color="textTertiary">occurrences</SmallBodyText>
+            <SmallBodyText color="textTertiary">
+              <TranslatedText
+                stringId="outpatientAppointment.repeatAppointment.occurrenceCount.label"
+                fallback="occurrences"
+              />
+            </SmallBodyText>
           </Box>
         </StyledRadioGroup>
       </FormControl>
