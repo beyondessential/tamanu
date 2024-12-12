@@ -5,24 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import CheckIcon from '@mui/icons-material/Check';
-import RemoveIcon from '@mui/icons-material/Remove';
 import { Colors } from '../../constants';
-
-// TODO: finish the checkbox styling
-
-const BaseBox = styled.div`
-  border: 1px ${Colors.outline} solid;
-  height: 14px;
-  width: 14px;
-  background-color: white;
-  border-radius: 3px;
-  display: flex;
-`;
-
-const SelectedBox = styled(BaseBox)`
-  border: 1px ${Colors.primary} solid;
-`;
 
 /*
   Note that the Checkbox value prop only controls what gets sent,
@@ -31,17 +14,9 @@ const SelectedBox = styled(BaseBox)`
 */
 export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    icon={props.disabled ? <i className="fas fa-square" /> : <BaseBox />}
-    checkedIcon={
-      <SelectedBox>
-        <CheckIcon color="primary" sx={{ fontSize: '12px' }} />
-      </SelectedBox>
-    }
-    indeterminateIcon={
-      <SelectedBox>
-        <RemoveIcon color="primary" sx={{ fontSize: '12px' }} />
-      </SelectedBox>
-    }
+    icon={props.disabled ? <i className="fas fa-square" /> : <i className="far fa-square" />}
+    checkedIcon={<i className="far fa-check-square" />}
+    indeterminateIcon={<i className="far fa-minus-square"></i>}
     {...props}
     checked={Boolean(value)}
     value="true"
