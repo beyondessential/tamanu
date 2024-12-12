@@ -268,6 +268,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       if (!values.isRepeatingAppointment) return;
       const { frequency } = values.appointmentSchedule;
       const newDate = parseISO(e.target.value);
+
       setFieldValue(
         'appointmentSchedule.nthWeekday',
         frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(newDate) : null,

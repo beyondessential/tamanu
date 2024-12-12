@@ -125,21 +125,17 @@ export const getNthWeekday = date => {
     end: endOfMonth(date),
   });
   const matchingWeekdays = weeksInMonth.filter(day => day.getDay() === date.getDay());
-  const nth = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
+  const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
 
-  return nth === matchingWeekdays.length ? -1 : nth;
+  return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
 };
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
 
-  const weeksInMonth = eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
-  const matchingWeekdays = weeksInMonth.filter(day => day.getDay() === date.getDay());
-  const index = matchingWeekdays.findIndex(day => isSameDay(day, date));
+  // Convert positive ordinal positioning to 0-based index but leave -1 as is
+  const atIndex = Math.max(getNthWeekday(date) - 1, -1);
 
   return [
     getTranslation('general.ordinals.first', 'first'),
@@ -147,7 +143,7 @@ const useOrdinalText = (date, frequency) => {
     getTranslation('general.ordinals.third', 'third'),
     getTranslation('general.ordinals.fourth', 'fourth'),
     getTranslation('general.ordinals.last', 'last'),
-  ].at(index + 1 === matchingWeekdays.length ? -1 : index);
+  ].at(atIndex);
 };
 
 const IntervalText = ({ interval, frequency }) => {
