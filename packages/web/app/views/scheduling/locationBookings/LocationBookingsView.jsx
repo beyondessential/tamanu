@@ -1,5 +1,6 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
+import { parseISO } from 'date-fns';
 import { omit } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
@@ -12,10 +13,9 @@ import { LocationBookingDrawer } from '../../../components/Appointments/Location
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
-import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
-import { parseISO } from 'date-fns';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -148,6 +148,10 @@ export const LocationBookingsView = () => {
       {selectedAppointment && (
         <LocationBookingDrawer
           initialValues={appointmentToFormValues(selectedAppointment)}
+          key={
+            selectedAppointment.id ??
+            `${selectedAppointment.locationId}_${selectedAppointment.startTime}`
+          }
           open={isDrawerOpen}
           onClose={closeBookingForm}
         />
