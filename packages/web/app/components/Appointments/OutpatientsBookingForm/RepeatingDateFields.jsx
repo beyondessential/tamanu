@@ -186,7 +186,6 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
   };
 
   const handleChangeRepeatType = e => {
-    console.log('e.target.value', e.target.value);
     if (e.target.value === REPEAT_TYPES.ON) {
       setFieldValue(
         'appointmentSchedule.untilDate',
@@ -226,18 +225,21 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
       </Box>
       <Box>
         <SmallBodyText>
-          Repeats on:{' '}
-          {interval > 1 && (
-            <TranslatedText
-              stringId="general.every"
-              fallback="Every :interval"
-              replacements={{
-                interval: formatOrdinals(interval),
-              }}
-            />
-          )}{' '}
+          <TranslatedText
+            stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
+            fallback="Repeats on:"
+          />{' '}
           {interval > 1 ? (
-            <TranslatedEnum enumValues={REPEAT_FREQUENCY_UNIT_LABELS} value={frequency} />
+            <>
+              <TranslatedText
+                stringId="general.every"
+                fallback="Every :interval"
+                replacements={{
+                  interval: formatOrdinals(interval),
+                }}
+              />
+              <TranslatedEnum enumValues={REPEAT_FREQUENCY_UNIT_LABELS} value={frequency} />
+            </>
           ) : (
             <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />
           )}{' '}
