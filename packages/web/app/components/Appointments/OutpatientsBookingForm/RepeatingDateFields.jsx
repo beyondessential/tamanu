@@ -114,19 +114,20 @@ export const repeatingAppointmentInitialValues = {
   frequency: REPEAT_FREQUENCY.WEEKLY,
 };
 
-const REPEAT_TYPES = {
+const END_MODES = {
   ON: 'on',
   AFTER: 'after',
 };
 
 export const getNthWeekday = date => {
-  const weeksInMonth = eachDayOfInterval({
+  // Filter out days from month that are not the same weekday as the date
+  const matchingWeekdays = eachDayOfInterval({
     start: startOfMonth(date),
     end: endOfMonth(date),
-  });
-  const matchingWeekdays = weeksInMonth.filter(day => day.getDay() === date.getDay());
-  const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
+  }).filter(day => day.getDay() === date.getDay());
 
+  // Ordinal positioning is 1-based, -1 means the date is the last occurrence weekday of the month
+  const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
   return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
 };
 
@@ -134,7 +135,7 @@ const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
 
-  // Convert positive ordinal positioning to 0-based index but leave -1 as is
+  // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(getNthWeekday(date) - 1, -1);
 
   return [
@@ -206,11 +207,11 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 
-  const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
+  const [endsMode, setEndsMode] = useState(END_MODES.ON);
 
-  const handleChangeRepeatType = e => {
+  const handleChangeEndsMode = e => {
     const newValue = e.target.value;
-    if (newValue === REPEAT_TYPES.ON) {
+    if (newValue === END_MODES.ON) {
       handleResetUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
     } else {
@@ -220,7 +221,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
       );
       setFieldValue('appointmentSchedule.untilDate', null);
     }
-    setRepeatType(newValue);
+    setEndsMode(newValue);
   };
 
   const handleFrequencyChange = e => {
@@ -266,13 +267,12 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
         </StyledFormLabel>
         <StyledRadioGroup
           aria-labelledby="ends-radio"
-          value={repeatType}
-          onChange={handleChangeRepeatType}
-          name="repeats"
+          value={endsMode}
+          onChange={handleChangeEndsMode}
         >
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
-              value={REPEAT_TYPES.ON}
+              value={END_MODES.ON}
               control={<StyledRadio />}
               label={
                 <TranslatedText
@@ -283,8 +283,8 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
             />
             <Field
               name="appointmentSchedule.untilDate"
-              disabled={repeatType !== REPEAT_TYPES.ON}
-              value={repeatType === REPEAT_TYPES.ON ? untilDate : ''}
+              disabled={endsMode !== END_MODES.ON}
+              value={endsMode === END_MODES.ON ? untilDate : ''}
               min={format(
                 add(startTimeDate, {
                   [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
@@ -296,7 +296,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
-              value={REPEAT_TYPES.AFTER}
+              value={END_MODES.AFTER}
               control={<StyledRadio />}
               label={
                 <TranslatedText
@@ -311,8 +311,8 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
                 width: '60px',
               }}
               min={0}
-              value={repeatType === REPEAT_TYPES.AFTER ? occurrenceCount : ''}
-              disabled={repeatType !== REPEAT_TYPES.AFTER}
+              value={endsMode === END_MODES.AFTER ? occurrenceCount : ''}
+              disabled={endsMode !== END_MODES.AFTER}
               component={StyledNumberField}
             />
             <SmallBodyText color="textTertiary">
