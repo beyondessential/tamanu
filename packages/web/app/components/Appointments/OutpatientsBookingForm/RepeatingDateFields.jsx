@@ -228,10 +228,9 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
   };
 
   const handleFrequencyChange = e => {
-    const newValue = e.target.value;
     setFieldValue(
       'appointmentSchedule.nthWeekday',
-      newValue === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
+      e.target.value === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
     );
   };
 
@@ -254,7 +253,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           name="appointmentSchedule.frequency"
           isClearable={false}
           enumValues={
-            interval > 1 ? REPEAT_FREQUENCY_UNIT_PLURAL_LABELS : REPEAT_FREQUENCY_UNIT_LABELS
+            interval === 1 ? REPEAT_FREQUENCY_UNIT_LABELS : REPEAT_FREQUENCY_UNIT_PLURAL_LABELS
           }
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}

@@ -33,6 +33,7 @@ import {
   RepeatingDateFields,
 } from './RepeatingDateFields';
 import { omit } from 'lodash';
+import { REPEAT_FREQUENCY } from '@tamanu/constants';
 
 const IconLabel = styled.div`
   display: flex;
@@ -265,8 +266,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     const handleChangeStartTime = e => {
       if (!values.isRepeatingAppointment) return;
+      const { frequency } = values.appointmentSchedule;
       const newDate = parseISO(e.target.value);
-      setFieldValue('appointmentSchedule.nthWeekday', getNthWeekday(newDate));
+      setFieldValue(
+        'appointmentSchedule.nthWeekday',
+        frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(newDate) : null,
+      );
       setFieldValue('appointmentSchedule.daysOfWeek', [format(newDate, 'iiiiii').toUpperCase()]);
       if (!values.appointmentSchedule.untilDate) return;
       handleResetUntilDate(newDate);
