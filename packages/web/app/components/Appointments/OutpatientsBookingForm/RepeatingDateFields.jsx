@@ -26,6 +26,7 @@ import { Colors } from '../../../constants';
 import { DateField, Field, NumberField, SelectField } from '../../Field';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
+import { useTranslation } from '../../../contexts/Translation';
 
 const Container = styled('div')`
   width: 100%;
@@ -158,9 +159,23 @@ const getRepeatText = (reportUnit, repeatN, value) => {
 };
 
 export const RepeatingDateFields = ({ values, setFieldValue }) => {
+  const { getTranslation } = useTranslation();
   const [repeatType, setRepeatType] = useState(REPEAT_TYPES.ON);
 
-  const { interval, frequency } = values.appointmentSchedule;
+  const { interval, frequency, occurrenceCount, untilDate } = values.appointmentSchedule;
+
+  const formatOrdinals = n => {
+    const pr = new Intl.PluralRules('default', { type: 'ordinal' });
+    const suffixes = new Map([
+      ['one', getTranslation('general.ordinals.suffix.one', 'st')],
+      ['two', getTranslation('general.ordinals.suffix.two', 'nd')],
+      ['few', getTranslation('general.ordinals.suffix.few', 'rd')],
+      ['other', getTranslation('general.ordinals.suffix.other', 'th')],
+    ]);
+    const rule = pr.select(n);
+    const suffix = suffixes.get(rule);
+    return `${n}${suffix}`;
+  };
 
   const handleChangeFrequency = e => {
     setFieldValue(
@@ -170,6 +185,22 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
     setFieldValue('appointmentSchedule.frequency', e.target.value);
   };
 
+  const handleChangeRepeatType = e => {
+    console.log('e.target.value', e.target.value);
+    if (e.target.value === REPEAT_TYPES.ON) {
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        addSixFrequencyToDate(parseISO(values.startTime), frequency),
+      );
+      setFieldValue('appointmentSchedule.occurrenceCount', null);
+    } else {
+      setFieldValue('appointmentSchedule.untilDate', null);
+      setFieldValue('appointmentSchedule.occurrenceCount', 2);
+    }
+    setRepeatType(e.target.value);
+  };
+
+  console.log(values);
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -195,7 +226,21 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
       </Box>
       <Box>
         <SmallBodyText>
-          Repeats on: <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />{' '}
+          Repeats on:{' '}
+          {interval > 1 && (
+            <TranslatedText
+              stringId="general.every"
+              fallback="Every :interval"
+              replacements={{
+                interval: formatOrdinals(interval),
+              }}
+            />
+          )}{' '}
+          {interval > 1 ? (
+            <TranslatedEnum enumValues={REPEAT_FREQUENCY_UNIT_LABELS} value={frequency} />
+          ) : (
+            <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />
+          )}{' '}
           {getRepeatText(frequency, interval, parseISO(values.startTime))}
         </SmallBodyText>
       </Box>
@@ -204,7 +249,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
         <StyledRadioGroup
           aria-labelledby="ends-radio"
           value={repeatType}
-          onChange={e => setRepeatType(e.target.value)}
+          onChange={handleChangeRepeatType}
           name="repeats"
         >
           <Box display="flex" alignItems="center" gap="10px">
@@ -221,6 +266,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
             <Field
               name="appointmentSchedule.untilDate"
               disabled={repeatType !== REPEAT_TYPES.ON}
+              value={repeatType === REPEAT_TYPES.ON ? untilDate : ''}
               min={format(
                 addSixFrequencyToDate(parseISO(values.startTime), frequency),
                 'yyyy-MM-dd',
@@ -245,6 +291,7 @@ export const RepeatingDateFields = ({ values, setFieldValue }) => {
                 width: '60px',
               }}
               min={0}
+              value={repeatType === REPEAT_TYPES.AFTER ? occurrenceCount : ''}
               disabled={repeatType !== REPEAT_TYPES.AFTER}
               component={StyledNumberField}
             />
