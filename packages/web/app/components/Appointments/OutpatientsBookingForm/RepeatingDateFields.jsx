@@ -123,24 +123,16 @@ export const addSixFrequencyToDate = (date, frequency, interval) =>
 const RepeatText = ({ startTimeDate, frequency, interval }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   const weekday = format(startTimeDate, 'EEEE');
-  const weeksInMonth = eachDayOfInterval({
-    start: startOfMonth(startTimeDate),
-    end: endOfMonth(startTimeDate),
-  });
-  const weekdayMatchesInMonth = weeksInMonth.filter(day => day.getDay() === startTimeDate.getDay());
-  const weekdayInMonthIndex = weekdayMatchesInMonth.findIndex(day => isSameDay(day, startTimeDate));
+  const weekdayInMonthIndex = Math.ceil(startTimeDate.getDate() / 7) - 1;
 
-  const getOrdinalText = n => {
-    if (weekdayMatchesInMonth.length === n + 1) {
-      return getTranslation('general.ordinals.last', 'last');
-    }
-    return [
+  const getOrdinalText = n =>
+    [
       getTranslation('general.ordinals.first', 'first'),
       getTranslation('general.ordinals.second', 'second'),
       getTranslation('general.ordinals.third', 'third'),
       getTranslation('general.ordinals.fourth', 'fourth'),
+      getTranslation('general.ordinals.last', 'last'),
     ][n];
-  };
 
   return (
     <>
@@ -172,7 +164,10 @@ const RepeatText = ({ startTimeDate, frequency, interval }) => {
         <TranslatedText
           stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
           fallback="on the :nth :weekday"
-          replacements={{ nth: getOrdinalText(weekdayInMonthIndex), weekday }}
+          replacements={{
+            nth: getOrdinalText(weekdayInMonthIndex),
+            weekday,
+          }}
         />
       )}
     </>
