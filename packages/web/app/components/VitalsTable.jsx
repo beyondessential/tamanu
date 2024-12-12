@@ -18,12 +18,12 @@ import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDispla
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { combineQueries } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSettings } from '../contexts/Settings';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -169,8 +169,8 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
-  const { getLocalisation } = useLocalisation();
-  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
+  const { getSetting } = useSettings();
+  const isVitalEditEnabled = getSetting('features.enableVitalEdit');
   const showFooterLegend = data.some(entry =>
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );

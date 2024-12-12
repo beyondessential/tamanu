@@ -1,0 +1,52 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_care_plans
+        description: '{{ doc("table__patient_care_plans") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_care_plans."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_care_plans."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_care_plans."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_care_plans."
+          - name: date
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in patient_care_plans."
+            data_tests:
+              - not_null
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_care_plans__patient_id') }}"
+          - name: examiner_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_care_plans__examiner_id') }}"
+          - name: care_plan_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_care_plans__care_plan_id') }}"
+          - name: date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__date_legacy') }} in patient_care_plans."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_care_plans."
+            data_tests:
+              - not_null

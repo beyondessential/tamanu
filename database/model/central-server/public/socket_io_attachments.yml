@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: socket_io_attachments
+        description: '{{ doc("table__socket_io_attachments") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in socket_io_attachments."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in socket_io_attachments."
+          - name: payload
+            data_type: bytea
+            description: "{{ doc('socket_io_attachments__payload') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              socket_io_attachments."
+            data_tests:
+              - not_null

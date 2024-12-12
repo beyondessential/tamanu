@@ -14,6 +14,7 @@ import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
+import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
@@ -314,7 +315,7 @@ export const Sidebar = React.memo(({ items }) => {
           <>
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
-              <Version>
+              <Version title={FULL_VERSION}>
                 <TranslatedText stringId="general.meta.version" fallback="Version" />{' '}
                 {api.agentVersion}
               </Version>

@@ -18,6 +18,7 @@ export class SyncLookup extends Model {
         isLabRequest: { type: DataTypes.BOOLEAN },
         isDeleted: { type: DataTypes.BOOLEAN },
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
+        pushedByDeviceId: { type: DataTypes.TEXT },
       },
       {
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,

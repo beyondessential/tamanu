@@ -32,7 +32,8 @@ export const useTextStyles = styles => {
   return makeIntlStyleSheet(mergedStyle);
 };
 
-export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
+export const MultiPageHeader = ({ documentName, documentSubname, patientName, patientId }) => {
+  const { getTranslation } = useLanguageContext();
   const valueStyles = useTextStyles(styles.valueText);
   const labelStyles = useTextStyles(styles.labelText);
 
@@ -42,11 +43,17 @@ export const MultiPageHeader = ({ documentName, patientName, patientId }) => {
   const HeaderContent = () => (
     <>
       <LabelText>{`${documentName} `}</LabelText>
+      {documentSubname && (
+        <>
+          <ValueText>|</ValueText>
+          <LabelText> {documentSubname} </LabelText>
+        </>
+      )}
       <ValueText>|</ValueText>
-      <LabelText> Patient name</LabelText>
+      <LabelText> {getTranslation('general.patientName.label', 'Patient name')}</LabelText>
       <ValueText>: {patientName} </ValueText>
       <ValueText>|</ValueText>
-      <LabelText> Patient ID</LabelText>
+      <LabelText> {getTranslation('general.patientId.label', 'Patient ID')}</LabelText>
       <ValueText>: {patientId}</ValueText>
     </>
   );

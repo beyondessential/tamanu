@@ -1,9 +1,13 @@
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginReact from '@bugsnag/plugin-react';
+
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
+import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -32,6 +36,15 @@ function initPersistor(api, store) {
 
 function start() {
   registerYup();
+
+  if (BUGSNAG_API_KEY) {
+    Bugsnag.start({
+      apiKey: BUGSNAG_API_KEY,
+      plugins: [new BugsnagPluginReact()],
+      releaseStage: NODE_ENV,
+      appVersion: FULL_VERSION,
+    });
+  }
 
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);

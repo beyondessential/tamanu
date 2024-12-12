@@ -5,9 +5,9 @@ import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
+import { useSettings } from '../../../contexts/Settings';
 
 const Container = styled.div`
   display: flex;
@@ -29,8 +29,8 @@ const Container = styled.div`
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
   const patient = useSelector(state => state.patient);
-  const { getLocalisation } = useLocalisation();
-  const labelWidth = getLocalisation('printMeasures.labRequestPrintLabel.width');
+  const { getSetting } = useSettings()
+  const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 
   return (
     <Modal

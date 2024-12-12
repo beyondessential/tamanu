@@ -28,6 +28,18 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
+const TooltipContainer = styled.div`
+  text-align: center;
+`;
+
+const getRowTooltipText = updatedByUser =>
+  updatedByUser?.displayName ? (
+    <TooltipContainer>
+      <TranslatedText stringId="invoice.table.tooltip.recordedBy" fallback="Recorded by" />
+      <div>{updatedByUser.displayName}</div>
+    </TooltipContainer>
+  ) : null;
+
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments
     .filter(payment => !!payment?.patientPayment)
@@ -150,6 +162,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       <Table
         {...tableProps}
         data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : {}}
+        getRowTooltip={({ updatedByUser }) => getRowTooltipText(updatedByUser)}
       />
       {editingPayment?.id && (
         <>
@@ -171,6 +184,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
             : patientPayments
         }
         hideHeader
+        getRowTooltip={({ updatedByUser }) => getRowTooltipText(updatedByUser)}
       />
       {!hideRecordPaymentForm && canCreatePayment && (
         <PatientPaymentForm

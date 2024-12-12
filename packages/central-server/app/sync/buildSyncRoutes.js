@@ -133,6 +133,7 @@ export const buildSyncRoutes = ctx => {
         tablesToInclude,
         tablesForFullResync,
         isMobile,
+        deviceId,
       } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
@@ -144,6 +145,7 @@ export const buildSyncRoutes = ctx => {
         tablesToInclude,
         tablesForFullResync,
         isMobile,
+        deviceId,
       });
       res.json({});
     }),
@@ -206,8 +208,8 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const { sessionId } = params;
-      const { tablesToInclude } = body;
-      await syncManager.completePush(sessionId, tablesToInclude);
+      const { tablesToInclude, deviceId } = body;
+      await syncManager.completePush(sessionId, deviceId, tablesToInclude);
       res.json({});
     }),
   );

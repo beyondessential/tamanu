@@ -59,6 +59,7 @@ describe('snapshotOutgoingChanges', () => {
         fullSyncPatientsTable,
         sessionId,
         [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(0);
@@ -95,6 +96,7 @@ describe('snapshotOutgoingChanges', () => {
         fullSyncPatientsTable,
         syncSession.id,
         [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -143,6 +145,7 @@ describe('snapshotOutgoingChanges', () => {
         fullSyncPatientsTable,
         syncSession.id,
         [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -182,6 +185,7 @@ describe('snapshotOutgoingChanges', () => {
         fullSyncPatientsTable,
         syncSession.id,
         [''],
+        null,
         simplestSessionConfig,
       );
       expect(result).toEqual(2);
@@ -250,6 +254,7 @@ describe('snapshotOutgoingChanges', () => {
             true,
             syncSession.id,
             [''],
+            null,
             simplestSessionConfig,
           );
         },
@@ -332,6 +337,7 @@ describe('snapshotOutgoingChanges', () => {
             true,
             syncSession.id,
             [''],
+            null,
             simplestSessionConfig,
           );
         },
@@ -485,6 +491,7 @@ describe('snapshotOutgoingChanges', () => {
         incrementalSyncPatientsTable,
         syncSession.id,
         [facilityId],
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -534,6 +541,7 @@ describe('snapshotOutgoingChanges', () => {
         incrementalSyncPatientsTable,
         syncSession.id,
         [facility.id],
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -567,6 +575,7 @@ describe('snapshotOutgoingChanges', () => {
         true,
         syncSession.id,
         fakeUUID(),
+        null,
         { ...simplestSessionConfig, syncAllLabRequests: false },
       );
 

@@ -1,6 +1,6 @@
 import mitt from 'mitt';
-import { getUniqueId } from 'react-native-device-info';
-import { readConfig } from '../config';
+import { v4 as uuidv4 } from 'uuid';
+import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
@@ -60,9 +60,14 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  connect(host: string): void {
+  async connect(host: string): void {
     this.host = host;
-    this.deviceId = `mobile-${getUniqueId()}`;
+    this.deviceId = await readConfig('deviceId');
+
+    if (!this.deviceId) {
+      this.deviceId = `mobile-${uuidv4()}`;
+      await writeConfig('deviceId', this.deviceId);
+    }
   }
 
   async fetch(
@@ -194,6 +199,7 @@ export class CentralServerConnection {
       tablesToInclude: tableNames,
       tablesForFullResync,
       isMobile: true,
+      deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
@@ -223,7 +229,11 @@ export class CentralServerConnection {
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.post(`sync/${sessionId}/push/complete`, {}, { tablesToInclude });
+    await this.post(
+      `sync/${sessionId}/push/complete`,
+      {},
+      { tablesToInclude, deviceId: this.deviceId },
+    );
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database

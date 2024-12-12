@@ -169,7 +169,6 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
         <Page size="A4" style={styles.page}>
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Lab request"

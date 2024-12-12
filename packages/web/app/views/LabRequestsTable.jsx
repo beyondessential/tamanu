@@ -19,8 +19,8 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 
 export const LabRequestsTable = React.memo(
-  ({ status = '', loadEncounter, loadLabRequest, searchParameters }) => {
-    const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
+  ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
+    const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
 
     const { facilityId } = useAuth();
 
@@ -47,7 +47,7 @@ export const LabRequestsTable = React.memo(
         { key: 'labTestPanelName', title: 'Panel', accessor: getPanelType },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
-        publishedStatus
+        isPublishedTable
           ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
           : { key: 'priority', title: 'Priority', accessor: getPriority },
         {
@@ -55,10 +55,10 @@ export const LabRequestsTable = React.memo(
           title: 'Status',
           accessor: getStatus,
           maxWidth: 200,
-          sortable: !publishedStatus,
+          sortable: !isPublishedTable,
         },
       ];
-    }, [publishedStatus]);
+    }, [isPublishedTable]);
     const dispatch = useDispatch();
 
     const selectLab = async lab => {
@@ -74,6 +74,8 @@ export const LabRequestsTable = React.memo(
       );
     };
 
+    const { status, ...searchFilters } = searchParameters;
+
     return (
       <SearchTableWithPermissionCheck
         verb="list"
@@ -84,13 +86,13 @@ export const LabRequestsTable = React.memo(
         noDataMessage="No lab requests found"
         onRowClick={selectLab}
         fetchOptions={{
-          ...searchParameters,
-          ...(status && { status }),
+          ...searchFilters,
+          statuses: status ? [status] : statuses,
           facilityId,
         }}
         initialSort={{
           order: 'desc',
-          orderBy: publishedStatus ? 'publishedDate' : 'requestedDate',
+          orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',
         }}
       />
     );

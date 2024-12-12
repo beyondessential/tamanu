@@ -57,7 +57,6 @@ const BottomContainer = styled.div`
   background-color: ${Colors.white};
   padding: 18px 30px;
   display: flex;
-  overflow: hidden;
   flex-direction: column;
   flex: 1;
 `;
@@ -238,12 +237,7 @@ export const LabRequestView = () => {
         <FixedTileRow>
           <Tile
             Icon={() => <img src={TestCategoryIcon} alt="test category" />}
-            text={
-              <TranslatedText
-                stringId="lab.view.tile.testCategory.label"
-                fallback="Test Category"
-              />
-            }
+            text={<TranslatedText stringId="lab.testCategory.label" fallback="Test Category" />}
             main={
               labRequest.category?.name ? (
                 <TranslatedReferenceData

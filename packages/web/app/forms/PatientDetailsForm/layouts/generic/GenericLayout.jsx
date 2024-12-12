@@ -26,7 +26,6 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
-import { useLocalisation } from '../../../../contexts/Localisation';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -34,11 +33,10 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
-  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
+  const hideOtherSex = getSetting('features.hideOtherSex') === true;
 
   return (
     <>

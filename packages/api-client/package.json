@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/api-client",
-  "version": "2.18.0",
+  "version": "2.22.0",
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "main": "dist/cjs/index.js",
@@ -20,10 +20,10 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build": "npm run build:src && npm run build:cjs && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
-    "build-watch": "yarn run build && concurrently \"yarn run build:src --watch\" \"yarn run build:cjs --watch\""
+    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
+    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\""
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*"

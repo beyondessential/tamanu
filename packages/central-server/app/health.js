@@ -90,7 +90,8 @@ healthRoutes.get(
 healthRoutes.get(
   '/canUploadAttachment',
   asyncHandler(async (req, res) => {
-    const canUpload = await canUploadAttachment();
+    const { settings } = req;
+    const canUpload = await canUploadAttachment(settings);
     res.send({ canUploadAttachment: canUpload });
   }),
 );

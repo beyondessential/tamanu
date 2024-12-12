@@ -5,19 +5,17 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, OuterLabelFieldWrapper, BaseSelectField } from '../components/Field';
-import { useLocalisation } from '../contexts/Localisation';
+import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
+import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
 import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
-import { DateDisplay } from '../components/DateDisplay';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
+import { useAuth } from '../contexts/Auth';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -97,11 +95,14 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { getLocalisation } = useLocalisation();
-  const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
-  const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
+  const { facilityId } = useAuth();
+
+  const { getSetting } = useSettings();
+  const mandatoryVitalEditReason = getSetting('features.mandatoryVitalEditReason');
+  const vitalEditReasons = getSetting('vitalEditReasons');
+
   const initialValue = dataPoint.value;
-  const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
+  const showDeleteEntryButton = !['', undefined].includes(initialValue);
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
   const validationSchema = getValidationSchema(editVitalData, getTranslation, {
@@ -125,7 +126,10 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
 
     // The survey response answer might not exist
     if (dataPoint.answerId) {
-      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, {
+        facilityId,
+        ...newShapeData,
+      });
     } else {
       const newVitalData = {
         ...newShapeData,
@@ -133,7 +137,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
         encounterId: encounter.id,
         recordedDate: dataPoint.recordedDate,
       };
-      await api.post('surveyResponseAnswer/vital', newVitalData);
+      await api.post('surveyResponseAnswer/vital', { facilityId, ...newVitalData });
     }
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();

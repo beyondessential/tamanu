@@ -5,6 +5,7 @@ import path from 'path';
 import { FONT } from '@tamanu/constants';
 import { Font } from '@react-pdf/renderer';
 import { translationFactory } from '../translation/translationFactory';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
@@ -28,6 +29,12 @@ Font.register({
 Font.register({
   family: FONT.MOUL,
   src: path.join(baseDir, 'Moul-Regular.ttf'),
+});
+
+// title font
+Font.register({
+  family: 'Roboto',
+  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
 });
 
 const boldFont = ['Helvetica-BoldOblique', 'Helvetica-Bold'];
@@ -79,6 +86,13 @@ export const withLanguageContext = Component => props => {
       getTranslation(stringId, fallback, replacements, uppercase, lowercase) {
         const translationFunc = translationFactory(translations);
         const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+        return value;
+      },
+      getEnumTranslation(enumValues, currentValue) {
+        const translationFunc = translationFactory(translations);
+        const fallback = enumValues[currentValue];
+        const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+        const { value } = translationFunc(stringId, fallback);
         return value;
       },
     };

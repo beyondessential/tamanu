@@ -24,6 +24,7 @@ referral.post(
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
       userId: req.user.id,
+      facilityId,
       ...body,
     };
 

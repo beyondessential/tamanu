@@ -48,7 +48,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -72,29 +72,19 @@ function createSuggesterRoute(
             language,
             refDataType: dataType,
             queryString: searchQuery,
+            limit: defaultLimit,
           })
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
-
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
-      const visibilityStatus = whereQuery.visibilityStatus;
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
       const where = {
         [Op.or]: [
           whereQuery,
           {
-            ...(dataType === OTHER_REFERENCE_TYPES.INVOICE_PRODUCT ? omit(whereQuery, 'name') : {}), //! Workaround for invoice product suggester while waiting for the actual fix
             id: { [Op.in]: suggestedIds },
-            ...(visibilityStatus
-              ? {
-                  visibilityStatus: {
-                    [Op.eq]: visibilityStatus,
-                  },
-                }
-              : {}),
-            ...(filterByFacility ? { facilityId: query.facilityId } : {}),
+            ...omit(whereQuery, 'name'),
           },
         ],
       };
@@ -102,20 +92,28 @@ function createSuggesterRoute(
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
       }
+
       const include = includeBuilder?.(req);
+      const order = orderBuilder?.(req);
 
       const results = await model.findAll({
         where,
         include,
-        order: [positionQuery, [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+        order: [
+          ...(order ? [order] : []),
+          positionQuery,
+          [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
+        ],
         replacements: {
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
       });
+
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(r => mapper(r)));
+
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
@@ -214,7 +212,11 @@ function createAllRecordsRoute(
   );
 }
 
-function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, mapper }) {
+function createSuggesterCreateRoute(
+  endpoint,
+  modelName,
+  { creatingBodyBuilder, mapper, afterCreated },
+) {
   suggestions.post(
     `/${endpoint}/create`,
     asyncHandler(async (req, res) => {
@@ -223,6 +225,9 @@ function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, 
 
       const body = await creatingBodyBuilder(req);
       const newRecord = await models[modelName].create(body, { returning: true });
+      if (afterCreated) {
+        await afterCreated(req, newRecord);
+      }
       const mappedRecord = await mapper(newRecord);
       res.send(mappedRecord);
     }),
@@ -262,6 +267,102 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
+const afterCreatedReferenceData = async (req, newRecord) => {
+  const { models } = req;
+
+  if (newRecord.type === REFERENCE_TYPES.TASK_TEMPLATE) {
+    await models.TaskTemplate.create({ referenceDataId: newRecord.id });
+  }
+};
+
+const referenceDataBodyBuilder = ({ type, name }) => {
+  if (!name) {
+    throw new ValidationError('Name is required');
+  }
+
+  if (!type) {
+    throw new ValidationError('Type is required');
+  }
+
+  const code = `${camelCase(name)}-${customAlphabet('1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ', 3)()}`;
+
+  return {
+    id: uuidv4(),
+    code,
+    type,
+    name,
+  };
+};
+
+createSuggester(
+  'multiReferenceData',
+  'ReferenceData',
+  (search, { types }) => ({
+    type: { [Op.in]: types },
+    name: { [Op.iLike]: search },
+    ...VISIBILITY_CRITERIA,
+  }),
+  {
+    includeBuilder: req => {
+      const {
+        models: { ReferenceData, TaskTemplate },
+        query: { relationType },
+      } = req;
+
+      if (!relationType) return undefined;
+
+      return [
+        {
+          model: TaskTemplate,
+          as: 'taskTemplate',
+          include: TaskTemplate.getFullReferenceAssociations(),
+        },
+        {
+          model: ReferenceData,
+          as: 'children',
+          required: false,
+          through: {
+            attributes: [],
+            where: {
+              type: relationType,
+              deleted_at: null,
+            },
+          },
+          include: {
+            model: TaskTemplate,
+            as: 'taskTemplate',
+            include: TaskTemplate.getFullReferenceAssociations(),
+          },
+          where: VISIBILITY_CRITERIA,
+        },
+      ];
+    },
+    orderBuilder: req => {
+      const { query } = req;
+      const types = query.types
+      if (!types?.length) return;
+
+      const caseStatement = query.types
+        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+        .join(' ');
+
+      return [
+        Sequelize.literal(`
+        CASE "ReferenceData"."type"
+          ${caseStatement}
+          ELSE ${query.types.length + 1}
+        END
+      `),
+      ];
+    },
+    mapper: item => item,
+    creatingBodyBuilder: req =>
+      referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
+    afterCreated: afterCreatedReferenceData,
+  },
+  true,
+);
+
 REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
@@ -277,7 +378,6 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-
         if (!parentId) return undefined;
 
         return {
@@ -293,24 +393,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
-      creatingBodyBuilder: req => {
-        const { body } = req;
-        if (!body.name) {
-          throw new ValidationError('Name is required');
-        }
-
-        const code = `${camelCase(body.name)}-${customAlphabet(
-          '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
-          3,
-        )()}`;
-
-        return {
-          id: uuidv4(),
-          code,
-          type: typeName,
-          name: body.name,
-        };
-      },
+      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+      afterCreated: afterCreatedReferenceData,
     },
     true,
   );
@@ -327,7 +411,10 @@ const DEFAULT_WHERE_BUILDER = search => ({
 
 const filterByFacilityWhereBuilder = (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.filterByFacility) {
+  // Parameters are passed as strings, so we need to check for 'true'
+  const shouldFilterByFacility =
+    query.filterByFacility === 'true' || query.filterByFacility === true;
+  if (!shouldFilterByFacility) {
     return baseWhere;
   }
 

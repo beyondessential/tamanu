@@ -6,7 +6,7 @@ import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
 const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
-  const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
+  const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
 
   const { tableName: table } = model;
 
@@ -33,6 +33,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             record_type,
             is_deleted,
             updated_at_sync_tick,
+            pushed_by_device_id,
             data,
             
             patient_id,
@@ -59,6 +60,12 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             ${table}.id = updated_at_by_field_summary.id`
                : ''
            }
+          ${
+            avoidRepull
+              ? `LEFT JOIN sync_device_ticks
+                  ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
+              : 'LEFT JOIN (select NULL as device_id) AS sync_device_ticks ON 1 = 1'
+          }
           ${joins || ''}
           WHERE
           (${where || `${table}.updated_at_sync_tick > :since`})
@@ -66,7 +73,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
           ORDER BY ${table}.id
           LIMIT :limit
           ON CONFLICT (record_id, record_type)
-          DO UPDATE SET 
+          DO UPDATE SET
             data = EXCLUDED.data,
             updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
             is_lab_request = EXCLUDED.is_lab_request,
@@ -74,7 +81,8 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             encounter_id = EXCLUDED.encounter_id,
             facility_id = EXCLUDED.facility_id,
             updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
-            is_deleted = EXCLUDED.is_deleted
+            is_deleted = EXCLUDED.is_deleted,
+            pushed_by_device_id = EXCLUDED.pushed_by_device_id
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",

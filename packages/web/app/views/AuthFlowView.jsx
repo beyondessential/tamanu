@@ -10,6 +10,7 @@ import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 import { Typography } from '@material-ui/core';
 import { getBrandId } from '../utils';
+import { FULL_VERSION } from '../utils/env';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -117,7 +118,7 @@ export const AuthFlowView = ({ children }) => {
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>
+        <DesktopVersionText title={FULL_VERSION}>
           <TranslatedText stringId="login.version" fallback="Version" /> {agentVersion}
         </DesktopVersionText>
       </ContentContainer>

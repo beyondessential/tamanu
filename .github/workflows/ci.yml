@@ -25,18 +25,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm ci
       - uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
   test:
@@ -57,23 +59,26 @@ jobs:
           - { package: "@tamanu/shared",                      postgres: 14 }
           - { package: "@tamanu/shared",                      postgres: 16 }
           - { package: "@tamanu/web-frontend" }
+          - { package: "@tamanu/settings" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
-      - run: yarn workspace ${{ matrix.package }} run build
+      - run: npm ci
+      - run: npm run build-shared
+      - run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
         if: matrix.postgres
@@ -87,7 +92,7 @@ jobs:
           shard: ${{ matrix.shard }}
         run: |
           [[ -z "$shard" ]] || shard="--shard $shard"
-          yarn workspace "$package" run test $shard
+          npm run --workspace "$package" test -- $shard
 
   build-all:
     needs: node_modules_cache
@@ -95,17 +100,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build
+      - run: npm ci
+      - run: npm run build
 
   lint:
     needs: node_modules_cache
@@ -113,21 +120,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm ci
 
       - name: Lint errors
-        run: yarn lint-all --quiet
+        run: npm run lint-all -- --quiet
 
       - name: Lint warnings
-        run: yarn lint-all
+        run: npm run lint-all
 
   storybook:
     needs: node_modules_cache
@@ -142,15 +151,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
-      - run: yarn workspace @tamanu/web-frontend run test-storybook
+      - run: npm ci
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/web-frontend test-storybook
 
   migrations:
     needs: node_modules_cache
@@ -165,22 +174,25 @@ jobs:
           - '14'
           - '15'
           - '16'
+          - '17'
 
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
+      - run: npm ci
+      - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
@@ -194,22 +206,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
-      - run: yarn
+      - run: npm ci
         working-directory: packages/mobile
       - uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
 
-      - run: yarn test
+      - run: npm run test
         working-directory: packages/mobile
 
   test-facility-offline:
@@ -218,15 +232,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm ci
 
       - name: Install and start postgres
         run: |
@@ -243,24 +259,96 @@ jobs:
       - name: Start a facility server again without a central one
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
-  test-yarn-lock:
-    strategy:
-      fail-fast: false
-      matrix:
-        workdir:
-          - .
-          - packages/mobile
-    name: Check ${{ matrix.workdir }}/yarn.lock is up to date
+  test-package-lock:
+    name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
-      - run: yarn
-        working-directory: ${{ matrix.workdir }}
+          cache: npm
+      - run: npm ci
       - run: git diff --exit-code
+
+  dbt-model:
+    needs: node_modules_cache
+    name: DBT model up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+          createdb -O tamanu facility
+
+      - name: Build
+        run: |
+          npm install
+          npm run build-shared
+          npm run --workspace @tamanu/central-server build
+          npm run --workspace @tamanu/facility-server build
+      - name: Configure Tamanu
+        run: |
+          echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+          echo '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
+
+      - name: Run Migrations
+        run: |
+          npm run --workspace @tamanu/central-server start migrate up
+          npm run --workspace @tamanu/facility-server start migrate up
+
+      - name: Check model is up to date
+        run: |
+          npm run dbt-generate-model --fail-on-missing-config
+          if [[ -n $(git status --porcelain=v2 database) ]]; then
+              git diff -- database
+              echo "The dbt model is behind the Tamanu database!"
+              echo "Run 'npm run dbt-generate-model' and commit the result."
+              exit 1
+          fi
+
+      - name: Check model is valid (ie that docs can generate)
+        run: |
+          pip3 install dbt-core dbt-postgres
+          npm run dbt-generate-docs
+
+  dbt-todos:
+    needs: node_modules_cache
+    name: DBT model TODOs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm install
+      - run: npm run dbt-check-todos
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
@@ -273,7 +361,9 @@ jobs:
       - migrations
       - test-mobile
       - test-facility-offline
-      - test-yarn-lock
+      - test-package-lock
+      - dbt-model
+      - dbt-todos
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1

@@ -1,0 +1,58 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_allergies
+        description: '{{ doc("table__patient_allergies") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_allergies."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_allergies."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_allergies."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_allergies."
+          - name: note
+            data_type: character varying(255)
+            description: "{{ doc('patient_allergies__note') }}"
+          - name: recorded_date
+            data_type: character(19)
+            description: "{{ doc('patient_allergies__recorded_date') }}"
+            data_tests:
+              - not_null
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_allergies__patient_id') }}"
+          - name: practitioner_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_allergies__practitioner_id') }}"
+          - name: allergy_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_allergies__allergy_id') }}"
+          - name: recorded_date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('patient_allergies__recorded_date_legacy') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_allergies."
+            data_tests:
+              - not_null
+          - name: reaction_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_allergies__reaction_id') }}"

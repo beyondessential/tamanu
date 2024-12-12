@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.18.0",
+  "version": "2.22.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
@@ -83,10 +83,10 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build": "npm run build:src && npm run build:cjs && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
-    "build-watch": "yarn run build && concurrently \"yarn run build:src --watch\" \"yarn run build:cjs --watch\"",
+    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
+    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
     "test": "NODE_ENV=test jest"
   },
   "private": true,
@@ -97,13 +97,13 @@
     "sinon": "^11.1.2"
   },
   "dependencies": {
-    "@casl/ability": "^4.1.0",
+    "@casl/ability": "^6.7.1",
     "@honeycombio/opentelemetry-node": "^0.3.2",
     "@opentelemetry/api": "^1.4.0",
     "@opentelemetry/auto-instrumentations-node": "^0.36.0",
     "@opentelemetry/resources": "^1.9.1",
     "@opentelemetry/semantic-conventions": "^1.9.1",
-    "@react-pdf/renderer": "^3.1.3",
+    "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
     "@tamanu/settings": "*",
     "bcrypt": "^5.1.1",
@@ -116,8 +116,10 @@
     "jsonpath": "^1.1.1",
     "libhoney": "^3.1.1",
     "lodash": "^4.17.11",
+    "mathjs": "^9.3.0",
     "multiparty": "^4.2.3",
     "node-schedule": "^2.0.0",
+    "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",

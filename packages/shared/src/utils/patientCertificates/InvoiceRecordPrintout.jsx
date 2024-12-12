@@ -8,7 +8,6 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { formatShort } from '../dateTime';
-import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,
@@ -23,6 +22,7 @@ import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
+import { InvoiceEncounterDetails } from './printComponents/InvoiceEncounterDetails';
 
 const borderStyle = '1 solid black';
 
@@ -451,6 +451,7 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
+  enablePatientInsurer,
 }) => {
   const { watermark, logo } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
@@ -467,7 +468,6 @@ const InvoiceRecordPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle={`Invoice number: ${invoice.displayId}`}
             letterheadConfig={certificateData}
@@ -476,13 +476,18 @@ const InvoiceRecordPrintoutComponent = ({
         <SectionSpacing />
         <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
-        <EncounterDetails
+        <InvoiceEncounterDetails
           encounter={encounter}
           discharge={discharge}
           clinicianText={clinicianText}
         />
         <SectionSpacing />
-        <InvoiceDetails encounter={encounter} invoice={invoice} />
+        <InvoiceDetails
+          encounter={encounter}
+          invoice={invoice}
+          patient={patientData}
+          enablePatientInsurer={enablePatientInsurer}
+        />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
           <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />

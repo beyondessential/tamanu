@@ -10,6 +10,7 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
+  NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
@@ -58,6 +59,7 @@ labRequest.put(
     }
 
     await db.transaction(async () => {
+      let shouldPushNotification = false;
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
         if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
         await models.LabRequestLog.create({
@@ -65,12 +67,21 @@ labRequest.put(
           labRequestId: params.id,
           updatedById: userId,
         });
+        shouldPushNotification = [
+          LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+          LAB_REQUEST_STATUSES.PUBLISHED,
+          LAB_REQUEST_STATUSES.INVALIDATED,
+        ].includes(labRequestData.status);
       }
 
       if (labRequestData.specimenTypeId !== undefined) {
         labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
       }
-      await labRequestRecord.update(labRequestData);
+      const newLabRequestRecord = await labRequestRecord.update(labRequestData);
+
+      if (shouldPushNotification) {
+        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
+      }
     });
 
     res.send(labRequestRecord);
@@ -122,14 +133,25 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
-      makeFilter(true, `lab_requests.status != :invalidated`, () => ({
-        invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
-      })),
+      makeFilter(
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.INVALIDATED),
+        `lab_requests.status != :invalidated`,
+        () => ({
+          invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
+        }),
+      ),
+      makeFilter(
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED),
+        'lab_requests.status != :published',
+        () => ({
+          published: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      ),
       makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
-      makeSimpleTextFilter('status', 'lab_requests.status'),
+      makeFilter(filterParams.statuses, 'lab_requests.status in (:statuses)'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
       makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
@@ -169,13 +191,6 @@ labRequest.get(
             publishedDate: `${publishedDate}%`,
           };
         },
-      ),
-      makeFilter(
-        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-        'lab_requests.status != :published',
-        () => ({
-          published: LAB_REQUEST_STATUSES.PUBLISHED,
-        }),
       ),
       makeDeletedAtIsNullFilter('encounter'),
     ].filter(f => f);

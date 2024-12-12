@@ -1,5 +1,6 @@
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_ITEMS_DISCOUNT_TYPES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
 } from '@tamanu/constants';
@@ -56,10 +57,12 @@ const getInvoiceItemTotalPrice = invoiceItem => {
  * @param {InvoiceItem} invoiceItem
  */
 const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
-  return discountedPrice(
-    getInvoiceItemTotalPrice(invoiceItem),
-    invoiceItem?.discount?.percentage || 0,
-  );
+  const invoiceItemTotalPrice = getInvoiceItemTotalPrice(invoiceItem);
+  if (!invoiceItem.discount) return invoiceItemTotalPrice;
+  if (invoiceItem.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
+    return discountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0);
+  }
+  return invoiceItemTotalPrice - (invoiceItem?.discount?.amount || 0);
 };
 
 /**
@@ -213,7 +216,7 @@ export const getInvoiceItemPriceDisplay = invoiceItem => {
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
   return formatDisplayPrice(
-    isNaN(parseFloat(invoiceItem?.discount?.percentage))
+    isNaN(parseFloat(invoiceItem?.discount?.amount))
       ? undefined
       : getInvoiceItemTotalDiscountedPrice(invoiceItem),
   );

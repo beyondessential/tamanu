@@ -1,5 +1,4 @@
 import { TranslatedText } from './TranslatedText';
-import { camelCase } from 'lodash';
 import React from 'react';
 
 export const getTranslatedOptions = (options, prefix) => {
@@ -9,7 +8,14 @@ export const getTranslatedOptions = (options, prefix) => {
     const { label, ...rest } = option;
     return typeof label === 'string'
       ? {
-          label: <TranslatedText stringId={`${prefix}.${camelCase(label)}`} fallback={label} />,
+          label: (
+            <TranslatedText
+              stringId={`${prefix}.${label
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`}
+              fallback={label}
+            />
+          ),
           ...rest,
         }
       : option;

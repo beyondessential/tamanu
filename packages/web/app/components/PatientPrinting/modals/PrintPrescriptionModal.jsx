@@ -7,12 +7,14 @@ import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});
@@ -113,6 +115,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             facility={facility}
             prescriber={prescriber}
             getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </PDFLoader>
       </Modal>

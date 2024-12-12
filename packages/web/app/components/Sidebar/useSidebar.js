@@ -1,10 +1,10 @@
 import { CENTRAL_MENU_ITEMS } from './CentralMenuItems';
 import { FACILITY_MENU_ITEMS } from './FacilityMenuItems';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const sortTopLevelItems = (a, b) => {
-  // Always show patients first
-  if (a.key === 'patients') {
+  // Always show dashboard first
+  if (a.key === 'dashboard') {
     return -1;
   }
   return a.sortPriority - b.sortPriority;
@@ -21,8 +21,8 @@ const sortChildItems = (a, b) => {
 // This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
 const useSidebarFactory = (ITEMS, configKey) => {
-  const { getLocalisation } = useLocalisation();
-  const sidebarConfig = getLocalisation(configKey);
+  const { getSetting } = useSettings();
+  const sidebarConfig = getSetting(configKey);
 
   if (!sidebarConfig) {
     return ITEMS;
@@ -47,9 +47,17 @@ const useSidebarFactory = (ITEMS, configKey) => {
         .sort(sortChildItems);
     }
 
-    return [...topLevelItems, { ...item, sortPriority: localisedItem.sortPriority, children }];
+    return [
+      ...topLevelItems,
+      {
+        ...item,
+        sortPriority: localisedItem.sortPriority,
+        ...(children.length > 0 && { children }),
+      },
+    ];
   }, []).sort(sortTopLevelItems);
 };
 
-export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layout.sidebar');
-export const useCentralSidebar = () => useSidebarFactory(CENTRAL_MENU_ITEMS, 'layout.centralSidebar');
+export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');
+export const useCentralSidebar = () =>
+  useSidebarFactory(CENTRAL_MENU_ITEMS, 'layouts.centralSidebar');

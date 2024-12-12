@@ -52,6 +52,7 @@ const OPTIONS = [
       return 'basic';
     },
   },
+  { key: 'env', defaultValue: 'staging' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
@@ -70,8 +71,8 @@ const OPTIONS = [
   },
   {
     key: 'facilityapis',
-    defaultValue: options => intBounds(options.apis, [0, 1]),
-    parse: input => intBounds(input, [0, 1]), // max:5 when split
+    defaultValue: options => intBounds(options.apis, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
 
   { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
@@ -82,8 +83,8 @@ const OPTIONS = [
   },
   {
     key: 'facilitytasks',
-    defaultValue: 0, // until facility is split
-    parse: input => intBounds(input, [0, 0]), // max:1 when split
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
+    parse: input => intBounds(input, [0, 1]),
   },
 
   { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
@@ -134,6 +135,15 @@ const OPTIONS = [
   {
     key: 'serviceaccountarn',
     defaultValue: 'arn:aws:iam::143295493206:role/ips-bucket-role-de7b385',
+  },
+  {
+    /*
+     * Specifies the subdomain names of the Facility servers.
+     * Comma-separated.
+     */
+    key: 'facilitynames',
+    defaultValue: null,
+    parse: input => input.split(','),
   },
 ];
 
@@ -188,8 +198,10 @@ export function configMap(deployName, imageTag, options) {
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
+      facilityNames: options.facilitynames && JSON.stringify(options.facilitynames),
       timezone: options.timezone,
       ipAllowList: options.ip,
+      nodeEnv: options.env,
       serviceAccount: options.serviceaccountarn,
 
       apiReplicas: options.apis,
@@ -206,7 +218,7 @@ export function configMap(deployName, imageTag, options) {
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
-    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
+    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
 

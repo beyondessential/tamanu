@@ -1,6 +1,7 @@
 export * from './auth.js';
 export * from './births.js';
 export * from './brands.js';
+export * from './colors.js';
 export * from './comms.js';
 export * from './datetimes.js';
 export * from './deaths.js';
@@ -36,4 +37,6 @@ export * from './webSocket.js';
 export * from './enumRegistry.js';
 export * from './materializedView.js';
 export * from './database.js';
+export * from './tasks.js';
 export * from './debugLog.js';
+export * from './notifications.js';

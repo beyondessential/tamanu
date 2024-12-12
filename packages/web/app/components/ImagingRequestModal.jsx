@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
+import React, { useState } from 'react';
 
 import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-
-import { FormModal } from './FormModal';
-import { ImagingRequestForm } from '../forms/ImagingRequestForm';
+import { useImagingRequestMutation } from '../api/mutations';
 import { ALPHABET_FOR_ID } from '../constants';
+import { ImagingRequestForm } from '../forms/ImagingRequestForm';
+import { Suggester } from '../utils/suggester';
+import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
 // Todo: move the generating of display id to the model default to match LabRequests
@@ -17,7 +17,14 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const generateDisplayId = configureCustomRequestId();
-  const [requestId, setRequestId] = useState();
+  const [onSuccess, setOnSuccess] = useState(null);
+
+  const { mutateAsync: mutateImagingRequest } = useImagingRequestMutation(encounter.id, {
+    onSuccess: (data, variables, context) => {
+      onSuccess?.(data, variables, context);
+      onClose?.();
+    },
+  });
 
   return (
     <FormModal
@@ -29,17 +36,10 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
       onClose={onClose}
     >
       <ImagingRequestForm
-        onSubmit={async data => {
-          const newRequest = await api.post(`imagingRequest`, {
-            ...data,
-            encounterId: encounter.id,
-          });
-          setRequestId(newRequest.id);
-          onClose();
-        }}
+        onSubmit={mutateImagingRequest}
         onCancel={onClose}
+        setOnSuccess={setOnSuccess}
         encounter={encounter}
-        requestId={requestId}
         practitionerSuggester={practitionerSuggester}
         generateId={generateDisplayId}
       />

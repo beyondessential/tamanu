@@ -18,6 +18,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
+  const [facilityId] = selectFacilityIds(config);
   let patient = null;
   let encounter = null;
   let app = null;
@@ -252,7 +253,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result = await app.get(`/api/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`).query({ facilityId });
 
     // assert
     expect(result).toHaveSucceeded();
@@ -283,6 +284,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -311,6 +313,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
     const result2 = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
@@ -319,6 +322,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -349,6 +353,7 @@ describe('Imaging requests', () => {
         completedAt: newResultDate,
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -391,7 +396,7 @@ describe('Imaging requests', () => {
     );
 
     // act
-    const result = await app.get(`/api/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`).query({ facilityId });
 
     // reset settings
     await models.Setting.set('integrations.imaging', settings, SETTINGS_SCOPES.GLOBAL);

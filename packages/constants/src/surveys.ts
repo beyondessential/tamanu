@@ -160,3 +160,12 @@ export const READONLY_DATA_FIELDS = {
 export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
   key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
 );
+
+export const RESULT_COLORS = {
+  green: '#83d452',
+  yellow: '#ffea5a',
+  orange: '#fe8c00',
+  red: '#ff2222',
+  deepred: '#971a1a',
+  purple: '#971a1a',
+};

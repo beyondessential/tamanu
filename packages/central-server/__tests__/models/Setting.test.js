@@ -17,7 +17,9 @@ describe('Setting', () => {
   });
 
   afterEach(async () => {
-    await Setting.truncate();
+    await Setting.truncate({
+      force: true,
+    });
   });
 
   afterAll(async () => {

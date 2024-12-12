@@ -2,15 +2,15 @@ import React from 'react';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useSettings } from '../../../contexts/Settings';
 
 export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();
   const auth = useAuth();
-  const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
+  const { getSetting } = useSettings();
+  const cancellationReasonOptions = getSetting('labsCancellationReasons');
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(

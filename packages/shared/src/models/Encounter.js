@@ -1,10 +1,12 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -13,9 +15,15 @@ import { Model } from './Model';
 import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
-  static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
+  /**
+   *
+   * @param {any} arg0
+   * @param {import('./')} models
+   */
+  static init({ primaryKey, hackToSkipEncounterValidation, ...options }, models) {
     let validate = {};
     if (!hackToSkipEncounterValidation) {
       validate = {
@@ -62,6 +70,52 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async afterDestroy(encounter, opts) {
+            const deletionReason = await models.ReferenceData.findByPk(
+              TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
+            );
+
+            // update endtime for all parent tasks of this encounter
+            await models.Task.update(
+              {
+                endTime: getCurrentDateTimeString(),
+                deletedReasonForSyncId: deletionReason?.id ?? null,
+              },
+              {
+                where: {
+                  encounterId: encounter.id,
+                  parentTaskId: null,
+                  frequencyValue: { [Op.not]: null },
+                  frequencyUnit: { [Op.not]: null },
+                },
+                transaction: opts.transaction,
+              },
+            );
+
+            // set deletion info for all tasks of this encounter
+            await models.Task.update(
+              {
+                deletedByUserId: SYSTEM_USER_UUID,
+                deletedReasonId: deletionReason?.id ?? null,
+                deletedTime: getCurrentDateTimeString(),
+              },
+              { where: { encounterId: encounter.id }, transaction: opts.transaction },
+            );
+
+            // delete all tasks of this encounter
+            await models.Task.destroy({
+              where: { encounterId: encounter.id },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
+          },
+          afterUpdate: async (encounter) => {
+            if (encounter.endDate && !encounter.previous('endDate')) {
+              await models.Task.onEncounterDischarged(encounter);
+            }
+          },
+        },
       },
     );
     onCreateEncounterMarkPatientForSync(this);

@@ -20,7 +20,7 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
 import { DataSection } from './printComponents/DataSection';
-import { withLanguageContext } from '../pdf/languageContext';
+import { withLanguageContext, useLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatDistanceStrict, milliseconds } from 'date-fns';
@@ -193,14 +193,14 @@ const causeOfDeathAccessor = ({ causes }) => {
 };
 
 // Death certificate has a slightly different DOB format to other certificates so needs its own accessor
-const getDOB = ({ dateOfBirth }, getLocalisation) =>
+const getDob = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
-const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
-  return `${getDateOfDeath(patientData, getLocalisation)} ${getTimeOfDeath(
-    patientData,
+const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
+  return `${getDateOfDeath(patientData, {
     getLocalisation,
-  )}`;
+    getTranslation,
+  })} ${getTimeOfDeath(patientData, { getLocalisation, getTranslation })}`;
 };
 
 const PATIENT_DETAIL_FIELDS = {
@@ -212,7 +212,7 @@ const PATIENT_DETAIL_FIELDS = {
   ],
   rightCol: [
     { key: 'sex', label: 'Sex', accessor: getSex },
-    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
+    { key: 'dateOfBirth', label: 'DOB', accessor: getDob },
     { key: 'ethnicity', label: 'Ethnicity', accessor: getEthnicity },
   ],
 };
@@ -232,6 +232,7 @@ const SectionContainer = props => <View style={generalStyles.sectionContainer} {
 
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
+    const { getTranslation } = useLanguageContext();
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
@@ -249,7 +250,6 @@ const DeathCertificatePrintoutComponent = React.memo(
           />
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Cause of death certificate"
@@ -257,26 +257,40 @@ const DeathCertificatePrintoutComponent = React.memo(
             <SectionContainer>
               <DataSection title="Patient details" hideBottomRule>
                 <Col>
-                  {renderDataItems(PATIENT_DETAIL_FIELDS.leftCol, patientData, getLocalisation, 12)}
+                  {renderDataItems(
+                    PATIENT_DETAIL_FIELDS.leftCol,
+                    patientData,
+                    getLocalisation,
+                    getTranslation,
+                    12,
+                  )}
                 </Col>
                 <Col>
                   {renderDataItems(
                     PATIENT_DETAIL_FIELDS.rightCol,
                     patientData,
                     getLocalisation,
+                    getTranslation,
                     12,
                   )}
                 </Col>
               </DataSection>
               <DataSection title="">
                 <Col>
-                  {renderDataItems(PATIENT_DEATH_DETAILS.leftCol, patientData, getLocalisation, 12)}
+                  {renderDataItems(
+                    PATIENT_DEATH_DETAILS.leftCol,
+                    patientData,
+                    getLocalisation,
+                    getTranslation,
+                    12,
+                  )}
                 </Col>
                 <Col>
                   {renderDataItems(
                     PATIENT_DEATH_DETAILS.rightCol,
                     patientData,
                     getLocalisation,
+                    getTranslation,
                     12,
                   )}
                 </Col>

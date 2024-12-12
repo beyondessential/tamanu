@@ -135,6 +135,7 @@ export const NewVaccineTabComponent = ({
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
           vaccine: {
             ...vaccine,
+            scheduledVaccine,
             administeredVaccine: {
               ...updatedVaccine,
               encounter,

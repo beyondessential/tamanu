@@ -6,32 +6,69 @@ import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
 import { InvoiceItemCard } from './InvoiceItemCard';
 import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
-import { Field, Form, NumberField, TextField } from '../../Field';
+import { Field, Form, NumberField, SelectField, TextField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../VaccineCommonFields';
+import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { useFormikContext } from 'formik';
+import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;
 `;
 
-const DiscountForm = () => {
-  const { getTranslation } = useTranslation();
+const discountTypeOptions = [
+  { value: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE, label: '%' },
+  { value: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, label: '$' },
+];
 
-  const preventInvalid = event => {
-    if (!event.target.validity.valid) {
-      event.target.value = '';
+const preventInvalid = event => {
+  if (!event.target.validity.valid) {
+    event.target.value = '';
+  }
+};
+
+const validateDecimalPlaces = e => {
+  const value = e.target.value;
+  if (/^[−-]/.test(value)) {
+    e.target.value = '';
+    return;
+  }
+  if (value.includes('.')) {
+    const decimalPlaces = value.split('.')[1].length;
+    if (decimalPlaces > 2) {
+      e.target.value = parseFloat(value).toFixed(2);
     }
-  };
+  }
+};
+
+const DiscountForm = () => {
+  const { values } = useFormikContext();
+  const { getTranslation } = useTranslation();
+  const type = values.type;
 
   return (
-    <FormGrid columns={3}>
+    <FormGrid columns={4}>
       <Field
-        name="percentage"
+        name="type"
         label={
           <TranslatedText
-            stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
-            fallback="Discount (%)"
+            stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
+            fallback="Type"
+          />
+        }
+        component={SelectField}
+        options={discountTypeOptions}
+        required
+        style={{ gridColumn: '1 / 1' }}
+      />
+      <Field
+        name="amount"
+        label={
+          <TranslatedText
+            stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
+            fallback="Discount amount"
           />
         }
         placeholder={getTranslation(
@@ -41,9 +78,14 @@ const DiscountForm = () => {
         component={NumberField}
         required
         min={0}
-        max={100}
-        onInput={preventInvalid}
-        style={{ gridColumn: '1 / 1' }}
+        {...(type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE && {
+          max: 100,
+          onInput: preventInvalid,
+        })}
+        {...(type === INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT && {
+          onInput: validateDecimalPlaces,
+        })}
+        style={{ gridColumn: '2 / 2' }}
       />
       <Field
         name="reason"
@@ -54,29 +96,38 @@ const DiscountForm = () => {
           />
         }
         component={TextField}
-        style={{ gridColumn: '2 / 4' }}
+        style={{ gridColumn: '3 / 5' }}
       />
     </FormGrid>
   );
 };
 
 const MarkupForm = () => {
+  const { values } = useFormikContext();
   const { getTranslation } = useTranslation();
-
-  const preventInvalid = event => {
-    if (!event.target.validity.valid) {
-      event.target.value = '';
-    }
-  };
+  const type = values.type;
 
   return (
-    <FormGrid columns={3}>
+    <FormGrid columns={4}>
       <Field
-        name="percentage"
+        name="type"
         label={
           <TranslatedText
-            stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
-            fallback="Markup (%)"
+            stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
+            fallback="Type"
+          />
+        }
+        component={SelectField}
+        options={discountTypeOptions}
+        required
+        style={{ gridColumn: '1 / 1' }}
+      />
+      <Field
+        name="amount"
+        label={
+          <TranslatedText
+            stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
+            fallback="Markup amount"
           />
         }
         placeholder={getTranslation(
@@ -86,8 +137,13 @@ const MarkupForm = () => {
         component={NumberField}
         required
         min={0}
-        onInput={preventInvalid}
-        style={{ gridColumn: '1 / 1' }}
+        {...(type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE && {
+          onInput: preventInvalid,
+        })}
+        {...(type === INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT && {
+          onInput: validateDecimalPlaces,
+        })}
+        style={{ gridColumn: '2 / 2' }}
       />
       <Field
         name="reason"
@@ -98,7 +154,7 @@ const MarkupForm = () => {
           />
         }
         component={TextField}
-        style={{ gridColumn: '2 / 4' }}
+        style={{ gridColumn: '3 / 5' }}
       />
     </FormGrid>
   );
@@ -128,34 +184,63 @@ const AddNoteForm = () => {
   );
 };
 
-const discountValidationSchema = yup.object({
-  percentage: yup
-    .number()
-    .required()
-    .moreThan(0)
-    .max(100)
-    .translatedLabel(
-      <TranslatedText
-        stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
-        fallback="Discount (%)"
-      />,
-    ),
-});
-
-const markupValidationSchema = yup.object({
-  percentage: yup
-    .number()
-    .required()
-    .moreThan(0)
-    .translatedLabel(
-      <TranslatedText
-        stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
-        fallback="Markup (%)"
-      />,
-    ),
-});
-
 export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }) => {
+  const invoicePrice = parseFloat(getInvoiceItemPriceDisplay(item) || 0);
+
+  const discountValidationSchema = yup.object({
+    type: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
+          fallback="Type"
+        />,
+      ),
+    amount: yup
+      .number()
+      .required()
+      .moreThan(0)
+      .when('type', {
+        is: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
+        then: schema => schema.max(100),
+        otherwise: schema =>
+          schema.test(
+            'is-valid-amount',
+            'Discount amount must be less than invoice item price',
+            value => value <= invoicePrice,
+          ),
+      })
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
+          fallback="Discount amount"
+        />,
+      ),
+  });
+
+  const markupValidationSchema = yup.object({
+    type: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
+          fallback="Type"
+        />,
+      ),
+    amount: yup
+      .number()
+      .required()
+      .moreThan(0)
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
+          fallback="Markup amount"
+        />,
+      ),
+  });
+
   const getModalTitle = () => {
     switch (action) {
       case INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE:
