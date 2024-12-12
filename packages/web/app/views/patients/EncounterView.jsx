@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -209,9 +209,12 @@ export const EncounterView = () => {
       curr[tab.key] = index + 1;
       return curr;
     }, {});
-    reorderEncounterTabs({ key: 'encounterTabOrders', value: newTabOrders }, {
-      onError: () => setTabs(currentVisibleTabs),
-    });
+    reorderEncounterTabs(
+      { key: 'encounterTabOrders', value: newTabOrders },
+      {
+        onError: () => setTabs(currentVisibleTabs),
+      },
+    );
   };
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;

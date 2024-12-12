@@ -109,7 +109,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
   );
 };
 
-export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
+export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId } = useAuth();
