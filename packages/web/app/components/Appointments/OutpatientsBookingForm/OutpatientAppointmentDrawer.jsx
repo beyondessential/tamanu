@@ -251,10 +251,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         interval: yup.number().required(requiredMessage),
         frequency: yup.string().required(requiredMessage),
         occurrenceCount: yup.number().nullable(),
-        untilDate: yup
-          .string()
-          .nullable()
-          .isAfter(yup.ref('startTime')),
+        untilDate: yup.string().nullable(),
         daysOfWeek: yup
           .array()
           .of(yup.string().oneOf(DAYS_OF_WEEK))
@@ -299,12 +296,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleChangeIsRepeatingAppointment = async e => {
-      if (!e.target.checked) {
-        setFieldTouched('appointmentSchedule', false);
-        setValues(omit(values, ['appointmentSchedule']));
-      } else {
+      if (e.target.checked) {
         setValues(set(values, 'appointmentSchedule', appointmentScheduleInitialValues));
         handleInitAppointmentSchedule(parseISO(values.startTime));
+      } else {
+        setFieldTouched('appointmentSchedule', false);
+        setValues(omit(values, ['appointmentSchedule']));
       }
     };
 
