@@ -122,16 +122,15 @@ export const addSixFrequencyToDate = (date, frequency, interval) =>
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
-
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
 
   const weeksInMonth = eachDayOfInterval({
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
-
   const matchingWeekdays = weeksInMonth.filter(day => day.getDay() === date.getDay());
   const index = matchingWeekdays.findIndex(day => isSameDay(day, date));
+
   return [
     getTranslation('general.ordinals.first', 'first'),
     getTranslation('general.ordinals.second', 'second'),
@@ -141,49 +140,60 @@ const useOrdinalText = (date, frequency) => {
   ].at(index + 1 === matchingWeekdays.length ? -1 : index);
 };
 
-const RepeatText = ({ startTimeDate, frequency, interval }) => {
+const IntervalText = ({ interval, frequency }) => {
   const { getEnumTranslation } = useTranslation();
-  const ordinalText = useOrdinalText(startTimeDate, frequency);
-  const weekday = format(startTimeDate, 'EEEE');
+  if (interval === 1)
+    return <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />;
   return (
-    <>
-      <TranslatedText
-        stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
-        fallback="Repeats on:"
-      />{' '}
-      {interval > 1 ? (
-        <TranslatedText
-          stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
-          fallback="Every :interval :frequency"
-          replacements={{
-            interval: interval,
-            frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
-          }}
-        />
-      ) : (
-        <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} />
-      )}{' '}
-      {frequency === REPEAT_FREQUENCY.WEEKLY ? (
-        <TranslatedText
-          stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
-          fallback="on a :weekday"
-          replacements={{
-            weekday,
-          }}
-        />
-      ) : (
-        <TranslatedText
-          stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
-          fallback="on the :nth :weekday"
-          replacements={{
-            nth: ordinalText,
-            weekday,
-          }}
-        />
-      )}
-    </>
+    <TranslatedText
+      stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
+      fallback="Every :interval :frequency"
+      replacements={{
+        interval,
+        frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
+      }}
+    />
   );
 };
+
+const FrequencyText = ({ frequency, startTimeDate }) => {
+  const weekday = format(startTimeDate, 'EEEE');
+  const ordinalText = useOrdinalText(startTimeDate, frequency);
+  if (frequency === REPEAT_FREQUENCY.WEEKLY) {
+    return (
+      <TranslatedText
+        stringId="outpatientAppointments.repeatAppointment.onWeekdayText"
+        fallback="on a :weekday"
+        replacements={{
+          weekday,
+        }}
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="outpatientAppointments.repeatAppointment.onNthWeekdayText"
+      fallback="on the :nth :weekday"
+      replacements={{
+        nth: ordinalText,
+        weekday,
+      }}
+    />
+  );
+};
+
+const RepeatText = ({ startTimeDate, frequency, interval }) => (
+  <>
+    <TranslatedText
+      stringId="outpatientAppointment.repeatAppointment.repeatsOnText"
+      fallback="Repeats on:"
+    />
+    &nbsp;
+    <IntervalText frequency={frequency} interval={interval} />
+    &nbsp;
+    <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
+  </>
+);
 
 export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDate }) => {
   const { startTime, appointmentSchedule } = values;
