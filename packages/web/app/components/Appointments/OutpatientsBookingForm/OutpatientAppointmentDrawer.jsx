@@ -392,9 +392,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <DateTimeFieldWithSameDayWarning
             isEdit={isEdit}
-            onChange={e => {
-              handleInitAppointmentSchedule(parseISO(e.target.value));
-            }}
+            onChange={e => handleInitAppointmentSchedule(parseISO(e.target.value))}
           />
           <Field
             name="endTime"
