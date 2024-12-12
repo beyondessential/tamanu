@@ -276,7 +276,7 @@ appointments.post('/locationBooking', async (req, res) => {
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
       const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
+      const conflictCount = await Appointment.count({
         where: {
           [Op.and]: [
             { locationId },
@@ -290,9 +290,7 @@ appointments.post('/locationBooking', async (req, res) => {
         transaction,
       });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
-      }
+      if (conflictCount > 0) throw new ResourceConflictError();
 
       return await Appointment.create(body, { transaction });
     });
