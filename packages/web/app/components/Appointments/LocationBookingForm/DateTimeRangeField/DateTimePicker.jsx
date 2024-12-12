@@ -1,4 +1,4 @@
-import { endOfDay, isValid, startOfDay } from 'date-fns';
+import { endOfDay, isValid, parseISO, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
@@ -29,7 +29,7 @@ const DateTimePicker = ({
 }) => {
   const { values, setFieldValue } = useFormikContext();
   const dateFieldValue = values[datePickerName];
-  const date = dateFieldValue ? new Date(dateFieldValue) : null;
+  const date = dateFieldValue ? startOfDay(parseISO(dateFieldValue)) : null;
   const isValidDate = isValid(date);
 
   /** Keep synchronised with date field for non-overnight bookings */
