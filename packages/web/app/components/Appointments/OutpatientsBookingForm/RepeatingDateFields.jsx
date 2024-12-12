@@ -135,11 +135,11 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
     );
   };
 
-  const validateKeyboardEnteredInterval = (min = 1, max = 99) => {
+  const validateKeyboardEnteredNumber = (name, min = 1, max = 99) => {
     if (interval > max) {
-      setFieldValue('appointmentSchedule.interval', max);
+      setFieldValue(name, max);
     } else if (interval < min || interval === '') {
-      setFieldValue('appointmentSchedule.interval', min);
+      setFieldValue(name, min);
     }
   };
 
@@ -150,7 +150,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
           name="appointmentSchedule.interval"
           min={1}
           max={99}
-          onBlur={validateKeyboardEnteredInterval}
+          onBlur={() => validateKeyboardEnteredNumber('appointmentSchedule.interval')}
           label={
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
@@ -230,7 +230,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetUntilDat
               }}
               min={2}
               max={99}
-              onBlur={() => validateKeyboardEnteredInterval(2)}
+              onBlur={() => validateKeyboardEnteredNumber('appointmentSchedule.occurrenceCount', 2)}
               value={endsMode === END_MODES.AFTER ? occurrenceCount : ''}
               disabled={endsMode !== END_MODES.AFTER}
               component={StyledNumberField}
