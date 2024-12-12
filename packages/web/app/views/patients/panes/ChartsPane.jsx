@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { keyBy } from 'lodash';
 import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
@@ -229,19 +230,24 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   };
 
   const handleDeleteChart = useCallback(async () => {
-    await api.delete(
-      `encounter/${encounter.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
-    );
-    handleCloseModal();
-    setCurrenComplexChartTab(null);
+    try {
+      await api.delete(
+        `encounter/${encounter.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
+      );
 
-    // reload the chart instance tabs
-    queryClient.invalidateQueries([
-      'encounterComplexChartInstances',
-      encounter.id,
-      coreComplexChartSurveyId,
-    ]);
-    await loadEncounter(encounter.id);
+      handleCloseModal();
+      setCurrenComplexChartTab(null);
+
+      // reload the chart instance tabs
+      queryClient.invalidateQueries([
+        'encounterComplexChartInstances',
+        encounter.id,
+        coreComplexChartSurveyId,
+      ]);
+      await loadEncounter(encounter.id);
+    } catch (e) {
+      toast.error(`Failed to remove chart with error: ${e.message}`);
+    }
   }, [
     api,
     encounter.id,
