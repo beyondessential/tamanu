@@ -146,11 +146,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   return (
     <>
       {ExportButton ? (
-        <ExportButton
-          onClick={onDownloadData}
-          data-test-class="download-data-button"
-          data-testid="download-data-button"
-        />
+        <ExportButton onClick={onDownloadData} />
       ) : (
         <GreyOutlinedButton
           onClick={onDownloadData}
