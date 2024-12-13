@@ -108,7 +108,7 @@ export const OutpatientAppointmentsFilter = props => {
   return (
     <Form
       enableReinitialize
-      initialValues={userPreferences?.outpatientAppointmentFilters[facilityId]}
+      initialValues={userPreferences?.outpatientAppointmentFilters?.[facilityId]}
       onSubmit={async () => {}}
       render={renderForm}
       {...props}
