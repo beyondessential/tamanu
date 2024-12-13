@@ -115,6 +115,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
+  color: ${Colors.darkText};
 `;
 
 const SectionTitle = styled.div`
