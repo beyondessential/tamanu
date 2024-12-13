@@ -12,6 +12,7 @@ import {
   useOutpatientAppointmentsContext,
 } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 const Fieldset = styled.fieldset`
   // Reset
@@ -49,6 +50,7 @@ const FormListener = () => {
 export const OutpatientAppointmentsFilter = props => {
   const { filters, setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
+  const { facilityId } = useAuth();
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
 
@@ -56,7 +58,7 @@ export const OutpatientAppointmentsFilter = props => {
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        outpatientAppointmentFilters: omit(values, ['patientNameOrId']),
+        outpatientAppointmentFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
       }),
     200,
   );
@@ -106,7 +108,7 @@ export const OutpatientAppointmentsFilter = props => {
   return (
     <Form
       enableReinitialize
-      initialValues={userPreferences?.outpatientAppointmentFilters}
+      initialValues={userPreferences?.outpatientAppointmentFilters[facilityId]}
       onSubmit={async () => {}}
       render={renderForm}
       {...props}
