@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { add, format, isBefore, parseISO } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, Sequelize, literal } from 'sequelize';
@@ -14,6 +14,7 @@ import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const appointments = express.Router();
 
@@ -58,12 +59,37 @@ appointments.post(
     const {
       models,
       db,
-      body: { facilityId, ...body },
+      body: { facilityId, appointmentSchedule, ...body },
       settings,
     } = req;
-    const { Appointment, Facility, PatientCommunication } = models;
+    const { Appointment, AppointmentSchedule, Facility, PatientCommunication } = models;
 
     await db.transaction(async () => {
+      // JUST muking around here
+      let schedule;
+      if (appointmentSchedule) {
+        schedule = await AppointmentSchedule.create({
+          ...appointmentSchedule,
+          // TODO: Should these be startTime and endTime?
+          startDate: body.startTime,
+        });
+        const untilDate = parseISO(schedule.untilDate);
+        const maximumAppointments = 40;
+        const incrementByInterval = date =>
+          toDateTimeString(add(parseISO(date), { weeks: schedule.interval }));
+        const appointmentData = [body];
+        while (
+          isBefore(parseISO(appointmentData.at(-1).startTime), untilDate) ||
+          appointmentData.length <= maximumAppointments
+        ) {
+          const { startTime: lastStartTime, endTime: lastEndTime } = appointmentData.at(-1);
+          appointmentData.push({
+            ...body,
+            startTime: incrementByInterval(lastStartTime),
+            endTime: incrementByInterval(lastEndTime),
+          });
+        }
+      }
       const result = await Appointment.create(body);
       // Fetch relations for the new appointment
       const [appointment, facility] = await Promise.all([

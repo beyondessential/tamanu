@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: appointment_schedules
-        description: "{{ doc('table__appointment_schedules') }}"
+        description: '{{ doc("table__appointment_schedules") }}'
         tags: []
         columns:
           - name: id
