@@ -77,15 +77,8 @@ const FrequencyText = ({ frequency, startTimeDate }) => {
   );
 };
 
-export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) => {
-  if (!interval)
-    return (
-      <TranslatedText
-        stringId="outpatientAppointment.repeating.error.invalidInterval"
-        fallback="Invalid interval"
-      />
-    );
-  return (
+export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) =>
+  interval ? (
     <>
       <TranslatedText
         stringId="outpatientAppointment.repeating.repeatsOnText"
@@ -94,5 +87,9 @@ export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, int
       <IntervalText frequency={frequency} interval={interval} />{' '}
       <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
     </>
+  ) : (
+    <TranslatedText
+      stringId="outpatientAppointment.repeating.error.invalidInterval"
+      fallback="Invalid interval"
+    />
   );
-};
