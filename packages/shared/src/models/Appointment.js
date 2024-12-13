@@ -147,6 +147,7 @@ export class Appointment extends Model {
           return incrementedDate;
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+          // USE eachWeekdayOfMonth add to shared
           const matchingWeekdays = eachDayOfInterval({
             start: startOfMonth(incrementedDate),
             end: endOfMonth(incrementedDate),

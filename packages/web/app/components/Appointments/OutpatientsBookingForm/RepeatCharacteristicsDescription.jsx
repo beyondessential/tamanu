@@ -10,12 +10,14 @@ import {
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 
+export const eachWeekdayOfMonth = date => {
+  const start = startOfMonth(date);
+  const end = endOfMonth(date);
+  return eachDayOfInterval({ start, end }).filter(day => day.getDay() === date.getDay());
+};
+
 export const getNthWeekday = date => {
-  // Filter out days from month that are not the same weekday as the date
-  const matchingWeekdays = eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  }).filter(day => day.getDay() === date.getDay());
+  const matchingWeekdays = eachWeekdayOfMonth(date);
 
   // Ordinal positioning is 1-based, -1 means the date is the last occurrence of the weekday in the month
   const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
@@ -26,6 +28,7 @@ const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
 
+  // TODO use values
   // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(getNthWeekday(date) - 1, -1);
 
