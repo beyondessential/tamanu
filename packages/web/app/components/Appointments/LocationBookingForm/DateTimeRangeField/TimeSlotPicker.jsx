@@ -209,8 +209,8 @@ export const TimeSlotPicker = ({
           const newEnd = endOfSlotStartingAt(startOfLatestSlot);
           const newTimeRange = { start: newStart, end: newEnd };
           const newSelection = timeSlots
-            .filter(s => areIntervalsOverlapping(s, newTimeRange))
-            .map(({ start }) => start.valueOf());
+            .filter(slot => areIntervalsOverlapping(slot, newTimeRange))
+            .map(idOfTimeSlot);
           updateSelection(newSelection, newTimeRange);
           return;
         }
@@ -252,9 +252,7 @@ export const TimeSlotPicker = ({
           //                           and user tries to toggle off the latest slot, which would
           //                           leave only the second-latest slot selected (illegally)
           const [selectedToggle] = newToggles;
-          const newSelection = timeSlots
-            .map(({ start }) => start.valueOf())
-            .filter(s => s >= selectedToggle);
+          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot >= selectedToggle);
 
           const newStart = new Date(selectedToggle);
           updateSelection(newSelection, { start: newStart });
@@ -289,9 +287,7 @@ export const TimeSlotPicker = ({
           //                           and user tries to toggle off the earliest slot, which would
           //                           leave only the second-earliest slot selected (illegally)
           const [selectedToggle] = newToggles;
-          const newSelection = timeSlots
-            .map(({ start }) => start.valueOf())
-            .filter(s => s <= selectedToggle);
+          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot <= selectedToggle);
 
           const startOfTimeSlot = new Date(selectedToggle);
           const newEnd = endOfSlotStartingAt(startOfTimeSlot);
