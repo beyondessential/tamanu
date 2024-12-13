@@ -72,7 +72,7 @@
     "excel-date-to-js": "^1.0.6",
     "express": "^4.16.2",
     "express-async-handler": "^1.2.0",
-    "express-session": "^1.15.6",
+    "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
     "form-data": "^4.0.0",
