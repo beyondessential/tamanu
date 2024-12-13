@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons';
 
-// TODO: changes to this file have caused
-
 export const Icon = styled(InputAdornment)`
   margin-inline-start: 0;
   .MuiSvgIcon-root {
@@ -12,11 +10,11 @@ export const Icon = styled(InputAdornment)`
   }
 `;
 
-export const StyledExpandMore = styled(ChevronIcon)`
+export const ExpandMoreIcon = styled(ChevronIcon)`
   transform: rotate(0);
   transition: transform 184ms ease-in-out;
 `;
 
-export const StyledExpandLess = styled(StyledExpandMore)`
+export const ExpandLessIcon = styled(ExpandMoreIcon)`
   transform: rotate(180deg);
 `;
