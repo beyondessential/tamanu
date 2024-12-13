@@ -68,7 +68,6 @@ export const OutpatientAppointmentsFilter = props => {
           component={SearchField}
           disabled={isUserPreferencesLoading}
           name="patientNameOrId"
-          onChange={e => setFilters(prev => ({ ...prev, patientNameOrId: e.target.value }))}
           placeholder={getTranslation(
             'scheduling.filter.placeholder.patientNameOrId',
             'Search patient name or ID',
@@ -93,6 +92,7 @@ export const OutpatientAppointmentsFilter = props => {
           onClick={() => {
             setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
             setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+            updateUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
           }}
           type="reset"
         >

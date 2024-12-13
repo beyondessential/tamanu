@@ -17,38 +17,21 @@ import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
 
-const timeOverlapWhereCondition = (startTime, endTime) => {
-  return {
-    [Op.or]: [
-      // Partial overlap
-      {
-        startTime: {
-          [Op.gte]: startTime, // Exclude startTime
-          [Op.lt]: endTime, // Include endTime
-        },
-      },
-      {
-        endTime: {
-          [Op.gt]: startTime, // Exclude endTime
-          [Op.lte]: endTime, // Include startTime
-        },
-      },
-      // Complete overlap
-      {
-        startTime: {
-          [Op.lt]: startTime,
-        },
-        endTime: {
-          [Op.gt]: endTime,
-        },
-      },
-      // Same time
-      {
-        startTime: startTime,
-        endTime: endTime,
-      },
-    ],
+/**
+ * @param {string} intervalStart Some valid PostgreSQL Date/Time input.
+ * @param {string} intervalEnd Some valid PostgreSQL Date/Time input.
+ * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-INPUT
+ */
+const buildTimeQuery = (intervalStart, intervalEnd) => {
+  const whereClause = literal(
+    '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($apptTimeQueryStart, $apptTimeQueryEnd)',
+  );
+  const bindParams = {
+    apptTimeQueryStart: `'${intervalStart}'`,
+    apptTimeQueryEnd: `'${intervalEnd}'`,
   };
+
+  return [whereClause, bindParams];
 };
 
 const sendAppointmentReminder = async ({ appointmentId, email, facilityId, models, settings }) => {
@@ -224,13 +207,7 @@ appointments.get(
       },
     } = req;
 
-    const timeQueryWhereClause = literal(
-      '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($afterDateTime, $beforeDateTime)',
-    );
-    const timeQueryBindParams = {
-      afterDateTime: `'${after}'`,
-      beforeDateTime: `'${before}'`,
-    };
+    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
 
     const cancelledStatusQuery = includeCancelled
       ? null
@@ -298,21 +275,24 @@ appointments.post('/locationBooking', async (req, res) => {
 
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
+      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
+      const conflictCount = await Appointment.count({
         where: {
-          locationId,
-          status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-          ...timeOverlapWhereCondition(startTime, endTime),
+          [Op.and]: [
+            { locationId },
+            {
+              status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+            },
+            timeQueryWhereClause,
+          ],
         },
+        bind: timeQueryBindParams,
         transaction,
       });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
-      }
+      if (conflictCount > 0) throw new ResourceConflictError();
 
-      const newRecord = await Appointment.create(body, { transaction });
-      return newRecord;
+      return await Appointment.create(body, { transaction });
     });
 
     res.status(201).send(result);
@@ -339,12 +319,18 @@ appointments.put('/locationBooking/:id', async (req, res) => {
       }
 
       if (!skipConflictCheck) {
+        const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
         const bookingTimeAlreadyTaken = await Appointment.findOne({
           where: {
-            id: { [Op.ne]: id },
-            locationId,
-            ...timeOverlapWhereCondition(startTime, endTime),
+            [Op.and]: [
+              {
+                id: { [Op.ne]: id },
+              },
+              { locationId },
+              timeQueryWhereClause,
+            ],
           },
+          bind: timeQueryBindParams,
           transaction,
         });
 
