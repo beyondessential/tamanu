@@ -103,7 +103,7 @@
     "redux-thunk": "^2.2.0",
     "request": "^2.87.0",
     "shortid": "^2.2.8",
-    "socket.io-client": "^4.7.5",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "vite": "^5.0.12",
