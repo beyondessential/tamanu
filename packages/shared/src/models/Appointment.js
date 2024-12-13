@@ -181,6 +181,7 @@ export class Appointment extends Model {
           pushNextAppointment();
         }
       }
+      await this.bulkCreate(appointments);
     });
   }
 }
