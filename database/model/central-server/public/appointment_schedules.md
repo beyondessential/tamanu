@@ -45,7 +45,6 @@ Ordinal weekday for monthly recurrence interpreted with `days_of_week` for examp
 - `1` with `days_of_week = ['MO']` =  First Monday of the month
 - `2` with `days_of_week = ['TU']` =  Second Tuesday of the month
 - `-1` with `days_of_week = ['FR']` = Last Friday of the month
-
 {% enddocs %}
 
 {% docs appointment_schedules__occurrence_count %}
