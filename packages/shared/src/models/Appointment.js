@@ -1,8 +1,23 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import {
+  add,
+  eachDayOfInterval,
+  endOfMonth,
+  isBefore,
+  parseISO,
+  set,
+  startOfMonth,
+} from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -112,5 +127,59 @@ export class Appointment extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  static async generateRepeatingAppointment(scheduleData, firstAppointmentData) {
+    const MAX_GENERATED_APPOINTMENTS = 100;
+    await this.sequelize.transaction(async () => {
+      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
+
+      const { interval, frequency, untilTime, nthWeekday, occurrenceCount } = schedule;
+      const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
+
+      const incrementByInterval = date => {
+        const incrementedDate = toDateTimeString(
+          add(parseISO(date), {
+            [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
+          }),
+        );
+        if (frequency === REPEAT_FREQUENCY.WEEKLY) {
+          return incrementedDate;
+        }
+        if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+          const matchingWeekdays = eachDayOfInterval({
+            start: startOfMonth(incrementedDate),
+            end: endOfMonth(incrementedDate),
+          }).filter(day => day.getDay() === date.getDay());
+          // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
+          const atIndex = Math.max(nthWeekday - 1, -1);
+          return toDateTimeString(
+            set(incrementedDate, { date: matchingWeekdays.at(atIndex).getDate() }),
+          );
+        }
+      };
+
+      const pushNextAppointment = () => {
+        const currentAppointment = appointments.at(-1);
+        appointments.push({
+          ...currentAppointment,
+          startTime: incrementByInterval(currentAppointment.startTime),
+          endTime: incrementByInterval(currentAppointment.endTime),
+        });
+      };
+
+      if (occurrenceCount) {
+        for (let i = 0; i < Math.max(occurrenceCount, MAX_GENERATED_APPOINTMENTS); i++) {
+          pushNextAppointment();
+        }
+      } else if (untilTime) {
+        while (
+          isBefore(parseISO(appointments.at(-1).startTime), parseISO(untilTime)) &&
+          appointments.length <= MAX_GENERATED_APPOINTMENTS
+        ) {
+          pushNextAppointment();
+        }
+      }
+    });
   }
 }

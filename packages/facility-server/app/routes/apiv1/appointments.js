@@ -68,7 +68,7 @@ appointments.post(
       // JUST muking around here
       let schedule;
       if (appointmentSchedule) {
-        schedule = await AppointmentSchedule.create({
+        schedule = await AppointmentSchedule.createRepeatingAppointment({
           ...appointmentSchedule,
           // TODO: Should these be startTime and endTime?
           startDate: body.startTime,
