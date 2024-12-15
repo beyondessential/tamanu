@@ -6,13 +6,13 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { ChevronIcon } from '../Icons/ChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
+import { ExpandMoreIcon } from './FieldCommonComponents';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -38,17 +38,12 @@ const OptionTag = styled(FormFieldTag)`
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
   position: absolute;
-  right: 35px;
+  right: 23px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-`;
-
-const StyledChevronIcon = styled(ChevronIcon)`
-  margin-left: 4px;
-  margin-right: 20px;
 `;
 
 const Option = ({ children, ...props }) => {
@@ -133,6 +128,7 @@ export const SelectInput = ({
         paddingTop: '11px',
         paddingBottom: '9px',
         paddingLeft: '5px',
+        paddingRight: '13px',
         fontSize,
       };
     },
@@ -220,7 +216,7 @@ export const SelectInput = ({
             ClearIndicator: innerProps => (
               <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
             ),
-            DropdownIndicator: StyledChevronIcon,
+            DropdownIndicator: ExpandMoreIcon,
           }}
           {...props}
         />
