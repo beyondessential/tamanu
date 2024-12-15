@@ -142,13 +142,12 @@ export class Appointment extends Model {
 
       const incrementByInterval = date => {
         if (!date) return;
-        const incrementedDate = toDateTimeString(
-          add(parseISO(date), {
-            [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
-          }),
-        );
+        const incrementedDate = add(parseISO(date), {
+          [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
+        });
+
         if (frequency === REPEAT_FREQUENCY.WEEKLY) {
-          return incrementedDate;
+          return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
           // USE eachWeekdayOfMonth add to shared
@@ -185,8 +184,7 @@ export class Appointment extends Model {
           pushNextAppointment();
         }
       }
-      console.log(appointments, 'Creating these appointments');
-      // return this.bulkCreate(appointments);
+      return this.bulkCreate(appointments);
     });
   }
 }
