@@ -16,8 +16,8 @@ export const appointmentToFormValues = appointment => {
   const endIsValidDate = isValid(endTime);
 
   const startDate = startIsValidDate ? toDateString(startTime) : null;
-  const endDate = endIsValidDate ? toDateString(startTime) : null;
-  const overnight = endIsValidDate && !isSameDay(new Date(startDate), new Date(endDate));
+  const endDate = endIsValidDate ? toDateString(endTime) : null;
+  const overnight = endIsValidDate && !isSameDay(startTime, endTime);
 
   return {
     // Semantically significant values
