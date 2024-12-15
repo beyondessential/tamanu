@@ -65,31 +65,13 @@ appointments.post(
     const { Appointment, AppointmentSchedule, Facility, PatientCommunication } = models;
 
     await db.transaction(async () => {
-      // JUST muking around here
-      let schedule;
       if (appointmentSchedule) {
-        schedule = await AppointmentSchedule.createRepeatingAppointment({
+        await AppointmentSchedule.createRepeatingAppointment({
           ...appointmentSchedule,
-          // TODO: Should these be startTime and endTime?
           startDate: body.startTime,
         });
-        const untilDate = parseISO(schedule.untilDate);
-        const maximumAppointments = 40;
-        const incrementByInterval = date =>
-          toDateTimeString(add(parseISO(date), { weeks: schedule.interval }));
-        const appointmentData = [body];
-        while (
-          isBefore(parseISO(appointmentData.at(-1).startTime), untilDate) ||
-          appointmentData.length <= maximumAppointments
-        ) {
-          const { startTime: lastStartTime, endTime: lastEndTime } = appointmentData.at(-1);
-          appointmentData.push({
-            ...body,
-            startTime: incrementByInterval(lastStartTime),
-            endTime: incrementByInterval(lastEndTime),
-          });
-        }
       }
+
       const result = await Appointment.create(body);
       // Fetch relations for the new appointment
       const [appointment, facility] = await Promise.all([
