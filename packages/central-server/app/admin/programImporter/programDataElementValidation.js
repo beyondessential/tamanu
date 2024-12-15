@@ -9,13 +9,24 @@ import {
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
 
+const CHARTING_CORE_TYPE_TO_ID = {
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartType,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartSubType,
+};
+
 // Checks complex chart core question config individually
 function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord) {
-  const { type } = programDataElementRecord.values;
+  const { id, type } = programDataElementRecord.values;
   const { visibilityStatus } = surveyScreenComponentRecord.values;
 
   if (COMPLEX_CORE_DATA_ELEMENT_TYPES.includes(type) === false) {
     throw new Error('Invalid question type');
+  }
+
+  if (CHARTING_CORE_TYPE_TO_ID[type] !== id) {
+    throw new Error(`Invalid ID for question type '${type}'`);
   }
 
   const mandatoryTypes = [
