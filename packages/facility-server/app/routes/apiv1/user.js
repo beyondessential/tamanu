@@ -204,7 +204,7 @@ const clinicianTasksQuerySchema = z.object({
     .default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
-  locationId: z.string().optional(),
+  locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
     .transform(value => value === 'true')
@@ -328,6 +328,7 @@ user.get(
     };
 
     const tasks = await models.Task.findAll({
+      logging: console.log,
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],

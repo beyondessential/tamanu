@@ -118,6 +118,7 @@ export const DashboardTaskPane = React.memo(() => {
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
+              isMulti={true}
             />
             <StyledCheckInput
               label={
