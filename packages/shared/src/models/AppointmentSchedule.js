@@ -3,6 +3,7 @@ import { DAYS_OF_WEEK, REPEAT_FREQUENCY_VALUES, SYNC_DIRECTIONS } from '@tamanu/
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { InvalidOperationError } from '../errors';
 
 /**
  * Schema to follow iCalendar standard for recurring events.
@@ -21,7 +22,7 @@ export class AppointmentSchedule extends Model {
           allowNull: false,
         },
         daysOfWeek: {
-          type: Sequelize.ARRAY(Sequelize.ENUM(DAYS_OF_WEEK)),
+          type: Sequelize.ARRAY(Sequelize.STRING),
           allowNull: true,
         },
         nthWeekday: {
@@ -33,7 +34,18 @@ export class AppointmentSchedule extends Model {
           allowNull: true,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        validate: {
+          mustHaveOneWeekday: function() {
+            if (this.daysOfWeek?.length !== 1 && DAYS_OF_WEEK.includes(this.daysOfWeek[0])) {
+              // Currently only supporting one weekday for recurring events
+              throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
+            }
+          },
+        },
+        ...options,
+      },
     );
   }
 
