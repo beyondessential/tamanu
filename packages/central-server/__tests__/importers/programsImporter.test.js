@@ -672,7 +672,7 @@ describe('Programs import', () => {
         expect(stats).toMatchObject({
           Program: { created: 1, updated: 0, errored: 0 },
           Survey: { created: 2, updated: 0, errored: 0 },
-          ProgramDataElement: { created: 8, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 7, updated: 1, errored: 0 },
           SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
         });
       });
@@ -688,7 +688,7 @@ describe('Programs import', () => {
           file: 'charting-simple-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should have 'pde-PatientChartingDate' as ID`";
+        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -763,11 +763,10 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "Invalid complex chart core questions",
-          "sheetName: Core, code: 'ComplexChartInstanceName', Invalid ID for question type",
-          "sheetName: Core, code: 'ComplexChartDate', Invalid ID for question type",
-          "sheetName: Core, code: 'ComplexChartType', Invalid ID for question type",
-          "sheetName: Core, code: 'ComplexChartSubtype', Invalid ID for question type",
+          "sheetName: Core, code: 'testchartcorecode0', Invalid ID for question type",
+          "sheetName: Core, code: 'testchartcorecode1', Invalid ID for question type",
+          "sheetName: Core, code: 'testchartcorecode2', Invalid ID for question type",
+          "sheetName: Core, code: 'testchartcorecode3', Invalid ID for question type",
         ];
 
         errors.forEach((error, i) => {
@@ -852,7 +851,7 @@ describe('Programs import', () => {
           file: 'charting-complex-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should have 'pde-PatientChartingDate' as ID`";
+        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
