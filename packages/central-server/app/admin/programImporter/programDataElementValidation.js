@@ -5,6 +5,7 @@ import {
   VISIBILITY_STATUSES,
   SURVEY_TYPES,
   COMPLEX_CORE_DATA_ELEMENT_TYPES,
+  CHARTING_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
 
@@ -42,8 +43,18 @@ function validateComplexChartCore(programDataElementRecords, sheetName, stats, e
 }
 
 function validateChartingFirstQuestion(programDataElementRecords, sheetName, stats, errors) {
-  const { code, type } = programDataElementRecords[0].values;
-  if (type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME) {
+  const { id, code, type } = programDataElementRecords[0].values;
+  const hasWrrongId = id !== CHARTING_DATA_ELEMENT_IDS.dateRecorded;
+  const hasWrongType = type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME;
+
+  if (hasWrrongId) {
+    const error = new Error(
+      `sheetName: ${sheetName}, code: '${code}', First question should have '${CHARTING_DATA_ELEMENT_IDS.dateRecorded}' as ID`,
+    );
+    updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
+    errors.push(error);
+  }
+  if (hasWrongType) {
     const error = new Error(
       `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
     );
