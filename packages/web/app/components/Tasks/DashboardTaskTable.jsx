@@ -5,6 +5,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import { useHistory } from 'react-router-dom';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
 import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
@@ -179,8 +180,8 @@ const getDueTime = ({ dueTime }) => {
 
 const getLocation = ({ encounter }) => (
   <div>
-    <BodyText>{encounter.location.name}</BodyText>
-    <SmallBodyText color={Colors.midText}>{encounter.location.locationGroup.name}</SmallBodyText>
+    <BodyText>{encounter.location.locationGroup.name}</BodyText>
+    <SmallBodyText color={Colors.midText}>{encounter.location.name}</SmallBodyText>
   </div>
 );
 
@@ -219,7 +220,7 @@ const COLUMNS = [
     sortable: false,
   },
   {
-    key: 'locationName',
+    key: 'location',
     title: <TranslatedText stringId="dashboard.tasks.table.column.location" fallback="Location" />,
     accessor: getLocation,
   },
@@ -242,13 +243,14 @@ const COLUMNS = [
   },
   {
     key: 'dueTime',
-    title: <TranslatedText stringId="dashboard.tasks.table.column.task" fallback="Due at" />,
+    title: <TranslatedText stringId="dashboard.tasks.table.column.due" fallback="Due" />,
     accessor: getDueTime,
   },
 ];
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser } = useAuth();
+  const history = useHistory();
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -285,6 +287,10 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     );
   }
 
+  const onRowClick = ({ encounter }) => {
+    history.push(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=tasks`);
+  };
+
   return (
     <Container>
       <StyledTable
@@ -298,6 +304,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         orderBy={orderBy}
         order={order}
         hideHeader={!userTasks?.count}
+        onRowClick={onRowClick}
       />
       {!isUserTasksLoading && (
         <PaginatorContainer>
