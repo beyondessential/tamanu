@@ -30,6 +30,13 @@ export class UserPreference extends Model {
           type: DataTypes.JSONB,
           defaultValue: {},
         },
+        facilityId: {
+          type: DataTypes.STRING,
+          references: {
+            model: 'facilities',
+            key: 'id',
+          },
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

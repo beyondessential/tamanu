@@ -118,21 +118,28 @@ user.post(
 );
 
 user.get(
-  '/userPreferences',
+  '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {
     const {
       models: { UserPreference },
       user: currentUser,
+      params: { facilityId },
     } = req;
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.findOne({
-      where: { userId: currentUser.id },
+    const userPreferencesForFacility = await UserPreference.findOne({
+      where: { userId: currentUser.id, facilityId },
     });
 
-    // Return {} as default if no user preferences exist
-    res.send(userPreferences || {});
+    const userPreferencesGeneral = await UserPreference.findOne({
+      where: { userId: currentUser.id, facilityId: null },
+    });
+
+    // lodash Mergewith ???
+    const combinedPreferences = { ...userPreferencesGeneral, ...userPreferencesForFacility };
+
+    res.send(combinedPreferences);
   }),
 );
 
@@ -142,7 +149,12 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body: { locationBookingFilters, outpatientAppointmentFilters, selectedGraphedVitalsOnFilter },
+      body: {
+        facilityId = null,
+        locationBookingFilters,
+        outpatientAppointmentFilters,
+        selectedGraphedVitalsOnFilter,
+      },
     } = req;
 
     req.checkPermission('write', currentUser);
@@ -152,6 +164,7 @@ user.post(
       locationBookingFilters,
       outpatientAppointmentFilters,
       userId: currentUser.id,
+      facilityId,
       deletedAt: null,
     });
 

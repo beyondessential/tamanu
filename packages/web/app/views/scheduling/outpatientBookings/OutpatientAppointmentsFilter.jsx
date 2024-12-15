@@ -54,14 +54,11 @@ export const OutpatientAppointmentsFilter = props => {
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
 
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        outpatientAppointmentFilters: {
-          ...userPreferences?.outpatientAppointmentFilters,
-          [facilityId]: omit(values, ['patientNameOrId']),
-        },
+        outpatientAppointmentFilters: values.length > 0 ? omit(values, ['patientNameOrId']) : null,
       }),
     200,
   );

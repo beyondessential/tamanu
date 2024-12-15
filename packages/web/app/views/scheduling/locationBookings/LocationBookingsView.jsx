@@ -65,20 +65,16 @@ export const LocationBookingsView = () => {
   const { facilityId } = useAuth();
 
   const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const handleFilterChange = useCallback(
     values => {
       setFilters(values);
       mutateUserPreferences({
-        locationBookingFilters: {
-          ...userPreferences?.locationBookingFilters,
-          [facilityId]: omit(values, ['patientNameOrId']),
-        },
+        locationBookingFilters: values.length > 0 ? omit(values, ['patientNameOrId']) : null,
       });
     },
-    [setFilters, mutateUserPreferences, facilityId, userPreferences],
+    [setFilters, mutateUserPreferences],
   );
 
   const closeBookingForm = () => {
