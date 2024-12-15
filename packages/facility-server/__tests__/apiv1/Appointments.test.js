@@ -107,4 +107,8 @@ describe('Appointments', () => {
       });
     });
   });
+
+  describe('Generate repeating appointments', () => {
+    it.skip('should generate repeating appointments', async () => {});
+  });
 });
