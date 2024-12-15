@@ -70,9 +70,11 @@ export const LocationBookingsView = () => {
   const handleFilterChange = useCallback(
     values => {
       setFilters(values);
-      mutateUserPreferences({ locationBookingFilters: omit(values, ['patientNameOrId']) });
+      mutateUserPreferences({
+        locationBookingFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
+      });
     },
-    [setFilters, mutateUserPreferences],
+    [setFilters, mutateUserPreferences, facilityId],
   );
 
   const closeBookingForm = () => {

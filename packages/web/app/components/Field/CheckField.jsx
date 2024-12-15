@@ -7,6 +7,22 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 
+const StyledIcon = styled.i`
+  background-color: ${Colors.white};
+  border-radius: 0.1875rem;
+  font-size: 1rem;
+  line-height: 0.875rem;
+  margin: 0.0625rem 0;
+
+  &.fa-check-square,
+  &.fa-minus-square {
+    color: ${({ $color }) => $color || Colors.primary};
+  }
+  &.fa-square {
+    color: ${({ $color }) => $color || Colors.softText};
+  }
+`;
+
 /*
   Note that the Checkbox value prop only controls what gets sent,
   not the checkbox state. It's also worth noting that usually forms
@@ -14,33 +30,20 @@ import { Colors } from '../../constants';
 */
 export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    icon={props.disabled ? <i className="fas fa-square" /> : <i className="far fa-square" />}
-    checkedIcon={<i className="far fa-check-square" />}
-    indeterminateIcon={<i className="far fa-minus-square"></i>}
+    icon={
+      props.disabled ? (
+        <StyledIcon className="fas fa-square" />
+      ) : (
+        <StyledIcon className="far fa-square" />
+      )
+    }
+    checkedIcon={<StyledIcon className="far fa-check-square" />}
+    indeterminateIcon={<StyledIcon className="far fa-minus-square"></StyledIcon>}
     {...props}
     checked={Boolean(value)}
     value="true"
   />
 ));
-
-const ControlLabel = styled(FormControlLabel)`
-  align-items: flex-start;
-
-  i,
-  .MuiTypography-root {
-    font-size: 16px;
-    line-height: 18px;
-  }
-  i.fa-check-square {
-    color: ${props => props.$color || Colors.primary};
-  }
-  i.fa-square {
-    color: ${props => props.$color || Colors.softText};
-  }
-  i.fa-minus-square {
-    color: ${props => props.$color || Colors.primary};
-  }
-`;
 
 const ControlCheck = styled(CheckControl)`
   padding-top: 0;
@@ -52,7 +55,7 @@ const ControlCheck = styled(CheckControl)`
 export const CheckInput = React.memo(
   ({ label, value, className, style, error, helperText, ...props }) => (
     <FormControl style={style} className={className} error={error}>
-      <ControlLabel
+      <FormControlLabel
         control={<ControlCheck value={value} {...props} />}
         style={style}
         label={label}
