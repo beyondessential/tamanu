@@ -141,6 +141,7 @@ export class Appointment extends Model {
       const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
 
       const incrementByInterval = date => {
+        if (!date) return;
         const incrementedDate = toDateTimeString(
           add(parseISO(date), {
             [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
