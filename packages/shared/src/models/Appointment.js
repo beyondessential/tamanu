@@ -170,7 +170,7 @@ export class Appointment extends Model {
       };
 
       if (occurrenceCount) {
-        for (let i = 0; i < Math.max(occurrenceCount, MAX_GENERATED_APPOINTMENTS); i++) {
+        for (let i = 0; i < Math.min(occurrenceCount, MAX_GENERATED_APPOINTMENTS); i++) {
           pushNextAppointment();
         }
       } else if (untilTime) {
