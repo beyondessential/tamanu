@@ -26,7 +26,7 @@ function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreen
   }
 
   if (CHARTING_CORE_TYPE_TO_ID[type] !== id) {
-    throw new Error(`Invalid ID for question type '${type}'`);
+    throw new Error('Invalid ID for question type');
   }
 
   const mandatoryTypes = [
