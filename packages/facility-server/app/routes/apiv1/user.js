@@ -195,7 +195,7 @@ user.post(
 
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
-    .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
+    .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
     .optional()
     .default('dueTime'),
   order: z
@@ -204,7 +204,7 @@ const clinicianTasksQuerySchema = z.object({
     .default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
-  locationId: z.string().optional(),
+  locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
     .transform(value => value === 'true')
@@ -254,10 +254,10 @@ user.get(
     const orderOptions = [];
     if (orderBy) {
       switch (orderBy) {
-        case 'locationName':
+        case 'location':
           orderOptions.push([
             Sequelize.literal(
-              'LOWER(CONCAT("encounter->location"."name", \' \', "encounter->location->locationGroup"."name"))',
+              'LOWER(CONCAT("encounter->location->locationGroup"."name", \' \', "encounter->location"."name"))',
             ),
             order,
           ]);

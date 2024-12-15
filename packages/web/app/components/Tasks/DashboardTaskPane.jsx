@@ -59,7 +59,7 @@ export const DashboardTaskPane = React.memo(() => {
   const userPreferencesMutation = useUserPreferencesMutation();
   const { data: userPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
-    userPreferences?.clinicianDashboardTaskingTableFilter[facilityId] || {};
+    userPreferences?.clinicianDashboardTaskingTableFilter?.[facilityId] || {};
 
   const onLocationIdChange = e => {
     const { value } = e.target;
@@ -118,6 +118,7 @@ export const DashboardTaskPane = React.memo(() => {
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
+              isMulti={true}
             />
             <StyledCheckInput
               label={

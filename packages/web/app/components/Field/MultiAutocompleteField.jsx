@@ -44,6 +44,7 @@ const StyledSelect = styled(Select)`
   }
   .react-select__placeholder {
     color: ${Colors.softText};
+    ${p => p.size === 'small' && 'font-size: 11px;'}
   }
 
   .react-select__multi-value {
@@ -86,6 +87,7 @@ const StyledSelect = styled(Select)`
     padding: 10px 15px;
     font-size: 13px;
     display: inline-flex;
+    ${p => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
     &:hover {
       background-color: ${Colors.background};
     }
@@ -164,7 +166,7 @@ const Option = props => {
   );
 };
 
-const MultiAutocompleteInput = ({
+export const MultiAutocompleteInput = ({
   value,
   label,
   disabled,
@@ -183,7 +185,9 @@ const MultiAutocompleteInput = ({
   useEffect(() => {
     // fill initial values
     setSelected(
-      value?.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label })) || [],
+      Array.isArray(value)
+        ? value.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label }))
+        : [],
     );
   }, [value]);
 
