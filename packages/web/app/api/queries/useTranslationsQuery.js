@@ -1,7 +1,7 @@
 import { useApi } from '../useApi.js';
 import { useQuery } from '@tanstack/react-query';
 
-import { registerYup } from '../../utils/errorMessages.js';
+import { registerYup } from '../../utils/errorMessages';
 
 export const useTranslationsQuery = (language = 'en') => {
   const api = useApi();
