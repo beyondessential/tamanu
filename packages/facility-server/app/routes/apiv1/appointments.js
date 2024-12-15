@@ -66,6 +66,7 @@ appointments.post(
     await db.transaction(async () => {
       if (appointmentSchedule) {
         await Appointment.generateRepeatingAppointment(appointmentSchedule, body);
+        throw new Error('');
       }
 
       const result = await Appointment.create(body);
