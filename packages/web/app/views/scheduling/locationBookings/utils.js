@@ -12,12 +12,12 @@ export const appointmentToFormValues = appointment => {
   const startTime = appointment.startTime ? new Date(appointment.startTime) : null;
   const endTime = appointment.endTime ? new Date(appointment.endTime) : null;
 
-  const startIsValidDate = isValid(startTime);
-  const endIsValidDate = isValid(endTime);
+  const startIsValid = isValid(startTime);
+  const endIsValid = isValid(endTime);
 
-  const startDate = startIsValidDate ? toDateString(startTime) : null;
-  const endDate = endIsValidDate ? toDateString(endTime) : null;
-  const overnight = endIsValidDate && !isSameDay(startTime, endTime);
+  const startDate = startIsValid ? toDateString(startTime) : null;
+  const endDate = endIsValid ? toDateString(endTime) : null;
+  const overnight = startIsValid && endIsValid && !isSameDay(startTime, endTime);
 
   return {
     // Semantically significant values
