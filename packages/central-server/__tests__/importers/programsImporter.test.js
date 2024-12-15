@@ -683,12 +683,21 @@ describe('Programs import', () => {
         });
         expect(errors).toContainAnError('metadata', 0, 'Charting survey can not be sensitive');
       });
-      it('Should refuse to import a simple chart if the first question is not DateTime type', async () => {
+      it('Should refuse to import a simple chart if the first question has wrong ID', async () => {
         const { errors } = await doImport({
-          file: 'charting-simple-datetime-invalid',
+          file: 'charting-simple-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should be DateTime type";
+        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should have 'pde-PatientChartingDate' as ID`";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
+      });
+      it('Should refuse to import a simple chart if the first question is not DateTime type', async () => {
+        const { errors } = await doImport({
+          file: 'charting-simple-datetime-invalid-type',
+          dryRun: true,
+        });
+        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -730,10 +739,35 @@ describe('Programs import', () => {
 
         const errorMessages = [
           "Invalid complex chart core questions",
-          "sheetName: Core, code: 'testchartcorecode0', Invalid question type",
-          "sheetName: Core, code: 'testchartcorecode1', Invalid question type",
-          "sheetName: Core, code: 'testchartcorecode2', Invalid question type",
-          "sheetName: Core, code: 'testchartcorecode3', Invalid question type",
+          "sheetName: Core, code: 'ComplexChartInstanceName', Invalid question type",
+          "sheetName: Core, code: 'ComplexChartDate', Invalid question type",
+          "sheetName: Core, code: 'ComplexChartType', Invalid question type",
+          "sheetName: Core, code: 'ComplexChartSubtype', Invalid question type",
+        ];
+
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: errorMessages.length },
+          SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
+        });
+      });
+      it('Should refuse to import a complex core survey without special question config IDs', async () => {
+        const { errors, stats } = await doImport({
+          file: 'charting-complex-core-question-ids-invalid',
+          dryRun: true,
+        });
+
+        const errorMessages = [
+          "Invalid complex chart core questions",
+          "sheetName: Core, code: 'ComplexChartInstanceName', Invalid ID for question type",
+          "sheetName: Core, code: 'ComplexChartDate', Invalid ID for question type",
+          "sheetName: Core, code: 'ComplexChartType', Invalid ID for question type",
+          "sheetName: Core, code: 'ComplexChartSubtype', Invalid ID for question type",
         ];
 
         errors.forEach((error, i) => {
@@ -754,8 +788,8 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "sheetName: Core, code: 'testchartcorecode0', ComplexChartInstanceName cannot be hidden",
-          "sheetName: Core, code: 'testchartcorecode1', ComplexChartDate cannot be hidden",
+          "sheetName: Core, code: 'ComplexChartInstanceName', ComplexChartInstanceName cannot be hidden",
+          "sheetName: Core, code: 'ComplexChartDate', ComplexChartDate cannot be hidden",
         ];
 
         errors.forEach((error, i) => {
@@ -813,12 +847,21 @@ describe('Programs import', () => {
         });
         expect(errors).toContainAnError('metadata', 0, 'Charting survey can not be sensitive');
       });
-      it('Should refuse to import a complex chart if the first question is not DateTime type', async () => {
+      it('Should refuse to import a complex chart if the first question has wrong ID', async () => {
         const { errors } = await doImport({
-          file: 'charting-complex-datetime-invalid',
+          file: 'charting-complex-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should be DateTime type";
+        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should have 'pde-PatientChartingDate' as ID`";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
+      });
+      it('Should refuse to import a complex chart if the first question is not DateTime type', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-datetime-invalid-type',
+          dryRun: true,
+        });
+        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
