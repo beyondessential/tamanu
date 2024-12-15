@@ -142,7 +142,8 @@ export class Appointment extends Model {
 
       const incrementByInterval = date => {
         if (!date) return;
-        const incrementedDate = add(parseISO(date), {
+        const parsedDate = parseISO(date);
+        const incrementedDate = add(parsedDate, {
           [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
         });
 
@@ -154,7 +155,7 @@ export class Appointment extends Model {
           const matchingWeekdays = eachDayOfInterval({
             start: startOfMonth(incrementedDate),
             end: endOfMonth(incrementedDate),
-          }).filter(day => day.getDay() === date.getDay());
+          }).filter(day => day.getDay() === parsedDate.getDay());
           // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
           const atIndex = Math.max(nthWeekday - 1, -1);
           return toDateTimeString(
