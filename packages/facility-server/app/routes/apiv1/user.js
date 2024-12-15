@@ -14,6 +14,7 @@ import {
   makeDeletedAtIsNullFilter,
   makeFilter,
 } from '../../utils/query';
+import { isEmpty, mergeWith } from 'lodash';
 
 export const user = express.Router();
 
@@ -136,8 +137,14 @@ user.get(
       where: { userId: currentUser.id, facilityId: null },
     });
 
-    // lodash Mergewith ???
-    const combinedPreferences = { ...userPreferencesGeneral, ...userPreferencesForFacility };
+    const customizer = (objValue, srcValue) => (isEmpty(srcValue) ? objValue : srcValue);
+
+    const combinedPreferences = mergeWith(
+      {},
+      userPreferencesGeneral,
+      userPreferencesForFacility,
+      customizer,
+    );
 
     res.send(combinedPreferences);
   }),
