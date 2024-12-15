@@ -137,7 +137,7 @@ export class Appointment extends Model {
         startDate: firstAppointmentData.startTime,
       });
 
-      const { interval, frequency, untilTime, nthWeekday, occurrenceCount } = schedule;
+      const { interval, frequency, untilDate, nthWeekday, occurrenceCount } = schedule;
       const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
 
       const incrementByInterval = date => {
@@ -176,9 +176,9 @@ export class Appointment extends Model {
         for (let i = 0; i < Math.min(occurrenceCount, MAX_GENERATED_APPOINTMENTS); i++) {
           pushNextAppointment();
         }
-      } else if (untilTime) {
+      } else if (untilDate) {
         while (
-          isBefore(parseISO(appointments.at(-1).startTime), parseISO(untilTime)) &&
+          isBefore(parseISO(appointments.at(-1).startTime), parseISO(untilDate)) &&
           appointments.length <= MAX_GENERATED_APPOINTMENTS
         ) {
           pushNextAppointment();
