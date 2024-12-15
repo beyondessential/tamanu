@@ -61,14 +61,11 @@ appointments.post(
       body: { facilityId, appointmentSchedule, ...body },
       settings,
     } = req;
-    const { Appointment, AppointmentSchedule, Facility, PatientCommunication } = models;
+    const { Appointment, Facility, PatientCommunication } = models;
 
     await db.transaction(async () => {
       if (appointmentSchedule) {
-        await AppointmentSchedule.createRepeatingAppointment({
-          ...appointmentSchedule,
-          startDate: body.startTime,
-        });
+        await Appointment.generateRepeatingAppointment(appointmentSchedule, body);
       }
 
       const result = await Appointment.create(body);
