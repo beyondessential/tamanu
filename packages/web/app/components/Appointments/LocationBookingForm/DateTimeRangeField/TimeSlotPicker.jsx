@@ -385,12 +385,12 @@ export const TimeSlotPicker = ({
                 case TIME_SLOT_PICKER_VARIANTS.START:
                   setHoverRange({
                     start: timeSlot.start,
-                    end: endOfDay(date),
+                    end: dayEnd,
                   });
                   return;
                 case TIME_SLOT_PICKER_VARIANTS.END:
                   setHoverRange({
-                    start: startOfDay(date),
+                    start: dayStart,
                     end: timeSlot.end,
                   });
                   return;
