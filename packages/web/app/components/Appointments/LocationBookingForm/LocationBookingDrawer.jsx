@@ -245,7 +245,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           ) : (
             <TranslatedText
               stringId="locationBooking.form.new.description"
-              fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
             />
           )
         }
