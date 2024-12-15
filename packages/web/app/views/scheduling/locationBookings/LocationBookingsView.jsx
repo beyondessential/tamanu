@@ -6,7 +6,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
-import { useLocationsQuery } from '../../../api/queries';
+import { useLocationsQuery, useUserPreferencesQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
@@ -66,15 +66,19 @@ export const LocationBookingsView = () => {
 
   const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { data: userPreferences } = useUserPreferencesQuery();
 
   const handleFilterChange = useCallback(
     values => {
       setFilters(values);
       mutateUserPreferences({
-        locationBookingFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
+        locationBookingFilters: {
+          ...userPreferences?.locationBookingFilters,
+          [facilityId]: omit(values, ['patientNameOrId']),
+        },
       });
     },
-    [setFilters, mutateUserPreferences, facilityId],
+    [setFilters, mutateUserPreferences, facilityId, userPreferences],
   );
 
   const closeBookingForm = () => {
