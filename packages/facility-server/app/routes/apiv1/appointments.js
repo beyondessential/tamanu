@@ -1,4 +1,4 @@
-import { add, format, isBefore, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, Sequelize, literal } from 'sequelize';
@@ -14,7 +14,6 @@ import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const appointments = express.Router();
 
