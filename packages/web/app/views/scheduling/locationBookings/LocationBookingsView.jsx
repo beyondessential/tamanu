@@ -71,7 +71,7 @@ export const LocationBookingsView = () => {
     values => {
       setFilters(values);
       mutateUserPreferences({
-        locationBookingFilters: values.length > 0 ? omit(values, ['patientNameOrId']) : null,
+        locationBookingFilters: omit(values, ['patientNameOrId']),
       });
     },
     [setFilters, mutateUserPreferences],

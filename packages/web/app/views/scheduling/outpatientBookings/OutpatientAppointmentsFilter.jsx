@@ -58,7 +58,7 @@ export const OutpatientAppointmentsFilter = props => {
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        outpatientAppointmentFilters: values.length > 0 ? omit(values, ['patientNameOrId']) : null,
+        outpatientAppointmentFilters: omit(values, ['patientNameOrId']),
       }),
     200,
   );
