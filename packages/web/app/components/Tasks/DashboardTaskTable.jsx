@@ -151,6 +151,11 @@ const StyledDivider = styled(Divider)`
   background-color: ${Colors.outline};
 `;
 
+const DateWrapper = styled.div`
+  text-transform: lowercase;
+  white-space: pre;
+`;
+
 const getStatus = row => {
   const { status } = row;
   switch (status) {
@@ -171,10 +176,10 @@ const getStatus = row => {
 
 const getDueTime = ({ dueTime }) => {
   return (
-    <div>
-      <BodyText sx={{ textTransform: 'lowercase' }}>{formatTime(dueTime)}</BodyText>
+    <DateWrapper>
+      <BodyText>{formatTime(dueTime)}</BodyText>
       <SmallBodyText color={Colors.midText}>{formatShortest(dueTime)}</SmallBodyText>
-    </div>
+    </DateWrapper>
   );
 };
 

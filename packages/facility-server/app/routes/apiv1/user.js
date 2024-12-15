@@ -328,7 +328,6 @@ user.get(
     };
 
     const tasks = await models.Task.findAll({
-      logging: console.log,
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
