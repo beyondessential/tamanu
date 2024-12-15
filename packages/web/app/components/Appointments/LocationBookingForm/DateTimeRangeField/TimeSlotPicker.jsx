@@ -129,9 +129,7 @@ export const TimeSlotPicker = ({
     const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
     if (isModifyingOvernightBooking !== isOvernightVariant) return [];
 
-    return timeSlots
-      .filter(s => areIntervalsOverlapping(s, initialTimeRange))
-      .map(({ start }) => start.valueOf());
+    return timeSlots.filter(s => areIntervalsOverlapping(s, initialTimeRange)).map(idOfTimeSlot);
   });
   const [hoverRange, setHoverRange] = useState(null);
 
