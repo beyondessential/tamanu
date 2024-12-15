@@ -132,7 +132,10 @@ export class Appointment extends Model {
   static async generateRepeatingAppointment(scheduleData, firstAppointmentData) {
     const MAX_GENERATED_APPOINTMENTS = 100;
     await this.sequelize.transaction(async () => {
-      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
+      const schedule = await this.sequelize.models.AppointmentSchedule.create({
+        ...scheduleData,
+        startDate: firstAppointmentData.startTime,
+      });
 
       const { interval, frequency, untilTime, nthWeekday, occurrenceCount } = schedule;
       const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
