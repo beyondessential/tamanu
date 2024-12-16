@@ -112,7 +112,7 @@ describe('Appointments', () => {
     it('should generate repeating weekly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-10-02 12:00:00',
-        untilDate: '2025-02-02 23:59:59',
+        untilDate: '2025-01-02 23:59:59',
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
@@ -128,7 +128,22 @@ describe('Appointments', () => {
       const appointmentsInSchedule = await models.Appointment.findAll({
         where: { scheduleId: result.body.scheduleId },
       });
-      expect(appointmentsInSchedule.length).toBeGreaterThan(1);
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual([
+        '2024-10-02 12:00:00',
+        '2024-10-09 12:00:00',
+        '2024-10-16 12:00:00',
+        '2024-10-23 12:00:00',
+        '2024-10-30 12:00:00',
+        '2024-11-06 12:00:00',
+        '2024-11-13 12:00:00',
+        '2024-11-20 12:00:00',
+        '2024-11-27 12:00:00',
+        '2024-12-04 12:00:00',
+        '2024-12-11 12:00:00',
+        '2024-12-18 12:00:00',
+        '2024-12-25 12:00:00',
+        '2025-01-01 12:00:00',
+      ]);
     });
   });
 });
