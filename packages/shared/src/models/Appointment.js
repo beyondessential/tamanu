@@ -8,7 +8,7 @@ import {
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { add, isAfter, isBefore, parseISO, set } from 'date-fns';
+import { add, isBefore, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { weekdayAtOrdinalPosition } from '../utils/appointmentScheduling';
 
