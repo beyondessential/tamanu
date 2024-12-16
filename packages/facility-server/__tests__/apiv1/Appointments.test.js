@@ -109,14 +109,7 @@ describe('Appointments', () => {
   });
 
   describe('Generate repeating appointments', () => {
-    it('should generate repeating weekly appointments', async () => {
-      const appointmentSchedule = {
-        startDate: '2024-10-02 12:00:00',
-        untilDate: '2025-01-02 23:59:59',
-        interval: 1,
-        frequency: REPEAT_FREQUENCY.WEEKLY,
-        daysOfWeek: ['WE'],
-      };
+    const testRepeatingAppointment = async (appointmentSchedule, expected) => {
       const result = await userApp.post('/api/appointments').send({
         appointmentSchedule,
         patientId: patient.id,
@@ -128,7 +121,17 @@ describe('Appointments', () => {
       const appointmentsInSchedule = await models.Appointment.findAll({
         where: { scheduleId: result.body.scheduleId },
       });
-      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
+    };
+    it('should generate repeating weekly appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-10-02 12:00:00',
+        untilDate: '2025-01-02 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
         '2024-10-16 12:00:00',
