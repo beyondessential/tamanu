@@ -108,7 +108,10 @@ export const TimeSlotPicker = ({
   // date is selected, but component should be disabled in this scenario
   const timeSlots = useTimeSlots(date ?? startOfToday());
 
-  const initialTimeRange = useMemo(
+  const slotContaining = time => timeSlots.find(slot => isWithinIntervalExcludingEnd(time, slot));
+  const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
+
+  const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
   );
@@ -118,15 +121,15 @@ export const TimeSlotPicker = ({
    * the integer form of its start time.
    */
   const [selectedToggles, setSelectedToggles] = useState(() => {
-    if (!initialTimeRange) return [];
+    if (!initialInterval) return [];
 
     // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
     // component (and vice versa)
-    const isModifyingOvernightBooking = !isSameDay(initialTimeRange.start, initialTimeRange.end);
+    const isModifyingOvernightBooking = !isSameDay(initialInterval.start, initialInterval.end);
     const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
     if (isModifyingOvernightBooking !== isOvernightVariant) return [];
 
-    return timeSlots.filter(s => areIntervalsOverlapping(s, initialTimeRange)).map(idOfTimeSlot);
+    return timeSlots.filter(s => areIntervalsOverlapping(s, initialInterval)).map(idOfTimeSlot);
   });
   const [hoverRange, setHoverRange] = useState(null);
 
@@ -146,10 +149,9 @@ export const TimeSlotPicker = ({
     { enabled: dateIsValid && !!values.locationId },
   );
 
-  const updateSelection = useCallback(
-    (newToggleSelection, newTimeRange) => {
-      const { start, end } = newTimeRange;
-      setSelectedToggles(newToggleSelection);
+  const updateInterval = useCallback(
+    newInterval => {
+      const { start, end } = newInterval;
       switch (variant) {
         case TIME_SLOT_PICKER_VARIANTS.RANGE:
           void setFieldValue('startTime', toDateTimeString(start));
@@ -167,10 +169,51 @@ export const TimeSlotPicker = ({
   );
 
   useEffect(() => {
-    if (hasNoLegalSelection) updateSelection([], { end: null });
-  }, [hasNoLegalSelection, updateSelection]);
+    // Not a destructure to convince linter we don’t need `values` as object dependency
+    const startTime = values.startTime;
+    const endTime = values.endTime;
 
-  const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
+    if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
+      if (!startTime || !endTime) {
+        setSelectedToggles([]);
+        return;
+      }
+
+      const interval = appointmentToInterval({ startTime, endTime });
+      setSelectedToggles(
+        timeSlots.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
+      );
+      return;
+    }
+
+    if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
+      if (!startTime) {
+        setSelectedToggles([]);
+        return;
+      }
+
+      const newStart = parseISO(startTime);
+      setSelectedToggles(
+        timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= newStart.valueOf()),
+      );
+      return;
+    }
+
+    if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
+      if (!endTime) {
+        setSelectedToggles([]);
+        return;
+      }
+
+      const newEnd = parseISO(endTime);
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < newEnd.valueOf()));
+      return;
+    }
+  }, [timeSlots, values.startTime, values.endTime, variant]);
+
+  useEffect(() => {
+    if (hasNoLegalSelection) updateInterval({ end: null });
+  }, [hasNoLegalSelection, updateInterval]);
 
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
@@ -184,59 +227,49 @@ export const TimeSlotPicker = ({
       case TIME_SLOT_PICKER_VARIANTS.RANGE: {
         // Deselecting the only selected time slot
         if (newToggles.length === 0) {
-          updateSelection([], { start: null, end: null });
+          updateInterval({ start: null, end: null });
           return;
         }
 
         // Fresh selection
         if (newToggles.length === 1) {
-          const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotStartingAt(newStart);
-          updateSelection(newToggles, { start: newStart, end: newEnd });
+          const start = new Date(newToggles[0]);
+          const end = endOfSlotStartingAt(start);
+          updateInterval({ start, end });
           return;
         }
 
-        // One time slot already selected. A second one makes a contiguous series.
-        // (Selecting tail before head is allowed.)
-        if (selectedToggles.length === 1) {
-          const newStart = new Date(newToggles[0]);
-          const startOfLatestSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotStartingAt(startOfLatestSlot);
-          const newTimeRange = { start: newStart, end: newEnd };
-          const newSelection = timeSlots
-            .filter(slot => areIntervalsOverlapping(slot, newTimeRange))
-            .map(idOfTimeSlot);
-          updateSelection(newSelection, newTimeRange);
-          return;
-        }
-
-        // Many time slots already selected. User may shorten the selection by deselecting only the
-        // first or last slot.
-        if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
-          const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotStartingAt(new Date(newToggles.at(-1)));
-          updateSelection(newToggles, { start: newStart, end: newEnd });
+        if (
+          // One time slot already selected. A second one makes a contiguous series. (Selecting
+          // tail before head is allowed.)
+          selectedToggles.length === 1 ||
+          // Many time slots already selected. User may shorten the selection by deselecting only
+          // the head or tail slot.
+          isSameArrayMinusHeadOrTail(newToggles, selectedToggles)
+        ) {
+          const start = new Date(newToggles[0]);
+          const end = endOfSlotStartingAt(new Date(newToggles.at(-1)));
+          updateInterval({ start, end });
           return;
         }
 
         // Many time slots selected. Toggling anything other than the head or tail would create a
         // discontinuous selection, so clear the selection instead.
-        updateSelection([], { start: null, end: null });
+        updateInterval({ start: null, end: null });
         setHoverRange(null);
         return;
       }
       case TIME_SLOT_PICKER_VARIANTS.START: {
         // Deselecting the only selected time slot (necessarily the latest time slot of the day)
         if (newToggles.length === 0) {
-          updateSelection([], { start: null });
+          updateInterval({ start: null });
           return;
         }
 
         // Many time slots already selected. User may shorten the selection by deselecting only the
         // earliest slot.
         if (isSameArrayMinusHead(newToggles, selectedToggles)) {
-          const newStart = new Date(newToggles[0]);
-          updateSelection(newToggles, { start: newStart });
+          updateInterval({ start: new Date(newToggles[0]) });
           return;
         }
 
@@ -246,23 +279,19 @@ export const TimeSlotPicker = ({
           //                           the scenario where only the latest two slots were selected,
           //                           and user tries to toggle off the latest slot, which would
           //                           leave only the second-latest slot selected (illegally)
-          const [selectedToggle] = newToggles;
-          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot >= selectedToggle);
-
-          const newStart = new Date(selectedToggle);
-          updateSelection(newSelection, { start: newStart });
+          updateInterval({ start: new Date(newToggles[0]) });
           return;
         }
 
         // Many time slots selected. Toggling anything other than the head would create a
         // discontinuous selection, so clear the selection instead.
-        updateSelection([], { start: null });
+        updateInterval({ start: null });
         return;
       }
       case TIME_SLOT_PICKER_VARIANTS.END: {
         // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
         if (newToggles.length === 0) {
-          updateSelection([], { end: null });
+          updateInterval({ end: null });
           return;
         }
 
@@ -270,8 +299,7 @@ export const TimeSlotPicker = ({
         // latest slot.
         if (isSameArrayMinusTail(newToggles, selectedToggles)) {
           const startOfLastSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotStartingAt(startOfLastSlot);
-          updateSelection(newToggles, { end: newEnd });
+          updateInterval({ end: endOfSlotStartingAt(startOfLastSlot) });
           return;
         }
 
@@ -281,18 +309,14 @@ export const TimeSlotPicker = ({
           //                           the scenario where only the earliest two slots were selected,
           //                           and user tries to toggle off the earliest slot, which would
           //                           leave only the second-earliest slot selected (illegally)
-          const [selectedToggle] = newToggles;
-          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot <= selectedToggle);
-
-          const startOfTimeSlot = new Date(selectedToggle);
-          const newEnd = endOfSlotStartingAt(startOfTimeSlot);
-          updateSelection(newSelection, { end: newEnd });
+          const startOfTimeSlot = new Date(newToggles[0]);
+          updateInterval({ end: endOfSlotStartingAt(startOfTimeSlot) });
           return;
         }
 
         // Many time slots selected. Toggling anything other than the tail would create a
         // discontinuous selection, so clear the selection instead.
-        updateSelection([], { end: null });
+        updateInterval({ end: null });
         return;
       }
     }
@@ -302,8 +326,8 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map(appointmentToInterval)
-        .filter(interval => !isEqual(interval, initialTimeRange)) ?? [], // Ignore the booking currently being modified
-    [existingBookings?.data, initialTimeRange],
+        .filter(interval => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
+    [existingBookings?.data, initialInterval],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
@@ -371,31 +395,34 @@ export const TimeSlotPicker = ({
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
 
-              switch (variant) {
-                case TIME_SLOT_PICKER_VARIANTS.RANGE:
-                  if (!values.startTime || !values.endTime) {
-                    setHoverRange(timeSlot);
-                    return;
-                  }
+              if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
+                if (!values.startTime || !values.endTime) {
+                  setHoverRange(timeSlot);
+                  return;
+                }
 
-                  setHoverRange({
-                    start: min([timeSlot.start, parseISO(values.startTime)]),
-                    end: max([timeSlot.end, parseISO(values.endTime)]),
-                  });
-                  return;
-                case TIME_SLOT_PICKER_VARIANTS.START:
-                  setHoverRange({
-                    start: timeSlot.start,
-                    end: dayEnd,
-                  });
-                  return;
-                case TIME_SLOT_PICKER_VARIANTS.END:
-                  setHoverRange({
-                    start: dayStart,
-                    end: timeSlot.end,
-                  });
-                  return;
+                setHoverRange({
+                  start: min([timeSlot.start, parseISO(values.startTime)]),
+                  end: max([timeSlot.end, parseISO(values.endTime)]),
+                });
+                return;
               }
+
+              if (selectedToggles.length > 0) return;
+
+              if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
+                setHoverRange({
+                  start: timeSlot.start,
+                  end: dayEnd,
+                });
+                return;
+              }
+
+              // END variant
+              setHoverRange({
+                start: dayStart,
+                end: timeSlot.end,
+              });
             };
 
             return (
