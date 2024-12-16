@@ -50,7 +50,7 @@ describe('User', () => {
 
     beforeAll(async () => {
       const { User, Role } = models;
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
       deactivatedUser = await User.create(
@@ -346,7 +346,7 @@ describe('User', () => {
     const validUserFacilityIds = validUserFacilities.map(f => f.id);
 
     beforeAll(async () => {
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       superUser = await models.User.create(
         createUser({
           role: 'admin',
@@ -624,6 +624,7 @@ describe('User', () => {
 
   describe('User preference', () => {
     let user = null;
+    let facility = null;
     let app = null;
     const defaultSelectedGraphedVitalsOnFilter = [
       'data-element-1',
@@ -634,7 +635,6 @@ describe('User', () => {
       const result = await app.post('/api/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        id: user.id,
         userId: user.id,
         ...userPreference,
       });
@@ -649,13 +649,15 @@ describe('User', () => {
       );
       app = await baseApp.asUser(user);
 
+      facility = await models.Facility.create(fake(models.Facility));
+
       await updateUserPreference({
         selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 
     it('should fetch current user existing user preference', async () => {
-      const result = await app.get('/api/user/userPreferences');
+      const result = await app.get(`/api/user/userPreferences/${facility.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
