@@ -311,31 +311,32 @@ export const TimeSlotPicker = ({
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
-      let targetSelection; // The would-be time range if this time slot were to be selected
+      if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE && (!values.startTime || !values.endTime)) {
+        // If beginning a fresh selection in the RANGE variant, discontinuity is impossible
+        return true;
+      }
+
+      /** Returns the would-be time range selection if the provided time slot were to be clicked */
+      const getTargetSelection = timeSlot => {
       switch (variant) {
         case TIME_SLOT_PICKER_VARIANTS.RANGE:
-          // If beginning a fresh selection, discontinuity is impossible
-          if (!values.startTime || !values.endTime) return true;
-          targetSelection = {
+            return {
             start: minValidDate([values.startTime, timeSlot.start]),
             end: maxValidDate([values.endTime, timeSlot.end]),
           };
-          break;
-
         case TIME_SLOT_PICKER_VARIANTS.START:
-          targetSelection = {
+            return {
             start: timeSlot.start,
             end: dayEnd,
           };
-          break;
-
         case TIME_SLOT_PICKER_VARIANTS.END:
-          targetSelection = {
+            return {
             start: dayStart,
             end: timeSlot.end,
           };
-          break;
       }
+      };
+      const targetSelection = getTargetSelection(timeSlot);
 
       return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
