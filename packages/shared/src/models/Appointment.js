@@ -173,11 +173,7 @@ export class Appointment extends Model {
           pushNextAppointment();
         }
       }
-      console.log(
-        'START_TIMES',
-        appointments.map(a => a.startTime),
-      );
-      // return this.bulkCreate(appointments);
+      return this.bulkCreate(appointments);
     });
   }
 }
