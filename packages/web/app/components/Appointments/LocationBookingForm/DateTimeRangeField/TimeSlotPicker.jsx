@@ -3,12 +3,11 @@ import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/Toggl
 import {
   addMilliseconds,
   areIntervalsOverlapping,
-  endOfDay,
   isSameDay,
   isValid,
   max,
   min,
-  startOfDay,
+  parseISO,
   startOfToday,
 } from 'date-fns';
 import { useFormikContext } from 'formik';
@@ -21,7 +20,7 @@ import styled, { css } from 'styled-components';
 import {
   maxValidDate,
   minValidDate,
-  startAndEndOfDay,
+  endpointsOfDay,
   toDateTimeString,
 } from '@tamanu/shared/utils/dateTime';
 
