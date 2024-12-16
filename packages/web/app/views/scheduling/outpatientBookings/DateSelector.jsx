@@ -144,14 +144,14 @@ const DayButton = ({ date, selected, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
-  const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
+  const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {
-    setViewedDays(getMonthInterval(value));
+    setViewedDays(eachDayInMonth(value));
   }, [value]);
 
-  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
-  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
+  const handleIncrement = () => setViewedDays(eachDayInMonth(addMonths(viewedDays[0], 1)));
+  const handleDecrement = () => setViewedDays(eachDayInMonth(subMonths(viewedDays[0], 1)));
 
   const handleChange = day => {
     onChange({
