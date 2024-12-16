@@ -8,16 +8,8 @@ import {
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import {
-  add,
-  eachDayOfInterval,
-  endOfMonth,
-  isBefore,
-  parseISO,
-  set,
-  startOfMonth,
-} from 'date-fns';
-import { toDateTimeString } from '../utils/dateTime';
+import { add, isBefore, parseISO, set } from 'date-fns';
+import { getNthWeekdayInMonth, toDateTimeString } from '../utils/dateTime';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -151,16 +143,8 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-          // USE eachWeekdayOfMonth add to shared
-          const matchingWeekdays = eachDayOfInterval({
-            start: startOfMonth(incrementedDate),
-            end: endOfMonth(incrementedDate),
-          }).filter(day => day.getDay() === parsedDate.getDay());
-          // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
-          const atIndex = Math.max(nthWeekday - 1, -1);
-          return toDateTimeString(
-            set(incrementedDate, { date: matchingWeekdays.at(atIndex).getDate() }),
-          );
+          const nthWeekdayInMonth = getNthWeekdayInMonth(parsedDate, nthWeekday);
+          return toDateTimeString(set(incrementedDate, { date: nthWeekdayInMonth.getDate() }));
         }
       };
 

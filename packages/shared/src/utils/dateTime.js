@@ -13,7 +13,10 @@ import {
   parseISO,
   startOfDay,
   startOfWeek,
+  startOfMonth,
+  endOfMonth,
   sub,
+  eachDayOfInterval,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 import { z } from 'zod';
@@ -281,4 +284,17 @@ export const maxValidDate = dates => {
 export const minValidDate = dates => {
   const validDates = dates.filter(isValid);
   return validDates.length === 0 ? null : min(validDates);
+};
+
+export const getWeekdaysInMonth = date => {
+  return eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
+  }).filter(day => day.getDay() === date.getDay());
+};
+
+export const getNthWeekdayInMonth = (date, nth) => {
+  const matchingWeekdays = getWeekdaysInMonth(date);
+  const atIndex = Math.max(nth - 1, -1);
+  return matchingWeekdays.at(atIndex);
 };
