@@ -176,7 +176,7 @@ export class Appointment extends Model {
           pushNextAppointment();
         }
       }
-      console.log(appoointments);
+      console.log(appointments);
       // return this.bulkCreate(appointments);
     });
   }
