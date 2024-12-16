@@ -125,7 +125,7 @@ export const TimeSlotPicker = ({
 
     // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
     // component (and vice versa)
-    const isModifyingOvernightBooking = !isSameDay(initialStart, initialEnd);
+    const isModifyingOvernightBooking = !isSameDay(initialTimeRange.start, initialTimeRange.end);
     const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
     if (isModifyingOvernightBooking !== isOvernightVariant) return [];
 
