@@ -9,7 +9,7 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { add, isBefore, parseISO, set } from 'date-fns';
-import { getNthWeekdayInMonth, toDateTimeString } from '../utils/dateTime';
+import { nthWeekdayInMonth, toDateTimeString } from '../utils/dateTime';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -143,8 +143,9 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-          const nthWeekdayInMonth = getNthWeekdayInMonth(parsedDate, nthWeekday);
-          return toDateTimeString(set(incrementedDate, { date: nthWeekdayInMonth.getDate() }));
+          return toDateTimeString(
+            set(incrementedDate, { date: nthWeekdayInMonth(parsedDate, nthWeekday).getDate() }),
+          );
         }
       };
 

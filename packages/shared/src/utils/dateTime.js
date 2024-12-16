@@ -286,15 +286,16 @@ export const minValidDate = dates => {
   return validDates.length === 0 ? null : min(validDates);
 };
 
-export const getWeekdaysInMonth = date => {
+export const eachMatchingWeekdayInMonth = date => {
   return eachDayOfInterval({
     start: startOfMonth(date),
     end: endOfMonth(date),
   }).filter(day => day.getDay() === date.getDay());
 };
 
-export const getNthWeekdayInMonth = (date, nth) => {
-  const matchingWeekdays = getWeekdaysInMonth(date);
+export const nthWeekdayInMonth = (date, nth) => {
+  const matchingWeekdays = eachMatchingWeekdayInMonth(date);
+  // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(nth - 1, -1);
   return matchingWeekdays.at(atIndex);
 };

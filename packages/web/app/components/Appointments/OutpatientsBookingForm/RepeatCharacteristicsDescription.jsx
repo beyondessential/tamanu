@@ -1,5 +1,5 @@
 import React from 'react';
-import { format, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 
 import {
   REPEAT_FREQUENCY,
@@ -9,16 +9,10 @@ import {
 
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
-
-export const eachWeekdayOfMonth = date => {
-  const start = startOfMonth(date);
-  const end = endOfMonth(date);
-  return eachDayOfInterval({ start, end }).filter(day => day.getDay() === date.getDay());
-};
+import { eachMatchingWeekdayInMonth } from '@tamanu/shared/utils/dateTime';
 
 export const getNthWeekday = date => {
-  const matchingWeekdays = eachWeekdayOfMonth(date);
-
+  const matchingWeekdays = eachMatchingWeekdayInMonth(date);
   // Ordinal positioning is 1-based, -1 means the date is the last occurrence of the weekday in the month
   const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
   return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
@@ -28,7 +22,7 @@ const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
 
-  // TODO use values
+  // TODO: use values
   // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(getNthWeekday(date) - 1, -1);
 
