@@ -161,23 +161,12 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const userPreferences = await UserPreference.findOne({
-      where: {
-        userId: currentUser.id,
-        facilityId,
-      },
+    const [userPreferences] = await UserPreference.upsert({
+      ...preferences,
+      facilityId,
+      userId: currentUser.id,
+      deletedAt: null,
     });
-
-    if (userPreferences) {
-      userPreferences.update(preferences);
-    } else {
-      UserPreference.create({
-        ...preferences,
-        userId: currentUser.id,
-        facilityId,
-        deletedAt: null,
-      });
-    }
 
     res.send(userPreferences);
   }),

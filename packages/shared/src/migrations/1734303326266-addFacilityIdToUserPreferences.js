@@ -33,6 +33,12 @@ export async function up(query) {
     unique: true,
   });
 
+  await query.addIndex('user_preferences', {
+    name: 'user_facility_unique_index',
+    unique: true,
+    fields: ['user_id', 'facility_id'],
+  });
+
   await query.addConstraint('user_preferences', {
     type: 'primary key',
     fields: ['id'],
@@ -42,6 +48,7 @@ export async function up(query) {
 export async function down(query) {
   await query.removeConstraint('user_preferences', 'user_preferences_id_key');
   await query.removeConstraint('user_preferences', 'user_preferences_id_pk');
+  await query.removeConstraint('user_preferences', 'user_facility_unique_index');
 
   await query.removeColumn('user_preferences', 'facility_id');
 

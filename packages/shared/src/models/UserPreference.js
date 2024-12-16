@@ -36,7 +36,16 @@ export class UserPreference extends Model {
           },
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [
+          {
+            unique: true,
+            fields: ['userId', 'facilityId'],
+          },
+        ],
+        ...options,
+      },
     );
   }
 
