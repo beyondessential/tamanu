@@ -45,4 +45,5 @@ export async function up(query) {
 
 export async function down() {
   // migration is irreversible as user_id can no longer be PK
+  return null;
 }
