@@ -1,14 +1,9 @@
 import { DAYS_OF_WEEK } from '@tamanu/constants';
-import { eachDayOfInterval, endOfMonth, isSameDay, startOfMonth } from 'date-fns';
-
-export const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
+import { isSameDay } from 'date-fns';
+import { eachDayInMonth } from './dateTime';
 
 export const eachWeekdayInMonth = (date, weekday = date.getDay()) =>
-  getMonthInterval(date).filter(day => day.getDay() === weekday);
+  eachDayInMonth(date).filter(day => day.getDay() === weekday);
 
 export const weekdayAtOrdinalPosition = (date, day, nth) => {
   const matchingWeekdays = eachWeekdayInMonth(date, DAYS_OF_WEEK.indexOf(day) + 1);
