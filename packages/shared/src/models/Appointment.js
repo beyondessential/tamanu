@@ -130,7 +130,7 @@ export class Appointment extends Model {
         startDate: firstAppointmentData.startTime,
       });
 
-      const { interval, frequency, untilDate, nthWeekday, occurrenceCount } = schedule;
+      const { interval, frequency, untilDate, daysOfWeek, nthWeekday, occurrenceCount } = schedule;
       const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
 
       const incrementByInterval = date => {
@@ -144,10 +144,12 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+          const [weekday] = daysOfWeek;
+          console.log(weekday);
           // TODO this isn't it - we need to make sure to use schedule.daysOfWeek
           return toDateTimeString(
             set(incrementedDate, {
-              date: weekdayAtOrdinalPosition(parsedDate, nthWeekday).getDate(),
+              date: weekdayAtOrdinalPosition(parsedDate, weekday, nthWeekday).getDate(),
             }),
           );
         }
@@ -174,7 +176,8 @@ export class Appointment extends Model {
           pushNextAppointment();
         }
       }
-      return this.bulkCreate(appointments);
+      console.log(appoointments);
+      // return this.bulkCreate(appointments);
     });
   }
 }

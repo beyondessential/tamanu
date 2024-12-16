@@ -7,8 +7,6 @@ import Box from '@mui/material/Box';
 import {
   addDays,
   addMonths,
-  eachDayOfInterval,
-  endOfMonth,
   format,
   isSameDay,
   isSameMonth,
@@ -19,6 +17,8 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
+
+import { getMonthInterval } from '@tamanu/shared/utils/appointmentScheduling';
 
 import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -128,12 +128,6 @@ const StepperWrapper = styled(Box)`
   overflow: hidden;
   inline-size: 100%;
 `;
-
-const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
 
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
