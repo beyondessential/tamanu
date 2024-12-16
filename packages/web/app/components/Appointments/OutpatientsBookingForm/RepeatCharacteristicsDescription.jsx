@@ -9,7 +9,7 @@ import {
 
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
-import { eachMatchingWeekdayInMonth } from '@tamanu/shared/utils/dateTime';
+import { eachMatchingWeekdayInMonth } from '@tamanu/shared/utils/appointmentScheduling';
 
 export const getNthWeekday = date => {
   const matchingWeekdays = eachMatchingWeekdayInMonth(date);

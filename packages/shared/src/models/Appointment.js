@@ -9,7 +9,8 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { add, isBefore, parseISO, set } from 'date-fns';
-import { nthWeekdayInMonth, toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '../utils/dateTime';
+import { nthWeekdayInMonth } from '../utils/appointmentScheduling';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
