@@ -10,8 +10,9 @@ export async function up(query) {
     },
   });
 
-  await query.removeConstraint('user_preferences', 'user_preferences_user_id_uk');
-  await query.removeConstraint('user_preferences', 'user_preferences_pkey');
+  // TODO: this needs to be commented/skipped until down migration works proper
+  await query.removeConstraint('user_preferences', 'user_preferences_user_id_key');
+  await query.removeConstraint('user_preferences', 'user_preferences_pk');
 
   await query.removeColumn('user_preferences', 'id');
 
@@ -31,9 +32,17 @@ export async function up(query) {
     defaultValue: DataTypes.UUIDV4,
     unique: true,
   });
+
+  await query.addConstraint('user_preferences', {
+    type: 'primary key',
+    fields: ['id'],
+  });
 }
 
 export async function down(query) {
+  await query.removeConstraint('user_preferences', 'user_preferences_id_key');
+  await query.removeConstraint('user_preferences', 'user_preferences_id_pk');
+
   await query.removeColumn('user_preferences', 'facility_id');
 
   await query.removeColumn('user_preferences', 'id');
@@ -42,9 +51,5 @@ export async function down(query) {
     ADD COLUMN "id" TEXT GENERATED ALWAYS AS ("user_id") STORED;
   `);
 
-  await query.addConstraint('user_preferences', {
-    fields: ['user_id'],
-    type: 'unique',
-    name: 'user_preferences_user_id_uk',
-  });
+  // TODO: need to somehow maniupulate data so i can reinstate unique + primary key constrants on user_id
 }
