@@ -1,6 +1,6 @@
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 
@@ -109,6 +109,21 @@ describe('Appointments', () => {
   });
 
   describe('Generate repeating appointments', () => {
-    it.skip('should generate repeating appointments', async () => {});
+    it('should generate repeating weekly appointments', async () => {
+      const appointmentSchedule = {
+        startTime: '2024-10-02 12:00:00',
+        untilDate: '2025-02-02 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+      const result = await userApp.post('/api/appointments', {
+        appointmentSchedule,
+        patientId: patient.id,
+        clinicianId: userApp.user.dataValues.id,
+        startTime: '2024-10-02 12:00:00',
+        appointmentTypeId: 'appointmentType-standard',
+      });
+    });
   });
 });
