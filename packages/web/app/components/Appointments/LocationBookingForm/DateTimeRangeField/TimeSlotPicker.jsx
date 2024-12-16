@@ -18,9 +18,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import {
+  endpointsOfDay,
   maxValidDate,
   minValidDate,
-  endpointsOfDay,
   toDateTimeString,
 } from '@tamanu/shared/utils/dateTime';
 
@@ -30,13 +30,14 @@ import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
+import { useTimeSlots } from './useTimeSlots';
 import {
   appointmentToInterval,
-  calculateTimeSlots,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
   isTimeSlotWithinRange,
+  isWithinIntervalExcludingEnd,
 } from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
@@ -103,12 +104,9 @@ export const TimeSlotPicker = ({
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const slotDurationMs = ms(bookingSlotSettings.slotDuration);
 
-  const timeSlots = useMemo(
-    // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
-    // date is selected, but component should be disabled in this scenario
-    () => calculateTimeSlots(bookingSlotSettings, date ?? startOfToday()),
-    [bookingSlotSettings, date],
-  );
+  // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
+  // date is selected, but component should be disabled in this scenario
+  const timeSlots = useTimeSlots(date ?? startOfToday());
 
   const initialTimeRange = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
