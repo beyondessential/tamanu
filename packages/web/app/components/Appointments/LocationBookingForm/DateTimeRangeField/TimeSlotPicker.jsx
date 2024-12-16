@@ -18,7 +18,12 @@ import { PropTypes } from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { maxValidDate, minValidDate, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import {
+  maxValidDate,
+  minValidDate,
+  startAndEndOfDay,
+  toDateTimeString,
+} from '@tamanu/shared/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -129,8 +134,7 @@ export const TimeSlotPicker = ({
   const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
-  const dayStart = dateIsValid ? startOfDay(date) : null;
-  const dayEnd = dateIsValid ? endOfDay(date) : null;
+  const [dayStart, dayEnd] = startAndEndOfDay(date);
 
   const {
     data: existingBookings,
