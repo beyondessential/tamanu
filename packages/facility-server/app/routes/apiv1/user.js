@@ -220,6 +220,7 @@ const clinicianTasksQuerySchema = z.object({
     .min(10)
     .optional()
     .default(25),
+  facilityId: z.string(),
 });
 user.get(
   '/tasks',
@@ -237,6 +238,7 @@ user.get(
       locationId,
       locationGroupId,
       designationId,
+      facilityId,
     } = query;
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
@@ -277,6 +279,7 @@ user.get(
 
     const baseQueryOptions = {
       where: {
+        '$encounter->location.facility_id$': facilityId,
         status: TASK_STATUSES.TODO,
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),

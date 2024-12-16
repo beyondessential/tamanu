@@ -254,7 +254,7 @@ const COLUMNS = [
 ];
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const history = useHistory();
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
@@ -266,7 +266,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     initialSortDirection: 'asc',
   });
 
-  const queryParams = { ...searchParameters, page, rowsPerPage, orderBy, order };
+  const queryParams = { ...searchParameters, page, rowsPerPage, orderBy, order, facilityId };
 
   const {
     data: userTasks,
