@@ -63,6 +63,18 @@ const StyledFormHelperText = styled(FormHelperText)`
   }
 `;
 
+const buildIntervalFromDateTimeStrings = (startStr, endStr) => {
+  if (!startStr || !endStr) return null;
+
+  const start = parseISO(startStr);
+  if (!isValid(start)) return null;
+
+  const end = parseISO(endStr);
+  if (!isValid(end)) return null;
+
+  return { start, end };
+};
+
 const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
 
 /**
@@ -71,7 +83,6 @@ const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
  * it will be appropriately disabled via the `disabled` prop if there is a booking conflict between
  * the start and end dates.
  */
-
 export const TimeSlotPicker = ({
   date,
   disabled = false,
@@ -96,25 +107,21 @@ export const TimeSlotPicker = ({
     isSubmitting,
   } = useFormikContext();
 
-  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
-
-  useEffect(() => {
-    if (isSubmitting) setHasAttemptedSubmit(true);
-  }, [isSubmitting]);
-
-  const initialTimeRange = useMemo(() => {
-    return isValid(initialStart) && isValid(initialEnd)
-      ? { start: initialStart, end: initialEnd }
-      : null;
-  }, [initialStart, initialEnd]);
-
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const slotDurationMs = ms(bookingSlotSettings.slotDuration);
 
   // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no date
   // is selected, but component should be disabled in this scenario
-  const timeSlots = calculateTimeSlots(bookingSlotSettings, date ?? startOfToday());
+  const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, date ?? startOfToday()), [
+    bookingSlotSettings,
+    date,
+  ]);
+
+  const initialTimeRange = useMemo(
+    () => buildIntervalFromDateTimeStrings(initialStart, initialEnd),
+    [initialStart, initialEnd],
+  );
 
   /**
    * Array of integers representing the selected toggle buttons. Each time slot is represented by
