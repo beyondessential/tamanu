@@ -321,8 +321,8 @@ export const TimeSlotPicker = ({
         switch (variant) {
           case TIME_SLOT_PICKER_VARIANTS.RANGE:
             return {
-              start: minValidDate([values.startTime, timeSlot.start]),
-              end: maxValidDate([values.endTime, timeSlot.end]),
+              start: minValidDate([parseISO(values.startTime), timeSlot.start]),
+              end: maxValidDate([parseISO(values.endTime), timeSlot.end]),
             };
           case TIME_SLOT_PICKER_VARIANTS.START:
             return {
@@ -381,8 +381,8 @@ export const TimeSlotPicker = ({
                   }
 
                   setHoverRange({
-                    start: min([timeSlot.start, values.startTime]),
-                    end: max([timeSlot.end, values.endTime]),
+                    start: min([timeSlot.start, parseISO(values.startTime)]),
+                    end: max([timeSlot.end, parseISO(values.endTime)]),
                   });
                   return;
                 case TIME_SLOT_PICKER_VARIANTS.START:
