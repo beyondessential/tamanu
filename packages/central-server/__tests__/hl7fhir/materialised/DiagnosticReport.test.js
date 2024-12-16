@@ -52,6 +52,12 @@ describe('Create DiagnosticReport', () => {
       ],
     },
   });
+  const testAttachment = {
+    contentType: 'application/pdf',
+    data: base64pdf,
+    title:
+      'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard',
+  };
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -88,14 +94,20 @@ describe('Create DiagnosticReport', () => {
     });
 
     it('post a DiagnosticReport to acknowledge results from ServiceRequest (Lab Request)', async () => {
-      const statuses = [
-        FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
+      const tests = [
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._ },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._, presentedForm: [testAttachment] },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY },
+        {
+          status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
+          presentedForm: [testAttachment],
+        },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL, presentedForm: [testAttachment] },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._ },
+        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR },
       ];
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -118,17 +130,27 @@ describe('Create DiagnosticReport', () => {
       // but a mapping to Promise.all will likely
       // create some bad time race conditions
       // sometimes the old ways are the best
-      for (let index = 0; index < statuses.length; index++) {
-        body.status = statuses[index];
+      for (let index = 0; index < tests.length; index++) {
+        body.status = tests[index].status;
+        body.presentedForm = tests[index].presentedForm;
         let expectedLabRequestStatus;
         if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.RESULTS_PENDING;
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._ && body.presentedForm) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INTERIM_RESULTS;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.RESULTS_PENDING;
+        } else if (
+          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY &&
+          body.presentedForm
+        ) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.INTERIM_RESULTS;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
-        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL && body.presentedForm) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.PUBLISHED;
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.CANCELLED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
@@ -211,12 +233,7 @@ describe('Create DiagnosticReport', () => {
 
       let requestAttachment = await labRequest.getLatestAttachment();
       expect(requestAttachment).toBeNull();
-      const testAttachment = {
-        contentType: 'application/pdf',
-        data: base64pdf,
-        title:
-          'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard',
-      };
+
       const body = {
         ...postBody(serviceRequestId),
         presentedForm: [
