@@ -7,7 +7,6 @@ import { useTranslation } from '../../../contexts/Translation';
 import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
 import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
-import { useAuth } from '../../../contexts/Auth';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -33,7 +32,6 @@ const emptyValues = {
 
 export const LocationBookingsFilter = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
-  const { facilityId } = useAuth();
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
 
