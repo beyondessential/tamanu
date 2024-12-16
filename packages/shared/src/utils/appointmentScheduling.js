@@ -6,7 +6,7 @@ export const eachWeekdayInMonth = (date, weekday = date.getDay()) =>
   eachDayInMonth(date).filter(day => day.getDay() === weekday);
 
 export const weekdayAtOrdinalPosition = (date, day, nth) => {
-  const matchingWeekdays = eachWeekdayInMonth(date, DAYS_OF_WEEK.indexOf(day) + 1);
+  const matchingWeekdays = eachWeekdayInMonth(date, DAYS_OF_WEEK.indexOf(day));
   // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(nth - 1, -1);
   return matchingWeekdays.at(atIndex);

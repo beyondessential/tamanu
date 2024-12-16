@@ -1,4 +1,4 @@
-export const DAYS_OF_WEEK = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+export const DAYS_OF_WEEK = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
 export const REPEAT_FREQUENCY = {
   WEEKLY: 'WEEKLY',
