@@ -125,7 +125,9 @@ const StatusIndicator = styled.div`
   width: 5px;
   height: 44px;
   border-radius: 10px;
-  background-color: ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  background-color: ${p =>
+    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
+  ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -235,7 +237,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       key: 'encounterType',
       title: <TranslatedText stringId="encounter.type.label" fallback="Type" />,
       accessor: getType,
-      sortable: false,
     },
     {
       key: 'facilityName',
