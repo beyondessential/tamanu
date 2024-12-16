@@ -109,7 +109,7 @@ describe('Appointments', () => {
   });
 
   describe('Generate repeating appointments', () => {
-    it.only('should generate repeating weekly appointments', async () => {
+    it('should generate repeating weekly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-10-02 12:00:00',
         untilDate: '2025-01-02 23:59:59',
@@ -128,7 +128,6 @@ describe('Appointments', () => {
       const appointmentsInSchedule = await models.Appointment.findAll({
         where: { scheduleId: result.body.scheduleId },
       });
-      console.log(appointmentsInSchedule.map(a => a.startTime));
       expect(appointmentsInSchedule.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
