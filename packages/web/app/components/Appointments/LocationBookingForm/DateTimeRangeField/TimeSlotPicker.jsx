@@ -194,10 +194,8 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const newStart = parseISO(startTime);
-      setSelectedToggles(
-        timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= newStart.valueOf()),
-      );
+      const valueOfNewStart = parseISO(startTime).valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= valueOfNewStart));
       return;
     }
 
@@ -207,8 +205,8 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const newEnd = parseISO(endTime);
-      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < newEnd.valueOf()));
+      const valueOfNewEnd = parseISO(endTime).valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < valueOfNewEnd));
       return;
     }
   }, [timeSlots, values.startTime, values.endTime, variant]);
