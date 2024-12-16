@@ -31,6 +31,6 @@
   "dependencies": {
     "@tamanu/constants": "*",
     "@tamanu/shared": "*",
-    "qs": "^6.10.2"
+    "qs": "^6.13.1"
   }
 }
