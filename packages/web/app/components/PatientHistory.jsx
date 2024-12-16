@@ -19,6 +19,8 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
+import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
+import { ThemedTooltip } from './Tooltip.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -125,7 +127,9 @@ const StatusIndicator = styled.div`
   width: 5px;
   height: 44px;
   border-radius: 10px;
-  background-color: ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  background-color: ${p =>
+    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
+  ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -212,6 +216,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const { ability } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
+  const translationContext = useTranslation();
 
   const actions = [
     {
@@ -235,7 +240,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       key: 'encounterType',
       title: <TranslatedText stringId="encounter.type.label" fallback="Type" />,
       accessor: getType,
-      sortable: false,
     },
     {
       key: 'facilityName',
@@ -246,7 +250,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     {
       key: 'locationGroupName',
       title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
-      accessor: props => <LocationGroupCell style={{ minWidth: 45 }} {...props} />,
+      accessor: props => (
+        // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
+        <TranslationContext.Provider value={translationContext}>
+          <LocationGroupCell style={{ minWidth: 45 }} {...props} />
+        </TranslationContext.Provider>
+      ),
       CellComponent: LimitedLinesCell,
     },
     {
@@ -309,9 +318,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           </Heading4>
         }
         ExportButton={props => (
-          <StyledIconButton size="small" variant="outlined" {...props}>
-            <GetAppIcon />
-          </StyledIconButton>
+          <ThemedTooltip
+            title={<TranslatedText stringId="general.action.export" fallback="Export" />}
+          >
+            <StyledIconButton size="small" variant="outlined" {...props}>
+              <GetAppIcon />
+            </StyledIconButton>
+          </ThemedTooltip>
         )}
       />
 
