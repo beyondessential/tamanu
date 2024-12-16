@@ -275,7 +275,7 @@ export const datetimeCustomValidation = z.string().refine(
   },
 );
 
-export const startAndEndOfDay = date =>
+export const endpointsOfDay = date =>
   isValid(date) ? [startOfDay(date), endOfDay(date)] : [null, null];
 
 export const maxValidDate = dates => {

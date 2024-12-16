@@ -134,7 +134,7 @@ export const TimeSlotPicker = ({
   const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
-  const [dayStart, dayEnd] = startAndEndOfDay(date);
+  const [dayStart, dayEnd] = endpointsOfDay(date);
 
   const {
     data: existingBookings,
