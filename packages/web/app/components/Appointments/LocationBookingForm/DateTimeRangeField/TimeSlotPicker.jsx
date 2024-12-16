@@ -104,12 +104,12 @@ export const TimeSlotPicker = ({
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const slotDurationMs = ms(bookingSlotSettings.slotDuration);
 
-  // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no date
-  // is selected, but component should be disabled in this scenario
-  const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, date ?? startOfToday()), [
-    bookingSlotSettings,
-    date,
-  ]);
+  const timeSlots = useMemo(
+    // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
+    // date is selected, but component should be disabled in this scenario
+    () => calculateTimeSlots(bookingSlotSettings, date ?? startOfToday()),
+    [bookingSlotSettings, date],
+  );
 
   const initialTimeRange = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
