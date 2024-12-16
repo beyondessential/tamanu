@@ -8,7 +8,7 @@ import {
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { add, isBefore, parseISO, set } from 'date-fns';
+import { add, isAfter, isBefore, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { weekdayAtOrdinalPosition } from '../utils/appointmentScheduling';
 
@@ -167,7 +167,10 @@ export class Appointment extends Model {
         }
       } else if (untilDate) {
         while (
-          isBefore(parseISO(appointments.at(-1).startTime), parseISO(untilDate)) &&
+          isBefore(
+            parseISO(incrementByInterval(appointments.at(-1).startTime)),
+            parseISO(untilDate),
+          ) &&
           appointments.length <= MAX_GENERATED_APPOINTMENTS
         ) {
           pushNextAppointment();
