@@ -709,7 +709,7 @@ describe('User', () => {
 
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
       const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
-      const result1 = await app.get('/api/user/userPreferences');
+      const result1 = await app.get(`/api/user/userPreferences/${facilityA.id}`);
       const result2 = await updateUserPreferences({
         userPreferences: {
           selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
