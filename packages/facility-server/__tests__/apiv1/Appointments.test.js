@@ -4,6 +4,8 @@ import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 
+// TODO: reorganise this file to work with new appointment logic
+
 describe('Appointments', () => {
   let baseApp;
   let models;
