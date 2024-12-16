@@ -4,16 +4,10 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class UserPreference extends Model {
-  static init(options) {
+  static init(primaryKey, ...options) {
     super.init(
       {
-        id: {
-          type: DataTypes.UUID,
-          allowNull: false,
-          primaryKey: true,
-          unique: true,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
-        },
+        id: primaryKey,
         selectedGraphedVitalsOnFilter: Sequelize.STRING,
         locationBookingFilters: Sequelize.JSONB,
         outpatientAppointmentFilters: Sequelize.JSONB,
