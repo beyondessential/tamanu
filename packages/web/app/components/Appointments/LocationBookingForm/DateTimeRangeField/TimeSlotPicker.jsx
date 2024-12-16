@@ -318,23 +318,23 @@ export const TimeSlotPicker = ({
 
       /** Returns the would-be time range selection if the provided time slot were to be clicked */
       const getTargetSelection = timeSlot => {
-      switch (variant) {
-        case TIME_SLOT_PICKER_VARIANTS.RANGE:
+        switch (variant) {
+          case TIME_SLOT_PICKER_VARIANTS.RANGE:
             return {
-            start: minValidDate([values.startTime, timeSlot.start]),
-            end: maxValidDate([values.endTime, timeSlot.end]),
-          };
-        case TIME_SLOT_PICKER_VARIANTS.START:
+              start: minValidDate([values.startTime, timeSlot.start]),
+              end: maxValidDate([values.endTime, timeSlot.end]),
+            };
+          case TIME_SLOT_PICKER_VARIANTS.START:
             return {
-            start: timeSlot.start,
-            end: dayEnd,
-          };
-        case TIME_SLOT_PICKER_VARIANTS.END:
+              start: timeSlot.start,
+              end: dayEnd,
+            };
+          case TIME_SLOT_PICKER_VARIANTS.END:
             return {
-            start: dayStart,
-            end: timeSlot.end,
-          };
-      }
+              start: dayStart,
+              end: timeSlot.end,
+            };
+        }
       };
       const targetSelection = getTargetSelection(timeSlot);
 
