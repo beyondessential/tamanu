@@ -18,7 +18,7 @@ import {
   subMonths,
 } from 'date-fns';
 
-import { getMonthInterval } from '@tamanu/shared/utils/appointmentScheduling';
+import { eachDayInMonth } from '@tamanu/shared/utils/dateTime';
 
 import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -161,7 +161,7 @@ export const DateSelector = ({ value, onChange }) => {
     });
 
     if (isSameMonth(day, viewedDays[0])) return;
-    setViewedDays(getMonthInterval(day));
+    setViewedDays(eachDayInMonth(day));
   };
 
   const handleChangeToday = () => handleChange(new Date());
