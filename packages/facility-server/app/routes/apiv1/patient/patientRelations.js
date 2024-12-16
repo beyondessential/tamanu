@@ -32,6 +32,7 @@ patientRelations.get(
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
+      encounterType: 'encounter_type',
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
