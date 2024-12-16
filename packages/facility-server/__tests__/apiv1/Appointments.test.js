@@ -126,7 +126,7 @@ describe('Appointments', () => {
       });
       expect(result).toHaveSucceeded();
       const appointmentsInSchedule = await models.Appointment.findAll({
-        where: { scheduleId: appointmentSchedule.id },
+        where: { scheduleId: result.body.scheduleId },
       });
       expect(appointmentsInSchedule.length).toBeGreaterThan(1);
     });
