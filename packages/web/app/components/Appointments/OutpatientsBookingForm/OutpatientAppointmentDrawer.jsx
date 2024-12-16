@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -31,7 +32,6 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingDateFields } from './RepeatingDateFields';
-import { getNthWeekday } from './RepeatCharacteristicsDescription';
 
 const IconLabel = styled.div`
   display: flex;
@@ -311,7 +311,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       // Update the ordinal positioning of the new date
       setFieldValue(
         'appointmentSchedule.nthWeekday',
-        frequency === REPEAT_FREQUENCY.MONTHLY ? getNthWeekday(startTimeDate) : null,
+        frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
       setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(startTimeDate)]);

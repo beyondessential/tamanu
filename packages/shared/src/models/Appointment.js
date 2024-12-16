@@ -10,7 +10,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { add, isBefore, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
-import { nthWeekdayInMonth } from '../utils/appointmentScheduling';
+import { weekdayAtOrdinalPosition } from '../utils/appointmentScheduling';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -124,7 +124,7 @@ export class Appointment extends Model {
 
   static async generateRepeatingAppointment(scheduleData, firstAppointmentData) {
     const MAX_GENERATED_APPOINTMENTS = 100;
-    await this.sequelize.transaction(async () => {
+    return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create({
         ...scheduleData,
         startDate: firstAppointmentData.startTime,
@@ -144,8 +144,11 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+          // TODO this isn't it - we need to make sure to use schedule.daysOfWeek
           return toDateTimeString(
-            set(incrementedDate, { date: nthWeekdayInMonth(parsedDate, nthWeekday).getDate() }),
+            set(incrementedDate, {
+              date: weekdayAtOrdinalPosition(parsedDate, nthWeekday).getDate(),
+            }),
           );
         }
       };

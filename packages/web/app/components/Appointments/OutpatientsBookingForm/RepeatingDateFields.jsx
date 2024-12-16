@@ -14,15 +14,13 @@ import {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
+import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
 
 import { Colors } from '../../../constants';
 import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';
 import { TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
-import {
-  getNthWeekday,
-  RepeatCharacteristicsDescription,
-} from './RepeatCharacteristicsDescription';
+import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
 
 const Container = styled('div')`
   width: 100%;
@@ -130,7 +128,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetRepeatUn
 
   const handleFrequencyChange = e => {
     if (e.target.value === REPEAT_FREQUENCY.MONTHLY) {
-      setFieldValue('appointmentSchedule.nthWeekday', getNthWeekday(startTimeDate));
+      setFieldValue('appointmentSchedule.nthWeekday', getWeekdayOrdinalPosition(startTimeDate));
     } else if (e.target.value === REPEAT_FREQUENCY.WEEKLY) {
       setFieldValue('appointmentSchedule.nthWeekday', null);
     }
