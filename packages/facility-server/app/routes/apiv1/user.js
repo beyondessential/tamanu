@@ -141,8 +141,8 @@ user.get(
 
     const combinedPreferences = mergeWith(
       {},
-      userPreferencesGeneral,
-      userPreferencesForFacility,
+      userPreferencesGeneral?.dataValues ?? {},
+      userPreferencesForFacility?.dataValues ?? {},
       customizer,
     );
 
@@ -156,24 +156,28 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body: {
-        facilityId = null,
-        locationBookingFilters,
-        outpatientAppointmentFilters,
-        selectedGraphedVitalsOnFilter,
-      },
+      body: { facilityId = null, ...preferences },
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const [userPreferences] = await UserPreference.upsert({
-      selectedGraphedVitalsOnFilter,
-      locationBookingFilters,
-      outpatientAppointmentFilters,
-      userId: currentUser.id,
-      facilityId,
-      deletedAt: null,
+    const userPreferences = await UserPreference.findOne({
+      where: {
+        userId: currentUser.id,
+        facilityId,
+      },
     });
+
+    if (userPreferences) {
+      userPreferences.update(preferences);
+    } else {
+      UserPreference.create({
+        ...preferences,
+        userId: currentUser.id,
+        facilityId,
+        deletedAt: null,
+      });
+    }
 
     res.send(userPreferences);
   }),

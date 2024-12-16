@@ -8,19 +8,17 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          // User preference records use a user_id as the primary key, acting as a
-          // db-level enforcement of one per user, and simplifying sync
-          type: `TEXT GENERATED ALWAYS AS ("user_id")`,
-          set() {
-            // any sets of the convenience generated "id" field can be ignored, so do nothing here
-          },
+          type: DataTypes.UUID,
+          allowNull: false,
+          primaryKey: true,
+          unique: true,
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
         selectedGraphedVitalsOnFilter: Sequelize.STRING,
         locationBookingFilters: Sequelize.JSONB,
         outpatientAppointmentFilters: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
-          primaryKey: true,
           references: {
             model: 'users',
             key: 'id',
