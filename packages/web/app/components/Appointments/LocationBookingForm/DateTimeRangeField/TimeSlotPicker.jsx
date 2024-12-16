@@ -108,8 +108,16 @@ export const TimeSlotPicker = ({
   // date is selected, but component should be disabled in this scenario
   const timeSlots = useTimeSlots(date ?? startOfToday());
 
-  const slotContaining = time => timeSlots.find(slot => isWithinIntervalExcludingEnd(time, slot));
-  const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
+  const slotContaining = useCallback(
+    time => timeSlots.find(slot => isWithinIntervalExcludingEnd(time, slot)),
+    [timeSlots],
+  );
+
+  /** @privateRemarks Assumes it is provided the start time of a valid slot */
+  const endOfSlotStartingAt = useCallback(
+    slotStartTime => addMilliseconds(slotStartTime, slotDurationMs),
+    [slotDurationMs],
+  );
 
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
@@ -170,14 +178,46 @@ export const TimeSlotPicker = ({
     [setFieldValue, variant],
   );
 
+  /**
+   * Treating the `startTime` and `endTime` string values from the Formik context as the source of
+   * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
+   * currently selected start and end times.
+   *
+   * - If the user switches from an overnight booking to non-, preserve only the earliest time
+   *   slot.
+   * - If the user switches from a non-overnight booking to overnight, attempt to preserve the
+   *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
+   *   conflicts with another appointment, clear the start and/or end times as needed to maintain
+   *   legal state.
+   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
+   *   simply discarded when toggling the `overnight` checkbox.
+   *
+   * The `appointments.bookingSlots` configuration may have changed since the last time a given
+   * appointment was updated. This `useEffect` hook realigns an appointment’s start and end times
+   * with the currently available slots.
+   */
   useEffect(() => {
+    if (hasNoLegalSelection) {
+      setSelectedToggles([]);
+      updateInterval({ end: null });
+      return;
+    }
+
     // Not a destructure to convince linter we don’t need `values` as object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
-      if (!startTime || !endTime) {
+      if (!startTime) {
         setSelectedToggles([]);
+        return;
+      }
+
+      if (!endTime) {
+        const start = parseISO(startTime);
+        const slot = slotContaining(start);
+        setSelectedToggles([idOfTimeSlot(slot)]);
+        updateInterval(slot);
         return;
       }
 
@@ -185,6 +225,7 @@ export const TimeSlotPicker = ({
       setSelectedToggles(
         timeSlots.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
       );
+      updateInterval(interval);
       return;
     }
 
@@ -194,8 +235,10 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const valueOfNewStart = parseISO(startTime).valueOf();
-      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= valueOfNewStart));
+      const start = parseISO(startTime);
+      const startValue = start.valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
+      updateInterval({ start });
       return;
     }
 
@@ -205,15 +248,21 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const valueOfNewEnd = parseISO(endTime).valueOf();
-      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < valueOfNewEnd));
+      const end = parseISO(endTime);
+      const endValue = end.valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < endValue));
+      updateInterval({ end });
       return;
     }
-  }, [timeSlots, values.startTime, values.endTime, variant]);
-
-  useEffect(() => {
-    if (hasNoLegalSelection) updateInterval({ end: null });
-  }, [hasNoLegalSelection, updateInterval]);
+  }, [
+    hasNoLegalSelection,
+    slotContaining,
+    timeSlots,
+    updateInterval,
+    values.endTime,
+    values.startTime,
+    variant,
+  ]);
 
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
