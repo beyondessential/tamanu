@@ -43,7 +43,7 @@ export const LocationBookingsFilter = ({ onFilterChange }) => {
 
   return (
     <Form
-      initialValues={userPreferences?.locationBookingFilters?.[facilityId]}
+      initialValues={userPreferences?.locationBookingFilters}
       onSubmit={async () => {}}
       render={({ setValues }) => (
         <>

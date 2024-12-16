@@ -15,15 +15,21 @@ export async function up(query) {
 
   await query.removeColumn('user_preferences', 'id');
   await query.addColumn('user_preferences', 'id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  });
+  await query.sequelize.query(`
+    UPDATE "user_preferences"
+    SET "id" = uuid_generate_v4()
+    WHERE "id" IS NULL;
+  `);
+  await query.changeColumn('user_preferences', 'id', {
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: DataTypes.UUIDV4,
-  });
-
-  await query.addConstraint('user_preferences', {
-    fields: ['id'],
-    type: 'primary_key',
-    name: 'user_preferences_pkey',
+    primaryKey: true,
   });
 }
 
