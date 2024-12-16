@@ -343,6 +343,11 @@ export const TimeSlotPicker = ({
     [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
 
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  useEffect(() => {
+    if (isSubmitting) setHasAttemptedSubmit(true);
+  }, [isSubmitting]);
+
   const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
   const error = errors[errorKey];
   const showError = hasAttemptedSubmit && error;
