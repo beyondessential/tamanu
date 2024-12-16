@@ -624,19 +624,28 @@ describe('User', () => {
 
   describe('User preference', () => {
     let user = null;
-    let facility = null;
+    let facilityA = null;
+    let facilityB = null;
     let app = null;
-    const defaultSelectedGraphedVitalsOnFilter = [
-      'data-element-1',
-      'data-element-2',
-      'data-element-3',
-    ].join(',');
-    const updateUserPreference = async userPreference => {
-      const result = await app.post('/api/user/userPreferences').send(userPreference);
+
+    const defaultPreferences = {
+      selectedGraphedVitalsOnFilter: ['data-element-1', 'data-element-2', 'data-element-3'].join(
+        ',',
+      ),
+      outpatientAppointmentFilters: {
+        appointmentTypeId: ['appointmentType-other'],
+      },
+    };
+
+    const updateUserPreferences = async ({ userPreferences, facilityId = null }) => {
+      const result = await app
+        .post('/api/user/userPreferences')
+        .send({ facilityId, ...userPreferences });
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         userId: user.id,
-        ...userPreference,
+        ...(facilityId ? { facilityId } : null),
+        ...userPreferences,
       });
       return result;
     };
@@ -649,25 +658,59 @@ describe('User', () => {
       );
       app = await baseApp.asUser(user);
 
-      facility = await models.Facility.create(fake(models.Facility));
+      facilityA = await models.Facility.create(fake(models.Facility));
+      facilityB = await models.Facility.create(fake(models.Facility));
 
-      await updateUserPreference({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
-      });
+      await updateUserPreferences({ userPreferences: defaultPreferences });
     });
 
     it('should fetch current user existing user preference', async () => {
-      const result = await app.get(`/api/user/userPreferences/${facility.id}`);
+      const result = await app.get(`/api/user/userPreferences/${facilityA.id}`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+      expect(result.body).toMatchObject(defaultPreferences);
+    });
+
+    it('should prioritise preferences set by facility than fallback to general', async () => {
+      const facilityAOutpatientAppointmentFilters = {
+        appointmentTypeId: ['appointmentType-standard'],
+      };
+      const facilityBOutpatientAppointmentFilters = {
+        appointmentTypeId: ['appointmentType-other'],
+      };
+
+      await updateUserPreferences({
+        userPreferences: {
+          outpatientAppointmentFilters: facilityAOutpatientAppointmentFilters,
+        },
+        facilityId: facilityA.id,
+      });
+
+      await updateUserPreferences({
+        userPreferences: {
+          outpatientAppointmentFilters: facilityBOutpatientAppointmentFilters,
+        },
+        facilityId: facilityB.id,
+      });
+
+      const resultA = await app.get(`/api/user/userPreferences/${facilityA.id}`);
+      expect(resultA).toHaveSucceeded();
+      expect(resultA.body).toMatchObject({
+        ...defaultPreferences,
+        outpatientAppointmentFilters: facilityAOutpatientAppointmentFilters,
+      });
+
+      const resultB = await app.get(`/api/user/userPreferences/${facilityB.id}`);
+      expect(resultB).toHaveSucceeded();
+      expect(resultB.body).toMatchObject({
+        ...defaultPreferences,
+        outpatientAppointmentFilters: facilityBOutpatientAppointmentFilters,
       });
     });
 
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
       const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
       const result1 = await app.get('/api/user/userPreferences');
-      const result2 = await updateUserPreference({
+      const result2 = await updateUserPreferences({
         selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
       });
       const result1Date = new Date(result1.body.updatedAt);
