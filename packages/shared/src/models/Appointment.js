@@ -144,12 +144,9 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-          const [weekday] = daysOfWeek;
-          console.log(weekday);
-          // TODO this isn't it - we need to make sure to use schedule.daysOfWeek
           return toDateTimeString(
             set(incrementedDate, {
-              date: weekdayAtOrdinalPosition(parsedDate, weekday, nthWeekday).getDate(),
+              date: weekdayAtOrdinalPosition(parsedDate, daysOfWeek[0], nthWeekday).getDate(),
             }),
           );
         }
