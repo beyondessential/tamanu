@@ -268,7 +268,7 @@ export const datetimeCustomValidation = z.string().refine(
     if (!regex.test(val)) return false;
 
     const date = new Date(val);
-    return !Number.isNaN(date.getTime());
+    return isValid(date);
   },
   {
     message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
