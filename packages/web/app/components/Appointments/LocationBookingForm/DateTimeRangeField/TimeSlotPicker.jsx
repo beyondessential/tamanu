@@ -1,5 +1,5 @@
-import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
+import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import {
   addMilliseconds,
   areIntervalsOverlapping,
@@ -63,18 +63,6 @@ const StyledFormHelperText = styled(FormHelperText)`
   }
 `;
 
-const buildIntervalFromDateTimeStrings = (startStr, endStr) => {
-  if (!startStr || !endStr) return null;
-
-  const start = parseISO(startStr);
-  if (!isValid(start)) return null;
-
-  const end = parseISO(endStr);
-  if (!isValid(end)) return null;
-
-  return { start, end };
-};
-
 const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
 
 /**
@@ -119,7 +107,7 @@ export const TimeSlotPicker = ({
   ]);
 
   const initialTimeRange = useMemo(
-    () => buildIntervalFromDateTimeStrings(initialStart, initialEnd),
+    () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
   );
 
