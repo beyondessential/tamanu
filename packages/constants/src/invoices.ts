@@ -26,6 +26,11 @@ export const INVOICE_ITEMS_CATEGORY_LABELS = {
   [REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT]: 'Additional',
 };
 
+export const INVOICE_ITEMS_DISCOUNT_TYPES = {
+  PERCENTAGE: 'percentage',
+  AMOUNT: 'amount',
+};
+
 export const INVOICE_PATIENT_PAYMENT_STATUSES = {
   UNPAID: 'unpaid',
   PAID: 'paid',
