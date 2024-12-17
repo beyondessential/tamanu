@@ -76,7 +76,7 @@ const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
  * the start and end dates.
  */
 export const TimeSlotPicker = ({
-  /** ISO date string. Assumed to represent a valid date. */
+  /** Valid ISO date string. */
   date,
   disabled = false,
   /**
