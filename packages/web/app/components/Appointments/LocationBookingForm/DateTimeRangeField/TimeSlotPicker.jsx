@@ -92,8 +92,11 @@ export const TimeSlotPicker = ({
   name,
   ...props
 }) => {
-  const parsedDate = useMemo(() => startOfDay(parseISO(date)), [date]);
-  const [dayStart, dayEnd] = useMemo(() => endpointsOfDay(parsedDate), [parsedDate]);
+  const parsedDate = useMemo(() => (date ? startOfDay(parseISO(date)) : null), [date]);
+  const [dayStart, dayEnd] = useMemo(
+    () => (parsedDate ? endpointsOfDay(parsedDate) : [null, null]),
+    [parsedDate],
+  );
 
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },

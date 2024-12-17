@@ -277,8 +277,7 @@ export const datetimeCustomValidation = z.string().refine(
   },
 );
 
-export const endpointsOfDay = date =>
-  isValid(date) ? [startOfDay(date), endOfDay(date)] : [null, null];
+export const endpointsOfDay = date => [startOfDay(date), endOfDay(date)];
 
 /** Returns `true` if and only if `interval1` is a subset of `interval2`. It need not be a strict subset. */
 export const isIntervalWithinInterval = (interval1, interval2) => {
