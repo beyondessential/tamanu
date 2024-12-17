@@ -1,10 +1,15 @@
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../components/Charts/constants';
 import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from './survey';
 
 export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => {
   const { isSuccess } = restOfQuery;
   let visualisationConfigs = [];
+
+  // Complex charts should not have graphs enabled yet, this will be done later
+  if (surveyData.surveyType === SURVEY_TYPES.COMPLEX_CHART) {
+    return { data: { visualisationConfigs, allGraphedChartKeys: [] }, ...restOfQuery };
+  }
 
   if (isSuccess) {
     visualisationConfigs = surveyData.components.map(
