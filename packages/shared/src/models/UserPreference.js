@@ -8,7 +8,6 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          // translated_string records use a generated primary key that enforces one per string and language,
           type: `TEXT GENERATED ALWAYS AS (COALESCE("user_id", '') || ';' || COALESCE("facility_id", '')) STORED`,
           primaryKey: true,
           set() {
