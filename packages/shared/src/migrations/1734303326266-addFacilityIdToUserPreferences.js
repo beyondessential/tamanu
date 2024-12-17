@@ -19,9 +19,16 @@ export async function up(query) {
     allowNull: true,
     defaultValue: DataTypes.UUIDV4,
   });
+
   await query.sequelize.query(`
     UPDATE "user_preferences"
-    SET "id" = uuid_generate_v4()
+    SET "id" = uuid_generate_v5(
+        '2f206659-ee5a-4de4-a3cf-91054d192ec9', 
+        CONCAT(
+          COALESCE("user_id", ''),
+          COALESCE("facility_id", ''),
+       ) 
+    )
     WHERE "id" IS NULL;
   `);
   await query.changeColumn('user_preferences', 'id', {
