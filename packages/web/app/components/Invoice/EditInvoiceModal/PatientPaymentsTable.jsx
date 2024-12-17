@@ -243,7 +243,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
             updateEditingPayment={updateEditingPayment}
             onDataChange={onEditDataChange}
             selectedPayment={selectedEditPayment}
-            hasChequePaymentMethod={hasChequePaymentMethod}
+            showChequeNumberColumn={showChequeNumberColumn}
           />
           <Divider />
         </>
@@ -266,7 +266,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           updateEditingPayment={updateEditingPayment}
           onDataChange={onCreateDataChange}
           selectedPayment={selectedCreatePayment}
-          hasChequePaymentMethod={hasChequePaymentMethod}
+          showChequeNumberColumn={showChequeNumberColumn}
         />
       )}
     </TableContainer>

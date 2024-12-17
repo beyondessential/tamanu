@@ -47,7 +47,7 @@ export const PatientPaymentForm = ({
   updateEditingPayment,
   onDataChange = () => {},
   invoice,
-  hasChequePaymentMethod,
+  showChequeNumberColumn,
   selectedPayment,
 }) => {
   const selectedPaymentMethodId = selectedPayment?.paymentMethod?.value;
@@ -143,7 +143,7 @@ export const PatientPaymentForm = ({
         </FieldContainer>
       );
     }
-    return hasChequePaymentMethod ? <Box width="15%" /> : null;
+    return showChequeNumberColumn ? <Box width="15%" /> : null;
   };
 
   return (
