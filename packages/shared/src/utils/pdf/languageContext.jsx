@@ -31,6 +31,12 @@ Font.register({
   src: path.join(baseDir, 'Moul-Regular.ttf'),
 });
 
+// title font
+Font.register({
+  family: 'Roboto',
+  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
+});
+
 const boldFont = ['Helvetica-BoldOblique', 'Helvetica-Bold'];
 
 const LanguageContext = createContext({});

@@ -63,9 +63,22 @@ const StyledFormHelperText = styled(FormHelperText)`
   }
 `;
 
+/**
+ * TimeSlotPicker assumes that it is given a valid `date`, and checks for conflicting
+ * appointments/bookings only within this date. For overnight bookings, TimeSlotPicker assumes that
+ * it will be appropriately disabled via the `disabled` prop if there is a booking conflict between
+ * the start and end dates.
+ */
 export const TimeSlotPicker = ({
   date,
   disabled = false,
+  /**
+   * If true, this instance is probably a picker for the end time slot of an overnight booking
+   * where the start time has been modified to a time such that there is a conflicting booking
+   * between the start time and this `date`. Any state this instance had is now invalid, and
+   * hasNoLegalSelection={true} indicates that this component should render with fresh state.
+   */
+  hasNoLegalSelection = false,
   label,
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
@@ -84,11 +97,7 @@ export const TimeSlotPicker = ({
 
   useEffect(() => {
     if (isSubmitting) setHasAttemptedSubmit(true);
-  }, [isSubmitting, setHasAttemptedSubmit]);
-
-  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
-  const error = errors[errorKey];
-  const showError = hasAttemptedSubmit && error;
+  }, [isSubmitting]);
 
   const initialTimeRange = useMemo(() => {
     return isValid(initialStart) && isValid(initialEnd)
@@ -123,37 +132,45 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const earliestRelevantTime = minValidDate([startOfDay(date), values.startTime]);
-  const latestRelevantTime = maxValidDate([endOfDay(date), values.endTime]);
+  const dateIsValid = isValid(date);
+  const dayStart = dateIsValid ? startOfDay(date) : null;
+  const dayEnd = dateIsValid ? endOfDay(date) : null;
 
   const {
     data: existingBookings,
     isFetching: isFetchingExistingBookings,
   } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(earliestRelevantTime),
-      before: toDateTimeString(latestRelevantTime),
+      after: toDateTimeString(dayStart),
+      before: toDateTimeString(dayEnd),
       all: true,
       locationId: values.locationId,
     },
-    { enabled: !!values.locationId && isValid(date) },
+    { enabled: dateIsValid && !!values.locationId },
   );
 
-  const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
-    setSelectedToggles(newToggleSelection);
-    switch (variant) {
-      case TIME_SLOT_PICKER_VARIANTS.RANGE:
-        void setFieldValue('startTime', newStartTime);
-        void setFieldValue('endTime', newEndTime);
-        return;
-      case TIME_SLOT_PICKER_VARIANTS.START:
-        void setFieldValue('startTime', newStartTime);
-        return;
-      case TIME_SLOT_PICKER_VARIANTS.END:
-        void setFieldValue('endTime', newEndTime);
-        return;
-    }
-  };
+  const updateSelection = useCallback(
+    (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
+      setSelectedToggles(newToggleSelection);
+      switch (variant) {
+        case TIME_SLOT_PICKER_VARIANTS.RANGE:
+          void setFieldValue('startTime', newStartTime);
+          void setFieldValue('endTime', newEndTime);
+          return;
+        case TIME_SLOT_PICKER_VARIANTS.START:
+          void setFieldValue('startTime', newStartTime);
+          return;
+        case TIME_SLOT_PICKER_VARIANTS.END:
+          void setFieldValue('endTime', newEndTime);
+          return;
+      }
+    },
+    [setFieldValue, variant],
+  );
+
+  useEffect(() => {
+    if (hasNoLegalSelection) updateSelection([], { end: null });
+  }, [hasNoLegalSelection, updateSelection]);
 
   const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
 
@@ -315,13 +332,13 @@ export const TimeSlotPicker = ({
         case TIME_SLOT_PICKER_VARIANTS.START:
           targetSelection = {
             start: timeSlot.start,
-            end: latestRelevantTime,
+            end: dayEnd,
           };
           break;
 
         case TIME_SLOT_PICKER_VARIANTS.END:
           targetSelection = {
-            start: earliestRelevantTime,
+            start: dayStart,
             end: timeSlot.end,
           };
           break;
@@ -329,15 +346,12 @@ export const TimeSlotPicker = ({
 
       return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
-    [
-      variant,
-      bookedIntervals,
-      values.startTime,
-      values.endTime,
-      latestRelevantTime,
-      earliestRelevantTime,
-    ],
+    [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
+
+  const errorKey = variant === TIME_SLOT_PICKER_VARIANTS.RANGE ? 'endTime' : name;
+  const error = errors[errorKey];
+  const showError = hasAttemptedSubmit && error;
 
   return (
     <OuterLabelFieldWrapper label={label} required={required}>
@@ -395,7 +409,7 @@ export const TimeSlotPicker = ({
                 key={timeSlot.start.valueOf()}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverRange(null)}
-                selectable={checkIfSelectableTimeSlot(timeSlot)}
+                selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={timeSlot.start.valueOf()}
               />
@@ -411,6 +425,7 @@ export const TimeSlotPicker = ({
 TimeSlotPicker.propTypes = {
   date: PropTypes.instanceOf(Date),
   disabled: PropTypes.bool,
+  hasNoLegalSelection: PropTypes.bool,
   label: PropTypes.elementType,
   required: PropTypes.bool,
   variant: PropTypes.oneOf(Object.values(TIME_SLOT_PICKER_VARIANTS)),
@@ -419,6 +434,7 @@ TimeSlotPicker.propTypes = {
 TimeSlotPicker.defaultProps = {
   date: startOfToday(),
   disabled: false,
+  hasNoLegalSelection: false,
   label: undefined,
   required: false,
   variant: TIME_SLOT_PICKER_VARIANTS.RANGE,
