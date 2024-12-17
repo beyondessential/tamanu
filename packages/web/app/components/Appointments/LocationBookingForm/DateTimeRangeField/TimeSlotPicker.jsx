@@ -3,11 +3,10 @@ import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/Toggl
 import {
   addMilliseconds,
   areIntervalsOverlapping,
-  isSameDay,
-  isValid,
   max,
   min,
   parseISO,
+  startOfDay,
   startOfToday,
 } from 'date-fns';
 import { useFormikContext } from 'formik';
@@ -77,6 +76,7 @@ const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
  * the start and end dates.
  */
 export const TimeSlotPicker = ({
+  /** ISO date string. Assumed to represent a valid date. */
   date,
   disabled = false,
   /**
@@ -92,6 +92,9 @@ export const TimeSlotPicker = ({
   name,
   ...props
 }) => {
+  const parsedDate = useMemo(() => startOfDay(parseISO(date)), [date]);
+  const [dayStart, dayEnd] = useMemo(() => endpointsOfDay(parsedDate), [parsedDate]);
+
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
@@ -105,7 +108,7 @@ export const TimeSlotPicker = ({
 
   // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
   // date is selected, but component should be disabled in this scenario
-  const timeSlots = useTimeSlots(date ?? startOfToday());
+  const timeSlots = useBookingTimeSlots(parsedDate ?? startOfToday());
 
   const slotContaining = useCallback(
     time => timeSlots.find(slot => isWithinIntervalExcludingEnd(time, slot)),
@@ -127,8 +130,6 @@ export const TimeSlotPicker = ({
       : [],
   );
   const [hoverRange, setHoverRange] = useState(null);
-
-  const [dayStart, dayEnd] = endpointsOfDay(date);
 
   const {
     data: existingBookings,
@@ -152,91 +153,6 @@ export const TimeSlotPicker = ({
     [setFieldValue],
   );
 
-  /**
-   * Treating the `startTime` and `endTime` string values from the Formik context as the source of
-   * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
-   * currently selected start and end times.
-   *
-   * - If the user switches from an overnight booking to non-, preserve only the earliest time
-   *   slot.
-   * - If the user switches from a non-overnight booking to overnight, attempt to preserve the
-   *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
-   *   conflicts with another appointment, clear the start and/or end times as needed to maintain
-   *   legal state.
-   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
-   *   simply discarded when toggling the `overnight` checkbox.
-   *
-   * The `appointments.bookingSlots` configuration may have changed since the last time a given
-   * appointment was updated. This `useEffect` hook realigns an appointment’s start and end times
-   * with the currently available slots.
-   */
-  useEffect(() => {
-    if (hasNoLegalSelection) {
-      setSelectedToggles([]);
-      updateInterval({ end: null });
-      return;
-    }
-
-    // Not a destructure to convince linter we don’t need `values` as object dependency
-    const startTime = values.startTime;
-    const endTime = values.endTime;
-
-    if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
-      if (!startTime) {
-        setSelectedToggles([]);
-        return;
-      }
-
-      if (!endTime) {
-        const start = parseISO(startTime);
-        const slot = slotContaining(start);
-        setSelectedToggles([idOfTimeSlot(slot)]);
-        updateInterval(slot);
-        return;
-      }
-
-      const interval = appointmentToInterval({ startTime, endTime });
-      setSelectedToggles(
-        timeSlots.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
-      );
-      updateInterval(interval);
-      return;
-    }
-
-    if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
-      if (!startTime) {
-        setSelectedToggles([]);
-        return;
-      }
-
-      const start = parseISO(startTime);
-      const startValue = start.valueOf();
-      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
-      updateInterval({ start });
-      return;
-    }
-
-    if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
-      if (!endTime) {
-        setSelectedToggles([]);
-        return;
-      }
-
-      const end = parseISO(endTime);
-      const endValue = end.valueOf();
-      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < endValue));
-      updateInterval({ end });
-      return;
-    }
-  }, [
-    hasNoLegalSelection,
-    slotContaining,
-    timeSlots,
-    updateInterval,
-    values.endTime,
-    values.startTime,
-    variant,
-  ]);
   /** @privateRemarks Assumes it is provided the start time of a valid slot */
   const endOfSlotStartingAt = useCallback(
     slotStartTime => addMilliseconds(slotStartTime, slotDurationMs),
@@ -392,6 +308,110 @@ export const TimeSlotPicker = ({
     },
     [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
+
+  /**
+   * Treating the `startTime` and `endTime` string values from the Formik context as the source of
+   * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
+   * currently selected start and end times.
+   *
+   * - If the user switches from an overnight booking to non-, preserve only the earliest time
+   *   slot.
+   * - If the user switches from a non-overnight booking to overnight, attempt to preserve the
+   *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
+   *   conflicts with another appointment, clear the start and/or end times as needed to maintain
+   *   legal state.
+   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
+   *   simply discarded when toggling the `overnight` checkbox.
+   *
+   * The `appointments.bookingSlots` configuration may have changed since the last time a given
+   * appointment was updated. This `useEffect` hook realigns an appointment’s start and end times
+   * with the currently available slots.
+   */
+  useEffect(() => {
+    if (hasNoLegalSelection) {
+      console.log('  hasNoLegalSelection');
+      setSelectedToggles([]);
+      updateInterval({ end: null });
+      return;
+    }
+
+    // Not a destructure to convince linter we don’t need `values` as object dependency
+    const startTime = values.startTime;
+    const endTime = values.endTime;
+
+    if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
+      console.log('  range');
+      if (!startTime) {
+        console.log('    no start time');
+        setSelectedToggles([]);
+        return;
+      }
+
+      if (!endTime) {
+        console.log('    no end time');
+        const start = parseISO(startTime);
+        const slot = slotContaining(start);
+        setSelectedToggles([idOfTimeSlot(slot)]);
+        updateInterval(slot);
+
+        return;
+      }
+
+      console.log('    has both start and end');
+
+      const interval = appointmentToInterval({ startTime, endTime });
+      setSelectedToggles(
+        timeSlots.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
+      );
+      updateInterval(interval);
+      return;
+    }
+
+    if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
+      if (!startTime) {
+        setSelectedToggles([]);
+        return;
+      }
+
+      const start = parseISO(startTime);
+      const hasConflict = bookedIntervals.some(interval =>
+        areIntervalsOverlapping({ start, end: dayEnd }, interval),
+      );
+      if (hasConflict) {
+        setSelectedToggles([]);
+        updateInterval({ start: null });
+        return;
+      }
+
+      const startValue = start.valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
+      updateInterval({ start });
+      return;
+    }
+
+    if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
+      if (!endTime) {
+        setSelectedToggles([]);
+        return;
+      }
+
+      const end = parseISO(endTime);
+      const endValue = end.valueOf();
+      setSelectedToggles(timeSlots.map(idOfTimeSlot).filter(slotId => slotId < endValue));
+      updateInterval({ end });
+      return;
+    }
+  }, [
+    bookedIntervals,
+    dayEnd,
+    hasNoLegalSelection,
+    slotContaining,
+    timeSlots,
+    updateInterval,
+    values.endTime,
+    values.startTime,
+    variant,
+  ]);
 
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   useEffect(() => {

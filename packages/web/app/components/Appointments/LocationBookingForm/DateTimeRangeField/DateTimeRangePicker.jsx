@@ -2,10 +2,10 @@ import { isValid, parseISO, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
+import { useLocationBookingsContext } from '../../../../contexts/LocationBookings';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import { useLocationBookingsContext } from '../../../../contexts/LocationBookings';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
