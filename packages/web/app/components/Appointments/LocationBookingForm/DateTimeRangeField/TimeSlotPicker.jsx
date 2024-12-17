@@ -121,19 +121,11 @@ export const TimeSlotPicker = ({
    * Array of integers representing the selected toggle buttons. Each time slot is represented by
    * the integer form of its start time.
    */
-  const [selectedToggles, setSelectedToggles] = useState(() => {
-    if (!initialInterval) return [];
-
-    // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
-    // component (and vice versa)
-    const isModifyingOvernightBooking = !isSameDay(initialInterval.start, initialInterval.end);
-    const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
-    if (isModifyingOvernightBooking !== isOvernightVariant) return [];
-
-    return timeSlots
-      .filter(slot => areIntervalsOverlapping(slot, initialInterval))
-      .map(idOfTimeSlot);
-  });
+  const [selectedToggles, setSelectedToggles] = useState(
+    initialInterval
+      ? timeSlots.filter(slot => areIntervalsOverlapping(slot, initialInterval)).map(idOfTimeSlot)
+      : [],
+  );
   const [hoverRange, setHoverRange] = useState(null);
 
   const [dayStart, dayEnd] = endpointsOfDay(date);
