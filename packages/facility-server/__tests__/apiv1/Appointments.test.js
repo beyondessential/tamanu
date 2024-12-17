@@ -114,7 +114,7 @@ describe('Appointments', () => {
         appointmentSchedule,
         patientId: patient.id,
         clinicianId: userApp.user.dataValues.id,
-        startTime: '2024-10-02 12:00:00',
+        startTime: appointmentSchedule.startDate,
         appointmentTypeId: 'appointmentType-standard',
       });
       expect(result).toHaveSucceeded();
