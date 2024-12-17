@@ -136,7 +136,6 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const dateIsValid = isValid(date);
   const [dayStart, dayEnd] = endpointsOfDay(date);
 
   const {
@@ -149,7 +148,7 @@ export const TimeSlotPicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: dateIsValid && !!values.locationId },
+    { enabled: !!date && !!values.locationId },
   );
 
   const updateInterval = useCallback(
