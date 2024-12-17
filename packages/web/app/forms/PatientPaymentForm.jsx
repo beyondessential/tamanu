@@ -85,10 +85,13 @@ export const PatientPaymentForm = ({
 
   const onRecord = (data, { resetForm }) => {
     const { amount, ...others } = data;
+    const chequeNumber =
+      selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
     if (!editingPayment?.id) {
       createPatientPayment(
         {
           ...others,
+          chequeNumber,
           amount: amount.toFixed(2),
         },
         {
@@ -104,6 +107,7 @@ export const PatientPaymentForm = ({
       updatePatientPayment(
         {
           ...others,
+          chequeNumber,
           amount,
         },
         {
