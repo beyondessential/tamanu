@@ -100,9 +100,8 @@ export const TimeSlotPicker = ({
     isSubmitting,
   } = useFormikContext();
 
-  const { getSetting } = useSettings();
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
-  const slotDurationMs = ms(bookingSlotSettings.slotDuration);
+  const { slotDuration } = useBookingSlotSettings();
+  const slotDurationMs = ms(slotDuration);
 
   // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
   // date is selected, but component should be disabled in this scenario
