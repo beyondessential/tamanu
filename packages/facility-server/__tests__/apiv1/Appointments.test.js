@@ -108,7 +108,7 @@ describe('Appointments', () => {
     });
   });
 
-  describe('Generate repeating appointments', () => {
+  describe('generateRepeatingAppointment', () => {
     const testRepeatingAppointment = async (appointmentSchedule, expected) => {
       const result = await userApp.post('/api/appointments').send({
         appointmentSchedule,
