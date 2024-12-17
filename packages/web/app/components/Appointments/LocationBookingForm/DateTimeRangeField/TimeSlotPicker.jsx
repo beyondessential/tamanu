@@ -18,6 +18,8 @@ import styled, { css } from 'styled-components';
 
 import {
   endpointsOfDay,
+  isIntervalWithinInterval,
+  isWithinIntervalExcludingEnd,
   maxValidDate,
   minValidDate,
   toDateTimeString,
@@ -35,8 +37,6 @@ import {
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
-  isTimeSlotWithinRange,
-  isWithinIntervalExcludingEnd,
 } from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
@@ -478,7 +478,7 @@ export const TimeSlotPicker = ({
                 booked={isBooked}
                 conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
-                inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
+                inHoverRange={hoverRange ? isIntervalWithinInterval(timeSlot, hoverRange) : false}
                 key={id}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverRange(null)}
