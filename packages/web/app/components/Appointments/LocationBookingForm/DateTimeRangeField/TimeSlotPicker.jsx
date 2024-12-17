@@ -113,12 +113,6 @@ export const TimeSlotPicker = ({
     [timeSlots],
   );
 
-  /** @privateRemarks Assumes it is provided the start time of a valid slot */
-  const endOfSlotStartingAt = useCallback(
-    slotStartTime => addMilliseconds(slotStartTime, slotDurationMs),
-    [slotDurationMs],
-  );
-
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
@@ -263,6 +257,11 @@ export const TimeSlotPicker = ({
     values.startTime,
     variant,
   ]);
+  /** @privateRemarks Assumes it is provided the start time of a valid slot */
+  const endOfSlotStartingAt = useCallback(
+    slotStartTime => addMilliseconds(slotStartTime, slotDurationMs),
+    [slotDurationMs],
+  );
 
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
