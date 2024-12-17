@@ -13,27 +13,10 @@ export async function up(query) {
   await query.removeConstraint('user_preferences', 'user_preferences_user_id_uk');
   await query.removeConstraint('user_preferences', 'user_preferences_pkey');
 
-  // await query.removeColumn('user_preferences', 'id');
-  await query.changeColumn('user_preferences', 'id', {
+  await query.removeColumn('user_preferences', 'id');
+  await query.addColumn('user_preferences', 'id', {
     type: `TEXT GENERATED ALWAYS AS (COALESCE("user_id", '') || ';' || COALESCE("facility_id", '')) STORED`,
-    unique: true,
   });
-
-  // // await query.sequelize.query(`
-  // //   UPDATE "user_preferences"
-  // //   SET "id" = CONCAT(
-  // //         COALESCE("user_id", ''),
-
-  // //         COALESCE("facility_id", '')
-  // //       )
-  // //   WHERE "id" IS NULL;
-  // // `);
-  // await query.changeColumn('user_preferences', 'id', {
-  //   type: DataTypes.STRING,
-  //   allowNull: false,
-  //   // defaultValue: DataTypes.UUIDV4,
-  //   unique: true,
-  // });
 
   await query.addIndex('user_preferences', {
     name: 'user_facility_unique_index',
