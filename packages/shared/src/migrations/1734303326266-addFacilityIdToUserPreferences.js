@@ -4,10 +4,6 @@ export async function up(query) {
   await query.addColumn('user_preferences', 'facility_id', {
     type: DataTypes.STRING,
     allowNull: true,
-    references: {
-      model: 'facilities',
-      key: 'id',
-    },
   });
 
   await query.removeConstraint('user_preferences', 'user_preferences_user_id_uk');
