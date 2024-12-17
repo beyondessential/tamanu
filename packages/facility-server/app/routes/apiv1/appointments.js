@@ -64,12 +64,10 @@ appointments.post(
     const { Appointment, Facility, PatientCommunication } = models;
 
     await db.transaction(async () => {
-      if (appointmentSchedule) {
-        const result = await Appointment.generateRepeatingAppointment(appointmentSchedule, body);
-        res.status(201).send(result[0]);
-      }
+      const result = appointmentSchedule
+        ? await Appointment.generateRepeatingAppointment(appointmentSchedule, body)[0]
+        : await Appointment.create(body);
 
-      const result = await Appointment.create(body);
       // Fetch relations for the new appointment
       const [appointment, facility] = await Promise.all([
         Appointment.findByPk(result.id, {
