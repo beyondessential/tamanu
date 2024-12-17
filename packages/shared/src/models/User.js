@@ -83,10 +83,16 @@ export class User extends Model {
     return user;
   }
 
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // translated_string records use a generated primary key that enforces one per string and language,
+          type: `TEXT GENERATED ALWAYS AS (COALESCE("user_id", '') || ';' || COALESCE("facility_id", '')) STORED`,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
+        },
         displayId: Sequelize.STRING,
         email: {
           type: Sequelize.STRING,
