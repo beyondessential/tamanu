@@ -1,20 +1,14 @@
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  // await query.addColumn('user_preferences', 'facility_id', {
-  //   type: DataTypes.STRING,
-  //   allowNull: true,
-  //   references: {
-  //     model: 'facilities',
-  //     key: 'id',
-  //   },
-  // });
-
-  await query.sequelize.query(`
-    ALTER TABLE user_preferences
-    ADD COLUMN facility_id VARCHAR(255) NULL,
-    ADD CONSTRAINT fk_facility_id FOREIGN KEY (facility_id) REFERENCES facilities(id);
-  `);
+  await query.addColumn('user_preferences', 'facility_id', {
+    type: DataTypes.STRING,
+    allowNull: true,
+    references: {
+      model: 'facilities',
+      key: 'id',
+    },
+  });
 
   await query.removeConstraint('user_preferences', 'user_preferences_user_id_uk');
   await query.removeConstraint('user_preferences', 'user_preferences_pkey');
