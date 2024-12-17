@@ -3,7 +3,7 @@ import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
 import { useChartSurveyQuery } from './useChartSurveyQuery';
 import { useChartData } from '../../contexts/ChartData';
-import { getVisualisationConfig } from './useVitalsVisualisationConfigsQuery';
+import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
 
 export const useChartsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
