@@ -27,7 +27,3 @@ If a user hasn’t used these filters before, this attribute is `NULL`.
 {% docs user_preferences__clinician_dashboard_tasking_table_filter %}
 In the Clinician dashboard, tasking tables can be filtered. This is remembered per user.
 {% enddocs %}
-
-{% docs user_preferences__outpatient_appointment_filters %}
-In the outpatient appointments calendar, appointments can be filtered. This is remembered per user.
-{% enddocs %}
