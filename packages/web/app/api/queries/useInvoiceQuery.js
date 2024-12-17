@@ -14,3 +14,20 @@ export const useEncounterInvoice = encounterId => {
     },
   );
 };
+
+export const useInvoiceTotalOutstandingBalanceQuery = patientId => {
+  const api = useApi();
+
+  return useQuery(
+    [`patient/${patientId}/invoices/totalOutstandingBalance`],
+    () =>
+      api.get(
+        `patient/${patientId}/invoices/totalOutstandingBalance`,
+        {},
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
+    {
+      enabled: !!patientId,
+    },
+  );
+};

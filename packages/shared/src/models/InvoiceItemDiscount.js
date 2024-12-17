@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
@@ -12,9 +12,14 @@ export class InvoiceItemDiscount extends Model {
     super.init(
       {
         id: primaryKey,
-        percentage: {
+        amount: {
           type: DataTypes.DECIMAL,
           allowNull: false,
+        },
+        type: {
+          type: DataTypes.ENUM(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
+          allowNull: false,
+          defaultValue: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
         },
         reason: DataTypes.STRING,
       },
