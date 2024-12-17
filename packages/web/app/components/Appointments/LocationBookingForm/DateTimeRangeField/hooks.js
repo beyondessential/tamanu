@@ -6,12 +6,9 @@ import { useBookingSlotSettings } from '../../../../hooks';
 
 export const useTimeSlots = date => {
   const bookingSlotSettings = useBookingSlotSettings();
-
-  if (!bookingSlotSettings || !isValid(date)) return [];
-
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
 
-  return useMemo(
+  const slots = useMemo(
     () => {
       const startOfDay = parse(startTime, 'HH:mm', date);
       const endOfDay = parse(endTime, 'HH:mm', date);
@@ -31,4 +28,6 @@ export const useTimeSlots = date => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [startTime, endTime, slotDuration, date.valueOf()],
   );
+
+  return bookingSlotSettings !== undefined && isValid(date) ? slots : [];
 };
