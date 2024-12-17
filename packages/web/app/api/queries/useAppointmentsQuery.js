@@ -14,8 +14,21 @@ const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   );
 };
 
-export const useOutpatientAppointmentsQuery = (fetchOptions, useQueryOptions = {}) =>
-  useAppointmentsQuery({ locationGroupId: '', ...fetchOptions }, useQueryOptions);
+export const useOutpatientAppointmentsQuery = (
+  { locationGroupId = '', ...fetchOptions },
+  useQueryOptions = {},
+) =>
+  useAppointmentsQuery(
+    {
+      // Providing [] here omits the `?locationGroupId=` param, but the `GET /appointments` relies
+      // on its presence/absence to determine whether we are querying for location bookings or
+      // outpatient appointments
+      locationGroupId:
+        Array.isArray(locationGroupId) && locationGroupId.length === 0 ? '' : locationGroupId,
+      ...fetchOptions,
+    },
+    useQueryOptions,
+  );
 
 export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
   useAppointmentsQuery({ locationId: '', ...fetchOptions }, useQueryOptions);

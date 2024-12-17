@@ -10,11 +10,11 @@ export const Icon = styled(InputAdornment)`
   }
 `;
 
-export const StyledExpandMore = styled(ChevronIcon)`
+export const ExpandMoreIcon = styled(ChevronIcon)`
   transform: rotate(0);
   transition: transform 184ms ease-in-out;
 `;
 
-export const StyledExpandLess = styled(StyledExpandMore)`
+export const ExpandLessIcon = styled(ExpandMoreIcon)`
   transform: rotate(180deg);
 `;

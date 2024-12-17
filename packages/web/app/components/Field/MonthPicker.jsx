@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../constants';
-import { StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
+import { ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TextInput } from './TextField';
 
 const getMaxDate = () => {
@@ -139,8 +139,8 @@ export const MonthPicker = ({
       monthsPerRow={4}
       defaultValue={defaultValue}
       slots={{
-        openPickerIcon: open ? StyledExpandLess : StyledExpandMore,
-        switchViewButton: StyledExpandLess,
+        openPickerIcon: open ? ExpandLessIcon : ExpandMoreIcon,
+        switchViewButton: ExpandLessIcon,
         textField: TextInput,
         popper: StyledPopper,
       }}

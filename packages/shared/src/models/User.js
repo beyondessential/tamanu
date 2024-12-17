@@ -236,6 +236,22 @@ export class User extends Model {
     }
   }
 
+  async canSync(facilityIds, { settings }) {
+    const restrictUsersToSync = await settings.get('auth.restrictUsersToSync');
+    if (!restrictUsersToSync) return true;
+    if (this.isSuperUser()) return true;
+
+    // Permission to sync any facility
+    if (await this.hasPermission('sync', 'Facility')) return true;
+
+    // Permission to sync specific facilities
+    for (const facilityId of facilityIds) {
+      if (await this.hasPermission('sync', 'Facility', facilityId)) return true;
+    }
+
+    return false;
+  }
+
   async checkCanAccessAllFacilities() {
     const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
       'auth.restrictUsersToFacilities',
