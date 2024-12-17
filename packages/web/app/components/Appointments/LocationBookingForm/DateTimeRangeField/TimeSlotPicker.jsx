@@ -331,7 +331,6 @@ export const TimeSlotPicker = ({
    */
   useEffect(() => {
     if (hasNoLegalSelection) {
-      console.log('  hasNoLegalSelection');
       setSelectedToggles([]);
       updateInterval({ end: null });
       return;
@@ -342,24 +341,20 @@ export const TimeSlotPicker = ({
     const endTime = values.endTime;
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
-      console.log('  range');
       if (!startTime) {
-        console.log('    no start time');
         setSelectedToggles([]);
         return;
       }
 
       if (!endTime) {
-        console.log('    no end time');
         const start = parseISO(startTime);
         const slot = slotContaining(start);
+        console.log('slot', slot);
         setSelectedToggles([idOfTimeSlot(slot)]);
         updateInterval(slot);
 
         return;
       }
-
-      console.log('    has both start and end');
 
       const interval = appointmentToInterval({ startTime, endTime });
       setSelectedToggles(
