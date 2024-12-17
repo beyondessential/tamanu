@@ -144,9 +144,10 @@ export class Appointment extends Model {
           return toDateTimeString(incrementedDate);
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+          const [weekday] = daysOfWeek;
           return toDateTimeString(
             set(incrementedDate, {
-              date: weekdayAtOrdinalPosition(incrementedDate, daysOfWeek[0], nthWeekday).getDate(),
+              date: weekdayAtOrdinalPosition(incrementedDate, weekday, nthWeekday).getDate(),
             }),
           );
         }
