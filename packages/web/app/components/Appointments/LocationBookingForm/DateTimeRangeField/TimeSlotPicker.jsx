@@ -26,11 +26,11 @@ import {
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
-import { useSettings } from '../../../../contexts/Settings';
+import { useBookingSlotSettings } from '../../../../hooks';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
-import { useTimeSlots } from './useTimeSlots';
+import { useTimeSlots } from './hooks';
 import {
   appointmentToInterval,
   isSameArrayMinusHead,

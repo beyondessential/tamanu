@@ -1,14 +1,5 @@
-import {
-  addMinutes,
-  differenceInMinutes,
-  isBefore,
-  isValid,
-  isWithinInterval,
-  parse,
-  parseISO,
-} from 'date-fns';
+import { isBefore, isValid, isWithinInterval, parseISO } from 'date-fns';
 import { isEqual } from 'lodash';
-import ms from 'ms';
 
 export const appointmentToInterval = appointment => {
   const { startTime, endTime } = appointment;

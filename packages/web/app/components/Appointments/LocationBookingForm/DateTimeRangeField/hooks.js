@@ -1,15 +1,13 @@
 import { addMilliseconds, differenceInMilliseconds, isValid, parse } from 'date-fns';
 import ms from 'ms';
 import { useMemo } from 'react';
-import { useSettings } from '../../../../contexts/Settings';
+
+import { useBookingSlotSettings } from '../../../../hooks';
 
 export const useTimeSlots = date => {
-  const { getSetting } = useSettings();
+  const bookingSlotSettings = useBookingSlotSettings();
 
-  if (!isValid(date)) return [];
-
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
-  if (!bookingSlotSettings) return [];
+  if (!bookingSlotSettings || !isValid(date)) return [];
 
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
 
