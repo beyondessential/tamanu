@@ -58,11 +58,7 @@ const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
   if (!isOverflowing) {
     return renderChequeNumber();
   }
-  return (
-    <ThemedTooltip title={chequeNumber}>
-      {renderChequeNumber()}
-    </ThemedTooltip>
-  );
+  return <ThemedTooltip title={chequeNumber}>{renderChequeNumber()}</ThemedTooltip>;
 };
 
 const getRowTooltipText = updatedByUser =>
@@ -81,12 +77,20 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
+
+  const [selectedCreatePayment, setSelectedCreatePayment] = useState({});
+  const [selectedEditPayment, setSelectedEditPayment] = useState({});
+
   const [showRowTooltip, setShowRowTooltip] = useState(false);
 
+  const hasChequePaymentMethod = patientPayments.some(
+    payment => !!payment.patientPayment?.chequeNumber,
+  );
   const showChequeNumberColumn =
-    selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ||
-    patientPayments.some(payment => !!payment.patientPayment?.chequeNumber);
+    [
+      selectedCreatePayment?.paymentMethod?.value,
+      selectedEditPayment?.paymentMethod?.value,
+    ].includes(CHEQUE_PAYMENT_METHOD_ID) || hasChequePaymentMethod;
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
@@ -197,10 +201,12 @@ export const PatientPaymentsTable = ({ invoice }) => {
     noDataMessage: '',
   };
 
-  const onDataChange = ({ paymentMethod }) => {
-    setSelectedPaymentMethodId(paymentMethod.value);
+  const onCreateDataChange = data => {
+    setSelectedCreatePayment(data);
   };
-
+  const onEditDataChange = data => {
+    setSelectedEditPayment(data);
+  };
   const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
 
   return (
@@ -235,8 +241,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
             invoice={invoice}
             updateRefreshCount={updateRefreshCount}
             updateEditingPayment={updateEditingPayment}
-            onDataChange={onDataChange}
-            showChequeNumberColumn={showChequeNumberColumn}
+            onDataChange={onEditDataChange}
+            selectedPayment={selectedEditPayment}
+            hasChequePaymentMethod={hasChequePaymentMethod}
           />
           <Divider />
         </>
@@ -257,8 +264,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
           updateRefreshCount={updateRefreshCount}
           updateEditingPayment={updateEditingPayment}
-          onDataChange={onDataChange}
-          showChequeNumberColumn={showChequeNumberColumn}
+          onDataChange={onCreateDataChange}
+          selectedPayment={selectedCreatePayment}
+          hasChequePaymentMethod={hasChequePaymentMethod}
         />
       )}
     </TableContainer>
