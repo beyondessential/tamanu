@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
