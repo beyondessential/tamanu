@@ -6,6 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
 import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
@@ -15,6 +16,8 @@ import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
 import { useTableSorting } from '../Table/useTableSorting';
+import { reloadPatient } from '../../store';
+import { useEncounter } from '../../contexts/Encounter';
 
 const Container = styled.div`
   height: calc(100% - 110px);
@@ -256,6 +259,8 @@ const COLUMNS = [
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser, facilityId } = useAuth();
   const history = useHistory();
+  const { loadEncounter } = useEncounter();
+  const dispatch = useDispatch();
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -292,7 +297,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     );
   }
 
-  const onRowClick = ({ encounter }) => {
+  const onRowClick = async ({ encounter }) => {
+    await loadEncounter(encounter?.id);
+    if (encounter?.patientId) await dispatch(reloadPatient(encounter.patientId));
     history.push(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=tasks`);
   };
 
