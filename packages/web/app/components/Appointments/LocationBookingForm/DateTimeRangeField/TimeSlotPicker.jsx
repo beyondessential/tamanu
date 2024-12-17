@@ -210,20 +210,19 @@ export const TimeSlotPicker = ({
           return;
         }
 
-        // Many time slots already selected. User may shorten the selection by deselecting only the
-        // earliest slot.
-        if (isSameArrayMinusHead(newToggles, selectedToggles)) {
-          updateInterval({ start: new Date(newToggles[0]) });
-          return;
-        }
-
-        // Fresh selection. Select this and all succeeding time slots
-        if (newToggles.length === 1 && !isSameArrayMinusTail(newToggles, selectedToggles)) {
-          //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Carves out
-          //                           the scenario where only the latest two slots were selected,
-          //                           and user tries to toggle off the latest slot, which would
-          //                           leave only the second-latest slot selected (illegally)
-          updateInterval({ start: new Date(newToggles[0]) });
+        if (
+          // Many time slots already selected. User may shorten the selection by deselecting only the
+          // earliest slot.
+          isSameArrayMinusHead(newToggles, selectedToggles) ||
+          // Fresh selection
+          (newToggles.length === 1 && !isSameArrayMinusTail(newToggles, selectedToggles))
+          //                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Carves out
+          //                          the scenario where only the latest two slots were selected,
+          //                          and user tries to toggle off the latest slot, which would
+          //                          leave only the second-latest slot selected (illegally)
+        ) {
+          const start = new Date(newToggles[0]);
+          updateInterval({ start });
           return;
         }
 
