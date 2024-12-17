@@ -162,16 +162,17 @@ export class Appointment extends Model {
       };
 
       if (occurrenceCount) {
-        for (let i = 0; i < Math.min(occurrenceCount, MAX_GENERATED_APPOINTMENTS); i++) {
+        const limit = Math.min(occurrenceCount, MAX_GENERATED_APPOINTMENTS);
+        for (let i = 0; i < limit; i++) {
           pushNextAppointment();
         }
       } else if (untilDate) {
         while (
+          appointments.length <= MAX_GENERATED_APPOINTMENTS &&
           isBefore(
             parseISO(incrementByInterval(appointments.at(-1).startTime)),
             parseISO(untilDate),
-          ) &&
-          appointments.length <= MAX_GENERATED_APPOINTMENTS
+          )
         ) {
           pushNextAppointment();
         }
