@@ -19,14 +19,14 @@ export const useBookingTimeSlots = date => {
       const durationMs = ms(slotDuration);
 
       const slotCount = differenceInMilliseconds(endOfDay, startOfDay) / durationMs;
-      const slots = [];
+      const _slots = [];
       for (let i = 0; i < slotCount; i++) {
         const start = addMilliseconds(startOfDay, i * durationMs);
         const end = addMilliseconds(start, durationMs);
-        slots.push({ start, end });
+        _slots.push({ start, end });
       }
 
-      return slots;
+      return _slots;
     },
     // Relying on `valueOf()` is valid here
     // eslint-disable-next-line react-hooks/exhaustive-deps
