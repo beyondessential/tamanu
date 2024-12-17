@@ -29,8 +29,7 @@ const DateTimePicker = ({
 }) => {
   const { values, setFieldValue } = useFormikContext();
   const dateFieldValue = values[datePickerName];
-  const date = dateFieldValue ? startOfDay(parseISO(dateFieldValue)) : null;
-  const isValidDate = isValid(date);
+  const isValidDate = isValid(parseISO(dateFieldValue));
 
   /** Keep synchronised with date field for non-overnight bookings */
   const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
@@ -86,7 +85,7 @@ const DateTimePicker = ({
         saveDateAsString
       />
       <TimeSlotPicker
-        date={isValidDate ? date : null}
+        date={isValidDate ? dateFieldValue : null}
         disabled={disabled || !isValidDate || hasConflict}
         hasNoLegalSelection={hasConflict}
         label={timePickerLabel}
