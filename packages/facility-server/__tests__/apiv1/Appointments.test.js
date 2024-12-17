@@ -165,5 +165,24 @@ describe('Appointments', () => {
         '2023-12-02 12:00:00',
       ]);
     });
+    it('should generate repeating monthly appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-02 12:00:00',
+        untilDate: '2024-12-02 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-04 12:00:00',
+        '2024-07-02 12:00:00',
+        '2024-08-06 12:00:00',
+        '2024-09-03 12:00:00',
+        '2024-10-01 12:00:00',
+        '2024-11-05 12:00:00',
+        '2024-12-03 12:00:00',
+      ]);
+    });
   });
 });
