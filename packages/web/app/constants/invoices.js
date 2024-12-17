@@ -27,3 +27,5 @@ export const INVOICE_DISCOUNT_TYPES = {
   MANUAL: 'manual',
   ASSESSMENT: 'assessment',
 };
+
+export const CHEQUE_PAYMENT_METHOD_ID = 'paymentMethod-cheque';

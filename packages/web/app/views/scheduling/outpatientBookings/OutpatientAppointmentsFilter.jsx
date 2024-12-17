@@ -12,6 +12,7 @@ import {
   useOutpatientAppointmentsContext,
 } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 const Fieldset = styled.fieldset`
   // Reset
@@ -49,6 +50,7 @@ const FormListener = () => {
 export const OutpatientAppointmentsFilter = props => {
   const { filters, setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
+  const { facilityId } = useAuth();
 
   const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
 
@@ -56,7 +58,7 @@ export const OutpatientAppointmentsFilter = props => {
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        outpatientAppointmentFilters: omit(values, ['patientNameOrId']),
+        outpatientAppointmentFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
       }),
     200,
   );
@@ -68,7 +70,6 @@ export const OutpatientAppointmentsFilter = props => {
           component={SearchField}
           disabled={isUserPreferencesLoading}
           name="patientNameOrId"
-          onChange={e => setFilters(prev => ({ ...prev, patientNameOrId: e.target.value }))}
           placeholder={getTranslation(
             'scheduling.filter.placeholder.patientNameOrId',
             'Search patient name or ID',
@@ -93,6 +94,7 @@ export const OutpatientAppointmentsFilter = props => {
           onClick={() => {
             setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
             setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+            updateUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
           }}
           type="reset"
         >
@@ -106,7 +108,7 @@ export const OutpatientAppointmentsFilter = props => {
   return (
     <Form
       enableReinitialize
-      initialValues={userPreferences?.outpatientAppointmentFilters}
+      initialValues={userPreferences?.outpatientAppointmentFilters?.[facilityId]}
       onSubmit={async () => {}}
       render={renderForm}
       {...props}

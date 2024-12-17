@@ -1,19 +1,17 @@
 import Collapse, { collapseClasses } from '@mui/material/Collapse';
-import React, { useEffect, useRef } from 'react';
+import IconButton from '@mui/material/IconButton';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
-import { ClearIcon } from './Icons';
+import { ClearIcon as CloseDrawerIcon } from './Icons';
 import { BodyText, Heading4 } from './Typography';
 
 const StyledCollapse = styled(Collapse)`
   &.${collapseClasses.root} {
     z-index: 20;
     background-color: ${Colors.background};
-    min-block-size: 100%;
-    overflow-y: auto;
-    padding-block: 0 1rem;
-    position: relative;
+    block-size: 100%;
 
     // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
     &:not(.${collapseClasses.hidden}) {
@@ -23,39 +21,49 @@ const StyledCollapse = styled(Collapse)`
 `;
 
 const Wrapper = styled.div`
-  inline-size: 21rem;
   block-size: 100%;
-  overflow-y: auto;
-  padding-block: 0 1rem;
-  padding-inline: 1rem;
-  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  inline-size: 21rem;
+
+  > * {
+    padding-inline: 1rem;
+  }
 `;
 
-// TODO: Fix semantics
+const Header = styled.div`
+  align-items: baseline;
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  padding-block: 1rem 0.75rem;
+  position: sticky;
+`;
+
 const Title = styled(Heading4)`
   background-color: ${Colors.background};
-  border-bottom: max(0.0625rem, 1px) ${Colors.outline} solid;
   font-size: 1rem;
-  inset-block-start: 0;
-  margin-block: 0 0.5625rem;
-  margin-inline: -1rem;
-  padding-block: 1rem 0.313rem;
-  padding-inline: 1rem;
-  position: sticky;
-  z-index: 1;
+  margin-block: 0;
+`;
+
+const DrawerBody = styled.section`
+  overflow-y: auto;
+  padding-block: 1rem 2.5rem;
+
+  // A bit blunt but the base form fields are going to have their size tweaked in a
+  // later card so this is a bridging solution just for this drawer
+  .label-field,
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label,
+  div {
+    font-size: 0.75rem;
+  }
 `;
 
 const Description = styled(BodyText)`
   color: ${Colors.midText};
-  font-size: 0.688rem;
+  font-size: 0.75rem;
   margin-block-end: 1rem;
-`;
-
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
-  position: absolute;
 `;
 
 export const Drawer = ({
@@ -67,20 +75,19 @@ export const Drawer = ({
   orientation = 'horizontal',
   ...props
 }) => {
-  const topRef = useRef(null);
-
-  useEffect(() => topRef.current.scrollIntoView(), [open]);
-
   return (
     <StyledCollapse in={open} orientation={orientation} {...props}>
       <Wrapper>
-        <div ref={topRef} aria-hidden />
-        <Title>
-          {title}
-          <CloseDrawerIcon onClick={onClose} />
-        </Title>
-        <Description>{description}</Description>
-        {children}
+        <Header>
+          <Title>{title}</Title>
+          <IconButton aria-label="Close drawer" onClick={onClose}>
+            <CloseDrawerIcon />
+          </IconButton>
+        </Header>
+        <DrawerBody>
+          {description && <Description>{description}</Description>}
+          {children}
+        </DrawerBody>
       </Wrapper>
     </StyledCollapse>
   );

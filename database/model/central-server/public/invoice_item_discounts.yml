@@ -23,9 +23,9 @@ sources:
               - relationships:
                   to: source('tamanu', 'invoice_items')
                   field: id
-          - name: percentage
+          - name: amount
             data_type: numeric
-            description: "{{ doc('invoice_item_discounts__percentage') }}"
+            description: "{{ doc('invoice_item_discounts__amount') }}"
             data_tests:
               - not_null
           - name: reason
@@ -46,5 +46,10 @@ sources:
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in
               invoice_item_discounts."
+            data_tests:
+              - not_null
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('invoice_item_discounts__type') }}"
             data_tests:
               - not_null

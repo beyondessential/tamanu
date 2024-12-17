@@ -52,7 +52,7 @@ const getDescription = (isEdit, isLockedPatient) => {
     return (
       <TranslatedText
         stringId="outpatientAppointment.form.newForPatient.description"
-        fallback="Complete appointment details below to create a new appointment for the selected patient."
+        fallback="Complete appointment details below to create a new appointment for the selected patient"
       />
     );
   }
