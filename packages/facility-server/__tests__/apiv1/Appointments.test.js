@@ -150,18 +150,19 @@ describe('Appointments', () => {
     });
     it('should generate repeating weekly appointments with an interval', async () => {
       const appointmentSchedule = {
-        startDate: '2023-10-01 12:00:00',
-        untilDate: '2023-12-01 23:59:59',
+        startDate: '2023-09-23 12:00:00',
+        untilDate: '2023-12-02 23:59:59',
         interval: 2,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
       };
       await testRepeatingAppointment(appointmentSchedule, [
-        '2023-10-01 12:00:00',
-        '2023-10-15 12:00:00',
-        '2023-10-29 12:00:00',
-        '2023-11-12 12:00:00',
-        '2023-11-26 12:00:00',
+        '2023-09-23 12:00:00',
+        '2023-10-07 12:00:00',
+        '2023-10-21 12:00:00',
+        '2023-11-04 12:00:00',
+        '2023-11-18 12:00:00',
+        '2023-12-02 12:00:00',
       ]);
     });
   });
