@@ -7,7 +7,7 @@ import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
-import { FORM_STATUSES } from '../../constants';
+import { Colors, FORM_STATUSES } from '../../constants';
 import { TranslatedText } from '../Translation';
 
 const EmptyStateText = styled(Typography)`
@@ -15,6 +15,8 @@ const EmptyStateText = styled(Typography)`
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 20px;
   margin-block-start: 24px;
 `;
 

@@ -12,7 +12,7 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
 
-export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
+export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
   const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
   const { components = [] } = chartSurvey || {};
   const visibleComponents = components.filter(
@@ -20,7 +20,7 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSu
   );
 
   const { ability } = useAuth();
-  const canCreateChart = ability.can('create', 'Chart');
+  const canCreateChart = ability.can('create', 'Charting');
 
   if (isLoading) {
     return <ModalLoader />;
@@ -53,6 +53,7 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSu
       validateOnChange
       validateOnBlur
       render={({ submitForm, values, setFieldValue }) => (
+        <>
         <SurveyScreen
           allComponents={visibleComponents}
           patient={patient}
@@ -67,14 +68,16 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSu
             />
           }
         />
+        </>
+        
       )}
     />
   );
 });
 
-SimpleChartForm.propTypes = {
+ChartForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
-  surveyId: PropTypes.string.isRequired,
+  chartSurveyId: PropTypes.string.isRequired,
 };

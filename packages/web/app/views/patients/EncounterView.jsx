@@ -214,9 +214,12 @@ export const EncounterView = () => {
       curr[tab.key] = index + 1;
       return curr;
     }, {});
-    reorderEncounterTabs({ key: 'encounterTabOrders', value: newTabOrders }, {
-      onError: () => setTabs(currentVisibleTabs),
-    });
+    reorderEncounterTabs(
+      { key: 'encounterTabOrders', value: newTabOrders },
+      {
+        onError: () => setTabs(currentVisibleTabs),
+      },
+    );
   };
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
