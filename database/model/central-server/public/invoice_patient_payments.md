@@ -9,3 +9,7 @@ The [payment](#!/source/source.tamanu.tamanu.invoice_payments).
 {% docs invoice_patient_payments__method_id %}
 The method used to pay ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
+
+{% docs invoice_patient_payments__cheque_number %}
+The cheque number for cheque payments.
+{% enddocs %}
