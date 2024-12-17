@@ -124,7 +124,7 @@ describe('Appointments', () => {
       });
       expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
     };
-    it('should generate repeating weekly appointments', async () => {
+    it('should generate repeating weekly appointments on a wednesday', async () => {
       const appointmentSchedule = {
         startDate: '2024-10-02 12:00:00',
         untilDate: '2025-01-02 23:59:59',
@@ -149,7 +149,7 @@ describe('Appointments', () => {
         '2025-01-01 12:00:00',
       ]);
     });
-    it('should generate repeating weekly appointments with an interval', async () => {
+    it('should generate repeating bi-weekly appointments on a wednesday', async () => {
       const appointmentSchedule = {
         startDate: '2023-09-23 12:00:00',
         untilDate: '2023-12-02 23:59:59',
@@ -166,7 +166,7 @@ describe('Appointments', () => {
         '2023-12-02 12:00:00',
       ]);
     });
-    it('should generate repeating monthly appointments', async () => {
+    it('should generate repeating monthly appointments on first tuesday', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
         untilDate: '2024-11-05 23:59:59',
@@ -182,6 +182,21 @@ describe('Appointments', () => {
         '2024-09-03 12:00:00',
         '2024-10-01 12:00:00',
         '2024-11-05 12:00:00',
+      ]);
+    });
+    it('should generate repeating bi-monthly appointments on first tuesday', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        untilDate: '2024-10-01 23:59:59',
+        interval: 2,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-04 12:00:00',
+        '2024-08-06 12:00:00',
+        '2024-10-01 12:00:00',
       ]);
     });
   });
