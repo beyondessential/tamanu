@@ -151,7 +151,7 @@ describe('Appointments', () => {
     it('should generate repeating weekly appointments with an interval', async () => {
       const appointmentSchedule = {
         startDate: '2023-10-01 12:00:00',
-        untilDate: '2024-12-01 23:59:59',
+        untilDate: '2023-12-01 23:59:59',
         interval: 2,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
