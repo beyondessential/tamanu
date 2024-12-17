@@ -1,20 +1,23 @@
 import { useEncounter } from '../../contexts/Encounter';
-import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
 import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
-import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
+import { useChartSurveyQuery } from './useChartSurveyQuery';
+import { useChartData } from '../../contexts/ChartData';
+import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
 
-export const useVitalsVisualisationConfigsQuery = () => {
+export const useChartsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
-  const vitalsSurveyQuery = useVitalsSurveyQuery();
+  const { selectedChartTypeId } = useChartData();
+  const chartSurveyQuery = useChartSurveyQuery(selectedChartTypeId);
 
   const {
     data: [patientData, surveyData],
     ...restOfQuery
-  } = combineQueries([patientQuery, vitalsSurveyQuery]);
+  } = combineQueries([patientQuery, chartSurveyQuery]);
 
   return getVisualisationConfig(patientData, surveyData, restOfQuery);
 };
+
