@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from '@react-pdf/renderer';
+import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { getLocationName } from '../../patientAccessors';
@@ -9,17 +10,25 @@ import { useLanguageContext } from '../../pdf/languageContext';
 import { formatShort } from '../../dateTime';
 import { P } from '../Typography';
 
+const ALLOWED_DIAGNOSIS_CERTAINTY = [
+  DIAGNOSIS_CERTAINTY.CONFIRMED,
+  DIAGNOSIS_CERTAINTY.EMERGENCY,
+  DIAGNOSIS_CERTAINTY.SUSPECTED,
+];
+
 export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 
-  const primaryDiagnoses = diagnoses
-    .filter(diagnosis => diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const filterAndSortDiagnoses = isPrimary =>
+    diagnoses
+      .filter(diagnosis => diagnosis.isPrimary === isPrimary)
+      .filter(({ certainty }) => ALLOWED_DIAGNOSIS_CERTAINTY.includes(certainty))
+      .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 
-  const secondaryDiagnoses = diagnoses
-    .filter(diagnosis => !diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const primaryDiagnoses = filterAndSortDiagnoses(true);
+  const secondaryDiagnoses = filterAndSortDiagnoses(false);
+
   return (
     <>
       <DataSection
