@@ -10,6 +10,7 @@ export class UserPreference extends Model {
         id: {
           // translated_string records use a generated primary key that enforces one per string and language,
           type: `TEXT GENERATED ALWAYS AS (COALESCE("user_id", '') || ';' || COALESCE("facility_id", '')) STORED`,
+          primaryKey: true,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
