@@ -2,9 +2,13 @@ import { addMilliseconds, differenceInMilliseconds, isValid, parse } from 'date-
 import ms from 'ms';
 import { useMemo } from 'react';
 
-import { useBookingSlotSettings } from '../../../../hooks';
+import { useBookingSlotSettings } from './useBookingSlotSettings';
 
-export const useTimeSlots = date => {
+export const useBookingTimeSlots = date => {
+  if (!isValid(date)) {
+    throw new Error('useBookingTimeSlots has been called with an invalid date');
+  }
+
   const bookingSlotSettings = useBookingSlotSettings();
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
 
@@ -29,5 +33,5 @@ export const useTimeSlots = date => {
     [startTime, endTime, slotDuration, date.valueOf()],
   );
 
-  return bookingSlotSettings !== undefined && isValid(date) ? slots : [];
+  return bookingSlotSettings === undefined ? [] : slots;
 };
