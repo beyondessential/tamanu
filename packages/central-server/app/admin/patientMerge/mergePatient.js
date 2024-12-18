@@ -326,9 +326,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     });
 
     const action = config.patientMerge?.deletionAction;
-    if (action === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
-      await unwantedPatient.update({ firstName: 'Deleted', lastName: 'Patient' });
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
+    if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
       await unwantedPatient.destroy(); // this will just set deletedAt
     } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
       // do nothing
