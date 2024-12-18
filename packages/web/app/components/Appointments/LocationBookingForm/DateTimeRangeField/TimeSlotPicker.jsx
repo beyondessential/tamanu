@@ -285,7 +285,7 @@ export const TimeSlotPicker = ({
       }
 
       /** Returns the would-be time range selection if the provided time slot were to be clicked */
-      const getTargetSelection = timeSlot => {
+      const getTargetSelection = () => {
         switch (variant) {
           case TIME_SLOT_PICKER_VARIANTS.RANGE:
             return {
@@ -304,7 +304,7 @@ export const TimeSlotPicker = ({
             };
         }
       };
-      const targetSelection = getTargetSelection(timeSlot);
+      const targetSelection = getTargetSelection();
 
       return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
