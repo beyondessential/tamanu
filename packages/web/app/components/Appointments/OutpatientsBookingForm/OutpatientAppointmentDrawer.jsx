@@ -38,20 +38,18 @@ const IconLabel = styled.div`
   align-items: center;
 `;
 
-const formStyles = {
-  overflowY: 'auto',
-  minWidth: 'fit-content',
-};
-
 const DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT = 6;
 
-const appointmentScheduleInitialValues = {
+const APPOINTMENT_SCHEDULE_INITIAL_VALUES = {
   interval: 1,
   frequency: REPEAT_FREQUENCY.WEEKLY,
   endsMode: END_MODES.ON,
 };
 
-const getISODayOfWeek = date => format(date, 'iiiiii').toUpperCase();
+const formStyles = {
+  overflowY: 'auto',
+  minWidth: 'fit-content',
+};
 
 const getDescription = (isEdit, isLockedPatient) => {
   if (isEdit) {
@@ -306,7 +304,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     const handleChangeIsRepeatingAppointment = async e => {
       if (e.target.checked) {
-        setValues(set(values, 'appointmentSchedule', appointmentScheduleInitialValues));
+        setValues(set(values, 'appointmentSchedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
         handleInitAppointmentSchedule(parseISO(values.startTime));
       } else {
         setFieldError('appointmentSchedule', undefined);
@@ -324,7 +322,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(startTimeDate)]);
+      setFieldValue('appointmentSchedule.daysOfWeek', [
+        format(startTimeDate, 'iiiiii').toUpperCase(),
+      ]);
 
       setFieldValue(
         'appointmentSchedule.untilDate',
