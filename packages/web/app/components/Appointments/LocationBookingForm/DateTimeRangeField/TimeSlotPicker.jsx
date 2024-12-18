@@ -493,7 +493,7 @@ export const TimeSlotPicker = ({
 };
 
 TimeSlotPicker.propTypes = {
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.string,
   disabled: PropTypes.bool,
   hasNoLegalSelection: PropTypes.bool,
   label: PropTypes.elementType,
@@ -502,7 +502,7 @@ TimeSlotPicker.propTypes = {
 };
 
 TimeSlotPicker.defaultProps = {
-  date: startOfToday(),
+  date: undefined,
   disabled: false,
   hasNoLegalSelection: false,
   label: undefined,
