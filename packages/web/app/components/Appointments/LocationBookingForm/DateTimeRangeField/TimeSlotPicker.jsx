@@ -340,7 +340,6 @@ export const TimeSlotPicker = ({
         const slot = slotContaining(start);
         setSelectedToggles([idOfTimeSlot(slot)]);
         updateInterval(slot);
-
         return;
       }
 
