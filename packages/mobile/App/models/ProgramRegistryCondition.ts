@@ -12,7 +12,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 import { ProgramRegistry } from './ProgramRegistry';
 
-@Entity('program_registry_condition')
+@Entity('program_registry_conditions')
 export class ProgramRegistryCondition extends BaseModel implements IProgramRegistryCondition {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -35,8 +35,4 @@ export class ProgramRegistryCondition extends BaseModel implements IProgramRegis
     ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
   )
   patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
-
-  static getTableNameForSync(): string {
-    return 'program_registry_conditions';
-  }
 }

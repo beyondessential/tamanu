@@ -9,7 +9,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 import { DateStringColumn } from './DateColumns';
 
-@Entity('labTest')
+@Entity('lab_tests')
 export class LabTest extends BaseModel implements ILabTest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -40,8 +40,4 @@ export class LabTest extends BaseModel implements ILabTest {
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
   labTestTypeId: string;
-
-  static getTableNameForSync(): string {
-    return 'lab_tests'; // unusual camel case table here on mobile
-  }
 }
