@@ -16,7 +16,7 @@ export const BookingsCell = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const { selectedCell } = useLocationBookingsContext();
+  const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
   return (
@@ -25,6 +25,7 @@ export const BookingsCell = ({
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
         openBookingForm({ startDate: toDateString(date), locationId });
+        updateSelectedCell({ date, locationId });
       }}
       $selected={isSelected}
     >
