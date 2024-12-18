@@ -1,9 +1,10 @@
 import {
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
+  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
-  format as dateFnsFormat,
+  endOfDay,
   formatISO9075,
   isMatch,
   isSameDay,
@@ -15,8 +16,9 @@ import {
   startOfWeek,
   sub,
 } from 'date-fns';
-import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 import { z } from 'zod';
+
+import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -266,12 +268,15 @@ export const datetimeCustomValidation = z.string().refine(
     if (!regex.test(val)) return false;
 
     const date = new Date(val);
-    return !isNaN(date.getTime());
+    return isValid(date);
   },
   {
     message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
   },
 );
+
+export const endpointsOfDay = date =>
+  isValid(date) ? [startOfDay(date), endOfDay(date)] : [null, null];
 
 export const maxValidDate = dates => {
   const validDates = dates.filter(isValid);
