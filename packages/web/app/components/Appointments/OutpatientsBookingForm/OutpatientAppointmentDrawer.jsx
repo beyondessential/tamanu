@@ -31,7 +31,7 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { RepeatingAppointmentFields } from './RepeatingAppointmentFields';
+import { END_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
 
 const IconLabel = styled.div`
   display: flex;
@@ -48,6 +48,7 @@ const DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT = 6;
 const appointmentScheduleInitialValues = {
   interval: 1,
   frequency: REPEAT_FREQUENCY.WEEKLY,
+  endsMode: END_MODES.ON,
 };
 
 const getISODayOfWeek = date => format(date, 'iiiiii').toUpperCase();
@@ -250,8 +251,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       then: yup.object().shape({
         interval: yup.number().required(requiredMessage),
         frequency: yup.string().required(requiredMessage),
-        occurrenceCount: yup.number().nullable(),
-        untilDate: yup.string().nullable(),
+        occurrenceCount: yup.mixed().when('endsMode', {
+          is: END_MODES.AFTER,
+          then: yup.number().required(requiredMessage),
+          otherwise: yup.number().nullable(),
+        }),
+        untilDate: yup.string().when('endsMode', {
+          is: END_MODES.ON,
+          then: yup.string().required(requiredMessage),
+          otherwise: yup.string().nullable(),
+        }),
         daysOfWeek: yup
           .array()
           .of(yup.string().oneOf(DAYS_OF_WEEK))

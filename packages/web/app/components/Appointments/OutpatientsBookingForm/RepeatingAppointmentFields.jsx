@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormControlLabel';
 import Radio, { radioClasses } from '@mui/material/Radio';
@@ -104,7 +104,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const DEFAULT_OCCURRENCE_COUNT = 2;
 
-const END_MODES = {
+export const END_MODES = {
   ON: 'on',
   AFTER: 'after',
 };
@@ -115,8 +115,7 @@ export const RepeatingAppointmentFields = ({
   handleResetRepeatUntilDate,
 }) => {
   const { startTime, appointmentSchedule } = values;
-  const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
-  const [endsMode, setEndsMode] = useState(END_MODES.ON);
+  const { interval, frequency, occurrenceCount, untilDate, endsMode } = appointmentSchedule;
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
@@ -128,7 +127,7 @@ export const RepeatingAppointmentFields = ({
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
     }
-    setEndsMode(newModeValue);
+    setFieldValue('appointmentSchedule.endsMode', newModeValue);
   };
 
   const handleFrequencyChange = e => {
@@ -190,8 +189,8 @@ export const RepeatingAppointmentFields = ({
           <TranslatedText stringId="outpatientAppointment.repeating.ends.label" fallback="Ends" />
         </StyledFormLabel>
         <StyledRadioGroup
+          name="appointmentSchedule.endsMode"
           aria-labelledby="ends-radio"
-          value={endsMode}
           onChange={handleChangeEndsMode}
         >
           <Box display="flex" alignItems="center" gap="10px">
