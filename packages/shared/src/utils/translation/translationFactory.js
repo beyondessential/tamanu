@@ -1,6 +1,9 @@
-const applyCasing = (text, uppercase, lowercase) => {
+import { upperFirst } from 'lodash';
+
+const applyCasing = (text, uppercase, lowercase, upperFirst) => {
   if (lowercase) return text.toLowerCase();
   if (uppercase) return text.toUpperCase();
+  if (upperFirst) return upperFirst(text);
   return text;
 };
 
@@ -17,10 +20,10 @@ const applyCasing = (text, uppercase, lowercase) => {
  */
 export const replaceStringVariables = (
   templateString,
-  { replacements, uppercase, lowercase },
+  { replacements, uppercase, lowercase, upperFirst },
   translations,
 ) => {
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
+  if (!replacements) return applyCasing(templateString, uppercase, lowercase, upperFirst);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -31,7 +34,12 @@ export const replaceStringVariables = (
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.uppercase, replacement.props.lowercase);
+      return applyCasing(
+        translation,
+        replacement.props.uppercase,
+        replacement.props.lowercase,
+        replacement.props.upperFirst,
+      );
     })
     .join('');
 

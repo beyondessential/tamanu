@@ -31,7 +31,7 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { RepeatingDateFields } from './RepeatingDateFields';
+import { RepeatingAppointmentFields } from './RepeatingAppointmentFields';
 
 const IconLabel = styled.div`
   display: flex;
@@ -296,6 +296,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleChangeIsRepeatingAppointment = async e => {
+      console.log(e.target.checked);
       if (e.target.checked) {
         setValues(set(values, 'appointmentSchedule', appointmentScheduleInitialValues));
         handleInitAppointmentSchedule(parseISO(values.startTime));
@@ -306,8 +307,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleInitAppointmentSchedule = startTimeDate => {
+      console.log(startTimeDate, values.appointmentSchedule);
       if (!values.appointmentSchedule) return;
-      const { frequency, untilDate } = values.appointmentSchedule;
+      const { frequency } = values.appointmentSchedule;
       // Update the ordinal positioning of the new date
       setFieldValue(
         'appointmentSchedule.nthWeekday',
@@ -316,7 +318,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       // Note: currently supports a single day of the week
       setFieldValue('appointmentSchedule.daysOfWeek', [getISODayOfWeek(startTimeDate)]);
 
-      if (!untilDate || touched.appointmentSchedule?.untilDate) return;
       setFieldValue(
         'appointmentSchedule.untilDate',
         add(startTimeDate, { months: DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT }),
@@ -443,7 +444,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
           />
           {values.isRepeatingAppointment && (
-            <RepeatingDateFields
+            <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}

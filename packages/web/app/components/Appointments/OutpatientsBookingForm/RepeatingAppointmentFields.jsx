@@ -108,7 +108,11 @@ const END_MODES = {
   AFTER: 'after',
 };
 
-export const RepeatingDateFields = ({ values, setFieldValue, handleResetRepeatUntilDate }) => {
+export const RepeatingAppointmentFields = ({
+  values,
+  setFieldValue,
+  handleResetRepeatUntilDate,
+}) => {
   const { startTime, appointmentSchedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = appointmentSchedule;
   const [endsMode, setEndsMode] = useState(END_MODES.ON);
@@ -165,6 +169,7 @@ export const RepeatingDateFields = ({ values, setFieldValue, handleResetRepeatUn
           enumValues={
             interval === 1 ? REPEAT_FREQUENCY_UNIT_LABELS : REPEAT_FREQUENCY_UNIT_PLURAL_LABELS
           }
+          TranslatedTextProps={{ upperFirst: true }}
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
         />
