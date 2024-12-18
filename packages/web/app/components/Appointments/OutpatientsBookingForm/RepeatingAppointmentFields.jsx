@@ -43,6 +43,9 @@ const StyledNumberField = styled(NumberField)`
     padding-block: 10px;
     padding-inline: 13px 10px;
   }
+  & .Mui-disabled {
+    background-color: ${Colors.background};
+  }
 `;
 
 const StyledTranslatedSelectField = styled(TranslatedSelectField)`
@@ -96,6 +99,10 @@ const StyledDateField = styled(DateField)`
 const StyledFormLabel = styled(FormLabel)`
   font-size: 12px;
   font-weight: 500;
+  color: ${Colors.darkText};
+  :focus {
+    color: ${Colors.darkText};
+  }
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
@@ -112,6 +119,7 @@ export const END_MODES = {
 export const RepeatingAppointmentFields = ({
   values,
   setFieldValue,
+  setFieldError,
   handleResetRepeatUntilDate,
 }) => {
   const { startTime, appointmentSchedule } = values;
@@ -123,9 +131,11 @@ export const RepeatingAppointmentFields = ({
     if (newModeValue === END_MODES.ON) {
       handleResetRepeatUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
+      setFieldError('appointmentSchedule.occurrenceCount', null);
     } else if (newModeValue === END_MODES.AFTER) {
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
+      setFieldError('appointmentSchedule.untilDate', null);
     }
     setFieldValue('appointmentSchedule.endsMode', newModeValue);
   };
@@ -192,6 +202,7 @@ export const RepeatingAppointmentFields = ({
           name="appointmentSchedule.endsMode"
           aria-labelledby="ends-radio"
           onChange={handleChangeEndsMode}
+          value={endsMode}
         >
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel

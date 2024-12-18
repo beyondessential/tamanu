@@ -275,7 +275,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     }),
   });
 
-  const renderForm = ({ values, resetForm, dirty, setFieldValue, setFieldTouched, setValues }) => {
+  const renderForm = ({
+    values,
+    resetForm,
+    dirty,
+    setFieldValue,
+    setFieldTouched,
+    setFieldError,
+    setValues,
+  }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -301,6 +309,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         setValues(set(values, 'appointmentSchedule', appointmentScheduleInitialValues));
         handleInitAppointmentSchedule(parseISO(values.startTime));
       } else {
+        setFieldError('appointmentSchedule', undefined);
         setFieldTouched('appointmentSchedule', false);
         setValues(omit(values, ['appointmentSchedule']));
       }
@@ -446,6 +455,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
+              setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
             />
           )}
