@@ -8,6 +8,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { format, add, parseISO } from 'date-fns';
+import { get } from 'lodash';
 
 import {
   REPEAT_FREQUENCY,
@@ -139,9 +140,10 @@ export const RepeatingAppointmentFields = ({
   };
 
   const validateKeyboardEnteredNumber = (name, min = 1, max = 99) => {
-    if (interval > max) {
+    const inputValue = get(values, name);
+    if (inputValue > max) {
       setFieldValue(name, max);
-    } else if (interval < min || interval === '') {
+    } else if (inputValue < min || inputValue === '') {
       setFieldValue(name, min);
     }
   };
