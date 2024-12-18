@@ -349,7 +349,6 @@ export const TimeSlotPicker = ({
       if (!endTime) {
         const start = parseISO(startTime);
         const slot = slotContaining(start);
-        console.log('slot', slot);
         setSelectedToggles([idOfTimeSlot(slot)]);
         updateInterval(slot);
 
