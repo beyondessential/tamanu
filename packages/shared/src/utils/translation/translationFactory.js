@@ -1,9 +1,9 @@
-import { upperFirst } from 'lodash';
+import { upperFirst as lodashUpperFirst } from 'lodash';
 
 const applyCasing = (text, uppercase, lowercase, upperFirst) => {
   if (lowercase) return text.toLowerCase();
   if (uppercase) return text.toUpperCase();
-  if (upperFirst) return upperFirst(text);
+  if (upperFirst) return lodashUpperFirst(text);
   return text;
 };
 
