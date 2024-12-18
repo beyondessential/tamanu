@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { Alert } from 'react-native';
 
 import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
@@ -123,7 +124,16 @@ export class MobileSyncManager {
    * to continuously connect to central server and request for status change of the sync session
    */
   async triggerUrgentSync(): Promise<void> {
+    Alert.alert(
+      'MobileSyncManager.triggerUrgentSync()',
+      `urgentSyncInterval is ${!this.urgentSyncInterval ? 'null' : 'not null'}`,
+    );
+
     if (this.urgentSyncInterval) {
+      Alert.alert(
+        'MobileSyncManager.triggerUrgentSync()',
+        'Please wait for the current sync to finish',
+      );
       console.warn('MobileSyncManager.triggerSync(): Urgent sync already started');
       return;
     }
@@ -149,6 +159,10 @@ export class MobileSyncManager {
    */
   async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
+      Alert.alert(
+        'MobileSyncManager.triggerSync()',
+        'Tried to start syncing while sync in progress',
+      );
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
       );
@@ -162,6 +176,8 @@ export class MobileSyncManager {
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
+      Alert.alert('MobileSyncManager.triggerSync()', `isSyncing is ${this.isSyncing}`);
+
       // Reset all the values to default only if sync actually started, otherwise they should still be default values
       if (this.isSyncing) {
         this.syncStage = null;
@@ -189,7 +205,11 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
+    Alert.alert('MobileSyncManager.runSync()', `clearPersistedSyncSessionRecords is done`);
+
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+
+    Alert.alert('MobileSyncManager.runSync()', `getSyncTick for pullSince is done`);
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -200,6 +220,8 @@ export class MobileSyncManager {
       urgent,
       lastSyncedTick: pullSince,
     });
+
+    Alert.alert('MobileSyncManager.runSync()', `startSyncSession is done`);
 
     if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
