@@ -2,18 +2,23 @@ import { addMilliseconds, differenceInMilliseconds, isValid, parse } from 'date-
 import ms from 'ms';
 import { useMemo } from 'react';
 
+import { isWithinIntervalExcludingEnd } from '@tamanu/shared/utils/dateTime';
+
 import { useBookingSlotSettings } from './useBookingSlotSettings';
 
+/**
+ * Returns the bookable time slots for the provided date, or `null` if the date is invalid. If the
+ * booking slot settings are still pending, returns undefined.
+ */
 export const useBookingTimeSlots = date => {
-  if (!isValid(date)) {
-    throw new Error('useBookingTimeSlots has been called with an invalid date');
-  }
-
   const bookingSlotSettings = useBookingSlotSettings();
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
+  const isPending = bookingSlotSettings === undefined;
 
+  const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const slots = useMemo(
     () => {
+      if (!isValid(date)) return [];
+
       const startOfDay = parse(startTime, 'HH:mm', date);
       const endOfDay = parse(endTime, 'HH:mm', date);
       const durationMs = ms(slotDuration);
@@ -30,8 +35,17 @@ export const useBookingTimeSlots = date => {
     },
     // Relying on `valueOf()` is valid here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [startTime, endTime, slotDuration, date.valueOf()],
+    [startTime, endTime, slotDuration, date?.valueOf()],
   );
 
-  return bookingSlotSettings === undefined ? [] : slots;
+
+  const slotContaining = time => slots.find(slot => isWithinIntervalExcludingEnd(time, slot));
+  const endOfSlotContaining = time => slotContaining(time)?.end ?? null;
+
+  return {
+    slots: isPending ? undefined : slots,
+    isPending,
+    slotContaining,
+    endOfSlotContaining,
+  };
 };
