@@ -14,7 +14,7 @@ import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentSched
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
   if (frequency !== REPEAT_FREQUENCY.MONTHLY) return null;
-  
+
   // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(getWeekdayOrdinalPosition(date) - 1, -1);
 
