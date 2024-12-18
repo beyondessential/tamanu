@@ -202,6 +202,8 @@ export class MobileSyncManager {
 
     this.isSyncing = true;
 
+    Alert.alert('MobileSyncManager.runSync()', `Began sync run`);
+
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
