@@ -166,19 +166,18 @@ export class Appointment extends Model {
 
       if (occurrenceCount) {
         const limit = Math.min(occurrenceCount, maxInitialRepeatingAppointments);
-        for (let i = 0; i < limit; i++) {
+        for (let i = 0; i < limit - 1; i++) {
           pushNextAppointment();
         }
       } else if (untilDate) {
-        while (
-          appointments.length < maxInitialRepeatingAppointments &&
-          // Next appointments startDate is before untilDate
-          isBefore(
-            parseISO(incrementByInterval(appointments.at(-1).startTime)),
-            parseISO(untilDate),
-          )
-        ) {
+        const parsedUntilDate = parseISO(untilDate);
+        let isBeforeUntilDate = true;
+        while (appointments.length < maxInitialRepeatingAppointments && isBeforeUntilDate) {
           pushNextAppointment();
+          isBeforeUntilDate = isBefore(
+            parseISO(incrementByInterval(appointments.at(-1).startTime)),
+            parsedUntilDate,
+          );
         }
       }
       return this.bulkCreate(appointments);
