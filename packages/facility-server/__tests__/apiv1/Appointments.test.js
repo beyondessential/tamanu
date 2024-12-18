@@ -1,3 +1,4 @@
+import config from 'config';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
@@ -122,9 +123,10 @@ describe('Appointments', () => {
         where: { scheduleId: result.body.scheduleId },
         order: [['startTime', 'ASC']],
       });
+      if (!expected) return appointmentsInSchedule;
       expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
     };
-    it('should generate repeating weekly appointments on a wednesday', async () => {
+    it('should generate repeating weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
         startDate: '2024-10-02 12:00:00',
         untilDate: '2025-01-02 23:59:59',
@@ -149,7 +151,23 @@ describe('Appointments', () => {
         '2025-01-01 12:00:00',
       ]);
     });
-    it('should generate repeating bi-weekly appointments on a wednesday', async () => {
+    it('should generate repeating weekly appointments on Friday to occurrence count', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-10-04 12:00:00',
+        occurrenceCount: 5,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['FR'],
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-10-04 12:00:00',
+        '2024-10-11 12:00:00',
+        '2024-10-18 12:00:00',
+        '2024-10-25 12:00:00',
+        '2024-11-01 12:00:00',
+      ]);
+    });
+    it('should generate repeating bi-weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
         startDate: '2023-09-23 12:00:00',
         untilDate: '2023-12-02 23:59:59',
@@ -166,7 +184,7 @@ describe('Appointments', () => {
         '2023-12-02 12:00:00',
       ]);
     });
-    it('should generate repeating monthly appointments on first tuesday', async () => {
+    it('should generate repeating monthly appointments on first Tuesday', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
         untilDate: '2024-11-05 23:59:59',
@@ -182,6 +200,21 @@ describe('Appointments', () => {
         '2024-09-03 12:00:00',
         '2024-10-01 12:00:00',
         '2024-11-05 12:00:00',
+      ]);
+    });
+    it('should generate repeating monthly appointments on second Wednesday to occurrence count', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-12 12:00:00',
+        occurrenceCount: 3,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['WE'],
+        nthWeekday: 2,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-12 12:00:00',
+        '2024-07-10 12:00:00',
+        '2024-08-14 12:00:00',
       ]);
     });
     it('should generate repeating monthly appointments on last friday', async () => {
@@ -214,6 +247,17 @@ describe('Appointments', () => {
         '2024-08-06 12:00:00',
         '2024-10-01 12:00:00',
       ]);
+    });
+    it('should only generate the maximum number of appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['TU'],
+      };
+      const result = await testRepeatingAppointment(appointmentSchedule);
+      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
     });
   });
 });

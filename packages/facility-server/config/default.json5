@@ -133,6 +133,9 @@
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
+  "appointments": {
+    "maxInitialRepeatingAppointments": 50,
+  },
   "tasking": {
     "upcomingTasksTimeFrame": 8, // hours,
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours

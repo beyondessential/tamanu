@@ -1,3 +1,4 @@
+import config from 'config';
 import { Sequelize } from 'sequelize';
 import {
   APPOINTMENT_STATUSES,
@@ -123,7 +124,6 @@ export class Appointment extends Model {
   }
 
   static async generateRepeatingAppointment(scheduleData, firstAppointmentData) {
-    const MAX_GENERATED_APPOINTMENTS = 100;
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create({
         ...scheduleData,
@@ -163,13 +163,14 @@ export class Appointment extends Model {
       };
 
       if (occurrenceCount) {
-        const limit = Math.min(occurrenceCount, MAX_GENERATED_APPOINTMENTS);
+        const limit =
+          Math.min(occurrenceCount, config.appointments.maxInitialRepeatingAppointments) - 1;
         for (let i = 0; i < limit; i++) {
           pushNextAppointment();
         }
       } else if (untilDate) {
         while (
-          appointments.length < MAX_GENERATED_APPOINTMENTS &&
+          appointments.length < config.appointments.maxInitialRepeatingAppointments &&
           isBefore(
             parseISO(incrementByInterval(appointments.at(-1).startTime)),
             parseISO(untilDate),
