@@ -124,6 +124,7 @@ export class Appointment extends Model {
   }
 
   static async generateRepeatingAppointment(scheduleData, firstAppointmentData) {
+    const { maxInitialRepeatingAppointments } = config?.appointments || {};
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create({
         ...scheduleData,
@@ -145,6 +146,7 @@ export class Appointment extends Model {
         }
         if (frequency === REPEAT_FREQUENCY.MONTHLY) {
           const [weekday] = daysOfWeek;
+          // Set the date to the nth weekday of the month as incremented startTime will fall on a different weekday
           return toDateTimeString(
             set(incrementedDate, {
               date: weekdayAtOrdinalPosition(incrementedDate, weekday, nthWeekday).getDate(),
@@ -163,16 +165,14 @@ export class Appointment extends Model {
       };
 
       if (occurrenceCount) {
-        const limit = Math.min(
-          occurrenceCount,
-          config.appointments.maxInitialRepeatingAppointments,
-        );
-        for (let i = 0; i < limit - 1; i++) {
+        const limit = Math.min(occurrenceCount, maxInitialRepeatingAppointments);
+        for (let i = 0; i < limit; i++) {
           pushNextAppointment();
         }
       } else if (untilDate) {
         while (
-          appointments.length < config.appointments.maxInitialRepeatingAppointments &&
+          appointments.length < maxInitialRepeatingAppointments &&
+          // Next appointments startDate is before untilDate
           isBefore(
             parseISO(incrementByInterval(appointments.at(-1).startTime)),
             parseISO(untilDate),
