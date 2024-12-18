@@ -65,7 +65,7 @@ appointments.post(
 
     await db.transaction(async () => {
       const result = appointmentSchedule
-        ? await Appointment.generateRepeatingAppointment(appointmentSchedule, body)[0]
+        ? (await Appointment.generateRepeatingAppointment(appointmentSchedule, body))[0]
         : await Appointment.create(body);
 
       // Fetch relations for the new appointment
