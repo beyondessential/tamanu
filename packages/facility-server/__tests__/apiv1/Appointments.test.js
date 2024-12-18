@@ -55,6 +55,14 @@ describe('Appointments', () => {
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
   });
 
+  describe('outpatient appointments', () => {
+    describe('reminder emails', () => {
+      it.todo('should create patient communication record when hitting email endpoint');
+      it.todo('should create patient communication record when created with email in request body');
+    });
+    it.todo('patientname or id filter');
+  });
+
   describe('location bookings', () => {
     let locationId, patientId, clinicianId;
 
