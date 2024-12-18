@@ -138,16 +138,24 @@ export class MobileSyncManager {
       return;
     }
 
+    Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Getting urgentSyncIntervalInSecondsStr');
+
     const urgentSyncIntervalInSecondsStr =
       (await this.models.Setting.getByKey(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
 
+    Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Parsing urgentSyncIntervalInSeconds');
+
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
+
+    Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Setting urgentSyncInterval');
 
     // Schedule regular urgent sync
     this.urgentSyncInterval = setInterval(
       () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
+
+    Alert.alert('MobileSyncManager.triggerUrgentSync()', 'this.triggerSync');
 
     // start the sync now
     await this.triggerSync({ urgent: true });
@@ -158,6 +166,8 @@ export class MobileSyncManager {
    * @returns
    */
   async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
+    Alert.alert('MobileSyncManager.triggerSync()', 'Starting triggerSync');
+
     if (this.isSyncing) {
       Alert.alert(
         'MobileSyncManager.triggerSync()',
@@ -172,6 +182,7 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
+      Alert.alert('MobileSyncManager.triggerSync()', 'Running runSync()');
       await this.runSync({ urgent });
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
@@ -194,7 +205,10 @@ export class MobileSyncManager {
   }
 
   async runSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
+    Alert.alert('MobileSyncManager.runSync()', `Starting runSync()`);
+
     if (this.isSyncing) {
+      Alert.alert('MobileSyncManager.runSync()', `Tried to start syncing while sync in progress`);
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
 
