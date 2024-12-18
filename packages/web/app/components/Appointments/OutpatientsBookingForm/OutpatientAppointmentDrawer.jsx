@@ -298,7 +298,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     };
 
     const handleInitAppointmentSchedule = startTimeDate => {
-      console.log(startTimeDate, values.appointmentSchedule);
       if (!values.appointmentSchedule) return;
       const { frequency } = values.appointmentSchedule;
       // Update the ordinal positioning of the new date
