@@ -8,8 +8,8 @@ export const REPEAT_FREQUENCY = {
 export const REPEAT_FREQUENCY_VALUES = Object.values(REPEAT_FREQUENCY);
 
 export const REPEAT_FREQUENCY_LABELS = {
-  [REPEAT_FREQUENCY.WEEKLY]: 'Weekly',
-  [REPEAT_FREQUENCY.MONTHLY]: 'Monthly',
+  [REPEAT_FREQUENCY.WEEKLY]: 'weekly',
+  [REPEAT_FREQUENCY.MONTHLY]: 'monthly',
 };
 
 export const REPEAT_FREQUENCY_UNIT_LABELS = {
