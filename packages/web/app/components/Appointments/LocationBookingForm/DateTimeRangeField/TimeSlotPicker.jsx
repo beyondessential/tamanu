@@ -1,17 +1,8 @@
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import {
-  addMilliseconds,
-  areIntervalsOverlapping,
-  max,
-  min,
-  parseISO,
-  startOfDay,
-  startOfToday,
-} from 'date-fns';
+import { areIntervalsOverlapping, max, min, parseISO, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
-import ms from 'ms';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
@@ -19,7 +10,6 @@ import styled, { css } from 'styled-components';
 import {
   endpointsOfDay,
   isIntervalWithinInterval,
-  isWithinIntervalExcludingEnd,
   maxValidDate,
   minValidDate,
   toDateTimeString,
@@ -27,7 +17,6 @@ import {
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
-import { useBookingSlotSettings } from '../../../../hooks/useBookingSlotSettings';
 import { useBookingTimeSlots } from '../../../../hooks/useBookingTimeSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
