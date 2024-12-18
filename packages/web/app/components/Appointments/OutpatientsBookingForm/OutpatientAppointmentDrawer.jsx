@@ -451,7 +451,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={CheckField}
           />
-          {values.isRepeatingAppointment && (
+          {values.isRepeatingAppointment && !isEdit && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
