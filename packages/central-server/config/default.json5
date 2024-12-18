@@ -465,7 +465,7 @@
     // RENAME sets the patient's firstName to 'Deleted' and lastName to 'Patient'
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
-    "deletionAction": "RENAME"
+    "deletionAction": "DESTROY"
   },
   "validateQuestionConfigs": {
     "enabled": false
