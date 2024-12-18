@@ -22,15 +22,15 @@ describe('Appointments', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
-  it('should create a new appointment', async () => {
+  it('should create a new outpatient appointment', async () => {
     const result = await userApp.post('/api/appointments').send({
       patientId: patient.id,
       startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
       appointmentTypeId: 'appointmentType-standard',
     });
-    appointment = result.body;
     expect(result).toHaveSucceeded();
+    appointment = result.body;
     expect(result.body.appointmentTypeId).toEqual('appointmentType-standard');
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
@@ -59,6 +59,7 @@ describe('Appointments', () => {
     describe('reminder emails', () => {
       it.todo('should create patient communication record when hitting email endpoint');
       it.todo('should create patient communication record when created with email in request body');
+      it.todo('should use template from settings for email subject and body');
     });
     it.todo('patientname or id filter');
   });
