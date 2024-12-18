@@ -140,12 +140,13 @@ export class MobileSyncManager {
 
     Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Getting urgentSyncIntervalInSecondsStr');
 
-    const urgentSyncIntervalInSecondsStr =
-      (await this.models.Setting.getByKey(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
+    // const urgentSyncIntervalInSecondsStr =
+    //   (await this.models.Setting.getByKey(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
 
-    Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Parsing urgentSyncIntervalInSeconds');
+    // Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Parsing urgentSyncIntervalInSeconds');
 
-    const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
+    // const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
+    const urgentSyncIntervalInSeconds = 10;
 
     Alert.alert('MobileSyncManager.triggerUrgentSync()', 'Setting urgentSyncInterval');
 
