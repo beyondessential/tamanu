@@ -324,15 +324,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       mergedIntoId: keepPatientId,
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
-
-    const action = config.patientMerge?.deletionAction;
-    if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
-      await unwantedPatient.destroy(); // this will just set deletedAt
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
-      // do nothing
-    } else {
-      throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
-    }
+    await unwantedPatient.destroy();
 
     updates.Patient = 2;
 

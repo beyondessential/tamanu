@@ -460,12 +460,6 @@
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
   },
-  "patientMerge": {
-    // can be one either "DESTROY", or "NONE"
-    // DESTROY sets deleted_at to a timestamp
-    // NONE is a no-op and does nothing
-    "deletionAction": "DESTROY"
-  },
   "validateQuestionConfigs": {
     "enabled": false
   },
