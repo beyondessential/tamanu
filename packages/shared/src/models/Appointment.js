@@ -169,7 +169,7 @@ export class Appointment extends Model {
         }
       } else if (untilDate) {
         while (
-          appointments.length <= MAX_GENERATED_APPOINTMENTS &&
+          appointments.length < MAX_GENERATED_APPOINTMENTS &&
           isBefore(
             parseISO(incrementByInterval(appointments.at(-1).startTime)),
             parseISO(untilDate),
