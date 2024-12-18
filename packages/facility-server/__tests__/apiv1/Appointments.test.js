@@ -248,13 +248,25 @@ describe('Appointments', () => {
         '2024-10-01 12:00:00',
       ]);
     });
-    it('should only generate the maximum number of appointments', async () => {
+    it('should only generate the maximum number of weekly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
         occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['TU'],
+      };
+      const result = await testRepeatingAppointment(appointmentSchedule);
+      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
+    });
+    it('should only generate the maximum number of monthly appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
       };
       const result = await testRepeatingAppointment(appointmentSchedule);
       expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);

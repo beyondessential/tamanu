@@ -163,9 +163,11 @@ export class Appointment extends Model {
       };
 
       if (occurrenceCount) {
-        const limit =
-          Math.min(occurrenceCount, config.appointments.maxInitialRepeatingAppointments) - 1;
-        for (let i = 0; i < limit; i++) {
+        const limit = Math.min(
+          occurrenceCount,
+          config.appointments.maxInitialRepeatingAppointments,
+        );
+        for (let i = 0; i < limit - 1; i++) {
           pushNextAppointment();
         }
       } else if (untilDate) {
