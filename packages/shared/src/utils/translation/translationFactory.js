@@ -52,11 +52,13 @@ export const translationFactory = translations => (
   replacements,
   uppercase,
   lowercase,
+  upperFirst,
 ) => {
   const replacementConfig = {
     replacements,
     uppercase,
     lowercase,
+    upperFirst,
   };
   if (!translations)
     return { value: replaceStringVariables(fallback, replacementConfig, translations) };

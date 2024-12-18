@@ -22,8 +22,15 @@ export const TranslationProvider = ({ children }) => {
 
   const translationFunc = translationFactory(translations);
 
-  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase, upperFirst) => {
+    const { value } = translationFunc(
+      stringId,
+      fallback,
+      replacements,
+      uppercase,
+      lowercase,
+      upperFirst,
+    );
     return value;
   };
 
