@@ -461,8 +461,7 @@
     "trusted": ["loopback"]
   },
   "patientMerge": {
-    // can be one of "RENAME", "DESTROY", or "NONE"
-    // RENAME sets the patient's firstName to 'Deleted' and lastName to 'Patient'
+    // can be one either "DESTROY", or "NONE"
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     "deletionAction": "DESTROY"
