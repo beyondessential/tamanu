@@ -5,7 +5,7 @@ const applyCasing = (text, casing) => {
   if (casing === 'lower') return text.toLowerCase();
   if (casing === 'upper') return text.toUpperCase();
   if (casing === 'sentence') return upperFirst(text);
-  return text;
+  throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
 /**

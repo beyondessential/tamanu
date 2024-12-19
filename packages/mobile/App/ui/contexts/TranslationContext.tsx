@@ -13,11 +13,7 @@ import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 
-export enum Casing {
-  Upper = 'upper',
-  Lower = 'lower',
-  Sentence = 'sentence',
-}
+export type Casing = 'lower' | 'upper' | 'sentence';
 
 type Replacements = { [key: string]: any };
 
@@ -79,10 +75,11 @@ export const replaceStringVariables = (
 
 // duplicated from translationFactory.js
 const applyCasing = (text: string, casing: Casing) => {
-  if (casing === Casing.Lower) return text.toLowerCase();
-  if (casing === Casing.Upper) return text.toUpperCase();
-  if (casing === Casing.Sentence) return upperFirst(text);
-  return text;
+  if (!casing) return text;
+  if (casing === 'lower') return text.toLowerCase();
+  if (casing === 'upper') return text.toUpperCase();
+  if (casing === 'sentence') return upperFirst(text);
+  throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
