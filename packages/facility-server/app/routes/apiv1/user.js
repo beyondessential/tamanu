@@ -118,7 +118,8 @@ user.post(
   }),
 );
 
-// TODO: why getting no facility id error?
+const GENERAL_PREFERENCE_KEY = 'general';
+
 user.get(
   '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {
@@ -136,7 +137,7 @@ user.get(
     });
 
     const facilityPreferences = userPreferences?.preferences?.[facilityId] ?? {};
-    const generalPreferences = userPreferences?.preferences?.general ?? {};
+    const generalPreferences = userPreferences?.preferences?.[GENERAL_PREFERENCE_KEY] ?? {};
 
     const customizer = (objValue, srcValue) => (isEmpty(srcValue) ? objValue : srcValue);
 
@@ -157,7 +158,7 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const preferenceKey = facilityId ?? 'general';
+    const preferenceKey = facilityId ?? GENERAL_PREFERENCE_KEY;
 
     const existingPreferences = await UserPreference.findOne({
       where: { userId: currentUser.id },
