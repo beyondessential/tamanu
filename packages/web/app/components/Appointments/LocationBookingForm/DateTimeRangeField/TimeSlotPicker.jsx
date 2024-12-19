@@ -169,19 +169,18 @@ export const TimeSlotPicker = ({
 
         // Fresh selection
         if (newToggles.length === 1) {
-          const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotContaining(newStart);
-          updateSelection(newToggles, { start: newStart, end: newEnd });
+          const start = new Date(newToggles[0]);
+          const interval = slotContaining(start);
+          updateSelection(newToggles, interval);
           return;
         }
 
         // One time slot already selected. A second one makes a contiguous series.
         // (Selecting tail before head is allowed.)
         if (selectedToggles.length === 1) {
-          const newStart = new Date(newToggles[0]);
-          const startOfLatestSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotContaining(startOfLatestSlot);
-          const newInterval = { start: newStart, end: newEnd };
+          const start = new Date(newToggles[0]);
+          const end = endOfSlotContaining(new Date(newToggles.at(-1)));
+          const newInterval = { start, end };
           const newSelection = timeSlots
             .filter(slot => areIntervalsOverlapping(slot, newInterval))
             .map(idOfTimeSlot);
@@ -192,9 +191,9 @@ export const TimeSlotPicker = ({
         // Many time slots already selected. User may shorten the selection by deselecting only the
         // first or last slot.
         if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
-          const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotContaining(new Date(newToggles.at(-1)));
-          updateSelection(newToggles, { start: newStart, end: newEnd });
+          const start = new Date(newToggles[0]);
+          const end = endOfSlotContaining(new Date(newToggles.at(-1)));
+          updateSelection(newToggles, { start, end });
           return;
         }
 
@@ -214,8 +213,8 @@ export const TimeSlotPicker = ({
         // Many time slots already selected. User may shorten the selection by deselecting only the
         // earliest slot.
         if (isSameArrayMinusHead(newToggles, selectedToggles)) {
-          const newStart = new Date(newToggles[0]);
-          updateSelection(newToggles, { start: newStart });
+          const start = new Date(newToggles[0]);
+          updateSelection(newToggles, { start });
           return;
         }
 
@@ -228,8 +227,8 @@ export const TimeSlotPicker = ({
           const [selectedToggle] = newToggles;
           const newSelection = timeSlots?.map(idOfTimeSlot).filter(slot => slot >= selectedToggle);
 
-          const newStart = new Date(selectedToggle);
-          updateSelection(newSelection, { start: newStart });
+          const start = new Date(selectedToggle);
+          updateSelection(newSelection, { start });
           return;
         }
 
@@ -249,8 +248,8 @@ export const TimeSlotPicker = ({
         // latest slot.
         if (isSameArrayMinusTail(newToggles, selectedToggles)) {
           const startOfLastSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotContaining(startOfLastSlot);
-          updateSelection(newToggles, { end: newEnd });
+          const end = endOfSlotContaining(startOfLastSlot);
+          updateSelection(newToggles, { end });
           return;
         }
 
@@ -264,8 +263,8 @@ export const TimeSlotPicker = ({
           const newSelection = timeSlots?.map(idOfTimeSlot).filter(slot => slot <= selectedToggle);
 
           const startOfTimeSlot = new Date(selectedToggle);
-          const newEnd = endOfSlotContaining(startOfTimeSlot);
-          updateSelection(newSelection, { end: newEnd });
+          const end = endOfSlotContaining(startOfTimeSlot);
+          updateSelection(newSelection, { end });
           return;
         }
 
