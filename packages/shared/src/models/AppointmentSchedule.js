@@ -1,8 +1,16 @@
 import { Sequelize } from 'sequelize';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY_VALUES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { InvalidOperationError } from '../errors';
+import { isNumber } from 'lodash';
+
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_VALUES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 
 /**
  * Schema to follow iCalendar standard for recurring events.
@@ -14,14 +22,14 @@ export class AppointmentSchedule extends Model {
       {
         id: primaryKey,
         startDate: dateTimeType('startDate', { allowNull: false }),
-        untilDate: dateTimeType('untilDate'),
+        untilDate: dateTimeType('untilDate', { allowNull: true }),
         interval: { type: Sequelize.INTEGER, allowNull: false },
         frequency: {
           type: Sequelize.ENUM(REPEAT_FREQUENCY_VALUES),
           allowNull: false,
         },
         daysOfWeek: {
-          type: Sequelize.ARRAY(Sequelize.ENUM(DAYS_OF_WEEK)),
+          type: Sequelize.ARRAY(Sequelize.STRING),
           allowNull: true,
         },
         nthWeekday: {
@@ -33,7 +41,32 @@ export class AppointmentSchedule extends Model {
           allowNull: true,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        validate: {
+          mustHaveEitherUntilDateOrOccurrenceCount: function() {
+            if (!this.untilDate && !this.occurrenceCount) {
+              throw new InvalidOperationError(
+                'AppointmentSchedule must have either untilDate or occurrenceCount',
+              );
+            }
+          },
+          mustHaveOneWeekday: function() {
+            if (this.daysOfWeek?.length !== 1 || !DAYS_OF_WEEK.includes(this.daysOfWeek[0])) {
+              // Currently only supporting one weekday for recurring events
+              throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
+            }
+          },
+          mustHaveNthWeekdayForMonthly: function() {
+            if (this.frequency === REPEAT_FREQUENCY.MONTHLY && !isNumber(this.nthWeekday)) {
+              throw new InvalidOperationError(
+                'AppointmentSchedule must have nthWeekday for MONTHLY frequency',
+              );
+            }
+          },
+        },
+        ...options,
+      },
     );
   }
 

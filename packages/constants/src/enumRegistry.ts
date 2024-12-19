@@ -41,6 +41,11 @@ import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
 import { IMAGING_TYPES } from './imaging';
+import {
+  REPEAT_FREQUENCY_LABELS,
+  REPEAT_FREQUENCY_UNIT_LABELS,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
+} from './appointments';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
@@ -79,6 +84,9 @@ export const registeredEnums = {
   PLACE_OF_DEATHS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
+  REPEAT_FREQUENCY_LABELS,
+  REPEAT_FREQUENCY_UNIT_LABELS,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -126,6 +134,9 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
+  REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',
+  REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatFrequencyUnit',
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS: 'scheduling.property.repeatFrequencyUnitPlural',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
   REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',

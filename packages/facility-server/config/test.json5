@@ -41,5 +41,8 @@
       "includedPatientFieldIds": ["test-field-id-1", "test-field-id-2"]
     }
   },
+  "appointments": {
+    "maxInitialRepeatingAppointments": 20,
+  },
   "countryTimeZone": "Pacific/Auckland"
 }

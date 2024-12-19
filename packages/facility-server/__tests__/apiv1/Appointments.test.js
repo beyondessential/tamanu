@@ -1,6 +1,7 @@
+import config from 'config';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 
@@ -105,6 +106,209 @@ describe('Appointments', () => {
         const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 12:00:00');
         expect(result).toHaveSucceeded();
       });
+    });
+  });
+
+  describe('validation', () => {
+    it('should reject an appointment without an untilDate or occurrenceCount', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+        }),
+      ).rejects.toThrow(
+        'Validation error: AppointmentSchedule must have either untilDate or occurrenceCount',
+      );
+    });
+    it('should reject an appointment without exactly one weekday', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          untilDate: '2024-10-10 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE', 'TH'],
+        }),
+      ).rejects.toThrow('Validation error: AppointmentSchedule must have exactly one weekday');
+    });
+    it('should reject an appointment without nthWeekday for MONTHLY frequency', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          untilDate: '2024-10-10 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.MONTHLY,
+          daysOfWeek: ['WE'],
+        }),
+      ).rejects.toThrow(
+        'Validation error: AppointmentSchedule must have nthWeekday for MONTHLY frequency',
+      );
+    });
+  });
+
+  describe('generateRepeatingAppointment', () => {
+    const testRepeatingAppointment = async (appointmentSchedule, expected) => {
+      const result = await userApp.post('/api/appointments').send({
+        appointmentSchedule,
+        patientId: patient.id,
+        clinicianId: userApp.user.dataValues.id,
+        startTime: appointmentSchedule.startDate,
+        appointmentTypeId: 'appointmentType-standard',
+      });
+      expect(result).toHaveSucceeded();
+      const appointmentsInSchedule = await models.Appointment.findAll({
+        where: { scheduleId: result.body.scheduleId },
+        order: [['startTime', 'ASC']],
+      });
+      if (!expected) return appointmentsInSchedule;
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
+    };
+    it('should generate repeating weekly appointments on Wednesday', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-10-02 12:00:00',
+        untilDate: '2025-01-02 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-10-02 12:00:00',
+        '2024-10-09 12:00:00',
+        '2024-10-16 12:00:00',
+        '2024-10-23 12:00:00',
+        '2024-10-30 12:00:00',
+        '2024-11-06 12:00:00',
+        '2024-11-13 12:00:00',
+        '2024-11-20 12:00:00',
+        '2024-11-27 12:00:00',
+        '2024-12-04 12:00:00',
+        '2024-12-11 12:00:00',
+        '2024-12-18 12:00:00',
+        '2024-12-25 12:00:00',
+        '2025-01-01 12:00:00',
+      ]);
+    });
+    it('should generate repeating weekly appointments on Friday to occurrence count', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-10-04 12:00:00',
+        occurrenceCount: 5,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['FR'],
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-10-04 12:00:00',
+        '2024-10-11 12:00:00',
+        '2024-10-18 12:00:00',
+        '2024-10-25 12:00:00',
+        '2024-11-01 12:00:00',
+      ]);
+    });
+    it('should generate repeating bi-weekly appointments on Wednesday', async () => {
+      const appointmentSchedule = {
+        startDate: '2023-09-23 12:00:00',
+        untilDate: '2023-12-02 23:59:59',
+        interval: 2,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2023-09-23 12:00:00',
+        '2023-10-07 12:00:00',
+        '2023-10-21 12:00:00',
+        '2023-11-04 12:00:00',
+        '2023-11-18 12:00:00',
+        '2023-12-02 12:00:00',
+      ]);
+    });
+    it('should generate repeating monthly appointments on first Tuesday', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        untilDate: '2024-11-05 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-04 12:00:00',
+        '2024-07-02 12:00:00',
+        '2024-08-06 12:00:00',
+        '2024-09-03 12:00:00',
+        '2024-10-01 12:00:00',
+        '2024-11-05 12:00:00',
+      ]);
+    });
+    it('should generate repeating monthly appointments on second Wednesday to occurrence count', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-12 12:00:00',
+        occurrenceCount: 3,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['WE'],
+        nthWeekday: 2,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-12 12:00:00',
+        '2024-07-10 12:00:00',
+        '2024-08-14 12:00:00',
+      ]);
+    });
+    it('should generate repeating monthly appointments on last friday', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-28 12:00:00',
+        untilDate: '2024-09-27 23:59:59',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['FR'],
+        nthWeekday: -1,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-28 12:00:00',
+        '2024-07-26 12:00:00',
+        '2024-08-30 12:00:00',
+        '2024-09-27 12:00:00',
+      ]);
+    });
+    it('should generate repeating bi-monthly appointments on first tuesday', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        untilDate: '2024-10-01 23:59:59',
+        interval: 2,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
+      };
+      await testRepeatingAppointment(appointmentSchedule, [
+        '2024-06-04 12:00:00',
+        '2024-08-06 12:00:00',
+        '2024-10-01 12:00:00',
+      ]);
+    });
+    it('should only generate the maximum number of weekly appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['TU'],
+      };
+      const result = await testRepeatingAppointment(appointmentSchedule);
+      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
+    });
+    it('should only generate the maximum number of monthly appointments', async () => {
+      const appointmentSchedule = {
+        startDate: '2024-06-04 12:00:00',
+        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.MONTHLY,
+        daysOfWeek: ['TU'],
+        nthWeekday: 1,
+      };
+      const result = await testRepeatingAppointment(appointmentSchedule);
+      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
     });
   });
 });

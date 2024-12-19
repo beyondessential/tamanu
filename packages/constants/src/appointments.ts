@@ -1,4 +1,4 @@
-export const DAYS_OF_WEEK = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+export const DAYS_OF_WEEK = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
 export const REPEAT_FREQUENCY = {
   WEEKLY: 'WEEKLY',
@@ -8,6 +8,16 @@ export const REPEAT_FREQUENCY = {
 export const REPEAT_FREQUENCY_VALUES = Object.values(REPEAT_FREQUENCY);
 
 export const REPEAT_FREQUENCY_LABELS = {
-  [REPEAT_FREQUENCY.WEEKLY]: 'Weekly',
-  [REPEAT_FREQUENCY.MONTHLY]: 'Monthly',
+  [REPEAT_FREQUENCY.WEEKLY]: 'weekly',
+  [REPEAT_FREQUENCY.MONTHLY]: 'monthly',
+};
+
+export const REPEAT_FREQUENCY_UNIT_LABELS = {
+  [REPEAT_FREQUENCY.WEEKLY]: 'week',
+  [REPEAT_FREQUENCY.MONTHLY]: 'month',
+};
+
+export const REPEAT_FREQUENCY_UNIT_PLURAL_LABELS = {
+  [REPEAT_FREQUENCY.WEEKLY]: 'weeks',
+  [REPEAT_FREQUENCY.MONTHLY]: 'months',
 };
