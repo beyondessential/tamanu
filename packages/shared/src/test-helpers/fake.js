@@ -15,6 +15,8 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   REGISTRATION_STATUSES,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_VALUES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '../utils/dateTime';
@@ -397,9 +399,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
-  AppointmentSchedule: () => ({
-    daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
-  }),
+  AppointmentSchedule: () => {
+    const frequency = chance.pickone(REPEAT_FREQUENCY_VALUES);
+    const endsMode = chance.pickone(['on', 'after']);
+    return {
+      daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
+      nthWeekday: frequency === REPEAT_FREQUENCY.MONTHLY && chance.integer({ min: -1, max: 4 }),
+      untilDate: endsMode === 'on' && formatISO9075(chance.date()),
+      occurrenceCount: endsMode === 'after' && chance.integer({ min: 1, max: 99 }),
+    };
+  },
 };
 
 const FHIR_MODELS_HANDLERS = {
