@@ -53,7 +53,7 @@ export const CoreComplexChartData = ({
   const isTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubTypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubType] === VISIBILITY_STATUSES.CURRENT;
+    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
 
   return (
     <>
