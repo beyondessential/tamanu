@@ -170,9 +170,10 @@ export class Appointment extends Model {
         ? Math.min(occurrenceCount, maxInitialRepeatingAppointments)
         : maxInitialRepeatingAppointments;
 
-      // Generate appointments based on occurrenceCount or untilDate
       let continueGenerating = true;
       const parsedUntilDate = untilDate && parseISO(untilDate);
+      // Generate appointments until the limit is reached or until the
+      // incremented startTime is after the untilDate
       while (appointments.length < limit && continueGenerating) {
         const { startTime: latestStartTime } = pushNextAppointment();
 
