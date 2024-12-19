@@ -22,7 +22,7 @@ export class AppointmentSchedule extends Model {
       {
         id: primaryKey,
         startDate: dateTimeType('startDate', { allowNull: false }),
-        untilDate: dateTimeType('untilDate'),
+        untilDate: dateTimeType('untilDate', { allowNull: true }),
         interval: { type: Sequelize.INTEGER, allowNull: false },
         frequency: {
           type: Sequelize.ENUM(REPEAT_FREQUENCY_VALUES),
