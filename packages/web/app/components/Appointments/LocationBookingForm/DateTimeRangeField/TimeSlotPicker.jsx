@@ -114,7 +114,7 @@ export const TimeSlotPicker = ({
     [bookingSlotSettings, dayStart],
   );
 
-  const initialTimeRange = useMemo(
+  const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
   );
@@ -124,16 +124,16 @@ export const TimeSlotPicker = ({
    * the integer form of its start time.
    */
   const [selectedToggles, setSelectedToggles] = useState(() => {
-    if (!initialTimeRange) return [];
+    if (!initialInterval) return [];
 
     // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
     // component (and vice versa)
-    const isModifyingOvernightBooking = !isSameDay(initialTimeRange.start, initialTimeRange.end);
+    const isModifyingOvernightBooking = !isSameDay(initialInterval.start, initialInterval.end);
     const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
     if (isModifyingOvernightBooking !== isOvernightVariant) return [];
 
     return timeSlots
-      .filter(slot => areIntervalsOverlapping(slot, initialTimeRange))
+      .filter(slot => areIntervalsOverlapping(slot, initialInterval))
       .map(idOfTimeSlot);
   });
   const [hoverRange, setHoverRange] = useState(null);
@@ -152,8 +152,8 @@ export const TimeSlotPicker = ({
   );
 
   const updateSelection = useCallback(
-    (newToggleSelection, newTimeRange) => {
-      const { start, end } = newTimeRange;
+    (newToggleSelection, newInterval) => {
+      const { start, end } = newInterval;
       setSelectedToggles(newToggleSelection);
       switch (variant) {
         case TIME_SLOT_PICKER_VARIANTS.RANGE:
@@ -207,11 +207,11 @@ export const TimeSlotPicker = ({
           const newStart = new Date(newToggles[0]);
           const startOfLatestSlot = new Date(newToggles.at(-1));
           const newEnd = endOfSlotStartingAt(startOfLatestSlot);
-          const newTimeRange = { start: newStart, end: newEnd };
+          const newInterval = { start: newStart, end: newEnd };
           const newSelection = timeSlots
-            .filter(slot => areIntervalsOverlapping(slot, newTimeRange))
+            .filter(slot => areIntervalsOverlapping(slot, newInterval))
             .map(idOfTimeSlot);
-          updateSelection(newSelection, newTimeRange);
+          updateSelection(newSelection, newInterval);
           return;
         }
 
@@ -307,8 +307,8 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map(appointmentToInterval)
-        .filter(interval => !isEqual(interval, initialTimeRange)) ?? [], // Ignore the booking currently being modified
-    [existingBookings?.data, initialTimeRange],
+        .filter(interval => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
+    [existingBookings?.data, initialInterval],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
