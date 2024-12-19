@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
@@ -13,10 +13,9 @@ import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDispla
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { getNormalRangeByAge } from '../utils';
-import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
-import { combineQueries } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useChartData } from '../contexts/ChartData';
 
 const getExportOverrideTitle = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
@@ -78,36 +77,35 @@ const MeasureCell = React.memo(({ value, data }) => {
 
 const TitleCell = React.memo(({ value }) => {
   const {
+    allGraphedChartKeys,
     setChartKeys,
     setModalTitle,
     setVitalChartModalOpen,
     setIsInMultiChartsView,
   } = useVitalChartData();
-  const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
-  const userPreferencesQuery = useUserPreferencesQuery();
-  const {
-    data: [vitalsVisualisationConfigs, userPreferences],
-    isSuccess,
-    isLoading,
-  } = combineQueries([vitalsVisualisationConfigsQuery, userPreferencesQuery]);
+  const { selectedChartTypeId } = useChartData();
+  const { data: userPreferences, isSuccess, isLoading } = useUserPreferencesQuery();
+
+  const graphPreferenceKey = selectedChartTypeId === null
+    ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
+    : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
 
   let chartKeys = [];
   if (isSuccess) {
     const {
-      selectedGraphedVitalsOnFilter: rawSelectedGraphedVitalsOnFilter = 'select-all',
+      [graphPreferenceKey]: rawGraphFilter = 'select-all',
     } = userPreferences;
-    const selectedGraphedVitalsOnFilter = rawSelectedGraphedVitalsOnFilter.trim();
-    const { allGraphedChartKeys } = vitalsVisualisationConfigs;
+    const graphFilter = rawGraphFilter.trim();
 
-    chartKeys = ['select-all', ''].includes(selectedGraphedVitalsOnFilter)
+    chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : selectedGraphedVitalsOnFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
     <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
       {value}
-      {isSuccess && vitalsVisualisationConfigs?.allGraphedChartKeys.length > 0 && (
+      {isSuccess && allGraphedChartKeys.length > 0 && (
           <IconButton
             size="small"
             onClick={() => {
