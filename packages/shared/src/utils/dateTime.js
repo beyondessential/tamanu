@@ -6,9 +6,11 @@ import {
   differenceInYears,
   endOfDay,
   formatISO9075,
+  isBefore,
   isMatch,
   isSameDay,
   isValid,
+  isWithinInterval,
   max,
   min,
   parseISO,
@@ -275,8 +277,17 @@ export const datetimeCustomValidation = z.string().refine(
   },
 );
 
-export const endpointsOfDay = date =>
-  isValid(date) ? [startOfDay(date), endOfDay(date)] : [null, null];
+export const endpointsOfDay = date => [startOfDay(date), endOfDay(date)];
+
+/** Returns `true` if and only if `interval1` is a subset of `interval2`. It need not be a strict subset. */
+export const isIntervalWithinInterval = (interval1, interval2) => {
+  const { start, end } = interval1;
+  return isWithinInterval(start, interval2) && isWithinInterval(end, interval2);
+};
+
+/** Returns `true` if and only if `date` is an element of [`interval.start`, `interval.end`). */
+export const isWithinIntervalExcludingEnd = (date, interval) =>
+  isBefore(date, interval.end) && isWithinInterval(date, interval);
 
 export const maxValidDate = dates => {
   const validDates = dates.filter(isValid);

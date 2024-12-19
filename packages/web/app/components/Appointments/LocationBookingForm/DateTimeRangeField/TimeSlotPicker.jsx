@@ -4,7 +4,6 @@ import {
   addMilliseconds,
   areIntervalsOverlapping,
   isSameDay,
-  isValid,
   max,
   min,
   parseISO,
@@ -18,9 +17,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import {
+  endpointsOfDay,
+  isIntervalWithinInterval,
   maxValidDate,
   minValidDate,
-  endpointsOfDay,
   toDateTimeString,
 } from '@tamanu/shared/utils/dateTime';
 
@@ -36,7 +36,6 @@ import {
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
-  isTimeSlotWithinRange,
 } from './utils';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
@@ -76,6 +75,7 @@ const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
  * the start and end dates.
  */
 export const TimeSlotPicker = ({
+  /** Valid ISO date string. */
   date,
   disabled = false,
   /**
@@ -91,6 +91,10 @@ export const TimeSlotPicker = ({
   name,
   ...props
 }) => {
+  const [dayStart, dayEnd] = useMemo(() => {
+    return date ? endpointsOfDay(parseISO(date)) : [null, null];
+  }, [date]);
+
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
@@ -106,8 +110,8 @@ export const TimeSlotPicker = ({
   const timeSlots = useMemo(
     // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
     // date is selected, but component should be disabled in this scenario
-    () => calculateTimeSlots(bookingSlotSettings, date ?? startOfToday()),
-    [bookingSlotSettings, date],
+    () => calculateTimeSlots(bookingSlotSettings, dayStart ?? startOfToday()),
+    [bookingSlotSettings, dayStart],
   );
 
   const initialTimeRange = useMemo(
@@ -134,9 +138,6 @@ export const TimeSlotPicker = ({
   });
   const [hoverRange, setHoverRange] = useState(null);
 
-  const dateIsValid = isValid(date);
-  const [dayStart, dayEnd] = endpointsOfDay(date);
-
   const {
     data: existingBookings,
     isFetching: isFetchingExistingBookings,
@@ -147,7 +148,7 @@ export const TimeSlotPicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: dateIsValid && !!values.locationId },
+    { enabled: !!date && !!values.locationId },
   );
 
   const updateSelection = useCallback(
@@ -407,7 +408,7 @@ export const TimeSlotPicker = ({
                 booked={isBooked}
                 conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
-                inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
+                inHoverRange={hoverRange ? isIntervalWithinInterval(timeSlot, hoverRange) : false}
                 key={id}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverRange(null)}
@@ -425,7 +426,7 @@ export const TimeSlotPicker = ({
 };
 
 TimeSlotPicker.propTypes = {
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.string,
   disabled: PropTypes.bool,
   hasNoLegalSelection: PropTypes.bool,
   label: PropTypes.elementType,
@@ -434,7 +435,7 @@ TimeSlotPicker.propTypes = {
 };
 
 TimeSlotPicker.defaultProps = {
-  date: startOfToday(),
+  date: undefined,
   disabled: false,
   hasNoLegalSelection: false,
   label: undefined,
