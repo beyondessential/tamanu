@@ -1,6 +1,10 @@
-const applyCasing = (text, uppercase, lowercase) => {
-  if (lowercase) return text.toLowerCase();
-  if (uppercase) return text.toUpperCase();
+import { upperFirst } from 'lodash';
+
+const applyCasing = (text, casing) => {
+  if (!casing) return text;
+  if (casing === 'lower') return text.toLowerCase();
+  if (casing === 'upper') return text.toUpperCase();
+  if (casing === 'upperFirst') return upperFirst(text);
   return text;
 };
 
@@ -8,19 +12,14 @@ const applyCasing = (text, uppercase, lowercase) => {
  * @param {string} templateString
  * @param {object}
  * @key replacements - object with replacement values
- * @key uppercase - boolean
- * @key lowercase - boolean
+ * @key casing - casing to apply to the final string
  * @param {object} translations
  * @returns {string}
  *
  * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
  */
-export const replaceStringVariables = (
-  templateString,
-  { replacements, uppercase, lowercase },
-  translations,
-) => {
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
+export const replaceStringVariables = (templateString, { replacements, casing }, translations) => {
+  if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -31,24 +30,17 @@ export const replaceStringVariables = (
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.uppercase, replacement.props.lowercase);
+      return applyCasing(translation, replacement.props.casing);
     })
     .join('');
 
-  return applyCasing(result, uppercase, lowercase);
+  return applyCasing(result, casing);
 };
 
-export const translationFactory = translations => (
-  stringId,
-  fallback,
-  replacements,
-  uppercase,
-  lowercase,
-) => {
+export const translationFactory = translations => (stringId, fallback, replacements, casing) => {
   const replacementConfig = {
     replacements,
-    uppercase,
-    lowercase,
+    casing,
   };
   if (!translations)
     return { value: replaceStringVariables(fallback, replacementConfig, translations) };
