@@ -1,14 +1,5 @@
-import {
-  addMinutes,
-  differenceInMinutes,
-  isBefore,
-  isValid,
-  isWithinInterval,
-  parse,
-  parseISO,
-} from 'date-fns';
+import { isBefore, isValid, isWithinInterval, parseISO } from 'date-fns';
 import { isEqual } from 'lodash';
-import ms from 'ms';
 
 export const appointmentToInterval = appointment => {
   const { startTime, endTime } = appointment;
@@ -23,29 +14,10 @@ export const appointmentToInterval = appointment => {
   return { start, end };
 };
 
-/**
- * @param bookingSlotSettings See @tamanu/settings/src/schema/facility.ts for schema.
- * @param {Date} date
- * @return {Array<{start: Date, end: Date}>}
- */
-export const calculateTimeSlots = (bookingSlotSettings, date) => {
-  if (!isValid(date) || !bookingSlotSettings) return [];
+export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
 
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', date);
-  const endOfDay = parse(endTime, 'HH:mm', date);
-  const durationMinutes = ms(slotDuration) / 60_000;
-
-  const slotCount = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
-  const slots = [];
-  for (let i = 0; i < slotCount; i++) {
-    const start = addMinutes(startOfDay, i * durationMinutes);
-    const end = addMinutes(start, durationMinutes);
-    slots.push({ start, end });
-  }
-
-  return slots;
-};
+export const isWithinIntervalExcludingEnd = (date, interval) =>
+  isBefore(date, interval.end) && isWithinInterval(date, interval);
 
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
   if (referenceArr.length === 0) return false;
