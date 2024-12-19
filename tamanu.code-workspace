@@ -61,12 +61,6 @@
     "files.exclude": {
       "packages/": true,
     },
-    "search.exclude": {
-      "**/.next": true,
-      "**/build": true,
-      "**/dist": true,
-      "**/node_modules": true,
-    },
   },
   "extensions": {
     "recommendations": [
