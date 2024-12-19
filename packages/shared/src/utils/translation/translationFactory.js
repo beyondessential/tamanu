@@ -4,13 +4,13 @@ const applyCasing = (text, casing) => {
   if (!casing) return text;
   if (casing === 'lower') return text.toLowerCase();
   if (casing === 'upper') return text.toUpperCase();
-  if (casing === 'upperFirst') return upperFirst(text);
+  if (casing === 'sentence') return upperFirst(text);
   return text;
 };
 
 /**
  * @param {string} templateString
- * @param {object}
+ * @param {object} translationOptions
  * @key replacements - object with replacement values
  * @key casing - casing to apply to the final string
  * @param {object} translations

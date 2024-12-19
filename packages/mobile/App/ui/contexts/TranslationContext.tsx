@@ -16,7 +16,7 @@ import { readConfig, writeConfig } from '~/services/config';
 export enum Casing {
   Upper = 'upper',
   Lower = 'lower',
-  UpperFirst = 'upperFirst',
+  Sentence = 'sentence',
 }
 
 type Replacements = { [key: string]: any };
@@ -81,7 +81,7 @@ export const replaceStringVariables = (
 const applyCasing = (text: string, casing: Casing) => {
   if (casing === Casing.Lower) return text.toLowerCase();
   if (casing === Casing.Upper) return text.toUpperCase();
-  if (casing === Casing.UpperFirst) return upperFirst(text);
+  if (casing === Casing.Sentence) return upperFirst(text);
   return text;
 };
 
