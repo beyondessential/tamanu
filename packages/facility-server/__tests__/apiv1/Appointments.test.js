@@ -109,6 +109,45 @@ describe('Appointments', () => {
     });
   });
 
+  describe('validation', () => {
+    it('should reject an appointment without an untilDate or occurrenceCount', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+        }),
+      ).rejects.toThrow(
+        'Validation error: AppointmentSchedule must have either untilDate or occurrenceCount',
+      );
+    });
+    it('should reject an appointment without exactly one weekday', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          untilDate: '2024-10-10 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE', 'TH'],
+        }),
+      ).rejects.toThrow('Validation error: AppointmentSchedule must have exactly one weekday');
+    });
+    it('should reject an appointment without nthWeekday for MONTHLY frequency', async () => {
+      await expect(
+        models.AppointmentSchedule.create({
+          startDate: '2024-10-02 12:00:00',
+          untilDate: '2024-10-10 12:00:00',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.MONTHLY,
+          daysOfWeek: ['WE'],
+        }),
+      ).rejects.toThrow(
+        'Validation error: AppointmentSchedule must have nthWeekday for MONTHLY frequency',
+      );
+    });
+  });
+
   describe('generateRepeatingAppointment', () => {
     const testRepeatingAppointment = async (appointmentSchedule, expected) => {
       const result = await userApp.post('/api/appointments').send({
