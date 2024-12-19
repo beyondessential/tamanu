@@ -293,7 +293,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     const handleResetRepeatUntilDate = startTimeDate => {
       setFieldValue(
         'appointmentSchedule.untilDate',
-        add(startTimeDate, { months: DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT }),
+        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
       );
     };
 
@@ -327,10 +327,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         format(startTimeDate, 'iiiiii').toUpperCase(),
       ]);
 
-      setFieldValue(
-        'appointmentSchedule.untilDate',
-        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
-      );
+      handleResetRepeatUntilDate(startTimeDate);
     };
 
     return (
