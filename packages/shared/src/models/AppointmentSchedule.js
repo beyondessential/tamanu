@@ -1,9 +1,16 @@
 import { Sequelize } from 'sequelize';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY_VALUES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { InvalidOperationError } from '../errors';
+import { isNumber } from 'lodash';
+
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_VALUES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 
 /**
  * Schema to follow iCalendar standard for recurring events.
@@ -37,10 +44,24 @@ export class AppointmentSchedule extends Model {
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
+          mustHaveEitherUntilDateOrOccurrenceCount: function() {
+            if (!this.untilDate && !this.occurrenceCount) {
+              throw new InvalidOperationError(
+                'AppointmentSchedule must have either untilDate or occurrenceCount',
+              );
+            }
+          },
           mustHaveOneWeekday: function() {
             if (this.daysOfWeek?.length !== 1 && DAYS_OF_WEEK.includes(this.daysOfWeek[0])) {
               // Currently only supporting one weekday for recurring events
               throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
+            }
+          },
+          mustHaveNthWeekdayForMonthly: function() {
+            if (this.frequency === REPEAT_FREQUENCY.MONTHLY && !isNumber(this.nthWeekday)) {
+              throw new InvalidOperationError(
+                'AppointmentSchedule must have nthWeekday for MONTHLY frequency',
+              );
             }
           },
         },
