@@ -405,8 +405,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
     return {
       daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
       nthWeekday: frequency === REPEAT_FREQUENCY.MONTHLY && chance.integer({ min: -1, max: 4 }),
-      untilDate: endsMode === 'on' && fakeDateTimeString(),
-      occurrenceCount: endsMode === 'after' && chance.integer({ min: 1, max: 99 }),
+      ...(endsMode === 'on'
+        ? { untilDate: fakeDateTimeString() }
+        : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
 };
