@@ -76,8 +76,8 @@ export const replaceStringVariables = (
 // duplicated from translationFactory.js
 const applyCasing = (text: string, casing: Casing) => {
   if (!casing) return text;
-  if (casing === 'lower') return text.toLowerCase();
-  if (casing === 'upper') return text.toUpperCase();
+  if (casing === 'lower') return text.toLocaleLowerCase();
+  if (casing === 'upper') return text.toLocaleUpperCase();
   if (casing === 'sentence') return upperFirst(text);
   throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
