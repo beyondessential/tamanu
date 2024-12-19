@@ -9,9 +9,15 @@ import React, {
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
-import { isEmpty } from 'lodash';
+import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
+
+export enum Casing {
+  Upper = 'upper',
+  Lower = 'lower',
+  UpperFirst = 'upperFirst',
+}
 
 type Replacements = { [key: string]: any };
 
@@ -19,16 +25,14 @@ export type GetTranslationFunction = (
   stringId: string,
   fallback?: string,
   replacements?: Replacements,
-  uppercase?: boolean,
-  lowercase?: boolean,
+  casing?: Casing,
 ) => string;
 
 export interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
-  uppercase?: boolean;
-  lowercase?: boolean;
+  casing?: Casing;
 }
 
 interface TranslationContextData {
@@ -44,8 +48,7 @@ interface TranslationContextData {
 
 interface ReplacementConfig {
   replacements?: Replacements;
-  uppercase?: boolean;
-  lowercase?: boolean;
+  casing?: Casing;
 }
 
 // Duplicated from TranslatedText.js on desktop
@@ -54,8 +57,8 @@ export const replaceStringVariables = (
   replacementConfig: ReplacementConfig,
   translations?: object,
 ) => {
-  const { replacements, uppercase, lowercase } = replacementConfig || {};
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
+  const { replacements, casing } = replacementConfig || {};
+  if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -68,21 +71,18 @@ export const replaceStringVariables = (
       const replacementElement = replacement as ReactElement<TranslatedTextProps>;
       const translation =
         translations?.[replacementElement.props.stringId] || replacementElement.props.fallback;
-      return applyCasing(
-        translation,
-        replacementElement.props.uppercase,
-        replacementElement.props.lowercase,
-      );
+      return applyCasing(translation, replacementElement.props.casing);
     })
     .join('');
 
-  return applyCasing(result, uppercase, lowercase);
+  return applyCasing(result, casing);
 };
 
 // duplicated from translationFactory.js
-const applyCasing = (text: string, uppercase: boolean, lowercase: boolean) => {
-  if (lowercase) return text.toLowerCase();
-  if (uppercase) return text.toUpperCase();
+const applyCasing = (text: string, casing: Casing) => {
+  if (casing === Casing.Lower) return text.toLowerCase();
+  if (casing === Casing.Upper) return text.toUpperCase();
+  if (casing === Casing.UpperFirst) return upperFirst(text);
   return text;
 };
 
@@ -120,13 +120,11 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     stringId: string,
     fallback?: string,
     replacements?: Replacements,
-    uppercase?: boolean,
-    lowercase?: boolean,
+    casing?: Casing,
   ) => {
     const replacementConfig = {
       replacements,
-      uppercase,
-      lowercase,
+      casing,
     };
     if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
     const translation = translations[stringId] ?? fallback;
