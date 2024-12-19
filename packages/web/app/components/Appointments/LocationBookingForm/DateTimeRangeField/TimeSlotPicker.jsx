@@ -1,17 +1,8 @@
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import {
-  addMilliseconds,
-  areIntervalsOverlapping,
-  isSameDay,
-  max,
-  min,
-  parseISO,
-  startOfToday,
-} from 'date-fns';
+import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
-import ms from 'ms';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
@@ -26,13 +17,12 @@ import {
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
-import { useSettings } from '../../../../contexts/Settings';
+import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 import {
   appointmentToInterval,
-  calculateTimeSlots,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
@@ -103,16 +93,12 @@ export const TimeSlotPicker = ({
     isSubmitting,
   } = useFormikContext();
 
-  const { getSetting } = useSettings();
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
-  const slotDurationMs = ms(bookingSlotSettings.slotDuration);
-
-  const timeSlots = useMemo(
-    // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no
-    // date is selected, but component should be disabled in this scenario
-    () => calculateTimeSlots(bookingSlotSettings, dayStart ?? startOfToday()),
-    [bookingSlotSettings, dayStart],
-  );
+  const {
+    slots: timeSlots,
+    isPending: isTimeSlotsPending,
+    slotContaining,
+    endOfSlotContaining,
+  } = useBookingSlots(dayStart);
 
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
@@ -166,8 +152,6 @@ export const TimeSlotPicker = ({
     if (hasNoLegalSelection) updateSelection([], { end: null });
   }, [hasNoLegalSelection, updateSelection]);
 
-  const endOfSlotStartingAt = slotStartTime => addMilliseconds(slotStartTime, slotDurationMs);
-
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
    * coerces this into a contiguous selection. Note that this array has set semantics, and is not
@@ -187,7 +171,7 @@ export const TimeSlotPicker = ({
         // Fresh selection
         if (newToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotStartingAt(newStart);
+          const newEnd = endOfSlotContaining(newStart);
           updateSelection(newToggles, { start: newStart, end: newEnd });
           return;
         }
@@ -197,7 +181,7 @@ export const TimeSlotPicker = ({
         if (selectedToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
           const startOfLatestSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotStartingAt(startOfLatestSlot);
+          const newEnd = endOfSlotContaining(startOfLatestSlot);
           const newInterval = { start: newStart, end: newEnd };
           const newSelection = timeSlots
             .filter(slot => areIntervalsOverlapping(slot, newInterval))
@@ -210,7 +194,7 @@ export const TimeSlotPicker = ({
         // first or last slot.
         if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = endOfSlotStartingAt(new Date(newToggles.at(-1)));
+          const newEnd = endOfSlotContaining(new Date(newToggles.at(-1)));
           updateSelection(newToggles, { start: newStart, end: newEnd });
           return;
         }
@@ -243,7 +227,7 @@ export const TimeSlotPicker = ({
           //                           and user tries to toggle off the latest slot, which would
           //                           leave only the second-latest slot selected (illegally)
           const [selectedToggle] = newToggles;
-          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot >= selectedToggle);
+          const newSelection = timeSlots?.map(idOfTimeSlot).filter(slot => slot >= selectedToggle);
 
           const newStart = new Date(selectedToggle);
           updateSelection(newSelection, { start: newStart });
@@ -266,7 +250,7 @@ export const TimeSlotPicker = ({
         // latest slot.
         if (isSameArrayMinusTail(newToggles, selectedToggles)) {
           const startOfLastSlot = new Date(newToggles.at(-1));
-          const newEnd = endOfSlotStartingAt(startOfLastSlot);
+          const newEnd = endOfSlotContaining(startOfLastSlot);
           updateSelection(newToggles, { end: newEnd });
           return;
         }
@@ -278,10 +262,10 @@ export const TimeSlotPicker = ({
           //                           and user tries to toggle off the earliest slot, which would
           //                           leave only the second-earliest slot selected (illegally)
           const [selectedToggle] = newToggles;
-          const newSelection = timeSlots.map(idOfTimeSlot).filter(slot => slot <= selectedToggle);
+          const newSelection = timeSlots?.map(idOfTimeSlot).filter(slot => slot <= selectedToggle);
 
           const startOfTimeSlot = new Date(selectedToggle);
-          const newEnd = endOfSlotStartingAt(startOfTimeSlot);
+          const newEnd = endOfSlotContaining(startOfTimeSlot);
           updateSelection(newSelection, { end: newEnd });
           return;
         }
@@ -355,10 +339,10 @@ export const TimeSlotPicker = ({
         error={showError}
         {...props}
       >
-        {isFetchingExistingBookings ? (
+        {isFetchingExistingBookings || isTimeSlotsPending ? (
           <SkeletonTimeSlotToggles />
         ) : (
-          timeSlots.map(timeSlot => {
+          timeSlots?.map(timeSlot => {
             const isBooked = bookedIntervals.some(bookedInterval =>
               areIntervalsOverlapping(timeSlot, bookedInterval),
             );
