@@ -14,6 +14,8 @@ export const appointmentToInterval = appointment => {
   return { start, end };
 };
 
+export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
+
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
   if (referenceArr.length === 0) return false;
 
