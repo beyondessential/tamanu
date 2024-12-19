@@ -157,11 +157,13 @@ export class Appointment extends Model {
 
       const pushNextAppointment = () => {
         const currentAppointment = appointments.at(-1);
-        appointments.push({
+        const nextAppointment = {
           ...currentAppointment,
           startTime: incrementByInterval(currentAppointment.startTime),
           endTime: incrementByInterval(currentAppointment.endTime),
-        });
+        };
+        appointments.push(nextAppointment);
+        return nextAppointment;
       };
 
       if (occurrenceCount) {
@@ -173,9 +175,9 @@ export class Appointment extends Model {
         const parsedUntilDate = parseISO(untilDate);
         let isBeforeUntilDate = true;
         while (appointments.length < maxInitialRepeatingAppointments && isBeforeUntilDate) {
-          pushNextAppointment();
+          const { startTime: latestStartTime } = pushNextAppointment();
           isBeforeUntilDate = isBefore(
-            parseISO(incrementByInterval(appointments.at(-1).startTime)),
+            parseISO(incrementByInterval(latestStartTime)),
             parsedUntilDate,
           );
         }
