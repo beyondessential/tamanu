@@ -52,7 +52,7 @@ export class AppointmentSchedule extends Model {
             }
           },
           mustHaveOneWeekday: function() {
-            if (this.daysOfWeek?.length !== 1 && DAYS_OF_WEEK.includes(this.daysOfWeek[0])) {
+            if (this.daysOfWeek?.length !== 1 || !DAYS_OF_WEEK.includes(this.daysOfWeek[0])) {
               // Currently only supporting one weekday for recurring events
               throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
             }
