@@ -8,8 +8,7 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          type: `TEXT GENERATED ALWAYS AS (COALESCE("user_id", '') || ';' || COALESCE("facility_id", '')) STORED`,
-          primaryKey: true,
+          type: `TEXT GENERATED ALWAYS AS (user_id) STORED`,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
@@ -19,6 +18,7 @@ export class UserPreference extends Model {
         outpatientAppointmentFilters: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
+          primaryKey: true,
           references: {
             model: 'users',
             key: 'id',
@@ -28,22 +28,9 @@ export class UserPreference extends Model {
           type: DataTypes.JSONB,
           defaultValue: {},
         },
-        facilityId: {
-          type: DataTypes.STRING,
-          references: {
-            model: 'facilities',
-            key: 'id',
-          },
-        },
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [
-          {
-            unique: true,
-            fields: ['userId', 'facilityId'],
-          },
-        ],
         ...options,
       },
     );
