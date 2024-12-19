@@ -9,14 +9,14 @@ const applyCasing = (text, casing) => {
 };
 
 /**
- * @typedef {Object} TranslationConfig
+ * @typedef {Object} TranslationOptions
  * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
  * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
  */
 
 /**
  * @param {string} templateString
- * @param {TranslationConfig} translationConfig
+ * @param {TranslationOptions} translationOptions
  * @param {Object} translations
  * @returns {string}
  *

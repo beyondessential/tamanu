@@ -20,7 +20,7 @@ type Replacements = { [key: string]: any };
 export type GetTranslationFunction = (
   stringId: string,
   fallback?: string,
-  translationConfig?: TranslationConfig,
+  translationOptions?: TranslationOptions,
 ) => string;
 
 export interface TranslatedTextProps {
@@ -41,7 +41,7 @@ interface TranslationContextData {
   setHost: (host: string) => void;
 }
 
-interface TranslationConfig {
+interface TranslationOptions {
   replacements?: Replacements;
   casing?: Casing;
 }
@@ -49,10 +49,10 @@ interface TranslationConfig {
 // Duplicated from TranslatedText.js on desktop
 export const replaceStringVariables = (
   templateString: string,
-  translationConfig: TranslationConfig,
+  translationOptions: TranslationOptions,
   translations?: object,
 ) => {
-  const { replacements, casing } = translationConfig || {};
+  const { replacements, casing } = translationOptions || {};
   if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
@@ -115,12 +115,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const getTranslation = (
     stringId: string,
     fallback?: string,
-    translationConfig?: TranslationConfig,
+    translationOptions?: TranslationOptions,
   ) => {
-    if (!translations) return replaceStringVariables(fallback, translationConfig, translations);
+    if (!translations) return replaceStringVariables(fallback, translationOptions, translations);
     const translation = translations[stringId] ?? fallback;
 
-    return replaceStringVariables(translation, translationConfig, translations);
+    return replaceStringVariables(translation, translationOptions, translations);
   };
 
   const writeLanguage = async (languageCode: string) => {

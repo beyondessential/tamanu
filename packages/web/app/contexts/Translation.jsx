@@ -5,7 +5,7 @@ import { translationFactory } from '@tamanu/shared/utils/translation/translation
 import { getCurrentLanguageCode } from '../utils/translation';
 
 /**
- * @typedef {Object} TranslationConfig
+ * @typedef {Object} TranslationOptions
  * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
  * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
  */
@@ -30,11 +30,11 @@ export const TranslationProvider = ({ children }) => {
   /**
    * @param {string} stringId
    * @param {string} fallback
-   * @param {TranslationConfig} translationConfig
+   * @param {TranslationOptions} translationOptions
    * @returns {string}
    */
-  const getTranslation = (stringId, fallback, translationConfig = {}) => {
-    const { value } = translationFunc(stringId, fallback, translationConfig);
+  const getTranslation = (stringId, fallback, translationOptions = {}) => {
+    const { value } = translationFunc(stringId, fallback, translationOptions);
     return value;
   };
 

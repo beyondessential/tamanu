@@ -83,9 +83,9 @@ export const withLanguageContext = Component => props => {
         }
         return newStyles;
       },
-      getTranslation(stringId, fallback, translationConfig) {
+      getTranslation(stringId, fallback, translationOptions) {
         const translationFunc = translationFactory(translations);
-        const { value } = translationFunc(stringId, fallback, translationConfig);
+        const { value } = translationFunc(stringId, fallback, translationOptions);
         return value;
       },
       getEnumTranslation(enumValues, currentValue) {

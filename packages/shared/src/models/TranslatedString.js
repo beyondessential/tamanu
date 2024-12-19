@@ -136,9 +136,9 @@ export class TranslatedString extends Model {
   static getTranslationFunction = async (language, prefixIds = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (stringId, fallback, translationConfig) => {
+    return (stringId, fallback, translationOptions) => {
       const translationFunc = translationFactory(translations);
-      const { value } = translationFunc(stringId, fallback, translationConfig);
+      const { value } = translationFunc(stringId, fallback, translationOptions);
       return value;
     };
   };
