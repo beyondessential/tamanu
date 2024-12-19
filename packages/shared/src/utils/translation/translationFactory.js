@@ -2,8 +2,8 @@ import { upperFirst } from 'lodash';
 
 const applyCasing = (text, casing) => {
   if (!casing) return text;
-  if (casing === 'lower') return text.toLowerCase();
-  if (casing === 'upper') return text.toUpperCase();
+  if (casing === 'lower') return text.toLocaleLowerCase();
+  if (casing === 'upper') return text.toLocaleUpperCase();
   if (casing === 'sentence') return upperFirst(text);
   return text;
 };
