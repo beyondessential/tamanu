@@ -5,16 +5,22 @@ import {
   VISIBILITY_STATUSES,
   SURVEY_TYPES,
   COMPLEX_CORE_DATA_ELEMENT_TYPES,
+  CHARTING_DATA_ELEMENT_IDS,
+  CHARTING_CORE_TYPE_TO_ID,
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
 
 // Checks complex chart core question config individually
 function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord) {
-  const { type } = programDataElementRecord.values;
+  const { id, type } = programDataElementRecord.values;
   const { visibilityStatus } = surveyScreenComponentRecord.values;
 
   if (COMPLEX_CORE_DATA_ELEMENT_TYPES.includes(type) === false) {
     throw new Error('Invalid question type');
+  }
+
+  if (CHARTING_CORE_TYPE_TO_ID[type] !== id) {
+    throw new Error('Invalid ID for question type');
   }
 
   const mandatoryTypes = [
@@ -42,8 +48,18 @@ function validateComplexChartCore(programDataElementRecords, sheetName, stats, e
 }
 
 function validateChartingFirstQuestion(programDataElementRecords, sheetName, stats, errors) {
-  const { code, type } = programDataElementRecords[0].values;
-  if (type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME) {
+  const { id, code, type } = programDataElementRecords[0].values;
+  const hasWrongId = id !== CHARTING_DATA_ELEMENT_IDS.dateRecorded;
+  const hasWrongType = type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME;
+
+  if (hasWrongId) {
+    const error = new Error(
+      `sheetName: ${sheetName}, code: '${code}', First question should have '${CHARTING_DATA_ELEMENT_IDS.dateRecorded}' as ID`,
+    );
+    updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
+    errors.push(error);
+  }
+  if (hasWrongType) {
     const error = new Error(
       `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
     );
