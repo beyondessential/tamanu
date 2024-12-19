@@ -79,11 +79,10 @@ describe('DownloadDataButton', () => {
 
     const button = screen.getByTestId('download-data-button');
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
-    expect(getTranslationSpy).toHaveBeenCalledWith(
-      'general.table.action.export',
-      'Export',
-      undefined,
-    );
+    expect(getTranslationSpy).toHaveBeenCalledWith('general.table.action.export', 'Export', {
+      casing: undefined,
+      replacements: undefined,
+    });
     expect(button.textContent).toBe('🌐 Export 🌐');
   });
 
