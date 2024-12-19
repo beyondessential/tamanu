@@ -129,22 +129,16 @@ user.get(
 
     req.checkPermission('read', currentUser);
 
-    const userPreferencesForFacility = await UserPreference.findOne({
-      where: { userId: currentUser.id, facilityId },
+    const userPreferences = await UserPreference.findOne({
+      where: { userId: currentUser.id },
     });
 
-    const userPreferencesGeneral = await UserPreference.findOne({
-      where: { userId: currentUser.id, facilityId: null },
-    });
+    const facilityPreferences = userPreferences?.dataValues?.[facilityId] ?? {};
+    const generalPreferences = userPreferences?.dataValues?.general ?? {};
 
     const customizer = (objValue, srcValue) => (isEmpty(srcValue) ? objValue : srcValue);
 
-    const combinedPreferences = mergeWith(
-      {},
-      userPreferencesGeneral?.dataValues ?? {},
-      userPreferencesForFacility?.dataValues ?? {},
-      customizer,
-    );
+    const combinedPreferences = mergeWith({}, generalPreferences, facilityPreferences, customizer);
 
     res.send(combinedPreferences);
   }),
@@ -161,9 +155,14 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
+    const existingPreferences = UserPreference.findOne({ where: { userId: currentUser.id } });
+    const existingPreferencesForFacility =
+      existingPreferences?.dataValues?.[facilityId ?? 'general'];
+
+    const updatedPreferencesForFacility = { ...existingPreferencesForFacility, ...preferences };
+
     const [userPreferences] = await UserPreference.upsert({
-      ...preferences,
-      facilityId,
+      preferences: { ...existingPreferences, ...updatedPreferencesForFacility },
       userId: currentUser.id,
       deletedAt: null,
     });
