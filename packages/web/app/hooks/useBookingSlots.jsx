@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { isWithinIntervalExcludingEnd } from '@tamanu/shared/utils/dateTime';
 
-import { useBookingSlotSettings } from './useBookingSlotSettings';
+import { useSettings } from '../contexts/Settings';
 
 /**
  * @param bookingSlotSettings See @tamanu/settings/src/schema/facility.ts for schema.
@@ -36,7 +36,9 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  * booking slot settings are still pending, returns `undefined`.
  */
 export const useBookingSlots = date => {
-  const bookingSlotSettings = useBookingSlotSettings();
+  const { getSetting } = useSettings();
+  const bookingSlotSettings = getSetting('appointments.bookingSlots');
+
   const isPending = bookingSlotSettings === undefined;
 
   // “Pointless” destructure so we can use primitives as `useMemo` dependencies
