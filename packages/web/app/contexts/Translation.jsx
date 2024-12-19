@@ -4,6 +4,12 @@ import { useTranslations } from '../api/queries/useTranslations';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 
+/**
+ * @typedef {Object} TranslationConfig
+ * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
+ * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
+ */
+
 export const TranslationContext = React.createContext(null);
 
 export const useTranslation = () => {
@@ -21,8 +27,11 @@ export const TranslationProvider = ({ children }) => {
 
   const translationFunc = translationFactory(translations);
 
-  const getTranslation = (stringId, fallback, replacements, casing) => {
-    const { value } = translationFunc(stringId, fallback, replacements, casing);
+  /**
+   * @param {TranslationConfig} translationConfig
+   */
+  const getTranslation = (stringId, fallback, translationConfig = {}) => {
+    const { value } = translationFunc(stringId, fallback, translationConfig);
     return value;
   };
 

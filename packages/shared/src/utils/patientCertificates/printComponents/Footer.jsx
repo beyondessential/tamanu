@@ -71,7 +71,9 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
         {printedBy && (
           <>
             <ValueText> |</ValueText>
-            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}:</LabelText>{' '}
+            <LabelText>
+              {getTranslation('pdf.footer.printedBy.label', 'Printed by')}:
+            </LabelText>{' '}
             <ValueText>{printedBy}</ValueText>
           </>
         )}
@@ -81,8 +83,10 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
           style={styles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              currentPage: pageNumber,
-              totalPages,
+              replacements: {
+                currentPage: pageNumber,
+                totalPages,
+              },
             })
           }
         />

@@ -126,7 +126,9 @@ const MultiValue = props => {
           selected.length === 1
             ? label
             : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
-                items: selected.length,
+                replacements: {
+                  items: selected.length,
+                },
               }),
         removeProps: {
           ...removeProps,

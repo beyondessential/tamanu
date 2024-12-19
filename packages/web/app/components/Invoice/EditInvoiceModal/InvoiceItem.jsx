@@ -111,9 +111,9 @@ export const InvoiceItemRow = ({
   const nonDiscountableTranslation = getTranslation(
     'invoice.table.details.nonDiscountable',
     'Non-discountable',
-    {},
-    false,
-    true,
+    {
+      casing: 'lower',
+    },
   );
 
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {

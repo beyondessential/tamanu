@@ -39,7 +39,7 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
 
 const mockTranslations = { 'general.table.action.export': '🌐 Export 🌐' };
 // eslint-disable-next-line no-unused-vars
-const mockGetTranslation = (stringId, fallback, _replacements, _casing) =>
+const mockGetTranslation = (stringId, fallback, _translationConfig) =>
   mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
@@ -82,7 +82,6 @@ describe('DownloadDataButton', () => {
     expect(getTranslationSpy).toHaveBeenCalledWith(
       'general.table.action.export',
       'Export',
-      undefined,
       undefined,
     );
     expect(button.textContent).toBe('🌐 Export 🌐');

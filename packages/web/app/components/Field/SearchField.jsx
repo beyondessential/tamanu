@@ -51,8 +51,8 @@ export const SearchField = props => {
     if (setFieldValue) {
       setFieldValue(name, '');
     }
-  }
-  
+  };
+
   return (
     <StyledTextField
       InputProps={{
@@ -70,7 +70,11 @@ export const SearchField = props => {
       placeholder={
         label
           ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-              label: getTranslation(label.props.stringId, label.props.fallback).toLowerCase(),
+              replacements: {
+                label: getTranslation(label.props.stringId, label.props.fallback, {
+                  casing: 'lower',
+                }),
+              },
             })
           : ''
       }
