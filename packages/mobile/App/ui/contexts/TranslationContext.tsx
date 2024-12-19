@@ -79,8 +79,8 @@ export const replaceStringVariables = (
 
 // duplicated from translationFactory.js
 const applyCasing = (text: string, casing: Casing) => {
-  if (casing === Casing.Lower) return text.toLowerCase();
-  if (casing === Casing.Upper) return text.toUpperCase();
+  if (casing === Casing.Lower) return text.toLocaleLowerCase();
+  if (casing === Casing.Upper) return text.toLocaleUpperCase();
   if (casing === Casing.Sentence) return upperFirst(text);
   return text;
 };
