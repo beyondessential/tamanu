@@ -153,22 +153,13 @@ export const TimeSlotPicker = ({
 
   const updateSelection = useCallback(
     (newToggleSelection, newInterval) => {
-      const { start, end } = newInterval;
       setSelectedToggles(newToggleSelection);
-      switch (variant) {
-        case TIME_SLOT_PICKER_VARIANTS.RANGE:
-          void setFieldValue('startTime', toDateTimeString(start));
-          void setFieldValue('endTime', toDateTimeString(end));
-          return;
-        case TIME_SLOT_PICKER_VARIANTS.START:
-          void setFieldValue('startTime', toDateTimeString(start));
-          return;
-        case TIME_SLOT_PICKER_VARIANTS.END:
-          void setFieldValue('endTime', toDateTimeString(end));
-          return;
-      }
+
+      const { start, end } = newInterval;
+      if (start !== undefined) void setFieldValue('startTime', toDateTimeString(start));
+      if (end !== undefined) void setFieldValue('endTime', toDateTimeString(end));
     },
-    [setFieldValue, variant],
+    [setFieldValue],
   );
 
   useEffect(() => {
