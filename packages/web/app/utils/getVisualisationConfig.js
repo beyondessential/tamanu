@@ -8,7 +8,7 @@ export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => 
 
   // Complex charts should not have graphs enabled yet, this will be done later
   if (surveyData.surveyType === SURVEY_TYPES.COMPLEX_CHART) {
-    return { data: { visualisationConfigs, allGraphedChartKeys: [] }, ...restOfQuery };
+    return { ...restOfQuery, data: { visualisationConfigs, allGraphedChartKeys: [] } };
   }
 
   if (isSuccess) {
@@ -51,5 +51,5 @@ export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => 
     .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
     .map(({ key }) => key);
 
-  return { data: { visualisationConfigs, allGraphedChartKeys }, ...restOfQuery };
+  return { ...restOfQuery, data: { visualisationConfigs, allGraphedChartKeys } };
 };
