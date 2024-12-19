@@ -6,15 +6,9 @@ import {
   SURVEY_TYPES,
   COMPLEX_CORE_DATA_ELEMENT_TYPES,
   CHARTING_DATA_ELEMENT_IDS,
+  CHARTING_CORE_TYPE_TO_ID,
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
-
-const CHARTING_CORE_TYPE_TO_ID = {
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartType,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
-};
 
 // Checks complex chart core question config individually
 function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord) {
