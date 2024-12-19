@@ -136,6 +136,15 @@ const OPTIONS = [
     key: 'serviceaccountarn',
     defaultValue: 'arn:aws:iam::143295493206:role/ips-bucket-role-de7b385',
   },
+  {
+    /*
+     * Specifies the subdomain names of the Facility servers.
+     * Comma-separated.
+     */
+    key: 'facilitynames',
+    defaultValue: null,
+    parse: input => input.split(','),
+  },
 ];
 
 function stripPercent(str) {
@@ -189,6 +198,7 @@ export function configMap(deployName, imageTag, options) {
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
+      facilityNames: options.facilitynames && JSON.stringify(options.facilitynames),
       timezone: options.timezone,
       ipAllowList: options.ip,
       nodeEnv: options.env,
@@ -208,7 +218,7 @@ export function configMap(deployName, imageTag, options) {
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
-    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value, secret: false }]),
+    }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
 
