@@ -23,18 +23,6 @@ export const appointmentToInterval = appointment => {
   return { start, end };
 };
 
-export const isWithinIntervalExcludingEnd = (date, interval) =>
-  isBefore(date, interval.end) && isWithinInterval(date, interval);
-
-/**
- * @param {{start: Date, end: Date}} timeSlot
- * @param {{start: Date, end: Date} | null} range
- */
-export const isTimeSlotWithinRange = (timeSlot, range) => {
-  if (!range) return false;
-  return isWithinInterval(timeSlot.start, range) && isWithinInterval(timeSlot.end, range);
-};
-
 /**
  * @param bookingSlotSettings See @tamanu/settings/src/schema/facility.ts for schema.
  * @param {Date} date
