@@ -286,7 +286,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     );
   }
 
-  console.log(currentComplexChartTab);
   return (
     <TabPane>
       <ChartGraphDataProvider>
