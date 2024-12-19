@@ -90,7 +90,7 @@ export const CHARTING_DATA_ELEMENT_IDS = {
   complexChartInstanceName: 'pde-ComplexChartInstanceName',
   complexChartDate: 'pde-ComplexChartDate',
   complexChartType: 'pde-ComplexChartType',
-  complexChartSubType: 'pde-ComplexChartSubtype',
+  complexChartSubtype: 'pde-ComplexChartSubtype',
 };
 
 export const BLOOD_PRESSURE = 'BLOOD_PRESSURE';
