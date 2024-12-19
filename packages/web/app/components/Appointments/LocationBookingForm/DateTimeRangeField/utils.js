@@ -23,6 +23,8 @@ export const appointmentToInterval = appointment => {
   return { start, end };
 };
 
+export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
+
 export const isWithinIntervalExcludingEnd = (date, interval) =>
   isBefore(date, interval.end) && isWithinInterval(date, interval);
 
