@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
@@ -12,10 +9,12 @@ export async function up(query) {
   await query.sequelize.query(`
     UPDATE "user_preferences"
     SET "preferences" = jsonb_build_object(
-      'encounterTabOrders', "encounter_tab_orders"::jsonb,
-      'selectedGraphedVitalsOnFilter', "selected_graphed_vitals_on_filter",
-      'locationBookingFilters', "location_booking_filters"::jsonb,
-      'outpatientppointmentFilters', "outpatient_appointment_filters"::jsonb
+      'general', jsonb_build_object(
+        'encounterTabOrders', "encounter_tab_orders"::jsonb,
+        'selectedGraphedVitalsOnFilter', "selected_graphed_vitals_on_filter",
+        'locationBookingFilters', "location_booking_filters"::jsonb,
+        'outpatientppointmentFilters', "outpatient_appointment_filters"::jsonb
+      )
     );
   `);
 
@@ -49,10 +48,10 @@ export async function down(query) {
   await query.sequelize.query(`
     UPDATE "user_preferences"
     SET 
-      "encounter_tab_orders" = "preferences"->'encounterTabOrders',
-      "selected_graphed_vitals_on_filter" = "preferences"->'selectedGraphedVitalsOnFilter',
-      "location_booking_filters" = "preferences"->'locationBookingFilters',
-      "outpatient_appointment_filters" = "preferences"->'outpatientppointmentFilters'
+      "encounter_tab_orders" = "preferences"->'general'->'encounterTabOrders',
+      "selected_graphed_vitals_on_filter" = "preferences"->'general'->'selectedGraphedVitalsOnFilter',
+      "location_booking_filters" = "preferences"->'general'->'locationBookingFilters',
+      "outpatient_appointment_filters" = "preferences"->'general'->'outpatientppointmentFilters'
   `);
 
   await query.removeColumn('user_preferences', 'preferences');
