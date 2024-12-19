@@ -26,15 +26,6 @@ export const appointmentToInterval = appointment => {
 export const isWithinIntervalExcludingEnd = (date, interval) =>
   isBefore(date, interval.end) && isWithinInterval(date, interval);
 
-/**
- * @param {{start: Date, end: Date}} timeSlot
- * @param {{start: Date, end: Date} | null} range
- */
-export const isTimeSlotWithinRange = (timeSlot, range) => {
-  if (!range) return false;
-  return isWithinInterval(timeSlot.start, range) && isWithinInterval(timeSlot.end, range);
-};
-
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
   if (referenceArr.length === 0) return false;
 

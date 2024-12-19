@@ -1,6 +1,6 @@
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
+import { areIntervalsOverlapping, isSameDay, max, min, parseISO, startOfToday } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
@@ -98,7 +98,7 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart);
+  } = useBookingSlots(dayStart ?? startOfToday());
 
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
