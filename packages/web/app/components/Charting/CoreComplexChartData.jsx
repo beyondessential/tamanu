@@ -7,6 +7,8 @@ import { DeleteChartModal } from '../DeleteChartModal';
 import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useEncounterChartsQuery } from '../../api/queries';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -33,6 +35,7 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
 
 export const CoreComplexChartData = ({
   handleDeleteChart,
+  selectedSurveyId,
   date,
   type,
   subtype,
@@ -40,6 +43,11 @@ export const CoreComplexChartData = ({
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
+  const { encounter } = useEncounter();
+  const { data } = useEncounterChartsQuery(
+    encounter.id,
+    selectedSurveyId,
+  );
   const actions = [
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -93,7 +101,7 @@ export const CoreComplexChartData = ({
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        <MenuButton actions={actions} />
+        { data.length ? <MenuButton actions={actions} /> : null}
       </CoreComplexChartDataRow>
     </>
   );
