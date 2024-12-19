@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
@@ -13,9 +13,6 @@ export class UserPreference extends Model {
             // any sets of the convenience generated "id" field can be ignored
           },
         },
-        selectedGraphedVitalsOnFilter: Sequelize.STRING,
-        locationBookingFilters: Sequelize.JSONB,
-        outpatientAppointmentFilters: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
@@ -24,9 +21,8 @@ export class UserPreference extends Model {
             key: 'id',
           },
         },
-        encounterTabOrders: {
+        preferences: {
           type: DataTypes.JSONB,
-          defaultValue: {},
         },
       },
       {
