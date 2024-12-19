@@ -6,6 +6,7 @@ import { formatISO9075 } from 'date-fns';
 
 import {
   CURRENTLY_AT_TYPES,
+  DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -395,6 +396,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
+  }),
+  AppointmentSchedule: () => ({
+    daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
   }),
 };
 
