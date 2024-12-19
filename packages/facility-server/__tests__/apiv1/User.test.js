@@ -713,6 +713,7 @@ describe('User', () => {
           selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
         },
       });
+
       const result1Date = new Date(result1.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
