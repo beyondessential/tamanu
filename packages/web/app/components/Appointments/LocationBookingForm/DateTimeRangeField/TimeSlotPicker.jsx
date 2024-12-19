@@ -337,7 +337,7 @@ export const TimeSlotPicker = ({
         error={showError}
         {...props}
       >
-        {isFetchingExistingBookings || isTimeSlotsPending ? (
+        {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
           <PlaceholderTimeSlotToggles />
         ) : (
           timeSlots?.map(timeSlot => {
