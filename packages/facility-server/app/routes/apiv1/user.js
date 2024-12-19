@@ -118,6 +118,7 @@ user.post(
   }),
 );
 
+// TODO: why getting no facility id error?
 user.get(
   '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {

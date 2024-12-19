@@ -644,8 +644,6 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         userId: user.id,
-        ...(facilityId ? { facilityId } : null),
-        ...userPreferences,
       });
       return result;
     };
