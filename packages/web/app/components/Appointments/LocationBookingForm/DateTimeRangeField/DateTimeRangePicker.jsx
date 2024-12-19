@@ -2,10 +2,10 @@ import { isValid, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
+import { useLocationBookingsContext } from '../../../../contexts/LocationBookings';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import { useLocationBookingsContext } from '../../../../contexts/LocationBookings';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
@@ -22,8 +22,7 @@ export const DateTimeRangePicker = ({
   const hasSelectedLocation = !!values.locationId;
 
   const dateFieldValue = values[datePickerName];
-  const date = dateFieldValue ? new Date(dateFieldValue) : null; // Not using parseISO in case it’s already a date object
-  const isValidDate = isValid(date);
+  const isValidDate = isValid(parseISO(dateFieldValue));
 
   const { id: appointmentId, locationId } = values;
 
@@ -47,10 +46,9 @@ export const DateTimeRangePicker = ({
         {...props}
       />
       <TimeSlotPicker
-        date={isValidDate ? date : null}
+        date={isValidDate ? dateFieldValue : null}
         disabled={disabled || !hasSelectedLocation || !isValidDate}
-        // Changes to any of these require state to refresh
-        key={`${appointmentId}_${locationId}_${dateFieldValue}`}
+        key={appointmentId ?? `${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
         variant="range"

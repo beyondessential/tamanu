@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
-import { Icon, StyledExpandMore } from './FieldCommonComponents';
+import { Icon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from '../Select';
 
@@ -149,7 +149,7 @@ export const MultiselectInput = ({
           InputProps={{
             endAdornment: (
               <Icon position="end">
-                <StyledExpandMore />
+                <ExpandMoreIcon />
               </Icon>
             ),
           }}

@@ -8,31 +8,40 @@ import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
 export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
 
-  const { bookingTypeId, clinicianId, id, locationId, patientId } = appointment;
-  const startTime = appointment.startTime ? new Date(appointment.startTime) : null;
-  const endTime = appointment.endTime ? new Date(appointment.endTime) : null;
+  const {
+    bookingTypeId,
+    clinicianId,
+    endTime,
+    id,
+    locationId,
+    patientId,
+    startDate,
+    startTime,
+  } = appointment;
+  const startTimeObj = startTime ? new Date(startTime) : null;
+  const endTimeObj = endTime ? new Date(endTime) : null;
 
-  const startIsValidDate = isValid(startTime);
-  const endIsValidDate = isValid(endTime);
+  const startIsValid = isValid(startTimeObj);
+  const endIsValid = isValid(endTimeObj);
 
-  const startDate = startIsValidDate ? toDateString(startTime) : null;
-  const endDate = endIsValidDate ? toDateString(startTime) : null;
-  const overnight = endIsValidDate && !isSameDay(new Date(startDate), new Date(endDate));
+  const dateFromStartTime = toDateString(startTimeObj);
+  const dateFromEndTime = toDateString(endTimeObj);
+  const overnight = startIsValid && endIsValid && !isSameDay(startTimeObj, endTimeObj);
 
   return {
     // Semantically significant values
     locationId,
     patientId,
-    startTime,
-    endTime,
+    startTime: startIsValid ? startTime : null,
+    endTime: endIsValid ? endTime : null,
     bookingTypeId,
     clinicianId,
 
     // Only for user input purposes
     overnight,
-    date: startDate,
-    startDate,
-    endDate,
+    date: dateFromStartTime ?? startDate,
+    startDate: dateFromStartTime ?? startDate,
+    endDate: dateFromEndTime,
 
     // Determines whether location booking drawer should open in CREATE or EDIT mode
     id,
