@@ -28,7 +28,10 @@ export const TranslationProvider = ({ children }) => {
   const translationFunc = translationFactory(translations);
 
   /**
+   * @param {string} stringId
+   * @param {string} fallback
    * @param {TranslationConfig} translationConfig
+   * @returns {string}
    */
   const getTranslation = (stringId, fallback, translationConfig = {}) => {
     const { value } = translationFunc(stringId, fallback, translationConfig);

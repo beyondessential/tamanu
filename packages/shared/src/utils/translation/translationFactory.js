@@ -9,14 +9,18 @@ const applyCasing = (text, casing) => {
 };
 
 /**
+ * @typedef {Object} TranslationConfig
+ * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
+ * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
+ */
+
+/**
  * @param {string} templateString
- * @param {object} translationOptions
- * @key replacements - object with replacement values
- * @key casing - casing to apply to the final string
- * @param {object} translations
+ * @param {TranslationConfig} translationConfig
+ * @param {Object} translations
  * @returns {string}
  *
- * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
+ * @example replaceStringVariables("there are :count users", { replacements: { count: 2 } }) => "there are 2 users"
  */
 export const replaceStringVariables = (templateString, { replacements, casing }, translations) => {
   if (!replacements) return applyCasing(templateString, casing);
