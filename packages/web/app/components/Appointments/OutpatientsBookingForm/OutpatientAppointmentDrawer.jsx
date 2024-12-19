@@ -31,19 +31,20 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { END_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
+import { ENDS_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
 
-const DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT = 6;
+// The amount of months in future to default the repeat until date to
+const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
 
 const APPOINTMENT_SCHEDULE_INITIAL_VALUES = {
   interval: 1,
   frequency: REPEAT_FREQUENCY.WEEKLY,
-  endsMode: END_MODES.ON,
+  endsMode: ENDS_MODES.ON,
 };
 
 const formStyles = {
@@ -250,12 +251,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         interval: yup.number().required(requiredMessage),
         frequency: yup.string().required(requiredMessage),
         occurrenceCount: yup.mixed().when('endsMode', {
-          is: END_MODES.AFTER,
+          is: ENDS_MODES.AFTER,
           then: yup.number().required(requiredMessage),
           otherwise: yup.number().nullable(),
         }),
         untilDate: yup.string().when('endsMode', {
-          is: END_MODES.ON,
+          is: ENDS_MODES.ON,
           then: yup.string().required(requiredMessage),
           otherwise: yup.string().nullable(),
         }),
@@ -328,7 +329,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
       setFieldValue(
         'appointmentSchedule.untilDate',
-        add(startTimeDate, { months: DEFAULT_REPEAT_UNTIL_MONTH_INCREMENT }),
+        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
       );
     };
 

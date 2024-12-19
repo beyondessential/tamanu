@@ -111,7 +111,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const DEFAULT_OCCURRENCE_COUNT = 2;
 
-export const END_MODES = {
+export const ENDS_MODES = {
   ON: 'on',
   AFTER: 'after',
 };
@@ -128,11 +128,11 @@ export const RepeatingAppointmentFields = ({
 
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
-    if (newModeValue === END_MODES.ON) {
+    if (newModeValue === ENDS_MODES.ON) {
       handleResetRepeatUntilDate(startTimeDate);
       setFieldValue('appointmentSchedule.occurrenceCount', null);
       setFieldError('appointmentSchedule.occurrenceCount', null);
-    } else if (newModeValue === END_MODES.AFTER) {
+    } else if (newModeValue === ENDS_MODES.AFTER) {
       setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('appointmentSchedule.untilDate', null);
       setFieldError('appointmentSchedule.untilDate', null);
@@ -206,7 +206,7 @@ export const RepeatingAppointmentFields = ({
         >
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
-              value={END_MODES.ON}
+              value={ENDS_MODES.ON}
               control={<StyledRadio />}
               label={
                 <TranslatedText
@@ -217,8 +217,8 @@ export const RepeatingAppointmentFields = ({
             />
             <Field
               name="appointmentSchedule.untilDate"
-              disabled={endsMode !== END_MODES.ON}
-              value={endsMode === END_MODES.ON ? untilDate : ''}
+              disabled={endsMode !== ENDS_MODES.ON}
+              value={endsMode === ENDS_MODES.ON ? untilDate : ''}
               min={format(
                 add(startTimeDate, {
                   [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
@@ -230,7 +230,7 @@ export const RepeatingAppointmentFields = ({
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
-              value={END_MODES.AFTER}
+              value={ENDS_MODES.AFTER}
               control={<StyledRadio />}
               label={
                 <TranslatedText
@@ -252,8 +252,8 @@ export const RepeatingAppointmentFields = ({
                   DEFAULT_OCCURRENCE_COUNT,
                 )
               }
-              value={endsMode === END_MODES.AFTER ? occurrenceCount : ''}
-              disabled={endsMode !== END_MODES.AFTER}
+              value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
+              disabled={endsMode !== ENDS_MODES.AFTER}
               component={StyledNumberField}
             />
             <SmallBodyText color="textTertiary">
