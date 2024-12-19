@@ -648,7 +648,7 @@ encounterRelations.get(
             MAX(CASE WHEN sra.data_element_id = :complexChartInstanceNameElementId THEN sra.body END) AS "chartInstanceName",
             MAX(CASE WHEN sra.data_element_id = :complexChartDateElementId THEN sra.body END) AS "chartDate",
             MAX(CASE WHEN sra.data_element_id = :complexChartTypeElementId THEN sra.body END) AS "chartType",
-            MAX(CASE WHEN sra.data_element_id = :complexChartSubTypeElementId THEN sra.body END) AS "chartSubType"
+            MAX(CASE WHEN sra.data_element_id = :complexChartSubtypeElementId THEN sra.body END) AS "chartSubtype"
           FROM
             survey_responses sr
           LEFT JOIN
@@ -675,7 +675,7 @@ encounterRelations.get(
           complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
           complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
           complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
-          complexChartSubTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubType,
+          complexChartSubtypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
         },
         type: QueryTypes.SELECT,
       },

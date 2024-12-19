@@ -7,6 +7,8 @@ import { DeleteChartModal } from '../DeleteChartModal';
 import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useEncounterChartsQuery } from '../../api/queries';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -33,13 +35,19 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
 
 export const CoreComplexChartData = ({
   handleDeleteChart,
+  selectedSurveyId,
   date,
   type,
-  subType,
+  subtype,
   fieldVisibility,
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
+  const { encounter } = useEncounter();
+  const { data } = useEncounterChartsQuery(
+    encounter.id,
+    selectedSurveyId,
+  );
   const actions = [
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -52,8 +60,8 @@ export const CoreComplexChartData = ({
 
   const isTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubTypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubType] === VISIBILITY_STATUSES.CURRENT;
+  const isSubtypeVisible =
+    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
 
   return (
     <>
@@ -84,16 +92,16 @@ export const CoreComplexChartData = ({
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
 
-          {isSubTypeVisible ? (
+          {isSubtypeVisible ? (
             <CoreComplexChartSingleInfoWrapper>
               <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+                <TranslatedText stringId="complexChartInstance.subtype" fallback="Sub type:" />
               </CoreComplexChartInfoHeader>
-              <>{subType || '-'}</>
+              <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        <MenuButton actions={actions} />
+        { data.length ? <MenuButton actions={actions} /> : null}
       </CoreComplexChartDataRow>
     </>
   );
