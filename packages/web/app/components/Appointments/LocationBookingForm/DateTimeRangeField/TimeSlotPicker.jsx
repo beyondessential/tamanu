@@ -19,10 +19,11 @@ import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
+import { PlaceholderTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
 import {
   appointmentToInterval,
+  idOfTimeSlot,
   isSameArrayMinusHead,
   isSameArrayMinusHeadOrTail,
   isSameArrayMinusTail,
@@ -55,8 +56,6 @@ const StyledFormHelperText = styled(FormHelperText)`
     font-weight: 500;
   }
 `;
-
-const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
 
 /**
  * TimeSlotPicker assumes that it is given a valid `date`, and checks for conflicting
@@ -340,7 +339,7 @@ export const TimeSlotPicker = ({
         {...props}
       >
         {isFetchingExistingBookings || isTimeSlotsPending ? (
-          <SkeletonTimeSlotToggles />
+          <PlaceholderTimeSlotToggles />
         ) : (
           timeSlots?.map(timeSlot => {
             const isBooked = bookedIntervals.some(bookedInterval =>
