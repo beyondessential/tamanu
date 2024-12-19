@@ -55,10 +55,10 @@ function validateComplexChartCore(programDataElementRecords, sheetName, stats, e
 
 function validateChartingFirstQuestion(programDataElementRecords, sheetName, stats, errors) {
   const { id, code, type } = programDataElementRecords[0].values;
-  const hasWrrongId = id !== CHARTING_DATA_ELEMENT_IDS.dateRecorded;
+  const hasWrongId = id !== CHARTING_DATA_ELEMENT_IDS.dateRecorded;
   const hasWrongType = type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME;
 
-  if (hasWrrongId) {
+  if (hasWrongId) {
     const error = new Error(
       `sheetName: ${sheetName}, code: '${code}', First question should have '${CHARTING_DATA_ELEMENT_IDS.dateRecorded}' as ID`,
     );
