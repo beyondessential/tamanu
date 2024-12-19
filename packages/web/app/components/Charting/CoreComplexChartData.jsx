@@ -35,7 +35,7 @@ export const CoreComplexChartData = ({
   handleDeleteChart,
   date,
   type,
-  subType,
+  subtype,
   fieldVisibility,
 }) => {
   const { ability } = useAuth();
@@ -52,7 +52,7 @@ export const CoreComplexChartData = ({
 
   const isTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubTypeVisible =
+  const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
 
   return (
@@ -84,12 +84,12 @@ export const CoreComplexChartData = ({
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
 
-          {isSubTypeVisible ? (
+          {isSubtypeVisible ? (
             <CoreComplexChartSingleInfoWrapper>
               <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.subType" fallback="Sub type:" />
+                <TranslatedText stringId="complexChartInstance.subtype" fallback="Sub type:" />
               </CoreComplexChartInfoHeader>
-              <>{subType || '-'}</>
+              <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>

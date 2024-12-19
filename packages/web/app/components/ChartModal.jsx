@@ -22,10 +22,10 @@ export const ChartModal = ({
   isRecordingChartEntry,
   fieldVisibility,
 }) => {
-  const { chartInstanceName, chartDate, chartType, chartSubType } = complexChartInstance || {};
+  const { chartInstanceName, chartDate, chartType, chartSubtype } = complexChartInstance || {};
   const isTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubTypeVisible =
+  const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
 
   return (
@@ -35,9 +35,9 @@ export const ChartModal = ({
           location={chartInstanceName}
           date={chartDate}
           type={chartType}
-          subType={chartSubType}
+          subtype={chartSubtype}
           isTypeVisible={isTypeVisible}
-          isSubTypeVisible={isSubTypeVisible}
+          isSubtypeVisible={isSubtypeVisible}
         />
       ) : null}
       <ChartForm

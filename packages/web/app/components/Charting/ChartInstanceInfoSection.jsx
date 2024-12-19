@@ -19,9 +19,9 @@ export const ChartInstanceInfoSection = ({
   location,
   date,
   type,
-  subType,
+  subtype,
   isTypeVisible = true,
-  isSubTypeVisible = true,
+  isSubtypeVisible = true,
 }) => (
   <StyledInfoCard gridRowGap={10} elevated={false} contentMarginBottom={20}>
     <InfoCardItem
@@ -50,13 +50,13 @@ export const ChartInstanceInfoSection = ({
       />
     ) : null}
 
-    {isSubTypeVisible ? (
+    {isSubtypeVisible ? (
       <InfoCardItem
         fontSize={14}
         label={
-          <ChartInstanceInfoLabel stringId="complexChartInstance.subType" fallback="Sub type:" />
+          <ChartInstanceInfoLabel stringId="complexChartInstance.subtype" fallback="Sub type:" />
         }
-        value={subType || '-'}
+        value={subtype || '-'}
       />
     ) : null}
   </StyledInfoCard>
