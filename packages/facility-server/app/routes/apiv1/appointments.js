@@ -67,7 +67,6 @@ appointments.post(
       const result = appointmentSchedule
         ? (await Appointment.generateRepeatingAppointment(appointmentSchedule, body))[0]
         : await Appointment.create(body);
-
       // Fetch relations for the new appointment
       const [appointment, facility] = await Promise.all([
         Appointment.findByPk(result.id, {
