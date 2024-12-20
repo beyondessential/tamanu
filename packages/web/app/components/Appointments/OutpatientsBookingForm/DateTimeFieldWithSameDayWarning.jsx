@@ -9,7 +9,7 @@ import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
-  const { values, setFieldValue } = useFormikContext();
+  const { values } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
