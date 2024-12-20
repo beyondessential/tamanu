@@ -24,6 +24,9 @@ export const buildSyncRoutes = ctx => {
       } = req;
 
       const userInstance = await store.models.User.findByPk(user.id);
+      if (!await userInstance.canSync(facilityIds, req)) {
+        throw new ForbiddenError('User cannot sync');
+      }
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
         throw new ForbiddenError('User does not have access to facility');
       }
@@ -61,7 +64,7 @@ export const buildSyncRoutes = ctx => {
         urgent: false,
         ...req.body,
       });
-      log.info('Dummy queue result:', { queueRecord });
+      log.info('Queue position', queueRecord.get({ plain: true }));
 
       // if we're not at the front of the queue, we're waiting
       if (queueRecord.id !== req.body.deviceId) {

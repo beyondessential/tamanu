@@ -16,6 +16,10 @@ export class InvoicePatientPayment extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        chequeNumber: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
