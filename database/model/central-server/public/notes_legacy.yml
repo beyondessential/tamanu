@@ -6,9 +6,7 @@ sources:
     tables:
       - name: notes_legacy
         description: '{{ doc("table__notes_legacy") }}'
-        tags:
-          - clinical
-          - deprecated
+        tags: []
         columns:
           - name: id
             data_type: character varying(255)
@@ -55,17 +53,9 @@ sources:
           - name: author_id
             data_type: character varying(255)
             description: "{{ doc('notes_legacy__author_id') }}"
-            data_tests:
-              - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
             description: "{{ doc('notes_legacy__on_behalf_of_id') }}"
-            data_tests:
-              - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in notes_legacy."
