@@ -17,7 +17,7 @@ import {
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
-import { useBookingTimeSlots } from '../../../../hooks/useBookingTimeSlots';
+import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { PlaceholderTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
@@ -97,7 +97,7 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingTimeSlots(dayStart);
+  } = useBookingSlots(dayStart);
 
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),

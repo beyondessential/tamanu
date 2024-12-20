@@ -6,7 +6,7 @@ import React, { memo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../../constants';
-import { useBookingTimeSlots } from '../../../../hooks/useBookingTimeSlots';
+import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
@@ -208,8 +208,12 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
   return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} />);
 };
 
+/**
+ * @privateRemarks Use of today is arbitrary; we just need a valid date for the time slots to
+ * render. The time slots are the same for each day, so this does just fine as a GUI placeholder.
+ */
 export const PlaceholderTimeSlotToggles = memo(() => {
-  const { isPending, slots } = useBookingTimeSlots(startOfToday());
+  const { isPending, slots } = useBookingSlots(startOfToday());
   if (isPending) return <SkeletonTimeSlotToggles />;
   return slots?.map(slot => <TimeSlotToggle disabled key={idOfTimeSlot(slot)} timeSlot={slot} />);
 });
