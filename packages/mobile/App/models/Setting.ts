@@ -8,6 +8,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { IFacility } from '../types';
 import { SETTINGS_SCOPES } from '~/constants';
 import { readConfig } from '~/services/config';
+import { parseOrKeep } from '~/utils/parseOrKeep';
 
 @Entity('setting')
 export class Setting extends BaseModel {
@@ -78,7 +79,7 @@ export class Setting extends BaseModel {
 
     const settingsObject = {};
     for (const currentSetting of settings) {
-      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value ?? null));
+      setAtPath(settingsObject, currentSetting.key, parseOrKeep(currentSetting.value));
     }
 
     if (key === '') {
