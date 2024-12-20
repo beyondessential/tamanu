@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * Tests the rendering and translation of the ‘Export’ button itself.
  *
@@ -39,8 +40,14 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
 
 const mockTranslations = { 'general.table.action.export': '🌐 Export 🌐' };
 // eslint-disable-next-line no-unused-vars
-const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
-  mockTranslations[stringId] ?? fallback;
+const mockGetTranslation = (
+  stringId,
+  fallback,
+  _replacements,
+  _uppercase,
+  _lowercase,
+  _upperFirst,
+) => mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
   updateStoredLanguage: () => {},
@@ -82,6 +89,7 @@ describe('DownloadDataButton', () => {
     expect(getTranslationSpy).toHaveBeenCalledWith(
       'general.table.action.export',
       'Export',
+      undefined,
       undefined,
       undefined,
       undefined,
