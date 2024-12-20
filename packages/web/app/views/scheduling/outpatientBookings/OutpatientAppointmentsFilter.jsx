@@ -65,8 +65,6 @@ export const OutpatientAppointmentsFilter = props => {
     200,
   );
 
-  console.log(userPreferences);
-
   const renderForm = ({ setValues }) => {
     return (
       <Fieldset disabled={isUserPreferencesLoading}>
