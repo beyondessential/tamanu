@@ -156,8 +156,8 @@ export const TimeSlotPicker = ({
         // Fresh selection
         if (newToggles.length === 1) {
           const start = new Date(newToggles[0]);
-          const end = endOfSlotContaining(start);
-          updateInterval({ start, end });
+          const interval = slotContaining(start);
+          updateInterval(interval);
           return;
         }
 
@@ -220,7 +220,8 @@ export const TimeSlotPicker = ({
         // latest slot.
         if (isSameArrayMinusTail(newToggles, selectedToggles)) {
           const startOfLastSlot = new Date(newToggles.at(-1));
-          updateInterval({ end: endOfSlotContaining(startOfLastSlot) });
+          const end = endOfSlotContaining(startOfLastSlot);
+          updateInterval({ end });
           return;
         }
 
@@ -231,7 +232,8 @@ export const TimeSlotPicker = ({
           //                           and user tries to toggle off the earliest slot, which would
           //                           leave only the second-earliest slot selected (illegally)
           const startOfTimeSlot = new Date(newToggles[0]);
-          updateInterval({ end: endOfSlotContaining(startOfTimeSlot) });
+          const end = endOfSlotContaining(startOfTimeSlot);
+          updateInterval({ end });
           return;
         }
 
