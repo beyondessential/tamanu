@@ -51,7 +51,7 @@ export const DateTimeRangePicker = ({
         key={appointmentId ?? `${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
-        variant="range"
+        variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
       />
     </>
   );
