@@ -59,11 +59,13 @@ export const OutpatientAppointmentsFilter = props => {
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+        key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_FILTERS,
         value: { [facilityId]: omit(values, ['patientNameOrId']) },
       }),
     200,
   );
+
+  console.log(userPreferences);
 
   const renderForm = ({ setValues }) => {
     return (
