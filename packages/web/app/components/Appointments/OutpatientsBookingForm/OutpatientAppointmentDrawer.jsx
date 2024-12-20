@@ -1,9 +1,13 @@
-import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { isAfter, parseISO } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useEffect, useState } from 'react';
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import { omit, set } from 'lodash';
+import { format, isAfter, parseISO, add } from 'date-fns';
+import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
+
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -27,11 +31,21 @@ import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { ENDS_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
+
+// The amount of months in future to default the repeat until date to
+const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
+
+const APPOINTMENT_SCHEDULE_INITIAL_VALUES = {
+  interval: 1,
+  frequency: REPEAT_FREQUENCY.WEEKLY,
+  endsMode: ENDS_MODES.ON,
+};
 
 const formStyles = {
   overflowY: 'auto',
@@ -231,14 +245,89 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           getTranslation('validation.rule.emailsMatch', 'Emails must match'),
         ),
     }),
+    appointmentSchedule: yup.object().when('isRepeatingAppointment', {
+      is: true,
+      then: yup.object().shape({
+        interval: yup.number().required(requiredMessage),
+        frequency: yup.string().required(requiredMessage),
+        occurrenceCount: yup.mixed().when('endsMode', {
+          is: ENDS_MODES.AFTER,
+          then: yup.number().required(requiredMessage),
+          otherwise: yup.number().nullable(),
+        }),
+        untilDate: yup.string().when('endsMode', {
+          is: ENDS_MODES.ON,
+          then: yup.string().required(requiredMessage),
+          otherwise: yup.string().nullable(),
+        }),
+        daysOfWeek: yup
+          .array()
+          .of(yup.string().oneOf(DAYS_OF_WEEK))
+          // Note: currently supports a single day of the week
+          .length(1),
+        nthWeekday: yup
+          .number()
+          .nullable()
+          .min(-1)
+          .max(4),
+      }),
+    }),
   });
 
-  const renderForm = ({ values, resetForm, dirty, setFieldValue }) => {
+  const renderForm = ({
+    values,
+    resetForm,
+    dirty,
+    setFieldValue,
+    setFieldTouched,
+    setFieldError,
+    setValues,
+  }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
+    };
+
+    const handleResetRepeatUntilDate = startTimeDate => {
+      setFieldValue(
+        'appointmentSchedule.untilDate',
+        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+      );
+    };
+
+    const handleResetEmailFields = e => {
+      if (e.target.checked) return;
+      setFieldValue('email', '');
+      setFieldValue('confirmEmail', '');
+    };
+
+    const handleChangeIsRepeatingAppointment = async e => {
+      if (e.target.checked) {
+        setValues(set(values, 'appointmentSchedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
+        handleUpdateScheduleToStartTime(parseISO(values.startTime));
+      } else {
+        setFieldError('appointmentSchedule', undefined);
+        setFieldTouched('appointmentSchedule', false);
+        setValues(omit(values, ['appointmentSchedule']));
+      }
+    };
+
+    const handleUpdateScheduleToStartTime = startTimeDate => {
+      if (!values.appointmentSchedule) return;
+      const { frequency } = values.appointmentSchedule;
+      // Update the ordinal positioning of the new date
+      setFieldValue(
+        'appointmentSchedule.nthWeekday',
+        frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
+      );
+      // Note: currently supports a single day of the week
+      setFieldValue('appointmentSchedule.daysOfWeek', [
+        format(startTimeDate, 'iiiiii').toUpperCase(),
+      ]);
+
+      handleResetRepeatUntilDate(startTimeDate);
     };
 
     return (
@@ -308,7 +397,14 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning isEdit={isEdit} />
+          <DateTimeFieldWithSameDayWarning
+            isEdit={isEdit}
+            onChange={e => {
+              const newValue = e.target.value;
+              setFieldValue('startTime', newValue);
+              handleUpdateScheduleToStartTime(parseISO(newValue));
+            }}
+          />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -342,14 +438,29 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
               />
             }
             component={CheckField}
-            onChange={e => {
-              if (!e.target.checked) {
-                setFieldValue('email', '');
-                setFieldValue('confirmEmail', '');
-              }
-            }}
+            onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
+          <Field
+            name="isRepeatingAppointment"
+            onChange={handleChangeIsRepeatingAppointment}
+            disabled={!values.startTime}
+            label={
+              <TranslatedText
+                stringId="appointment.isRepeatingAppointment.label"
+                fallback="Repeat appointment"
+              />
+            }
+            component={CheckField}
+          />
+          {values.isRepeatingAppointment && !isEdit && (
+            <RepeatingAppointmentFields
+              values={values}
+              setFieldValue={setFieldValue}
+              setFieldError={setFieldError}
+              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+            />
+          )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>
