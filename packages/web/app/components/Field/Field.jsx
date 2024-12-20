@@ -93,7 +93,7 @@ export const FieldWithTooltip = ({
   return (
     <MuiBox position="relative">
       <Field {...props} />
-      {tooltipText && <FormTooltip title={tooltipText} {...muiTooltipProps} />}
+      {tooltipText && <FormTooltip arrow placement="top" title={tooltipText} {...muiTooltipProps} />}
     </MuiBox>
   );
 };
