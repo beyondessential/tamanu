@@ -306,7 +306,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     const handleChangeIsRepeatingAppointment = async e => {
       if (e.target.checked) {
         setValues(set(values, 'appointmentSchedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
-        handleInitAppointmentSchedule(parseISO(values.startTime));
+        handleUpdateScheduleToStartTime(parseISO(values.startTime));
       } else {
         setFieldError('appointmentSchedule', undefined);
         setFieldTouched('appointmentSchedule', false);
@@ -314,7 +314,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       }
     };
 
-    const handleInitAppointmentSchedule = startTimeDate => {
+    const handleUpdateScheduleToStartTime = startTimeDate => {
       if (!values.appointmentSchedule) return;
       const { frequency } = values.appointmentSchedule;
       // Update the ordinal positioning of the new date
@@ -399,7 +399,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           />
           <DateTimeFieldWithSameDayWarning
             isEdit={isEdit}
-            onChange={e => handleInitAppointmentSchedule(parseISO(e.target.value))}
+            onChange={e => handleUpdateScheduleToStartTime(parseISO(e.target.value))}
           />
           <Field
             name="endTime"
