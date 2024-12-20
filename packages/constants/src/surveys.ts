@@ -140,7 +140,6 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     'dateOfDeath',
     'sex',
     'email',
-
     'villageId',
   ]),
   ...makeLookupFields('PatientAdditionalData', [

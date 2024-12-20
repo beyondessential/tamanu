@@ -21,6 +21,7 @@ export class InvalidClientHeadersError extends BaseError {}
 export class InvalidConfigError extends BaseError {}
 export class FacilityAndSyncVersionIncompatibleError extends BaseError {}
 export class ValidationError extends BaseError {}
+export class ResourceConflictError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
@@ -36,6 +37,9 @@ export function getCodeForErrorName(name) {
       // method not allowed - usually for PUTting an endpoint that expects POST
       // but it's the closest status code we have without getting in to redirects
       return 405;
+    case 'ResourceConflictError':
+      // trying to create/update a record with a data conflict
+      return 409;
     case 'SequelizeUniqueConstraintError':
     case 'SequelizeValidationError':
     case 'SequelizeForeignKeyConstraintError':

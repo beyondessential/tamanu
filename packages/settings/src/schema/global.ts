@@ -1044,9 +1044,8 @@ export const globalSettings = {
             scheduling: {
               description: '_',
               properties: {
-                schedulingAppointments: { properties: layoutModuleProperties },
-                schedulingCalendar: { properties: layoutModuleProperties },
-                schedulingNew: { properties: layoutModuleProperties },
+                schedulingOutpatients: { properties: layoutModuleProperties },
+                schedulingLocations: { properties: layoutModuleProperties },
               },
             },
             medication: {
@@ -1080,11 +1079,46 @@ export const globalSettings = {
             },
           },
         },
+        patientView: {
+          description: 'The patient view in the facility',
+          properties: {
+            showLocationBookings: {
+              description: 'Show location bookings component on patient view',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            showOutpatientAppointments: {
+              description: 'Show outpatient appointments component on patient view',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
       },
     },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
+        appointmentConfirmation: {
+          description: 'The email sent to confirm an appointment',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Appointment confirmation',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+            },
+          },
+        },
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,

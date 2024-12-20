@@ -16,7 +16,8 @@ declare module '@tamanu/shared/errors' {
   export class InvalidClientHeadersError extends BaseError {}
   export class InvalidConfigError extends BaseError {}
   export class FacilityAndSyncVersionIncompatibleError extends BaseError {}
+  export class ResourceConflictError extends BaseError {}
   export function getCodeForErrorName(
     name: string,
-  ): 400 | 401 | 403 | 404 | 405 | 422 | 502 | 504 | 503 | 507 | 500;
+  ): 400 | 401 | 403 | 404 | 405 | 409 | 422 | 502 | 504 | 503 | 507 | 500;
 }
