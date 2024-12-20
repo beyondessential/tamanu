@@ -5,6 +5,8 @@ import { omit } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
@@ -16,7 +18,6 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
