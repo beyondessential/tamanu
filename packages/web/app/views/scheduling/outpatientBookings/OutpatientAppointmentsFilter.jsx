@@ -13,6 +13,7 @@ import {
 } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
 import { useAuth } from '../../../contexts/Auth';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 const Fieldset = styled.fieldset`
   // Reset
@@ -58,7 +59,8 @@ export const OutpatientAppointmentsFilter = props => {
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
-        outpatientAppointmentFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
+        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+        value: { [facilityId]: omit(values, ['patientNameOrId']) },
       }),
     200,
   );

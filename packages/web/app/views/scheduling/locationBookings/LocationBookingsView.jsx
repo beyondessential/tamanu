@@ -16,6 +16,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -71,7 +72,8 @@ export const LocationBookingsView = () => {
     values => {
       setFilters(values);
       mutateUserPreferences({
-        locationBookingFilters: { [facilityId]: omit(values, ['patientNameOrId']) },
+        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+        value: { [facilityId]: omit(values, ['patientNameOrId']) },
       });
     },
     [setFilters, mutateUserPreferences, facilityId],
