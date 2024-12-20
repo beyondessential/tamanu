@@ -1,4 +1,5 @@
 const os = require('node:os');
+const config = require('config');
 
 const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
@@ -33,13 +34,18 @@ function task(name, args, instances = 1, env = {}) {
   return base;
 }
 
-module.exports = {
-  apps: [
-    task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
-      PORT: +process.env.TAMANU_API_PORT || 3000,
-    }),
-    task('tamanu-tasks', 'startTasks'),
+const apps = [
+  task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
+    PORT: +process.env.TAMANU_API_PORT || 3000,
+  }),
+  task('tamanu-tasks', 'startTasks'),
+];
+
+if (config?.integrations?.fhir?.worker?.enabled) {
+  apps.push(
     task('tamanu-fhir-refresh', 'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream'),
     task('tamanu-fhir-resolve', 'startFhirWorker --topics=fhir.resolver'),
-  ],
-};
+  );
+}
+
+module.exports = { apps };

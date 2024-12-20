@@ -1,4 +1,4 @@
-import { endOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
@@ -27,16 +27,15 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const { filters } = useOutpatientAppointmentsContext();
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
-      after: toDateTimeString(selectedDate),
+      after: toDateTimeString(startOfDay(selectedDate)),
       before: toDateTimeString(endOfDay(selectedDate)),
       all: true,
       ...filters,
-      // Providing [] here omits the `?locationGroupId=` param, but the  `GET /appointments` relies
-      // on its presence/absence to determine whether we are quering for location bookings or
-      // outpatient appointments
-      locationGroupId: filters.locationGroupId.length === 0 ? '' : filters.locationGroupId,
     },
-    { enabled: !!filters },
+    {
+      /** A null `filters` is valid (i.e. when a user has never used this filter before) */
+      enabled: filters !== undefined,
+    },
   );
   const { data: appointmentsData } = appointmentsQuery;
 

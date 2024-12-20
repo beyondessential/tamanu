@@ -28,7 +28,6 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
     startTime,
     endTime,
   } = appointment;
-
   return (
     <AppointmentDetailsContainer>
       <AppointmentDetailsColumnLeft>

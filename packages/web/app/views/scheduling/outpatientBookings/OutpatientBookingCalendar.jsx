@@ -1,15 +1,18 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import { omit } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
+import { BodyText, FormModal, SmallBodyText, TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
+import { useSendAppointmentEmail } from '../../../api/mutations';
+import { toast } from 'react-toastify';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -146,6 +149,27 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     selectedDate,
   });
 
+  const [emailModalState, setEmailModalState] = useState(null);
+  const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
+    emailModalState?.appointmentId,
+    {
+      onSuccess: () =>
+        toast.success(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.success"
+            fallback="Email successfully sent"
+          />,
+        ),
+      onError: () =>
+        toast.error(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.error"
+            fallback="Error sending email"
+          />,
+        ),
+    },
+  );
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -201,6 +225,16 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                       ),
                       action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
                     },
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.emailAppointment"
+                          fallback="Email appointment"
+                        />
+                      ),
+                      action: () =>
+                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                    },
                   ]}
                 />
               ))}
@@ -208,6 +242,20 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           </ColumnWrapper>
         );
       })}
+      <FormModal
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        open={!!emailModalState}
+        onClose={() => setEmailModalState(null)}
+      >
+        <EmailAddressConfirmationForm
+          onSubmit={async ({ email }) => {
+            await sendAppointmentEmail(email);
+            setEmailModalState(null);
+          }}
+          onCancel={() => setEmailModalState(null)}
+          emailOverride={emailModalState?.email}
+        />
+      </FormModal>
     </Box>
   );
 };
