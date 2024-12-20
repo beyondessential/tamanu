@@ -2,49 +2,65 @@
   "folders": [
     {
       "name": "root",
-      "path": "."
-    },
-    {
-      "name": "web",
-      "path": "packages/web"
-    },
-    {
-      "name": "facility-server",
-      "path": "packages/facility-server"
-    },
-    {
-      "name": "mobile",
-      "path": "packages/mobile"
-    },
-    {
-      "name": "scripts",
-      "path": "packages/scripts"
-    },
-    {
-      "name": "shared",
-      "path": "packages/shared"
-    },
-    {
-      "name": "constants",
-      "path": "packages/constants"
+      "path": ".",
     },
     {
       "name": "central-server",
-      "path": "packages/central-server"
+      "path": "packages/central-server",
+    },
+    {
+      "name": "facility-server",
+      "path": "packages/facility-server",
+    },
+    {
+      "name": "web",
+      "path": "packages/web",
+    },
+    {
+      "name": "api-client",
+      "path": "packages/api-client",
+    },
+    {
+      "name": "build-tooling",
+      "path": "packages/build-tooling",
     },
     {
       "name": "constants",
-      "path": "packages/constants"
+      "path": "packages/constants",
+    },
+    {
+      "name": "csca",
+      "path": "packages/csca",
+    },
+    {
+      "name": "meta-server",
+      "path": "packages/meta-server",
+    },
+    {
+      "name": "mobile",
+      "path": "packages/mobile",
+    },
+    {
+      "name": "qr-tester",
+      "path": "packages/qr-tester",
+    },
+    {
+      "name": "scripts",
+      "path": "packages/scripts",
     },
     {
       "name": "settings",
-      "path": "packages/settings"
+      "path": "packages/settings",
+    },
+    {
+      "name": "shared",
+      "path": "packages/shared",
     },
   ],
   "settings": {
     "files.exclude": {
-      "packages/": true
-    }
+      "packages/": true,
+    },
   },
   "extensions": {
     "recommendations": [
@@ -52,7 +68,7 @@
       "esbenp.prettier-vscode",
       "humao.rest-client",
       "streetsidesoftware.code-spell-checker",
-      "styled-components.vscode-styled-components"
-    ]
+      "styled-components.vscode-styled-components",
+    ],
   },
 }
