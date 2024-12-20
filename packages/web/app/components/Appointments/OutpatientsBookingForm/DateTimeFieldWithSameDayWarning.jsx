@@ -29,16 +29,12 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
     values.patientId &&
     existingAppointments?.data.some(booking => booking.patientId === values.patientId);
 
-  const handleChange = e => {
-    setFieldValue('startTime', e.target.value);
-    onChange?.(e);
-  };
   return (
     <Field
       name="startTime"
       label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
       component={DateTimeField}
-      onChange={handleChange}
+      onChange={onChange}
       saveDateAsString
       required
       save
