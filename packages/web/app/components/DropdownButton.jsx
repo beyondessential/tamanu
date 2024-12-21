@@ -219,7 +219,7 @@ export const FormSubmitDropdownButton = ({ ...props }) => {
 DropdownButton.propTypes = {
   actions: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string,
+      label: PropTypes.node,
       onClick: PropTypes.func,
     }),
   ).isRequired,

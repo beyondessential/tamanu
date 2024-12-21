@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
@@ -60,7 +60,7 @@ const StyledButton = styled(({ ...props }) => {
   &.MuiButton-outlinedPrimary {
     border-color: ${props => props.theme.palette.primary.main};
   }
-  ${props => props.confirmStyle ? props.confirmStyle : ''}
+  ${props => (props.confirmStyle ? props.confirmStyle : '')}
 `;
 
 const StyledCircularProgress = styled(CircularProgress)`
@@ -80,13 +80,17 @@ const BaseButton = ({
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
+
   const buttonComponent = functionallyDisabled
-    ? // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
-      // see the disabled prop so it won't add its own styling, but the underlying button element
-      // is still disabled.
-      // eslint-disable-next-line react/button-has-type
-      buttonProps => <button type={type} {...buttonProps} disabled />
+    ? forwardRef((buttonProps, ref) => (
+        // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
+        // see the disabled prop so it won't add its own styling, but the underlying button element
+        // is still disabled.
+        // eslint-disable-next-line react/button-has-type
+        <button type={type} {...buttonProps} ref={ref} disabled />
+      ))
     : undefined;
+
   return (
     <StyledButton
       {...props}
@@ -94,7 +98,7 @@ const BaseButton = ({
       disabled={disabled || !hasPermission}
       type={type}
       functionallyDisabled={functionallyDisabled}
-      component={buttonComponent}
+      {...(buttonComponent && { component: buttonComponent })}
     >
       {displayLock && <Lock />}
       {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} />}

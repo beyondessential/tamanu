@@ -210,6 +210,6 @@ export const RadioField = ({ field, error, ...props }) => (
   />
 );
 
-export const TranslatedRadioField = props => {
-  return <TranslatedEnumField {...props} component={RadioInput} />;
+export const TranslatedRadioField = ({ error, ...props }) => {
+  return <TranslatedEnumField error={error || undefined} {...props} component={RadioInput} />;
 };
