@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS_COLORS } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -15,28 +17,162 @@ import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedReferenceData } from './Translation/index.js';
+import { Heading4 } from './Typography.js';
+import { getPatientStatus } from '../utils/getPatientStatus.js';
+import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
+import { ThemedTooltip } from './Tooltip.jsx';
 
 const DateWrapper = styled.div`
+  position: relative;
   min-width: 90px;
 `;
 
 const FacilityWrapper = styled.div`
-  min-width: 200px;
+  min-width: 100px;
 `;
 
-const getDate = ({ startDate, endDate }) => (
-  <DateWrapper>
-    <DateDisplay date={startDate} />
-    {' - '}
-    {endDate ? (
-      <DateDisplay date={endDate} />
-    ) : (
-      <TranslatedText stringId="general.date.current" fallback="Current" />
-    )}
-  </DateWrapper>
-);
+const ReasonForEncounterWrapper = styled.div`
+  min-width: 325px;
+`;
+
+const StyledTable = styled(DataFetchingTable)`
+  padding: 0 21px;
+  .MuiTableCell-head {
+    border-top: 1px solid ${Colors.outline};
+    background-color: ${Colors.white};
+    padding-top: 8px;
+    padding-bottom: 8px;
+    span {
+      font-weight: 400;
+      color: ${Colors.midText};
+    }
+    padding-left: 6px;
+    padding-right: 6px;
+    &:first-child {
+      padding-left: 0px;
+    }
+    &:last-child {
+      padding: 0;
+      width: 22px;
+    }
+  }
+  .MuiTableRow-root {
+    &:hover:not(:has(.menu-container:hover)) {
+      .MuiTableCell-body {
+        &:first-child {
+          &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -6px;
+            border-radius: 5px 0 0 5px;
+            display: block;
+            width: 6px;
+            height: 100%;
+            background-color: ${Colors.veryLightBlue};
+          }
+        }
+        &:last-child {
+          &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -6px;
+            border-radius: 0 5px 5px 0;
+            display: block;
+            width: 6px;
+            height: 100%;
+            background-color: ${Colors.veryLightBlue};
+          }
+        }
+      }
+    }
+  }
+  .MuiTableCell-body {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-left: 6px;
+    padding-right: 6px;
+    position: relative;
+    &:first-child {
+      padding-left: 0px;
+    }
+    &:last-child {
+      padding: 0;
+      width: 22px;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root {
+    &:hover:has(.menu-container:hover) {
+      background-color: transparent;
+    }
+  }
+  .MuiTableFooter-root {
+    background-color: ${Colors.white};
+    .MuiPagination-root {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      margin-right: 0;
+    }
+    .MuiTableCell-footer {
+      padding-left: 0px;
+    }
+  }
+`;
+
+const StatusIndicator = styled.div`
+  position: absolute;
+  top: -3px;
+  left: -11px;
+  width: 5px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: ${p =>
+    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
+  ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
+`;
+
+const StyledIconButton = styled(IconButton)`
+  font-size: 20px;
+`;
+
+const MenuContainer = styled.div`
+  position: relative;
+  left: 15px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+  }
+  z-index: 1;
+`;
+
+const StyledMenuButton = styled(MenuButton)`
+  .MuiIconButton-root {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
+const getDate = ({ startDate, endDate, encounterType }) => {
+  const patientStatus = getPatientStatus(encounterType);
+  return (
+    <DateWrapper>
+      <StatusIndicator patientStatus={patientStatus} />
+      <DateDisplay date={startDate} />
+      &nbsp;&ndash;{' '}
+      {endDate ? (
+        <DateDisplay date={endDate} />
+      ) : (
+        <TranslatedText stringId="general.date.current" fallback="Current" />
+      )}
+    </DateWrapper>
+  );
+};
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
-const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
+const getReasonForEncounter = ({ reasonForEncounter }) => (
+  <ReasonForEncounterWrapper>{reasonForEncounter}</ReasonForEncounterWrapper>
+);
 const getFacility = ({ facilityName, facilityId }) => (
   <FacilityWrapper>
     {facilityId ? (
@@ -80,6 +216,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const { ability } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
+  const translationContext = useTranslation();
 
   const actions = [
     {
@@ -103,7 +240,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       key: 'encounterType',
       title: <TranslatedText stringId="encounter.type.label" fallback="Type" />,
       accessor: getType,
-      sortable: false,
     },
     {
       key: 'facilityName',
@@ -114,7 +250,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     {
       key: 'locationGroupName',
       title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
-      accessor: LocationGroupCell,
+      accessor: props => (
+        // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
+        <TranslationContext.Provider value={translationContext}>
+          <LocationGroupCell style={{ minWidth: 45 }} {...props} />
+        </TranslationContext.Provider>
+      ),
       CellComponent: LimitedLinesCell,
     },
     {
@@ -140,9 +281,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedEncounterData(data)}>
-          <MenuButton actions={actions} />
-        </div>
+        <MenuContainer
+          className="menu-container"
+          onMouseEnter={() => setSelectedEncounterData(data)}
+        >
+          <StyledMenuButton actions={actions} />
+        </MenuContainer>
       ),
     });
   }
@@ -153,7 +297,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   return (
     <>
       <SyncWarningBanner patient={patient} onRefresh={updateRefreshCount} />
-      <DataFetchingTable
+      <StyledTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
@@ -165,6 +309,23 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
+        TableHeader={
+          <Heading4 mt="15px" mb="15px">
+            <TranslatedText
+              stringId="patient.history.table.encounterHistory"
+              fallback="Encounter history"
+            />
+          </Heading4>
+        }
+        ExportButton={props => (
+          <ThemedTooltip
+            title={<TranslatedText stringId="general.action.export" fallback="Export" />}
+          >
+            <StyledIconButton size="small" variant="outlined" {...props}>
+              <GetAppIcon />
+            </StyledIconButton>
+          </ThemedTooltip>
+        )}
       />
 
       <DeleteEncounterModal

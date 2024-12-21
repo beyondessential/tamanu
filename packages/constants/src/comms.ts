@@ -13,6 +13,7 @@ export const PATIENT_COMMUNICATION_TYPES = {
   REFERRAL_CREATED: 'Referral created',
   CERTIFICATE: 'Certificate',
   VACCINATION_REMINDER: 'Vaccination reminder',
+  APPOINTMENT_CONFIRMATION: 'Appointment confirmation'
 };
 
 export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(

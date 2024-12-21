@@ -28,6 +28,7 @@ export * from './surveys.js';
 export * from './sync.js';
 export * from './templates.js';
 export * from './translations.js';
+export * from './userPreferences.js';
 export * from './programRegistry.js';
 export * from './vaccines.js';
 export * from './settings.js';
