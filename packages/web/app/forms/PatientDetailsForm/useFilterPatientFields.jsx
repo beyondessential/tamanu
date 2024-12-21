@@ -19,11 +19,14 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
 
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
-      .map(fieldName => ({
-        ...fields[fieldName],
-        required: !!getSetting(`fields.${fieldName}.requiredPatientData`),
-        name: fieldName,
-      }));
+      .map(fieldName => {
+        const { condition, ...rest } = fields[fieldName];
+        return {
+          ...rest,
+          required: !!getSetting(`fields.${fieldName}.requiredPatientData`),
+          name: fieldName,
+        };
+      });
     // We only need to work out which fields to show if either fields or filterByMandatory are changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields, filterByMandatory]);

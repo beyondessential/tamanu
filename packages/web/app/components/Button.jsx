@@ -32,6 +32,7 @@ export const ButtonBase = props => {
 
 const StyledButton = styled(({ ...props }) => {
   delete props.functionallyDisabled;
+  delete props.confirmStyle;
   return <MuiButton {...props} />;
 })`
   font-weight: 500;

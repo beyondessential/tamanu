@@ -96,7 +96,7 @@ export const SimpleTopBar = React.memo(({ title, children, className }) => (
 ));
 
 SimpleTopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   className: PropTypes.string,
 };
 

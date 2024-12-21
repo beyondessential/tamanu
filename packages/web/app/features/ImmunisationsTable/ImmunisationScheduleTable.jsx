@@ -78,6 +78,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
       disablePagination
       TableHeader={<TableHeader />}
       lazyLoading
+      rowIdKey="scheduledVaccineId"
     />
   );
 });

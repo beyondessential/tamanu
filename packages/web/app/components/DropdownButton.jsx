@@ -190,7 +190,7 @@ export const DropdownButton = React.memo(
             <KeyboardArrowDownIcon />
           </MenuButton>
         </ButtonGroup>
-        <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
+        <Popper open={isOpen ?? false} anchorEl={anchorEl} placement="bottom-start">
           <Paper elevation={0} variant="outlined">
             <ClickAwayListener onClickAway={handleClose}>
               <MenuList>

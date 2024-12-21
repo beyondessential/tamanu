@@ -145,6 +145,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
     },
     {
+      key: 'actions',
       sortable: false,
       accessor: row =>
         !hideRecordPaymentForm &&
@@ -195,6 +196,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     disablePagination: true,
     refreshCount: refreshCount,
     noDataMessage: '',
+    rowIdKey: 'id',
   };
 
   const onDataChange = ({ paymentMethod }) => {
@@ -224,7 +226,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       </Title>
       <Table
         {...tableProps}
-        data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : {}}
+        data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : []}
         {...(showRowTooltip && { getRowTooltip })}
       />
       {editingPayment?.id && (

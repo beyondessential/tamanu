@@ -26,7 +26,7 @@ const ActionsPane = styled.div`
   align-items: center;
 `;
 
-const InvoiceHeading = styled(Typography)`
+const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
   display: flex;
   gap: 20px;
 `;
