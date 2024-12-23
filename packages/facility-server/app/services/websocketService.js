@@ -60,6 +60,17 @@ export const defineWebsocketService = injector => {
         }
       }
     }
+    if (payload.table === 'appointments') {
+      const appointment = await injector.models.Appointment.findOne({
+        where: { id: payload.newId },
+      });
+      const userId = appointment.clinicianId;
+      if (!appointment.locationGroupId) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${userId}`, appointment);
+      } else if (!appointment.locationId) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${userId}`, appointment);
+      }
+    }
   });
 
   /**

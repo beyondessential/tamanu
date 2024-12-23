@@ -115,7 +115,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         all: true,
         facilityId,
       },
-      `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
+      `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
   const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')

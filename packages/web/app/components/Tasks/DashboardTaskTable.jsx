@@ -223,6 +223,7 @@ const NoDataMessage = () => (
 
 const COLUMNS = [
   {
+    key: 'status',
     accessor: getStatus,
     maxWidth: 20,
     sortable: false,
@@ -317,6 +318,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         order={order}
         hideHeader={!userTasks?.count}
         onRowClick={onRowClick}
+        rowIdKey="id"
       />
       {!isUserTasksLoading && (
         <PaginatorContainer>

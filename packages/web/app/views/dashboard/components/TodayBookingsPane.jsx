@@ -219,7 +219,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         clinicianId: currentUser?.id,
         facilityId,
       },
-      `${WS_EVENTS.DATABASE_TABLE_CHANGED}:appointments`,
+      `${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
   const history = useHistory();
 
