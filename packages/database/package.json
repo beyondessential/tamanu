@@ -1,0 +1,32 @@
+{
+  "name": "@tamanu/database",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TODO",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "npm run remove-build-artifacts && npm run build:src && npm run build:types",
+    "build:src": "swc --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false",
+    "build-watch": "npm run remove-build-artifacts && concurrently \"npm run build:src -- --watch\" \"npm run build:types -- --watch\"",
+    "remove-build-artifacts": "rimraf dist",
+    "test": "NODE_ENV=test jest"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "@types/node": "^20.9.0"
+  },
+  "dependencies": {}
+}
