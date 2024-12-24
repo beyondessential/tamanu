@@ -1,14 +1,17 @@
 import Skeleton, { skeletonClasses } from '@mui/material/Skeleton';
 import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import React from 'react';
+import { startOfToday } from 'date-fns';
+import React, { memo } from 'react';
 import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../../constants';
+import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 import { CONFLICT_TOOLTIP_TITLE, TIME_SLOT_PICKER_VARIANTS } from './constants';
+import { idOfTimeSlot } from './utils';
 
 /**
  * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
@@ -201,6 +204,16 @@ const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
   }
 `;
 
-export const SkeletonTimeSlotToggles = ({ count = 16 }) => {
+const SkeletonTimeSlotToggles = ({ count = 16 }) => {
   return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} />);
 };
+
+/**
+ * @privateRemarks Use of today is arbitrary; we just need a valid date for the time slots to
+ * render. The time slots are the same for each day, so this does just fine as a GUI placeholder.
+ */
+export const PlaceholderTimeSlotToggles = memo(() => {
+  const { isPending, slots } = useBookingSlots(startOfToday());
+  if (isPending) return <SkeletonTimeSlotToggles />;
+  return slots?.map(slot => <TimeSlotToggle disabled key={idOfTimeSlot(slot)} timeSlot={slot} />);
+});

@@ -8,6 +8,7 @@ import {
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
+  SURVEY_TYPES,
   INJECTION_SITE_VALUES,
   TASK_FREQUENCY_ACCEPTED_UNITS,
   TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE,
@@ -292,7 +293,7 @@ export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
-    .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
+    .oneOf(Object.values(SURVEY_TYPES)),
   isSensitive: yup.boolean().required(),
   visibilityStatus: yup
     .string()

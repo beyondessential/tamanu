@@ -8,32 +8,45 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          // User preference records use a user_id as the primary key, acting as a
-          // db-level enforcement of one per user, and simplifying sync
-          type: `TEXT GENERATED ALWAYS AS ("user_id")`,
-          set() {
-            // any sets of the convenience generated "id" field can be ignored, so do nothing here
-          },
-        },
-        selectedGraphedVitalsOnFilter: Sequelize.STRING,
-        locationBookingFilters: Sequelize.JSONB,
-        outpatientAppointmentFilters: Sequelize.JSONB,
-        userId: {
-          type: DataTypes.STRING,
+          type: DataTypes.UUID,
+          allowNull: false,
           primaryKey: true,
-          references: {
-            model: 'users',
-            key: 'id',
-          },
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
         clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
         encounterTabOrders: {
           type: DataTypes.JSONB,
           defaultValue: {},
         },
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        value: {
+          type: Sequelize.JSONB,
+          allowNull: false,
+        },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [{ fields: ['user_id', 'key'], unique: true }],
+      },
     );
+  }
+
+  static async getAllPreferences(userId) {
+    const userPreferences = await UserPreference.findAll({
+      where: { userId },
+    });
+
+    const allPreferences = {};
+
+    for (const userPreference of userPreferences) {
+      allPreferences[userPreference.key] = userPreference.value;
+    }
+
+    return allPreferences;
   }
 
   static initRelations(models) {

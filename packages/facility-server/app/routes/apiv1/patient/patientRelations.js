@@ -8,6 +8,7 @@ import {
   runPaginatedQuery,
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
+import { ENCOUNTER_TYPE_VALUES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
@@ -32,7 +33,13 @@ patientRelations.get(
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
-      encounterType: 'encounter_type',
+      encounterType: `
+        CASE 
+          ${ENCOUNTER_TYPE_VALUES.map(
+            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+          ).join(' ')}
+        END
+      `,
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
@@ -169,7 +176,7 @@ patientRelations.get(
         count: 0,
       });
     }
-    
+
     const patientReferrals = await models.Referral.findAll({
       include: [
         {

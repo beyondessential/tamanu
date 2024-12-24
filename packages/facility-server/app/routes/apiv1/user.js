@@ -133,9 +133,7 @@ user.get(
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.findOne({
-      where: { userId: currentUser.id },
-    });
+    const userPreferences = await UserPreference.getAllPreferences(currentUser.id);
 
     // Return {} as default if no user preferences exist
     res.send(userPreferences || {});
@@ -182,9 +180,10 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { encounterTabOrders } = body;
+    const { key, value } = body;
     const [userPreferences] = await UserPreference.upsert({
-      encounterTabOrders,
+      key,
+      value,
       userId: currentUser.id,
       deletedAt: null,
     });
