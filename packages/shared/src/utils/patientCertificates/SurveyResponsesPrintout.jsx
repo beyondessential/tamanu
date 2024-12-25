@@ -13,7 +13,7 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { formatShort } from '../dateTime';
+import { formatShort } from '../../../../utils/src/dateTime';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -60,7 +60,7 @@ const pageStyles = StyleSheet.create({
     gap: 5,
   },
   robotoFont: {
-    fontFamily: "Roboto"
+    fontFamily: 'Roboto',
   },
 });
 
@@ -99,7 +99,9 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type, sourceType })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {getAnswers({ answer, type, sourceType })}
+      </Text>
     </View>
   );
 };

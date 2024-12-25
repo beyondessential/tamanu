@@ -16,7 +16,7 @@ import { pick } from 'lodash';
 import { number, object, string, date as yupDate } from 'yup';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
-import { parseDate } from '../dateTime';
+import { parseDate } from '@tamanu/utils';
 import { Exception } from './errors';
 
 function extractTz(str) {

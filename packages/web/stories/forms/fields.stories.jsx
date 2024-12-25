@@ -11,6 +11,7 @@ import {
   AutocompleteInput,
   DateInput,
   DateTimeInput,
+  MonthPicker,
   MultiselectInput,
   NullableBooleanInput,
   NumberInput,
@@ -20,6 +21,8 @@ import {
   TimeWithUnitInput,
 } from '../../app/components';
 import { IdInput } from '../../app/components/Field/IdField';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -307,4 +310,10 @@ addStories('Autocomplete', props => (
 
 addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
+));
+
+addStories('CalendarInput', props => (
+  <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <StoryControlWrapper Component={MonthPicker} label="Date" {...props} />
+  </LocalizationProvider>
 ));

@@ -1,7 +1,7 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/utils/errors';
+import { getUploadedData } from '@tamanu/utils/getUploadedData';
 
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it
@@ -14,7 +14,7 @@ const FILEDATA =
 // Function called inside uploadAttachment, it expects a network request
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
-jest.mock('@tamanu/shared/utils/getUploadedData');
+jest.mock('@tamanu/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
   const fileName = path.resolve(__dirname, 'test-file.jpeg');

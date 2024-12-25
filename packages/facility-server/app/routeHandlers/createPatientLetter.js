@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import fs, { promises as asyncFs } from 'fs';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/utils/errors';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { makePatientLetter } from '../utils/makePatientLetter';
 
 export const createPatientLetter = (modelName, idField) =>

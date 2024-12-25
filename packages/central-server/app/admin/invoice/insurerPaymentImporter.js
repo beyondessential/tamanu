@@ -7,7 +7,7 @@ import {
   getInvoiceSummary,
   round,
   getSpecificInsurerPaymentRemainingBalance,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';

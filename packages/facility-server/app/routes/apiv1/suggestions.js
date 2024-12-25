@@ -2,7 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/utils/errors';
 import { camelCase, keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
@@ -339,7 +339,7 @@ createSuggester(
     },
     orderBuilder: req => {
       const { query } = req;
-      const types = query.types
+      const types = query.types;
       if (!types?.length) return;
 
       const caseStatement = query.types
@@ -488,6 +488,12 @@ createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuild
 createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
+
+// Location groups filtered by isBookable. Used in location bookings view
+createNameSuggester('bookableLocationGroup', 'LocationGroup', (search, query) => ({
+  ...filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+  isBookable: true,
+}));
 
 createNameSuggester('survey', 'Survey', (search, { programId }) => ({
   name: { [Op.iLike]: search },

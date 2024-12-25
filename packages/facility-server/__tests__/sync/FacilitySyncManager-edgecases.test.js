@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 import config from 'config';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import {
@@ -11,7 +11,7 @@ import {
 } from '@tamanu/shared/sync/constants';
 
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 describe('FacilitySyncManager edge cases', () => {
   let ctx;

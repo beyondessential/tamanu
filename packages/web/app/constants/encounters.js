@@ -1,4 +1,4 @@
-import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/utils/valueIndex';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import {
   administrationIcon,

@@ -1,15 +1,17 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import { AppointmentListingView } from '../views/scheduling/AppointmentListingView';
-import { NewAppointmentView } from '../views/scheduling/NewAppointmentView';
-import { AppointmentsCalendar } from '../views/scheduling/AppointmentsCalendar';
+import { LocationBookingsContextProvider } from '../contexts/LocationBookings';
+import { LocationBookingsView, OutpatientAppointmentsView } from '../views/scheduling';
 
 export const AppointmentRoutes = React.memo(({ match }) => (
   <Switch>
-    <Route path={`${match.path}/all`} component={AppointmentListingView} />
-    <Route path={`${match.path}/calendar`} component={AppointmentsCalendar} />
-    <Route path={`${match.path}/new`} component={NewAppointmentView} />
-    <Redirect to={`${match.path}/all`} />
+    <Route path={`${match.path}/outpatients`} component={OutpatientAppointmentsView} />
+    <Route path={`${match.path}/locations`}>
+      <LocationBookingsContextProvider>
+        <LocationBookingsView />
+      </LocationBookingsContextProvider>
+    </Route>
+    <Redirect to={`${match.path}/outpatients`} />
   </Switch>
 ));

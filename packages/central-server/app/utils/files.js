@@ -3,7 +3,7 @@ import path from 'path';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 
-import { tmpdir } from '@tamanu/shared/utils';
+import { tmpdir } from '@tamanu/utils';
 
 export function removeFile(filePath) {
   return new Promise(resolve => {

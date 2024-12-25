@@ -26,7 +26,7 @@ import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 import { ApplicationContext } from '../dist/ApplicationContext';
 import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');

@@ -12,7 +12,7 @@ import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../VaccineCommonFields';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
-import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
+import { getInvoiceItemPriceDisplay } from '@tamanu/utils/invoice';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;

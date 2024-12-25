@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';

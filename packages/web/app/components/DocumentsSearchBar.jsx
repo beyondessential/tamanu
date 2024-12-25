@@ -90,9 +90,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               onClick={() => {
                 if (Object.keys(values).length === 0) return;
                 setSearchParameters({});
-                setTimeout(() => {
-                  clearForm();
-                }, 0);
+                clearForm();
               }}
               size="small"
             >

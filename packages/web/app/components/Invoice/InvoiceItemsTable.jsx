@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 
 import { Colors, denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';

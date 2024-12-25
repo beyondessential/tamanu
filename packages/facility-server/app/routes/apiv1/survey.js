@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { getFilteredListByPermission } from '@tamanu/utils/getFilteredListByPermission';
+import { NotFoundError } from '@tamanu/utils/errors';
 import {
   findRouteObject,
   permissionCheckingRouter,
@@ -34,6 +34,22 @@ survey.get(
     });
   }),
 );
+
+survey.get(
+  '/charts',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Survey');
+
+    const {
+      models: { Survey },
+    } = req;
+
+    const chartSurveys = await Survey.getChartSurveys();
+
+    res.send(chartSurveys);
+  }),
+);
+
 survey.get(
   '/:id',
   asyncHandler(async (req, res) => {

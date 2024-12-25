@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientProgramRegistrySurveys';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';

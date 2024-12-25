@@ -42,7 +42,9 @@ export const startApi = async ({ skipMigrationCheck }) => {
   }
 
   let { port } = config;
-  if (+process.env.PORT) { port = +process.env.PORT; }
+  if (+process.env.PORT) {
+    port = +process.env.PORT;
+  }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });

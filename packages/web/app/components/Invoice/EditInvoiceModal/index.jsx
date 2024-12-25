@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { FieldArray } from 'formik';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
@@ -355,13 +355,13 @@ export const EditInvoiceModal = ({
                       onConfirm={editable && canWriteInvoice ? submitForm : onClose}
                       onCancel={editable && canWriteInvoice ? onClose : undefined}
                       confirmDisabled={isUpdatingInvoice}
-                      confirmStyle={`
-                      &.Mui-disabled {
-                        color: ${Colors.white};
-                        background-color: ${Colors.primary};
-                        opacity: 0.3;
-                      }
-                    `}
+                      confirmStyle={css`
+                        &.Mui-disabled {
+                          color: ${Colors.white};
+                          background-color: ${Colors.primary};
+                          opacity: 0.3;
+                        }
+                      `}
                     />
                   </FormContainer>
                 );

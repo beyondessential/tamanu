@@ -2,10 +2,10 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/utils/errors';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 

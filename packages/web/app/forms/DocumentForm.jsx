@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ForbiddenError } from '@tamanu/utils/errors';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';

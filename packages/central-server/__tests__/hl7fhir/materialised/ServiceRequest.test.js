@@ -14,7 +14,7 @@ import {
   LAB_REQUEST_TABLE_STATUS_GROUPINGS,
   IMAGING_TABLE_STATUS_GROUPINGS,
 } from '@tamanu/constants';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';

@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/utils/errors';
 import { NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { Op, Sequelize } from 'sequelize';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toCountryDateTimeString } from '@tamanu/utils/countryDateTime';
 import { sub } from 'date-fns';
 import config from 'config';
 

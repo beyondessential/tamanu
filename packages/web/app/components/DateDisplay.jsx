@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { parseDate } from '@tamanu/shared/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
@@ -73,6 +73,9 @@ export const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
+
+/** "Thu" */
+export const formatWeekdayShort = date => intlFormatDate(date, { weekday: 'short' });
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
@@ -154,10 +157,21 @@ export const getDateDisplay = (
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', fontWeight, ...props }) => {
+  ({
+    color = 'currentcolor',
+    date: dateValue,
+    fontWeight,
+    noTooltip = false,
+    timeOnlyTooltip = false,
+    ...props
+  }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
-    const dateObj = parseDate(dateValue);
 
+    if (noTooltip) {
+      return <span style={{ color, fontWeight }}>{displayDateString}</span>;
+    }
+
+    const dateObj = parseDate(dateValue);
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
         <span style={{ color, fontWeight }}>{displayDateString}</span>
@@ -176,6 +190,12 @@ export const MultilineDatetimeDisplay = React.memo(
       </Box>
     );
   },
+);
+
+export const TimeRangeDisplay = ({ range: { start, end } }) => (
+  <>
+    {format(start, 'h:mmaaa')}&nbsp;&ndash; {format(end, 'h:mmaaa')}
+  </>
 );
 
 const VALID_FORMAT_FUNCTIONS = [

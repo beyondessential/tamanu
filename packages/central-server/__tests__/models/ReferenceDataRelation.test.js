@@ -1,6 +1,6 @@
 import { createTestContext } from '../utilities';
 import { fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
-import { fakeUUID } from '@tamanu/shared/utils';
+import { fakeUUID } from '@tamanu/utils';
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 
 const referenceData = [

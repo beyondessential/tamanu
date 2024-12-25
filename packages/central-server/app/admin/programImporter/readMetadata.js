@@ -5,6 +5,7 @@ import { utils } from 'xlsx';
 import { ImporterMetadataError, ValidationError } from '../errors';
 
 import { idify } from './idify';
+import { SURVEY_TYPES } from '@tamanu/constants';
 
 function checkHomeServer(homeServer) {
   log.debug('Check where we are importing');
@@ -26,6 +27,49 @@ function checkHomeServer(homeServer) {
   }
 
   return importingToHome;
+}
+
+function ensureValidProgramMetadata(surveyMetadata) {
+  if (surveyMetadata.some(({ sheetName }) => sheetName === 'Registry')) {
+    throw new ImporterMetadataError('Cannot have a survey called "Registry"');
+  }
+
+  // Ensures complex chart import rules
+  const containsComplexChart = surveyMetadata.some(({ surveyType }) =>
+    [SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType),
+  );
+
+  if (containsComplexChart) {
+    const surveyTypeSummary = surveyMetadata
+      .map(({ surveyType }) => surveyType)
+      .reduce((summary, type) => {
+        if (summary[type]) {
+          summary[type]++;
+        } else {
+          summary[type] = 1;
+        }
+
+        return summary;
+      }, {});
+
+    const complexChart = surveyTypeSummary[SURVEY_TYPES.COMPLEX_CHART];
+    const complexChartCore = surveyTypeSummary[SURVEY_TYPES.COMPLEX_CHART_CORE];
+    const hasOnlyOneComplexSet = complexChart === 1 && complexChartCore === 1;
+
+    if (complexChart && !complexChartCore) {
+      throw new ImporterMetadataError('Complex charts need a core data set survey');
+    }
+
+    if (complexChartCore && !complexChart) {
+      throw new ImporterMetadataError('Cannot import a complex chart core without the main survey');
+    }
+
+    if (hasOnlyOneComplexSet === false) {
+      throw new ImporterMetadataError(
+        'Only one complex chart and complex chart core allowed in a program',
+      );
+    }
+  }
 }
 
 export function readTwoModelTypeSheet(sheet, sheetName) {
@@ -125,9 +169,7 @@ export function readMetadata(metadataSheet) {
       }
     });
 
-  if (surveyMetadata.some(({ sheetName }) => sheetName === 'Registry')) {
-    throw new ImporterMetadataError('Cannot have a survey called "Registry"');
-  }
+  ensureValidProgramMetadata(surveyMetadata);
 
   return {
     programRecord: {

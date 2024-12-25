@@ -5,7 +5,7 @@ import {
 } from '@tamanu/shared/demoData/patients';
 import { randomRecord } from '@tamanu/shared/demoData/utilities';
 import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { format, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,

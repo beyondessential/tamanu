@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { numeralTranslation } from '@tamanu/shared/utils/numeralTranslation';
+import { numeralTranslation } from '@tamanu/utils/numeralTranslation';
 import { isNaN } from 'lodash';
 
 // Foreign keys used to be more complicated nested objects requiring custom

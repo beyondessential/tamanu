@@ -3,7 +3,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -25,7 +25,7 @@ import {
   SurveyResponseSelectField,
   UnsupportedPhotoField,
 } from '../components/Field';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -62,6 +62,14 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: props => (
+    <LimitedTextField {...props} limit={15} />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => (
+    <DateTimeField {...props} saveDateAsString />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
 };
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
@@ -186,6 +194,14 @@ export const getPatientDataDbLocation = columnName => {
     modelName,
     fieldName,
   };
+};
+
+export const getTooltip = (type, config, getTranslation) => {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    return getTranslation('complexChartInstance.tooltip', 'Will be displayed as chart name');
+  }
+
+  return config.tooltip;
 };
 
 function transformPatientData(patient, additionalData, patientProgramRegistration, config) {

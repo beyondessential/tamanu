@@ -26,8 +26,20 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
   GEOLOCATE: 'Geolocate',
+  COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
+  COMPLEX_CHART_DATE: 'ComplexChartDate',
+  COMPLEX_CHART_TYPE: 'ComplexChartType',
+  COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
 };
+
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
+
+export const COMPLEX_CORE_DATA_ELEMENT_TYPES = [
+  PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME,
+  PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE,
+  PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE,
+  PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE,
+];
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
@@ -44,6 +56,9 @@ export const SURVEY_TYPES = {
   REFERRAL: 'referral',
   OBSOLETE: 'obsolete',
   VITALS: 'vitals',
+  SIMPLE_CHART: 'simpleChart',
+  COMPLEX_CHART: 'complexChart',
+  COMPLEX_CHART_CORE: 'complexChartCore',
 };
 
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
@@ -68,6 +83,22 @@ export const VITALS_DATA_ELEMENT_IDS = {
   respiratoryRate: PDE_RESPIRATORY_RATE,
   spo2: PDE_SPO2,
   avpu: PDE_AVPU,
+};
+
+export const CHARTING_DATA_ELEMENT_IDS = {
+  dateRecorded: 'pde-PatientChartingDate',
+  complexChartInstanceName: 'pde-ComplexChartInstanceName',
+  complexChartDate: 'pde-ComplexChartDate',
+  complexChartType: 'pde-ComplexChartType',
+  complexChartSubtype: 'pde-ComplexChartSubtype',
+};
+
+export const CHARTING_CORE_TYPE_TO_ID = {
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]:
+    CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartType,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
 };
 
 export const BLOOD_PRESSURE = 'BLOOD_PRESSURE';
@@ -110,7 +141,6 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     'dateOfDeath',
     'sex',
     'email',
-
     'villageId',
   ]),
   ...makeLookupFields('PatientAdditionalData', [
@@ -158,7 +188,7 @@ export const READONLY_DATA_FIELDS = {
 };
 
 export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
-  key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
+  key => PATIENT_DATA_FIELD_LOCATIONS[key]?.[0] === 'PatientProgramRegistration',
 );
 
 export const RESULT_COLORS = {

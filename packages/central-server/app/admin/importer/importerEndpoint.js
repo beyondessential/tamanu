@@ -5,7 +5,7 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { getUploadedData } from '@tamanu/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
-import { formatShort, getCurrentDateString } from '../../dateTime';
+import { formatShort, getCurrentDateString } from '../../../../../utils/src/dateTime';
 import { Text } from '../../pdf/Text';
 import { useLanguageContext } from '../../pdf/languageContext';
 
@@ -71,7 +71,9 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
         {printedBy && (
           <>
             <ValueText> |</ValueText>
-            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}:</LabelText>{' '}
+            <LabelText>
+              {getTranslation('pdf.footer.printedBy.label', 'Printed by')}:
+            </LabelText>{' '}
             <ValueText>{printedBy}</ValueText>
           </>
         )}

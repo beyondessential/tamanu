@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const locationGroup = express.Router();
@@ -15,8 +15,9 @@ locationGroup.get(
     const { facilityId } = req.query;
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
-        facilityId,
+        facilityId: facilityId ?? { [Op.ne]: null },
       },
+      order: [['name', 'ASC']],
     });
     res.send(locationGroups);
   }),

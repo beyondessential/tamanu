@@ -2,7 +2,7 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '../../dateTime';
+import { formatShort } from '../../../../../utils/src/dateTime';
 
 export const SurveyResponseDetails = ({ surveyResponse }) => {
   return (

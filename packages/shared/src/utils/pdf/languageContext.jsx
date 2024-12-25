@@ -5,7 +5,7 @@ import path from 'path';
 import { FONT } from '@tamanu/constants';
 import { Font } from '@react-pdf/renderer';
 import { translationFactory } from '../translation/translationFactory';
-import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix } from '@tamanu/utils/enumRegistry';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';

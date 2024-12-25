@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '../errors';
-import { renameObjectKeys } from './renameObjectKeys';
+import { renameObjectKeys } from '@tamanu/utils';
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on an encounter all check encounter.read)

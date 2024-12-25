@@ -20,7 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,

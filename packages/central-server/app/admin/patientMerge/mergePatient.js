@@ -3,7 +3,7 @@ import { chunk, omit, omitBy } from 'lodash';
 import config from 'config';
 import { PATIENT_MERGE_DELETION_ACTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/utils/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 const BULK_CREATE_BATCH_SIZE = 100;

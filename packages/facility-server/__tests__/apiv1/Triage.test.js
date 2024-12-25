@@ -8,9 +8,9 @@ import {
 } from '@tamanu/shared/demoData';
 import { fake } from '@tamanu/shared/test-helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 describe('Triage', () => {
   let app = null;

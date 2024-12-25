@@ -6,7 +6,7 @@ import {
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
-import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { withConfig } from '@tamanu/utils/withConfig';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 const snapshotChangesForModel = async (

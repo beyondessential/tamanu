@@ -24,7 +24,7 @@ import {
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/shared/sync';
-import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
+import { uuidToFairlyUniqueInteger } from '@tamanu/utils';
 
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';

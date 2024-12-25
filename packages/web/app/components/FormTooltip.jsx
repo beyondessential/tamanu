@@ -19,22 +19,11 @@ export const FormTooltip = styled(props => (
   </MuiTooltip>
 ))`
   & .MuiTooltip-tooltip {
-    background: white;
-    color: ${Colors.midText};
-    border: 1px solid ${Colors.outline};
-    box-shadow: 0 1px 3px ${Colors.outline};
+    background-color: ${Colors.primaryDark};
+    color: ${Colors.white};
     font-size: 13px;
     font-weight: 400;
     line-height: 1.7;
-    padding: 20px;
-
-    .MuiTooltip-arrow {
-      font-size: 18px;
-      color: white;
-
-      &:before {
-        border: 1px solid ${Colors.outline};
-      }
-    }
+    overflow: hidden;
   }
 `;

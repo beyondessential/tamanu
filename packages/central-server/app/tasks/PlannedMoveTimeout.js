@@ -4,12 +4,12 @@ import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { sleepAsync } from '@tamanu/utils';
 import {
   getCurrentCountryTimeZoneDateTimeString,
   toCountryDateTimeString,
-} from '@tamanu/shared/utils/countryDateTime';
-import { InvalidConfigError } from '@tamanu/shared/errors';
+} from '@tamanu/utils/countryDateTime';
+import { InvalidConfigError } from '@tamanu/utils/errors';
 
 export class PlannedMoveTimeout extends ScheduledTask {
   getName() {

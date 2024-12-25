@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 
 import { IS_DEVELOPMENT } from '../../utils/env';
-import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/utils/enumRegistry';
 
 export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) => {
   if (IS_DEVELOPMENT) {
@@ -20,7 +20,6 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) 
 };
 
 TranslatedEnum.propTypes = {
-  prefix: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   enumValues: PropTypes.object.isRequired,
 };

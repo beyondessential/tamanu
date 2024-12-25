@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
-import { round } from '@tamanu/shared/utils/invoice';
+import { round } from '@tamanu/utils/invoice';
 import {
   AutocompleteField,
   Button,
@@ -17,7 +17,7 @@ import {
   TranslatedText,
 } from '../components';
 import { useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
@@ -48,7 +48,9 @@ export const PatientPaymentForm = ({
   onDataChange = () => {},
   invoice,
   showChequeNumberColumn,
+  selectedPayment,
 }) => {
+  const selectedPaymentMethodId = selectedPayment?.paymentMethod?.value;
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const [amount, setAmount] = useState(editingPayment?.amount ?? '');
@@ -60,6 +62,12 @@ export const PatientPaymentForm = ({
     invoice,
     editingPayment?.id,
   );
+
+  useEffect(() => {
+    if (editingPayment?.patientPayment?.methodId) {
+      onDataChange({ paymentMethod: { value: editingPayment.patientPayment.methodId } });
+    }
+  }, [editingPayment]);
 
   const generateReceiptNumber = () => {
     return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
@@ -77,10 +85,13 @@ export const PatientPaymentForm = ({
 
   const onRecord = (data, { resetForm }) => {
     const { amount, ...others } = data;
+    const chequeNumber =
+      selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
     if (!editingPayment?.id) {
       createPatientPayment(
         {
           ...others,
+          chequeNumber,
           amount: amount.toFixed(2),
         },
         {
@@ -88,6 +99,7 @@ export const PatientPaymentForm = ({
             updateRefreshCount();
             setAmount('');
             resetForm();
+            onDataChange({ paymentMethod: { value: '' } });
           },
         },
       );
@@ -95,12 +107,14 @@ export const PatientPaymentForm = ({
       updatePatientPayment(
         {
           ...others,
+          chequeNumber,
           amount,
         },
         {
           onSuccess: () => {
             updateRefreshCount();
             updateEditingPayment({});
+            onDataChange({ paymentMethod: { value: '' } });
           },
         },
       );
@@ -121,8 +135,20 @@ export const PatientPaymentForm = ({
     onRecord(data, { resetForm });
   };
 
+  const renderChequeNumberField = () => {
+    if (selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID) {
+      return (
+        <FieldContainer width="15%">
+          <Field name="chequeNumber" component={TextField} size="small" />
+        </FieldContainer>
+      );
+    }
+    return showChequeNumberColumn ? <Box width="15%" /> : null;
+  };
+
   return (
     <Form
+      enableReinitialize
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
@@ -140,11 +166,7 @@ export const PatientPaymentForm = ({
               onChange={e => onDataChange({ paymentMethod: e.target })}
             />
           </FieldContainer>
-          {showChequeNumberColumn && (
-            <FieldContainer width="15%">
-              <Field name="chequeNumber" component={TextField} size="small" />
-            </FieldContainer>
-          )}
+          {renderChequeNumberField()}
           <FieldContainer width="13%">
             <Field
               name="amount"
@@ -242,7 +264,6 @@ export const PatientPaymentForm = ({
             ),
           }),
       })}
-      enableReinitialize
       initialValues={{
         date: editingPayment.date,
         methodId: editingPayment.patientPayment?.methodId,

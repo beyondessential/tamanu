@@ -2,12 +2,13 @@ import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
+import { ENCOUNTER_TYPE_VALUES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
@@ -32,6 +33,13 @@ patientRelations.get(
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
+      encounterType: `
+        CASE
+          ${ENCOUNTER_TYPE_VALUES.map(
+            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+          ).join(' ')}
+        END
+      `,
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
@@ -168,7 +176,7 @@ patientRelations.get(
         count: 0,
       });
     }
-    
+
     const patientReferrals = await models.Referral.findAll({
       include: [
         {

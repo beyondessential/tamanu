@@ -1,4 +1,4 @@
-import { RequestQueueExceededError, RequestQueueTimeoutError } from '@tamanu/shared/errors';
+import { RequestQueueExceededError, RequestQueueTimeoutError } from '@tamanu/utils/errors';
 
 import { QueueManager, RequestQueue } from '@tamanu/central-server/app/middleware/loadshedder';
 

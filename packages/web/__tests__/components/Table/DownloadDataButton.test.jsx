@@ -12,7 +12,7 @@ import { userEvent } from '@testing-library/user-event';
 import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';
 import {
@@ -27,6 +27,7 @@ import {
 } from '../../../app/views/patients/columns';
 import { renderElementWithTranslatedText } from '../../helpers';
 import { randomTestPatient } from '../../helpers/randomTestPatient';
+import { TranslatedText } from '../../../app/components';
 
 /** Stub `saveFile` to prevent `URL.createObjectURL` erroring in test environment */
 vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
@@ -37,7 +38,9 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
   };
 });
 
-const mockTranslations = { 'general.table.action.export': '🌐 Export 🌐' };
+const chance = new Chance();
+
+const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
 // eslint-disable-next-line no-unused-vars
 const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
   mockTranslations[stringId] ?? fallback;
@@ -80,18 +83,49 @@ describe('DownloadDataButton', () => {
     const button = screen.getByTestId('download-data-button');
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
     expect(getTranslationSpy).toHaveBeenCalledWith(
-      'general.table.action.export',
-      'Export',
+      'general.action.download',
+      'Download',
       undefined,
       undefined,
       undefined,
     );
-    expect(button.textContent).toBe('🌐 Export 🌐');
+    expect(button.textContent).toBe('🌐 Download 🌐');
+  });
+
+  it('when given a custom ExportButton, is rendered with a translated button label', () => {
+    const stringId = chance.string();
+    const translationFallback = chance.string();
+    const testId = chance.string();
+    const ExportButton = props => (
+      <button data-testid={testId} {...props}>
+        <TranslatedText stringId={stringId} fallback={translationFallback} />
+      </button>
+    );
+
+    render(
+      <DownloadDataButton
+        ExportButton={ExportButton}
+        exportName={chance.string()}
+        columns={columns}
+        data={data}
+      />,
+    );
+
+    const button = screen.getByTestId(testId);
+    expect(getTranslationSpy).toHaveBeenCalledTimes(1);
+    expect(getTranslationSpy).toHaveBeenCalledWith(
+      stringId,
+      translationFallback,
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(button.textContent).toBe(translationFallback);
   });
 
   it('does attempt to save a spreadsheet', async () => {
     const user = userEvent.setup();
-    const exportName = new Chance().string();
+    const exportName = chance.string();
     render(<DownloadDataButton exportName={exportName} columns={columns} data={data} />);
 
     const button = screen.getByTestId('download-data-button');

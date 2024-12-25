@@ -3,15 +3,15 @@ import { subDays } from 'date-fns';
 import { createTestContext } from '../utilities';
 
 import { createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
-jest.mock('@tamanu/shared/utils/dateTime', () => ({
-  ...jest.requireActual('@tamanu/shared/utils/dateTime'),
+jest.mock('@tamanu/utils/dateTime', () => ({
+  ...jest.requireActual('@tamanu/utils/dateTime'),
   getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 

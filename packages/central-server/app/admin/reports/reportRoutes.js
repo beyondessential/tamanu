@@ -3,8 +3,8 @@ import config from 'config';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { getUploadedData } from '@tamanu/utils/getUploadedData';
+import { InvalidOperationError, NotFoundError } from '@tamanu/utils/errors';
 import { capitalize } from 'lodash';
 import {
   REPORT_DB_SCHEMAS,

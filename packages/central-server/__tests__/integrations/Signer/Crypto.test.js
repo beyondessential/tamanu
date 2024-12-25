@@ -15,7 +15,7 @@ import {
 } from 'asn1js';
 import { CryptoEngine, setEngine } from 'pkijs';
 import { X502_OIDS } from '@tamanu/constants';
-import { depem } from '@tamanu/shared/utils';
+import { depem } from '@tamanu/utils';
 import { expect } from 'chai';
 import crypto from 'crypto';
 import config from 'config';
