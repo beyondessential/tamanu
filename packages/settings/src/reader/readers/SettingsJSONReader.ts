@@ -1,4 +1,4 @@
-import { Reader, ReaderSettingResult } from './Reader';
+import { Reader, type ReaderSettingResult } from './Reader';
 
 export class SettingsJSONReader extends Reader {
   jsonConfig: ReaderSettingResult;

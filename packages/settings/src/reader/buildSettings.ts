@@ -2,7 +2,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { isArray, mergeWith } from 'lodash';
 
 import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
-import { Models, SettingsDBReader } from './readers/SettingsDBReader';
+import { type Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
 
 /** Returns the cascade of applicable settings readers, in descending order of priority */

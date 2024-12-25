@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
-import { SettingPath } from '../types';
+import type { SettingPath } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
-import { Models } from './readers/SettingsDBReader';
+import type { Models } from './readers/SettingsDBReader';
 
 export const KEYS_EXPOSED_TO_FRONT_END = [
   'appointments',

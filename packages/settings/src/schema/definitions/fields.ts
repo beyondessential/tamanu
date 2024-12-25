@@ -1,13 +1,19 @@
-import { Setting } from 'types';
+import { type Setting } from 'types';
 import * as yup from 'yup';
+import type { ValueOf } from 'type-fest';
 
 export const LOCALISED_FIELD_TYPES = {
   DATE: 'date',
   NUMBER: 'number',
   STRING: 'string',
 };
+type GenerateFieldSchemaInput = {
+  isPatientDetails?: boolean;
+  hideable?: boolean;
+  type: ValueOf<typeof LOCALISED_FIELD_TYPES>;
+};
 
-export const generateFieldSchema = ({ isPatientDetails = false, hideable = true, type }) => {
+export const generateFieldSchema = ({ isPatientDetails = false, hideable = true, type }: GenerateFieldSchemaInput) => {
   const schema: Record<string, Setting> = {
     required: {
       description: 'Field is required',
@@ -39,11 +45,11 @@ export const generateFieldSchema = ({ isPatientDetails = false, hideable = true,
 
   switch (type) {
     case LOCALISED_FIELD_TYPES.STRING:
-      schema.defaultValue.type = yup.string().nullable();
+      if(schema.defaultValue) schema.defaultValue.type = yup.string().nullable();
       break;
 
     case LOCALISED_FIELD_TYPES.NUMBER:
-      schema.defaultValue.type = yup.number().nullable();
+      if(schema.defaultValue) schema.defaultValue.type = yup.number().nullable();
       break;
   }
 

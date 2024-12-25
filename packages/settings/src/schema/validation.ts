@@ -4,7 +4,7 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _, { cloneDeep, isArray, mergeWith } from 'lodash';
-import { SettingsSchema } from '../types';
+import type { SettingsSchema } from '../types';
 import { extractDefaults, isSetting } from './utils';
 
 const SCOPE_TO_SCHEMA = {
@@ -13,32 +13,38 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenSettings = (obj: unknown, parentKey = '') => {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+const flattenSettings = (obj: Record<string, unknown>, parentKey = '') => {
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (_.isObject(value) && !Array.isArray(value)) {
-      Object.assign(acc, flattenSettings(value, fullKey));
-    } else {
-      acc[fullKey] = value;
-    }
+      if (_.isObject(value) && !Array.isArray(value)) {
+        Object.assign(acc, flattenSettings(value as Record<string, unknown>, fullKey));
+      } else {
+        acc[fullKey] = value;
+      }
 
-    return acc;
-  }, {} as Record<string, unknown>);
+      return acc;
+    },
+    {} as Record<string, unknown>,
+  );
 };
 
 const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
-  return Object.entries(schema.properties).reduce((acc, [key, value]) => {
-    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+  return Object.entries(schema.properties).reduce(
+    (acc, [key, value]) => {
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (isSetting(value)) {
-      acc[fullKey] = value.type;
-    } else {
-      Object.assign(acc, flattenSchema(value, fullKey));
-    }
+      if (isSetting(value)) {
+        acc[fullKey] = value.type;
+      } else {
+        Object.assign(acc, flattenSchema(value, fullKey));
+      }
 
-    return acc;
-  }, {} as Record<string, yup.AnySchema>);
+      return acc;
+    },
+    {} as Record<string, yup.AnySchema>,
+  );
 };
 
 export const getScopedSchema = (scope: string) => {
@@ -62,9 +68,7 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenSettings(settings);
   const flattenedSchema = flattenSchema(schemaValue);
-  const yupSchema = yup
-    .object()
-    .shape(flattenedSchema);
+  const yupSchema = yup.object().shape(flattenedSchema);
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
@@ -74,6 +78,8 @@ export const validateSettings = async ({
  */
 export const applyDefaults = (settings: Record<string, unknown>, scope: string) => {
   const schema = getScopedSchema(scope);
+  if (!schema) throw new Error(`No schema found for scope: ${scope}`);
+
   const defaults = cloneDeep(extractDefaults(schema));
   return mergeWith(
     defaults,

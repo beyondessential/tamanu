@@ -1,4 +1,4 @@
-import { Setting } from './Setting';
+import type { Setting } from './Setting';
 
 export interface SettingsSchema {
   name?: string;
