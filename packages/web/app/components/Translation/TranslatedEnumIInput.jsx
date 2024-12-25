@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/utils/enumRegistry';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
 

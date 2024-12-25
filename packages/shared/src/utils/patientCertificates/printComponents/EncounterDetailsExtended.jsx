@@ -2,7 +2,7 @@ import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
-import { formatShort } from '../../dateTime';
+import { formatShort } from '../../../../../utils/src/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
 
 export const EncounterDetailsExtended = ({ encounter, discharge }) => {

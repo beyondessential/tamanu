@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
-import { runCalculations } from '@tamanu/shared/utils/calculations';
+import { runCalculations } from '@tamanu/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';
 import { FormGrid } from '../FormGrid';

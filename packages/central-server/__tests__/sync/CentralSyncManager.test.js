@@ -6,7 +6,7 @@ import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
   SETTING_KEYS,
@@ -14,7 +14,7 @@ import {
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';

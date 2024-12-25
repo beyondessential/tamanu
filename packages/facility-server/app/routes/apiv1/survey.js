@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { getFilteredListByPermission } from '@tamanu/utils/getFilteredListByPermission';
+import { NotFoundError } from '@tamanu/utils/errors';
 import {
   findRouteObject,
   permissionCheckingRouter,

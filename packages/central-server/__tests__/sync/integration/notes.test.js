@@ -1,7 +1,7 @@
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   IMAGING_TYPES,
   LAB_REQUEST_STATUSES,
@@ -11,7 +11,7 @@ import {
 
 import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;

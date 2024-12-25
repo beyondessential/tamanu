@@ -1,6 +1,6 @@
 import fs, { promises as asyncFs } from 'fs';
-import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/utils/errors';
+import { getUploadedData } from '@tamanu/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
 
 // Helper function for uploading one file to the central server

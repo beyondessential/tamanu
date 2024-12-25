@@ -10,7 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/utils/errors';
 
 export const routes = express.Router();
 
@@ -27,7 +27,7 @@ function formatDate(date) {
 }
 
 const reportQuery = `
-SELECT 
+SELECT
   last_updated,
   patient_id,
   first_name,
@@ -111,7 +111,9 @@ routes.get(
     }
 
     if (!fromDate || !toDate) {
-      throw new InvalidOperationError('Both period.start and period.end are required query parameters');
+      throw new InvalidOperationError(
+        'Both period.start and period.end are required query parameters',
+      );
     }
 
     if (!checkTimePeriod(fromDate, toDate)) {

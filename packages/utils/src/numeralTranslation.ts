@@ -1,11 +1,12 @@
 import { limon } from 'khmer-unicode-converter';
+
 import { isNaN } from 'lodash';
 
-function isNumeric(value) {
+const isNumeric = (value: string) => {
   return !isNaN(parseFloat(value));
-}
+};
 
-export const numeralTranslation = numeral => {
+export const numeralTranslation = (numeral: string) => {
   if (isNumeric(numeral)) return numeral;
 
   const latinNumerals = limon(numeral);

@@ -7,7 +7,7 @@ import { getLocationName } from '../../patientAccessors';
 import { Col, Row } from '../Layout';
 import { HorizontalRule } from './HorizontalRule';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { formatShort } from '../../dateTime';
+import { formatShort } from '../../../../../utils/src/dateTime';
 import { P } from '../Typography';
 
 export const InvoiceEncounterDetails = ({ encounter }) => {

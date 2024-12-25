@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
+import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { Button, MonthPicker, formatShort, formatWeekdayShort } from '../../../components';
 import { Colors } from '../../../constants';

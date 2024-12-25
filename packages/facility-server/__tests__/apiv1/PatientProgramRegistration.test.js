@@ -2,7 +2,7 @@ import config from 'config';
 import { afterAll, beforeAll } from '@jest/globals';
 
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { getDependentAssociations } from './getDependentAssociations';
+import { getDependentAssociations } from '@tamanu/utils';
 
 async function getIds(options) {
   let ids = options.where?.id?.[Op.in];

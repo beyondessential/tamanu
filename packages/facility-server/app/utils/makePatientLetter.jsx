@@ -2,7 +2,8 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import { get } from 'lodash';
-import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
+import { PatientLetter } from '@tamanu/shared/utils';
+import { tmpdir } from '@tamanu/utils';
 import crypto from 'crypto';
 import { SETTING_KEYS } from '@tamanu/constants';
 

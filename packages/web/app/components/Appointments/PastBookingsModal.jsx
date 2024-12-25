@@ -3,7 +3,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Colors } from '../../constants';

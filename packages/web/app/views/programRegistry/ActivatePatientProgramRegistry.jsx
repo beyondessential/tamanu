@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { difference } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';

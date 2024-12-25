@@ -10,8 +10,8 @@ import {
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';

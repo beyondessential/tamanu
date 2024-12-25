@@ -6,10 +6,10 @@ import { promisify } from 'util';
 import crypto from 'crypto';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/utils/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 import { CentralServerConnection } from '../sync';
 

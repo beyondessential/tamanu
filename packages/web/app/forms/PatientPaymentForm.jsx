@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
-import { round } from '@tamanu/shared/utils/invoice';
+import { round } from '@tamanu/utils/invoice';
 import {
   AutocompleteField,
   Button,

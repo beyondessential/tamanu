@@ -1,4 +1,7 @@
-export const selectFacilityIds = config => {
+export const selectFacilityIds = (config: {
+  serverFacilityId?: string;
+  serverFacilityIds?: string[];
+}) => {
   const { serverFacilityId, serverFacilityIds } = config;
   if (serverFacilityId && serverFacilityIds) {
     throw new Error(

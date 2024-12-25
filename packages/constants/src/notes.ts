@@ -25,7 +25,7 @@ export const NOTE_TYPES = {
   OTHER: 'other',
   CLINICAL_MOBILE: 'clinicalMobile',
   HANDOVER: 'handover',
-};
+} as const;
 
 export const NOTE_TYPE_LABELS = {
   [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',

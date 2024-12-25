@@ -6,7 +6,7 @@ import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { TabPane } from '../components';
@@ -369,7 +369,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
-          noDataMessage={getNoDataMessage(isComplexChart, complexChartInstances, selectedChartTypeId)}
+          noDataMessage={getNoDataMessage(
+            isComplexChart,
+            complexChartInstances,
+            selectedChartTypeId,
+          )}
         />
       </ChartGraphDataProvider>
     </TabPane>

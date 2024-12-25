@@ -1,9 +1,6 @@
-import {
-  ACTION_DATA_ELEMENT_TYPES,
-  PROGRAM_DATA_ELEMENT_TYPES,
-} from '@tamanu/constants';
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
-import { checkJSONCriteria } from './criteria';
+import { checkJSONCriteria } from '@tamanu/utils';
 
 export function getStringValue(type, value) {
   if (value === null) {

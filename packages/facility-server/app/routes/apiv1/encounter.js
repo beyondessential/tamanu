@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
-import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/utils/errors';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toCountryDateTimeString } from '@tamanu/utils/countryDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -655,7 +655,7 @@ encounterRelations.get(
             survey_response_answers sra
           ON
             sr.id = sra.response_id
-          WHERE 
+          WHERE
             sr.survey_id = :chartSurveyId AND
             sr.encounter_id = :encounterId AND
             sr.deleted_at IS NULL
@@ -663,8 +663,8 @@ encounterRelations.get(
             sr.id
         )
 
-        SELECT 
-          * 
+        SELECT
+          *
         FROM chart_instances
         ORDER BY "chartDate" DESC;
       `,

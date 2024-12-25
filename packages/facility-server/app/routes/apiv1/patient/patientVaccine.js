@@ -9,8 +9,8 @@ import {
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { NotFoundError } from '@tamanu/utils/errors';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import config from 'config';
 
 export const patientVaccineRoutes = express.Router();

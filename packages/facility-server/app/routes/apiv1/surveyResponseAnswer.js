@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/utils/errors';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
@@ -57,7 +57,7 @@ surveyResponseAnswer.get(
       models,
       [answer],
       [answer.ProgramDataElement.surveyScreenComponent],
-      { notTransformDate: true }
+      { notTransformDate: true },
     );
     answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
     answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;

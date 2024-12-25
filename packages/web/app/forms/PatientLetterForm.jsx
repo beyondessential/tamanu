@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';

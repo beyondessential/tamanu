@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
+import { parseOrNull } from '@tamanu/utils/parse-or-null';
 import { isNumberOrFloat } from '../../utils/numbers';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {

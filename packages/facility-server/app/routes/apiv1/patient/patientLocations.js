@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { objectToCamelCase } from '@tamanu/shared/utils';
+import { objectToCamelCase } from '@tamanu/utils';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) => `

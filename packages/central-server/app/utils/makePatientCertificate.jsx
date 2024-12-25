@@ -8,9 +8,9 @@ import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 import {
   CovidVaccineCertificate,
   getPatientSurveyResponseAnswer,
-  tmpdir,
   VaccineCertificate,
 } from '@tamanu/shared/utils';
+import { tmpdir } from '@tamanu/utils';
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';

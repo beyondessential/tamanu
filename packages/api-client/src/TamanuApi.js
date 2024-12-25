@@ -1,7 +1,7 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
+import { NotFoundError, ForbiddenError } from '@tamanu/utils/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -219,7 +219,7 @@ export class TamanuApi {
 
     // Handle resource conflict
     if (response.status === 409) {
-      throw new ResourceConflictError(message)
+      throw new ResourceConflictError(message);
     }
 
     throw new ServerResponseError(`Server error response: ${message}`);

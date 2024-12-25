@@ -1,7 +1,7 @@
 import { startOfToday } from 'date-fns';
 import React from 'react';
 
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { Form } from '../../app/components';
 import { TimeSlotPicker } from '../../app/components/Appointments/LocationBookingForm/DateTimeRangeField/TimeSlotPicker';

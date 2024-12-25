@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/utils/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import {
   paginatedGetList,

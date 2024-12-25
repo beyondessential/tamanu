@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { InvalidOperationError, NotFoundError } from '@tamanu/utils/errors';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -14,7 +14,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils';
 import {
   permissionCheckingRouter,
   simpleGet,
@@ -80,7 +80,10 @@ labRequest.put(
       const newLabRequestRecord = await labRequestRecord.update(labRequestData);
 
       if (shouldPushNotification) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
+        await models.Notification.pushNotification(
+          NOTIFICATION_TYPES.LAB_REQUEST,
+          newLabRequestRecord,
+        );
       }
     });
 

@@ -9,7 +9,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';

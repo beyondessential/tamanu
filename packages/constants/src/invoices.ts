@@ -4,7 +4,7 @@ export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
   IN_PROGRESS: 'in_progress',
   FINALISED: 'finalised',
-};
+} as const;
 
 export const INVOICE_STATUS_LABELS = {
   [INVOICE_STATUSES.CANCELLED]: 'Cancelled',

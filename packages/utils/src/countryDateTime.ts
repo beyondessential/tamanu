@@ -6,26 +6,27 @@ import { formatInTimeZone } from 'date-fns-tz';
 import config from 'config';
 import { ISO8061_WITH_TIMEZONE, ISO9075_DATE_FORMAT, ISO9075_DATETIME_FORMAT } from './dateTime';
 
-export function toCountryDateTimeString(date) {
-  if (date === null || date === undefined) {
-    return null;
+declare module 'config' {
+  // eslint-disable-next-line no-unused-vars
+  interface IConfig {
+    countryTimeZone: string;
   }
+}
+
+export function toCountryDateTimeString(date?: null | string | Date) {
+  if (date == null) return null;
 
   return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATETIME_FORMAT);
 }
 
-export function toCountryDateString(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
+export function toCountryDateString(date?: null | string | Date) {
+  if (date == null) return null;
 
   return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
 }
 
-export function dateTimeStringIntoCountryTimezone(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
+export function dateTimeStringIntoCountryTimezone(date?: string | null | undefined) {
+  if (date == null) return null;
 
   return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
 }

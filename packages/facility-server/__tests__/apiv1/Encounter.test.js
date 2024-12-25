@@ -21,9 +21,9 @@ import {
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';

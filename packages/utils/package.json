@@ -1,0 +1,51 @@
+{
+  "name": "@tamanu/utils",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TODO",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": {
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "npm run remove-build-artifacts && npm run build:src && npm run build:types",
+    "build:src": "swc --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false",
+    "build-watch": "npm run remove-build-artifacts && concurrently \"npm run build:src -- --watch\" \"npm run build:types -- --watch\"",
+    "remove-build-artifacts": "rimraf dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "@types/node": "^20.9.0",
+    "type-fest": "^4.30.2",
+    "@types/multiparty": "^4.2.1"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "decimal.js": "^10.4.3",
+    "@tamanu/constants": "*",
+    "lodash": "^4.17.11",
+    "es-toolkit": "^1.30.1",
+    "config": "^3.3.9",
+    "mathjs": "^9.3.0",
+    "mkdirp": "^3.0.1",
+    "undici": "^7.2.0",
+    "khmer-unicode-converter": "^0.0.8",
+    "multiparty": "^4.2.3",
+    "nanoid": "^5.0.9"
+  }
+}

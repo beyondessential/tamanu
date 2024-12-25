@@ -2,7 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/utils/errors';
 import { camelCase, keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
@@ -339,7 +339,7 @@ createSuggester(
     },
     orderBuilder: req => {
       const { query } = req;
-      const types = query.types
+      const types = query.types;
       if (!types?.length) return;
 
       const caseStatement = query.types

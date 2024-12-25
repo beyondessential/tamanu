@@ -2,7 +2,7 @@ import config from 'config';
 import path from 'path';
 import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
-import { base64UrlEncode } from '@tamanu/shared/utils/encodings';
+import { base64UrlEncode } from '@tamanu/utils/encodings';
 
 import {
   COMMUNICATION_STATUSES,
@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { tmpdir } from '@tamanu/shared/utils';
+import { tmpdir } from '@tamanu/utils';
 
 import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';

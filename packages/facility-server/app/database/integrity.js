@@ -1,7 +1,7 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {

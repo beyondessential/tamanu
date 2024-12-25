@@ -1,7 +1,7 @@
 import { snakeCase } from 'lodash';
 
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { getDependentAssociations } from '@tamanu/shared/utils';
+import { getDependentAssociations } from '@tamanu/utils';
 
 /**
  * Update child records by setting updated_at_sync_tick = 1
@@ -41,11 +41,10 @@ export async function updateChildRecordsForSyncLookup(model, instanceId) {
   }
 }
 
-
 /**
  * Register a listener when a record is updated and the change includes patient_id
- * @param {*} models 
- * @param {*} dbNotifier 
+ * @param {*} models
+ * @param {*} dbNotifier
  */
 export const registerSyncLookupUpdateListener = async (models, dbNotifier) => {
   const onTableChanged = dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];

@@ -4,11 +4,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
-import {
-  format as formatDate,
-  toDateString,
-  toDateTimeString,
-} from '@tamanu/shared/utils/dateTime';
+import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import PropTypes from 'prop-types';
 
 import { TextInput } from './TextField';

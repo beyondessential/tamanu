@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';

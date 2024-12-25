@@ -14,7 +14,7 @@ import { Button } from '../Button';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';

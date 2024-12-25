@@ -4,7 +4,7 @@ import { Op, Sequelize } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {

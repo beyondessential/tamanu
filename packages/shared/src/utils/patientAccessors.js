@@ -1,6 +1,6 @@
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit';
 import { getDisplayDate } from './patientCertificates/getDisplayDate';
-import { ageInYears, formatShort } from './dateTime';
+import { ageInYears, formatShort } from '@tamanu/utils';
 
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;

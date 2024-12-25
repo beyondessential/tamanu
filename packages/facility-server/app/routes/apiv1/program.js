@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
+import { getFilteredListByPermission } from '@tamanu/utils/getFilteredListByPermission';
 import {
   permissionCheckingRouter,
   simpleGet,

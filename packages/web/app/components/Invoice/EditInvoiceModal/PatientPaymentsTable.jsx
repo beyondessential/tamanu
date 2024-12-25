@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Decimal from 'decimal.js';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';

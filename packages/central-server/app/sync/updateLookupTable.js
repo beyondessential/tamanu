@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { SYNC_LOOKUP_PENDING_UPDATE_FLAG } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging/log';
-import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { withConfig } from '@tamanu/utils/withConfig';
 import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
 const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
@@ -35,7 +35,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             updated_at_sync_tick,
             pushed_by_device_id,
             data,
-            
+
             patient_id,
             facility_id,
             encounter_id,

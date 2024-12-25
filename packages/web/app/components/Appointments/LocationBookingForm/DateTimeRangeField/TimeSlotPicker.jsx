@@ -13,7 +13,7 @@ import {
   maxValidDate,
   minValidDate,
   toDateTimeString,
-} from '@tamanu/shared/utils/dateTime';
+} from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';

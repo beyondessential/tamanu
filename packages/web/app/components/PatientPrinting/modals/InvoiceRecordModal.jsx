@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/utils/errors';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -27,7 +27,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 

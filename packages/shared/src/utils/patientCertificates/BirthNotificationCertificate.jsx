@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
-import { ageInYears, getCurrentDateString } from '../dateTime';
+import { ageInYears, getCurrentDateString } from '../../../../utils/src/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,

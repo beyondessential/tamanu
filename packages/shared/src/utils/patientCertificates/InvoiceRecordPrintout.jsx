@@ -7,7 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '../dateTime';
+import { formatShort } from '../../../../utils/src/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,
@@ -17,7 +17,7 @@ import {
   getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
   getInsurerPaymentsWithRemainingBalanceDisplay,
-} from '../invoice';
+} from '../../../../utils/src/invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';

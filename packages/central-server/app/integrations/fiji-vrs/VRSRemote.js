@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 import { log } from '@tamanu/shared/services/logging';
-import { RemoteCallFailedError } from '@tamanu/shared/errors';
+import { RemoteCallFailedError } from '@tamanu/utils/errors';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 
 import { VRSPatientAdapter } from './VRSPatientAdapter';

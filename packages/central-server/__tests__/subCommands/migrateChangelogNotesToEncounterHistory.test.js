@@ -1,7 +1,7 @@
 import { sub } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/utils/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();

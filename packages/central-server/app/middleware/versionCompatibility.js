@@ -3,7 +3,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
-import { InvalidClientHeadersError } from '@tamanu/shared/errors';
+import { InvalidClientHeadersError } from '@tamanu/utils/errors';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');

@@ -10,9 +10,9 @@ import {
   NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/utils/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -232,7 +232,10 @@ imagingRequest.put(
       }
 
       if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-        await Notification.pushNotification(NOTIFICATION_TYPES.IMAGING_REQUEST, imagingRequestObject);
+        await Notification.pushNotification(
+          NOTIFICATION_TYPES.IMAGING_REQUEST,
+          imagingRequestObject,
+        );
       }
     }
 

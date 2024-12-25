@@ -3,7 +3,7 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/configSelectors';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
@@ -51,7 +51,9 @@ async function startAll({ skipMigrationCheck }) {
   const { server } = await createApiApp(context);
 
   let { port } = config;
-  if (+process.env.PORT) { port = +process.env.PORT; }
+  if (+process.env.PORT) {
+    port = +process.env.PORT;
+  }
   server.listen(port, () => {
     log.info(`API Server is running on port ${port}!`);
   });

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
-import { getConfigObject } from '../../utils';
+import { getConfigObject } from '@tamanu/utils';
 import { useChartSurveyQuery } from './useChartSurveyQuery';
 
 function hasHistoricalData(answer) {
@@ -21,8 +21,7 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   }
 
   const recordedDates = Object.keys(
-    data.find(record => record.dataElementId === dateElementId)
-      .records,
+    data.find(record => record.dataElementId === dateElementId).records,
   );
 
   const elementIdToAnswer = {};
@@ -70,12 +69,14 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
 
 export const useEncounterChartsQuery = (encounterId, surveyId) => {
   const api = useApi();
-  const chartQuery = useQuery(['encounterCharts', encounterId, surveyId], () =>
-    api.get(
-      `encounter/${encounterId}/charts/${surveyId}`,
-      { rowsPerPage: 50 },
-      { isErrorUnknown: isErrorUnknownAllow404s },
-    ),
+  const chartQuery = useQuery(
+    ['encounterCharts', encounterId, surveyId],
+    () =>
+      api.get(
+        `encounter/${encounterId}/charts/${surveyId}`,
+        { rowsPerPage: 50 },
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
     { enabled: Boolean(surveyId) },
   );
   const surveyQuery = useChartSurveyQuery(surveyId);

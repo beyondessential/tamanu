@@ -1,4 +1,4 @@
-import { getCodeForErrorName } from '@tamanu/shared/errors';
+import { getCodeForErrorName } from '@tamanu/utils/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
