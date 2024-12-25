@@ -60,6 +60,7 @@ jobs:
           - { package: "@tamanu/shared",                      postgres: 16 }
           - { package: "@tamanu/web-frontend" }
           - { package: "@tamanu/settings" }
+          - { package: "@tamanu/database" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest

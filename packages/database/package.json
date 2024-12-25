@@ -1,70 +1,35 @@
 {
-  "name": "@tamanu/settings",
-  "version": "2.23.0",
+  "name": "@tamanu/database",
+  "version": "0.0.0",
   "private": true,
-  "description": "BES - Settings",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "description": "BES - Database",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./cache": {
-      "import": "./dist/mjs/cache/index.js",
-      "require": "./dist/cjs/cache/index.js"
-    },
-    "./schema": {
-      "import": "./dist/mjs/schema/index.js",
-      "require": "./dist/cjs/schema/index.js"
-    },
-    "./types": {
-      "import": "./dist/mjs/types/index.js",
-      "require": "./dist/cjs/types/index.js"
-    },
-    "./test": {
-      "import": "./dist/mjs/test/index.js",
-      "require": "./dist/cjs/test/index.js"
-    },
-    "./reader": {
-      "import": "./dist/mjs/reader/index.js",
-      "require": "./dist/cjs/reader/index.js"
-    },
-    "./middleware": {
-      "import": "./dist/mjs/middleware/index.js",
-      "require": "./dist/cjs/middleware/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "SEE LICENSE IN ../../license",
+  "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
-    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src  -- --delete-dir-on-start=false --watch\" \"npm run build:cjs -- --delete-dir-on-start=false --watch\"",
-    "test": "NODE_ENV=test jest --passWithNoTests",
-    "lint:check": "eslint src",
-    "lint:types": "tsc"
+    "build": "npm run remove-build-artifacts && npm run build:src && npm run build:types",
+    "build:src": "swc --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false",
+    "build-watch": "npm run remove-build-artifacts && concurrently \"npm run build:src -- --watch\" \"npm run build:types -- --watch\"",
+    "remove-build-artifacts": "rimraf dist",
+    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
-    "@jest/globals": "^29.4.3",
-    "@swc/jest": "^0.2.24",
-    "@tamanu/build-tooling": "*",
-    "@types/config": "^3.3.0",
-    "@types/node": "^18.14.6",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
-    "jest": "^29.4.3"
+    "rimraf": "^6.0.1",
+    "@types/node": "^20.9.0"
   },
   "dependencies": {
     "@tamanu/constants": "*",
-    "@types/lodash": "^4.14.197",
-    "lodash": "^4.17.21",
-    "yup": "^1.4.0"
+    "@tamanu/utils": "*"
   }
 }

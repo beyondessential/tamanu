@@ -13,6 +13,5 @@ export * from './objectToCamelCase';
 export * from './numeralTranslation';
 export * from './enumRegistry';
 export * from './invoice';
-export * from './getDependentAssociations';
 export * from './roles';
 export * from './errors';

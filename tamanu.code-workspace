@@ -56,6 +56,10 @@
       "name": "shared",
       "path": "packages/shared",
     },
+    {
+      "name": "database",
+      "path": "packages/database"
+    },
   ],
   "settings": {
     "files.exclude": {

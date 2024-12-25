@@ -1,19 +1,20 @@
 {
-  "extends": "../../common.tsconfig.json",
-  "include": [
-    "src/**/*.ts",
-  ],
   "compilerOptions": {
+    "allowJs": true,
     "baseUrl": "./src",
-    "strict": false,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "isolatedModules": false,
-    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "moduleResolution": "bundler",
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
+    "removeComments": false,
     "resolveJsonModule": true,
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "skipLibCheck": true,
-    "target": "es2020"
-  }
+    "strict": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "verbatimModuleSyntax": true
+  },
+  "extends": "../../common.tsconfig.json",
+  "include": ["src/**/*.ts"]
 }

@@ -1,13 +1,35 @@
-import * as sequelize from 'sequelize';
+import {
+  Op,
+  Utils,
+  DataTypes,
+  Model as BaseModel,
+  QueryTypes,
+  type InitOptions as BaseInitOptions,
+  type ModelAttributes,
+} from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 
-const { Op, Utils, Sequelize } = sequelize;
+const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
-const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
+type SyncDirectionValues = typeof SYNC_DIRECTIONS[keyof typeof SYNC_DIRECTIONS];
 
-export class Model extends sequelize.Model {
-  static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
+interface InitOptions extends BaseInitOptions {
+  syncDirection: SyncDirectionValues;
+  primaryKey: any;
+}
+
+export class Model extends BaseModel {
+  static syncDirection: SyncDirectionValues;
+  static defaultIdValue?: string | number;
+  static usesPublicSchema: boolean;
+  static buildSyncFilter: () => null;
+  static buildPatientSyncFilter: () => null;
+
+  static init(
+    modelAttributes: ModelAttributes,
+    { syncDirection, timestamps = true, schema, ...options }: InitOptions,
+  ) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
     // to erase it even if they don't use it, we delete it here
@@ -18,7 +40,7 @@ export class Model extends sequelize.Model {
     };
     const usesPublicSchema = schema === undefined || schema === 'public';
     if (syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
-      attributes.updatedAtSyncTick = Sequelize.BIGINT;
+      attributes.updatedAtSyncTick = DataTypes.BIGINT;
     }
     super.init(attributes, {
       timestamps,
@@ -32,7 +54,10 @@ export class Model extends sequelize.Model {
         }),
       },
     });
-    this.defaultIdValue = attributes.id?.defaultValue;
+    this.defaultIdValue =
+      typeof attributes.id === 'object' && 'defaultValue' in attributes.id
+        ? (attributes.id.defaultValue as string | number)
+        : undefined;
     if (!syncDirection) {
       throw new Error(
         `Every model must specify a sync direction, even if that is "DO_NOT_SYNC". Check the model definition for ${this.name}`,
@@ -41,6 +66,8 @@ export class Model extends sequelize.Model {
     this.syncDirection = syncDirection;
     this.validateSync(timestamps);
     this.usesPublicSchema = usesPublicSchema;
+
+    return this as any;
   }
 
   static generateId() {
@@ -51,11 +78,14 @@ export class Model extends sequelize.Model {
    * Generates a uuid via the database
    */
   static async generateDbUuid() {
-    const [[{ uuid_generate_v4: uuid }]] = await this.sequelize.query(`SELECT uuid_generate_v4();`);
-    return uuid;
+    const result = await this.sequelize?.query<{ uuid_generate_v4: string }[]>(
+      `SELECT uuid_generate_v4();`,
+      { type: QueryTypes.SELECT },
+    );
+    return result?.[0]?.[0]?.uuid_generate_v4;
   }
 
-  static validateSync(timestamps) {
+  static validateSync(timestamps: boolean) {
     // every syncing model should have timestamps turned on
     if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
       throw new Error(
@@ -90,7 +120,7 @@ export class Model extends sequelize.Model {
 
     const { models } = this.sequelize;
     const values = Object.entries(this.dataValues)
-      .filter(([_key, val]) => val !== null) // eslint-disable-line no-unused-vars
+      .filter(([, val]) => val !== null)
       .reduce(
         (obj, [key, val]) => ({
           ...obj,
@@ -99,7 +129,7 @@ export class Model extends sequelize.Model {
         {},
       );
 
-    const references = this.constructor.getListReferenceAssociations(models);
+    const references = (this.constructor as typeof Model).getListReferenceAssociations(models);
 
     if (!references) return values;
 
@@ -107,7 +137,7 @@ export class Model extends sequelize.Model {
     // if the structure of a nested object differs significantly from its database representation,
     // it's probably more correct to implement that as a separate endpoint rather than putting the
     // logic here.
-    return references.reduce((allValues, referenceName) => {
+    return references.reduce((allValues: any, referenceName: string) => {
       const { [referenceName]: referenceVal, ...otherValues } = allValues;
       if (!referenceVal) return allValues;
       return {
@@ -125,7 +155,8 @@ export class Model extends sequelize.Model {
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations() {
+  // eslint-disable-next-line no-unused-vars
+  static getListReferenceAssociations(_models?: BaseModel['sequelize']['models']): undefined | any[] {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //
@@ -138,11 +169,10 @@ export class Model extends sequelize.Model {
   static getFullReferenceAssociations() {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
-    const { models } = this.sequelize;
-    return this.getListReferenceAssociations(models);
+    return this.getListReferenceAssociations();
   }
 
-  static async findByIds(ids, paranoid = true) {
+  static async findByIds(ids: any[], paranoid = true) {
     if (ids.length === 0) return [];
 
     return this.findAll({
@@ -153,12 +183,12 @@ export class Model extends sequelize.Model {
     });
   }
 
-  static sanitizeForCentralServer(values) {
+  static sanitizeForCentralServer(values: any) {
     // implement on the specific model if needed
     return values;
   }
 
-  static sanitizeForFacilityServer(values) {
+  static sanitizeForFacilityServer(values: any) {
     // implement on the specific model if needed
     return values;
   }

@@ -111,6 +111,7 @@
     "xlsx": "^0.18.5",
     "yup": "^0.32.9",
     "zod": "^3.23.8",
-    "@tamanu/utils": "*"
+    "@tamanu/utils": "*",
+    "@tamanu/database": "*"
   }
 }
