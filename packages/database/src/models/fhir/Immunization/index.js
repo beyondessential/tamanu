@@ -1,0 +1,1 @@
+export { FhirImmunization } from './FhirImmunization';

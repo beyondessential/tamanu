@@ -1,0 +1,1 @@
+export { FhirSpecimen } from './FhirSpecimen';

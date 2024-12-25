@@ -1,0 +1,1 @@
+export { FhirDiagnosticReport } from './FhirDiagnosticReport';
