@@ -1,3 +1,2 @@
 dist
 *.tsbuildinfo
-src/**/*.d.ts
