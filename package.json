@@ -62,7 +62,8 @@
       "packages/constants",
       "packages/settings",
       "packages/api-client",
-      "packages/mobile"
+      "packages/mobile",
+      "packages/database"
     ]
   },
   "devDependencies": {
