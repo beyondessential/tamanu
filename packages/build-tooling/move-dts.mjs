@@ -14,20 +14,20 @@ const dst = process.argv.slice(3).map((d, i) => [
   d.replace(/\/?$/, '/'),
 ]);
 
-const files = await glob(`${src}/**/*.d.ts`, { ignore: 'node_modules/**' });
+const files = await glob(`${src}/**/*.{d.ts,d.ts.map}`, { ignore: 'node_modules/**' });
 if (files.length === 0) {
-    process.exit(0);
+  process.exit(0);
 }
 
 for (const file of files) {
-    for (const [i, d] of dst) {
-        const dest = file.replace(new RegExp(`^${src}/`), d);
-        ensureDirectoryExists(dest);
-        console.error(`put ${file} in ${dest}`);
-        if (i === 1) {
-            await fs.rename(file, dest);
-        } else {
-            await fs.copyFile(file, dest);
-        }
+  for (const [i, d] of dst) {
+    const dest = file.replace(new RegExp(`^${src}/`), d);
+    ensureDirectoryExists(dest);
+    console.error(`put ${file} in ${dest}`);
+    if (i === 1) {
+      await fs.rename(file, dest);
+    } else {
+      await fs.copyFile(file, dest);
     }
+  }
 }
