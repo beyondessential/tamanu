@@ -19,12 +19,18 @@ interface InitOptions extends BaseInitOptions {
   primaryKey: any;
 }
 
+interface SessionConfig {
+  syncAllLabRequests?: boolean
+}
+
 export class Model extends BaseModel {
   static syncDirection: SyncDirectionValues;
   static defaultIdValue?: string | number;
   static usesPublicSchema: boolean;
   static buildSyncFilter: () => null;
-  static buildPatientSyncFilter: () => null;
+  static buildPatientSyncFilter(_patientCount: number, _markedForSyncPatientsTable: string, _sessionConfig: SessionConfig): string | null {
+    return '';
+  }
 
   static init(
     modelAttributes: ModelAttributes,
