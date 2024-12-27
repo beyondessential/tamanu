@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { parseOrNull } from '../utils/parse-or-null';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { Model } from './Model';
 
 export class ProgramDataElement extends Model {
@@ -38,7 +38,7 @@ export class ProgramDataElement extends Model {
     const { defaultOptions, ...values } = this.dataValues;
     return {
       ...values,
-      defaultOptions: parseOrNull(defaultOptions),
+      defaultOptions: safeJsonParse(defaultOptions),
     };
   }
 
