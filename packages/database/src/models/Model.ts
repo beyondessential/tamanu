@@ -9,6 +9,7 @@ import {
 } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
+import { type SessionConfig } from '../types/sequelize';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -17,10 +18,6 @@ type SyncDirectionValues = typeof SYNC_DIRECTIONS[keyof typeof SYNC_DIRECTIONS];
 interface InitOptions extends BaseInitOptions {
   syncDirection: SyncDirectionValues;
   primaryKey: any;
-}
-
-interface SessionConfig {
-  syncAllLabRequests?: boolean
 }
 
 export class Model extends BaseModel {

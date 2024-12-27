@@ -1,9 +1,7 @@
 import { 
-  DataTypes, 
-  type Sequelize,
+  DataTypes,
   type CreationOptional, 
-  type ModelStatic, 
-  type ModelAttributes as BaseModelAttributes, 
+  type ModelStatic,
 } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
@@ -17,6 +15,7 @@ import {
 } from '@tamanu/shared/models/buildEncounterLinkedSyncFilter';
 import { dateTimeType } from '@tamanu/shared/models/dateTimeTypes';
 import { Model } from './Model';
+import { type ModelAttributes, type SessionConfig } from '../types/sequelize';
 
 interface LabRequestWithTests {
   departmentId: string;
@@ -43,10 +42,6 @@ interface LabRequestWithTests {
     date?: string;
   };
 }
-
-type ModelAttributes = BaseModelAttributes & {
-  sequelize: Sequelize;
-};
 
 export class LabRequest extends Model {
   declare id: CreationOptional<string>;
@@ -142,73 +137,73 @@ export class LabRequest extends Model {
     });
   }
 
-  static initRelations(this: ModelStatic<LabRequest>, models) {
-    this.belongsTo(models.Department, {
+  static initRelations(this: ModelStatic<LabRequest>, models: { [key: string]: ModelStatic<any> }) {
+    this.belongsTo(models.Department!, {
       foreignKey: 'departmentId',
       as: 'department',
     });
 
-    this.belongsTo(models.User, {
+    this.belongsTo(models.User!, {
       foreignKey: 'collectedById',
       as: 'collectedBy',
     });
 
-    this.belongsTo(models.User, {
+    this.belongsTo(models.User!, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
     });
 
-    this.belongsTo(models.Encounter, {
+    this.belongsTo(models.Encounter!, {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData!, {
       foreignKey: 'labTestCategoryId',
       as: 'category',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData!, {
       foreignKey: 'labSampleSiteId',
       as: 'site',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData!, {
       foreignKey: 'labTestPriorityId',
       as: 'priority',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData!, {
       foreignKey: 'labTestLaboratoryId',
       as: 'laboratory',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData!, {
       foreignKey: 'specimenTypeId',
       as: 'specimenType',
     });
 
-    this.belongsTo(models.LabTestPanelRequest, {
+    this.belongsTo(models.LabTestPanelRequest!, {
       foreignKey: 'labTestPanelRequestId',
       as: 'labTestPanelRequest',
     });
 
-    this.hasMany(models.LabTest, {
+    this.hasMany(models.LabTest!, {
       foreignKey: 'labRequestId',
       as: 'tests',
     });
 
-    this.hasMany(models.CertificateNotification, {
+    this.hasMany(models.CertificateNotification!, {
       foreignKey: 'labRequestId',
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.LabRequestAttachment, {
+    this.hasMany(models.LabRequestAttachment!, {
       foreignKey: 'labRequestId',
       as: 'labRequestAttachments',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.Note!, {
       foreignKey: 'recordId',
       as: 'notes',
       constraints: false,
@@ -233,7 +228,7 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }

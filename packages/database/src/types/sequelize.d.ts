@@ -1,5 +1,11 @@
 // Sequelize needs to be imported here to be properly extended
-import sequelize from 'sequelize';
+import sequelize, { 
+  type Sequelize, 
+  type ModelAttributeColumnOptions, 
+  type Model, 
+  type DataType, 
+  type ModelAttributes as BaseModelAttributes 
+} from 'sequelize';
 
 // Extend Sequelize DataTypes with our own custom types.
 declare module 'sequelize' {
@@ -15,3 +21,12 @@ declare module 'sequelize' {
     model?: typeof sequelize.Model<{ id: string | number }>;
   }
 }
+
+export interface SessionConfig {
+  syncAllLabRequests?: boolean
+}
+
+export type ModelAttributes = BaseModelAttributes & {
+  sequelize: Sequelize;
+  primaryKey: ModelAttributeColumnOptions<Model<any, any>> | DataType;
+};
