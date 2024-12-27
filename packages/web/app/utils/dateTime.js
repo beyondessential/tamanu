@@ -3,7 +3,7 @@ import { isSameDay, parseISO } from 'date-fns';
 import { getDateDisplay } from '../components';
 
 // Import all the shared date time utils here for backwards compatibility
-export * from '@tamanu/shared/utils/date';
+export * from '@tamanu/utils/date';
 export * from '@tamanu/utils/dateTime';
 
 export const formatDateTimeRange = (start, end) => {

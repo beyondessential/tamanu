@@ -1,6 +1,22 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { parseDate } from '@tamanu/utils/dateTime';
+import {
+  parseDate,
+  intlFormatDate,
+  formatShortest,
+  formatShort,
+  formatTime,
+  formatTimeWithSeconds,
+  locale,
+  formatLong,
+} from '@tamanu/utils/dateTime';
+export {
+  formatShortest,
+  formatShort,
+  formatTime,
+  formatTimeWithSeconds,
+  formatLong,
+} from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
@@ -17,39 +33,6 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-const locale = globalThis.navigator?.language ?? 'default';
-
-const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
-  if (!date) return fallback;
-  return new Date(date).toLocaleString(locale, formatOptions);
-};
-
-export const formatShortest = date =>
-  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
-
-export const formatShort = date =>
-  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
-
-export const formatTime = date =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      hour12: true,
-    },
-    '__:__',
-  ); // 12:30 am
-
-export const formatTimeWithSeconds = date =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'medium',
-      hour12: true,
-    },
-    '__:__:__',
-  ); // 12:30:00 am
-
 const formatShortExplicit = date =>
   intlFormatDate(date, {
     dateStyle: 'medium',
@@ -63,16 +46,6 @@ const formatShortestExplicit = date =>
   }); // "4 Mar 19"
 
 // long format date is displayed on hover
-export const formatLong = date =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      dateStyle: 'full',
-      hour12: true,
-    },
-    'Date information not available',
-  ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */
 export const formatWeekdayShort = date => intlFormatDate(date, { weekday: 'short' });
