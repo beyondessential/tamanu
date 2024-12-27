@@ -11,6 +11,7 @@ import {
   formatLong,
 } from '@tamanu/utils/dateTime';
 export {
+  intlFormatDate,
   formatShortest,
   formatShort,
   formatTime,

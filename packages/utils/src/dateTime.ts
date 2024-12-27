@@ -229,7 +229,7 @@ export const differenceInMilliseconds = (a: number | string | Date, b: number | 
 
 export const locale = globalThis.navigator?.language ?? 'default';
 
-const intlFormatDate = (
+export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
