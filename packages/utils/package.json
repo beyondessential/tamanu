@@ -11,6 +11,11 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js",
+      "types": "./dist/esm/*.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -26,11 +31,16 @@
     "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
     "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
     "remove-build-artifacts": "rimraf dist",
-    "build-watch": "npm run build:dev:watch"
+    "build-watch": "npm run build:dev:watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
     "rimraf": "^6.0.1",
-    "@types/node": "^20.9.0"
+    "@types/node": "^20.9.0",
+    "vitest": "^2.1.8"
   },
-  "dependencies": {}
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
 }
