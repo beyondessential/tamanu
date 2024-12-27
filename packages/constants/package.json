@@ -23,8 +23,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run remove-build-artifacts && npm run build:esm && npm run build:cjs",
-    "build:dev": "npm run build && npm run build:types",
+    "build": "npm run remove-build-artifacts && npm run build:esm && npm run build:cjs && npm run build:types",
     "build:dev:watch": "npm run remove-build-artifacts && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
