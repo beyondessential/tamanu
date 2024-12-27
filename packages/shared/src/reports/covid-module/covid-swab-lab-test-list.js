@@ -14,7 +14,7 @@ import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constan
 import { differenceInMilliseconds, format } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
-import { sleepAsync } from '../../utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const WILLIAM_HOROTO_IDS = [
   'f4a0e3f0-54da-4fc9-a73e-1b72c9ca92a5', // Kiribati

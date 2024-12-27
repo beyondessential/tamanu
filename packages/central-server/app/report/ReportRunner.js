@@ -9,7 +9,7 @@ import ms from 'ms';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';

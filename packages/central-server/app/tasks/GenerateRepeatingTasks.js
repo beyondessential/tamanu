@@ -2,7 +2,7 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 import {
   SYSTEM_USER_UUID,

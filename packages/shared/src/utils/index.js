@@ -11,7 +11,6 @@ export * from './patientCertificates';
 export * from './patientAccessors';
 export * from './handoverNotes';
 export * from './patientLetters';
-export * from './sleepAsync';
 export * from './tmpdir';
 export * from './uvci';
 export * from './valueIndex';

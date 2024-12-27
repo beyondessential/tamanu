@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from '@jest/globals';
 import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
 import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';

@@ -1,19 +1,19 @@
-const config = require('config');
-const Chance = require('chance');
-const { v4: uuidv4 } = require('uuid');
-const { fake } = require('@tamanu/shared/test-helpers/fake');
-const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
-const { randomRecord } = require('@tamanu/shared/demoData/utilities');
-const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
-const {
+import config from 'config';
+import Chance from 'chance';
+import { v4 as uuidv4 } from 'uuid';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { randomReferenceData } from '@tamanu/shared/demoData/patients';
+import { randomRecord } from '@tamanu/shared/demoData/utilities';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import {
   NOTE_RECORD_TYPES,
   REFERENCE_TYPES,
   IMAGING_TYPES_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
-} = require('@tamanu/constants');
-const { getCurrentDateTimeString } = require('@tamanu/utils/dateTime');
-const { selectFacilityIds } = require('@tamanu/shared/utils/configSelectors');
+} from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 // These stats were gathered by the data team from three different deployments,
 // then, we grabbed the max on each model.
@@ -371,7 +371,7 @@ function startOrAdd(key, obj) {
   }
 }
 
-async function simulateUsage(models, sequelize, hours = 1) {
+export async function simulateUsage(models, sequelize, hours = 1) {
   const [facilityId] = selectFacilityIds(config);
   const totalLoops = (hours * 60 * 60 * 1000) / INSERT_INTERVAL_MS;
   const actionsTaken = {};
@@ -412,7 +412,3 @@ async function simulateUsage(models, sequelize, hours = 1) {
   const { simulateUsage } = require('@tamanu/facility-server/scripts/simulateUsage.js');
   await simulateUsage(models, context.sequelize);
 */
-
-module.exports = {
-  simulateUsage: simulateUsage,
-};

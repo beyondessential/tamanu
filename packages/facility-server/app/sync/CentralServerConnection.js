@@ -11,7 +11,7 @@ import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { getResponseJsonSafely, selectFacilityIds } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';

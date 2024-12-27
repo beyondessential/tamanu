@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
-import { sleepAsync } from './sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {
   const today = getCurrentDateString();
