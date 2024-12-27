@@ -1,4 +1,3 @@
-export * from './arrayToDbString';
 export * from './buildVersionCompatibilityCheck';
 export * from './configSelectors';
 export * from './encodings';
