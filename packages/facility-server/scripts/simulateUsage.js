@@ -12,7 +12,7 @@ const {
   IMAGING_REQUEST_STATUS_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
 } = require('@tamanu/constants');
-const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
+const { getCurrentDateTimeString } = require('@tamanu/utils/dateTime');
 const { selectFacilityIds } = require('@tamanu/shared/utils/configSelectors');
 
 // These stats were gathered by the data team from three different deployments,

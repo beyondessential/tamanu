@@ -1,7 +1,7 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateString } from './dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
 import { sleepAsync } from './sleepAsync';
 

@@ -12,7 +12,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields'
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
-import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';

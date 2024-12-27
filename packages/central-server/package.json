@@ -48,6 +48,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@socket.io/postgres-adapter": "^0.3.1",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
     "asn1js": "^2.2.0",
     "base45-js": "^1.0.2",
     "basic-auth": "^2.0.1",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chance } from 'chance';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { InfoCard, InfoCardHeader, InfoCardItem } from '../../app/components/InfoCard';
 import { EncounterInfoPane } from '../../app/views/patients/panes/EncounterInfoPane';
 import { LabRequestSampleDetailsCard } from '../../app/views/patients/components/LabRequestSampleDetailsCard';

@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { format, toDateTimeString } from '../../../utils/dateTime';
+import { format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';

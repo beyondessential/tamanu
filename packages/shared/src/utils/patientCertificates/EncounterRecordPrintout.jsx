@@ -20,7 +20,7 @@ import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { formatShort } from '../dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 
 const borderStyle = '1 solid black';
 

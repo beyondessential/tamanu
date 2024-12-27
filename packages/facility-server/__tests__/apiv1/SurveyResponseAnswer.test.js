@@ -6,7 +6,7 @@ import {
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { SETTINGS_SCOPES } from '@tamanu/constants';

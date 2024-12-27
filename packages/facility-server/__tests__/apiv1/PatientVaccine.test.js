@@ -19,7 +19,7 @@ import {
 } from '@tamanu/shared/demoData/vaccines';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { subDays } from 'date-fns';
 

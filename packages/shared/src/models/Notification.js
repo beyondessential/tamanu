@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, NOTIFICATION_TYPES, NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
 import config from 'config';
 
@@ -93,7 +93,8 @@ export class Notification extends Model {
           patientId = encounter.patientId;
           break;
         }
-        default: return;
+        default:
+          return;
       }
 
       await this.create({
@@ -101,7 +102,7 @@ export class Notification extends Model {
         metadata: { ...metadata, patientId },
         userId,
         createdTime: getCurrentDateTimeString(),
-      })
+      });
     } catch (error) {
       log.error('Error pushing notification', error);
     }

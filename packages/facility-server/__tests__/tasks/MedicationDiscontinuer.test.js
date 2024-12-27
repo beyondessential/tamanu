@@ -4,7 +4,7 @@ import {
   createDummyPatient,
 } from '@tamanu/shared/demoData/patients';
 import { addDays, subDays } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { MedicationDiscontinuer } from '../../dist/tasks/MedicationDiscontinuer';
 

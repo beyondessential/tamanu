@@ -37,7 +37,6 @@ export const isISOString = (dateString: string) =>
  * also be a ISO8061 date string or a date object so we need to gracefully handle all of them.
  * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso
  * from date-fns
- * @returns {null|Date} Outputs a Date object
  */
 export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
@@ -78,9 +77,9 @@ export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 };
 
-export const getDateSubtractedFromToday = (daysToSubtract: number) => {
-  return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
-};
+// export const getDateSubtractedFromToday = (daysToSubtract: number) => {
+//   return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
+// };
 
 export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
@@ -121,7 +120,7 @@ export const compareDateStrings = (key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc'
   };
 };
 
-type AgeRange = {
+export type AgeRange = {
   ageMin: number;
   ageMax: number;
   ageUnit: DurationUnit;
@@ -239,43 +238,43 @@ const intlFormatDate = (
   return parseISO(date).toLocaleString(locale, formatOptions);
 };
 
-export const formatShortest = (date: string | null | undefined) =>
-  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
+// export const formatShortest = (date: string | null | undefined) =>
+//   intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
 export const formatShort = (date: string | null | undefined) =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
-export const formatTime = (date: string | null | undefined) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      hour12: true,
-    },
-    '__:__',
-  ); // 12:30 am
+// export const formatTime = (date: string | null | undefined) =>
+//   intlFormatDate(
+//     date,
+//     {
+//       timeStyle: 'short',
+//       hour12: true,
+//     },
+//     '__:__',
+//   ); // 12:30 am
 
-export const formatTimeWithSeconds = (date: string | null | undefined) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'medium',
-      hour12: true,
-    },
-    '__:__:__',
-  ); // 12:30:00 am
+// export const formatTimeWithSeconds = (date: string | null | undefined) =>
+//   intlFormatDate(
+//     date,
+//     {
+//       timeStyle: 'medium',
+//       hour12: true,
+//     },
+//     '__:__:__',
+//   ); // 12:30:00 am
 
 // long format date is displayed on hover
-export const formatLong = (date: string | null | undefined) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      dateStyle: 'full',
-      hour12: true,
-    },
-    'Date information not available',
-  ); // "Thursday, 14 July 2022, 03:44 pm"
+// export const formatLong = (date: string | null | undefined) =>
+//   intlFormatDate(
+//     date,
+//     {
+//       timeStyle: 'short',
+//       dateStyle: 'full',
+//       hour12: true,
+//     },
+//     'Date information not available',
+//   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });

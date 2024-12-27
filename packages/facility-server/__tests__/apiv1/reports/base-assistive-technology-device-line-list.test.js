@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { format } from '@tamanu/shared/utils/dateTime';
+import { format } from '@tamanu/utils/dateTime';
 import { createDummyPatient, randomReferenceIds } from '@tamanu/shared/demoData/patients';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 

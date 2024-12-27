@@ -6,7 +6,7 @@ import {
 } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateTimeType, dateType } from './dateTimeTypes';
-import { getCurrentDateString } from '../utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);

@@ -1,6 +1,6 @@
 import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { selectFacilityIds } from '../utils/configSelectors';
 

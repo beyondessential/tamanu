@@ -7,7 +7,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '../utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 

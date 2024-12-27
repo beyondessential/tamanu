@@ -13,7 +13,7 @@ import { FhirResource } from '../Resource';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
 import { Deleted, Invalid } from '../../../utils/fhir';
-import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
@@ -98,14 +98,19 @@ export class FhirImagingStudy extends FhirResource {
       });
     }
 
-    if (![
-      FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
-      FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
-      FHIR_IMAGING_STUDY_STATUS.CANCELLED
-    ].includes(this.status)) {
-      throw new Invalid(`ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
+    if (
+      ![
+        FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
+        FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
+        FHIR_IMAGING_STUDY_STATUS.CANCELLED,
+      ].includes(this.status)
+    ) {
+      throw new Invalid(
+        `ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
     }
 
     const imagingRequest = await ImagingRequest.findByPk(serviceRequest.upstreamId);
@@ -114,17 +119,21 @@ export class FhirImagingStudy extends FhirResource {
       throw new Deleted('ImagingRequest has been deleted');
     }
 
-    if ([
-      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-    ].includes(imagingRequest.status)) {
+    if (
+      [
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+      ].includes(imagingRequest.status)
+    ) {
       throw new Invalid('ImagingRequest has been cancelled');
     }
 
-    if ([
-      FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
-      FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
-    ].includes(this.status)) {
+    if (
+      [
+        FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
+        FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
+      ].includes(this.status)
+    ) {
       return await this.attachResults(imagingRequest);
     }
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors, FORM_TYPES } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';

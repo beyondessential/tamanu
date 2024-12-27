@@ -11,7 +11,7 @@ import {
 
 import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;

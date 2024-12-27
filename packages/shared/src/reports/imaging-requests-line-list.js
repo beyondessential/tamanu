@@ -1,6 +1,6 @@
 import { subDays } from 'date-fns';
 import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -60,10 +60,10 @@ const reportColumnTemplate = FIELDS.map(field => {
 });
 
 const query = `
-select 
+select
   p.display_id as "Patient ID",
   p.first_name as "Patient first name" ,
-  p.last_name as "Patient last name", 
+  p.last_name as "Patient last name",
   to_char(p.date_of_birth ::timestamp::date, 'DD/MM/YYYY') as "DOB",
   date_part('year', age(p.date_of_birth::date)) as "Age",
   p.sex as "Sex",

@@ -4,7 +4,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -80,7 +80,10 @@ labRequest.put(
       const newLabRequestRecord = await labRequestRecord.update(labRequestData);
 
       if (shouldPushNotification) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
+        await models.Notification.pushNotification(
+          NOTIFICATION_TYPES.LAB_REQUEST,
+          newLabRequestRecord,
+        );
       }
     });
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/utils/dateTime';
 
 import { Table } from '../Table';
 import { Colors } from '../../constants';
@@ -253,7 +253,7 @@ const TableHeader = ({ title, patient }) => {
         <ViewPastBookingsButton
           component={'span'}
           onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr='6px'
+          mr="6px"
         >
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"

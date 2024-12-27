@@ -14,7 +14,7 @@ import { runCalculations } from '../utils/calculations';
 import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 async function createPatientIssues(models, questions, patientId) {

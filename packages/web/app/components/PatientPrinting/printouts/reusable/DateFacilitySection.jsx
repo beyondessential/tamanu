@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';
@@ -43,11 +43,13 @@ export const DateFacilitySection = ({ encounter }) => {
             <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />
           }
         >
-          {encounter?.location?.facility && <TranslatedReferenceData
-            fallback={encounter.location.facility.name}
-            value={encounter.location.facility.id}
-            category="facility"
-          />}
+          {encounter?.location?.facility && (
+            <TranslatedReferenceData
+              fallback={encounter.location.facility.name}
+              value={encounter.location.facility.id}
+              category="facility"
+            />
+          )}
         </LocalisedLabel>
       </Item>
       <Item>

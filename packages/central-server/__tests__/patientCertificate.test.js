@@ -10,7 +10,7 @@ import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeCovidCertificate, makeVaccineCertificate } from '../dist/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({

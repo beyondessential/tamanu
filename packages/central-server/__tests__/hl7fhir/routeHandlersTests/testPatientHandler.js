@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';

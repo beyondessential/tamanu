@@ -14,7 +14,7 @@ import {
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';

@@ -11,7 +11,7 @@ import {
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { differenceInMilliseconds, format } from '../../utils/dateTime';
+import { differenceInMilliseconds, format } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
 import { sleepAsync } from '../../utils/sleepAsync';

@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class VitalLog extends Model {

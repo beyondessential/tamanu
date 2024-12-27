@@ -16,7 +16,7 @@ import {
   REGISTRATION_STATUSES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { toDateString, toDateTimeString } from '../utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
   FhirAddress,

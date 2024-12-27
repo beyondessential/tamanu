@@ -10,7 +10,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
