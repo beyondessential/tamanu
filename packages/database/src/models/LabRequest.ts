@@ -43,6 +43,16 @@ interface LabRequestWithTests {
   };
 }
 
+interface LabTestPanelRequestInstance extends Model {
+  id: string;
+}
+
+type ModelInstance = {
+  LabTest: ModelStatic<Model>;
+  LabTestPanelRequest: ModelStatic<LabTestPanelRequestInstance>;
+  LabRequestLog: ModelStatic<Model>;
+}
+
 export class LabRequest extends Model {
   declare id: CreationOptional<string>;
   declare status: string;
@@ -102,12 +112,12 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models;
+      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models as ModelInstance;
       const { labTest, labTestPanelId, userId, ...requestData } = data;
       let newLabRequest;
 
       if (labTestPanelId) {
-        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
+        const { id: labTestPanelRequestId } = await LabTestPanelRequest!.create({
           encounterId: data.encounterId,
           labTestPanelId,
         });
@@ -116,7 +126,7 @@ export class LabRequest extends Model {
         newLabRequest = await this.create(requestData);
       }
 
-      await LabRequestLog.create({
+      await LabRequestLog!.create({
         status: newLabRequest.status,
         labRequestId: newLabRequest.id,
         updatedById: userId,
@@ -125,7 +135,7 @@ export class LabRequest extends Model {
       // then create tests
       await Promise.all(
         labTestTypeIds.map(t =>
-          LabTest.create({
+          LabTest!.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
             date: labTest?.date,
@@ -253,13 +263,13 @@ export class LabRequest extends Model {
   }
 
   getTests() {
-    return this.sequelize.models.LabTest.findAll({
+    return this.sequelize.models.LabTest!.findAll({
       where: { labRequestId: this.id },
     });
   }
 
   getLatestAttachment() {
-    return this.sequelize.models.LabRequestAttachment.findOne({
+    return this.sequelize.models.LabRequestAttachment!.findOne({
       where: {
         labRequestId: this.id,
         replacedById: null,
