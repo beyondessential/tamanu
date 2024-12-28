@@ -127,7 +127,7 @@ export type AgeRange = {
 };
 
 const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) => {
-  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
+  const timeUnit = TIME_UNIT_OPTIONS.find((option) => option.unit === ageUnit);
   if (!timeUnit) return null;
 
   const conversionValue = timeUnit.minutes;
@@ -139,13 +139,18 @@ const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }
 };
 
 export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
-  const conversions: Partial<Record<
-  DurationUnit,
-    Partial<
-      // eslint-disable-next-line no-unused-vars
-      Record<DurationUnit, (a: Omit<AgeRange, 'ageUnit'>, b: Omit<AgeRange, 'ageUnit'>) => boolean>
+  const conversions: Partial<
+    Record<
+      DurationUnit,
+      Partial<
+        Record<
+          DurationUnit,
+          // eslint-disable-next-line no-unused-vars
+          (a: Omit<AgeRange, 'ageUnit'>, b: Omit<AgeRange, 'ageUnit'>) => boolean
+        >
+      >
     >
-  >> = {
+  > = {
     weeks: {
       months: (a, b) => {
         const weeks = a.ageMax / 60 / 24 / 7;
@@ -168,7 +173,7 @@ export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
   };
 
   // Get all values into same time unit and sort by ageMin low to high
-  const normalized = rangesArray.map(getAgeRangeInMinutes).filter(range => range !== null);
+  const normalized = rangesArray.map(getAgeRangeInMinutes).filter((range) => range !== null);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
 
   return normalized.some((rangeA, i) => {
@@ -278,6 +283,10 @@ export const formatLong = (date: string | null | undefined) =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
+/** "Thu" */
+export const formatWeekdayShort = (date: string | Date | null | undefined) =>
+  intlFormatDate(date, { weekday: 'short' });
+
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
   return isSameDay(date, startOfThisWeek);
@@ -285,7 +294,7 @@ export const isStartOfThisWeek = (date: Date | number) => {
 
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
 export const datetimeCustomValidation = z.string().refine(
-  val => {
+  (val) => {
     const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
     if (!regex.test(val)) return false;
 

@@ -6,10 +6,10 @@ import {
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_STATUSES,
 } from '@tamanu/constants';
+import { formatShortest } from '@tamanu/utils/dateTime';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
