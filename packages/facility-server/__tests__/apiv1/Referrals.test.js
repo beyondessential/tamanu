@@ -2,7 +2,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 let baseApp = null;
 let models = null;

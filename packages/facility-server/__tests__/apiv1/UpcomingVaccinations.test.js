@@ -8,7 +8,7 @@ import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/con
 import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 jest.mock('@tamanu/utils/dateTime', () => ({
   ...jest.requireActual('@tamanu/utils/dateTime'),

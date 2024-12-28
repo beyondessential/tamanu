@@ -1,6 +1,6 @@
 import config from 'config';
 import { splitIds } from './utilities';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 export const FACILITIES = splitIds(`
   Balwyn

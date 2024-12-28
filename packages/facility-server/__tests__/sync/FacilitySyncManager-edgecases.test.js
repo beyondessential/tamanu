@@ -11,7 +11,7 @@ import {
 } from '@tamanu/shared/sync/constants';
 
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 describe('FacilitySyncManager edge cases', () => {
   let ctx;

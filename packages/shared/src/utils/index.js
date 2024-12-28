@@ -1,5 +1,4 @@
 export * from './buildVersionCompatibilityCheck';
-export * from './configSelectors';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';

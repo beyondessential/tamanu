@@ -6,7 +6,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoDat
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { getDateTimeSubtractedFromNow } from '@tamanu/utils/dateTime';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
 

@@ -20,7 +20,7 @@ import {
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { subDays } from 'date-fns';
 
 describe('PatientVaccine', () => {
