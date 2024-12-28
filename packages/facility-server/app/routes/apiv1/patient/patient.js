@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
 
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';

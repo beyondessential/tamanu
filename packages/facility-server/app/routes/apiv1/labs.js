@@ -14,7 +14,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   simpleGet,

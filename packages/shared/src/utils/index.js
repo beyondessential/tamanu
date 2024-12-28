@@ -16,7 +16,6 @@ export * from './withConfig';
 export * from './dischargeOutpatientEncounters';
 export * from './getCovidClearanceCertificateFilter';
 export * from './getLabTestsFromLabRequests';
-export { renameObjectKeys, deepRenameObjectKeys } from './renameObjectKeys';
 export * from './numeralTranslation';
 export * from './enumRegistry';
 export * from './invoice';
