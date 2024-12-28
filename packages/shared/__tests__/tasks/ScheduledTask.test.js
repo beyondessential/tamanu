@@ -41,7 +41,7 @@ class TestQueuedScheduledTask extends TestScheduledTask {
 const systemTime = new Date('2020-01-01T00:00:00.000Z');
 jest.useFakeTimers().setSystemTime(systemTime);
 
-jest.mock('../../dist/cjs/utils/sleepAsync', () => {
+jest.mock('@tamanu/utils/sleepAsync', () => {
   return {
     __esModule: true,
     sleepAsync: ms => {

@@ -1,7 +1,7 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
 import config from 'config';
 import { Op } from 'sequelize';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const DEFAULT_SETTINGS = {
   'vaccinationReminder.due': JSON.stringify([7, 1, -7]),

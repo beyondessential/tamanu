@@ -9,7 +9,7 @@ import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/utils/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
 

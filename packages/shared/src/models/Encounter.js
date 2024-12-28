@@ -15,7 +15,7 @@ import { Model } from './Model';
 import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export class Encounter extends Model {
   /**
@@ -110,7 +110,7 @@ export class Encounter extends Model {
               individualHooks: true,
             });
           },
-          afterUpdate: async (encounter) => {
+          afterUpdate: async encounter => {
             if (encounter.endDate && !encounter.previous('endDate')) {
               await models.Task.onEncounterDischarged(encounter);
             }

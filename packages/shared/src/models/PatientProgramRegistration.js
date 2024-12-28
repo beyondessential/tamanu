@@ -1,7 +1,7 @@
 import { Op, Sequelize } from 'sequelize';
 import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 
 export class PatientProgramRegistration extends Model {

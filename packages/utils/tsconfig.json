@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false,
     "baseUrl": "./src",
     "declaration": true,
     "declarationMap": true,
@@ -15,8 +14,9 @@
     "strict": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "verbatimModuleSyntax": true,
-    "lib": ["ES2021"]
+    "lib": ["ES2020", "DOM"]
   },
   "extends": "../../common.tsconfig.json",
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": ["src/**/*.ts", "__test__/**/*.test.ts"],
+  "exclude": ["**/*.test.ts"]
 }

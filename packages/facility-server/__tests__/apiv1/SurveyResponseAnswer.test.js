@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();

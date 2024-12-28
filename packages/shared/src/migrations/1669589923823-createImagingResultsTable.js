@@ -2,7 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 // TODO: shouldn't import config in migrations (it makes db schema state underivable without knowing config across the whole history of the deployment)
 // See SAV-77
 import config from 'config';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 export async function up(query) {
   await query.createTable('imaging_results', {

@@ -13,7 +13,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 // These stats were gathered by the data team from three different deployments,
 // then, we grabbed the max on each model.

@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 import { InvalidParameterError } from '@tamanu/utils/errors';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
-import { renameObjectKeys } from '@tamanu/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 

@@ -15,7 +15,7 @@ import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/shared/demoData/vaccines';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../../utilities';
 

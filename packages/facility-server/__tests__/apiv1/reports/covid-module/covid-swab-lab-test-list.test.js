@@ -8,7 +8,7 @@ import {
 } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../../../utilities';
 

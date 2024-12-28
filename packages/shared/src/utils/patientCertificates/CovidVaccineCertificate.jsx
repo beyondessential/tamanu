@@ -9,7 +9,7 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
-import { compareDateStrings } from '../../../../utils/src/dateTime';
+import { compareDateStrings } from '@tamanu/utils/dateTime';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 

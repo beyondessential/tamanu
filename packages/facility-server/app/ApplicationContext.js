@@ -3,7 +3,7 @@ import { omit } from 'lodash';
 
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';

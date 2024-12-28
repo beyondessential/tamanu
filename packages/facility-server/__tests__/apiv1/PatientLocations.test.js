@@ -3,7 +3,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
 const [facilityId] = selectFacilityIds(config);

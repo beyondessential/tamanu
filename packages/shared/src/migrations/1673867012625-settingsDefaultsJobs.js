@@ -1,6 +1,6 @@
 import config from 'config';
 import { QueryTypes } from 'sequelize';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const DEFAULT_SETTINGS = {
   'fhir.worker.heartbeat': '1 minute',

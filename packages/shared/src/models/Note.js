@@ -13,7 +13,7 @@ import {
   getPatientIdColumnOfNotes,
 } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Note extends Model {

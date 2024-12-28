@@ -7,7 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '../../../../utils/src/dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,

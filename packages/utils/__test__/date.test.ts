@@ -1,21 +1,22 @@
 import { format } from 'date-fns';
-import { getDisplayAge } from '../../dist/cjs/utils/date';
+import { getDisplayAge, type AgeDisplayFormat } from '../src/date';
+import { describe, it, expect, beforeAll, afterAll, vitest } from 'vitest';
 
 describe('date', () => {
   describe('getDisplayAge', () => {
     const now = new Date('2023-07-11 22:55:36');
 
     beforeAll(() => {
-      jest.resetModules();
-      jest.useFakeTimers();
-      jest.setSystemTime(now);
+      vitest.resetModules();
+      vitest.useFakeTimers();
+      vitest.setSystemTime(now);
     });
 
     afterAll(() => {
-      jest.useRealTimers();
+      vitest.useRealTimers();
     });
 
-    const ageDisplayFormat = [
+    const ageDisplayFormat: AgeDisplayFormat[] = [
       {
         as: 'days',
         range: {

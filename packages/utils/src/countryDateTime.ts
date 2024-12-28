@@ -4,7 +4,11 @@
 import { formatISO9075, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import config from 'config';
-import { ISO8061_WITH_TIMEZONE, ISO9075_DATE_FORMAT, ISO9075_DATETIME_FORMAT } from './dateTime';
+import {
+  ISO8061_WITH_TIMEZONE,
+  ISO9075_DATE_FORMAT,
+  ISO9075_DATETIME_FORMAT,
+} from '@tamanu/utils/dateTime';
 
 declare module 'config' {
   // eslint-disable-next-line no-unused-vars

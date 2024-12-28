@@ -9,7 +9,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Location } from '../models/Location';
-import { ageInYears, format, toDateTimeString } from '../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [

@@ -13,7 +13,7 @@ import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
-import { base64UrlDecode } from '@tamanu/shared/utils/encodings';
+import { base64UrlDecode } from '@tamanu/utils/encodings';
 import { getLocalisation } from '@tamanu/central-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {

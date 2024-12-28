@@ -13,9 +13,8 @@ const dst = process.argv.slice(3).map((d, i) => [
   // normalise dst paths to always end with a /
   d.replace(/\/?$/, '/'),
 ]);
-//find all *.d.ts and *.d.ts.map files in src
-const files = glob.sync(`${src}/**/*.{d.ts,d.ts.map}`, { ignore: 'node_modules/**' });
 
+const files = await glob(`${src}/**/*.{d.ts,d.ts.map}`, { ignore: 'node_modules/**' });
 if (files.length === 0) {
   process.exit(0);
 }

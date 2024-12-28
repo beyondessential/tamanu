@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
-import { toDateTimeString } from '@tamanu/utils';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 export const getCovidClearanceCertificateFilter = async models => {
   const {

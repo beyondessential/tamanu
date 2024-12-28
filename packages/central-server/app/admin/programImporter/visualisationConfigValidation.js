@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { parseOrNull } from '@tamanu/utils/parse-or-null';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { isNumberOrFloat } from '../../utils/numbers';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
@@ -45,8 +45,8 @@ const validateNormalRange = (normalRange, graphRange) => {
 };
 
 export function validateVisualisationConfig(visualisationConfigString, validationCriteriaString) {
-  const visualisationConfig = parseOrNull(visualisationConfigString);
-  const validationCriteria = parseOrNull(validationCriteriaString);
+  const visualisationConfig = safeJsonParse(visualisationConfigString);
+  const validationCriteria = safeJsonParse(validationCriteriaString);
 
   if (visualisationConfig) {
     if (!validationCriteria) {

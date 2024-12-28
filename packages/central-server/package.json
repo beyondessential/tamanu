@@ -47,7 +47,9 @@
     "@peculiar/webcrypto": "^1.3.3",
     "@react-pdf/renderer": "^3.4.4",
     "@socket.io/postgres-adapter": "^0.3.1",
+    "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
     "asn1js": "^2.2.0",
     "base45-js": "^1.0.2",
     "basic-auth": "^2.0.1",
@@ -111,7 +113,6 @@
     "xlsx": "^0.18.5",
     "yup": "^0.32.9",
     "zod": "^3.23.8",
-    "@tamanu/utils": "*",
-    "@tamanu/database": "*"
+    "uuid": "^11.0.3"
   }
 }

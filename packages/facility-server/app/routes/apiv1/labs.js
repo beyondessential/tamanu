@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/utils/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -14,7 +14,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from '@tamanu/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   simpleGet,

@@ -14,7 +14,7 @@ import {
   removeDuplicatedReferralsPerDate,
   transformAndRemoveDuplicatedAnswersPerDate,
 } from './utils';
-import { ageInYears, format, toDateTimeString } from '../../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,

@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { toDateString } from '../utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [

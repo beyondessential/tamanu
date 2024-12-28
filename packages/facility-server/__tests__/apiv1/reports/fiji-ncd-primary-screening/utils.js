@@ -1,4 +1,4 @@
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
 
 const PROGRAM_ID = 'program-fijincdprimaryscreening';

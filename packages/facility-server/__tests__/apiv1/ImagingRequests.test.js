@@ -12,7 +12,7 @@ import {
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';

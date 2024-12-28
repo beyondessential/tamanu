@@ -26,7 +26,7 @@ import {
   Time,
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
-import { depem, pem } from '@tamanu/utils';
+import { depem, pem } from '@tamanu/utils/encodings';
 import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();

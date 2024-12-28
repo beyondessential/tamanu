@@ -1,19 +1,32 @@
-import { type CamelCasedPropertiesDeep } from 'type-fest';
-import { camelCase, isPlainObject } from 'es-toolkit';
-import { objectToCamelCase } from './objectToCamelCase';
+import { isPlainObject } from 'lodash';
 
+export const camelify = (str: string) => {
+  const [initial, ...subsequent] = str.split('_');
+  const uppercased = subsequent.filter(x => x).map(s => s[0]?.toUpperCase() + s.slice(1));
+  return [initial, ...uppercased].join('');
+};
 
-export const  renameObjectKeys = objectToCamelCase
+export const renameObjectKeys = <T extends Record<string, unknown>>(baseObject: T) => {
+  return Object.keys(baseObject).reduce(
+    (rebuilt, currentKey) => ({
+      ...rebuilt,
+      [camelify(currentKey)]: baseObject[currentKey],
+    }),
+    {} as T,
+  );
+};
 
-export function deepRenameObjectKeys<T extends Record<string, unknown>>(baseObject: T): CamelCasedPropertiesDeep<T> {
+export const deepRenameObjectKeys = <T extends Record<string, unknown>>(baseObject: T): T => {
   if (!isPlainObject(baseObject)) return baseObject;
 
   return Object.keys(baseObject).reduce(
     (rebuilt, currentKey) => ({
       ...rebuilt,
-      [camelCase(currentKey)]: isPlainObject(baseObject[currentKey]) ? deepRenameObjectKeys(baseObject[currentKey]): baseObject[currentKey],
+      [camelify(currentKey)]:
+        typeof baseObject[currentKey] === 'object' && baseObject[currentKey] !== null
+          ? deepRenameObjectKeys(baseObject[currentKey] as T)
+          : baseObject[currentKey],
     }),
-    {},
-  ) as CamelCasedPropertiesDeep<T>
-}
-
+    {} as T,
+  );
+};

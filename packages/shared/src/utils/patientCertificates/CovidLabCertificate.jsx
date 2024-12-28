@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document } from '@react-pdf/renderer';
-import { replaceInTemplate } from '../../../../utils/src/replaceInTemplate';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';
 import { CovidLetterheadSection } from './CovidLetterheadSection';

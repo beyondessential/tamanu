@@ -1,6 +1,6 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
@@ -68,4 +68,5 @@ export class PatientProgramRegistrationCondition extends Model {
 
   static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
-  }}
+  }
+}

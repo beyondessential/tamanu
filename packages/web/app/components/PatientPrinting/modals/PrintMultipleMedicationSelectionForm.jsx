@@ -21,7 +21,7 @@ import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintou
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
-import { getAgeDurationFromDate } from '../../../../../shared/src/utils/date';
+import { getAgeDurationFromDate } from '@tamanu/utils/date';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 

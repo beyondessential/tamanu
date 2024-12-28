@@ -2,7 +2,7 @@
 // so far, this is just adding the updated_at_sync_tick column and trigger to all new tables
 import config from 'config';
 import { NON_SYNCING_TABLES } from './constants';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const TABLES_WITHOUT_COLUMN_QUERY = `
   SELECT

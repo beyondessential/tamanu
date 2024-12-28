@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientFamilyHistory extends Model {

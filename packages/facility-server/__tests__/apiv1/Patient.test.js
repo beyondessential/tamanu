@@ -14,7 +14,7 @@ import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { selectFacilityIds } from '@tamanu/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {

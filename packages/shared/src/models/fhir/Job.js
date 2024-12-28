@@ -5,7 +5,7 @@ import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { JOB_PRIORITIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { log } from '../../services/logging';
-import { sleepAsync } from '../../utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export class FhirJob extends Model {
   static init({ primaryKey, ...options }) {

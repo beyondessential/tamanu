@@ -6,7 +6,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Vitals extends Model {

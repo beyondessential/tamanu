@@ -2,7 +2,7 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '../../../../../utils/src/dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 
 export const SurveyResponseDetails = ({ surveyResponse }) => {
   return (

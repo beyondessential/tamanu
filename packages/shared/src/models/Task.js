@@ -12,7 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 import config from 'config';
 import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {

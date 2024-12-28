@@ -1,8 +1,9 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateString, sleepAsync } from '@tamanu/utils';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {
   const today = getCurrentDateString();

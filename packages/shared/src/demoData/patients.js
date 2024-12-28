@@ -2,9 +2,9 @@ import Chance from 'chance';
 import { addHours, subMinutes } from 'date-fns';
 
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { generateId } from '../utils/generateId';
+import { generateId } from '@tamanu/utils/generateId';
 import { randomDate, randomRecordId, TIME_INTERVALS } from './utilities';
-import { getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 const { HOUR } = TIME_INTERVALS;
 

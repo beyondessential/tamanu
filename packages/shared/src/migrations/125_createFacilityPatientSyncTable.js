@@ -1,6 +1,6 @@
 import config from 'config';
 import Sequelize from 'sequelize';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 module.exports = {
   up: async query => {

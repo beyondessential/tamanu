@@ -17,6 +17,7 @@ import {
   startOfDay,
   startOfWeek,
   sub,
+  type DurationUnit,
   type Interval,
 } from 'date-fns';
 import { z } from 'zod';
@@ -39,69 +40,74 @@ const parseDateStringToDate = (dateString: string) =>
  * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso
  * from date-fns
  */
-export const parseDate = (date?: null | string | Date) => {
+export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
-  const dateObj = typeof date === 'string' ? parseDateStringToDate(date) : date;
+  const dateObj =
+    typeof date === 'string'
+      ? isISOString(date)
+        ? parseISO(date)
+        : new Date(date.replace(' ', 'T'))
+      : date;
 
   if (!isValid(dateObj)) throw new Error('Not a valid date');
 
   return dateObj;
 };
 
-export function toDateTimeString(date?: null | string | Date) {
+export const toDateTimeString = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
   const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'complete' });
-}
+};
 
-export function toDateString(date?: null | string | Date) {
+export const toDateString = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
   const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'date' });
-}
+};
 
-export function getCurrentDateTimeString() {
-  return formatISO9075(new Date());
-}
+export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
-export function getDateTimeSubtractedFromNow(daysToSubtract?: number) {
+export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
-}
+};
 
-export function getDateSubtractedFromToday(daysToSubtract?: number) {
-  return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
-}
+// export const getDateSubtractedFromToday = (daysToSubtract: number) => {
+//   return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
+// };
 
-export function getCurrentDateString() {
-  return formatISO9075(new Date(), { representation: 'date' });
-}
+export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
-// Don't use this function when using a datestring or datetimestring column
-export function getCurrentISO8601DateString() {
-  return new Date().toISOString();
-}
+/**
+ *  Don't use this function when using a datestring or datetimestring column
+ */
+export const getCurrentISO8601DateString = () => new Date().toISOString();
 
-export function convertISO9075toRFC3339(dateString?: null | string) {
+export const convertISO9075toRFC3339 = (dateString: string | null | undefined) => {
   const parsedDate = dateString == null ? new Date() : parseISO(dateString);
   return dateFnsFormat(parsedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-}
+};
 
-export function ageInWeeks(dob: string) {
+export const ageInWeeks = (dob: string) => {
   return differenceInWeeks(new Date(), parseISO(dob));
-}
+};
 
-export function ageInMonths(dob: string) {
+export const ageInMonths = (dob: string) => {
   return differenceInMonths(new Date(), parseISO(dob));
-}
+};
 
-export function ageInYears(dob: string) {
+export const ageInYears = (dob: string) => {
   return differenceInYears(new Date(), parseISO(dob));
-}
+};
 
-export function compareDateStrings(key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc') {
+export const compareDateStrings = (key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc') => {
   return (a: { date: string }, b: { date: string }) => {
     switch (key) {
       case 'asc':
@@ -114,17 +120,17 @@ export function compareDateStrings(key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc'
         return 0;
     }
   };
-}
-
-type AgeRange = {
-  ageMin: number;
-  ageMax: number;
-  ageUnit: string;
 };
 
-function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) {
+export type AgeRange = {
+  ageMin: number;
+  ageMax: number;
+  ageUnit: DurationUnit;
+};
+
+const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) => {
   const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
-  if (!timeUnit) throw new Error(`Unknown time unit: ${ageUnit}`);
+  if (!timeUnit) return null;
 
   const conversionValue = timeUnit.minutes;
   return {
@@ -132,14 +138,16 @@ function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }
     ageMax: ageMax * conversionValue,
     previousAgeUnit: ageUnit,
   };
-}
+};
 
-export function doAgeRangesHaveGaps(rangesArray: AgeRange[]) {
-  const conversions: Record<
-    string,
-    // eslint-disable-next-line no-unused-vars
-    Record<string, (a: Omit<AgeRange, 'ageUnit'>, b: Omit<AgeRange, 'ageUnit'>) => boolean>
-  > = {
+export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
+  const conversions: Partial<Record<
+  DurationUnit,
+    Partial<
+      // eslint-disable-next-line no-unused-vars
+      Record<DurationUnit, (a: Omit<AgeRange, 'ageUnit'>, b: Omit<AgeRange, 'ageUnit'>) => boolean>
+    >
+  >> = {
     weeks: {
       months: (a, b) => {
         const weeks = a.ageMax / 60 / 24 / 7;
@@ -162,7 +170,7 @@ export function doAgeRangesHaveGaps(rangesArray: AgeRange[]) {
   };
 
   // Get all values into same time unit and sort by ageMin low to high
-  const normalized = rangesArray.map(getAgeRangeInMinutes);
+  const normalized = rangesArray.map(getAgeRangeInMinutes).filter(range => range !== null);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
 
   return normalized.some((rangeA, i) => {
@@ -173,16 +181,14 @@ export function doAgeRangesHaveGaps(rangesArray: AgeRange[]) {
     if (rangeA.previousAgeUnit !== rangeB.previousAgeUnit) {
       // No conversion means that minute comparison is good
       const conversion = conversions[rangeA.previousAgeUnit]?.[rangeB.previousAgeUnit];
-      if (conversion) {
-        return conversion(rangeA, rangeB);
-      }
+      if (conversion) return conversion(rangeA, rangeB);
     }
     // These have to forcefully match, otherwise a gap exists
     return rangeA.ageMax !== rangeB.ageMin;
   });
-}
+};
 
-export function doAgeRangesOverlap(rangesArray: AgeRange[]) {
+export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
   return rangesArray.some((rangeA, aIndex) => {
     return rangesArray.some((rangeB, bIndex) => {
       // Only compare once between two ranges
@@ -191,6 +197,8 @@ export function doAgeRangesOverlap(rangesArray: AgeRange[]) {
       // Get both values into same time unit
       const aInMinutes = getAgeRangeInMinutes(rangeA);
       const bInMinutes = getAgeRangeInMinutes(rangeB);
+
+      if (!aInMinutes || !bInMinutes) return false;
 
       // Figure out the lowest min range
       const lowestMin = aInMinutes.ageMin < bInMinutes.ageMin ? aInMinutes : bInMinutes;
@@ -202,7 +210,7 @@ export function doAgeRangesOverlap(rangesArray: AgeRange[]) {
       return highestAgeMin < lowestAgeMax;
     });
   });
-}
+};
 
 /*
  * date-fns wrappers
@@ -210,42 +218,37 @@ export function doAgeRangesOverlap(rangesArray: AgeRange[]) {
  * For date-fns docs @see https://date-fns.org
  */
 
-export const format = (date: null | undefined | string | Date, format: string) => {
+export const format = (date: string | Date | null | undefined, format: string) => {
   if (date == null) return null;
-
   const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return dateFnsFormat(dateObj, format);
 };
 
-export const differenceInMilliseconds = (a: Date | number, b: Date | number) =>
+export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
 
-const intlFormatDate = (
-  date: string,
+export const locale = globalThis.navigator?.language ?? 'default';
+
+export const intlFormatDate = (
+  date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
 ) => {
   if (!date) return fallback;
-  const globalVars: Record<string, unknown> = globalThis;
-  const locale =
-    typeof globalVars.navigator === 'object' &&
-    globalVars.navigator !== null &&
-    'language' in globalVars.navigator &&
-    typeof globalVars.navigator.language === 'string'
-      ? globalVars.navigator.language
-      : 'default';
-  return parseISO(date).toLocaleString(locale, formatOptions);
+  const dateObj = parseDate(date);
+  if (!dateObj) return fallback;
+  return dateObj.toLocaleString(locale, formatOptions);
 };
 
-export const formatShortest = (date: string) =>
+export const formatShortest = (date: string | null | undefined) =>
   intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
-export const formatShort = (date: string) =>
+export const formatShort = (date: string | null | undefined) =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
-export const formatTime = (date: string) =>
+export const formatTime = (date: string | null | undefined) =>
   intlFormatDate(
     date,
     {
@@ -255,7 +258,7 @@ export const formatTime = (date: string) =>
     '__:__',
   ); // 12:30 am
 
-export const formatTimeWithSeconds = (date: string) =>
+export const formatTimeWithSeconds = (date: string | null | undefined) =>
   intlFormatDate(
     date,
     {
@@ -266,7 +269,7 @@ export const formatTimeWithSeconds = (date: string) =>
   ); // 12:30:00 am
 
 // long format date is displayed on hover
-export const formatLong = (date: string) =>
+export const formatLong = (date: string | null | undefined) =>
   intlFormatDate(
     date,
     {
@@ -277,7 +280,7 @@ export const formatLong = (date: string) =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
-export const isStartOfThisWeek = (date: number | Date) => {
+export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
   return isSameDay(date, startOfThisWeek);
 };
@@ -296,7 +299,7 @@ export const datetimeCustomValidation = z.string().refine(
   },
 );
 
-export const endpointsOfDay = (date: Date| number) => [startOfDay(date), endOfDay(date)];
+export const endpointsOfDay = (date: Date | number) => [startOfDay(date), endOfDay(date)];
 
 /** Returns `true` if and only if `interval1` is a subset of `interval2`. It need not be a strict subset. */
 export const isIntervalWithinInterval = (interval1: Interval, interval2: Interval) => {
@@ -305,18 +308,15 @@ export const isIntervalWithinInterval = (interval1: Interval, interval2: Interva
 };
 
 /** Returns `true` if and only if `date` is an element of [`interval.start`, `interval.end`). */
-export const isWithinIntervalExcludingEnd = (date: Date| number, interval: Interval) =>
+export const isWithinIntervalExcludingEnd = (date: Date | number, interval: Interval) =>
   isBefore(date, interval.end) && isWithinInterval(date, interval);
 
-
-const isValidDate = (date: unknown): date is Date | number => isValid(date);
-
-export const maxValidDate = (dates: unknown[]) => {
-  const validDates = dates.filter(isValidDate);
+export const maxValidDate = (dates: (Date | number)[]) => {
+  const validDates = dates.filter(isValid);
   return validDates.length === 0 ? null : max(validDates);
 };
 
-export const minValidDate = (dates: unknown[]) => {
-  const validDates = dates.filter(isValidDate);
+export const minValidDate = (dates: (Date | number)[]) => {
+  const validDates = dates.filter(isValid);
   return validDates.length === 0 ? null : min(validDates);
 };

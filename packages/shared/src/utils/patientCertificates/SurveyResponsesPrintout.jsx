@@ -13,7 +13,7 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { formatShort } from '../../../../utils/src/dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 
 const pageStyles = StyleSheet.create({
   body: {
