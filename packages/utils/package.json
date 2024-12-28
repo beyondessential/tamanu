@@ -31,7 +31,7 @@
     "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
     "remove-build-artifacts": "rimraf dist",
     "build-watch": "npm run build:dev:watch",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
