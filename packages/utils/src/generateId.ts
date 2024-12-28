@@ -34,8 +34,8 @@ export const isGeneratedDisplayId = (displayId: string) => {
  * everything that was created by the tests with just a simple query. See the
  * accompanying FAKE_UUID_PATTERN constant for the SQL LIKE pattern to use.
  */
-export function fakeUUID() {
+export const fakeUUID = () => {
   return v4().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
-}
+};
 
 export const FAKE_UUID_PATTERN = '________-____-0000-____-____________';
