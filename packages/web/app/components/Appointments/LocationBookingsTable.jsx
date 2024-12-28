@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString, toDateString } from '@tamanu/utils/dateTime';
+import {
+  getCurrentDateTimeString,
+  toDateString,
+  formatShortest,
+  formatTime,
+} from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
-import { formatShortest, formatTime } from '../DateDisplay';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
@@ -173,9 +177,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;
@@ -229,7 +233,7 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
   </TableTitleContainer>
 );
 
-const getFormattedTime = time => {
+const getFormattedTime = (time) => {
   return formatTime(time).replace(' ', '');
 };
 

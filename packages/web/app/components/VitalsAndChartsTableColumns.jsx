@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
   DateHeadCell,
@@ -9,7 +10,7 @@ import {
   RangeTooltipCell,
   RangeValidatedCell,
 } from './FormattedTableCell';
-import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { DateDisplay } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { getNormalRangeByAge } from '../utils';

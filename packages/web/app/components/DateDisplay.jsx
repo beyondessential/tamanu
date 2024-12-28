@@ -10,14 +10,6 @@ import {
   locale,
   formatLong,
 } from '@tamanu/utils/dateTime';
-export {
-  intlFormatDate,
-  formatShortest,
-  formatShort,
-  formatTime,
-  formatTimeWithSeconds,
-  formatLong,
-} from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
@@ -45,11 +37,6 @@ const formatShortestExplicit = date =>
     month: 'short',
     day: 'numeric',
   }); // "4 Mar 19"
-
-// long format date is displayed on hover
-
-/** "Thu" */
-export const formatWeekdayShort = date => intlFormatDate(date, { weekday: 'short' });
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
