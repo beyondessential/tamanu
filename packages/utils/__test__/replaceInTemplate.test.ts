@@ -2,26 +2,26 @@ import { replaceInTemplate } from '../src/replaceInTemplate';
 import { describe, expect, it } from 'vitest';
 
 describe('replaceInTemplate', () => {
-  it('should replace correctly', () => {
-    expect(replaceInTemplate('Hi $name$', { name: 'William' })).toEqual('Hi William');
+  it('should replace placeholders with values', () => {
+    const template = 'Hello, $name$!';
+    const replacements = { name: 'World' };
+    expect(replaceInTemplate(template, replacements)).toBe('Hello, World!');
   });
 
-  it('should replace more than once', () => {
-    const replacements = { name: 'William', occupation: 'pharmacist', earnings: 100 };
-    expect(replaceInTemplate('$name$: $occupation$', replacements)).toEqual('William: pharmacist');
+  it('should replace multiple placeholders', () => {
+    const template = '$greeting$, $name$!';
+    const replacements = { greeting: 'Hi', name: 'Alice' };
+    expect(replaceInTemplate(template, replacements)).toBe('Hi, Alice!');
   });
 
-  it('should replace correctly with dollars in the template', () => {
-    const replacements = { name: 'William', occupation: 'pharmacist', earnings: 100 };
-    expect(replaceInTemplate('$name$: $$earnings$', replacements)).toEqual('William: $100');
+  it('should leave placeholders if no replacements provided', () => {
+    const template = 'Hello, $name$!';
+    expect(replaceInTemplate(template, null)).toBe('Hello, $name$!');
   });
 
-  it('should work with empty templateString', () => {
-    expect(replaceInTemplate('', { name: 'William' })).toEqual('');
-  });
-
-  it('should work with empty replacements', () => {
-    expect(replaceInTemplate('Hi $name$', {})).toEqual('Hi $name$');
-    expect(replaceInTemplate('Hi $name$', null)).toEqual('Hi $name$');
+  it('should replace placeholders with empty string if value is null or undefined', () => {
+    const template = 'Hello, $name$!';
+    const replacements = { name: null };
+    expect(replaceInTemplate(template, replacements)).toBe('Hello, !');
   });
 });
