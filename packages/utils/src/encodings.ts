@@ -1,24 +1,14 @@
-/**
- * Encode DER data as a PEM document.
- * @param {Buffer} data DER data
- * @param {string} banner Uppercase string for the BEGIN/END banners
- * @returns {string} PEM document
- */
-export function pem(data, banner) {
+export const pem = (data: Buffer, banner: string) => {
   return `-----BEGIN ${banner}-----\n${data
     .toString('base64')
     .match(/.{1,64}/g)
-    .join('\n')}\n-----END ${banner}-----`;
-}
+    ?.join('\n')}\n-----END ${banner}-----`;
+};
 
 /**
  * Decode a PEM document to a Buffer of DER data.
- * @param {string} pemString PEM document
- * @param {string} expectedBanner Uppercase string of the BEGIN/END banners
- * @returns {Buffer} DER data
- * @throws {Error} if the banners are not present or not correct
  */
-export function depem(pemString, expectedBanner) {
+export const depem = (pemString: string, expectedBanner: string) => {
   const text = pemString.trim();
 
   const beginRx = /^-{5}\s*BEGIN ?([^-]+)?-{5}\r?\n/;
@@ -35,40 +25,34 @@ export function depem(pemString, expectedBanner) {
   }
 
   return Buffer.from(text.replace(/^--.+/gm, ''), 'base64');
-}
+};
 
 /**
  * Encode the input to Base64, the URL variant.
- * @param {string|Buffer|ArrayBuffer} input
- * @returns {string}
  */
-export function base64UrlEncode(input) {
-  return Buffer.from(input).toString('base64url');
-}
+export const base64UrlEncode = (input: string | Buffer | ArrayBuffer) => {
+  return Buffer.from(input instanceof ArrayBuffer ? Buffer.from(input) : input).toString(
+    'base64url',
+  );
+};
 
 /**
  * Decode the input string from Base64, the URL variant.
- * @param {string} input
- * @returns {Buffer}
  */
-export function base64UrlDecode(input) {
+export const base64UrlDecode = (input: string) => {
   return Buffer.from(input, 'base64url');
-}
+};
 
 /**
  * Encodes Base64 string string to JSON.
- * @param {string} base64str
- * @returns {*} JSON
  */
-export function jsonFromBase64(base64str) {
-  return JSON.parse(Buffer.from(base64str, 'base64').toString('binary'));
-}
+export const base64ToJson = <T = unknown>(base64str: string) => {
+  return JSON.parse(Buffer.from(base64str, 'base64').toString('binary')) as T;
+};
 
 /**
  * Creates a JSON object with the input and converts it to a Base64 string.
- * @param {object} obj
- * @returns {string} Base64 string
  */
-export function jsonToBase64(obj) {
+export const jsonToBase64 = (obj: Record<string, unknown>) => {
   return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
-}
+};

@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
-import { jsonFromBase64, jsonToBase64 } from '@tamanu/shared/utils/encodings';
+import { jsonFromBase64, jsonToBase64 } from '@tamanu/utils/encodings';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { toDateString } from '@tamanu/utils/dateTime';
 import {
