@@ -1,7 +1,7 @@
 import { add, startOfDay, subDays } from 'date-fns';
 
 import { fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';

@@ -17,7 +17,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { fakeUUID } from '../utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   FhirAddress,
   FhirAnnotation,

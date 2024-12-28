@@ -2,7 +2,7 @@ import { formatRFC7231 } from 'date-fns';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';

@@ -1,6 +1,6 @@
 import config from 'config';
 import { closeAllDatabases, openDatabase } from '../../dist/cjs/services/database';
-import { fakeUUID } from '../../dist/cjs/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';

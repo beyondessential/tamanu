@@ -1,22 +1,22 @@
-import crypto from 'crypto';
+import { v4 } from 'uuid';
 
-const generators = {
+const generators: Record<string, () => string> = {
   A: () => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
   '0': () => Math.floor(Math.random() * 10).toFixed(0),
 };
 
-function createIdGenerator(format) {
+const createIdGenerator = (format: string) => {
   const generatorPattern = Array.from(format).map(char => generators[char] || (() => ''));
 
   return () => generatorPattern.map(generator => generator()).join('');
-}
+};
 const DISPLAY_ID_FORMAT = 'AAAA000000';
 export const generateId = createIdGenerator(DISPLAY_ID_FORMAT);
 
 // Checks if the passed displayId was generated using generateId function above
 // with the specific 10 digit format DISPLAY_ID_FORMAT. It will need to be reevaluated
 // if the format ever changes.
-export const isGeneratedDisplayId = displayId => {
+export const isGeneratedDisplayId = (displayId: string) => {
   if (DISPLAY_ID_FORMAT !== 'AAAA000000') return false;
   return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
@@ -35,7 +35,7 @@ export const isGeneratedDisplayId = displayId => {
  * accompanying FAKE_UUID_PATTERN constant for the SQL LIKE pattern to use.
  */
 export function fakeUUID() {
-  return crypto.randomUUID().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
+  return v4().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
 }
 
 export const FAKE_UUID_PATTERN = '________-____-0000-____-____________';

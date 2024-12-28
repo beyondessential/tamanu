@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
 import { VACCINE_CATEGORIES_VALUES } from '@tamanu/constants';
-import { generateId } from '../utils/generateId';
+import { generateId } from '@tamanu/utils/generateId';
 
 const chance = new Chance();
 

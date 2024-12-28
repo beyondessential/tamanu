@@ -8,7 +8,7 @@ import {
 } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 
 import { createTestContext } from '../utilities';

@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FhirWorker } from '@tamanu/shared/tasks';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';

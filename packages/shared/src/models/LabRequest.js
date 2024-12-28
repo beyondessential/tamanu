@@ -8,7 +8,7 @@ import {
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { generateDisplayId } from '../utils/generateDisplayId';
+import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabRequest extends Model {
