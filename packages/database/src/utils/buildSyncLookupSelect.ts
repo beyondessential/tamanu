@@ -1,8 +1,15 @@
+import type { Model } from 'models';
 import { snake } from 'case';
+import { COLUMNS_EXCLUDED_FROM_SYNC } from '../../../shared/src/sync/constants';
 
-import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
+interface Columns {
+  patientId?: string;
+  facilityId?: string;
+  encounterId?: string;
+  isLabRequestValue?: boolean;
+}
 
-export function buildSyncLookupSelect(model, columns = {}) {
+export function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
   const attributes = model.getAttributes();
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
   const { patientId, facilityId, encounterId, isLabRequestValue } = columns;

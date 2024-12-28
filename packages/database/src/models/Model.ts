@@ -4,32 +4,24 @@ import {
   DataTypes,
   Model as BaseModel,
   QueryTypes,
-  type InitOptions as BaseInitOptions,
   type ModelAttributes,
 } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
+import type { InitOptions, SyncDirectionValues } from './types';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
-
-type SyncDirectionValues = typeof SYNC_DIRECTIONS[keyof typeof SYNC_DIRECTIONS];
-
-interface InitOptions extends BaseInitOptions {
-  syncDirection: SyncDirectionValues;
-  primaryKey: any;
-}
 
 export class Model extends BaseModel {
   static syncDirection: SyncDirectionValues;
   static defaultIdValue?: string | number;
   static usesPublicSchema: boolean;
-  static buildSyncFilter: () => null;
-  static buildPatientSyncFilter: () => null;
+  static tableName: string;
+  static buildSyncFilter: () => string | null;
+  // eslint-disable-next-line no-unused-vars
+  static buildPatientSyncFilter: (_patientCount: number, _markedForSyncPatientsTable: string) => string | null;
 
-  static init(
-    modelAttributes: ModelAttributes,
-    { syncDirection, timestamps = true, schema, ...options }: InitOptions,
-  ) {
+  static initModel(modelAttributes: ModelAttributes, { syncDirection, timestamps = true, schema, ...options }: InitOptions) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
     // to erase it even if they don't use it, we delete it here
@@ -66,8 +58,6 @@ export class Model extends BaseModel {
     this.syncDirection = syncDirection;
     this.validateSync(timestamps);
     this.usesPublicSchema = usesPublicSchema;
-
-    return this as any;
   }
 
   static generateId() {
@@ -155,8 +145,10 @@ export class Model extends BaseModel {
     return this.constructor.name;
   }
 
-  // eslint-disable-next-line no-unused-vars
-  static getListReferenceAssociations(_models?: BaseModel['sequelize']['models']): undefined | any[] {
+  static getListReferenceAssociations(
+    // eslint-disable-next-line no-unused-vars
+    _models?: BaseModel['sequelize']['models'],
+  ): undefined | any[] {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //

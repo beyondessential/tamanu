@@ -1,7 +1,7 @@
 import { snakeCase } from 'lodash';
 
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { getDependentAssociations } from '@tamanu/utils';
+import { getDependentAssociations } from '@tamanu/database';
 
 /**
  * Update child records by setting updated_at_sync_tick = 1

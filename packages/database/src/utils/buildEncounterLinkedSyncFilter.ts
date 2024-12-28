@@ -1,6 +1,6 @@
 import { Utils } from 'sequelize';
 
-export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse) {
+export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: string[]) {
   return tablesToTraverse
     .slice(1)
     .map(
@@ -12,8 +12,8 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse) {
 }
 
 export function buildEncounterLinkedSyncFilter(
-  tablesToTraverse, // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
-  markedForSyncPatientsTable,
+  tablesToTraverse: string[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
+  markedForSyncPatientsTable: string,
 ) {
   const joins = buildEncounterLinkedSyncFilterJoins(tablesToTraverse);
   return `
