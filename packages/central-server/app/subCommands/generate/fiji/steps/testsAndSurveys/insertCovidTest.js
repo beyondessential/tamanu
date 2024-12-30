@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers';
-import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance } from '../../../chance';
 
 export const insertCovidTest = async ({ LabTest, LabRequest }, setupData, { encounterId }) => {
@@ -15,6 +15,5 @@ export const insertCovidTest = async ({ LabTest, LabRequest }, setupData, { enco
     ...fake(LabTest),
     labRequestId: labRequest.id,
     date: chance.date({ year: chance.integer({ min: 1970, max: 2021 }) }),
-    status: LAB_TEST_STATUSES.RECEPTION_PENDING, // LabTest.status isn't set in prod
   });
 };

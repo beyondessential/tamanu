@@ -2,23 +2,6 @@
 A single test as part of a [lab request](#!/source/source.tamanu.tamanu.lab_requests).
 {% enddocs %}
 
-{% docs lab_tests__status %}
-The status of the test.
-
-One of:
-- `reception_pending`
-- `results_pending`
-- `interim_results`
-- `to_be_verified`
-- `verified`
-- `published`
-- `cancelled`
-- `invalidated`
-- `deleted`
-- `sample-not-collected`
-- `entered-in-error`
-{% enddocs %}
-
 {% docs lab_tests__result %}
 The result of the test.
 {% enddocs %}
