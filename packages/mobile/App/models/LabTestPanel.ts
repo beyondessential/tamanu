@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { LabTestType } from './LabTestType';
 
-@Entity('lab_test_panel')
+@Entity('lab_test_panels')
 export class LabTestPanel extends BaseModel implements ILabTestPanel {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
