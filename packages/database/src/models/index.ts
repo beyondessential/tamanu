@@ -7,3 +7,5 @@ export * from './User';
 export * from './LocationGroup';
 export * from './Patient';
 export * from './SyncSession';
+export * from './LabRequest';
+export * from './LabTestPanelRequest';

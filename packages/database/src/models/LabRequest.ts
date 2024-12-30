@@ -1,18 +1,43 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '../errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
-import { dateTimeType } from './dateTimeTypes';
+} from '../sync/buildEncounterLinkedSyncFilter';
+import { dateTimeType } from '../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
+import type { SessionConfig } from 'types/sync';
+
+interface LabRequestData {
+  labTestTypeIds?: string[];
+  labTest?: {
+    date: Date;
+  };
+  labTestPanelId?: string;
+  userId: string;
+  encounterId: string;
+  [key: string]: any;
+}
 
 export class LabRequest extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  status!: string;
+  sampleTime?: string;
+  requestedDate!: string;
+  specimenAttached!: boolean;
+  urgent!: boolean;
+  reasonForCancellation!: string;
+  senaiteId?: string;
+  sampleId?: string;
+  displayId!: string;
+  publishedDate?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -24,30 +49,30 @@ export class LabRequest extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
         specimenAttached: {
-          type: Sequelize.BOOLEAN,
+          type: DataTypes.BOOLEAN,
           defaultValue: false,
         },
         urgent: {
-          type: Sequelize.BOOLEAN,
+          type: DataTypes.BOOLEAN,
           defaultValue: false,
         },
         status: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
         reasonForCancellation: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
         },
         senaiteId: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
         sampleId: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
         displayId: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
           defaultValue() {
             return generateDisplayId();
@@ -57,17 +82,17 @@ export class LabRequest extends Model {
           allowNull: true,
         }),
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  static createWithTests(data) {
-    return this.sequelize.transaction(async () => {
+  static createWithTests(data: LabRequestData) {
+    return this.sequelize!.transaction(async () => {
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize.models;
+      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models;
       const { labTest, labTestPanelId, userId, ...requestData } = data;
       let newLabRequest;
 
@@ -102,7 +127,7 @@ export class LabRequest extends Model {
     });
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
@@ -193,7 +218,7 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }

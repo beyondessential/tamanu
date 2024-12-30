@@ -1,17 +1,22 @@
+import { type CreationOptional } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { SessionConfig } from '../types/sync';
+import type { InitOptions, Models } from '../types/model';
+
+const getAttributes = (primaryKey: any) => ({
+  id: primaryKey,
+});
 
 export class LabTestPanelRequest extends Model {
-  static init({ primaryKey, ...options }) {
-    super.init(
-      {
-        id: primaryKey,
-      },
+  id!: CreationOptional<string>;
+  static initModel({ primaryKey, ...options }: InitOptions) {
+    super.init(getAttributes(primaryKey),
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -19,7 +24,7 @@ export class LabTestPanelRequest extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -30,7 +35,7 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab panel requests
     }

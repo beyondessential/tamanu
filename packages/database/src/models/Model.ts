@@ -11,6 +11,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
+import type { SessionConfig } from '../types/sync';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -28,6 +29,7 @@ export class Model<
   static buildPatientSyncFilter: (
     _patientCount: number,
     _markedForSyncPatientsTable: string,
+    _sessionConfig: SessionConfig
   ) => string | null;
   static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
 

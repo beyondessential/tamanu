@@ -6,7 +6,7 @@ interface Columns {
   patientId?: string;
   facilityId?: string;
   encounterId?: string;
-  isLabRequestValue?: boolean;
+  isLabRequestValue?: string;
 }
 
 export function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
