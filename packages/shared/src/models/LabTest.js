@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
@@ -9,20 +9,12 @@ import { dateTimeType, dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
-const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
-
 export class LabTest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
         date: dateType('date', { allowNull: false, defaultValue: getCurrentDateString }),
-        status: {
-          type: Sequelize.STRING(31),
-          allowNull: false,
-          defaultValue: LAB_TEST_STATUSES.RECEPTION_PENDING,
-          isIn: [LAB_TEST_STATUS_VALUES], // double array is intentional
-        },
         result: {
           type: Sequelize.STRING,
           allowNull: false,
