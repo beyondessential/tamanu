@@ -6,11 +6,29 @@ import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
+import { LocationBookingsTable } from '../../../components/Appointments/LocationBookingsTable';
+import { useAuth } from '../../../contexts/Auth';
+import { useSettings } from '../../../contexts/Settings';
+import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
+  const { ability } = useAuth();
+  const { getSetting } = useSettings();
+
+  const showLocationBookingsSetting = getSetting('layouts.patientView.showLocationBookings');
+  const showOutpatientAppointmentsSetting = getSetting(
+    'layouts.patientView.showOutpatientAppointments',
+  );
+  const canListAppointment = ability.can('list', 'Appointment');
+  const canReadAppointment = ability.can('read', 'Appointment');
+
+  const showLocationBookings =
+    showLocationBookingsSetting && canListAppointment && canReadAppointment;
+  const showOutpatientAppointments =
+    showOutpatientAppointmentsSetting && canListAppointment && canReadAppointment;
 
   const onViewEncounter = useCallback(
     id => {
@@ -34,6 +52,16 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
           disabled={disabled}
         />
       </ContentPane>
+      {showOutpatientAppointments && (
+        <ContentPane>
+          <OutpatientAppointmentsTable patient={patient} />
+        </ContentPane>
+      )}
+      {showLocationBookings && (
+        <ContentPane>
+          <LocationBookingsTable patient={patient} />
+        </ContentPane>
+      )}
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </ContentPane>

@@ -4,15 +4,23 @@ import {
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  endOfDay,
   formatISO9075,
+  isBefore,
   isMatch,
+  isSameDay,
   isValid,
+  isWithinInterval,
+  max,
+  min,
   parseISO,
   startOfDay,
+  startOfWeek,
   sub,
 } from 'date-fns';
-import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 import { z } from 'zod';
+
+import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -250,6 +258,11 @@ export const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
+export const isStartOfThisWeek = date => {
+  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+  return isSameDay(date, startOfThisWeek);
+};
+
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
 export const datetimeCustomValidation = z.string().refine(
   val => {
@@ -257,9 +270,31 @@ export const datetimeCustomValidation = z.string().refine(
     if (!regex.test(val)) return false;
 
     const date = new Date(val);
-    return !isNaN(date.getTime());
+    return isValid(date);
   },
   {
     message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
   },
 );
+
+export const endpointsOfDay = date => [startOfDay(date), endOfDay(date)];
+
+/** Returns `true` if and only if `interval1` is a subset of `interval2`. It need not be a strict subset. */
+export const isIntervalWithinInterval = (interval1, interval2) => {
+  const { start, end } = interval1;
+  return isWithinInterval(start, interval2) && isWithinInterval(end, interval2);
+};
+
+/** Returns `true` if and only if `date` is an element of [`interval.start`, `interval.end`). */
+export const isWithinIntervalExcludingEnd = (date, interval) =>
+  isBefore(date, interval.end) && isWithinInterval(date, interval);
+
+export const maxValidDate = dates => {
+  const validDates = dates.filter(isValid);
+  return validDates.length === 0 ? null : max(validDates);
+};
+
+export const minValidDate = dates => {
+  const validDates = dates.filter(isValid);
+  return validDates.length === 0 ? null : min(validDates);
+};

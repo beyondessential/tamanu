@@ -5,8 +5,12 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importer/importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
-import { validateProgramDataElementRecords } from './vitalsValidation';
+import {
+  ensureRequiredQuestionsPresent,
+  validateChartingSurvey,
+  validateVitalsSurvey,
+} from './validation';
+import { validateProgramDataElementRecords } from './programDataElementValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -48,6 +52,16 @@ export async function importSurvey(context, workbook, surveyInfo) {
     await validateVitalsSurvey(context, surveyInfo);
   }
 
+  if (
+    [
+      SURVEY_TYPES.SIMPLE_CHART,
+      SURVEY_TYPES.COMPLEX_CHART,
+      SURVEY_TYPES.COMPLEX_CHART_CORE,
+    ].includes(surveyType)
+  ) {
+    await validateChartingSurvey(context, surveyInfo);
+  }
+
   surveyInfo.notifiable ??= false;
   surveyInfo.notifyEmailAddresses = (surveyInfo.notifyEmailAddresses ?? '')
     .split(',')
@@ -55,7 +69,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
     .filter(Boolean);
 
   const records = readSurveyInfo(workbook, surveyInfo);
-  const stats = validateProgramDataElementRecords(records, { context, sheetName });
+  const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
 
   return importRows(
     context,
