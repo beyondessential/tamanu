@@ -9,14 +9,13 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 
-const getAttributes = (primaryKey: any) => ({
-  id: primaryKey,
-});
-
 export class LabTestPanelRequest extends Model {
   id!: CreationOptional<string>;
   static initModel({ primaryKey, ...options }: InitOptions) {
-    super.init(getAttributes(primaryKey),
+    super.init(
+      {
+        id: primaryKey,
+      },
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
