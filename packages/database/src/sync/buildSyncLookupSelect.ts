@@ -1,5 +1,4 @@
 import { snake } from 'case';
-import type { ModelStatic } from 'sequelize';
 import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
 import type { Model } from '../models/Model';
 
@@ -10,7 +9,7 @@ interface Columns {
   isLabRequestValue?: boolean;
 }
 
-export function buildSyncLookupSelect(model: ModelStatic<Model>, columns: Columns = {}) {
+export function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
   const attributes = model.getAttributes();
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
   const { patientId, facilityId, encounterId, isLabRequestValue } = columns;
@@ -25,8 +24,8 @@ export function buildSyncLookupSelect(model: ModelStatic<Model>, columns: Column
       sync_device_ticks.device_id,
       json_build_object(
         ${Object.keys(attributes)
-          .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-          .map(a => `'${a}', ${table}.${snake(a)}`)}
+          .filter((a) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+          .map((a) => `'${a}', ${table}.${snake(a)}`)}
       ),
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},

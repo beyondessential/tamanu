@@ -8,17 +8,18 @@ import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
-import type { Models, ModelStatic } from '../types/model';
+import type { Models } from '../types/model';
 import type { Model } from '../models/Model';
+import type { RecordType } from '../types/sync';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 
 export const saveChangesForModel = async (
-  model: ModelStatic<Model>,
+  model: typeof Model,
   changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
   isCentralServer: boolean,
 ) => {
-  const sanitizeData = (d: any) =>
+  const sanitizeData = (d: object) =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
@@ -29,12 +30,12 @@ export const saveChangesForModel = async (
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map((r) =>
     r.get({ plain: true }),
   );
-  const idToExistingRecord: Record<number, any> = Object.fromEntries(
+  const idToExistingRecord: Record<number, (typeof existingRecords)[0]> = Object.fromEntries(
     existingRecords.map((e) => [e.id, e]),
   );
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-  const idToIncomingRecord = Object.fromEntries(
+  const idToIncomingRecord: { [key: number]: (typeof changes)[0] } = Object.fromEntries(
     changes.filter((c) => c.data.id).map((e) => [e.data.id, e]),
   );
   const idsForUpdate = new Set();
@@ -47,13 +48,13 @@ export const saveChangesForModel = async (
     idsForUpdate.add(existing.id);
 
     // Restores only originate from central server
-    if (isCentralServer === false && existing.deletedAt && !incoming.isDeleted) {
+    if (isCentralServer === false && existing.deletedAt && !incoming?.isDeleted) {
       idsForRestore.add(existing.id);
     }
-    if (!existing.deletedAt && incoming.isDeleted) {
+    if (!existing.deletedAt && incoming?.isDeleted) {
       idsForDelete.add(existing.id);
     }
-    if (existing.deletedAt && incoming.isDeleted) {
+    if (existing.deletedAt && incoming?.isDeleted) {
       // don't do anything related to deletion if incoming record
       // is deleted and existing record is already deleted
     }
@@ -104,10 +105,10 @@ export const saveChangesForModel = async (
 };
 
 const saveChangesForModelInBatches = async (
-  model: ModelStatic<Model>,
+  model: typeof Model,
   sequelize: Sequelize,
   sessionId: string,
-  recordType: any,
+  recordType: RecordType,
   isCentralServer: boolean,
 ) => {
   const syncRecordsCount = await countSyncSnapshotRecords(

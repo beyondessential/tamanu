@@ -15,10 +15,12 @@ import type { InitOptions, Models } from '../types/model';
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model<
-  TModelAttributes extends {} = any,
+  TModelAttributes extends Record<string, any> = any,
   _TCreationAttributes extends {} = TModelAttributes,
 > extends BaseModel<TModelAttributes, _TCreationAttributes> {
-  public static sequelize: { models: Models} & Sequelize;
+  id!: any;
+  sequelize!: { models: Models } & Omit<Sequelize, 'models'>;
+  static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   static syncDirection: InitOptions['syncDirection'];
   static defaultIdValue?: string | number;
   static usesPublicSchema: boolean;
@@ -31,12 +33,14 @@ export class Model<
 
   static init(
     modelAttributes: ModelAttributes,
-    { syncDirection, timestamps = true, schema, ...options }: InitOptions,
+    { syncDirection, timestamps = true, schema, ...options }: Omit<InitOptions, 'primaryKey'>,
   ) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
     // to erase it even if they don't use it, we delete it here
-    delete options.primaryKey;
+    if ('primaryKey' in options) {
+      delete options.primaryKey;
+    }
 
     const attributes = {
       ...modelAttributes,
@@ -121,7 +125,7 @@ export class Model<
     // into
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
-    const { models } = this.sequelize;
+    const models = this.sequelize.models;
     const values = Object.entries(this.dataValues)
       .filter(([, val]) => val !== null)
       .reduce(
@@ -140,7 +144,7 @@ export class Model<
     // if the structure of a nested object differs significantly from its database representation,
     // it's probably more correct to implement that as a separate endpoint rather than putting the
     // logic here.
-    return references.reduce((allValues: any, referenceName: string) => {
+    return references.reduce((allValues: Record<string, any>, referenceName: string) => {
       const { [referenceName]: referenceVal, ...otherValues } = allValues;
       if (!referenceVal) return allValues;
       return {
@@ -158,9 +162,7 @@ export class Model<
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations(
-    _models?: BaseModel['sequelize']['models'],
-  ): undefined | any[] {
+  static getListReferenceAssociations(_models?: Models): any[] | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //
@@ -173,10 +175,11 @@ export class Model<
   static getFullReferenceAssociations() {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
-    return this.getListReferenceAssociations();
+    const { models } = this.sequelize!;
+    return this.getListReferenceAssociations(models);
   }
 
-  static async findByIds(ids: any[], paranoid = true) {
+  static async findByIds(ids: unknown[], paranoid = true) {
     if (ids.length === 0) return [];
 
     return this.findAll<Model>({
@@ -187,12 +190,12 @@ export class Model<
     });
   }
 
-  static sanitizeForCentralServer(values: any) {
+  static sanitizeForCentralServer(values: object) {
     // implement on the specific model if needed
     return values;
   }
 
-  static sanitizeForFacilityServer(values: any) {
+  static sanitizeForFacilityServer(values: object) {
     // implement on the specific model if needed
     return values;
   }

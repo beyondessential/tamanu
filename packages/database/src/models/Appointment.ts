@@ -1,30 +1,36 @@
-import { DataTypes, type ModelAttributes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
-const getAttributes = (primaryKey: any) => ({
-  id: primaryKey,
-  startTime: dateTimeType('startTime', { allowNull: false }),
-  endTime: dateTimeType('endTime'),
-  status: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
-  },
-  typeLegacy: { type: DataTypes.STRING, allowNull: true },
-  isHighPriority: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-});
+export class Appointment extends Model {
+  id!: string;
+  startTime!: string;
+  endTime?: string;
+  status!: string;
+  typeLegacy?: string;
+  isHighPriority!: boolean;
 
-export class Appointment extends Model<
-  ModelAttributes<Appointment, ReturnType<typeof getAttributes>>
-> {
   static initModel({ primaryKey, ...options }: InitOptions) {
-    super.init(getAttributes(primaryKey), {
-      ...options,
-      syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-    });
+    super.init(
+      {
+        id: primaryKey,
+        startTime: dateTimeType('startTime', { allowNull: false }),
+        endTime: dateTimeType('endTime'),
+        status: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
+        },
+        typeLegacy: { type: DataTypes.STRING, allowNull: true },
+        isHighPriority: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+      },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+      },
+    );
   }
 
   static getListReferenceAssociations() {

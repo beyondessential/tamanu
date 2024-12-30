@@ -1,6 +1,6 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import type { Models, SyncDirectionValues } from '../types/model';
-import type { SyncSessionDirectionValues } from '../types/sync';
+import type { Models } from '../types/model';
+import type { SyncDirectionValues, SyncSessionDirectionValues } from '../types/sync';
 
 export const getModelsForDirection = (models: Models, direction: SyncSessionDirectionValues) => {
   const filter = (modelSyncDirection: SyncDirectionValues) => {

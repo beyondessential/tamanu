@@ -12,13 +12,13 @@ const HOOK_TRIGGER = 'afterCreate';
 const HOOK_NAME = 'markPatientForSync';
 
 // any time an encounter is opened for a non-syncing patient should mark it for ongoing sync
-export const onCreateEncounterMarkPatientForSync = (encounterModel: typeof Encounter) => {
+export const onCreateEncounterMarkPatientForSync = (encounterModel: Encounter) => {
   // we remove and add the hook because Sequelize doesn't have a good way
   // to detect which hooks have already been added to a model in its
   // public API
   encounterModel.removeHook(HOOK_TRIGGER, HOOK_NAME);
-  encounterModel.addHook(HOOK_TRIGGER, HOOK_NAME, async (record, { transaction }) => {
-    const { patientId, locationId } = record.dataValues || record;
+  encounterModel.addHook(HOOK_TRIGGER, HOOK_NAME, async (record: Encounter, { transaction }) => {
+    const { patientId, locationId } = record;
     const location = await encounterModel.sequelize.models.Location.findByPk(locationId);
 
     // upsert patient_facilities record to mark the patient for sync in this facility
@@ -29,7 +29,7 @@ export const onCreateEncounterMarkPatientForSync = (encounterModel: typeof Encou
       ON CONFLICT (patient_id, facility_id) DO NOTHING;
     `,
       {
-        replacements: { patientId, facilityId: location?.dataValues?.facilityId },
+        replacements: { patientId, facilityId: location?.facilityId },
         // if the patient was created within a transaction, it may not be committed when the hook
         // fires, so this query needs to run in the same transaction
         transaction,

@@ -1,12 +1,12 @@
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getSnapshotTableName } from './manageSnapshotTable';
-import type { SyncSessionDirectionValues } from '../types/sync';
+import type { RecordType, SyncSessionDirectionValues } from '../types/sync';
 
 export const getSyncSnapshotRecordIds = async (
   sequelize: Sequelize,
   sessionId: string,
   direction: SyncSessionDirectionValues,
-  recordType: any,
+  recordType: RecordType,
   limit: number,
   fromId = '00000000-0000-0000-0000-000000000000',
 ) => {

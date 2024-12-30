@@ -1,4 +1,4 @@
-import { Op, type ModelStatic } from 'sequelize';
+import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
@@ -6,13 +6,13 @@ import type { Model } from '../models/Model';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
-export const saveCreates = async (model: ModelStatic<Model<{ id: unknown }>>, records: any[]) => {
+export const saveCreates = async (model: typeof Model, records: Record<string, any>[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
-  const idsForSoftDeleted = records.filter(row => row.isDeleted).map(row => row.id);
+  const idsForSoftDeleted = records.filter((row) => row.isDeleted).map((row) => row.id);
 
   for (const record of records) {
     const data = { ...record };
@@ -32,38 +32,35 @@ export const saveCreates = async (model: ModelStatic<Model<{ id: unknown }>>, re
 };
 
 export const saveUpdates = async (
-  model: ModelStatic<Model<{ id: unknown }>>,
-  incomingRecords: any[],
+  model: typeof Model,
+  incomingRecords: Record<string, any>[],
   idToExistingRecord: Record<number, any>,
   isCentralServer: boolean,
 ) => {
   const recordsToSave = isCentralServer
     ? // on the central server, merge the records coming in from different clients
-      incomingRecords.map(incoming => {
+      incomingRecords.map((incoming) => {
         const existing = idToExistingRecord[incoming.id];
         return mergeRecord(existing, incoming);
       })
     : // on the facility server, trust the resolved central server version
       incomingRecords;
-  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
+  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async (r) =>
     model.update(r, { where: { id: r.id }, paranoid: false }),
   );
 };
 
 // model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
-export const saveDeletes = async (
-  model: ModelStatic<Model<{ id: unknown }>>,
-  recordsForDelete: any[],
-) => {
+export const saveDeletes = async (model: typeof Model, recordsForDelete: Record<string, any>[]) => {
   if (recordsForDelete.length === 0) return;
 
-  await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
+  await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map((r) => r.id) } } });
 };
 
 export const saveRestores = async (
-  model: ModelStatic<Model<{ id: unknown }>>,
-  recordsForRestore: any[],
+  model: typeof Model,
+  recordsForRestore: Record<string, any>[],
 ) => {
   if (recordsForRestore.length === 0) return;
-  await model.restore({ where: { id: { [Op.in]: recordsForRestore.map(r => r.id) } } });
+  await model.restore({ where: { id: { [Op.in]: recordsForRestore.map((r) => r.id) } } });
 };

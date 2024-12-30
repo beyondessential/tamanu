@@ -75,26 +75,26 @@ export const dropAllSnapshotTables = async (sequelize: Sequelize) => {
   await queryInterface.createSchema(SCHEMA, {});
 };
 
-const snakeKey = (obj: Record<string, any>) =>
+const snakeKey = (obj: object) =>
   Object.fromEntries(Object.entries(obj).map(([key, value]) => [snake(key), value]));
 
 export const insertSnapshotRecords = async (
   sequelize: Sequelize,
   sessionId: string,
-  records: any[],
+  records: object[],
 ) => {
   const queryInterface = sequelize.getQueryInterface();
   const sanitizedRecords = records
-    .map(r => snakeKey(r))
-    .map(r => ({ ...r, data: JSON.stringify(r.data) }));
+    .map((r) => snakeKey(r))
+    .map((r) => ({ ...r, data: JSON.stringify(r.data) }));
   await queryInterface.bulkInsert({ tableName: sessionId, schema: SCHEMA }, sanitizedRecords);
 };
 
 export const updateSnapshotRecords = async (
   sequelize: Sequelize,
   sessionId: string,
-  values: Record<string, any>,
-  where: Record<string, any>,
+  values: object,
+  where: object,
 ) => {
   const queryInterface = sequelize.getQueryInterface();
   await queryInterface.bulkUpdate(

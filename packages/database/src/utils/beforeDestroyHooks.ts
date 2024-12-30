@@ -3,14 +3,14 @@ import { getDependentAssociations } from './getDependentAssociations';
 import type { Model } from '../models/Model';
 
 async function getIds(options: DestroyOptions) {
-  const ids = (options.where as { id?: { [Op.in]?: any[] } })?.id?.[Op.in];
+  const ids = (options.where as Record<string, any>)?.id?.[Op.in];
 
   if (ids) {
     return ids;
   }
 
-  const instances = await (options.model as any)?.findAll(options);
-  return instances?.map((x: any) => x.id);
+  const instances = await options.model?.findAll(options);
+  return instances?.map((x) => ('id' in x ? x.id : undefined));
 }
 
 async function executeInsideTransaction(
@@ -31,7 +31,7 @@ async function beforeDestroy(instance: Model) {
   const dependantAssociations = getDependentAssociations(instance.constructor as typeof Model);
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
-    await target.destroy({ where: { [foreignKey]: instance.dataValues.id } });
+    await target.destroy({ where: { [foreignKey]: instance.id } });
   }
 }
 
@@ -41,7 +41,7 @@ async function beforeBulkDestroy(options: DestroyOptions) {
     return;
   }
 
-  const dependantAssociations = getDependentAssociations(options.model as typeof Model);
+  const dependantAssociations = getDependentAssociations(options.model!);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
@@ -55,6 +55,6 @@ export async function genericBeforeDestroy(instance: Model) {
 }
 
 export async function genericBeforeBulkDestroy(options: DestroyOptions) {
-  const sequelize = options.model?.sequelize;
+  const { sequelize } = options.model!;
   await executeInsideTransaction(sequelize!, options, beforeBulkDestroy);
 }

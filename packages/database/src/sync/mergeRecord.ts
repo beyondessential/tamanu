@@ -2,8 +2,8 @@ import { snake } from 'case';
 
 // utility that can pick the latest whole record, or single field, depending on what is passed in
 const pickLatest = (
-  existing: any,
-  incoming: any,
+  existing: Record<string, any>,
+  incoming: Record<string, any>,
   existingUpdateTick = 0,
   incomingUpdateTick = 0,
 ) => {
@@ -15,12 +15,12 @@ const pickLatest = (
 
 // perform advanced conflict resolution, merging two versions of the record using the latest version
 // of each field
-const lastWriteWinsPerField = (existing: any, incoming: any) => {
+const lastWriteWinsPerField = (existing: Record<string, any>, incoming: Record<string, any>) => {
   const merged = { ...existing, ...incoming }; // make sure it has all fields in both
   const mergedUpdatedAtByField: { [key: string]: number } = {};
   Object.keys(merged)
-    .filter(key => !['updatedAtByField', 'updatedAtSyncTick'].includes(key))
-    .forEach(key => {
+    .filter((key) => !['updatedAtByField', 'updatedAtSyncTick'].includes(key))
+    .forEach((key) => {
       const { latest, latestTick } = pickLatest(
         existing[key],
         incoming[key],
@@ -44,7 +44,7 @@ const lastWriteWinsPerField = (existing: any, incoming: any) => {
 
 // merge two records, using either a field-by-field merge strategy (if updatedAtByField is defined)
 // or by simply choosing the incoming record (if field specific information is not available)
-export const mergeRecord = (existing: any, incoming: any) => {
+export const mergeRecord = (existing: Record<string, any>, incoming: Record<string, any>) => {
   return existing.updatedAtByField && incoming.updatedAtByField
     ? lastWriteWinsPerField(existing, incoming)
     : incoming;

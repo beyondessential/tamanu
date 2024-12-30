@@ -43,6 +43,7 @@
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
     "config": "^3.3.9",
-    "tiny-async-pool": "^1.2.0"
+    "tiny-async-pool": "^1.2.0",
+    "sequelize": "^6.21.3"
   }
 }

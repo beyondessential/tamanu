@@ -12,6 +12,6 @@ declare module 'sequelize' {
   }
 
   export interface DestroyOptions extends sequelize.DestroyOptions {
-    model?: typeof sequelize.Model<{ id: string | number }>;
+    model?: typeof import('../models/Model').Model;
   }
 }

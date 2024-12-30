@@ -1,4 +1,4 @@
-import { Op, DataTypes, type ModelAttributes } from 'sequelize';
+import { Op, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
@@ -8,48 +8,62 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
-const getAttributes = (primaryKey: any) => ({
-  id: primaryKey,
-  batch: DataTypes.STRING,
-  consent: DataTypes.BOOLEAN,
-  consentGivenBy: DataTypes.TEXT,
-  status: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  reason: DataTypes.STRING,
-  injectionSite: DataTypes.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
-  givenBy: DataTypes.TEXT,
-  givenElsewhere: DataTypes.BOOLEAN,
-  vaccineBrand: DataTypes.TEXT,
-  vaccineName: DataTypes.TEXT,
-  disease: DataTypes.TEXT,
-  circumstanceIds: DataTypes.ARRAY(DataTypes.STRING),
-  date: dateTimeType('date'),
-});
+export class AdministeredVaccine extends Model {
+  id!: string;
+  batch?: string;
+  consent?: boolean;
+  consentGivenBy?: string;
+  status!: string;
+  reason?: string;
+  injectionSite?: string;
+  givenBy?: string;
+  givenElsewhere?: boolean;
+  vaccineBrand?: string;
+  vaccineName?: string;
+  disease?: string;
+  circumstanceIds?: string[];
+  date?: string;
 
-export class AdministeredVaccine extends Model<
-  ModelAttributes<AdministeredVaccine, ReturnType<typeof getAttributes>>
-> {
   static initModel({ primaryKey, ...options }: InitOptions) {
-    super.init(getAttributes(primaryKey), {
-      ...options,
-      syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-      validate: {
-        mustHaveScheduledVaccine() {
-          if (!this.deletedAt && !this.scheduledVaccineId) {
-            throw new InvalidOperationError(
-              'An administered vaccine must have a scheduled vaccine.',
-            );
-          }
+    super.init(
+      {
+        id: primaryKey,
+        batch: DataTypes.STRING,
+        consent: DataTypes.BOOLEAN,
+        consentGivenBy: DataTypes.TEXT,
+        status: {
+          type: DataTypes.STRING,
+          allowNull: false,
         },
-        mustHaveEncounter() {
-          if (!this.deletedAt && !this.encounterId) {
-            throw new InvalidOperationError('An administered vaccine must have an encounter.');
-          }
+        reason: DataTypes.STRING,
+        injectionSite: DataTypes.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
+        givenBy: DataTypes.TEXT,
+        givenElsewhere: DataTypes.BOOLEAN,
+        vaccineBrand: DataTypes.TEXT,
+        vaccineName: DataTypes.TEXT,
+        disease: DataTypes.TEXT,
+        circumstanceIds: DataTypes.ARRAY(DataTypes.STRING),
+        date: dateTimeType('date'),
+      },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        validate: {
+          mustHaveScheduledVaccine() {
+            if (!this.deletedAt && !this.scheduledVaccineId) {
+              throw new InvalidOperationError(
+                'An administered vaccine must have a scheduled vaccine.',
+              );
+            }
+          },
+          mustHaveEncounter() {
+            if (!this.deletedAt && !this.encounterId) {
+              throw new InvalidOperationError('An administered vaccine must have an encounter.');
+            }
+          },
         },
       },
-    });
+    );
   }
 
   static getListReferenceAssociations() {

@@ -1,7 +1,7 @@
 import { camel } from 'case';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getSnapshotTableName } from './manageSnapshotTable';
-import type { SyncSessionDirectionValues } from '../types/sync';
+import type { RecordType, SyncSessionDirectionValues, SyncSnapshotAttributes } from '../types/sync';
 
 export const findSyncSnapshotRecords = async (
   sequelize: Sequelize,
@@ -9,7 +9,7 @@ export const findSyncSnapshotRecords = async (
   direction: SyncSessionDirectionValues,
   fromId = 0,
   limit = Number.MAX_SAFE_INTEGER,
-  recordType: any,
+  recordType: RecordType,
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
@@ -34,7 +34,7 @@ export const findSyncSnapshotRecords = async (
     },
   );
 
-  return records.map(r =>
+  return records.map((r) =>
     Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
-  );
+  ) as SyncSnapshotAttributes[];
 };

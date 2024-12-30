@@ -1,21 +1,25 @@
-import { DataTypes, type InitOptions as BaseInitOptions } from 'sequelize';
+import {
+  DataTypes,
+  type InitOptions as BaseInitOptions,
+} from 'sequelize';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import * as models from '../models';
 import type { Model } from '../models/Model';
+import type { SyncDirectionValues } from './sync';
 
-export type SyncDirectionValues = (typeof SYNC_DIRECTIONS)[keyof typeof SYNC_DIRECTIONS];
+type PrimaryKey = {
+  type: typeof DataTypes.STRING;
+  defaultValue: unknown extends string ? string : never;
+  allowNull: boolean;
+  primaryKey: boolean;
+};
 
 export interface InitOptions extends BaseInitOptions {
   syncDirection: SyncDirectionValues;
-  primaryKey?: any;
+  primaryKey: PrimaryKey;
 }
 
-export type Models = typeof models;
-
-type NonConstructorKeys<T> = ({[P in keyof T]: T[P] extends new () => any ? never : P })[keyof T];
-type NonConstructor<T> = Pick<T, NonConstructorKeys<T>>;
-export type ModelStatic<M extends Model> = NonConstructor<typeof Model> & { new(): M };
+export type Models = typeof models
 
 // Used for storing date time strings in database
 export function dateTimeType(fieldName: string, config = {}) {
