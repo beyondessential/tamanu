@@ -1,8 +1,11 @@
 import crypto from 'crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
-import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY,
+  SYNC_SESSION_DIRECTION,
+} from '@tamanu/database';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
@@ -1283,14 +1286,14 @@ describe('CentralSyncManager', () => {
         data: r.dataValues,
       }));
 
-      jest.doMock('@tamanu/shared/sync', () => ({
-        ...jest.requireActual('@tamanu/shared/sync'),
+      jest.doMock('@tamanu/database/sync', () => ({
+        ...jest.requireActual('@tamanu/database/sync'),
         insertSnapshotRecords: jest.fn(),
       }));
 
       const centralSyncManager = initializeCentralSyncManager();
 
-      const { insertSnapshotRecords } = require('@tamanu/shared/sync');
+      const { insertSnapshotRecords } = require('@tamanu/database/sync');
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 

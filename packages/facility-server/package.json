@@ -38,6 +38,7 @@
     "@casl/ability": "^6.7.1",
     "@opentelemetry/api": "^1.9.0",
     "@tamanu/constants": "*",
+    "@tamanu/database": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
     "abort-controller": "^3.0.0",

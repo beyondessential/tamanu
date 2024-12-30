@@ -12,7 +12,7 @@ import { VERSION } from './middleware/versionCompatibility.js';
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
  * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
  * @typedef {import('sequelize').Sequelize} Sequelize
- * @typedef {import('@tamanu/shared/models')} Models
+ * @typedef {import('@tamanu/database/models')} Models
  */
 
 export class ApplicationContext {

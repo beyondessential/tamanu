@@ -7,7 +7,7 @@ import {
   createSnapshotTable,
   findSyncSnapshotRecords,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
+} from '@tamanu/database';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';

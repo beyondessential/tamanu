@@ -53,8 +53,16 @@
       "path": "packages/settings",
     },
     {
+      "name": "database",
+      "path": "packages/database",
+    },
+    {
       "name": "shared",
       "path": "packages/shared",
+    },
+    {
+      "name": "utils",
+      "path": "packages/utils",
     },
   ],
   "settings": {

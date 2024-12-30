@@ -8,7 +8,7 @@ const hashObject = require('object-hash');
 const { astVisitor, parseFirst } = require('pgsql-ast-parser');
 
 const { createMigrationInterface } = require('@tamanu/shared/services/migrations');
-const { initDatabase } = require('@tamanu/shared/services/database');
+const { initDatabase } = require('@tamanu/database');
 const { SYNC_DIRECTIONS } = require('@tamanu/constants');
 const { log } = require('@tamanu/shared/services/logging');
 

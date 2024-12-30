@@ -8,7 +8,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { Location } from '../models/Location';
+import { Location } from '@tamanu/database';
 import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 

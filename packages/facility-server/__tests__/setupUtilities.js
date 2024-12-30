@@ -1,6 +1,6 @@
 import { Op, Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants/fhir';
-import { sortInDependencyOrder } from '@tamanu/shared/models/sortInDependencyOrder';
+import { sortInDependencyOrder } from '@tamanu/database';
 import { FAKE_UUID_PATTERN } from '@tamanu/utils/generateId';
 
 export function deleteAllTestIds({ models }) {

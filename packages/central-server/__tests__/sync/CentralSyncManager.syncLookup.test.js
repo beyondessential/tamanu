@@ -16,8 +16,9 @@ import {
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
-import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY
+} from '@tamanu/database';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';

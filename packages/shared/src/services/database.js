@@ -163,7 +163,7 @@ export async function initDatabase(dbOptions) {
   };
   log.info('registeringModels', { count: modelClasses.length });
   modelClasses.forEach(modelClass => {
-    modelClass.init(
+    modelClass.initModel(
       {
         underscored: true,
         primaryKey,

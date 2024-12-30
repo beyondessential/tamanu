@@ -2,7 +2,7 @@
   "name": "@tamanu/database",
   "version": "0.0.0",
   "private": true,
-  "description": "TODO",
+  "description": "BES - Database",
   "main": "dist/cjs/index.js",
   "types": "dist/esm/index.d.ts",
   "type": "module",
@@ -11,6 +11,11 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js",
+      "types": "./dist/esm/*.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -29,8 +34,15 @@
     "build-watch": "npm run build:dev:watch"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
-    "@types/node": "^20.9.0"
+    "@types/node": "^20.9.0",
+    "@types/tiny-async-pool": "^2.0.3",
+    "rimraf": "^6.0.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
+    "config": "^3.3.9",
+    "tiny-async-pool": "^1.2.0"
+  }
 }

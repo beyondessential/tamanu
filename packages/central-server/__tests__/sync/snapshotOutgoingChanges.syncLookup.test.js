@@ -5,7 +5,7 @@ import {
   createSnapshotTable,
   findSyncSnapshotRecords,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
+} from '@tamanu/database';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';

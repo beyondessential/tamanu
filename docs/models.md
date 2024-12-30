@@ -1,6 +1,6 @@
 # Models
 
-Models implementations can be found in: `packages/shared/src/models`
+Models implementations can be found in: `packages/database/src/models`
 > [!WARNING]
 > # OUTDATED
 > Please see https://beyond-essential.slab.com/posts/tamanu-db-schema-documentation-7lexbq64 if you have access to BES's internal documentation

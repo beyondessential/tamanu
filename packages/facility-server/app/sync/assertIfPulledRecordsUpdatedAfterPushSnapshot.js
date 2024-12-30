@@ -1,5 +1,8 @@
-import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
-import { LAST_SUCCESSFUL_SYNC_PUSH_KEY } from '@tamanu/shared/sync/constants';
+import {
+  getSnapshotTableName,
+  SYNC_SESSION_DIRECTION,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from '@tamanu/database';
 
 /**
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.
@@ -12,7 +15,7 @@ const assertModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, session
     `
       SELECT COUNT(*)::integer as count
       FROM ${snapshotTableName}
-      JOIN ${model.tableName} 
+      JOIN ${model.tableName}
         ON ${snapshotTableName}.record_id::text = ${model.tableName}.id::text
         AND ${snapshotTableName}.record_type = $recordType
       WHERE direction = $direction
