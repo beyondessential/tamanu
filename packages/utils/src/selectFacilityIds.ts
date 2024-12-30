@@ -8,5 +8,5 @@ export const selectFacilityIds = (config: {
       'Both serverFacilityId and serverFacilityIds are set in config, a facility server should either have a single facility or multiple facilities, not both.',
     );
   }
-  return serverFacilityId ? [serverFacilityId] : serverFacilityIds ?? [];
+  return serverFacilityId ? [serverFacilityId] : serverFacilityIds;
 };
