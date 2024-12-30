@@ -1,29 +1,27 @@
 {% docs table__notes_legacy %}
-Version 1 of note management.
-
-Deprecated.
+Legacy notes
 {% enddocs %}
 
 {% docs notes_legacy__record_id %}
-Polymorphic relationship to the record to which the note is attached (id).
+Legacy notes record_id
 {% enddocs %}
 
 {% docs notes_legacy__record_type %}
-Polymorphic relationship to the record to which the note is attached (type).
+Legacy notes record_type
 {% enddocs %}
 
 {% docs notes_legacy__note_type %}
-Type of the note.
+Legacy notes note_type
 {% enddocs %}
 
 {% docs notes_legacy__content %}
-Text content of the note.
+Legacy notes content
 {% enddocs %}
 
 {% docs notes_legacy__author_id %}
-Reference to the [person who published the note](#!/source/source.tamanu.tamanu.users).
+Legacy notes author_id
 {% enddocs %}
 
 {% docs notes_legacy__on_behalf_of_id %}
-Reference to the [person who actually wrote the note](#!/source/source.tamanu.tamanu.users), if different from `author_id`.
+Legacy notes on_behalf_of_id
 {% enddocs %}

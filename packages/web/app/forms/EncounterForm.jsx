@@ -24,7 +24,7 @@ import { isInpatient } from '../utils/isInpatient';
 import { useTranslation } from '../contexts/Translation';
 
 export const EncounterForm = React.memo(
-  ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
+  ({ editedObject, onSubmit, patientBillingTypeId, encounterType, initialValues }) => {
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
@@ -162,6 +162,7 @@ export const EncounterForm = React.memo(
           encounterType,
           patientBillingTypeId,
           ...editedObject,
+          ...initialValues,
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
