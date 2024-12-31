@@ -7,7 +7,7 @@ export class LabTestPanel extends Model {
   id!: string;
   code!: string;
   name!: string;
-  visibilityStatus?: string;
+  visibilityStatus!: string;
   externalCode?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {

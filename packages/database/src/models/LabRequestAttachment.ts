@@ -47,7 +47,11 @@ export class LabRequestAttachment extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
+  static buildPatientSyncFilter(
+    patientCount: number,
+    markedForSyncPatientsTable: string,
+    sessionConfig: SessionConfig,
+  ) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab request attachments
     }

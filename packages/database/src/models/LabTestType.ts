@@ -4,14 +4,14 @@ import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-function optionStringToArray(s: string | null): string[] | undefined {
+function optionStringToArray(s: string): string[] | undefined {
   if (!s) return undefined;
   const trimmed = s.trim();
   if (!trimmed) return undefined;
   return trimmed
     .split(', ')
-    .map(x => x.trim())
-    .filter(x => x);
+    .map((x) => x.trim())
+    .filter((x) => x);
 }
 
 const LAB_TEST_RESULT_TYPES_VALUES = Object.values(LAB_TEST_RESULT_TYPES) as string[];
@@ -28,7 +28,7 @@ export class LabTestType extends Model {
   rangeText?: string;
   resultType!: string;
   options?: string;
-  visibilityStatus?: string;
+  visibilityStatus!: string;
   externalCode?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -74,7 +74,7 @@ export class LabTestType extends Model {
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         validate: {
           mustHaveValidOptions() {
-            const parsed = optionStringToArray(this.options);
+            const parsed = optionStringToArray(this.options as string);
             if (!parsed) return;
             if (!Array.isArray(parsed)) {
               throw new InvalidOperationError('Options must be a comma-separated array');

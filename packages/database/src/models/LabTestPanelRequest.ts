@@ -34,7 +34,11 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
+  static buildPatientSyncFilter(
+    patientCount: number,
+    markedForSyncPatientsTable: string,
+    sessionConfig: SessionConfig,
+  ) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab panel requests
     }

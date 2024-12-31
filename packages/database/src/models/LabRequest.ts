@@ -6,34 +6,32 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { SessionConfig } from '../types/sync';
+import { type LabTest } from './LabTest';
 
 interface LabRequestData {
   labTestTypeIds?: string[];
-  labTest?: {
-    date: Date;
-  };
   labTestPanelId?: string;
   userId: string;
-  encounterId: string;
 }
 
 export class LabRequest extends Model {
   id!: string;
   sampleTime?: string;
   requestedDate!: string;
-  specimenAttached?: boolean;
-  urgent?: boolean;
-  status?: string;
+  specimenAttached!: boolean;
+  urgent!: boolean;
+  status!: string;
   reasonForCancellation?: string;
   senaiteId?: string;
   sampleId?: string;
   displayId!: string;
   publishedDate?: string;
+  encounterId!: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -84,7 +82,9 @@ export class LabRequest extends Model {
     );
   }
 
-  static createWithTests(data: LabRequestData) {
+  static createWithTests(
+    data: LabRequestData & ModelProperties<LabRequest> & { labTest: ModelProperties<LabTest> },
+  ) {
     return this.sequelize!.transaction(async () => {
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {
@@ -112,7 +112,7 @@ export class LabRequest extends Model {
 
       // then create tests
       await Promise.all(
-        labTestTypeIds.map(t =>
+        labTestTypeIds.map((t) =>
           LabTest.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
@@ -216,7 +216,11 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
+  static buildPatientSyncFilter(
+    patientCount: number,
+    markedForSyncPatientsTable: string,
+    sessionConfig: SessionConfig,
+  ) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }
