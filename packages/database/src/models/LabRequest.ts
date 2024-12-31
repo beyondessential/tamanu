@@ -6,12 +6,11 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { InitOptions, Models } from '../types/model';
-import type { SessionConfig } from 'types/sync';
+import type { SessionConfig } from '../types/sync';
 
 interface LabRequestData {
   labTestTypeIds?: string[];
@@ -21,7 +20,6 @@ interface LabRequestData {
   labTestPanelId?: string;
   userId: string;
   encounterId: string;
-  [key: string]: any;
 }
 
 export class LabRequest extends Model {
