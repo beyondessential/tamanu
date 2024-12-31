@@ -31,12 +31,16 @@
     "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
     "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
     "remove-build-artifacts": "rimraf dist",
-    "build-watch": "npm run build:dev:watch"
+    "build-watch": "npm run build:dev:watch",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
     "@types/tiny-async-pool": "^2.0.3",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "vitest": "^2.1.8",
+    "type-fest": "^4.31.0"
   },
   "dependencies": {
     "@tamanu/constants": "*",

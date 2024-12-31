@@ -17,6 +17,6 @@
     "lib": ["es2021"]
   },
   "extends": "../../common.tsconfig.json",
-  "include": ["src/**/*.ts", "__test__/**/*.test.ts"],
+  "include": ["src/**/*.ts", "__test__/**/*.test.ts", "src/models/User.js", "src/models/SyncSession.js", "src/models/ScheduledVaccine.js", "src/models/ReferenceData.js", "src/models/Patient.js", "src/models/LocationGroup.js", "src/models/Location.js", "src/models/Encounter.js", "src/models/Department.js"],
   "exclude": ["**/*.test.ts"]
 }

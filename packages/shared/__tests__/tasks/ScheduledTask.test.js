@@ -1,7 +1,7 @@
 import { addMilliseconds, addHours, addDays, addMonths, isWithinInterval } from 'date-fns';
 
-import { ScheduledTask } from '../../dist/cjs/tasks/ScheduledTask';
-import { log } from '../../dist/cjs/services/logging/log';
+import { ScheduledTask } from '../../src/tasks/ScheduledTask';
+import { log } from '../../src/services/logging/log';
 
 class TestScheduledTask extends ScheduledTask {
   getName() {
@@ -44,7 +44,7 @@ jest.useFakeTimers().setSystemTime(systemTime);
 jest.mock('@tamanu/utils/sleepAsync', () => {
   return {
     __esModule: true,
-    sleepAsync: ms => {
+    sleepAsync: (ms) => {
       // Update the Date.now() whenever we sleep to mock the jitter behaviour
       jest.useFakeTimers().setSystemTime(addMilliseconds(systemTime, ms));
     },
@@ -71,7 +71,7 @@ describe('ScheduledTask', () => {
     });
     const tasks = [onEveryHour, onMidnightEveryDay, onFirstDayEveryMonth];
 
-    tasks.forEach(task => task.beginPolling());
+    tasks.forEach((task) => task.beginPolling());
 
     expect(onEveryHour.job.nextInvocation().toISOString()).toEqual(
       addHours(systemTime, 1).toISOString(),
@@ -83,8 +83,8 @@ describe('ScheduledTask', () => {
       addMonths(systemTime, 1).toISOString(),
     );
 
-    tasks.forEach(task => task.cancelPolling());
-    tasks.forEach(task => expect(task.job).toBeNull());
+    tasks.forEach((task) => task.cancelPolling());
+    tasks.forEach((task) => expect(task.job).toBeNull());
   });
 
   it('Can add some jitter between runs', async () => {
@@ -145,12 +145,12 @@ describe('ScheduledTask', () => {
     const runStartedPromises = [];
     const completeRunResolves = [];
     runStartedPromises.push(
-      new Promise(resolve => {
+      new Promise((resolve) => {
         runStartedResolves.push(resolve);
       }),
     );
     runStartedPromises.push(
-      new Promise(resolve => {
+      new Promise((resolve) => {
         runStartedResolves.push(resolve);
       }),
     );
@@ -159,7 +159,7 @@ describe('ScheduledTask', () => {
       const runStartedResolve = runStartedResolves[runsStarted];
       runsStarted += 1;
       runStartedResolve();
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         completeRunResolves.push(resolve);
       }).then(() => {
         runsCompleted += 1;
