@@ -10,7 +10,7 @@ import { SETTINGS_SCOPES } from '~/constants';
 import { readConfig } from '~/services/config';
 import { parseOrKeep } from '~/utils/parseOrKeep';
 
-@Entity('setting')
+@Entity('settings')
 export class Setting extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -117,9 +117,5 @@ export class Setting extends BaseModel {
 
       return sanitizedRow;
     });
-  }
-
-  static getTableNameForSync(): string {
-    return 'settings';
   }
 }

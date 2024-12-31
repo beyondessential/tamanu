@@ -12,7 +12,7 @@ import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 
-@Entity('patient_field_value')
+@Entity('patient_field_values')
 export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -42,10 +42,6 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
     this.id = `${this.patient.replace(';', ':')};${this.definition.replace(';', ':')}`;
-  }
-
-  static getTableNameForSync(): string {
-    return 'patient_field_values';
   }
 
   static async getForPatientAndDefinition(

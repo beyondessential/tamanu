@@ -57,6 +57,7 @@ import { surveyCompletionNotification1724205895000 } from './1724205895000-surve
 import { removeSettingsValueNotNullConstraint1724900789000 } from './1724900789000-removeSettingsValueNotNullConstraint';
 import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-updateReferenceDataRelationIndex';
 import { removeLabTestStatus1734072605000 } from './1734072605000-removeLabTestStatus';
+import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './1734080053767-standardiseCaseAndPluralityOfAllTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -117,4 +118,5 @@ export const migrationList = [
   removeSettingsValueNotNullConstraint1724900789000,
   updateReferenceDataRelationIndex1714605577000,
   removeLabTestStatus1734072605000,
+  standardiseCaseAndPluralityOfAllTables1734080053767
 ];
