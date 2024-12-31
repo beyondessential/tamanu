@@ -7,6 +7,7 @@ import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { User } from './User';
 
 export class AdministeredVaccine extends Model {
   id!: string;
@@ -23,6 +24,15 @@ export class AdministeredVaccine extends Model {
   disease?: string;
   circumstanceIds?: string[];
   date?: string;
+  encounterId?: string;
+  encounter?: Encounter;
+  scheduledVaccineId?: string;
+  scheduledVaccine?: ScheduledVaccine;
+  recorderId?: string;
+  recorder?: User;
+  locationId?: string;
+  departmentId?: string;
+  notGivenReasonId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

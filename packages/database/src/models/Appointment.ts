@@ -11,6 +11,13 @@ export class Appointment extends Model {
   status!: string;
   typeLegacy?: string;
   isHighPriority!: boolean;
+  patientId?: string;
+  clinicianId?: string;
+  locationGroupId?: string;
+  locationId?: string;
+  bookingTypeId?: string;
+  appointmentTypeId?: string;
+  encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

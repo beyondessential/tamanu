@@ -19,6 +19,9 @@ export class Model<
   _TCreationAttributes extends {} = TModelAttributes,
 > extends BaseModel<TModelAttributes, _TCreationAttributes> {
   id!: any;
+  createdAt!: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
   sequelize!: { models: Models } & Omit<Sequelize, 'models'>;
   static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   static syncDirection: InitOptions['syncDirection'];
@@ -160,6 +163,10 @@ export class Model<
 
   getModelName() {
     return this.constructor.name;
+  }
+
+  async createNote(..._args: any): Promise<any> {
+    // implement on the specific model if needed
   }
 
   static getListReferenceAssociations(_models?: Models): any[] | undefined {

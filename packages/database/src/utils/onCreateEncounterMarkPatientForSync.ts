@@ -5,7 +5,7 @@
 // - shouldn't mark the patient for sync when saved during the sync pull process (which uses bulk-create)
 // - shouldn't mark the patient for sync when updated as part of processing the lab request (which
 
-import type { Encounter } from "../models";
+import type { Encounter } from '../models';
 
 //   is why we don't trigger on updates)
 const HOOK_TRIGGER = 'afterCreate';

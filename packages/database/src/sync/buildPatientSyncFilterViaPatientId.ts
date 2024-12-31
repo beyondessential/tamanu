@@ -1,4 +1,7 @@
-export function buildPatientSyncFilterViaPatientId(patientCount: number, markedForSyncPatientsTable: string) {
+export function buildPatientSyncFilterViaPatientId(
+  patientCount: number,
+  markedForSyncPatientsTable: string,
+) {
   if (patientCount === 0) {
     return null;
   }
