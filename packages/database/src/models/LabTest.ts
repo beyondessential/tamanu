@@ -1,38 +1,40 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
-import { dateTimeType, dateType } from './dateTimeTypes';
+import { dateTimeType, dateType } from '../types/model';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
+import type { SessionConfig } from '../types/sync';
 
 export class LabTest extends Model {
-  static init({ primaryKey, ...options }) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         date: dateType('date', { allowNull: false, defaultValue: getCurrentDateString }),
         result: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
           defaultValue: '',
         },
         laboratoryOfficer: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
         },
         verification: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
         },
         completedDate: dateTimeType('completedDate'),
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
@@ -58,7 +60,7 @@ export class LabTest extends Model {
     return ['category', 'labTestType', 'labTestMethod'];
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab tests
     }

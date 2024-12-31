@@ -1,29 +1,31 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
+import type { SessionConfig } from '../types/sync';
 
 export class LabRequestAttachment extends Model {
-  static init({ primaryKey, ...options }) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         // Relation can't be managed by sequelize because the
         // attachment won't get downloaded to facility server
         attachmentId: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         title: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         replacedById: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
       },
@@ -34,18 +36,18 @@ export class LabRequestAttachment extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
     });
   }
 
-  static buildPatientSyncFilter(patientIds, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string, sessionConfig: SessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab request attachments
     }
-    if (patientIds.length === 0) {
+    if (patientCount === 0) {
       return null;
     }
     return buildEncounterLinkedSyncFilter(
