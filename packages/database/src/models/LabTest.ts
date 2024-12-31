@@ -12,6 +12,12 @@ import type { InitOptions, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 
 export class LabTest extends Model {
+  id!: string;
+  date!: string;
+  result!: string;
+  laboratoryOfficer!: string;
+  verification!: string;
+  completedDate!: string;
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
