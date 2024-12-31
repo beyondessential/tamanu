@@ -34,7 +34,7 @@ export * from './ReferenceData';
 
 // export * from './VitalLog';
 // export * from './Vitals';
-// export * from './Procedure';
+export * from './Procedure';
 // export * from './EncounterDiagnosis';
 // export * from './EncounterMedication';
 // export * from './EncounterDiet';
@@ -46,7 +46,7 @@ export * from './LabTestType';
 export * from './LabTestPanel';
 export * from './LabTestPanelRequest';
 export * from './LabTestPanelLabTestTypes';
-// export * from './ImagingRequest';
+export * from './ImagingRequest';
 // export * from './ImagingRequestArea';
 // export * from './ImagingAreaExternalCode';
 // export * from './ImagingResult';
@@ -76,7 +76,7 @@ export * from './AdministeredVaccine';
 // export { Setting } from './Setting';
 // export * from './PatientCommunication';
 
-// export * from './Facility';
+export * from './Facility';
 export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
