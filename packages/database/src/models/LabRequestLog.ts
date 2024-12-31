@@ -1,22 +1,25 @@
-import { Sequelize } from 'sequelize';
-
+import { DataTypes } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
 
-const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
+const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES) as string[];
 
-/** Holds a record of a lab requests status at a specific point in time */
+/** Holds a record of a lab request's status at a specific point in time */
 export class LabRequestLog extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  status?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        status: Sequelize.ENUM(LAB_REQUEST_STATUS_VALUES),
+        status: DataTypes.ENUM(...LAB_REQUEST_STATUS_VALUES),
       },
       {
         ...options,
@@ -25,7 +28,7 @@ export class LabRequestLog extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
@@ -41,7 +44,7 @@ export class LabRequestLog extends Model {
     return ['labRequest', 'updatedBy'];
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }

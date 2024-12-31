@@ -1,9 +1,10 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { LAB_TEST_RESULT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '../errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
 
-function optionStringToArray(s) {
+function optionStringToArray(s: string | null): string[] | undefined {
   if (!s) return undefined;
   const trimmed = s.trim();
   if (!trimmed) return undefined;
@@ -13,45 +14,60 @@ function optionStringToArray(s) {
     .filter(x => x);
 }
 
+const LAB_TEST_RESULT_TYPES_VALUES = Object.values(LAB_TEST_RESULT_TYPES) as string[];
+
 export class LabTestType extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  code!: string;
+  name!: string;
+  unit!: string;
+  maleMin?: number;
+  maleMax?: number;
+  femaleMin?: number;
+  femaleMax?: number;
+  rangeText?: string;
+  resultType!: string;
+  options?: string;
+  visibilityStatus?: string;
+  externalCode?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-
         code: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         name: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
           defaultValue: '',
         },
         unit: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
           defaultValue: '',
         },
-        maleMin: Sequelize.FLOAT,
-        maleMax: Sequelize.FLOAT,
-        femaleMin: Sequelize.FLOAT,
-        femaleMax: Sequelize.FLOAT,
-        rangeText: Sequelize.STRING,
+        maleMin: DataTypes.FLOAT,
+        maleMax: DataTypes.FLOAT,
+        femaleMin: DataTypes.FLOAT,
+        femaleMax: DataTypes.FLOAT,
+        rangeText: DataTypes.STRING,
         resultType: {
-          type: Sequelize.ENUM(Object.values(LAB_TEST_RESULT_TYPES)),
+          type: DataTypes.ENUM(...LAB_TEST_RESULT_TYPES_VALUES),
           allowNull: false,
           defaultValue: LAB_TEST_RESULT_TYPES.NUMBER,
         },
         options: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         visibilityStatus: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
-        externalCode: Sequelize.TEXT,
+        externalCode: DataTypes.TEXT,
       },
       {
         ...options,
@@ -74,7 +90,7 @@ export class LabTestType extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestCategoryId',
       as: 'category',
@@ -84,7 +100,8 @@ export class LabTestType extends Model {
       as: 'panelRelations',
     });
     this.belongsToMany(models.LabTestPanel, {
-      through: 'LabTestPanelLabTestTypes',
+      through: models.LabTestPanelLabTestTypes,
+      as: 'labTestPanels',
     });
   }
 

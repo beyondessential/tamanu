@@ -1,25 +1,32 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
 
 export class LabTestPanel extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  code!: string;
+  name!: string;
+  visibilityStatus?: string;
+  externalCode?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         code: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         name: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         visibilityStatus: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
-        externalCode: Sequelize.TEXT,
+        externalCode: DataTypes.TEXT,
       },
       {
         ...options,
@@ -32,7 +39,7 @@ export class LabTestPanel extends Model {
     return ['category'];
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsToMany(models.LabTestType, {
       through: models.LabTestPanelLabTestTypes,
       as: 'labTestTypes',
