@@ -36,7 +36,7 @@ export class Location extends Model {
           allowNull: false,
         },
         visibilityStatus: {
-          type: DataTypes.ENUM(...Object.values(VISIBILITY_STATUSES)),
+          type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
         maxOccupancy: {
@@ -102,10 +102,10 @@ export class Location extends Model {
     return locationGroup ? `${locationGroup.name}, ${name}` : name;
   }
 
-  static parseFullLocationName(text: string): { group?: string | null; location?: string } {
+  static parseFullLocationName(text: string) {
     const match = text.match(/(?<group>[^,]*(?=,\s))?(,\s)?(?<location>.*)/);
-    const group = match?.groups?.group ?? null;
-    const location = match?.groups?.location ?? '';
+    const group = match?.groups?.group;
+    const location = match?.groups?.location;
     return { group, location };
   }
 
