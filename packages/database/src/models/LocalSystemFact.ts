@@ -1,38 +1,43 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import type { InitOptions } from '../types/model';
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
 export class LocalSystemFact extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  key!: string;
+  value?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         // use a separate key to allow for future changes in allowable id format
         key: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         value: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
       },
       {
-        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         ...options,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         indexes: [{ unique: true, fields: ['key'] }],
       },
     );
   }
 
-  static async get(key) {
+  static async get(key: string) {
     const result = await this.findOne({ where: { key } });
     return result?.value;
   }
 
-  static async set(key, value) {
+  static async set(key: string, value?: string) {
     const existing = await this.findOne({ where: { key } });
     if (existing) {
       await this.update({ value }, { where: { key } });
@@ -41,7 +46,7 @@ export class LocalSystemFact extends Model {
     }
   }
 
-  static async increment(key, amount = 1) {
+  static async incrementValue(key: string, amount: number = 1) {
     const [rowsAffected] = await this.sequelize.query(
       `
         UPDATE
@@ -59,7 +64,7 @@ export class LocalSystemFact extends Model {
     if (rowsAffected.length === 0) {
       throw new Error(`The local system fact table does not include the fact ${key}`);
     }
-    const fact = rowsAffected[0];
+    const fact = rowsAffected[0] as LocalSystemFact;
     return fact.value;
   }
 }

@@ -45,7 +45,7 @@ export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './LabTestPanel';
 export * from './LabTestPanelRequest';
-// export * from './LabTestPanelLabTestTypes';
+export * from './LabTestPanelLabTestTypes';
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';
 export * from './ImagingAreaExternalCode';
@@ -107,7 +107,7 @@ export * from './Appointment';
 
 // export * from './Signer';
 
-// export * from './CertificateNotification';
+export * from './CertificateNotification';
 
 export * from './Note';
 

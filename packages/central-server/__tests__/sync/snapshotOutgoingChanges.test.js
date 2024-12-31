@@ -38,7 +38,7 @@ describe('snapshotOutgoingChanges', () => {
     'if nothing changed returns 0',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
 
       const sessionId = fakeUUID();
       await createSnapshotTable(ctx.store.sequelize, sessionId);
@@ -75,7 +75,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
@@ -116,7 +116,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns records changed since given tick only',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
-      await LocalSystemFact.increment('currentSyncTick', 2);
+      await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const startTime = new Date();
@@ -126,7 +126,7 @@ describe('snapshotOutgoingChanges', () => {
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
 
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
@@ -156,7 +156,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns records changed since more than one tick',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
-      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const firstTock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const startTime = new Date();
@@ -165,7 +165,7 @@ describe('snapshotOutgoingChanges', () => {
         lastConnectionTime: startTime,
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
-      await LocalSystemFact.increment('currentSyncTick', 2);
+      await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       // for regular sync patients
@@ -224,7 +224,7 @@ describe('snapshotOutgoingChanges', () => {
         lastConnectionTime: startTime,
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       /*
@@ -310,7 +310,7 @@ describe('snapshotOutgoingChanges', () => {
         lastConnectionTime: startTime,
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       /*
@@ -378,7 +378,7 @@ describe('snapshotOutgoingChanges', () => {
         SyncSession,
         User,
       } = models;
-      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const firstTock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
       const user = await User.create(fake(User));
       const patient1 = await Patient.create(fake(Patient));
       const patient2 = await Patient.create(fake(Patient));
@@ -403,7 +403,7 @@ describe('snapshotOutgoingChanges', () => {
 
       await PatientFacility.create({ patientId: patient2.id, facilityId: facility.id });
 
-      const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const secondTock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
 
       const labTestCategory = await ReferenceData.create({
         ...fake(ReferenceData),
