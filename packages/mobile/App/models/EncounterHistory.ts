@@ -72,8 +72,4 @@ export class EncounterHistory extends BaseModel {
       date: date || getCurrentDateTimeString(),
     });
   }
-
-  static getTableNameForSync(): string {
-    return 'encounter_history';
-  }
 }

@@ -10,7 +10,7 @@ import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
-@Entity('program_registry')
+@Entity('program_registries')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -72,9 +72,5 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
 
   static async getAllProgramRegistries() {
     return this.getRepository().find();
-  }
-
-  static getTableNameForSync(): string {
-    return 'program_registries';
   }
 }
