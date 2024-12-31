@@ -24,12 +24,12 @@ interface LabRequestData {
 
 export class LabRequest extends Model {
   id!: string;
-  status!: string;
   sampleTime?: string;
   requestedDate!: string;
-  specimenAttached!: boolean;
-  urgent!: boolean;
-  reasonForCancellation!: string;
+  specimenAttached?: boolean;
+  urgent?: boolean;
+  status?: string;
+  reasonForCancellation?: string;
   senaiteId?: string;
   sampleId?: string;
   displayId!: string;

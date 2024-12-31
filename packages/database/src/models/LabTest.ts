@@ -15,9 +15,9 @@ export class LabTest extends Model {
   id!: string;
   date!: string;
   result!: string;
-  laboratoryOfficer!: string;
-  verification!: string;
-  completedDate!: string;
+  laboratoryOfficer?: string;
+  verification?: string;
+  completedDate?: string;
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
