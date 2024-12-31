@@ -37,6 +37,6 @@ export const pushOutgoingChanges = async (
   }
   await centralServer.completePush(
     sessionId,
-    Object.values(outgoingModels).map(m => m.getTableNameForSync()),
+    Object.values(outgoingModels).map(m => m.getTableName()),
   );
 };

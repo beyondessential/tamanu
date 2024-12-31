@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { readFileInDocuments } from '../ui/helpers/file';
 
-@Entity('attachment')
+@Entity('attachments')
 export class Attachment extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 

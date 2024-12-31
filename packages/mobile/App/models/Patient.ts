@@ -19,7 +19,7 @@ import { PatientContact } from './PatientContact';
 
 const TIME_OFFSET = 3;
 
-@Entity('patient')
+@Entity('patients')
 export class Patient extends BaseModel implements IPatient {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -130,7 +130,7 @@ export class Patient extends BaseModel implements IPatient {
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
+            .from('survey_responses', 'surveyResponse')
             .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
@@ -158,7 +158,7 @@ export class Patient extends BaseModel implements IPatient {
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
+            .from('survey_responses', 'surveyResponse')
             .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
@@ -180,7 +180,7 @@ export class Patient extends BaseModel implements IPatient {
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
+            .from('survey_responses', 'surveyResponse')
             .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
@@ -224,16 +224,16 @@ export class Patient extends BaseModel implements IPatient {
         ssc.config,
         ssc.validationCriteria,
         answer.body
-      FROM survey_response_answer answer
-      INNER JOIN survey_response response
+      FROM survey_response_answers answer
+      INNER JOIN survey_responses response
         ON response.id = responseId
-      INNER JOIN survey_screen_component ssc
+      INNER JOIN survey_screen_components ssc
         ON ssc.dataElementId = answer.dataElementId
-      INNER JOIN program_data_element pde
+      INNER JOIN program_data_elements pde
         ON pde.id = answer.dataElementId
-      INNER JOIN encounter
-        ON encounter.id = response.encounterId
-      WHERE encounter.patientId = $1
+      INNER JOIN encounters
+        ON encounters.id = response.encounterId
+      WHERE encounters.patientId = $1
         AND answer.body IS NOT NULL
         AND answer.deletedAt IS NULL
       ORDER BY answer.createdAt desc LIMIT $2

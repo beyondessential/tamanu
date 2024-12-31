@@ -11,7 +11,7 @@ import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
 import { PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
-@Entity('user')
+@Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
