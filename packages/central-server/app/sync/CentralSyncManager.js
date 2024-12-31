@@ -79,7 +79,7 @@ export class CentralSyncManager {
     // "tick" part to be unique to the requesting client, and any changes made directly on the
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
-    const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
+    const tock = await this.store.models.LocalSystemFact.incrementValue(CURRENT_SYNC_TIME_KEY, 2);
     return { tick: tock - 1, tock };
   }
 

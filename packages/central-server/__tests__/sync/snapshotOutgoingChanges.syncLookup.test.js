@@ -56,7 +56,7 @@ describe('snapshotOutgoingChanges', () => {
       debugInfo: {},
     });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
-    tock = await models.LocalSystemFact.increment('currentSyncTick', 2);
+    tock = await models.LocalSystemFact.incrementValue('currentSyncTick', 2);
     facility = await models.Facility.create({
       code: 'test-facility-1',
       name: 'Test Facility 1',
