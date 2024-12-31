@@ -14,6 +14,7 @@ const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES) as string[
 export class LabRequestLog extends Model {
   id!: string;
   status?: string;
+  labRequestId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

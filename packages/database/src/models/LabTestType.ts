@@ -30,6 +30,7 @@ export class LabTestType extends Model {
   options?: string;
   visibilityStatus!: string;
   externalCode?: string;
+  labTestCategoryId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

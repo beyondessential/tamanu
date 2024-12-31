@@ -14,6 +14,8 @@ export class LabRequestAttachment extends Model {
   attachmentId!: string;
   title!: string;
   replacedById?: string;
+  labRequestId?: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {

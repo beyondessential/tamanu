@@ -9,6 +9,7 @@ export class LabTestPanel extends Model {
   name!: string;
   visibilityStatus!: string;
   externalCode?: string;
+  categoryId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

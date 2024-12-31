@@ -18,6 +18,11 @@ export class LabTest extends Model {
   laboratoryOfficer?: string;
   verification?: string;
   completedDate?: string;
+  labRequestId?: string;
+  categoryId?: string;
+  labTestMethodId?: string;
+  labTestTypeId?: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {

@@ -11,6 +11,9 @@ import type { InitOptions, Models } from '../types/model';
 
 export class LabTestPanelRequest extends Model {
   id!: CreationOptional<string>;
+  encounterId?: string;
+  labTestPanelId?: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {

@@ -31,7 +31,17 @@ export class LabRequest extends Model {
   sampleId?: string;
   displayId!: string;
   publishedDate?: string;
-  encounterId!: string;
+  
+  encounterId?: string;
+  departmentId?: string;
+  requestedById?: string;
+  collectedById?: string;
+  labTestCategoryId?: string;
+  labSampleSiteId?: string;
+  labTestPriorityId?: string;
+  labTestLaboratoryId?: string;
+  specimenTypeId?: string;
+  labTestPanelRequestId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
