@@ -29,7 +29,7 @@ export class EncounterDiagnosis extends Model {
           defaultValue: DIAGNOSIS_CERTAINTY.SUSPECTED,
           validate: {
             isIn: [DIAGNOSIS_CERTAINTY_VALUES], // application-level validation, not db-level
-          }
+          },
         },
         isPrimary: DataTypes.BOOLEAN,
         date: dateTimeType('date', {

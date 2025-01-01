@@ -36,7 +36,7 @@ export class Department extends Model {
             if (!this.deletedAt && !this.facilityId) {
               throw new InvalidOperationError('A department must have a facility.');
             }
-          }
+          },
         },
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [{ unique: true, fields: ['code'] }],

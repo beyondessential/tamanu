@@ -33,7 +33,7 @@ export * from './ReferenceData';
 // export * from './ReferenceDataRelation';
 
 // export * from './VitalLog';
-// export * from './Vitals';
+export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
@@ -60,10 +60,10 @@ export * from './PatientProgramRegistration';
 // export * from './Survey';
 // export * from './SurveyScreenComponent';
 // export * from './ProgramDataElement';
-// export * from './SurveyResponse';
+export * from './SurveyResponse';
 // export * from './SurveyResponseAnswer';
 
-// export * from './Referral';
+export * from './Referral';
 export * from './CertifiableVaccine';
 export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
@@ -93,7 +93,7 @@ export * from './DocumentMetadata';
 // export * from './Permission';
 // export * from './Role';
 
-// export * from './Invoice';
+export * from './Invoice';
 // export * from './InvoiceProduct';
 // export * from './InvoiceDiscount';
 // export * from './InvoiceInsurer';
@@ -120,7 +120,7 @@ export * from './fhir';
 
 // export * from './IPSRequest';
 
-// export * from './Task';
+export * from './Task';
 // export * from './TaskDesignation';
 // export * from './TaskTemplate';
 // export * from './TaskTemplateDesignation';

@@ -31,7 +31,7 @@ export class Attachment extends Model {
   // Attachments don't sync on facility. Strangely, they do actually sync as
   // their upload mechanism on mobile. We should probably change this to be consistent on both
   // https://github.com/beyondessential/tamanu/pull/3352
-  static sanitizeForCentralServer(values: { [key: string]: any; data: string; }) {
+  static sanitizeForCentralServer(values: { [key: string]: any; data: string }) {
     return this.sanitizeForDatabase(values);
   }
 }

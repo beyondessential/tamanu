@@ -66,7 +66,7 @@ export class EncounterHistory extends Model {
       actorId,
       changeType,
       submittedTime,
-    }: { actorId: string; changeType: string; submittedTime?: string },
+    }: { actorId: string; changeType?: string; submittedTime?: string },
     options = {},
   ) {
     return EncounterHistory.create(

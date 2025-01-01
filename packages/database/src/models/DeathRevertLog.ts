@@ -10,8 +10,8 @@ export class DeathRevertLog extends Model {
   id!: string;
   revertTime!: Date;
   deathDataId!: string;
-patientId?: string;
-revertedById?: string;
+  patientId?: string;
+  revertedById?: string;
 
   static initModel(options: InitOptions) {
     super.init(
