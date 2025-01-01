@@ -61,7 +61,7 @@ function status(administeredVaccineStatus: string) {
 }
 
 function vaccineCode(scheduledVaccine?: ScheduledVaccine) {
-  function vaccineIdToAIRVCode(vaccineId: string) {
+  function vaccineIdToAIRVCode(vaccineId?: string) {
     switch (vaccineId) {
       case KNOWN_VACCINE_IDS.PFIZER:
         return KNOWN_AIRV_CODES.COMIRN;
