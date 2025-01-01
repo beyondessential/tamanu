@@ -2,24 +2,35 @@ import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { InvalidOperationError } from '../errors';
-import { runCalculations } from '../utils/calculations';
-import { getStringValue } from '../utils/fields';
-import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
+import { InvalidOperationError } from '@tamanu/shared/errors';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
+import { getStringValue } from '@tamanu/shared/utils/fields';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import type { InitOptions, ModelProperties, Models } from '../types/model';
+import type { SessionConfig } from '../types/sync';
+import type { User } from './User';
+import type { SurveyResponse } from './SurveyResponse';
+import type { ProgramDataElement } from './ProgramDataElement';
 
 export class SurveyResponseAnswer extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  name?: string;
+  body?: string;
+  dataElementId?: string;
+  responseId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         name: DataTypes.STRING,
         body: DataTypes.TEXT,
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.ProgramDataElement, {
       foreignKey: 'dataElementId',
     });
@@ -35,7 +46,11 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  static buildPatientSyncFilter(
+    patientCount: number,
+    markedForSyncPatientsTable: string,
+    sessionConfig: SessionConfig,
+  ) {
     if (patientCount === 0) {
       return null;
     }
@@ -79,11 +94,12 @@ export class SurveyResponseAnswer extends Model {
     };
   }
 
-  static getDefaultId = async (resource, settings) => {
+  // eslint-disable-next-line no-unused-vars
+  static getDefaultId = async (resource: string, settings: { get: (_arg0: string) => any }) => {
     const { models } = this.sequelize;
     const code = await settings.get(`survey.defaultCodes.${resource}`);
 
-    const modelName = upperFirst(resource);
+    const modelName = upperFirst(resource) as keyof Models;
     const model = models[modelName];
     if (!model) {
       throw new Error(`Model not found: ${modelName}`);
@@ -100,12 +116,16 @@ export class SurveyResponseAnswer extends Model {
 
   // To be called after creating/updating a vitals survey response answer. Checks if
   // said answer is used in calculated questions and updates them accordingly.
-  async upsertCalculatedQuestions(data) {
+  async upsertCalculatedQuestions(data: {
+    date: string;
+    reasonForChange: string;
+    user: ModelProperties<User>;
+  }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const surveyResponse = await this.getSurveyResponse();
+    const surveyResponse: SurveyResponse = await (this as any).getSurveyResponse();
     const vitalsSurvey = await models.Survey.getVitalsSurvey();
     const isVitalSurvey = surveyResponse.surveyId === vitalsSurvey?.id;
     if (isVitalSurvey === false) {
@@ -116,17 +136,19 @@ export class SurveyResponseAnswer extends Model {
 
     // Get necessary info and data shapes for running calculations
     const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
-      surveyResponse.surveyId,
+      surveyResponse.surveyId!,
       { includeAllVitals: true },
     );
-    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
-    const updatedAnswerDataElement = await this.getProgramDataElement();
-    const answers = await surveyResponse.getAnswers();
-    const values = {};
-    answers.forEach(answer => {
+    const calculatedScreenComponents = screenComponents.filter((c) => c.calculation);
+    const updatedAnswerDataElement: ProgramDataElement = await (
+      this as any
+    ).getProgramDataElement();
+    const answers: any[] = await (surveyResponse as any).getAnswers();
+    const values: { [key: string]: any } = {};
+    answers.forEach((answer) => {
       values[answer.dataElementId] = answer.body;
     });
-    const calculatedValues = runCalculations(screenComponents, values);
+    const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
 
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
@@ -143,10 +165,10 @@ export class SurveyResponseAnswer extends Model {
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
       const existingCalculatedAnswer = answers.find(
-        answer => answer.dataElementId === component.dataElement.id,
+        (answer) => answer.dataElementId === component.dataElement.id,
       );
       const previousCalculatedValue = existingCalculatedAnswer?.body;
-      let newCalculatedAnswer;
+      let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
         await existingCalculatedAnswer.update({ body: newCalculatedValue });
       } else {
@@ -164,7 +186,7 @@ export class SurveyResponseAnswer extends Model {
         previousValue: previousCalculatedValue || null,
         newValue: newCalculatedValue,
         recordedById: user.id,
-        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer.id,
+        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
       });
     }
     return this;

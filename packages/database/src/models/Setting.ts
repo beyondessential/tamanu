@@ -1,10 +1,11 @@
-import { Sequelize, Op } from 'sequelize';
+import { DataTypes, Op, Sequelize } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -28,17 +29,23 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
  * zzz   | schedules.automaticLabTestResultPublisher | false
  */
 export class Setting extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  key!: string;
+  value?: Record<string, any>;
+  scope!: string;
+  facilityId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         key: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
-        value: Sequelize.JSONB,
+        value: DataTypes.JSONB,
         scope: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: false,
           defaultValue: SETTINGS_SCOPES.GLOBAL,
         },
@@ -84,7 +91,7 @@ export class Setting extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
       as: 'facility',
@@ -152,14 +159,14 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
+  static async set(key: string, value: object, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
     const schema = getScopedSchema(scope);
     const defaultsForScope = extractDefaults(schema);
 
     const existingSettings = await this.findAll({
       where: {
-        key: records.map(r => r.key),
+        key: records.map((r) => r.key),
         scope,
         facilityId,
       },
@@ -169,7 +176,7 @@ export class Setting extends Model {
     const existingByKey = keyBy(existingSettings, 'key');
 
     await Promise.all(
-      records.map(async record => {
+      records.map(async (record) => {
         const existing = existingByKey[record.key];
         if (existing) {
           if (existing.deletedAt) {
@@ -207,7 +214,7 @@ export class Setting extends Model {
           key: {
             [Op.and]: {
               ...keyWhere,
-              [Op.notIn]: records.map(r => r.key),
+              [Op.notIn]: records.map((r) => r.key),
             },
           },
           scope,
@@ -230,7 +237,12 @@ export class Setting extends Model {
   }
 }
 
-export function buildSettingsRecords(keyPrefix, value, facilityId, scope) {
+function buildSettingsRecords(
+  keyPrefix: string,
+  value: object,
+  facilityId: string | null,
+  scope: string,
+): { key: string; value: object; facilityId: string | null; scope: string }[] {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>
       buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),

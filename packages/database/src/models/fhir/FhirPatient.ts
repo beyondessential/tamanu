@@ -9,7 +9,7 @@ import {
   getValues,
   searchParameters,
 } from '../../utils/fhir/Patient';
-import { Patient } from '../../models/Patient';
+import { Patient } from '../Patient';
 
 export class FhirPatient extends FhirResource {
   extension?: Record<string, any>;

@@ -39,6 +39,7 @@
     "build-watch": "npm run build:dev:watch"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.13",
     "@types/jsonpath": "^0.2.4",
     "@types/node": "^20.9.0",
@@ -47,8 +48,10 @@
   },
   "dependencies": {
     "@tamanu/constants": "*",
+    "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
+    "bcrypt": "^5.1.1",
     "config": "^3.3.9",
     "date-fns": "^2.19.0",
     "jsonpath": "^1.1.1",

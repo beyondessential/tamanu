@@ -6,10 +6,16 @@ import {
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
-import { translationFactory } from '../utils/translation/translationFactory';
+import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
+import type { InitOptions } from '../types/model';
 
 export class TranslatedString extends Model {
-  static init(options) {
+  id!: string;
+  stringId!: string;
+  language!: string;
+  text!: string;
+
+  static initModel(options: InitOptions) {
     super.init(
       {
         id: {
@@ -24,7 +30,7 @@ export class TranslatedString extends Model {
           allowNull: false,
           primaryKey: true,
           validate: {
-            doesNotContainIdDelimiter: value => {
+            doesNotContainIdDelimiter: (value: string) => {
               if (value.includes(';')) {
                 throw new Error('Translation ID cannot contain ";"');
               }
@@ -36,7 +42,7 @@ export class TranslatedString extends Model {
           allowNull: false,
           primaryKey: true,
           validate: {
-            doesNotContainIdDelimiter: value => {
+            doesNotContainIdDelimiter: (value: string) => {
               if (value.includes(';')) {
                 throw new Error('Language cannot contain ";"');
               }
@@ -100,6 +106,11 @@ export class TranslatedString extends Model {
     refDataType,
     queryString,
     limit,
+  }: {
+    language: string;
+    refDataType: string;
+    queryString: string;
+    limit: number;
   }) => {
     return this.findAll({
       where: {
@@ -115,12 +126,12 @@ export class TranslatedString extends Model {
     });
   };
 
-  static getTranslations = async (language, prefixIds) => {
+  static getTranslations = async (language: string, prefixIds: string[]) => {
     const translatedStringRecords = await TranslatedString.findAll({
       where: {
         language,
         // filter Boolean to avoid query all records
-        [Op.or]: prefixIds.filter(Boolean).map(prefixId => ({
+        [Op.or]: prefixIds.filter(Boolean).map((prefixId) => ({
           id: {
             [Op.startsWith]: prefixId,
           },
@@ -133,10 +144,16 @@ export class TranslatedString extends Model {
     return translations;
   };
 
-  static getTranslationFunction = async (language, prefixIds = []) => {
+  static getTranslationFunction = async (language: string, prefixIds: string[] = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (stringId, fallback, replacements, uppercase, lowercase) => {
+    return (
+      stringId: string,
+      fallback: string,
+      replacements: Record<string, string>,
+      uppercase: boolean,
+      lowercase: boolean,
+    ) => {
       const translationFunc = translationFactory(translations);
       const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
       return value;

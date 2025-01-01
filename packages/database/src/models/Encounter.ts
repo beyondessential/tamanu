@@ -27,6 +27,8 @@ export class Encounter extends Model {
   encounterType?: string;
   startDate!: string;
   endDate?: string;
+  reasonForEncounter?: string;
+  deviceId?: string;
   plannedLocationStartTime?: string;
   patientId?: string;
   examinerId?: string;

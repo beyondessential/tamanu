@@ -1,22 +1,22 @@
 export * from './User';
 // export * from './UserRecentlyViewedPatient';
-// export * from './UserPreference';
+export * from './UserPreference';
 // export * from './LocalSystemFact';
 
 export * from './Patient';
 // export * from './PatientFamilyHistory';
 // export * from './PatientCondition';
 // export * from './PatientAllergy';
-// export * from './PatientIssue';
+export * from './PatientIssue';
 export * from './PatientAdditionalData';
 // export * from './PatientVRSData';
-// export * from './PatientSecondaryId';
+export * from './PatientSecondaryId';
 // export * from './PatientFacility';
-// export * from './PatientContact';
+export * from './PatientContact';
 
 // export * from './PatientFieldDefinitionCategory';
-// export * from './PatientFieldDefinition';
-// export * from './PatientFieldValue';
+export * from './PatientFieldDefinition';
+export * from './PatientFieldValue';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';
@@ -32,7 +32,7 @@ export * from './Triage';
 export * from './ReferenceData';
 // export * from './ReferenceDataRelation';
 
-// export * from './VitalLog';
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
@@ -52,16 +52,16 @@ export * from './ImagingAreaExternalCode';
 export * from './ImagingResult';
 
 // export * from './Program';
-// export * from './ProgramRegistry';
-// export * from './ProgramRegistryClinicalStatus';
+export * from './ProgramRegistry';
+export * from './ProgramRegistryClinicalStatus';
 // export * from './ProgramRegistryCondition';
 export * from './PatientProgramRegistration';
-// export * from './PatientProgramRegistrationCondition';
-// export * from './Survey';
-// export * from './SurveyScreenComponent';
-// export * from './ProgramDataElement';
+export * from './PatientProgramRegistrationCondition';
+export * from './Survey';
+export * from './SurveyScreenComponent';
+export * from './ProgramDataElement';
 export * from './SurveyResponse';
-// export * from './SurveyResponseAnswer';
+export * from './SurveyResponseAnswer';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
@@ -73,7 +73,7 @@ export * from './AdministeredVaccine';
 // export * from './ReportDefinitionVersion';
 // export * from './PatientCarePlan';
 
-// export { Setting } from './Setting';
+export * from './Setting';
 // export * from './PatientCommunication';
 
 export * from './Facility';
@@ -90,7 +90,7 @@ export * from './DocumentMetadata';
 
 // export * from './OneTimeLogin';
 // export * from './RefreshToken';
-// export * from './Permission';
+export * from './Permission';
 // export * from './Role';
 
 export * from './Invoice';
@@ -116,15 +116,15 @@ export * from './SyncSession';
 
 export * from './fhir';
 
-// export * from './TranslatedString';
+export * from './TranslatedString';
 
 // export * from './IPSRequest';
 
 export * from './Task';
-// export * from './TaskDesignation';
-// export * from './TaskTemplate';
+export * from './TaskDesignation';
+export * from './TaskTemplate';
 // export * from './TaskTemplateDesignation';
-// export * from './UserDesignation';
+export * from './UserDesignation';
 // export * from './SyncLookup';
 export * from './DebugLog';
 // export * from './SyncDeviceTick';
