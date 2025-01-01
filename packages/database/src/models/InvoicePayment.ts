@@ -4,12 +4,19 @@ import { Model } from './Model';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
-import { dateType } from './dateTimeTypes';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class InvoicePayment extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  date!: string;
+  receiptNumber!: string;
+  amount!: number;
+  invoiceId?: string;
+  updatedByUserId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -25,15 +32,11 @@ export class InvoicePayment extends Model {
           allowNull: false,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Invoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
@@ -52,7 +55,7 @@ export class InvoicePayment extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }
@@ -71,11 +74,7 @@ export class InvoicePayment extends Model {
     };
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static getListReferenceAssociations(models) {
+  static getListReferenceAssociations(models: Models) {
     return [
       {
         model: models.User,

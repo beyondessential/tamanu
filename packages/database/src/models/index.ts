@@ -94,14 +94,14 @@ export * from './DocumentMetadata';
 // export * from './Role';
 
 export * from './Invoice';
-// export * from './InvoiceProduct';
-// export * from './InvoiceDiscount';
-// export * from './InvoiceInsurer';
-// export * from './InvoiceItem';
-// export * from './InvoiceItemDiscount';
-// export * from './InvoicePayment';
-// export * from './InvoicePatientPayment';
-// export * from './InvoiceInsurerPayment';
+export * from './InvoiceProduct';
+export * from './InvoiceDiscount';
+export * from './InvoiceInsurer';
+export * from './InvoiceItem';
+export * from './InvoiceItemDiscount';
+export * from './InvoicePayment';
+export * from './InvoicePatientPayment';
+export * from './InvoiceInsurerPayment';
 
 // export * from './Notification';
 

@@ -7,9 +7,20 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
+import type { ReferenceData } from './ReferenceData';
+import type { LabTestType } from './LabTestType';
 
 export class InvoiceProduct extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  name!: string;
+  price!: number;
+  discountable!: boolean;
+  visibilityStatus!: string;
+  referenceData?: ReferenceData;
+  labTestType?: LabTestType;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -31,15 +42,11 @@ export class InvoiceProduct extends Model {
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('.')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'id',
       as: 'referenceData',
@@ -59,7 +66,7 @@ export class InvoiceProduct extends Model {
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
-  
+
   static getFullReferenceAssociations() {
     return ['referenceData', 'labTestType'];
   }
@@ -70,8 +77,8 @@ export class InvoiceProduct extends Model {
       (this.labTestType?.code
         ? OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
         : IMAGING_TYPES_VALUES.includes(this.id)
-        ? REFERENCE_TYPES.IMAGING_TYPE
-        : undefined);
+          ? REFERENCE_TYPES.IMAGING_TYPE
+          : undefined);
     this.dataValues.code =
       this.referenceData?.code ??
       this.labTestType?.code ??

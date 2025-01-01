@@ -25,7 +25,7 @@ export class Attachment extends Model {
   }
 
   static sanitizeForDatabase({ data, ...restOfValues }: { data: string; [key: string]: any }) {
-    return { ...restOfValues, data: Buffer.from(data, 'base64') };
+    return { ...restOfValues, data: Buffer.from(data, 'base64') } as { [key: string]: any };
   }
 
   // Attachments don't sync on facility. Strangely, they do actually sync as

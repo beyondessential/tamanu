@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { InitOptions, Models } from 'types/model';
+import type { InitOptions, Models } from '../types/model';
 
 export class ContributingDeathCause extends Model {
   id!: string;

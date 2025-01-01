@@ -4,12 +4,17 @@ import { Model } from './Model';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
-import { dateTimeType } from './dateTimeTypes';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
 
-export class InvoiceDiscount extends Model {
-  static init({ primaryKey, ...options }) {
+export class InvoiceInsurer extends Model {
+  id!: string;
+  percentage!: number;
+  invoiceId?: string;
+  insurerId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -17,36 +22,24 @@ export class InvoiceDiscount extends Model {
           type: DataTypes.DECIMAL,
           allowNull: false,
         },
-        reason: DataTypes.STRING,
-        isManual: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
-        appliedTime: dateTimeType('appliedTime', {
-          allowNull: false,
-        }),
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Invoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
     });
 
-    this.belongsTo(models.User, {
-      foreignKey: 'appliedByUserId',
-      as: 'appliedByUser',
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'insurerId',
+      as: 'insurer',
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }

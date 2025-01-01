@@ -4,11 +4,17 @@ import { Model } from './Model';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
 
 export class InvoicePatientPayment extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  methodId!: string;
+  chequeNumber?: string;
+  invoicePaymentId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -21,15 +27,11 @@ export class InvoicePatientPayment extends Model {
           allowNull: true,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.InvoicePayment, {
       foreignKey: 'invoicePaymentId',
       as: 'detail',
@@ -41,7 +43,7 @@ export class InvoicePatientPayment extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }
@@ -65,11 +67,7 @@ export class InvoicePatientPayment extends Model {
     };
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static getListReferenceAssociations(models) {
+  static getListReferenceAssociations(models: Models) {
     return [
       {
         model: models.ReferenceData,

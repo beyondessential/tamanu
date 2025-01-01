@@ -1,12 +1,28 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter, buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
-import { dateType } from './dateTimeTypes';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class InvoiceItem extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  orderDate!: string;
+  productId?: string;
+  quantity!: number;
+  note?: string;
+  sourceId?: string;
+  productName!: string;
+  productPrice!: number;
+  productCode!: string;
+  productDiscountable!: boolean;
+  invoiceId?: string;
+  orderedByUserId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -46,15 +62,11 @@ export class InvoiceItem extends Model {
           allowNull: false,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Invoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
@@ -76,7 +88,7 @@ export class InvoiceItem extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }
@@ -91,15 +103,11 @@ export class InvoiceItem extends Model {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
       }),
-      joins: buildEncounterLinkedSyncFilterJoins([
-        this.tableName,
-        'invoices',
-        'encounters',
-      ]),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
     };
   }
 
-  static getListReferenceAssociations(models) {
+  static getListReferenceAssociations(models: Models) {
     return [
       {
         model: models.InvoiceProduct,

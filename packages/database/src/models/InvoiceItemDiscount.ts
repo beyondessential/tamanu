@@ -3,12 +3,21 @@ import { INVOICE_ITEMS_DISCOUNT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from '../types/model';
+
+const INVOICE_ITEMS_DISCOUNT_TYPE_VALUES = Object.values(INVOICE_ITEMS_DISCOUNT_TYPES);
 
 export class InvoiceItemDiscount extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  amount!: number;
+  type!: (typeof INVOICE_ITEMS_DISCOUNT_TYPE_VALUES)[number];
+  reason?: string;
+  invoiceItemId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -17,28 +26,24 @@ export class InvoiceItemDiscount extends Model {
           allowNull: false,
         },
         type: {
-          type: DataTypes.ENUM(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
+          type: DataTypes.ENUM(...INVOICE_ITEMS_DISCOUNT_TYPE_VALUES),
           allowNull: false,
           defaultValue: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
         },
         reason: DataTypes.STRING,
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
-  /**
-   *
-   * @param {import('./')} models
-   */
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.InvoiceItem, {
       foreignKey: 'invoiceItemId',
       as: 'invoiceItem',
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }
