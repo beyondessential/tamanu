@@ -1,16 +1,22 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '../errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { InitOptions, Models } from 'types/model';
 
 export class ContributingDeathCause extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  timeAfterOnset!: number;
+  patientDeathDataId?: string;
+  conditionId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         timeAfterOnset: {
-          type: Sequelize.INTEGER, // minutes
+          type: DataTypes.INTEGER, // minutes
           allowNull: false,
         },
       },
@@ -37,7 +43,7 @@ export class ContributingDeathCause extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.PatientDeathData, {
       foreignKey: 'patientDeathDataId',
       as: 'patientDeathData',
@@ -49,7 +55,7 @@ export class ContributingDeathCause extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }

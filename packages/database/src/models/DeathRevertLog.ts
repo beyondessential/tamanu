@@ -1,13 +1,19 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '../errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class DeathRevertLog extends Model {
-  static init(options) {
+  id!: string;
+  revertTime!: Date;
+  deathDataId!: string;
+patientId?: string;
+revertedById?: string;
+
+  static initModel(options: InitOptions) {
     super.init(
       {
         id: {
@@ -40,7 +46,7 @@ export class DeathRevertLog extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',

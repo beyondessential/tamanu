@@ -169,7 +169,7 @@ export class FhirImagingStudy extends FhirResource {
       reasonForCancellation: cancelledReason,
     });
     await this.sequelize.transaction(async () => {
-      await imagingRequest.createNote({
+      await (imagingRequest as any).createNote({
         noteType: NOTE_TYPES.OTHER,
         content: `Request cancelled. Reason: ${cancelledReason}.`,
         authorId: requesterId,

@@ -3,9 +3,14 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
+import type { InitOptions } from '../types/model';
 
 export class DebugLog extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  type?: string;
+  info?: Record<string, any>;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -21,7 +26,7 @@ export class DebugLog extends Model {
     );
   }
 
-  async addInfo(info) {
+  async addInfo(info: Record<string, any>) {
     await this.update({
       info: { ...this.info, ...info },
     });

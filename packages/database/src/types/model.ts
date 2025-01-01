@@ -14,6 +14,7 @@ type PrimaryKey = {
 export interface InitOptions extends BaseInitOptions {
   syncDirection: SyncDirectionValues;
   primaryKey: PrimaryKey;
+  hackToSkipEncounterValidation?: boolean;
 }
 
 export type Models = typeof models;

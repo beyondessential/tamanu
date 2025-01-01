@@ -1,26 +1,39 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { DOCUMENT_SOURCES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class DocumentMetadata extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  name!: string;
+  type!: string;
+  source!: string;
+  documentCreatedAt?: string;
+  documentUploadedAt!: string;
+  documentOwner?: string;
+  note?: string;
+  attachmentId!: string;
+  encounterId?: string;
+  patientId?: string;
+  departmentId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         name: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         type: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         source: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
           defaultValue: DOCUMENT_SOURCES.UPLOADED,
         },
@@ -29,13 +42,13 @@ export class DocumentMetadata extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
-        documentOwner: Sequelize.TEXT,
-        note: Sequelize.STRING,
+        documentOwner: DataTypes.TEXT,
+        note: DataTypes.STRING,
 
         // Relation can't be managed by sequelize because the
         // attachment won't get downloaded to facility server
         attachmentId: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
       },
@@ -46,7 +59,7 @@ export class DocumentMetadata extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -67,7 +80,7 @@ export class DocumentMetadata extends Model {
     return ['department'];
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }

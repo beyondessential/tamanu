@@ -12,7 +12,7 @@ const HOOK_TRIGGER = 'afterCreate';
 const HOOK_NAME = 'markPatientForSync';
 
 // any time an encounter is opened for a non-syncing patient should mark it for ongoing sync
-export const onCreateEncounterMarkPatientForSync = (encounterModel: Encounter) => {
+export const onCreateEncounterMarkPatientForSync = (encounterModel: typeof Encounter) => {
   // we remove and add the hook because Sequelize doesn't have a good way
   // to detect which hooks have already been added to a model in its
   // public API

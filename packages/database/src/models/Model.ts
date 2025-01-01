@@ -167,10 +167,6 @@ export class Model<
     return this.constructor.name;
   }
 
-  async createNote(..._args: any): Promise<any> {
-    // implement on the specific model if needed
-  }
-
   static getListReferenceAssociations(_models?: Models): any[] | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)

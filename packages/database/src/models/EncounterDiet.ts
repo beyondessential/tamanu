@@ -1,10 +1,15 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import type { InitOptions, Models } from '../types/model';
 
 export class EncounterDiet extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  encounterId?: string;
+  dietId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -16,7 +21,7 @@ export class EncounterDiet extends Model {
     );
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -27,7 +32,7 @@ export class EncounterDiet extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }

@@ -1,40 +1,51 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '../errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
 
 export class CertifiableVaccine extends Model {
-  static init({ primaryKey, ...options }) {
+  id!: string;
+  icd11DrugCode!: string;
+  icd11DiseaseCode!: string;
+  vaccineCode!: string;
+  targetCode?: string;
+  euProductCode?: string;
+  maximumDosage!: number;
+  vaccineId?: string;
+  manufacturerId?: string;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         // ICD11 code for the vaccine type
         icd11DrugCode: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         // ICD11 code for the targeted disease
         icd11DiseaseCode: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         // SNOMED CT or ATC code for the vaccine type
         vaccineCode: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         // SNOMED CT or ATC code for targeted disease
         targetCode: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
         // EU authorisation code for the vaccine product
         euProductCode: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
         maximumDosage: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           allowNull: false,
           defaultValue: 1,
         },
@@ -58,7 +69,7 @@ export class CertifiableVaccine extends Model {
     return ['encounter', 'scheduledVaccine'];
   }
 
-  static initRelations(models) {
+  static initRelations(models: Models) {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'vaccineId',
       as: 'vaccine',
