@@ -7,34 +7,43 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
       "types": "./dist/esm/index.d.ts"
     },
     "./*": {
-      "import": "./dist/esm/*.js",
       "require": "./dist/cjs/*.js",
+      "import": "./dist/esm/*.js",
       "types": "./dist/esm/*.d.ts"
+    },
+    "./demoData": {
+      "require": "./dist/cjs/demoData/index.js",
+      "import": "./dist/esm/demoData/index.js",
+      "types": "./dist/esm/demoData/index.d.ts"
     },
     "./demoData/*": {
       "require": "./dist/cjs/demoData/*.js",
-      "import": "./dist/esm/demoData/*.js"
+      "import": "./dist/esm/demoData/*.js",
+      "types": "./dist/esm/demoData/*.d.ts"
     },
     "./services/migrations": {
       "require": "./dist/cjs/services/migrations/index.js",
-      "import": "./dist/esm/services/migrations/index.js"
+      "import": "./dist/esm/services/migrations/index.js",
+      "types": "./dist/esm/services/migrations/index.d.ts"
     },
     "./services/migrations/*": {
       "require": "./dist/cjs/services/migrations/*.js",
-      "import": "./dist/esm/services/migrations/*.js"
+      "import": "./dist/esm/services/migrations/*.js",
+      "types": "./dist/esm/services/migrations/*.d.ts"
     },
     "./services/database": {
       "require": "./dist/cjs/services/database.js",
-      "import": "./dist/esm/services/database.js"
+      "import": "./dist/esm/services/database.js",
+      "types": "./dist/esm/services/database.d.ts"
     },
     "./utils/fhir": {
-      "import": "./dist/esm/utils/fhir/index.js",
       "require": "./dist/cjs/utils/fhir/index.js",
+      "import": "./dist/esm/utils/fhir/index.js",
       "types": "./dist/esm/utils/fhir/index.d.ts"
     }
   },
