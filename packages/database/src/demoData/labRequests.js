@@ -1,5 +1,5 @@
 import { randomReferenceId } from './patients';
-import { fake } from '../test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 
 export const randomLabRequest = async (models, overrides) => {
   const categoryId = overrides?.categoryId || (await randomReferenceId(models, 'labTestCategory'));
@@ -7,7 +7,7 @@ export const randomLabRequest = async (models, overrides) => {
 
   return {
     categoryId,
-    labTestTypeIds: labTestTypes.map(t => t.id),
+    labTestTypeIds: labTestTypes.map((t) => t.id),
     displayId: 'TESTID',
     ...overrides,
   };
@@ -19,6 +19,6 @@ export const createLabTestTypes = async (models, categoryId) => {
   const labTestTypes = Array(2)
     .fill()
     .map(() => ({ ...fake(LabTestType), labTestCategoryId }));
-  const createdLabTestTypes = await Promise.all(labTestTypes.map(t => LabTestType.create(t)));
+  const createdLabTestTypes = await Promise.all(labTestTypes.map((t) => LabTestType.create(t)));
   return createdLabTestTypes;
 };
