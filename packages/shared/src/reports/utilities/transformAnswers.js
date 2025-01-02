@@ -145,7 +145,7 @@ export const transformAnswers = async (
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   // Some questions in the front end are not answered but still record the answer as empty string in the database
-  // So we should filter any answers thare are empty.
+  // So we should filter any answers that are empty.
   const nonEmptyAnswers = surveyResponseAnswers.filter(
     answer => answer.body !== null && answer.body !== undefined && answer.body !== '',
   );
