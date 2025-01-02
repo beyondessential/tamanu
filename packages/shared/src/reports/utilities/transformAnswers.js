@@ -163,7 +163,7 @@ export const transformAnswers = async (
     let sourceType;
     const componentConfig = autocompleteComponentMap.get(dataElementId);
 
-    // If the answer is a survey answer, we need to look up the type from the soruce survey components
+    // If the answer is a survey answer, we need to look up the type from the source survey components
     if (type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER) {
       const config = JSON.parse(dataElementIdToComponent[dataElementId].config);
       const ssc = await models.SurveyScreenComponent.findOne({
