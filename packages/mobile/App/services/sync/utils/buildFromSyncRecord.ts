@@ -16,7 +16,7 @@ export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
  *    mapFields
  *
  *      Input: [['fooId', 'foo']], { fooId: '123abc' }
- *      Ouput: { foo: '123abc' }
+ *      Output: { foo: '123abc' }
  */
 const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown }): DataToPersist => {
   const newObj = { ...obj };
