@@ -20,6 +20,10 @@
       "require": "./dist/cjs/demoData/*.js",
       "import": "./dist/esm/demoData/*.js"
     },
+    "./services/migrations": {
+      "require": "./dist/cjs/services/migrations/index.js",
+      "import": "./dist/esm/services/migrations/index.js"
+    },
     "./services/migrations/*": {
       "require": "./dist/cjs/services/migrations/*.js",
       "import": "./dist/esm/services/migrations/*.js"
