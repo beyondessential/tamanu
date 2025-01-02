@@ -108,7 +108,7 @@ describe('VDS: Proof of Vaccination', () => {
     const patient = await Patient.create({
       ...fake(Patient),
       firstName: 'Fiamē Naomi',
-      lastName: 'Mataʻafa',
+      lastName: 'Mataʻafa', // spellchecker:disable-line
       dateOfBirth: new Date(Date.parse('29 April 1957, UTC')),
       sex: 'female',
     });
@@ -169,7 +169,7 @@ describe('VDS: Proof of Vaccination', () => {
     // Assert
     expect(msg).to.deep.equal({
       pid: {
-        n: 'Mata`afa Fiame Naomi',
+        n: 'Mata`afa Fiame Naomi', // spellchecker:disable-line
         dob: '1957-04-29',
         i: 'A2345678',
         sex: 'F',
