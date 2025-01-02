@@ -17,6 +17,14 @@
       "require": "./dist/cjs/*.js",
       "types": "./dist/esm/*.d.ts"
     },
+    "./services/migrations/*": {
+      "require": "./dist/cjs/services/migrations/*.js",
+      "import": "./dist/esm/services/migrations/*.js"
+    },
+    "./services/database": {
+      "require": "./dist/cjs/services/database.js",
+      "import": "./dist/esm/services/database.js"
+    },
     "./utils/fhir": {
       "import": "./dist/esm/utils/fhir/index.js",
       "require": "./dist/cjs/utils/fhir/index.js",
