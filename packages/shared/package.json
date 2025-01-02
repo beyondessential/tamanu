@@ -9,10 +9,6 @@
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js"
     },
-    "./demoData/*": {
-      "require": "./dist/cjs/demoData/*.js",
-      "import": "./dist/esm/demoData/*.js"
-    },
     "./errors": {
       "require": "./dist/cjs/errors.js",
       "import": "./dist/esm/errors.js"

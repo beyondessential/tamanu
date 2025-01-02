@@ -51,6 +51,11 @@
       "import": "./dist/esm/services/database.js",
       "types": "./dist/esm/services/database.d.ts"
     },
+    "./sync": {
+      "require": "./dist/cjs/sync/index.js",
+      "import": "./dist/esm/sync/index.js",
+      "types": "./dist/esm/sync/index.d.ts"
+    },
     "./utils/fhir": {
       "require": "./dist/cjs/utils/fhir/index.js",
       "import": "./dist/esm/utils/fhir/index.js",
