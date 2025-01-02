@@ -90,11 +90,8 @@ export class Model<
    * Generates a uuid via the database
    */
   static async generateDbUuid() {
-    const result = await this.sequelize?.query<{ uuid_generate_v4: string }[]>(
-      `SELECT uuid_generate_v4();`,
-      { type: QueryTypes.SELECT },
-    );
-    return result?.[0]?.[0]?.uuid_generate_v4;
+    const result: any  = await this.sequelize.query(`SELECT uuid_generate_v4();`);
+    return result[0][0].uuid_generate_v4;
   }
 
   static validateSync(timestamps: boolean) {

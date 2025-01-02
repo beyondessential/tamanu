@@ -106,6 +106,10 @@ export class Notification extends Model {
           return;
       }
 
+      if (!patientId || !userId) {
+        return;
+      }
+
       await this.create({
         type,
         metadata: { ...metadata, patientId },
