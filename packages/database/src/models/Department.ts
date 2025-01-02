@@ -12,7 +12,7 @@ export class Department extends Model {
   departmentId?: string;
   facilityId?: string;
 
-  static initMOdel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
