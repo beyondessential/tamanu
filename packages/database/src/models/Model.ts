@@ -11,6 +11,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
+import type { SessionConfig } from '../types/sync';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -19,6 +20,9 @@ export class Model<
   _TCreationAttributes extends {} = TModelAttributes,
 > extends BaseModel<TModelAttributes, _TCreationAttributes> {
   id!: any;
+  createdAt!: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
   sequelize!: { models: Models } & Omit<Sequelize, 'models'>;
   static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   static syncDirection: InitOptions['syncDirection'];
@@ -28,6 +32,7 @@ export class Model<
   static buildPatientSyncFilter: (
     _patientCount: number,
     _markedForSyncPatientsTable: string,
+    _sessionConfig: SessionConfig,
   ) => string | null;
   static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
 
@@ -162,7 +167,7 @@ export class Model<
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations(_models?: Models): any[] | undefined {
+  static getListReferenceAssociations(_models?: Models): any | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //

@@ -17,7 +17,7 @@ const pickLatest = (
 // of each field
 const lastWriteWinsPerField = (existing: Record<string, any>, incoming: Record<string, any>) => {
   const merged = { ...existing, ...incoming }; // make sure it has all fields in both
-  const mergedUpdatedAtByField: { [key: string]: number } = {};
+  const mergedUpdatedAtByField: Record<string, number> = {};
   Object.keys(merged)
     .filter((key) => !['updatedAtByField', 'updatedAtSyncTick'].includes(key))
     .forEach((key) => {

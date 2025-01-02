@@ -5,6 +5,7 @@ import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
 
 export interface SessionConfig {
   syncAllLabRequests: boolean;
+  isMobile: boolean;
 }
 
 export type SyncDirectionValues = (typeof SYNC_DIRECTIONS)[keyof typeof SYNC_DIRECTIONS];

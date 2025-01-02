@@ -73,7 +73,7 @@ export * from './ReportDefinition';
 export * from './ReportDefinitionVersion';
 export * from './PatientCarePlan';
 
-export { Setting } from './Setting';
+export * from './Setting';
 export * from './PatientCommunication';
 
 export * from './Facility';
@@ -126,6 +126,5 @@ export * from './TaskTemplate';
 export * from './TaskTemplateDesignation';
 export * from './UserDesignation';
 export * from './SyncLookup';
-export * from './DebugLog';
 export * from './DebugLog';
 export * from './SyncDeviceTick';

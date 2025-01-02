@@ -18,5 +18,5 @@ export const getSyncTicksOfPendingEdits = async (sequelize: Sequelize) => {
     },
   );
 
-  return results?.map(r => r.tick);
+  return results?.map((r) => r.tick);
 };

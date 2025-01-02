@@ -1,4 +1,4 @@
-import type { Models } from "../types/model";
+import type { Models } from '../types/model';
 
 export function sortInDependencyOrder(models: Models) {
   const sorted: Array<Models[keyof Models]> = [];
@@ -7,9 +7,9 @@ export function sortInDependencyOrder(models: Models) {
   while (stillToSort.size > 0) {
     for (const [name, model] of stillToSort) {
       const dependsOn = Object.values(model.associations)
-        .filter(a => a.associationType === 'BelongsTo' && !a.isSelfAssociation)
-        .map(a => a.target.name);
-      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort.has(d));
+        .filter((a) => a.associationType === 'BelongsTo' && !a.isSelfAssociation)
+        .map((a) => a.target.name);
+      const dependenciesStillToSort = dependsOn.filter((d) => !!stillToSort.has(d));
       if (dependenciesStillToSort.length === 0) {
         sorted.push(model);
         stillToSort.delete(name);

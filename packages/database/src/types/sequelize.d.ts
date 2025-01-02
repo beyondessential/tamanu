@@ -6,6 +6,7 @@ declare module 'sequelize' {
   namespace DataTypes {
     export const DATETIMESTRING: AbstractDataTypeConstructor;
     export const DATESTRING: AbstractDataTypeConstructor;
+    export const TIMESTAMP: AbstractDataTypeConstructor;
   }
   export interface Sequelize extends sequelize.Sequelize {
     isInsideTransaction(): boolean;

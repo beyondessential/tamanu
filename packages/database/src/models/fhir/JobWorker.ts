@@ -1,0 +1,62 @@
+import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Model } from '../Model';
+import type { InitOptions } from '../../types/model';
+
+export class FhirJobWorker extends Model {
+  id!: string;
+  metadata!: Record<string, any>;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
+    super.init(
+      {
+        id: {
+          ...primaryKey,
+          type: DataTypes.UUID,
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
+        },
+        metadata: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+          defaultValue: {},
+        },
+      },
+      {
+        ...options,
+        schema: 'fhir',
+        tableName: 'job_workers',
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+      },
+    );
+  }
+
+  static async register(metadata = {}) {
+    const result = await this.sequelize.query<{ id: string }>(
+      'SELECT fhir.job_worker_register($metadata) as id',
+      {
+        type: QueryTypes.SELECT,
+        bind: { metadata },
+      },
+    );
+
+    return FhirJobWorker.findByPk(result?.[0]?.id);
+  }
+
+  static async clearDead() {
+    await this.sequelize.query('SELECT fhir.job_worker_garbage_collect()');
+  }
+
+  async heartbeat() {
+    await this.sequelize.query('SELECT fhir.job_worker_heartbeat($workerId)', {
+      type: QueryTypes.SELECT,
+      bind: { workerId: this.id },
+    });
+  }
+
+  async deregister() {
+    await this.sequelize.query('SELECT fhir.job_worker_deregister($workerId)', {
+      type: QueryTypes.SELECT,
+      bind: { workerId: this.id },
+    });
+  }
+}

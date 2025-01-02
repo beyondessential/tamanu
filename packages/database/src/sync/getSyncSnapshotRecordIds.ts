@@ -33,5 +33,5 @@ export const getSyncSnapshotRecordIds = async (
     },
   );
 
-  return rows.map(r => r.record_id);
+  return rows.map((r) => r.record_id);
 };

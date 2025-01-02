@@ -5,14 +5,14 @@
 // - shouldn't mark the patient for sync when saved during the sync pull process (which uses bulk-create)
 // - shouldn't mark the patient for sync when updated as part of processing the lab request (which
 
-import type { Encounter } from "../models";
+import type { Encounter } from '../models';
 
 //   is why we don't trigger on updates)
 const HOOK_TRIGGER = 'afterCreate';
 const HOOK_NAME = 'markPatientForSync';
 
 // any time an encounter is opened for a non-syncing patient should mark it for ongoing sync
-export const onCreateEncounterMarkPatientForSync = (encounterModel: Encounter) => {
+export const onCreateEncounterMarkPatientForSync = (encounterModel: typeof Encounter) => {
   // we remove and add the hook because Sequelize doesn't have a good way
   // to detect which hooks have already been added to a model in its
   // public API
