@@ -4,7 +4,6 @@ import {
   Utils,
   DataTypes,
   Model as BaseModel,
-  QueryTypes,
   type ModelAttributes,
   Sequelize,
 } from 'sequelize';
