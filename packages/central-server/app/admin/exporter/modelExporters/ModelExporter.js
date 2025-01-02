@@ -30,7 +30,7 @@ export class ModelExporter {
     return this.customTabName() || startCase(this.dataType);
   }
 
-  formatedCell(header, value) {
+  formattedCell(header, value) {
     if (!value) {
       return value;
     }
