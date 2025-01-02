@@ -26,6 +26,16 @@
       "import": "./dist/esm/demoData/*.js",
       "types": "./dist/esm/demoData/*.d.ts"
     },
+    "./dataMigrations": {
+      "require": "./dist/cjs/dataMigrations/index.js",
+      "import": "./dist/esm/dataMigrations/index.js",
+      "types": "./dist/esm/dataMigrations/index.d.ts"
+    },
+    "./dataMigrations/*": {
+      "require": "./dist/cjs/dataMigrations/*.js",
+      "import": "./dist/esm/dataMigrations/*.js",
+      "types": "./dist/esm/dataMigrations/*.d.ts"
+    },
     "./services/migrations": {
       "require": "./dist/cjs/services/migrations/index.js",
       "import": "./dist/esm/services/migrations/index.js",
