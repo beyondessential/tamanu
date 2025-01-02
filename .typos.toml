@@ -2,8 +2,10 @@
 extend-ignore-re = [
   "^import.+from.+$", # catch spelling on exports, ignore imports
   "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$", # lines trailing with // spellchecker:disable-line
-  "\\b[A-Z]-[0-9]+\\b", # linear team names
+  "\\W[A-Z]{3,5}-[0-9]+", # linear team names
   "pattern\\s*=\\s*['\"].+", # regexes or globs
+
+  "report\\.summary\\.poepleAttended\\.text", # unfortunate typo in the translation strings
 ]
 
 [default.extend-words]
