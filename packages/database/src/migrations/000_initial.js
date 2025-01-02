@@ -48,66 +48,66 @@ const BASE_FIELDS = {
 };
 // =/=
 
-const models = await Promise.all(
-  [
-    'referenceData',
-    'user',
-    'patient',
-    'patientAllergy',
-    'patientCarePlan',
-    'patientCondition',
-    'patientFamilyHistory',
-    'patientIssue',
-    'encounter',
-    'encounterDiagnosis',
-    'encounterMedication',
-    'procedure',
-    'vitals',
-    'triage',
-    'referral',
-    'referralDiagnosis',
-    'scheduledVaccine',
-    'administeredVaccine',
-    'program',
-    'programDataElement',
-    'survey',
-    'surveyScreenComponent',
-    'surveyResponse',
-    'surveyResponseAnswer',
-    'labRequest',
-    'labTestType',
-    'labTest',
-    'imagingRequest',
-    'reportRequest',
-    'patientCommunication',
-    'setting',
-    'syncMetadata',
-    'note',
-  ].map(async (k) => {
-    // eslint-disable-next-line global-require
-    const module = await import(`./000_initial/${k}`).then((m) => m.default);
-    const { fields, options } = module({ Sequelize, foreignKey });
-    return {
-      name: makeTableName(k),
-      fields: {
-        ...underscoreObject(BASE_FIELDS),
-        ...underscoreObject(fields),
-      },
-      options,
-    };
-  }),
-);
+const modelsPromises = [
+  'referenceData',
+  'user',
+  'patient',
+  'patientAllergy',
+  'patientCarePlan',
+  'patientCondition',
+  'patientFamilyHistory',
+  'patientIssue',
+  'encounter',
+  'encounterDiagnosis',
+  'encounterMedication',
+  'procedure',
+  'vitals',
+  'triage',
+  'referral',
+  'referralDiagnosis',
+  'scheduledVaccine',
+  'administeredVaccine',
+  'program',
+  'programDataElement',
+  'survey',
+  'surveyScreenComponent',
+  'surveyResponse',
+  'surveyResponseAnswer',
+  'labRequest',
+  'labTestType',
+  'labTest',
+  'imagingRequest',
+  'reportRequest',
+  'patientCommunication',
+  'setting',
+  'syncMetadata',
+  'note',
+].map(async (k) => {
+  // eslint-disable-next-line global-require
+  const module = await import(`./000_initial/${k}`).then((m) => m.default);
+  const { fields, options } = module({ Sequelize, foreignKey });
+  return {
+    name: makeTableName(k),
+    fields: {
+      ...underscoreObject(BASE_FIELDS),
+      ...underscoreObject(fields),
+    },
+    options,
+  };
+});
 
 export default {
   up: async (query) => {
     await query.sequelize.transaction(async (transaction) => {
-      for (const t of models) {
+      const models = await Promise.all(modelsPromises);
+      for (const t of await Promise.all(models)) {
         await query.createTable(t.name, t.fields, t.options, { transaction });
       }
     });
   },
   down: async (query) => {
     await query.sequelize.transaction(async (transaction) => {
+      const models = await Promise.all(modelsPromises);
       const reversed = [...models].reverse();
       for (const t of reversed) {
         await query.dropTable(t.name, { transaction });
