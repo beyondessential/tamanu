@@ -11,7 +11,7 @@ const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) 
     return serverFacilityIds ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
   };
   const scope = getScope();
-  const combineSettings = async facilityId => {
+  const combineSettings = async (facilityId) => {
     const existing = await Setting.get('', facilityId, scope);
     const combined = defaultsDeep(existing, settings);
     return Setting.set('', combined, scope, facilityId);

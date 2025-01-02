@@ -9,18 +9,18 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class InvoiceItem extends Model {
-  id!: string;
-  orderDate!: string;
-  productId?: string;
-  quantity!: number;
-  note?: string;
-  sourceId?: string;
-  productName!: string;
-  productPrice!: number;
-  productCode!: string;
-  productDiscountable!: boolean;
-  invoiceId?: string;
-  orderedByUserId?: string;
+  declare id: string;
+  declare orderDate: string;
+  declare productId?: string;
+  declare quantity: number;
+  declare note?: string;
+  declare sourceId?: string;
+  declare productName: string;
+  declare productPrice: number;
+  declare productCode: string;
+  declare productDiscountable: boolean;
+  declare invoiceId?: string;
+  declare orderedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

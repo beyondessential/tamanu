@@ -4,10 +4,10 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class Attachment extends Model {
-  id!: string;
-  type?: String;
-  size?: Number;
-  data?: Buffer;
+  declare id: string;
+  declare type?: String;
+  declare size?: Number;
+  declare data?: Buffer;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -24,14 +24,14 @@ export class Attachment extends Model {
     );
   }
 
-  static sanitizeForDatabase({ data, ...restOfValues }: { data: string; [key: string]: any }) {
+  static sanitizeForDatabase({ data, ...restOfValues }: { data: any; [key: string]: any }) {
     return { ...restOfValues, data: Buffer.from(data, 'base64') } as { [key: string]: any };
   }
 
   // Attachments don't sync on facility. Strangely, they do actually sync as
   // their upload mechanism on mobile. We should probably change this to be consistent on both
   // https://github.com/beyondessential/tamanu/pull/3352
-  static sanitizeForCentralServer(values: { [key: string]: any; data: string }) {
+  static sanitizeForCentralServer(values: { [key: string]: any; data: any }) {
     return this.sanitizeForDatabase(values);
   }
 }

@@ -3,9 +3,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class TaskTemplateDesignation extends Model {
-  id!: string;
-  taskTemplateId?: string;
-  designationId?: number;
+  declare id: string;
+  declare taskTemplateId?: string;
+  declare designationId?: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

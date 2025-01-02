@@ -9,21 +9,21 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PatientBirthData extends Model {
-  id!: string;
-  patientId!: string;
-  birthWeight?: number;
-  birthLength?: number;
-  birthDeliveryType?: string;
-  attendantAtBirth?: string;
-  nameOfAttendantAtBirth?: string;
-  gestationalAgeEstimate?: number;
-  apgarScoreOneMinute?: number;
-  apgarScoreFiveMinutes?: number;
-  apgarScoreTenMinutes?: number;
-  timeOfBirth?: string;
-  birthType?: string;
-  registeredBirthPlace?: string;
-  birthFacilityId?: string;
+  declare id: string;
+  declare patientId: string;
+  declare birthWeight?: number;
+  declare birthLength?: number;
+  declare birthDeliveryType?: string;
+  declare attendantAtBirth?: string;
+  declare nameOfAttendantAtBirth?: string;
+  declare gestationalAgeEstimate?: number;
+  declare apgarScoreOneMinute?: number;
+  declare apgarScoreFiveMinutes?: number;
+  declare apgarScoreTenMinutes?: number;
+  declare timeOfBirth?: string;
+  declare birthType?: string;
+  declare registeredBirthPlace?: string;
+  declare birthFacilityId?: string;
 
   static initModel(options: InitOptions) {
     super.init(

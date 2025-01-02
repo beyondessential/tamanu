@@ -149,25 +149,67 @@ export async function up(query) {
 export async function down(query) {
   await query.removeConstraint('program_registries', 'program_registries_program_id_fkey');
 
-  await query.removeConstraint('program_registry_clinical_statuses', 'program_registry_clinical_statuses_program_registry_id_fkey');
+  await query.removeConstraint(
+    'program_registry_clinical_statuses',
+    'program_registry_clinical_statuses_program_registry_id_fkey',
+  );
 
-  await query.removeConstraint('program_registry_conditions', 'program_registry_conditions_program_registry_id_fkey');
+  await query.removeConstraint(
+    'program_registry_conditions',
+    'program_registry_conditions_program_registry_id_fkey',
+  );
 
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_patient_id_fkey');
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_program_registry_id_fkey');
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_clinical_status_id_fkey');
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_clinician_id_fkey');
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_patient_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_program_registry_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_clinical_status_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_clinician_id_fkey',
+  );
   await query.changeColumn('patient_program_registrations', 'clinician_id', {
     type: DataTypes.STRING,
     allowNull: true,
   });
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_facility_id_fkey');
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_registering_facility_id_fkey');
-  await query.removeConstraint('patient_program_registrations', 'patient_program_registrations_village_id_fkey');
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_facility_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_registering_facility_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registrations',
+    'patient_program_registrations_village_id_fkey',
+  );
 
-  await query.removeConstraint('patient_program_registration_conditions', 'patient_program_registration_conditions_patient_id_fkey');
-  await query.removeConstraint('patient_program_registration_conditions', 'patient_program_registration_conditions_program_registry_id_fkey');
-  await query.removeConstraint('patient_program_registration_conditions', 'patient_program_registration_conditions_program_registry_condition_id_fkey');
-  await query.removeConstraint('patient_program_registration_conditions', 'patient_program_registration_conditions_clinician_id_fkey');
-  await query.removeConstraint('patient_program_registration_conditions', 'patient_program_registration_conditions_deletion_clinician_id_fkey');
+  await query.removeConstraint(
+    'patient_program_registration_conditions',
+    'patient_program_registration_conditions_patient_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registration_conditions',
+    'patient_program_registration_conditions_program_registry_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registration_conditions',
+    'patient_program_registration_conditions_program_registry_condition_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registration_conditions',
+    'patient_program_registration_conditions_clinician_id_fkey',
+  );
+  await query.removeConstraint(
+    'patient_program_registration_conditions',
+    'patient_program_registration_conditions_deletion_clinician_id_fkey',
+  );
 }

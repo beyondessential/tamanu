@@ -5,9 +5,9 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class PatientFacility extends Model {
-  id!: string;
-  patientId!: string;
-  facilityId!: string;
+  declare id: string;
+  declare patientId: string;
+  declare facilityId: string;
 
   static initModel(options: InitOptions) {
     super.init(

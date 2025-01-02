@@ -12,9 +12,9 @@ const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
 
 /** Holds a record of a lab request's status at a specific point in time */
 export class LabRequestLog extends Model {
-  id!: string;
-  status?: string;
-  labRequestId?: string;
+  declare id: string;
+  declare status?: string;
+  declare labRequestId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

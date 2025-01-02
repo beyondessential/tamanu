@@ -25,7 +25,7 @@ export async function up(query) {
   let count = 0;
 
   for (const [tableName, columns] of allColumns) {
-    const where = columns.map(col => `${col}_legacy IS NOT NULL`).join(' OR ');
+    const where = columns.map((col) => `${col}_legacy IS NOT NULL`).join(' OR ');
     const countResult = await query.sequelize.query(
       `SELECT COUNT(*) FROM ${tableName} WHERE ${where};`,
       {
@@ -52,7 +52,7 @@ export async function up(query) {
   // Migrate date_time_string columns
   // only include data that still matches the legacy column
   Object.entries(dateTimeTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
@@ -72,7 +72,7 @@ export async function up(query) {
   // Migrate date_string columns
   // only include data that still matches the legacy column
   Object.entries(dateTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}

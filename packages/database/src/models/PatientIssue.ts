@@ -8,10 +8,10 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
 export class PatientIssue extends Model {
-  id!: string;
-  note?: string;
-  recordedDate!: string;
-  type!: (typeof PATIENT_ISSUE_TYPE_VALUES)[number];
+  declare id: string;
+  declare note?: string;
+  declare recordedDate: string;
+  declare type: (typeof PATIENT_ISSUE_TYPE_VALUES)[number];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

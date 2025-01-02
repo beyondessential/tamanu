@@ -14,13 +14,13 @@ const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
 const VISIBILITY_STATUS_ERR_MSG = `state must be one of ${JSON.stringify(VISIBILITY_STATUSES)}`;
 
 export class PatientFieldDefinition extends Model {
-  id!: string;
-  name!: string;
-  fieldType!: string;
-  options?: string[];
-  visibilityStatus!: string;
-  categoryId?: string;
-  definitionId?: string;
+  declare id: string;
+  declare name: string;
+  declare fieldType: string;
+  declare options?: string[];
+  declare visibilityStatus: string;
+  declare categoryId?: string;
+  declare definitionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

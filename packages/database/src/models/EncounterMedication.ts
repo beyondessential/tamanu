@@ -7,27 +7,27 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class EncounterMedication extends Model {
-  id!: string;
-  date!: string;
-  endDate?: string;
-  prescription?: string;
-  note?: string;
-  indication?: string;
-  route?: string;
-  qtyMorning?: number;
-  qtyLunch?: number;
-  qtyEvening?: number;
-  qtyNight?: number;
-  quantity?: number;
-  discontinued?: boolean;
-  discontinuedDate?: string;
-  discontinuingReason?: string;
-  repeats?: number;
-  isDischarge!: boolean;
-  prescriberId?: string;
-  discontinuingClinicianId?: string;
-  encounterId?: string;
-  medicationId?: string;
+  declare id: string;
+  declare date: string;
+  declare endDate?: string;
+  declare prescription?: string;
+  declare note?: string;
+  declare indication?: string;
+  declare route?: string;
+  declare qtyMorning?: number;
+  declare qtyLunch?: number;
+  declare qtyEvening?: number;
+  declare qtyNight?: number;
+  declare quantity?: number;
+  declare discontinued?: boolean;
+  declare discontinuedDate?: string;
+  declare discontinuingReason?: string;
+  declare repeats?: number;
+  declare isDischarge: boolean;
+  declare prescriberId?: string;
+  declare discontinuingClinicianId?: string;
+  declare encounterId?: string;
+  declare medicationId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

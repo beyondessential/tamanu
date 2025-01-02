@@ -36,7 +36,7 @@ export async function up(query) {
         `,
         { type: QueryTypes.SELECT },
       )
-    ).map(d => d[`${col}_id`]);
+    ).map((d) => d[`${col}_id`]);
 
     await query.removeColumn('patient_death_data', `${col}_id`);
 

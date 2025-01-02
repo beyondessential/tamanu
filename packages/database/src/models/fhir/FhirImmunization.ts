@@ -11,15 +11,15 @@ import {
 import type { InitOptions, Models } from '../../types/model';
 
 export class FhirImmunization extends FhirResource {
-  status!: string;
-  vaccineCode!: Record<string, any>;
-  patient!: Record<string, any>;
-  encounter?: Record<string, any>;
-  occurrenceDateTime?: string;
-  lotNumber?: string;
-  site?: Record<string, any>;
-  performer?: Record<string, any>;
-  protocolApplied?: Record<string, any>;
+  declare status: string;
+  declare vaccineCode: Record<string, any>;
+  declare patient: Record<string, any>;
+  declare encounter?: Record<string, any>;
+  declare occurrenceDateTime?: string;
+  declare lotNumber?: string;
+  declare site?: Record<string, any>;
+  declare performer?: Record<string, any>;
+  declare protocolApplied?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

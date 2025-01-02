@@ -6,9 +6,9 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class DebugLog extends Model {
-  id!: string;
-  type?: string;
-  info?: Record<string, any>;
+  declare id: string;
+  declare type?: string;
+  declare info?: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

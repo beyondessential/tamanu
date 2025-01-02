@@ -5,5 +5,8 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeIndex('sync_lookup', 'sync_lookup_updated_at_sync_tick_record_id_patient_id_facility_id');
+  await query.removeIndex(
+    'sync_lookup',
+    'sync_lookup_updated_at_sync_tick_record_id_patient_id_facility_id',
+  );
 }

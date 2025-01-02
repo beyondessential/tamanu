@@ -2,7 +2,7 @@ import { splitIds } from './utilities';
 
 const prehashed12345Password = '$2b$10$HViO/gGVnhXT/pKmWoleBe6kRIiN0vXnNKGvgdRq5i/PoRUAsO/xG';
 
-const buildUser = u => ({
+const buildUser = (u) => ({
   ...u,
   displayId: '12345',
   displayName: u.name,

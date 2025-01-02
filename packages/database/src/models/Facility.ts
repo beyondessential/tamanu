@@ -4,17 +4,17 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Facility extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  email?: string;
-  contactNumber?: string;
-  streetAddress?: string;
-  cityTown?: string;
-  division?: string;
-  type?: string;
-  visibilityStatus!: string;
-  catchmentId?: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare email?: string;
+  declare contactNumber?: string;
+  declare streetAddress?: string;
+  declare cityTown?: string;
+  declare division?: string;
+  declare type?: string;
+  declare visibilityStatus: string;
+  declare catchmentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

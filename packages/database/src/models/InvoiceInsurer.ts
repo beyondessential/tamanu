@@ -9,10 +9,10 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class InvoiceInsurer extends Model {
-  id!: string;
-  percentage!: number;
-  invoiceId?: string;
-  insurerId?: string;
+  declare id: string;
+  declare percentage: number;
+  declare invoiceId?: string;
+  declare insurerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

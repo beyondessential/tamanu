@@ -10,29 +10,29 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { User } from './User';
 
 export class AdministeredVaccine extends Model {
-  id!: string;
-  batch?: string;
-  consent?: boolean;
-  consentGivenBy?: string;
-  status!: string;
-  reason?: string;
-  injectionSite?: string;
-  givenBy?: string;
-  givenElsewhere?: boolean;
-  vaccineBrand?: string;
-  vaccineName?: string;
-  disease?: string;
-  circumstanceIds?: string[];
-  date?: string;
-  encounterId?: string;
-  encounter?: Encounter;
-  scheduledVaccineId?: string;
-  scheduledVaccine?: ScheduledVaccine;
-  recorderId?: string;
-  recorder?: User;
-  locationId?: string;
-  departmentId?: string;
-  notGivenReasonId?: string;
+  declare id: string;
+  declare batch?: string;
+  declare consent?: boolean;
+  declare consentGivenBy?: string;
+  declare status: string;
+  declare reason?: string;
+  declare injectionSite?: string;
+  declare givenBy?: string;
+  declare givenElsewhere?: boolean;
+  declare vaccineBrand?: string;
+  declare vaccineName?: string;
+  declare disease?: string;
+  declare circumstanceIds?: string[];
+  declare date?: string;
+  declare encounterId?: string;
+  declare encounter?: Encounter;
+  declare scheduledVaccineId?: string;
+  declare scheduledVaccine?: ScheduledVaccine;
+  declare recorderId?: string;
+  declare recorder?: User;
+  declare locationId?: string;
+  declare departmentId?: string;
+  declare notGivenReasonId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

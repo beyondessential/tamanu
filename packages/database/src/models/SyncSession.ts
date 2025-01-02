@@ -4,18 +4,18 @@ import { Model } from './Model';
 import { type InitOptions } from '../types/model';
 
 export class SyncSession extends Model {
-  id!: string;
-  startTime?: Date;
-  lastConnectionTime?: Date;
-  snapshotStartedAt?: Date;
-  snapshotCompletedAt?: Date;
-  persistCompletedAt?: Date;
-  completedAt?: Date;
-  startedAtTick?: number;
-  pullSince?: number;
-  pullUntil?: number;
-  errors?: string;
-  debugInfo?: Record<string, object>;
+  declare id: string;
+  declare startTime?: Date;
+  declare lastConnectionTime?: Date;
+  declare snapshotStartedAt?: Date;
+  declare snapshotCompletedAt?: Date;
+  declare persistCompletedAt?: Date;
+  declare completedAt?: Date;
+  declare startedAtTick?: number;
+  declare pullSince?: number;
+  declare pullUntil?: number;
+  declare errors?: string;
+  declare debugInfo?: Record<string, object>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

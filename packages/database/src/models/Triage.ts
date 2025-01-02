@@ -12,16 +12,16 @@ import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupF
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
-  id!: string;
-  arrivalTime?: string;
-  triageTime?: string;
-  closedTime?: string;
-  score?: string;
-  encounterId?: string;
-  practitionerId?: string;
-  chiefComplaintId?: string;
-  secondaryComplaintId?: string;
-  arrivalModeId?: string;
+  declare id: string;
+  declare arrivalTime?: string;
+  declare triageTime?: string;
+  declare closedTime?: string;
+  declare score?: string;
+  declare encounterId?: string;
+  declare practitionerId?: string;
+  declare chiefComplaintId?: string;
+  declare secondaryComplaintId?: string;
+  declare arrivalModeId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

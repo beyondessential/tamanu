@@ -6,13 +6,13 @@ import type { InitOptions, Models } from '../../types/model';
 import type { ExpressRequest } from '../../types/express';
 
 export class FhirWriteLog extends Model {
-  id!: string;
-  createdAt!: Date;
-  verb!: string;
-  url!: string;
-  body!: Record<string, any>;
-  headers!: Record<string, any>;
-  userId?: string;
+  declare id: string;
+  declare createdAt: Date;
+  declare verb: string;
+  declare url: string;
+  declare body: Record<string, any>;
+  declare headers: Record<string, any>;
+  declare userId?: string;
 
   static initModel(options: InitOptions) {
     super.init(

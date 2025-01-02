@@ -23,24 +23,24 @@ import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 
 export class Encounter extends Model {
-  id!: string;
-  encounterType?: string;
-  startDate!: string;
-  endDate?: string;
-  reasonForEncounter?: string;
-  deviceId?: string;
-  plannedLocationStartTime?: string;
-  patientId?: string;
-  examinerId?: string;
-  locationId?: string;
-  plannedLocationId?: string;
-  departmentId?: string;
-  patientBillingTypeId?: string;
-  referralSourceId?: string;
+  declare id: string;
+  declare encounterType?: string;
+  declare startDate: string;
+  declare endDate?: string;
+  declare reasonForEncounter?: string;
+  declare deviceId?: string;
+  declare plannedLocationStartTime?: string;
+  declare patientId?: string;
+  declare examinerId?: string;
+  declare locationId?: string;
+  declare plannedLocationId?: string;
+  declare departmentId?: string;
+  declare patientBillingTypeId?: string;
+  declare referralSourceId?: string;
 
-  location?: Location;
-  patient?: Patient;
-  discharge?: Discharge;
+  declare location?: Location;
+  declare patient?: Patient;
+  declare discharge?: Discharge;
 
   static initModel(
     { primaryKey, hackToSkipEncounterValidation, ...options }: InitOptions,

@@ -12,12 +12,12 @@ import {
 import type { InitOptions, Models } from '../../types/model';
 
 export class FhirEncounter extends FhirResource {
-  status!: string;
-  class?: Record<string, any>;
-  subject?: Record<string, any>;
-  actualPeriod?: Record<string, any>;
-  location?: Record<string, any>;
-  serviceProvider?: Record<string, any>;
+  declare status: string;
+  declare class?: Record<string, any>;
+  declare subject?: Record<string, any>;
+  declare actualPeriod?: Record<string, any>;
+  declare ocation?: Record<string, any>;
+  declare serviceProvider?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

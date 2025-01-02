@@ -78,9 +78,7 @@ export async function down(query) {
     },
   });
 
-  const [
-    encounterDiets,
-  ] = await query.sequelize.query(
+  const [encounterDiets] = await query.sequelize.query(
     `SELECT DISTINCT ON (encounter_id) encounter_id, diet_id FROM encounter_diets;`,
     { raw: true },
   );

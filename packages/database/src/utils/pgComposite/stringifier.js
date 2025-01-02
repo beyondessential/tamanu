@@ -92,9 +92,9 @@ function compositeString(string) {
   // > it with a backslash.
 
   // Let's do this simply by double-quoting everything.
-  return `"${string.replaceAll(/(\\|")/g, c => `\\${c}`)}"`;
+  return `"${string.replaceAll(/(\\|")/g, (c) => `\\${c}`)}"`;
 }
 
 function arrayToSql(arr) {
-  return `{${arr.map(a => compositeField(a)).join(',')}}`;
+  return `{${arr.map((a) => compositeField(a)).join(',')}}`;
 }

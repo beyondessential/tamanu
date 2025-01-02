@@ -9,6 +9,16 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Encounter } from './Encounter';
 
 export class EncounterHistory extends Model {
+  declare id: string;
+  declare encounterType: string;
+  declare changeType?: string;
+  declare date: string;
+  declare encounterId?: string;
+  declare examinerId?: string;
+  declare locationId?: string;
+  declare departmentId?: string;
+  declare actorId?: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {

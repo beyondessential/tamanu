@@ -6,10 +6,10 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class ContributingDeathCause extends Model {
-  id!: string;
-  timeAfterOnset!: number;
-  patientDeathDataId?: string;
-  conditionId?: string;
+  declare id: string;
+  declare timeAfterOnset: number;
+  declare patientDeathDataId?: string;
+  declare conditionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

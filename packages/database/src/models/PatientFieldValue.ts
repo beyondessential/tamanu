@@ -6,10 +6,10 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import type { InitOptions, Models } from '../types/model';
 
 export class PatientFieldValue extends Model {
-  id!: string;
-  patientId!: string;
-  definitionId!: string;
-  value!: string;
+  declare id: string;
+  declare patientId: string;
+  declare definitionId: string;
+  declare value: string;
 
   static initModel(options: InitOptions) {
     super.init(

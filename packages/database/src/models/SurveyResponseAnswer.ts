@@ -13,11 +13,11 @@ import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
 
 export class SurveyResponseAnswer extends Model {
-  id!: string;
-  name?: string;
-  body?: string;
-  dataElementId?: string;
-  responseId?: string;
+  declare id: string;
+  declare name?: string;
+  declare body?: string;
+  declare dataElementId?: string;
+  declare responseId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -100,7 +100,7 @@ export class SurveyResponseAnswer extends Model {
     const code = await settings.get(`survey.defaultCodes.${resource}`);
 
     const modelName = upperFirst(resource) as keyof Models;
-    const model = models[modelName];
+    const model: typeof Model = models[modelName];
     if (!model) {
       throw new Error(`Model not found: ${modelName}`);
     }

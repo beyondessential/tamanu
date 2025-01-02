@@ -10,10 +10,10 @@ import { translationFactory } from '@tamanu/shared/utils/translation/translation
 import type { InitOptions } from '../types/model';
 
 export class TranslatedString extends Model {
-  id!: string;
-  stringId!: string;
-  language!: string;
-  text!: string;
+  declare id: string;
+  declare stringId: string;
+  declare language: string;
+  declare text: string;
 
   static initModel(options: InitOptions) {
     super.init(

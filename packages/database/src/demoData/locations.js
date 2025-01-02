@@ -11,9 +11,9 @@ export const LOCATIONS = splitIds(`
   Waiting Area
 `);
 
-export const seedLocations = async models => {
+export const seedLocations = async (models) => {
   const facilityId = await randomRecordId(models, 'Facility');
-  const locations = LOCATIONS.map(d => ({ ...d, code: d.name, facilityId, maxOccupancy: 1 }));
+  const locations = LOCATIONS.map((d) => ({ ...d, code: d.name, facilityId, maxOccupancy: 1 }));
   return models.Location.bulkCreate(locations);
 };
 
@@ -28,8 +28,8 @@ export const LOCATIONS_GROUPS = splitIds(`
   Waiting Area
 `);
 
-export const seedLocationGroups = async models => {
+export const seedLocationGroups = async (models) => {
   const facilityId = await randomRecordId(models, 'Facility');
-  const locationGroups = LOCATIONS_GROUPS.map(d => ({ ...d, code: d.name, facilityId }));
+  const locationGroups = LOCATIONS_GROUPS.map((d) => ({ ...d, code: d.name, facilityId }));
   return models.LocationGroup.bulkCreate(locationGroups);
 };

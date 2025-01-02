@@ -12,16 +12,16 @@ import {
 import { Patient } from '../Patient';
 
 export class FhirPatient extends FhirResource {
-  extension?: Record<string, any>;
-  identifier?: Record<string, any>;
-  active!: boolean;
-  name?: Record<string, any>;
-  telecom?: Record<string, any>;
-  gender!: string;
-  birthDate?: string;
-  deceasedDateTime?: string;
-  address?: Record<string, any>;
-  link?: Record<string, any>;
+  declare extension?: Record<string, any>;
+  declare identifier?: Record<string, any>;
+  declare active: boolean;
+  declare name?: Record<string, any>;
+  declare telecom?: Record<string, any>;
+  declare gender: string;
+  declare birthDate?: string;
+  declare deceasedDateTime?: string;
+  declare address?: Record<string, any>;
+  declare link?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

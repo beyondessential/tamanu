@@ -5,18 +5,18 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class Signer extends Model {
-  id!: string;
-  countryCode!: string;
-  privateKey?: Buffer;
-  publicKey!: Buffer;
-  request!: string;
-  requestSentAt?: Date;
-  certificate?: string;
-  workingPeriodStart?: Date;
-  workingPeriodEnd?: Date;
-  validityPeriodStart?: Date;
-  validityPeriodEnd?: Date;
-  signaturesIssued!: number;
+  declare id: string;
+  declare countryCode: string;
+  declare privateKey?: Buffer;
+  declare publicKey: Buffer;
+  declare request: string;
+  declare requestSentAt?: Date;
+  declare certificate?: string;
+  declare workingPeriodStart?: Date;
+  declare workingPeriodEnd?: Date;
+  declare validityPeriodStart?: Date;
+  declare validityPeriodEnd?: Date;
+  declare signaturesIssued: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

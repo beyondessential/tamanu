@@ -12,18 +12,18 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class PatientCommunication extends Model {
-  id!: string;
-  type!: (typeof PATIENT_COMMUNICATION_TYPES_VALUES)[number];
-  channel!: (typeof PATIENT_COMMUNICATION_CHANNELS_VALUES)[number];
-  subject?: string;
-  content?: string;
-  status!: (typeof COMMUNICATION_STATUSES_VALUES)[number];
-  error?: string;
-  retryCount?: number;
-  destination?: string;
-  attachment?: string;
-  hash?: number;
-  patientId?: string;
+  declare id: string;
+  declare type: (typeof PATIENT_COMMUNICATION_TYPES_VALUES)[number];
+  declare channel: (typeof PATIENT_COMMUNICATION_CHANNELS_VALUES)[number];
+  declare subject?: string;
+  declare content?: string;
+  declare status: (typeof COMMUNICATION_STATUSES_VALUES)[number];
+  declare error?: string;
+  declare retryCount?: number;
+  declare destination?: string;
+  declare attachment?: string;
+  declare hash?: number;
+  declare patientId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -4,12 +4,12 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class LabTestPanel extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  visibilityStatus!: string;
-  externalCode?: string;
-  categoryId?: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare externalCode?: string;
+  declare categoryId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

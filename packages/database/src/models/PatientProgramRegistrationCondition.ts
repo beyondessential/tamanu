@@ -5,14 +5,14 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PatientProgramRegistrationCondition extends Model {
-  id!: string;
-  date!: string;
-  deletionDate?: string;
-  patientId?: string;
-  programRegistryId?: string;
-  programRegistryConditionId?: string;
-  clinicianId?: string;
-  deletionClinicianId?: string;
+  declare id: string;
+  declare date: string;
+  declare deletionDate?: string;
+  declare patientId?: string;
+  declare programRegistryId?: string;
+  declare programRegistryConditionId?: string;
+  declare clinicianId?: string;
+  declare deletionClinicianId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

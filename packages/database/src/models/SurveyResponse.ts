@@ -153,16 +153,16 @@ async function handleSurveyResponseActions(
 }
 
 export class SurveyResponse extends Model {
-  id!: string;
-  startTime?: string;
-  endTime?: string;
-  result?: number;
-  resultText?: string;
-  notified?: boolean;
-  metadata?: Record<string, any>;
-  userId?: string;
-  surveyId?: string;
-  encounterId?: string;
+  declare id: string;
+  declare startTime?: string;
+  declare endTime?: string;
+  declare result?: number;
+  declare resultText?: string;
+  declare notified?: boolean;
+  declare metadata?: Record<string, any>;
+  declare userId?: string;
+  declare surveyId?: string;
+  declare encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

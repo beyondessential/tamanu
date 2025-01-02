@@ -11,13 +11,13 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class EncounterDiagnosis extends Model {
-  id!: string;
-  certainty!: string;
-  isPrimary?: boolean;
-  date!: string;
-  encounterId?: string;
-  diagnosisId?: string;
-  clinicianId?: string;
+  declare id: string;
+  declare certainty: string;
+  declare isPrimary?: boolean;
+  declare date: string;
+  declare encounterId?: string;
+  declare diagnosisId?: string;
+  declare clinicianId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

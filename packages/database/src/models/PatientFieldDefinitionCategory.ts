@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class PatientFieldDefinitionCategory extends Model {
-  id!: string;
-  name!: string;
-  categoryId!: string;
+  declare id: string;
+  declare name: string;
+  declare categoryId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

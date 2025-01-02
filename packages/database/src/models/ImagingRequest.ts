@@ -24,26 +24,26 @@ import type { LocationGroup } from './LocationGroup';
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
 export class ImagingRequest extends Model {
-  id!: string;
-  displayId!: string;
-  imagingType!: (typeof IMAGING_TYPES_VALUES)[number];
-  reasonForCancellation?: string;
-  status!: (typeof ALL_IMAGING_REQUEST_STATUS_TYPES)[number];
-  requestedDate!: string;
-  legacyResults!: string;
-  priority?: string;
-  encounterId?: string;
-  requestedById!: string;
-  completedById?: string;
-  locationGroupId?: string;
-  locationId?: string;
+  declare id: string;
+  declare displayId: string;
+  declare imagingType: (typeof IMAGING_TYPES_VALUES)[number];
+  declare reasonForCancellation?: string;
+  declare status: (typeof ALL_IMAGING_REQUEST_STATUS_TYPES)[number];
+  declare requestedDate: string;
+  declare legacyResults: string;
+  declare priority?: string;
+  declare encounterId?: string;
+  declare requestedById: string;
+  declare completedById?: string;
+  declare locationGroupId?: string;
+  declare locationId?: string;
 
-  areas!: ImagingRequestArea[];
-  encounter?: Encounter;
-  requestedBy?: User;
-  notes!: Note[];
-  location?: Location;
-  locationGroup?: LocationGroup;
+  declare areas: ImagingRequestArea[];
+  declare encounter?: Encounter;
+  declare requestedBy?: User;
+  declare notes: Note[];
+  declare location?: Location;
+  declare locationGroup?: LocationGroup;
 
   static initModel(options: InitOptions) {
     super.init(

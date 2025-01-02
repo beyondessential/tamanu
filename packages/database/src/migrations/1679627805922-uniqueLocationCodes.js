@@ -14,7 +14,7 @@ export async function up(query) {
   );
 
   if (dupes.length > 0) {
-    const codes = dupes.map(d => `"${d.code}" (x${d.count})`).join(',');
+    const codes = dupes.map((d) => `"${d.code}" (x${d.count})`).join(',');
     throw new Error(
       `Found some Locations in the db that have the same code as each other. Please resolve the duplication before proceeding.\nThe duplicated codes are: ${codes}`,
     );

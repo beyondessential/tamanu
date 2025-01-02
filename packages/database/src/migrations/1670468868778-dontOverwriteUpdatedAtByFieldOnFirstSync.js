@@ -43,7 +43,7 @@ export async function up(query) {
           SELECT JSON_OBJECT_AGG(new_json.key, (SELECT value::bigint FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}'))::jsonb
           FROM jsonb_each(to_jsonb(NEW)) AS new_json
           WHERE new_json.value <> 'null'::jsonb AND new_json.key NOT IN (${NEW_METADATA_FIELDS.map(
-            m => `'${m}'`,
+            (m) => `'${m}'`,
           ).join(',')})
           INTO NEW.updated_at_by_field;
           RETURN NEW;
@@ -72,7 +72,7 @@ export async function up(query) {
             FROM jsonb_each(to_jsonb(OLD)) AS old_json
             CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
             WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value AND old_json.key NOT IN (${NEW_METADATA_FIELDS.map(
-              m => `'${m}'`,
+              (m) => `'${m}'`,
             ).join(',')})
           ) as changed_columns INTO NEW.updated_at_by_field;
           RETURN NEW;
@@ -96,7 +96,7 @@ export async function down(query) {
           SELECT JSON_OBJECT_AGG(new_json.key, (SELECT value::bigint FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}'))::jsonb
           FROM jsonb_each(to_jsonb(NEW)) AS new_json
           WHERE new_json.value <> 'null'::jsonb AND new_json.key NOT IN (${OLD_METADATA_FIELDS.map(
-            m => `'${m}'`,
+            (m) => `'${m}'`,
           ).join(',')})
           INTO NEW.updated_at_by_field;
         ELSIF (OLD.updated_at_by_field IS NULL OR OLD.updated_at_by_field::text = NEW.updated_at_by_field::text) THEN
@@ -105,7 +105,7 @@ export async function down(query) {
             FROM jsonb_each(to_jsonb(OLD)) AS old_json
             CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
             WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value AND old_json.key NOT IN (${OLD_METADATA_FIELDS.map(
-              m => `'${m}'`,
+              (m) => `'${m}'`,
             ).join(',')})
           ) as changed_columns INTO NEW.updated_at_by_field;
         END IF;

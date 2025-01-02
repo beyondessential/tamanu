@@ -32,7 +32,7 @@ export async function randomReferenceIds(models, type, count) {
     order: models.ReferenceData.sequelize.random(),
     limit: count,
   });
-  return items.map(i => i.id);
+  return items.map((i) => i.id);
 }
 
 export async function randomReferenceData(models, type) {
@@ -119,7 +119,7 @@ export function createDummyPatient(models, overrides = {}) {
   };
 }
 
-const randomDigits = length => chance.string({ length, pool: '0123456789' });
+const randomDigits = (length) => chance.string({ length, pool: '0123456789' });
 
 function randomPhoneNumber() {
   return `04${randomDigits(2)} ${randomDigits(3)} ${randomDigits(3)}`;

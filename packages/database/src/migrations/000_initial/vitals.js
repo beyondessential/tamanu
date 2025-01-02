@@ -20,7 +20,7 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     heartRate: Sequelize.FLOAT,
     respiratoryRate: Sequelize.FLOAT,
     svo2: Sequelize.FLOAT,
-    avpu: Sequelize.ENUM(AVPU_OPTIONS.map(x => x.value)),
+    avpu: Sequelize.ENUM(AVPU_OPTIONS.map((x) => x.value)),
     encounterId: foreignKey('Encounter'),
   },
 });

@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ReportDefinition extends Model {
-  id!: string;
-  name!: string;
-  dbSchema!: string;
+  declare id: string;
+  declare name: string;
+  declare dbSchema: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

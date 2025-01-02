@@ -12,9 +12,9 @@ import {
 import type { InitOptions, Models } from '../../types/model';
 
 export class FhirSpecimen extends FhirResource {
-  collection?: Record<string, any>;
-  request?: Record<string, any>;
-  type?: Record<string, any>;
+  declare collection?: Record<string, any>;
+  declare request?: Record<string, any>;
+  declare type?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

@@ -35,7 +35,7 @@ CREATE OR REPLACE FUNCTION notify_table_changed() RETURNS TRIGGER AS $$
             FROM jsonb_each(to_jsonb(OLD)) AS old_json
             CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
             WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value  AND old_json.key NOT IN (${METADATA_FIELDS.map(
-              m => `'${m}'`,
+              (m) => `'${m}'`,
             ).join(',')})
           ) as changed_columns INTO changes;
       END IF;

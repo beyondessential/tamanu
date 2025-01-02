@@ -11,9 +11,9 @@ import {
 import type { InitOptions, Models } from '../../types/model';
 
 export class FhirPractitioner extends FhirResource {
-  name?: Record<string, any>;
-  identifier?: Record<string, any>;
-  telecom?: Record<string, any>;
+  declare name?: Record<string, any>;
+  declare identifier?: Record<string, any>;
+  declare telecom?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

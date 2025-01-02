@@ -7,13 +7,13 @@ export { CursorDataMigration } from './CursorDataMigration';
  * Otherwise, the trigger kept disabled when the callback throws an error.
  */
 export const disableSyncTrigger = async (sequelize, callback) => {
-    const { LocalSystemFact } = sequelize.models;
-    await LocalSystemFact.set('syncTrigger', 'disabled');
-    await callback();
-    await LocalSystemFact.set('syncTrigger', 'enabled');
+  const { LocalSystemFact } = sequelize.models;
+  await LocalSystemFact.set('syncTrigger', 'disabled');
+  await callback();
+  await LocalSystemFact.set('syncTrigger', 'enabled');
 };
 
-export const isSyncTriggerDisabled = async sequelize => {
-    const state = await sequelize.models.LocalSystemFact.get('syncTrigger');
-    return state === 'disabled';
+export const isSyncTriggerDisabled = async (sequelize) => {
+  const state = await sequelize.models.LocalSystemFact.get('syncTrigger');
+  return state === 'disabled';
 };

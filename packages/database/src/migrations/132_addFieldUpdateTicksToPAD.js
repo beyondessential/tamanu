@@ -38,7 +38,7 @@ export async function up(query) {
         WHERE
           row_as_json.value <> 'null'::jsonb
         AND
-          row_as_json.key NOT IN (${METADATA_FIELDS.map(m => `'${m}'`).join(',')})
+          row_as_json.key NOT IN (${METADATA_FIELDS.map((m) => `'${m}'`).join(',')})
       );
   `);
 }

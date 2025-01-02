@@ -4,8 +4,8 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Role extends Model {
-  id!: string;
-  name!: string;
+  declare id: string;
+  declare name: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

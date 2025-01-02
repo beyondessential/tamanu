@@ -30,17 +30,17 @@ export const randomRecordId = async (models, modelName) => {
   return (obj || {}).id || null;
 };
 
-const makeId = s =>
+const makeId = (s) =>
   s
     .trim()
     .replace(/\s/g, '-')
     .replace(/[^\w-]/g, '')
     .toLowerCase();
 
-const split = s =>
+const split = (s) =>
   s
     .split(/[\r\n]+/g)
-    .map(x => x.trim())
-    .filter(x => x);
+    .map((x) => x.trim())
+    .filter((x) => x);
 
-export const splitIds = ids => split(ids).map(s => ({ id: makeId(s), name: s }));
+export const splitIds = (ids) => split(ids).map((s) => ({ id: makeId(s), name: s }));

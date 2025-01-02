@@ -17,7 +17,7 @@ export async function up(query) {
 
   // Original migrations where written without timestampz at time zone utc
   Object.entries(dateTimeTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}

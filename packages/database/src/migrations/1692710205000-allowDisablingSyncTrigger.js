@@ -1,6 +1,6 @@
 // copied from 1669675313161-renameTriggerFunctionForUpdatedAtSyncTick with a guard to skip syncing
 export async function up(query) {
-    await query.sequelize.query(`
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION set_updated_at_sync_tick()
       RETURNS trigger
       LANGUAGE plpgsql AS
@@ -31,7 +31,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
-    await query.sequelize.query(`
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION set_updated_at_sync_tick()
       RETURNS trigger
       LANGUAGE plpgsql AS

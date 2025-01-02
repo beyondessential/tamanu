@@ -4,10 +4,10 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class Asset extends Model {
-  id!: string;
-  name?: string;
-  type?: string;
-  data?: Buffer;
+  declare id: string;
+  declare name?: string;
+  declare type?: string;
+  declare data?: Buffer;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

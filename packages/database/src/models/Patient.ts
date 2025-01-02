@@ -9,19 +9,19 @@ import { dateTimeType, dateType, type InitOptions, type Models } from '../types/
 import type { PatientAdditionalData } from './PatientAdditionalData';
 
 export class Patient extends Model {
-  id!: string;
-  displayId!: string;
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  culturalName?: string;
-  dateOfBirth?: string;
-  dateOfDeath?: string;
-  sex!: string;
-  email?: string;
-  visibilityStatus?: string;
-  mergedIntoId?: string;
-  additionalData?: PatientAdditionalData[];
+  declare id: string;
+  declare displayId: string;
+  declare firstName?: string;
+  declare middleName?: string;
+  declare lastName?: string;
+  declare culturalName?: string;
+  declare dateOfBirth?: string;
+  declare dateOfDeath?: string;
+  declare sex: string;
+  declare email?: string;
+  declare visibilityStatus?: string;
+  declare mergedIntoId?: string;
+  declare additionalData?: PatientAdditionalData[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

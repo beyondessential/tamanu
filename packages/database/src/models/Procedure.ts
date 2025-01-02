@@ -6,20 +6,20 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Procedure extends Model {
-  id!: string;
-  completed!: boolean;
-  date!: string;
-  endTime?: string;
-  startTime?: string;
-  note?: string;
-  completedNote?: string;
-  encounterId?: string;
-  locationId?: string;
-  procedureTypeId?: string;
-  physicianId?: string;
-  assistantId?: string;
-  anaesthetistId?: string;
-  anaestheticId?: string;
+  declare id: string;
+  declare completed: boolean;
+  declare date: string;
+  declare endTime?: string;
+  declare startTime?: string;
+  declare note?: string;
+  declare completedNote?: string;
+  declare encounterId?: string;
+  declare locationId?: string;
+  declare procedureTypeId?: string;
+  declare physicianId?: string;
+  declare assistantId?: string;
+  declare anaesthetistId?: string;
+  declare anaestheticId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

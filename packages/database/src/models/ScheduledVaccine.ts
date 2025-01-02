@@ -5,18 +5,18 @@ import type { InitOptions, Models } from '../types/model';
 import type { ReferenceData } from './ReferenceData';
 
 export class ScheduledVaccine extends Model {
-  id!: string;
-  category?: string;
-  label?: string;
-  doseLabel?: string;
-  weeksFromBirthDue?: number;
-  weeksFromLastVaccinationDue?: number;
-  index?: number;
-  hideFromCertificate?: boolean;
-  visibilityStatus!: string;
-  sortIndex!: number;
-  vaccineId?: string;
-  vaccine?: ReferenceData;
+  declare id: string;
+  declare category?: string;
+  declare label?: string;
+  declare doseLabel?: string;
+  declare weeksFromBirthDue?: number;
+  declare weeksFromLastVaccinationDue?: number;
+  declare index?: number;
+  declare hideFromCertificate?: boolean;
+  declare visibilityStatus: string;
+  declare sortIndex: number;
+  declare vaccineId?: string;
+  declare vaccine?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

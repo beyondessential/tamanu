@@ -5,10 +5,10 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class UserPreference extends Model {
-  id!: string;
-  key!: string;
-  value!: Record<string, any>;
-  userId?: string;
+  declare id: string;
+  declare key: string;
+  declare value: Record<string, any>;
+  declare userId?: string;
 
   static initModel(options: InitOptions) {
     super.init(

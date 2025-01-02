@@ -25,34 +25,34 @@ interface LabRequestData {
 }
 
 export class LabRequest extends Model {
-  id!: string;
-  sampleTime?: string;
-  requestedDate!: string;
-  specimenAttached!: boolean;
-  urgent!: boolean;
-  status!: string;
-  reasonForCancellation?: string;
-  senaiteId?: string;
-  sampleId?: string;
-  displayId!: string;
-  publishedDate?: string;
+  declare id: string;
+  declare sampleTime?: string;
+  declare requestedDate: string;
+  declare specimenAttached: boolean;
+  declare urgent: boolean;
+  declare status: string;
+  declare reasonForCancellation?: string;
+  declare senaiteId?: string;
+  declare sampleId?: string;
+  declare displayId: string;
+  declare publishedDate?: string;
 
-  encounterId?: string;
-  departmentId?: string;
-  requestedById?: string;
-  collectedById?: string;
-  labTestCategoryId?: string;
-  labSampleSiteId?: string;
-  labTestPriorityId?: string;
-  labTestLaboratoryId?: string;
-  specimenTypeId?: string;
-  labTestPanelRequestId?: string;
-  priority?: ReferenceData;
-  tests!: LabTest[];
-  encounter?: Encounter;
-  requestedBy?: User;
-  notes!: Note[];
-  labTestPanelRequest?: LabTestPanelRequest;
+  declare encounterId?: string;
+  declare departmentId?: string;
+  declare requestedById?: string;
+  declare collectedById?: string;
+  declare labTestCategoryId?: string;
+  declare labSampleSiteId?: string;
+  declare labTestPriorityId?: string;
+  declare labTestLaboratoryId?: string;
+  declare specimenTypeId?: string;
+  declare labTestPanelRequestId?: string;
+  declare priority?: ReferenceData;
+  declare tests: LabTest[];
+  declare encounter?: Encounter;
+  declare requestedBy?: User;
+  declare notes: Note[];
+  declare labTestPanelRequest?: LabTestPanelRequest;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

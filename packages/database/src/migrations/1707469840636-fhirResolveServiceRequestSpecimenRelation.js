@@ -17,7 +17,6 @@ export async function up(query) {
     $$;
   `);
 
-
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL

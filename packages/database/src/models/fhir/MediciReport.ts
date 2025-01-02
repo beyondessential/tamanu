@@ -11,35 +11,35 @@ import {
 } from '../../utils/fhir/MediciReport';
 
 export class MediciReport extends FhirResource {
-  patientId!: string;
-  firstName!: string;
-  lastName!: string;
-  dateOfBirth?: string;
-  sex!: string;
-  patientBillingId?: string;
-  patientBillingType?: string;
-  encounterId!: string;
-  age?: number;
-  encounterStartDate!: string;
-  encounterEndDate?: string;
-  dischargeDate?: string;
-  encounterType?: Record<string, any>;
-  weight?: number;
-  visitType!: string;
-  triageCategory?: string;
-  episodeEndStatus?: Record<string, any>;
-  encounterDischargeDisposition?: Record<string, any>;
-  waitTime?: string;
-  departments?: Record<string, any>;
-  locations?: Record<string, any>;
-  reasonForEncounter?: string;
-  diagnoses?: Record<string, any>;
-  medications?: Record<string, any>;
-  vaccinations?: Record<string, any>;
-  procedures?: Record<string, any>;
-  labRequests?: Record<string, any>;
-  imagingRequests?: Record<string, any>;
-  notes?: Record<string, any>;
+  declare patientId: string;
+  declare firstName: string;
+  declare lastName: string;
+  declare dateOfBirth?: string;
+  declare sex: string;
+  declare patientBillingId?: string;
+  declare patientBillingType?: string;
+  declare encounterId: string;
+  declare age?: number;
+  declare encounterStartDate: string;
+  declare encounterEndDate?: string;
+  declare dischargeDate?: string;
+  declare encounterType?: Record<string, any>;
+  declare weight?: number;
+  declare visitType: string;
+  declare triageCategory?: string;
+  declare episodeEndStatus?: Record<string, any>;
+  declare encounterDischargeDisposition?: Record<string, any>;
+  declare waitTime?: string;
+  declare departments?: Record<string, any>;
+  declare locations?: Record<string, any>;
+  declare reasonForEncounter?: string;
+  declare diagnoses?: Record<string, any>;
+  declare medications?: Record<string, any>;
+  declare vaccinations?: Record<string, any>;
+  declare procedures?: Record<string, any>;
+  declare labRequests?: Record<string, any>;
+  declare imagingRequests?: Record<string, any>;
+  declare notes?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

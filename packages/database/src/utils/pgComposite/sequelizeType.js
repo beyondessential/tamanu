@@ -23,7 +23,7 @@ export class Composite {
   }
 
   sqlFields() {
-    return this.constructor.FIELD_ORDER.map(name => this[name]);
+    return this.constructor.FIELD_ORDER.map((name) => this[name]);
   }
 
   /**
@@ -65,7 +65,7 @@ export class Composite {
         if (typeof value === 'object' && !(value instanceof this)) return new this(value);
         return value;
       })
-      .test('is-composite-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
+      .test('is-composite-type', `must be a ${this.name}`, (t) => (t ? t instanceof this : true));
   }
 
   static fake() {

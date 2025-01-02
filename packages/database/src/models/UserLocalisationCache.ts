@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class UserLocalisationCache extends Model {
-  id!: string;
-  localisation!: string;
-  userId?: string;
+  declare id: string;
+  declare localisation: string;
+  declare userId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

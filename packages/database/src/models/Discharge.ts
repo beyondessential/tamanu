@@ -7,14 +7,14 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import type { InitOptions, Models } from '../types/model';
 
 export class Discharge extends Model {
-  id!: string;
-  note?: string;
-  facilityName?: string;
-  facilityAddress?: string;
-  facilityTown?: string;
-  encounterId?: string;
-  dischargerId?: string;
-  dispositionId?: string;
+  declare id: string;
+  declare note?: string;
+  declare facilityName?: string;
+  declare facilityAddress?: string;
+  declare facilityTown?: string;
+  declare encounterId?: string;
+  declare dischargerId?: string;
+  declare dispositionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

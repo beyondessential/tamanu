@@ -32,11 +32,11 @@ const allColumns = [...Object.entries(dateTimeTableColumns), ...Object.entries(d
 
 // Check if there is any legacy data in the system
 // For example, newly deployed instances of tamanu won't have legacy data
-const checkForLegacyData = async query => {
+const checkForLegacyData = async (query) => {
   let count = 0;
 
   for (const [tableName, columns] of allColumns) {
-    const where = columns.map(col => `${col}_legacy IS NOT NULL`).join(' OR ');
+    const where = columns.map((col) => `${col}_legacy IS NOT NULL`).join(' OR ');
     const countResult = await query.sequelize.query(
       `SELECT COUNT(*) FROM ${tableName} WHERE ${where};`,
       {
@@ -69,7 +69,7 @@ export async function up(query) {
   // Original migrations where written with timestampz at time zone utc instead of local time zone
   // only include data that still matches the legacy offset to UTC
   Object.entries(dateTimeTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
@@ -90,7 +90,7 @@ export async function up(query) {
   // Original migrations where written with timestampz at time zone utc instead of local time zone
   // Only include data that still matches the legacy offset to UTC
   Object.entries(dateTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}

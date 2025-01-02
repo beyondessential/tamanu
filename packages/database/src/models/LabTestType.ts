@@ -17,20 +17,20 @@ function optionStringToArray(s: string) {
 const LAB_TEST_RESULT_TYPES_VALUES = Object.values(LAB_TEST_RESULT_TYPES);
 
 export class LabTestType extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  unit!: string;
-  maleMin?: number;
-  maleMax?: number;
-  femaleMin?: number;
-  femaleMax?: number;
-  rangeText?: string;
-  resultType!: string;
-  options?: string;
-  visibilityStatus!: string;
-  externalCode?: string;
-  labTestCategoryId?: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare unit: string;
+  declare maleMin?: number;
+  declare maleMax?: number;
+  declare femaleMin?: number;
+  declare femaleMax?: number;
+  declare rangeText?: string;
+  declare resultType: string;
+  declare options?: string;
+  declare visibilityStatus: string;
+  declare externalCode?: string;
+  declare labTestCategoryId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

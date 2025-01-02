@@ -5,18 +5,18 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class SyncLookup extends Model {
-  id!: string;
-  recordId?: string;
-  recordType?: string;
-  data?: Record<string, any>;
-  updatedAtSyncTick?: number;
-  patientId?: string;
-  encounterId?: string;
-  facilityId?: string;
-  isLabRequest?: boolean;
-  isDeleted?: boolean;
-  updatedAtByFieldSum?: number;
-  pushedByDeviceId?: string;
+  declare id: string;
+  declare recordId?: string;
+  declare recordType?: string;
+  declare data?: Record<string, any>;
+  declare updatedAtSyncTick?: number;
+  declare patientId?: string;
+  declare encounterId?: string;
+  declare facilityId?: string;
+  declare isLabRequest?: boolean;
+  declare isDeleted?: boolean;
+  declare updatedAtByFieldSum?: number;
+  declare pushedByDeviceId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

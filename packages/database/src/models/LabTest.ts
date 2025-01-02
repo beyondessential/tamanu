@@ -12,17 +12,17 @@ import type { SessionConfig } from '../types/sync';
 import type { LabTestType } from './LabTestType';
 
 export class LabTest extends Model {
-  id!: string;
-  date!: string;
-  result!: string;
-  laboratoryOfficer?: string;
-  verification?: string;
-  completedDate?: string;
-  labRequestId?: string;
-  categoryId?: string;
-  labTestMethodId?: string;
-  labTestTypeId?: string;
-  labTestType?: LabTestType;
+  declare id: string;
+  declare date: string;
+  declare result: string;
+  declare laboratoryOfficer?: string;
+  declare verification?: string;
+  declare completedDate?: string;
+  declare labRequestId?: string;
+  declare categoryId?: string;
+  declare labTestMethodId?: string;
+  declare labTestTypeId?: string;
+  declare labTestType?: LabTestType;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

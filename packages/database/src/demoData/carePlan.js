@@ -5,4 +5,4 @@ export const CARE_PLANS = splitIds(`
   Cardiovascular Disease
   Tuberculosis
   Mental Health
-`).map(data => ({ ...data, type: 'carePlan' }));
+`).map((data) => ({ ...data, type: 'carePlan' }));

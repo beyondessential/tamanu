@@ -32,7 +32,7 @@ export async function up(query) {
   // one for the first JS-date-string-in-SQL incorrect format (081_updateLabRequestDateTimeColumns),
   // and one for the second non-UTC-corrected incorrect format (093_alterDateStringFormats)
   Object.entries(dateTimeTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
@@ -54,7 +54,7 @@ export async function up(query) {
   // Migrate date_string columns
   // only include data that still matches the legacy column
   Object.entries(dateTableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}

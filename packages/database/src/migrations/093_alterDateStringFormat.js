@@ -10,7 +10,7 @@ const tableColumns = {
 export async function up(query) {
   const promises = [];
   Object.entries(tableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
+    columns.forEach((columnName) => {
       promises.push(
         query.sequelize.query(
           `

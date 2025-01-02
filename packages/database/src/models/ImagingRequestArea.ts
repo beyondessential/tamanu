@@ -8,9 +8,9 @@ import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupF
 import type { InitOptions, Models } from '../types/model';
 
 export class ImagingRequestArea extends Model {
-  id!: string;
-  imagingRequestId?: string;
-  areaId?: string;
+  declare id: string;
+  declare imagingRequestId?: string;
+  declare areaId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

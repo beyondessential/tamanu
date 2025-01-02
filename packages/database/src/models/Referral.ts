@@ -5,12 +5,12 @@ import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupF
 import type { InitOptions, Models } from '../types/model';
 
 export class Referral extends Model {
-  id!: string;
-  referredFacility?: string;
-  status!: string;
-  initiatingEncounterId?: string;
-  completingEncounterId?: string;
-  surveyResponseId?: string;
+  declare id: string;
+  declare referredFacility?: string;
+  declare status: string;
+  declare initiatingEncounterId?: string;
+  declare completingEncounterId?: string;
+  declare surveyResponseId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

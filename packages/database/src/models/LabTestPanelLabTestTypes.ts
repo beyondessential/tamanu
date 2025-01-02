@@ -3,9 +3,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class LabTestPanelLabTestTypes extends Model {
-  id!: string;
-  labTestPanelId?: string;
-  labTestTypeId?: string;
+  declare id: string;
+  declare labTestPanelId?: string;
+  declare labTestTypeId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

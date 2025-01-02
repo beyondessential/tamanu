@@ -5,11 +5,11 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ImagingAreaExternalCode extends Model {
-  id!: string;
-  visibilityStatus!: string;
-  code!: string;
-  description?: string;
-  areaId?: string;
+  declare id: string;
+  declare visibilityStatus: string;
+  declare code: string;
+  declare description?: string;
+  declare areaId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

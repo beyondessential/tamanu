@@ -29,11 +29,11 @@ import type { InitOptions, Models } from '../types/model';
  * zzz   | schedules.automaticLabTestResultPublisher | false
  */
 export class Setting extends Model {
-  id!: string;
-  key!: string;
-  value?: Record<string, any>;
-  scope!: string;
-  facilityId?: string;
+  declare id: string;
+  declare key: string;
+  declare value?: Record<string, any>;
+  declare scope: string;
+  declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

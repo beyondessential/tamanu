@@ -16,10 +16,10 @@ import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
 
 export class FhirDiagnosticReport extends FhirResource {
-  basedOn!: { type: string; reference: string }[];
-  status!: string;
-  code!: Record<string, any>;
-  presentedForm?: { data: string; title: string; contentType: string }[];
+  declare basedOn: { type: string; reference: string }[];
+  declare status: string;
+  declare code: Record<string, any>;
+  declare presentedForm?: { data: string; title: string; contentType: string }[];
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

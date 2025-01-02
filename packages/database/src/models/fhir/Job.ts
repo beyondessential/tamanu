@@ -9,17 +9,17 @@ import { Model } from '../Model';
 import type { InitOptions } from '../../types/model';
 
 export class FhirJob extends Model {
-  id!: string;
-  priority!: number;
-  status!: string;
-  worker_id?: string;
-  started_at?: Date;
-  completed_at?: Date;
-  errored_at?: Date;
-  error?: string;
-  topic!: string;
-  discriminant!: string;
-  payload!: Record<string, any>;
+  declare id: string;
+  declare priority: number;
+  declare status: string;
+  declare worker_id?: string;
+  declare started_at?: Date;
+  declare completed_at?: Date;
+  declare errored_at?: Date;
+  declare error?: string;
+  declare topic: string;
+  declare discriminant: string;
+  declare payload: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

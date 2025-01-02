@@ -5,17 +5,17 @@ import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PatientProgramRegistration extends Model {
-  id!: string;
-  date!: string;
-  registrationStatus!: string;
-  isMostRecent!: boolean;
-  patientId!: string;
-  programRegistryId!: string;
-  clinicalStatusId?: string;
-  clinicianId?: string;
-  registeringFacilityId?: string;
-  facilityId?: string;
-  villageId?: string;
+  declare id: string;
+  declare date: string;
+  declare registrationStatus: string;
+  declare isMostRecent: boolean;
+  declare patientId: string;
+  declare programRegistryId: string;
+  declare clinicalStatusId?: string;
+  declare clinicianId?: string;
+  declare registeringFacilityId?: string;
+  declare facilityId?: string;
+  declare villageId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -7,11 +7,11 @@ import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class DeathRevertLog extends Model {
-  id!: string;
-  revertTime!: Date;
-  deathDataId!: string;
-  patientId?: string;
-  revertedById?: string;
+  declare id: string;
+  declare revertTime: Date;
+  declare deathDataId: string;
+  declare patientId?: string;
+  declare revertedById?: string;
 
   static initModel(options: InitOptions) {
     super.init(

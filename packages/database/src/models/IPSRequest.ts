@@ -4,12 +4,12 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class IPSRequest extends Model {
-  id!: string;
-  createdBy?: string;
-  email?: string;
-  status?: string;
-  error?: string;
-  patientId?: string;
+  declare id: string;
+  declare createdBy?: string;
+  declare email?: string;
+  declare status?: string;
+  declare error?: string;
+  declare patientId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

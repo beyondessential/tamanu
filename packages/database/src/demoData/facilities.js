@@ -16,15 +16,15 @@ export const FACILITIES = splitIds(`
   Traralgon
 `);
 
-export const seedFacilities = async models => {
-  const facilities = FACILITIES.map(d => ({ ...d, code: d.name }));
+export const seedFacilities = async (models) => {
+  const facilities = FACILITIES.map((d) => ({ ...d, code: d.name }));
 
   // ensure that all our configured serverFacilityIds have an entry as well
   // otherwise a bunch of tests will break
   const serverFacilityIds = selectFacilityIds(config);
   if (serverFacilityIds) {
-    serverFacilityIds.forEach(facilityId => {
-      if (!facilities.some(x => x.id === facilityId)) {
+    serverFacilityIds.forEach((facilityId) => {
+      if (!facilities.some((x) => x.id === facilityId)) {
         facilities.push({
           id: facilityId,
           name: facilityId,

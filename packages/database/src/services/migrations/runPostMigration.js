@@ -26,7 +26,7 @@ const TABLES_WITHOUT_COLUMN_QUERY = `
   AND
     pg_attribute.attname IS NULL
   AND
-    pg_class.relname NOT IN (${NON_SYNCING_TABLES.map(t => `'${t}'`).join(',')});
+    pg_class.relname NOT IN (${NON_SYNCING_TABLES.map((t) => `'${t}'`).join(',')});
 `;
 
 const TABLES_WITHOUT_TRIGGER_QUERY = `
@@ -54,7 +54,7 @@ const TABLES_WITHOUT_TRIGGER_QUERY = `
   AND
     t.table_type != 'VIEW'
   AND
-    t.table_name NOT IN (${NON_SYNCING_TABLES.map(t => `'${t}'`).join(',')});
+    t.table_name NOT IN (${NON_SYNCING_TABLES.map((t) => `'${t}'`).join(',')});
 `;
 
 const TABLES_WITHOUT_NOTIFY_TRIGGER = `
@@ -82,7 +82,7 @@ const TABLES_WITHOUT_NOTIFY_TRIGGER = `
   AND
     t.table_type != 'VIEW'
   AND
-    t.table_name NOT IN (${NON_SYNCING_TABLES.map(t => `'${t}'`).join(',')});
+    t.table_name NOT IN (${NON_SYNCING_TABLES.map((t) => `'${t}'`).join(',')});
 `;
 
 export async function runPostMigration(log, sequelize) {

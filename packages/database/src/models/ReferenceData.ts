@@ -5,12 +5,12 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ReferenceData extends Model {
-  id!: string;
-  code!: string;
-  type!: string;
-  name!: string;
-  visibilityStatus!: string;
-  parent?: ReferenceData;
+  declare id: string;
+  declare code: string;
+  declare type: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare parent?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

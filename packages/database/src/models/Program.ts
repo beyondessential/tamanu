@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Program extends Model {
-  id!: string;
-  code?: string;
-  name?: string;
+  declare id: string;
+  declare code?: string;
+  declare name?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

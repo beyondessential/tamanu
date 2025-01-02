@@ -16,8 +16,8 @@ export const DEPARTMENTS = splitIds(`
   Pharmacy
 `);
 
-export const seedDepartments = async models => {
+export const seedDepartments = async (models) => {
   const facilityId = await randomRecordId(models, 'Facility');
-  const departments = DEPARTMENTS.map(d => ({ ...d, code: d.name, facilityId }));
+  const departments = DEPARTMENTS.map((d) => ({ ...d, code: d.name, facilityId }));
   return models.Department.bulkCreate(departments);
 };
