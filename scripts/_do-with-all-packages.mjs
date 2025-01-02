@@ -44,29 +44,31 @@ export function doWithAllPackages(fn) {
   const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
   const packagesThatAreDependedOn = new Set(Object.values(dependencyTree).flat());
 
-  // while (processed.size < workspaces.size) {
-  for (const workspace of workspaces) {
-    if (processed.has(workspace)) continue;
+  // find and build dependencies for each workspace
+  // max number of iterations is pow(workspaces.size, 2)
+  for (let i = 0; i <= workspaces.size; i++) {
+    if (processed.size === workspaces.size) break;
+    for (const workspace of workspaces) {
+      if (processed.has(workspace)) continue;
 
-    const { resolved } = workspaceTree.dependencies[workspace];
-    const location = extractLocation(resolved);
-    const workspaceDependencies = dependencyTree[workspace];
+      const { resolved } = workspaceTree.dependencies[workspace];
+      const location = extractLocation(resolved);
+      const workspaceDependencies = dependencyTree[workspace];
 
-    if (workspaceDependencies.every((dep) => processed.has(dep))) {
-      processed.add(workspace);
+      if (workspaceDependencies.every((dep) => processed.has(dep))) {
+        processed.add(workspace);
 
-      const pkgPath = `./${location}/package.json`;
-      let pkg;
-      try {
-        pkg = JSON.parse(readFileSync(pkgPath));
-      } catch (err) {
-        console.log(`Skipping ${workspace} as we can't read its package.json...`);
-        continue;
+        const pkgPath = `./${location}/package.json`;
+        let pkg;
+        try {
+          pkg = JSON.parse(readFileSync(pkgPath));
+        } catch (err) {
+          console.log(`Skipping ${workspace} as we can't read its package.json...`);
+          continue;
+        }
+
+        fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
       }
-
-      fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
     }
   }
-
-  // }
 }
