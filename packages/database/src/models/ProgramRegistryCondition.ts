@@ -3,11 +3,10 @@ import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class ProgramRegistryClinicalStatus extends Model {
+export class ProgramRegistryCondition extends Model {
   id!: string;
   code!: string;
   name!: string;
-  color?: string;
   visibilityStatus!: string;
   programRegistryId!: string;
 
@@ -24,7 +23,6 @@ export class ProgramRegistryClinicalStatus extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        color: DataTypes.TEXT,
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
@@ -43,9 +41,9 @@ export class ProgramRegistryClinicalStatus extends Model {
       as: 'programRegistry',
     });
 
-    this.hasMany(models.PatientProgramRegistration, {
-      foreignKey: 'clinicalStatusId',
-      as: 'patientProgramRegistrations',
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'programRegistryConditionId',
+      as: 'patientProgramRegistrationConditions',
     });
   }
 

@@ -1,8 +1,71 @@
-import { Op } from 'sequelize';
+import { Op, DataTypes } from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
+import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
+import type { ProgramDataElement } from './ProgramDataElement';
 
 export class SurveyScreenComponent extends Model {
-  static async getComponentsForSurveys(surveyIds: string[], options: Record<string, any> = {}) {
+  id!: string;
+  screenIndex?: number;
+  componentIndex?: number;
+  text?: string;
+  visibilityCriteria?: string;
+  validationCriteria?: string;
+  detail?: string;
+  config?: string;
+  options?: string;
+  calculation?: string;
+  visibilityStatus?: string;
+  surveyId?: string;
+  dataElementId?: string;
+  dataElement?: ProgramDataElement;
+
+  static initModel({ primaryKey, ...options }: InitOptions) {
+    super.init(
+      {
+        id: primaryKey,
+        screenIndex: DataTypes.INTEGER,
+        componentIndex: DataTypes.INTEGER,
+        text: DataTypes.STRING,
+        visibilityCriteria: DataTypes.STRING,
+        validationCriteria: DataTypes.TEXT,
+        detail: DataTypes.STRING,
+        config: DataTypes.STRING,
+        options: DataTypes.TEXT,
+        calculation: DataTypes.STRING,
+        visibilityStatus: DataTypes.STRING,
+      },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+      },
+    );
+  }
+
+  static getListReferenceAssociations(includeAllVitals: any) {
+    return {
+      model: this.sequelize.models.ProgramDataElement,
+      as: 'dataElement',
+      paranoid: !includeAllVitals,
+    };
+  }
+
+  static initRelations(models: Models) {
+    this.belongsTo(models.Survey, {
+      foreignKey: 'surveyId',
+    });
+    this.belongsTo(models.ProgramDataElement, {
+      foreignKey: 'dataElementId',
+      as: 'dataElement',
+    });
+  }
+
+  static async getComponentsForSurveys(
+    surveyIds: string[],
+    options: { includeAllVitals?: boolean } = {},
+  ) {
     const { includeAllVitals } = options;
     const where = {
       surveyId: {
@@ -20,10 +83,40 @@ export class SurveyScreenComponent extends Model {
       paranoid: !includeAllVitals,
     });
 
-    return components.map(c => c.forResponse());
+    return components.map((c) => c.forResponse());
   }
 
-  static getComponentsForSurvey(surveyId: string, options: Record<string, any> = {}) {
+  static getComponentsForSurvey(surveyId: string, options = {}) {
     return this.getComponentsForSurveys([surveyId], options);
+  }
+
+  getOptions() {
+    try {
+      const optionString = this.options || this.dataElement?.defaultOptions || '';
+      if (!optionString) {
+        return [];
+      }
+      const optionArray = JSON.parse(optionString);
+      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
+    } catch (e) {
+      log.error(e);
+      return [];
+    }
+  }
+
+  forResponse() {
+    const { options, ...values } = this.dataValues;
+    return {
+      ...values,
+      options: safeJsonParse(options),
+    };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
   }
 }

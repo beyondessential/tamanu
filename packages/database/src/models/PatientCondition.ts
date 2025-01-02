@@ -1,17 +1,22 @@
 import { DataTypes } from 'sequelize';
-import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
-const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
-export class PatientIssue extends Model {
+export class PatientCondition extends Model {
   id!: string;
   note?: string;
   recordedDate!: string;
-  type!: (typeof PATIENT_ISSUE_TYPE_VALUES)[number];
+  resolved!: boolean;
+  resolutionDate?: string;
+  resolutionNote?: string;
+  patientId?: string;
+  conditionId?: string;
+  examinerId?: string;
+  resolutionPractitionerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -22,11 +27,12 @@ export class PatientIssue extends Model {
           defaultValue: getCurrentDateTimeString,
           allowNull: false,
         }),
-        type: {
-          type: DataTypes.ENUM(...PATIENT_ISSUE_TYPE_VALUES),
-          defaultValue: PATIENT_ISSUE_TYPES.ISSUE,
-          allowNull: false,
-        },
+        resolved: { type: DataTypes.BOOLEAN, defaultValue: false },
+        resolutionDate: dateTimeType('resolutionDate', {
+          defaultValue: getCurrentDateTimeString,
+          allowNull: true,
+        }),
+        resolutionNote: DataTypes.TEXT,
       },
       {
         ...options,
@@ -37,6 +43,13 @@ export class PatientIssue extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'condition' });
+    this.belongsTo(models.User, { foreignKey: 'examinerId' });
+    this.belongsTo(models.User, { foreignKey: 'resolutionPractitionerId' });
+  }
+
+  static getListReferenceAssociations() {
+    return ['condition'];
   }
 
   static buildSyncLookupQueryDetails() {

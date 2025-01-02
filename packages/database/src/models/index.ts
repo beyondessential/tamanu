@@ -1,20 +1,20 @@
 export * from './User';
-// export * from './UserRecentlyViewedPatient';
+export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
-// export * from './LocalSystemFact';
+export * from './LocalSystemFact';
 
 export * from './Patient';
-// export * from './PatientFamilyHistory';
-// export * from './PatientCondition';
-// export * from './PatientAllergy';
+export * from './PatientFamilyHistory';
+export * from './PatientCondition';
+export * from './PatientAllergy';
 export * from './PatientIssue';
 export * from './PatientAdditionalData';
-// export * from './PatientVRSData';
+export * from './PatientVRSData';
 export * from './PatientSecondaryId';
-// export * from './PatientFacility';
+export * from './PatientFacility';
 export * from './PatientContact';
 
-// export * from './PatientFieldDefinitionCategory';
+export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
 
@@ -30,7 +30,7 @@ export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
-// export * from './ReferenceDataRelation';
+export * from './ReferenceDataRelation';
 
 export * from './VitalLog';
 export * from './Vitals';
@@ -51,10 +51,10 @@ export * from './ImagingRequestArea';
 export * from './ImagingAreaExternalCode';
 export * from './ImagingResult';
 
-// export * from './Program';
+export * from './Program';
 export * from './ProgramRegistry';
 export * from './ProgramRegistryClinicalStatus';
-// export * from './ProgramRegistryCondition';
+export * from './ProgramRegistryCondition';
 export * from './PatientProgramRegistration';
 export * from './PatientProgramRegistrationCondition';
 export * from './Survey';
@@ -68,13 +68,13 @@ export * from './CertifiableVaccine';
 export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
 
-// export * from './ReportRequest';
-// export * from './ReportDefinition';
-// export * from './ReportDefinitionVersion';
-// export * from './PatientCarePlan';
+export * from './ReportRequest';
+export * from './ReportDefinition';
+export * from './ReportDefinitionVersion';
+export * from './PatientCarePlan';
 
 export * from './Setting';
-// export * from './PatientCommunication';
+export * from './PatientCommunication';
 
 export * from './Facility';
 export * from './Department';
@@ -82,16 +82,16 @@ export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
 export * from './Attachment';
-// export * from './UserLocalisationCache';
+export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
-// export * from './Template';
+export * from './Template';
 
-// export * from './OneTimeLogin';
-// export * from './RefreshToken';
+export * from './OneTimeLogin';
+export * from './RefreshToken';
 export * from './Permission';
-// export * from './Role';
+export * from './Role';
 
 export * from './Invoice';
 export * from './InvoiceProduct';
@@ -103,28 +103,28 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
-// export * from './Notification';
+export * from './Notification';
 
-// export * from './Signer';
+export * from './Signer';
 
 export * from './CertificateNotification';
 
 export * from './Note';
 
 export * from './SyncSession';
-// export * from './SyncQueuedDevice';
+export * from './SyncQueuedDevice';
 
 export * from './fhir';
 
 export * from './TranslatedString';
 
-// export * from './IPSRequest';
+export * from './IPSRequest';
 
 export * from './Task';
 export * from './TaskDesignation';
 export * from './TaskTemplate';
-// export * from './TaskTemplateDesignation';
+export * from './TaskTemplateDesignation';
 export * from './UserDesignation';
-// export * from './SyncLookup';
+export * from './SyncLookup';
 export * from './DebugLog';
-// export * from './SyncDeviceTick';
+export * from './SyncDeviceTick';

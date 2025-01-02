@@ -167,7 +167,7 @@ export class Model<
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations(_models?: Models): any[] | undefined {
+  static getListReferenceAssociations(_models?: Models): any | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //

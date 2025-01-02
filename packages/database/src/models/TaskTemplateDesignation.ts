@@ -2,9 +2,9 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class UserDesignation extends Model {
+export class TaskTemplateDesignation extends Model {
   id!: string;
-  userId?: string;
+  taskTemplateId?: string;
   designationId?: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -17,14 +17,14 @@ export class UserDesignation extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user',
+    this.belongsTo(models.TaskTemplate, {
+      foreignKey: 'taskTemplateId',
+      as: 'taskTemplate',
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'designationId',
-      as: 'referenceData',
+      as: 'designation',
     });
   }
 

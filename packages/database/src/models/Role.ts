@@ -1,30 +1,32 @@
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class UserDesignation extends Model {
+export class Role extends Model {
   id!: string;
-  userId?: string;
-  designationId?: number;
+  name!: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
+        name: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+      },
     );
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user',
-    });
-
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'designationId',
-      as: 'referenceData',
+    this.hasMany(models.Permission, {
+      as: 'permissions',
+      foreignKey: 'roleId',
     });
   }
 
