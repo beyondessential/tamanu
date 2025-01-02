@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { format } from '@tamanu/utils/dateTime';
-import { createDummyPatient, randomReferenceIds } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient, randomReferenceIds } from '@tamanu/database/demoData/patients';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../../utilities';

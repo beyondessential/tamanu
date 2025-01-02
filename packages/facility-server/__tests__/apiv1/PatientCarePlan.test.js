@@ -2,7 +2,7 @@ import {
   createDummyPatient,
   randomReferenceId,
   randomUser,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 

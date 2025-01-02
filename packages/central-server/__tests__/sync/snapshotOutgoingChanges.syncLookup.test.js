@@ -9,7 +9,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 
 import { createTestContext } from '../utilities';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
@@ -120,7 +120,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [refData1Id, refData2Id].sort(),
     );
   });
@@ -252,7 +252,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [imagingRequest1Id, imagingRequest2Id].sort(),
     );
   });
@@ -376,7 +376,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [settings1Id, settings2Id].sort(),
     );
   });
@@ -496,7 +496,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [labRecord1Id, labRecord2Id].sort(),
     );
 
@@ -626,7 +626,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [imagingRequest1Id, labRequest1Id, labRequest2Id, settings1Id].sort(),
     );
   });
@@ -754,7 +754,7 @@ describe('snapshotOutgoingChanges', () => {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
-    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+    expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
       [imagingRequest1Id, settings1Id].sort(),
     );
   });

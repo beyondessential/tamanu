@@ -1,6 +1,6 @@
 import { afterAll, beforeAll } from '@jest/globals';
 import config from 'config';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -39,7 +39,7 @@ describe('PatientLocations', () => {
       generateFakeLocation(models.Location),
       generateFakeLocation(models.Location, { maxOccupancy: null }),
     ]);
-    maxOneOccupancyLocations = locations.filter(location => location.maxOccupancy === 1);
+    maxOneOccupancyLocations = locations.filter((location) => location.maxOccupancy === 1);
   });
   beforeEach(async () => {
     await models.Encounter.truncate({
@@ -309,11 +309,11 @@ describe('PatientLocations', () => {
     // Arrange
     const { Location } = models;
     const createdLocations = await Location.bulkCreate(
-      Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
+      Object.values(VISIBILITY_STATUSES).map((visibilityStatus) =>
         fake(Location, { visibilityStatus, facilityId }),
       ),
     );
-    const locationIds = createdLocations.map(l => l.id);
+    const locationIds = createdLocations.map((l) => l.id);
 
     // Act
     const response = await app.get(`/api/patient/locations/bedManagement?facilityId=${facilityId}`);
@@ -321,10 +321,13 @@ describe('PatientLocations', () => {
     // Assert
     expect(response).toHaveSucceeded();
     expect(response.body?.data).toBeInstanceOf(Array);
-    const ourLocations = response.body.data.filter(datum => locationIds.includes(datum.locationId));
+    const ourLocations = response.body.data.filter((datum) =>
+      locationIds.includes(datum.locationId),
+    );
     expect(ourLocations).toHaveLength(1);
     expect(ourLocations[0]).toMatchObject({
-      locationId: createdLocations.find(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT).id,
+      locationId: createdLocations.find((l) => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+        .id,
     });
   });
 });

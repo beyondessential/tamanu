@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'qrcode';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { CovidLabCertificate as Component } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from '../assets/signing-image.png';
@@ -86,7 +86,7 @@ const getSetting = key => {
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
   };
   return config[key];
-}
+};
 
 const vdsSrc = () => QRCode.toDataURL(vdsData);
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { createDummyPatient } from '@tamanu/shared/demoData';
+import { createDummyPatient } from '@tamanu/database/demoData';
 import { PatientEncounterSummary } from '../app/views/patients/components/PatientEncounterSummary';
 import { MockedApi } from './utils/mockedApi';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';

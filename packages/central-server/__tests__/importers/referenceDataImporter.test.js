@@ -6,7 +6,7 @@ import {
   OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
@@ -361,11 +361,11 @@ describe('Data definition import', () => {
     );
 
     // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
+    const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
       OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
     );
     await Promise.all(
-      translatableNonRefDataTableImports.map(async type => {
+      translatableNonRefDataTableImports.map(async (type) => {
         const recordsForDataType = await models[type].findAll({
           attributes: ['id'],
           raw: true,

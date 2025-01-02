@@ -1,7 +1,7 @@
 import { createTestContext } from './utilities';
 import { fake } from '@tamanu/shared/test-helpers';
 import { AuditLogItem } from '../dist/middleware/auditLog';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 
 describe('Audit log', () => {
   let ctx = null;
@@ -20,7 +20,7 @@ describe('Audit log', () => {
   };
 
   beforeAll(async () => {
-    jest.spyOn(AuditLogItem.prototype, 'resolve').mockImplementation(function() {
+    jest.spyOn(AuditLogItem.prototype, 'resolve').mockImplementation(function () {
       recentEntries.push(this);
     });
 

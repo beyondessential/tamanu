@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyPatientAdditionalData,
+} from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 
 import {
@@ -94,7 +97,7 @@ describe('HL7 Patient', () => {
       const displayId = 'test-display-id-123456';
       const whereClause = getPatientWhereClause(displayId, query);
       const filters = whereClause[Op.and];
-      const keys = filters.map(obj => Reflect.ownKeys(obj)[0]);
+      const keys = filters.map((obj) => Reflect.ownKeys(obj)[0]);
       expect(keys).toMatchObject([Op.or, 'displayId', 'firstName']);
     });
   });

@@ -2,7 +2,7 @@ import config from 'config';
 import { subDays } from 'date-fns';
 import { createTestContext } from '../utilities';
 
-import { createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
+import { createScheduledVaccine } from '@tamanu/database/demoData/vaccines';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
@@ -26,7 +26,7 @@ const createNewScheduledVaccine = async (models, overrides) => {
   return models.ScheduledVaccine.create(await createScheduledVaccine(models, overrides));
 };
 
-const setupBaseDate = async models => {
+const setupBaseDate = async (models) => {
   let facility;
   await models.ScheduledVaccine.truncate({ cascade: true });
   await models.AdministeredVaccine.truncate({ cascade: true });
