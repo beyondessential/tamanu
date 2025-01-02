@@ -1,0 +1,48 @@
+[default]
+extend-ignore-re = [
+  "^import.+from.+$", # catch spelling on exports, ignore imports
+  "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$", # lines trailing with // spellchecker:disable-line
+  "\\b[A-Z]-[0-9]+\\b", # linear team names
+  "pattern\\s*=\\s*['\"].+", # regexes or globs
+]
+
+[default.extend-words]
+nd = "nd" # for 2nd, 22nd, etc
+invokable = "invokable"
+
+# Abbreviations
+alos = "alos" # wrt patient locations
+cose = "cose" # EUDCC
+ehr = "ehr"
+mch = "mch"
+nam = "nam" # VDS
+nce = "nce"
+
+# Common default facility names
+ba = "ba"
+
+# Plurals
+identicals = "identicals"
+wheres = "wheres"
+leafs = "leafs"
+completeds = "completeds"
+datas = "datas" # technically incorrect but colloquial
+
+# Medical
+contagiosum = "contagiosum"
+miliary = "miliary"
+pilon = "pilon"
+
+[files]
+extend-exclude = [
+  # third party schemas
+  "*.schema.json",
+  "packages/qr-tester/schemata/*.json",
+
+  # encoded files
+  "*.asc",
+
+  # legacy code, can't touch
+  "packages/central-server/__tests__/integrations/fijiVrs/**/*",
+  "scripts/csca.sh",
+]
