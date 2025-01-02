@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
-export const {
-  up: async query => {
+export default {
+  up: async (query) => {
     // missing columns to add
     await query.addColumn('lab_requests', 'note', {
       type: Sequelize.STRING,
@@ -10,7 +10,7 @@ export const {
     // extra columns to remove
     await query.removeColumn('encounters', 'type');
   },
-  down: async query => {
+  down: async (query) => {
     await query.removeColumn('lab_requests', 'note');
 
     await query.addColumn('encounters', 'type', {
