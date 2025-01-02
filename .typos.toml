@@ -5,7 +5,9 @@ extend-ignore-re = [
   "\\W[A-Z]{3,5}-[0-9]+", # linear team names
   "pattern\\s*=\\s*['\"].+", # regexes or globs
 
-  "report\\.summary\\.poepleAttended\\.text", # unfortunate typo in the translation strings
+  # unfortunately these typos made it into a public API (translations, settings...)
+  "report\\.summary\\.poepleAttended\\.text",
+  "enableAppointmentsExtentions",
 ]
 
 [default.extend-words]
