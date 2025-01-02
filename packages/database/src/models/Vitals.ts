@@ -7,7 +7,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from 'types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 const AVPU_VALUES = AVPU_OPTIONS.map((x) => x.value);
 
