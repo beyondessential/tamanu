@@ -5,8 +5,8 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceIds,
-} from '@tamanu/shared/demoData/patients';
-import { randomLabRequest } from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData/patients';
+import { randomLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -498,7 +498,7 @@ describe('Covid swab lab test list', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(3);
-      expect(result.body.map(r => r[PATIENT_ID_COLUMN])).toEqual([
+      expect(result.body.map((r) => r[PATIENT_ID_COLUMN])).toEqual([
         'Patient ID',
         expectedPatient1.displayId,
         expectedPatient1.displayId,

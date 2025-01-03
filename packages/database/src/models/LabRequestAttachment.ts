@@ -10,11 +10,11 @@ import type { InitOptions, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 
 export class LabRequestAttachment extends Model {
-  id!: string;
-  attachmentId!: string;
-  title!: string;
-  replacedById?: string;
-  labRequestId?: string;
+  declare id: string;
+  declare attachmentId: string;
+  declare title: string;
+  declare replacedById?: string;
+  declare labRequestId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

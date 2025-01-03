@@ -5,14 +5,14 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ProgramDataElement extends Model {
-  id!: string;
-  code?: string;
-  name?: string;
-  indicator?: string;
-  defaultText?: string;
-  defaultOptions?: string;
-  visualisationConfig?: string;
-  type!: string;
+  declare id: string;
+  declare code?: string;
+  declare name?: string;
+  declare indicator?: string;
+  declare defaultText?: string;
+  declare defaultOptions?: string;
+  declare visualisationConfig?: string;
+  declare type: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

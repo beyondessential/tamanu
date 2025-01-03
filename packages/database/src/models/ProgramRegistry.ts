@@ -5,12 +5,12 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ProgramRegistry extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  currentlyAtType!: string;
-  visibilityStatus!: string;
-  programId?: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare currentlyAtType: string;
+  declare visibilityStatus: string;
+  declare programId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -1,4 +1,4 @@
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { API } from '../../app/api/singletons';
 import { initStore } from '../../app/store';
 import { mockLocalisationData } from './config';

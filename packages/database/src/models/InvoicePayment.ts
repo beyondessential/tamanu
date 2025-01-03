@@ -9,12 +9,12 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class InvoicePayment extends Model {
-  id!: string;
-  date!: string;
-  receiptNumber!: string;
-  amount!: number;
-  invoiceId?: string;
-  updatedByUserId?: string;
+  declare id: string;
+  declare date: string;
+  declare receiptNumber: string;
+  declare amount: number;
+  declare invoiceId?: string;
+  declare updatedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

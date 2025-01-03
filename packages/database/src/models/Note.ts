@@ -17,15 +17,15 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Note extends Model {
-  id!: string;
-  noteType!: string;
-  recordType!: string;
-  date!: string;
-  content!: string;
-  visibilityStatus!: string;
-  authorId?: string;
-  onBehalfOfId?: string;
-  revisedById?: string;
+  declare id: string;
+  declare noteType: string;
+  declare recordType: string;
+  declare date: string;
+  declare content: string;
+  declare visibilityStatus: string;
+  declare authorId?: string;
+  declare onBehalfOfId?: string;
+  declare revisedById?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -77,7 +77,7 @@ export class Note extends Model {
 
   static initRelations(models: Models) {
     NOTE_RECORD_TYPE_VALUES.forEach((modelName) => {
-      this.belongsTo(models[modelName as keyof Models], {
+      this.belongsTo(models[modelName as keyof Models] as typeof Model, {
         foreignKey: 'recordId',
         as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
         constraints: false,

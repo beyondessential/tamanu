@@ -4,11 +4,11 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class TaskTemplate extends Model {
-  id!: string;
-  referenceDataId!: number;
-  frequencyValue?: number;
-  frequencyUnit?: string;
-  highPriority?: boolean;
+  declare id: string;
+  declare referenceDataId: number;
+  declare frequencyValue?: number;
+  declare frequencyUnit?: string;
+  declare highPriority?: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

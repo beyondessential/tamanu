@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 export class SyncDeviceTick extends Model {
-  id!: number;
-  persistedAtSyncTick!: number;
-  deviceId?: string;
+  declare id: number;
+  declare persistedAtSyncTick: number;
+  declare deviceId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

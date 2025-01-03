@@ -7,14 +7,14 @@ import { dateType, type InitOptions, type Models } from '../types/model';
 const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
 
 export class Template extends Model {
-  id!: string;
-  name!: string;
-  dateCreated!: string;
-  title?: string;
-  body?: string;
-  type!: (typeof TEMPLATE_TYPES_VALUES)[number];
-  visibilityStatus!: string;
-  createdById?: string;
+  declare id: string;
+  declare name: string;
+  declare dateCreated: string;
+  declare title?: string;
+  declare body?: string;
+  declare type: (typeof TEMPLATE_TYPES_VALUES)[number];
+  declare visibilityStatus: string;
+  declare createdById?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -17,11 +17,11 @@ import type { InitOptions, Models } from '../../types/model';
 import type { ImagingRequest } from '../../models/ImagingRequest';
 
 export class FhirImagingStudy extends FhirResource {
-  identifier?: { system: string; value: string }[];
-  basedOn?: Record<string, any>[];
-  started?: string;
-  status!: string;
-  note?: { text: string }[];
+  declare identifier?: { system: string; value: string }[];
+  declare basedOn?: Record<string, any>[];
+  declare started?: string;
+  declare status: string;
+  declare note?: { text: string }[];
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

@@ -10,12 +10,12 @@ const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
 const NOTIFICATION_STATUS_VALUES = Object.values(NOTIFICATION_STATUSES);
 
 export class Notification extends Model {
-  id!: string;
-  type!: (typeof NOTIFICATION_TYPE_VALUES)[number];
-  status!: (typeof NOTIFICATION_STATUS_VALUES)[number];
-  createdTime?: string;
-  metadata!: Record<string, any>;
-  userId?: string;
+  declare id: string;
+  declare type: (typeof NOTIFICATION_TYPE_VALUES)[number];
+  declare status: (typeof NOTIFICATION_STATUS_VALUES)[number];
+  declare createdTime?: string;
+  declare metadata: Record<string, any>;
+  declare userId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -104,6 +104,10 @@ export class Notification extends Model {
         }
         default:
           return;
+      }
+
+      if (!patientId || !userId) {
+        return;
       }
 
       await this.create({

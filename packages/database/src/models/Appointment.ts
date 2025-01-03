@@ -5,19 +5,19 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Appointment extends Model {
-  id!: string;
-  startTime!: string;
-  endTime?: string;
-  status!: string;
-  typeLegacy?: string;
-  isHighPriority!: boolean;
-  patientId?: string;
-  clinicianId?: string;
-  locationGroupId?: string;
-  locationId?: string;
-  bookingTypeId?: string;
-  appointmentTypeId?: string;
-  encounterId?: string;
+  declare id: string;
+  declare startTime: string;
+  declare endTime?: string;
+  declare status: string;
+  declare typeLegacy?: string;
+  declare isHighPriority: boolean;
+  declare patientId?: string;
+  declare clinicianId?: string;
+  declare locationGroupId?: string;
+  declare locationId?: string;
+  declare bookingTypeId?: string;
+  declare appointmentTypeId?: string;
+  declare encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

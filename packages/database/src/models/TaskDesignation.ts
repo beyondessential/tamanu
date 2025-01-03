@@ -8,9 +8,9 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class TaskDesignation extends Model {
-  id!: string;
-  taskId?: string;
-  designationId?: string;
+  declare id: string;
+  declare taskId?: string;
+  declare designationId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

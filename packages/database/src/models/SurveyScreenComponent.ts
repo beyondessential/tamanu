@@ -7,20 +7,20 @@ import type { InitOptions, Models } from '../types/model';
 import type { ProgramDataElement } from './ProgramDataElement';
 
 export class SurveyScreenComponent extends Model {
-  id!: string;
-  screenIndex?: number;
-  componentIndex?: number;
-  text?: string;
-  visibilityCriteria?: string;
-  validationCriteria?: string;
-  detail?: string;
-  config?: string;
-  options?: string;
-  calculation?: string;
-  visibilityStatus?: string;
-  surveyId?: string;
-  dataElementId?: string;
-  dataElement?: ProgramDataElement;
+  declare id: string;
+  declare screenIndex?: number;
+  declare componentIndex?: number;
+  declare text?: string;
+  declare visibilityCriteria?: string;
+  declare validationCriteria?: string;
+  declare detail?: string;
+  declare config?: string;
+  declare options?: string;
+  declare calculation?: string;
+  declare visibilityStatus?: string;
+  declare surveyId?: string;
+  declare dataElementId?: string;
+  declare dataElement?: ProgramDataElement;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

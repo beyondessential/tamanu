@@ -11,9 +11,9 @@ import {
 } from '../../utils/fhir/Organization';
 
 export class FhirOrganization extends FhirResource {
-  identifier?: Record<string, any>;
-  name?: string;
-  active?: boolean;
+  declare identifier?: Record<string, any>;
+  declare name?: string;
+  declare active?: boolean;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

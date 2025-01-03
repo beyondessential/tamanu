@@ -1,4 +1,4 @@
-import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
+import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
@@ -99,8 +99,8 @@ describe('Survey', () => {
     it('does not throw forbidden error when role has sufficient permission', async () => {
       const permissions = [
         ['list', 'SurveyResponse'],
-        ['read', 'Survey', 'program-survey']
-      ]
+        ['read', 'Survey', 'program-survey'],
+      ];
 
       app = await baseApp.asNewRole(permissions);
 
@@ -109,9 +109,7 @@ describe('Survey', () => {
     });
 
     it('throws forbidden error when role does not have sufficient permission', async () => {
-      const permissions = [
-        ['list', 'SurveyResponse'],
-      ]
+      const permissions = [['list', 'SurveyResponse']];
 
       app = await baseApp.asNewRole(permissions);
 

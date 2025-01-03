@@ -20,15 +20,15 @@ import type { Facility } from './Facility';
 const DEFAULT_SALT_ROUNDS = 10;
 
 export class User extends Model {
-  id!: string;
-  displayId?: string;
-  email!: string;
-  password?: string;
-  displayName!: string;
-  role!: string;
-  phoneNumber?: string;
-  visibilityStatus!: string;
-  facilities!: Facility[];
+  declare id: string;
+  declare displayId?: string;
+  declare email: string;
+  declare password?: string;
+  declare displayName: string;
+  declare role: string;
+  declare phoneNumber?: string;
+  declare visibilityStatus: string;
+  declare facilities: Facility[];
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 

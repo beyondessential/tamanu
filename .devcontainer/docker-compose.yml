@@ -6,7 +6,6 @@ services:
       - ~/.ssh:/root/.ssh:ro # Use the host SSH config.
     command: sleep infinity
 
-
   central-db:
     image: postgres:latest
     restart: unless-stopped
@@ -32,6 +31,16 @@ services:
       POSTGRES_DB: postgres
     ports:
       - 5433:5432 # Allow access to this database via localhost:5433.
+
+  test-db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5434:5432 # Allow access to this database via localhost:5433.
 
 volumes:
   central-data:

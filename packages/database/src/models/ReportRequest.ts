@@ -12,17 +12,17 @@ import type { InitOptions, Models } from '../types/model';
 const REPORT_EXPORT_FORMAT_VALUES = Object.values(REPORT_EXPORT_FORMATS);
 
 export class ReportRequest extends Model {
-  id!: string;
-  reportType?: string;
-  recipients!: string;
-  parameters?: string;
-  status!: (typeof REPORT_REQUEST_STATUS_VALUES)[number];
-  exportFormat!: (typeof REPORT_EXPORT_FORMAT_VALUES)[number];
-  error?: string;
-  processStartedTime?: Date;
-  requestedByUserId?: string;
-  facilityId?: string;
-  reportDefinitionVersionId?: string;
+  declare id: string;
+  declare reportType?: string;
+  declare recipients: string;
+  declare parameters?: string;
+  declare status: (typeof REPORT_REQUEST_STATUS_VALUES)[number];
+  declare exportFormat: (typeof REPORT_EXPORT_FORMAT_VALUES)[number];
+  declare error?: string;
+  declare processStartedTime?: Date;
+  declare requestedByUserId?: string;
+  declare facilityId?: string;
+  declare reportDefinitionVersionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

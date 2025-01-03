@@ -11,16 +11,16 @@ import type { Facility } from './Facility';
 import type { LocationGroup } from './LocationGroup';
 
 export class Location extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  visibilityStatus!: string;
-  maxOccupancy?: number;
-  facilityId?: string;
-  locationGroupId?: string;
-  deletedAt?: Date;
-  facility?: Facility;
-  locationGroup?: LocationGroup;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare maxOccupancy?: number;
+  declare facilityId?: string;
+  declare locationGroupId?: string;
+  declare deletedAt?: Date;
+  declare facility?: Facility;
+  declare locationGroup?: LocationGroup;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

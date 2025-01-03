@@ -5,19 +5,19 @@ import { Model } from './Model';
 import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class CertificateNotification extends Model {
-  id!: string;
-  createdBy?: string;
-  type?: string;
-  facilityName?: string;
-  forwardAddress?: string;
-  requireSigning?: boolean;
-  status?: string;
-  error?: string;
-  language?: string;
-  printedDate?: string;
-  patientId?: string;
-  labTestId?: string;
-  labRequestId?: string;
+  declare id: string;
+  declare createdBy?: string;
+  declare type?: string;
+  declare facilityName?: string;
+  declare forwardAddress?: string;
+  declare requireSigning?: boolean;
+  declare status?: string;
+  declare error?: string;
+  declare language?: string;
+  declare printedDate?: string;
+  declare patientId?: string;
+  declare labTestId?: string;
+  declare labRequestId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

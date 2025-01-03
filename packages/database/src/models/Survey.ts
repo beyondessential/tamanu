@@ -4,15 +4,15 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Survey extends Model {
-  id!: string;
-  code?: string;
-  name?: string;
-  surveyType!: string;
-  isSensitive!: boolean;
-  visibilityStatus!: string;
-  notifiable!: boolean;
-  notifyEmailAddresses!: string[];
-  programId?: string;
+  declare id: string;
+  declare code?: string;
+  declare name?: string;
+  declare surveyType: string;
+  declare isSensitive: boolean;
+  declare visibilityStatus: string;
+  declare notifiable: boolean;
+  declare notifyEmailAddresses: string[];
+  declare programId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

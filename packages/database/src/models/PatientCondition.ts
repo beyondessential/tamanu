@@ -7,16 +7,16 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PatientCondition extends Model {
-  id!: string;
-  note?: string;
-  recordedDate!: string;
-  resolved!: boolean;
-  resolutionDate?: string;
-  resolutionNote?: string;
-  patientId?: string;
-  conditionId?: string;
-  examinerId?: string;
-  resolutionPractitionerId?: string;
+  declare id: string;
+  declare note?: string;
+  declare recordedDate: string;
+  declare resolved: boolean;
+  declare resolutionDate?: string;
+  declare resolutionNote?: string;
+  declare patientId?: string;
+  declare conditionId?: string;
+  declare examinerId?: string;
+  declare resolutionPractitionerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

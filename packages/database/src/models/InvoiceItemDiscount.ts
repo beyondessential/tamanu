@@ -11,11 +11,11 @@ import type { InitOptions, Models } from '../types/model';
 const INVOICE_ITEMS_DISCOUNT_TYPE_VALUES = Object.values(INVOICE_ITEMS_DISCOUNT_TYPES);
 
 export class InvoiceItemDiscount extends Model {
-  id!: string;
-  amount!: number;
-  type!: (typeof INVOICE_ITEMS_DISCOUNT_TYPE_VALUES)[number];
-  reason?: string;
-  invoiceItemId?: string;
+  declare id: string;
+  declare amount: number;
+  declare type: (typeof INVOICE_ITEMS_DISCOUNT_TYPE_VALUES)[number];
+  declare reason?: string;
+  declare invoiceItemId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

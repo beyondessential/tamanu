@@ -7,18 +7,18 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class DocumentMetadata extends Model {
-  id!: string;
-  name!: string;
-  type!: string;
-  source!: string;
-  documentCreatedAt?: string;
-  documentUploadedAt!: string;
-  documentOwner?: string;
-  note?: string;
-  attachmentId!: string;
-  encounterId?: string;
-  patientId?: string;
-  departmentId?: string;
+  declare id: string;
+  declare name: string;
+  declare type: string;
+  declare source: string;
+  declare documentCreatedAt?: string;
+  declare documentUploadedAt: string;
+  declare documentOwner?: string;
+  declare note?: string;
+  declare attachmentId: string;
+  declare encounterId?: string;
+  declare patientId?: string;
+  declare departmentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

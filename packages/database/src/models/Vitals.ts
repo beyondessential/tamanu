@@ -12,31 +12,31 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 const AVPU_VALUES = AVPU_OPTIONS.map((x) => x.value);
 
 export class Vitals extends Model {
-  id!: string;
-  dateRecorded!: string;
-  temperature?: number;
-  weight?: number;
-  height?: number;
-  sbp?: number;
-  dbp?: number;
-  heartRate?: number;
-  respiratoryRate?: number;
-  spo2?: number;
-  avpu?: (typeof AVPU_VALUES)[number];
-  gcs?: number;
-  hemoglobin?: number;
-  fastingBloodGlucose?: number;
-  urinePh?: number;
-  urineLeukocytes?: string;
-  urineNitrites?: string;
-  urobilinogen?: number;
-  urineProtein?: string;
-  bloodInUrine?: string;
-  urineSpecificGravity?: number;
-  urineKetone?: string;
-  urineBilirubin?: string;
-  urineGlucose?: number;
-  encounterId?: string;
+  declare id: string;
+  declare dateRecorded: string;
+  declare temperature?: number;
+  declare weight?: number;
+  declare height?: number;
+  declare sbp?: number;
+  declare dbp?: number;
+  declare heartRate?: number;
+  declare respiratoryRate?: number;
+  declare spo2?: number;
+  declare avpu?: (typeof AVPU_VALUES)[number];
+  declare gcs?: number;
+  declare hemoglobin?: number;
+  declare fastingBloodGlucose?: number;
+  declare urinePh?: number;
+  declare urineLeukocytes?: string;
+  declare urineNitrites?: string;
+  declare urobilinogen?: number;
+  declare urineProtein?: string;
+  declare bloodInUrine?: string;
+  declare urineSpecificGravity?: number;
+  declare urineKetone?: string;
+  declare urineBilirubin?: string;
+  declare urineGlucose?: number;
+  declare encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

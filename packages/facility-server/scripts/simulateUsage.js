@@ -2,8 +2,8 @@ import config from 'config';
 import Chance from 'chance';
 import { v4 as uuidv4 } from 'uuid';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { randomReferenceData } from '@tamanu/shared/demoData/patients';
-import { randomRecord } from '@tamanu/shared/demoData/utilities';
+import { randomReferenceData } from '@tamanu/database/demoData/patients';
+import { randomRecord } from '@tamanu/database/demoData/utilities';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   NOTE_RECORD_TYPES,
@@ -118,8 +118,8 @@ async function createProgramSurveyResponse(models, facilityId) {
   });
   const answers = {};
   sscs
-    .filter(ssc => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
-    .forEach(ssc => {
+    .filter((ssc) => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
+    .forEach((ssc) => {
       answers[ssc.dataElement.id] = SIMPLE_PDE_TYPES_HANDLERS[ssc.dataElement.type]();
     });
 
@@ -338,27 +338,27 @@ const ACTIONS = {
   },
   updateAdministeredVaccine: {
     likelihood: calculateLikelihood('AdministeredVaccine', false),
-    generator: async models => updateRecord(models.AdministeredVaccine),
+    generator: async (models) => updateRecord(models.AdministeredVaccine),
   },
   updateAppointment: {
     likelihood: calculateLikelihood('Appointment', false),
-    generator: async models => updateRecord(models.Appointment),
+    generator: async (models) => updateRecord(models.Appointment),
   },
   updateEncounter: {
     likelihood: calculateLikelihood('Encounter', false),
-    generator: async models => updateRecord(models.Encounter),
+    generator: async (models) => updateRecord(models.Encounter),
   },
   updateImagingRequest: {
     likelihood: calculateLikelihood('ImagingRequest', false),
-    generator: async models => updateRecord(models.ImagingRequest),
+    generator: async (models) => updateRecord(models.ImagingRequest),
   },
   updateLabTest: {
     likelihood: calculateLikelihood('LabTest', false),
-    generator: async models => updateRecord(models.LabTest),
+    generator: async (models) => updateRecord(models.LabTest),
   },
   updatePatient: {
     likelihood: calculateLikelihood('Patient', false),
-    generator: async models => updateRecord(models.Patient),
+    generator: async (models) => updateRecord(models.Patient),
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);

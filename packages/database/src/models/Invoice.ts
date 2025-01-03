@@ -10,13 +10,13 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Invoice extends Model {
-  id!: string;
-  displayId!: string;
-  date!: string;
-  status!: string;
-  patientPaymentStatus!: string;
-  insurerPaymentStatus!: string;
-  encounterId?: string;
+  declare id: string;
+  declare displayId: string;
+  declare date: string;
+  declare status: string;
+  declare patientPaymentStatus: string;
+  declare insurerPaymentStatus: string;
+  declare encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

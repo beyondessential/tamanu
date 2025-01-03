@@ -10,10 +10,10 @@ import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
 
 export class LabTestPanelRequest extends Model {
-  id!: string;
-  encounterId?: string;
-  labTestPanelId?: string;
-  labTestPanel?: LabTestPanel;
+  declare id: string;
+  declare encounterId?: string;
+  declare labTestPanelId?: string;
+  declare labTestPanel?: LabTestPanel;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -6,13 +6,13 @@ import type { InitOptions, Models } from '../types/model';
 import type { Facility } from './Facility';
 
 export class LocationGroup extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  visibilityStatus!: string;
-  isBookable!: boolean;
-  facilityId?: string;
-  facility?: Facility;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare isBookable: boolean;
+  declare facilityId?: string;
+  declare facility?: Facility;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

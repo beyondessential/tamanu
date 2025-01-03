@@ -9,13 +9,13 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class InvoiceDiscount extends Model {
-  id!: string;
-  percentage!: number;
-  reason?: string;
-  isManual!: boolean;
-  appliedTime!: string;
-  invoiceId?: string;
-  appliedByUserId?: string;
+  declare id: string;
+  declare percentage: number;
+  declare reason?: string;
+  declare isManual: boolean;
+  declare appliedTime: string;
+  declare invoiceId?: string;
+  declare appliedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

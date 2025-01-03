@@ -6,10 +6,10 @@ import type { InitOptions } from '../types/model';
 const REFERENCE_DATA_RELATION_TYPE_VALUES = Object.keys(REFERENCE_DATA_RELATION_TYPES);
 
 export class ReferenceDataRelation extends Model {
-  id!: string;
-  referenceDataId?: string;
-  referenceDataParentId?: string;
-  type!: (typeof REFERENCE_DATA_RELATION_TYPE_VALUES)[number];
+  declare id: string;
+  declare referenceDataId?: string;
+  declare referenceDataParentId?: string;
+  declare type: (typeof REFERENCE_DATA_RELATION_TYPE_VALUES)[number];
 
   static initModel(options: InitOptions) {
     super.init(

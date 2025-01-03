@@ -13,13 +13,13 @@ import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupF
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class ImagingResult extends Model {
-  id!: string;
-  visibilityStatus!: string;
-  completedAt!: string;
-  description?: string;
-  externalCode?: string;
-  imagingRequestId?: string;
-  completedById?: string;
+  declare id: string;
+  declare visibilityStatus: string;
+  declare completedAt: string;
+  declare description?: string;
+  declare externalCode?: string;
+  declare imagingRequestId?: string;
+  declare completedById?: string;
 
   static initModel(options: InitOptions) {
     super.init(

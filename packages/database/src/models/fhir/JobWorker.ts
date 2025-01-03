@@ -4,8 +4,8 @@ import { Model } from '../Model';
 import type { InitOptions } from '../../types/model';
 
 export class FhirJobWorker extends Model {
-  id!: string;
-  metadata!: Record<string, any>;
+  declare id: string;
+  declare metadata: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -6,7 +6,7 @@ import {
   randomReferenceData,
   randomReferenceId,
   randomReferenceIds,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';

@@ -1,5 +1,5 @@
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { isRegisteredEnum } from '../../dist/cjs/utils';
+import { isRegisteredEnum } from '../../src/utils';
 
 describe('enumRegistry', () => {
   it('returns true for registered enum', () => {

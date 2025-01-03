@@ -4,7 +4,6 @@ import {
   Utils,
   DataTypes,
   Model as BaseModel,
-  QueryTypes,
   type ModelAttributes,
   Sequelize,
 } from 'sequelize';
@@ -19,22 +18,22 @@ export class Model<
   TModelAttributes extends Record<string, any> = any,
   _TCreationAttributes extends {} = TModelAttributes,
 > extends BaseModel<TModelAttributes, _TCreationAttributes> {
-  id!: any;
-  createdAt!: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
-  sequelize!: { models: Models } & Omit<Sequelize, 'models'>;
-  static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
-  static syncDirection: InitOptions['syncDirection'];
-  static defaultIdValue?: string | number;
-  static usesPublicSchema: boolean;
-  static buildSyncFilter: () => string | null;
-  static buildPatientSyncFilter: (
+  declare id: any;
+  declare createdAt: Date;
+  declare updatedAt?: Date;
+  declare deletedAt?: Date;
+  declare sequelize: { models: Models } & Omit<Sequelize, 'models'>;
+  declare static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
+  declare static syncDirection: InitOptions['syncDirection'];
+  declare static defaultIdValue?: string | number;
+  declare static usesPublicSchema: boolean;
+  declare static buildSyncFilter: () => string | null;
+  declare static buildPatientSyncFilter: (
     _patientCount: number,
     _markedForSyncPatientsTable: string,
     _sessionConfig: SessionConfig,
   ) => string | null;
-  static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
+  declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
 
   static init(
     modelAttributes: ModelAttributes,
@@ -90,11 +89,8 @@ export class Model<
    * Generates a uuid via the database
    */
   static async generateDbUuid() {
-    const result = await this.sequelize?.query<{ uuid_generate_v4: string }[]>(
-      `SELECT uuid_generate_v4();`,
-      { type: QueryTypes.SELECT },
-    );
-    return result?.[0]?.[0]?.uuid_generate_v4;
+    const result: any  = await this.sequelize.query(`SELECT uuid_generate_v4();`);
+    return result[0][0].uuid_generate_v4;
   }
 
   static validateSync(timestamps: boolean) {

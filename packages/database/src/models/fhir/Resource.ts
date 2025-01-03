@@ -14,11 +14,11 @@ import { objectAsFhir } from '../../utils/fhir/utils';
 import { Model } from '../Model';
 
 export class FhirResource extends Model {
-  id!: string;
-  versionId!: string;
-  upstreamId!: string;
-  lastUpdated!: Date;
-  isLive!: boolean;
+  declare id: string;
+  declare versionId: string;
+  declare upstreamId: string;
+  declare lastUpdated: Date;
+  declare isLive: boolean;
 
   static initResource(attributes: ModelAttributes, options: InitOptions) {
     super.init(

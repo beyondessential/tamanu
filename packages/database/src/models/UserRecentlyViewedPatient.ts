@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class UserRecentlyViewedPatient extends Model {
-  id!: string;
-  userId?: string;
-  patientId?: string;
+  declare id: string;
+  declare userId?: string;
+  declare patientId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

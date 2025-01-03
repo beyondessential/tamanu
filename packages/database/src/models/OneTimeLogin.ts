@@ -4,11 +4,11 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class OneTimeLogin extends Model {
-  id!: string;
-  token!: string;
-  expiresAt!: Date;
-  usedAt?: Date;
-  userId!: string;
+  declare id: string;
+  declare token: string;
+  declare expiresAt: Date;
+  declare usedAt?: Date;
+  declare userId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

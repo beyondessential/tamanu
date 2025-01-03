@@ -4,11 +4,11 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ProgramRegistryCondition extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  visibilityStatus!: string;
-  programRegistryId!: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare programRegistryId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

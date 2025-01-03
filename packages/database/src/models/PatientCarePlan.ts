@@ -6,11 +6,11 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PatientCarePlan extends Model {
-  id!: string;
-  date!: string;
-  patientId?: string;
-  carePlanId?: string;
-  examinerId?: string;
+  declare id: string;
+  declare date: string;
+  declare patientId?: string;
+  declare carePlanId?: string;
+  declare examinerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

@@ -4,10 +4,10 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class RefreshToken extends Model {
-  id!: string;
-  refreshId!: string;
-  deviceId!: string;
-  expiresAt!: Date;
+  declare id: string;
+  declare refreshId: string;
+  declare deviceId: string;
+  declare expiresAt: Date;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

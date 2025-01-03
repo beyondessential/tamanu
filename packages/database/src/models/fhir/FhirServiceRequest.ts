@@ -14,20 +14,20 @@ import {
 } from '../../utils/fhir/ServiceRequest';
 
 export class FhirServiceRequest extends FhirResource {
-  identifier?: Record<string, any>;
-  status!: string;
-  intent!: string;
-  category?: Record<string, any>;
-  priority?: string;
-  code?: Record<string, any>;
-  orderDetail?: Record<string, any>;
-  subject!: Record<string, any>;
-  encounter?: Record<string, any>;
-  occurrenceDateTime?: string;
-  requester?: Record<string, any>;
-  locationCode?: Record<string, any>;
-  note?: Record<string, any>;
-  specimen?: Record<string, any>;
+  declare identifier?: Record<string, any>;
+  declare status: string;
+  declare intent: string;
+  declare category?: Record<string, any>;
+  declare priority?: string;
+  declare code?: Record<string, any>;
+  declare orderDetail?: Record<string, any>;
+  declare subject: Record<string, any>;
+  declare encounter?: Record<string, any>;
+  declare occurrenceDateTime?: string;
+  declare requester?: Record<string, any>;
+  declare locationCode?: Record<string, any>;
+  declare note?: Record<string, any>;
+  declare specimen?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(

@@ -4,9 +4,9 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class UserFacility extends Model {
-  id!: string;
-  userId?: string;
-  facilityId?: string;
+  declare id: string;
+  declare userId?: string;
+  declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

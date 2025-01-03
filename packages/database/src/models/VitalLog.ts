@@ -8,13 +8,13 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 
 export class VitalLog extends Model {
-  id!: string;
-  previousValue?: string;
-  newValue?: string;
-  reasonForChange?: string;
-  date!: string;
-  answerId?: string;
-  recordedById?: string;
+  declare id: string;
+  declare previousValue?: string;
+  declare newValue?: string;
+  declare reasonForChange?: string;
+  declare date: string;
+  declare answerId?: string;
+  declare recordedById?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

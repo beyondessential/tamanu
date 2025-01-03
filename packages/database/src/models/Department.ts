@@ -5,14 +5,14 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Department extends Model {
-  id!: string;
-  code!: string;
-  name!: string;
-  visibilityStatus!: string;
-  departmentId?: string;
-  facilityId?: string;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare visibilityStatus: string;
+  declare departmentId?: string;
+  declare facilityId?: string;
 
-  static initMOdel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,

@@ -3,7 +3,7 @@ import config from 'config';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   CURRENT_SYNC_TIME_KEY,
   LAST_SUCCESSFUL_SYNC_PULL_KEY,
@@ -112,8 +112,8 @@ describe('FacilitySyncManager edge cases', () => {
     // argument to pushOutgoingChanges, which we spy on)
     expect(
       syncManager.__testOnlyPushChangesSpy[0].outgoingChanges
-        .filter(c => c.recordType === 'patients')
-        .map(c => c.recordId)
+        .filter((c) => c.recordType === 'patients')
+        .map((c) => c.recordId)
         .sort(),
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
   });
@@ -198,7 +198,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
+      const pushOutgoingChangesPromise = new Promise((resolve) => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
@@ -227,7 +227,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('throws an error if a pulled record was updated between push and pull', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
+      const pushOutgoingChangesPromise = new Promise((resolve) => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
@@ -262,7 +262,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise(resolve => {
+      const pushOutgoingChangesPromise = new Promise((resolve) => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({

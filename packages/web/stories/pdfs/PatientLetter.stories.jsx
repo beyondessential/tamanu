@@ -1,5 +1,5 @@
 import React from 'react';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { PDFViewer } from '@react-pdf/renderer';
 import { PatientLetter as Component } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';

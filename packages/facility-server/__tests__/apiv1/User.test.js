@@ -2,13 +2,13 @@ import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constant
 import { pick } from 'lodash';
 import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
-const createUser = overrides => ({
+const createUser = (overrides) => ({
   email: chance.email(),
   displayName: chance.name(),
   password: chance.word(),
@@ -33,7 +33,7 @@ describe('User', () => {
   const facility2 = { id: 'kerang', name: 'Kerang' };
   const facility3 = { id: 'lake-charm', name: 'Lake Charm' };
   const configFacilities = [facility1, facility2, facility3];
-  const configFacilityIds = configFacilities.map(f => f.id);
+  const configFacilityIds = configFacilities.map((f) => f.id);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -294,7 +294,7 @@ describe('User', () => {
         );
         chPwApp = await baseApp.asUser(chPwUser);
       });
-      const doesPwMatch = async pw => {
+      const doesPwMatch = async (pw) => {
         const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
         return comparePassword(user, pw);
       };
@@ -343,7 +343,7 @@ describe('User', () => {
     let noFacilityUser = null;
 
     const validUserFacilities = [facility1, facility2];
-    const validUserFacilityIds = validUserFacilities.map(f => f.id);
+    const validUserFacilityIds = validUserFacilities.map((f) => f.id);
 
     beforeAll(async () => {
       await models.Setting.set('auth.restrictUsersToFacilities', true);
@@ -364,7 +364,7 @@ describe('User', () => {
       );
 
       await Promise.all(
-        validUserFacilities.map(async facility => {
+        validUserFacilities.map(async (facility) => {
           return await models.UserFacility.create({
             facilityId: facility.id,
             userId: user.id,
@@ -467,7 +467,7 @@ describe('User', () => {
     let app = null;
     let patients = [];
 
-    const viewPatient = async patient => {
+    const viewPatient = async (patient) => {
       const result = await app.post(`/api/user/recently-viewed-patients/${patient.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -543,9 +543,9 @@ describe('User', () => {
       expect(result.body.data).toHaveLength(12);
 
       // orders should match
-      const resultIds = result.body.data.map(x => x.id);
+      const resultIds = result.body.data.map((x) => x.id);
       const sourceIds = patients
-        .map(x => x.id)
+        .map((x) => x.id)
         .reverse()
         .slice(0, 12);
       expect(resultIds).toEqual(sourceIds);
@@ -579,8 +579,8 @@ describe('User', () => {
       const result = await app.get('/api/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
       // orders should match
-      const resultIds = result.body.data.map(x => x.id);
-      const sourceIds = patientsToView.map(x => x.id).reverse();
+      const resultIds = result.body.data.map((x) => x.id);
+      const sourceIds = patientsToView.map((x) => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
 
@@ -616,8 +616,8 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
 
       // orders should match
-      const resultIds = result.body.data.map(x => x.id);
-      const sourceIds = patientsToView.map(x => x.id).reverse();
+      const resultIds = result.body.data.map((x) => x.id);
+      const sourceIds = patientsToView.map((x) => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
   });
@@ -630,7 +630,7 @@ describe('User', () => {
       'data-element-2',
       'data-element-3',
     ].join(',');
-    const updateUserPreference = async userPreference => {
+    const updateUserPreference = async (userPreference) => {
       const result = await app.post('/api/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({

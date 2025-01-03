@@ -5,15 +5,15 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class CertifiableVaccine extends Model {
-  id!: string;
-  icd11DrugCode!: string;
-  icd11DiseaseCode!: string;
-  vaccineCode!: string;
-  targetCode?: string;
-  euProductCode?: string;
-  maximumDosage!: number;
-  vaccineId?: string;
-  manufacturerId?: string;
+  declare id: string;
+  declare icd11DrugCode: string;
+  declare icd11DiseaseCode: string;
+  declare vaccineCode: string;
+  declare targetCode?: string;
+  declare euProductCode?: string;
+  declare maximumDosage: number;
+  declare vaccineId?: string;
+  declare manufacturerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

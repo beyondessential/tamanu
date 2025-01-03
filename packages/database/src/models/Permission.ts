@@ -4,11 +4,11 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class Permission extends Model {
-  id!: string;
-  verb!: string;
-  noun!: string;
-  objectId?: string;
-  roleId?: string;
+  declare id: string;
+  declare verb: string;
+  declare noun: string;
+  declare objectId?: string;
+  declare roleId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

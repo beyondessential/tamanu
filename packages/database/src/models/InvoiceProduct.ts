@@ -12,13 +12,13 @@ import type { ReferenceData } from './ReferenceData';
 import type { LabTestType } from './LabTestType';
 
 export class InvoiceProduct extends Model {
-  id!: string;
-  name!: string;
-  price!: number;
-  discountable!: boolean;
-  visibilityStatus!: string;
-  referenceData?: ReferenceData;
-  labTestType?: LabTestType;
+  declare id: string;
+  declare name: string;
+  declare price: number;
+  declare discountable: boolean;
+  declare visibilityStatus: string;
+  declare referenceData?: ReferenceData;
+  declare labTestType?: LabTestType;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

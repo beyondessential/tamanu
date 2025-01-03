@@ -1,4 +1,5 @@
 import { doAgeRangesHaveGaps, doAgeRangesOverlap } from '../src/dateTime';
+import { describe, expect, it } from 'vitest';
 
 describe('doAgeRangesHaveGaps', () => {
   it('should return true for ranges with gaps', () => {

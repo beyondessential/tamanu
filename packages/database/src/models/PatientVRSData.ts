@@ -5,12 +5,12 @@ import type { InitOptions, Models } from '../types/model';
 
 // Model to store VRS-related data that we don't currently have a good place for
 export class PatientVRSData extends Model {
-  id!: string;
-  idType?: string;
-  identifier?: string;
-  unmatchedVillageName?: string;
-  isDeletedByRemote!: boolean;
-  patientId?: string;
+  declare id: string;
+  declare idType?: string;
+  declare identifier?: string;
+  declare unmatchedVillageName?: string;
+  declare isDeletedByRemote: boolean;
+  declare patientId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

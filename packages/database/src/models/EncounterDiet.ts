@@ -5,9 +5,9 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import type { InitOptions, Models } from '../types/model';
 
 export class EncounterDiet extends Model {
-  id!: string;
-  encounterId?: string;
-  dietId?: string;
+  declare id: string;
+  declare encounterId?: string;
+  declare dietId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

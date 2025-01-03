@@ -6,9 +6,9 @@ import type { InitOptions } from '../types/model';
 // stores data written _by the server_
 // e.g. which host did we last connect to?
 export class LocalSystemFact extends Model {
-  id!: string;
-  key!: string;
-  value?: string;
+  declare id: string;
+  declare key: string;
+  declare value?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

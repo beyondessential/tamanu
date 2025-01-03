@@ -2,7 +2,7 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { chance } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/shared/test-helpers/fake';
@@ -197,7 +197,7 @@ describe('Note', () => {
     // this one needs a fair bit of data to test meaningfully, so, brace
     // yourself for a big chunk of utility functions to get that all together!
 
-    const postEncounterNote = async props => {
+    const postEncounterNote = async (props) => {
       const response = await app
         .post(`/api/encounter/${encounter.id}/notes`)
         .send(fake(models.Note, props));
@@ -290,7 +290,7 @@ describe('Note', () => {
     it('should create a new revision of a note', async () => {
       noteGroups.forEach(([base, ...revisions]) => {
         expect(base).not.toHaveProperty('revisedById', expect.anything());
-        revisions.forEach(r => expect(r).toHaveProperty('revisedById', base.id));
+        revisions.forEach((r) => expect(r).toHaveProperty('revisedById', base.id));
       });
     });
 
@@ -300,7 +300,7 @@ describe('Note', () => {
       );
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length);
-      response.body.data.forEach(n => {
+      response.body.data.forEach((n) => {
         expect(n.content).toMatch('LATEST');
       });
     });
@@ -317,16 +317,16 @@ describe('Note', () => {
 
       const returnedRecords = [...firstPage.body.data, ...secondPage.body.data];
       const firstNonTreatment = returnedRecords.findIndex(
-        x => x.noteType !== NOTE_TYPES.TREATMENT_PLAN,
+        (x) => x.noteType !== NOTE_TYPES.TREATMENT_PLAN,
       );
 
       // treatment plans should be first, in descending date order
       const treatmentNotes = returnedRecords.slice(0, firstNonTreatment);
-      const treatmentDates = treatmentNotes.map(x => x.revisedBy?.date || x.date);
+      const treatmentDates = treatmentNotes.map((x) => x.revisedBy?.date || x.date);
 
       // then other notes, same
       const otherNotes = returnedRecords.slice(firstNonTreatment);
-      const otherDates = otherNotes.map(x => x.revisedBy?.date || x.date);
+      const otherDates = otherNotes.map((x) => x.revisedBy?.date || x.date);
 
       expect(treatmentDates).toEqual([...treatmentDates].sort().reverse());
       expect(otherDates).toEqual([...otherDates].sort().reverse());
@@ -337,7 +337,7 @@ describe('Note', () => {
         `/api/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`,
       );
       expect(results).toHaveSucceeded();
-      results.body.data.forEach(note => {
+      results.body.data.forEach((note) => {
         expect(note).toHaveProperty('noteType', NOTE_TYPES.MEDICAL);
         expect(note.content).toMatch('LATEST');
       });
@@ -358,7 +358,7 @@ describe('Note', () => {
       );
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length - 1);
-      response.body.data.forEach(n => {
+      response.body.data.forEach((n) => {
         expect(n.content).not.toMatch('HISTORICAL');
         expect(n.content).toMatch('LATEST');
       });

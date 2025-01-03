@@ -10,11 +10,11 @@ import type { InitOptions } from '../types/model';
 const SYNC_READY_WINDOW_MINUTES = 5;
 
 export class SyncQueuedDevice extends Model {
-  id!: string;
-  facilityIds!: string[];
-  lastSeenTime?: Date;
-  lastSyncedTick?: number;
-  urgent?: boolean;
+  declare id: string;
+  declare facilityIds: string[];
+  declare lastSeenTime?: Date;
+  declare lastSyncedTick?: number;
+  declare urgent?: boolean;
 
   static initModel(options: InitOptions) {
     super.init(

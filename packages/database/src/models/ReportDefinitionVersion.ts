@@ -33,14 +33,14 @@ const generateReportFromQueryData = (queryData: any[]) => {
 };
 
 export class ReportDefinitionVersion extends Model {
-  id!: string;
-  versionNumber!: number;
-  notes?: string;
-  status!: string;
-  query!: string;
-  queryOptions!: Record<string, any>;
-  reportDefinitionId?: string;
-  userId?: string;
+  declare id: string;
+  declare versionNumber: number;
+  declare notes?: string;
+  declare status: string;
+  declare query: string;
+  declare queryOptions: Record<string, any>;
+  declare reportDefinitionId?: string;
+  declare userId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
