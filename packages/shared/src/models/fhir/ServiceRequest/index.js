@@ -1,1 +1,0 @@
-export { FhirServiceRequest } from './FhirServiceRequest';

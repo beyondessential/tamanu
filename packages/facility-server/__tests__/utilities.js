@@ -10,7 +10,7 @@ import {
   seedLocationGroups,
   seedLocations,
   seedSettings,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
@@ -31,7 +31,7 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');
 
-const formatError = response => `
+const formatError = (response) => `
 
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
@@ -124,8 +124,8 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   // populate with reference data
   const tasks = allSeeds
-    .map(d => ({ code: d.name, ...d }))
-    .map(d => models.ReferenceData.create(d));
+    .map((d) => ({ code: d.name, ...d }))
+    .map((d) => models.ReferenceData.create(d));
   await Promise.all(tasks);
 
   // Order here is important, as some models depend on others
@@ -140,7 +140,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   // Create the facility for the current config if it doesn't exist
   const facilities = await Promise.all(
-    facilityIds.map(async facilityId => {
+    facilityIds.map(async (facilityId) => {
       const [facility] = await models.Facility.findOrCreate({
         where: {
           id: facilityId,
@@ -154,7 +154,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
     }),
   );
 
-  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
+  const facilityIdsString = JSON.stringify(facilities.map((facility) => facility.id));
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityIds', facilityIdsString);
 
@@ -164,7 +164,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const { express: expressApp, server: appServer } = await createApiApp(context);
   const baseApp = supertest(appServer);
 
-  baseApp.asUser = async user => {
+  baseApp.asUser = async (user) => {
     const agent = supertest.agent(expressApp);
     const token = await buildToken(user, facilityIds[0], '1d');
     agent.set('authorization', `Bearer ${token}`);
@@ -172,7 +172,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
     return agent;
   };
 
-  baseApp.asRole = async role => {
+  baseApp.asRole = async (role) => {
     const newUser = await models.User.create({
       email: chance.email(),
       displayName: chance.name(),
@@ -199,7 +199,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       appServer.close(resolve);
     });
   });

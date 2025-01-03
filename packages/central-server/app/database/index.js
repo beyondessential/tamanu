@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { addHooks } from './hooks';
-import { closeAllDatabases, openDatabase } from '@tamanu/shared/services/database';
+import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
@@ -26,10 +26,13 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
 
 export async function initDatabase({ testMode = false, dbKey = 'main' }) {
   // connect to database
-  return await getOrCreateConnection({
-    testMode,
-    saltRounds: config.auth.saltRounds,
-  }, dbKey);
+  return await getOrCreateConnection(
+    {
+      testMode,
+      saltRounds: config.auth.saltRounds,
+    },
+    dbKey,
+  );
 }
 
 async function initReportStore(schemaName, credentials) {

@@ -2,7 +2,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
   createDummyPatient,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { addDays, subDays } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -212,7 +212,7 @@ describe('Encounter', () => {
     // SQLite which seems to remove milliseconds from timestamps, thus,
     // the update_at column becomes smaller than the initial one).
     const initialUpdatedAt = medication.updatedAt.getTime();
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       setTimeout(() => resolve(), 1001);
     });
 

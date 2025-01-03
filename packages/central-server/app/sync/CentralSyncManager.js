@@ -3,11 +3,6 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
-import {
-  CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY,
-  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
-} from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -23,7 +18,10 @@ import {
   SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-} from '@tamanu/shared/sync';
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY,
+  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+} from '@tamanu/database';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -81,7 +79,7 @@ export class CentralSyncManager {
     // "tick" part to be unique to the requesting client, and any changes made directly on the
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
-    const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
+    const tock = await this.store.models.LocalSystemFact.incrementValue(CURRENT_SYNC_TIME_KEY, 2);
     return { tick: tock - 1, tock };
   }
 

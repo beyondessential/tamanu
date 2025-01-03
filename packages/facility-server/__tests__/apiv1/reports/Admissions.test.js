@@ -4,7 +4,7 @@ import {
   createDummyPatient,
   randomRecord,
   randomReferenceData,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';

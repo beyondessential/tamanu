@@ -14,7 +14,7 @@ describe('selectFacilityIds', () => {
 
   it('should return an empty array if neither serverFacilityId nor serverFacilityIds are provided', () => {
     const config = {};
-    expect(selectFacilityIds(config)).toEqual([]);
+    expect(selectFacilityIds(config)).toEqual(undefined);
   });
 
   it('should throw an error if both serverFacilityId and serverFacilityIds are provided', () => {

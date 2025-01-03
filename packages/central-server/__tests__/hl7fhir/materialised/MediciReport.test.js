@@ -1,4 +1,4 @@
-import { sub } from 'date-fns';
+import { intervalToDuration, sub } from 'date-fns';
 import { fake, chance } from '@tamanu/shared/test-helpers';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
@@ -193,15 +193,10 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const {
-      encounter,
-      encounterDiagnosis,
-      encounterMedication,
-      procedureType,
-      labTestType,
-    } = await makeEncounter({
-      encounterType: 'emergency',
-    });
+    const { encounter, encounterDiagnosis, encounterMedication, procedureType, labTestType } =
+      await makeEncounter({
+        encounterType: 'emergency',
+      });
 
     const { MediciReport } = ctx.store.models;
 
@@ -209,6 +204,11 @@ describe(`Materialised - MediciReport`, () => {
     await MediciReport.resolveUpstreams();
 
     const mediciReport = await MediciReport.findOne();
+
+    const expectedAge = intervalToDuration({
+      start: new Date(resources.patient.dateOfBirth),
+      end: new Date(),
+    }).years;
 
     expect(mediciReport.dataValues).toMatchObject({
       patientId: resources.patient.displayId,
@@ -219,7 +219,7 @@ describe(`Materialised - MediciReport`, () => {
       patientBillingId: null,
       patientBillingType: null,
       encounterId: encounter.id,
-      age: 31,
+      age: expectedAge,
       weight: null,
       visitType: 'Emergency short stay',
       episodeEndStatus: null,

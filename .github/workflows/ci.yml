@@ -55,9 +55,11 @@ jobs:
           - { package: "@tamanu/central-server",  shard: 2/4, postgres: 14 }
           - { package: "@tamanu/central-server",  shard: 3/4, postgres: 14 }
           - { package: "@tamanu/central-server",  shard: 4/4, postgres: 14 }
-          - { package: "@tamanu/shared",                      postgres: 12 }
-          - { package: "@tamanu/shared",                      postgres: 14 }
-          - { package: "@tamanu/shared",                      postgres: 16 }
+          - { package: "@tamanu/database",                    postgres: 12 }
+          - { package: "@tamanu/database",                    postgres: 14 }
+          - { package: "@tamanu/database",                    postgres: 16 }
+          - { package: "@tamanu/shared",                                   }
+          - { package: "@tamanu/utils",                                    }
           - { package: "@tamanu/web-frontend" }
           - { package: "@tamanu/settings" }
 

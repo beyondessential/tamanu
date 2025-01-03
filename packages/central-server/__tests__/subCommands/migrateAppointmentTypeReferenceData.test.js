@@ -1,16 +1,16 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
-import { APPOINTMENT_TYPES } from '@tamanu/shared/demoData';
+import { APPOINTMENT_TYPES } from '@tamanu/database/demoData';
 import { initDatabase } from '../../app/database';
 
 jest.mock('../../app/database');
 
-const prepopulate = async models => {
+const prepopulate = async (models) => {
   const { Appointment, ReferenceData } = models;
 
   await ReferenceData.bulkCreate(
-    APPOINTMENT_TYPES.map(x =>
+    APPOINTMENT_TYPES.map((x) =>
       fake(models.ReferenceData, {
         ...x,
         id: `appointmentType-${x.id}`,

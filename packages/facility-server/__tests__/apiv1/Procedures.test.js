@@ -1,4 +1,8 @@
-import { createDummyEncounter, createDummyPatient, randomRecordId } from '@tamanu/shared/demoData';
+import {
+  createDummyEncounter,
+  createDummyPatient,
+  randomRecordId,
+} from '@tamanu/database/demoData';
 import { createTestContext } from '../utilities';
 
 async function createDummyProcedure(models) {

@@ -1,1 +1,0 @@
-export { FhirImagingStudy } from './FhirImagingStudy';

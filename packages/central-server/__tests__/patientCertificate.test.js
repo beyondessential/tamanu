@@ -2,8 +2,8 @@ import {
   createDummyEncounter,
   createDummyPatient,
   createDummyPatientAdditionalData,
-} from '@tamanu/shared/demoData/patients';
-import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
+} from '@tamanu/database/demoData/patients';
+import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import { chance, fake } from '@tamanu/shared/test-helpers';
 import { CertificateTypes } from '@tamanu/shared/utils';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
@@ -95,16 +95,8 @@ describe('Certificate', () => {
     models = ctx.store.models;
     settings = ctx.settings;
 
-    const {
-      method,
-      user,
-      labTestType1,
-      labTestType2,
-      lab,
-      department,
-      location,
-      pfVaxDrug,
-    } = await prepopulate(models);
+    const { method, user, labTestType1, labTestType2, lab, department, location, pfVaxDrug } =
+      await prepopulate(models);
 
     const patientData = createDummyPatient(models);
     patient = await models.Patient.create(patientData);

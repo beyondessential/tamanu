@@ -1,1 +1,0 @@
-export { FhirOrganization } from './FhirOrganization';

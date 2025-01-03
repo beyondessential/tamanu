@@ -849,7 +849,7 @@ describe('Patient merge', () => {
       });
 
       // increment sync tick so the reconciler knows how to merge the records
-      await LocalSystemFact.increment('currentSyncTick');
+      await LocalSystemFact.incrementValue('currentSyncTick');
 
       // create second record
       const mergePad = await PatientAdditionalData.create({

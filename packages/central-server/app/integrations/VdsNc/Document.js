@@ -1,6 +1,6 @@
 import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { Signer } from '@tamanu/shared/models';
+import { Signer } from '@tamanu/database';
 import { base64UrlEncode, depem } from '@tamanu/utils/encodings';
 import { canonicalize } from 'json-canonicalize';
 import { issueVdsNcSignature } from './Crypto';
