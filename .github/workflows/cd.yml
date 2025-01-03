@@ -285,7 +285,8 @@ jobs:
           retag sha-${{ needs.config.outputs.sha }}
 
           # quit now if we're not releasing
-          ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '' || 'exit' }}
+          # we can't have an empty string in the continue case because that's interpreted as falsy and writes 'exit'
+          ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '# continue' || 'exit' }}
 
           retag v$(jq -r '.version' package.json)
           retag v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
