@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('patient_issue')
+@Entity('patient_issues')
 export class PatientIssue extends BaseModel implements IPatientIssue {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

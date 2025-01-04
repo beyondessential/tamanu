@@ -6,7 +6,7 @@ import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
 
-@Entity('user_facility')
+@Entity('user_facilities')
 export class UserFacility extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -24,8 +24,4 @@ export class UserFacility extends BaseModel {
 
   @RelationId(({ facility }) => facility)
   facilityId: string;
-
-  static getTableNameForSync(): string {
-    return 'user_facilities';
-  }
 }

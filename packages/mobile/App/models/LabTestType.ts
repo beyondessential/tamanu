@@ -7,7 +7,7 @@ import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { LabTestPanel } from './LabTestPanel';
 
-@Entity('labTestType')
+@Entity('lab_test_types')
 export class LabTestType extends BaseModel implements ILabTestType {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -55,8 +55,4 @@ export class LabTestType extends BaseModel implements ILabTestType {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
-
-  static getTableNameForSync(): string {
-    return 'lab_test_types'; // unusual camel case table here on mobile
-  }
 }
