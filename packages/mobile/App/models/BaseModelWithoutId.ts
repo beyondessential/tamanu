@@ -119,10 +119,7 @@ export abstract class BaseModelWithoutId extends BaseEntity {
   // May be columns or relationIds
   static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
-  static getTableNameForSync(): string {
-    // most tables in the wider sync universe are the same as the name on mobile, but pluralised
-    // specific plural handling, and a couple of other unique cases, are handled on the relevant
-    // model (see Diagnosis and Medication)
-    return `${this.getRepository().metadata.tableName}s`;
+  static getTableName(): string {
+    return this.getRepository().metadata.tableName;
   }
 }

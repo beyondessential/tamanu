@@ -4,7 +4,7 @@ import { IReferenceDataRelation, ReferenceDataRelationType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceData } from './ReferenceData';
 
-@Entity('reference_data_relation')
+@Entity('reference_data_relations')
 export class ReferenceDataRelation extends BaseModel implements IReferenceDataRelation {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

@@ -1,3 +1,6 @@
+export { useOutpatientAppointmentsQuery, useLocationBookingsQuery } from './useAppointmentsQuery';
+export { useLocationsQuery } from './useLocationsQuery';
+export { useUserPreferencesQuery } from './useUserPreferencesQuery';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
@@ -11,3 +14,5 @@ export * from './usePatientProgramRegistration';
 export * from './useTranslations';
 export * from './useTranslationLanguages';
 export * from './useTelegramBotInfoQuery';
+export * from './useChartSurveysQuery';
+export * from './useEncounterChartsQuery';

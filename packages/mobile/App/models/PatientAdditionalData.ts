@@ -215,10 +215,6 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     await Patient.markForSync(this.patient);
   }
 
-  static getTableNameForSync(): string {
-    return 'patient_additional_data';
-  }
-
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
     // use a query builder instead of find, as apparently there's some
     // misbehaviour around how typeorm traverses this relation

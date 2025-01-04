@@ -10,7 +10,7 @@ import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { TranslationContext } from '../../contexts/Translation';
-import { Icon, StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
+import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { notifyError } from '../../utils';
 
@@ -115,6 +115,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
+  color: ${Colors.darkText};
 `;
 
 const SectionTitle = styled.div`
@@ -301,7 +302,7 @@ export class AutocompleteInput extends Component {
         <Typography variant="body2">
           {isCustomizedOption ? (
             <>
-              &quot;{suggestion.label}&quot; (
+              &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
@@ -394,7 +395,7 @@ export class AutocompleteInput extends Component {
                     this.anchorEl.click();
                   }}
                 >
-                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
+                  {suggestions.length > 0 ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </Icon>
               </>
             ),

@@ -5,10 +5,10 @@ import { useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
 import {
-  CircularProgress,
-  IconButton,
   Button as MuiButton,
   ButtonBase as MuiButtonBase,
+  CircularProgress,
+  IconButton,
 } from '@material-ui/core';
 import {
   AddBoxOutlined,
@@ -17,6 +17,8 @@ import {
   Lock,
   Refresh,
 } from '@material-ui/icons';
+import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
+import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -61,7 +63,7 @@ const StyledButton = styled(({ ...props }) => {
   &.MuiButton-outlinedPrimary {
     border-color: ${props => props.theme.palette.primary.main};
   }
-  ${props => (props.confirmStyle ? props.confirmStyle : '')}
+  ${props => props.confirmStyle ?? ''}
 `;
 
 const StyledCircularProgress = styled(CircularProgress)`
@@ -188,14 +190,14 @@ export const DeleteButton = props => {
 };
 
 const StyledTextButton = styled(Button)`
-  font-size: 16px;
-  text-transform: capitalize;
-  padding: 0;
-  min-height: auto;
-  min-width: auto;
   color: #5b84ad;
+  font-size: 1rem;
+  min-block-size: auto;
+  min-inline-size: auto;
+  padding: 0;
+  text-transform: capitalize;
   :hover {
-    background: rgba(0, 0, 0, 0);
+    background: transparent;
     color: #23476b;
     font-weight: 500;
   }
@@ -314,3 +316,64 @@ const getLocationProps = ({ to }) => {
 
 const ButtonWithPermissionTooltip = withPermissionTooltip(Button);
 export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissionTooltip);
+
+/**
+ * To be extended by custom components which need button semantics, but are not visually or
+ * conceptually “a button”.
+ */
+export const UnstyledHtmlButton = styled.button`
+  appearance: none;
+  background-color: unset;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration-thickness: from-font;
+  touch-action: manipulation;
+`;
+
+/**
+ * @privateRemarks It’s a bit of a mission to override MUI’s baked-in styles. When creating a
+ * `styled` version of this component, the selector will need specificity higher than (0,5,0) to
+ * override the styles declared here.
+ */
+export const ToggleButton = styled(MuiToggleButton)`
+ .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+   .${toggleButtonGroupClasses.firstButton},
+   .${toggleButtonGroupClasses.middleButton},
+   .${toggleButtonGroupClasses.lastButton}
+ ) {
+   appearance: none;
+   background-color: ${Colors.white};
+   border-color: ${Colors.softText};
+   border-radius: calc(infinity * 1px);
+   border-style: solid;
+   border-width: max(0.0625rem, 1px);
+   color: ${Colors.softText};
+   cursor: pointer;
+   display: initial;
+   font-family: inherit;
+   font-size: inherit;
+   font-style: inherit;
+   font-weight: inherit;;
+   inline-size: fit-content;
+   line-height: inherit;
+   margin: 0;
+   padding: 0;
+   text-align: center;
+   text-decoration-thickness: from-font;
+   text-transform: none;
+   touch-action: manipulation;
+
+   &:disabled,
+   &.${toggleButtonClasses.disabled} {
+     background-color: ${Colors.softOutline};
+     border-color: ${Colors.softText};
+     color: ${Colors.softText};
+     cursor: not-allowed;
+   }
+ }
+`;

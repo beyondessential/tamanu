@@ -308,7 +308,7 @@ export class MobileSyncManager {
       this.centralServer,
       sessionId,
       pullSince,
-      Object.values(incomingModels).map(m => m.getTableNameForSync()),
+      Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),

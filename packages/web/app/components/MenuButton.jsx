@@ -21,7 +21,6 @@ const Item = styled(MenuItem)`
   font-weight: 400;
   font-size: 12px;
   line-height: 15px;
-  min-width: 110px;
 
   &:hover {
     background: ${Colors.veryLightBlue};
@@ -38,7 +37,14 @@ const List = styled(MenuList)`
 `;
 
 export const MenuButton = React.memo(
-  ({ actions, className, iconDirection, iconColor, disabled = false }) => {
+  ({
+    actions,
+    className,
+    iconDirection,
+    iconColor,
+    disabled = false,
+    placement = 'bottom-end',
+  }) => {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
 
@@ -70,24 +76,22 @@ export const MenuButton = React.memo(
           anchorEl={anchorRef.current}
           transition
           disablePortal
-          placement="bottom-end"
+          placement={placement}
           style={{ zIndex: 10 }}
         >
           {() => (
             <Paper id="menu-list-grow" variant="outlined">
               <ClickAwayListener onClickAway={handleClose}>
                 <List>
-                  {actions
-                    .filter(option => option)
-                    .map(({ label, action }) => (
-                      <Item
-                        key={label.props.fallback}
-                        disabled={!action}
-                        onClick={event => handleClick(event, action)}
-                      >
-                        {label}
-                      </Item>
-                    ))}
+                  {actions.filter(Boolean).map(({ action, label }) => (
+                    <Item
+                      disabled={!action}
+                      key={label.props.fallback}
+                      onClick={event => handleClick(event, action)}
+                    >
+                      {label}
+                    </Item>
+                  ))}
                 </List>
               </ClickAwayListener>
             </Paper>

@@ -33,7 +33,9 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    form = {},
     enableLocationStatus = true,
+    locationGroupSuggesterType = 'facilityLocationGroup',
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -50,8 +52,16 @@ export const LocationInput = React.memo(
       },
       baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester('facilityLocationGroup');
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
     const { data: location } = useLocationSuggestion(locationId);
+    const { initialValues } = form;
+
+    useEffect(() => {
+      if (!initialValues) return;
+      // Form is reinitialised, reset the state handled group and location values
+      setGroupId('');
+      setLocationId(initialValues[name] ?? '');
+    }, [initialValues, name]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -96,11 +106,14 @@ export const LocationInput = React.memo(
         <AutocompleteInput
           label={locationGroupLabel}
           required={required}
+          name="locationGroup"
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
+          helperText={helperText}
+          error={error}
         />
         <AutocompleteInput
           label={label}
@@ -143,7 +156,6 @@ LocationInput.defaultProps = {
 };
 
 export const LocationField = React.memo(({ field, ...props }) => {
-  delete props.error;
   return (
     <LocationInput
       name={field.name}

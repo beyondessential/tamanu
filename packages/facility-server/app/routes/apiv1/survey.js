@@ -34,6 +34,22 @@ survey.get(
     });
   }),
 );
+
+survey.get(
+  '/charts',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Survey');
+
+    const {
+      models: { Survey },
+    } = req;
+
+    const chartSurveys = await Survey.getChartSurveys();
+
+    res.send(chartSurveys);
+  }),
+);
+
 survey.get(
   '/:id',
   asyncHandler(async (req, res) => {
