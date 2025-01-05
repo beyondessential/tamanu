@@ -219,7 +219,7 @@ describe(`Materialised - MediciReport`, () => {
       patientBillingId: null,
       patientBillingType: null,
       encounterId: encounter.id,
-      age: 31,
+      age: 32,
       weight: null,
       visitType: 'Emergency short stay',
       episodeEndStatus: null,
