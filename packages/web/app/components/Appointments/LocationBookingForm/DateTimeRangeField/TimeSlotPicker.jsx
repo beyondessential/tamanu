@@ -68,9 +68,9 @@ export const TimeSlotPicker = ({
   date,
   disabled = false,
   /**
-   * If true, this instance a picker for the end time slot of an overnight booking where the start
-   * time has been modified to a time such that there is a conflicting booking between the start
-   * time and this `date`. Any state this instance had is now invalid, and
+   * If true, this instance is a picker for the end time slot of an overnight booking where the
+   * start time has been modified to a time such that there is a conflicting booking between the
+   * start time and this `date`. Any state this instance had is now invalid, and
    * hasNoLegalSelection={true} indicates that this component should render with fresh state.
    */
   hasNoLegalSelection = false,
