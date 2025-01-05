@@ -14,7 +14,7 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRe
   return {
     recordId: data.id,
     isDeleted: !!data.deletedAt,
-    recordType: model.getTableNameForSync(),
+    recordType: model.getTableName(),
     data,
   };
 };

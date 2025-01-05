@@ -8,7 +8,7 @@ import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/t
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
-@Entity('survey')
+@Entity('surveys')
 export class Survey extends BaseModel implements ISurvey {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

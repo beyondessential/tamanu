@@ -222,6 +222,7 @@ export const PatientLabTestsTable = React.memo(
           allowExport
           exportName="PatientResults"
           $stickyColumns={stickyColumns.length}
+          rowIdKey="testType"
         />
         <LabTestResultModal
           open={modalOpen}

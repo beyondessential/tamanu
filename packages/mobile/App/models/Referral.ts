@@ -5,7 +5,7 @@ import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('referral')
+@Entity('referrals')
 export class Referral extends BaseModel implements IReferral {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

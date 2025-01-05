@@ -6,7 +6,7 @@ import { sortBy } from 'lodash';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditions';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';

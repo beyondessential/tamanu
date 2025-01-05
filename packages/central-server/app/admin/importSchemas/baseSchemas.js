@@ -8,6 +8,7 @@ import {
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
+  SURVEY_TYPES,
   INJECTION_SITE_VALUES,
   TASK_FREQUENCY_ACCEPTED_UNITS,
   TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE,
@@ -122,6 +123,14 @@ export const Location = Base.shape({
     .integer()
     .min(1, 'maxOccupancy must be 1 or null for unrestricted occupancy')
     .max(1, 'maxOccupancy above 1 is unimplemented'),
+});
+
+export const LocationGroup = Base.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+  facilityId: yup.string().required(),
+  visibilityStatus,
+  isBookable: yup.boolean().default(false),
 });
 
 export const Permission = yup.object().shape({
@@ -284,7 +293,7 @@ export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
-    .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
+    .oneOf(Object.values(SURVEY_TYPES)),
   isSensitive: yup.boolean().required(),
   visibilityStatus: yup
     .string()

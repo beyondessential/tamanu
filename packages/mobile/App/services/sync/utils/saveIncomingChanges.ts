@@ -103,7 +103,7 @@ export const saveIncomingChanges = async (
   let savedRecordsCount = 0;
 
   for (const model of sortedModels) {
-    const recordType = model.getTableNameForSync();
+    const recordType = model.getTableName();
     const files = await RNFS.readDir(
       `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
     );

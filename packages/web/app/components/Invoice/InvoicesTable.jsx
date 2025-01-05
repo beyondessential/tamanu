@@ -21,7 +21,10 @@ import {
   getInvoiceSummary,
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
+import {
+  useEncounterInvoiceQuery,
+  useInvoiceTotalOutstandingBalanceQuery,
+} from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const TableTitle = styled(Typography)`
@@ -29,6 +32,10 @@ const TableTitle = styled(Typography)`
   font-weight: 500;
   padding: 15px 20px;
   border-bottom: 1px solid ${Colors.outline};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const Table = styled(DataFetchingTable)`
@@ -183,7 +190,8 @@ export const InvoicesTable = ({ patient }) => {
   const [selectedInvoice, setSelectedInvoice] = useState();
   const [refreshTable, setRefreshTable] = useState(0);
 
-  const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
+  const { data: invoice } = useEncounterInvoiceQuery(selectedInvoice?.encounterId);
+  const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);
 
@@ -204,7 +212,18 @@ export const InvoicesTable = ({ patient }) => {
         allowExport={false}
         TableHeader={
           <TableTitle>
-            <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
+            <span>
+              <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
+            </span>
+            <span>
+              <TranslatedText
+                stringId="patient.invoice.table.totalBalance"
+                fallback="Total balance: $:totalBalance"
+                replacements={{
+                  totalBalance: formatDisplayPrice(totalOutstandingBalance?.result || 0),
+                }}
+              />
+            </span>
           </TableTitle>
         }
         onClickRow={

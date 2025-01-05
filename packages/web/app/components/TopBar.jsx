@@ -31,8 +31,7 @@ const Bar = styled(Toolbar)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 25px;
-  padding-right: 25px;
+  padding-inline: 25px;
 `;
 
 const Dot = styled.span`
@@ -76,7 +75,7 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
 
 TopBar.propTypes = {
   title: PropTypes.node,
-  subTitle: PropTypes.string,
+  subTitle: PropTypes.node,
   className: PropTypes.string,
 };
 
@@ -96,7 +95,7 @@ export const SimpleTopBar = React.memo(({ title, children, className }) => (
 ));
 
 SimpleTopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   className: PropTypes.string,
 };
 
@@ -128,10 +127,10 @@ export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
 );
 
 EncounterTopBar.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.node.isRequired,
   encounter: PropTypes.shape({ startDate: PropTypes.string, examiner: PropTypes.object })
     .isRequired,
-  subTitle: PropTypes.string,
+  subTitle: PropTypes.node,
 };
 
 EncounterTopBar.defaultProps = {

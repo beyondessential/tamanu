@@ -17,7 +17,7 @@ import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 
-@Entity('patient_program_registration_condition')
+@Entity('patient_program_registration_conditions')
 export class PatientProgramRegistrationCondition extends BaseModel
   implements IPatientProgramRegistrationCondition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -69,8 +69,5 @@ export class PatientProgramRegistrationCondition extends BaseModel
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
     return conditions;
-  }
-  static getTableNameForSync(): string {
-    return 'patient_program_registration_conditions';
   }
 }

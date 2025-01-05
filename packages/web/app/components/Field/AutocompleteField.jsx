@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, groupBy, map, sortBy } from 'lodash';
+import { debounce, groupBy, map } from 'lodash';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -10,7 +10,7 @@ import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { TranslationContext } from '../../contexts/Translation';
-import { Icon, StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
+import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { notifyError } from '../../utils';
 
@@ -73,7 +73,7 @@ const SuggestionsList = styled(Paper)`
         margin: 2px 10px;
       }`}
     }
-  
+
     .react-autosuggest__section-container {
       &:not(:last-child) {
         li:last-child {
@@ -115,6 +115,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
+  color: ${Colors.darkText};
 `;
 
 const SectionTitle = styled.div`
@@ -163,7 +164,7 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const currentOption = await suggester.fetchCurrentOption(value);
+      const currentOption = await suggester?.fetchCurrentOption(value);
       if (currentOption) {
         this.setState({
           selectedOption: {
@@ -299,7 +300,7 @@ export class AutocompleteInput extends Component {
         <Typography variant="body2">
           {isCustomizedOption ? (
             <>
-              &quot;{suggestion.label}&quot; (
+              &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
@@ -392,7 +393,7 @@ export class AutocompleteInput extends Component {
                     this.anchorEl.click();
                   }}
                 >
-                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
+                  {suggestions.length > 0 ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </Icon>
               </>
             ),
@@ -407,18 +408,11 @@ export class AutocompleteInput extends Component {
   };
 
   groupSuggestionsByKey = suggestions => {
-    const { groupByKey, orderByValues } = this.props;
+    const { groupByKey } = this.props;
     const groupedSuggestions = map(groupBy(suggestions, groupByKey), (data, groupByKey) => ({
       [this.props.groupByKey]: groupByKey,
       data,
     }));
-    if (orderByValues) {
-      const orderedSuggestions = sortBy(groupedSuggestions, item => {
-        const index = orderByValues.indexOf(item.type);
-        return index === -1 ? Infinity : index;
-      });
-      return orderedSuggestions;
-    }
 
     return groupedSuggestions;
   };

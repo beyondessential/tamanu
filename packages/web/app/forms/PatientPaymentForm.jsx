@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -17,7 +17,7 @@ import {
   TranslatedText,
 } from '../components';
 import { useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
@@ -27,14 +27,17 @@ const IconButton = styled.div`
   color: ${Colors.primary};
   position: absolute;
   top: 6px;
-  right: -30px;
+  right: -23px;
 `;
 
 const FormRow = styled.div`
   display: flex;
-  gap: 5px;
   margin-top: 6px;
   margin-bottom: 6px;
+`;
+
+const FieldContainer = styled(Box)`
+  padding-right: 5px;
 `;
 
 export const PatientPaymentForm = ({
@@ -42,8 +45,12 @@ export const PatientPaymentForm = ({
   editingPayment = {},
   updateRefreshCount,
   updateEditingPayment,
+  onDataChange = () => {},
   invoice,
+  showChequeNumberColumn,
+  selectedPayment,
 }) => {
+  const selectedPaymentMethodId = selectedPayment?.paymentMethod?.value;
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const [amount, setAmount] = useState(editingPayment?.amount ?? '');
@@ -55,6 +62,12 @@ export const PatientPaymentForm = ({
     invoice,
     editingPayment?.id,
   );
+
+  useEffect(() => {
+    if (editingPayment?.patientPayment?.methodId) {
+      onDataChange({ paymentMethod: { value: editingPayment.patientPayment.methodId } });
+    }
+  }, [editingPayment]);
 
   const generateReceiptNumber = () => {
     return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
@@ -71,13 +84,14 @@ export const PatientPaymentForm = ({
   };
 
   const onRecord = (data, { resetForm }) => {
-    const { date, methodId, receiptNumber, amount } = data;
+    const { amount, ...others } = data;
+    const chequeNumber =
+      selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
     if (!editingPayment?.id) {
       createPatientPayment(
         {
-          date,
-          methodId,
-          receiptNumber,
+          ...others,
+          chequeNumber,
           amount: amount.toFixed(2),
         },
         {
@@ -85,21 +99,22 @@ export const PatientPaymentForm = ({
             updateRefreshCount();
             setAmount('');
             resetForm();
+            onDataChange({ paymentMethod: { value: '' } });
           },
         },
       );
     } else {
       updatePatientPayment(
         {
-          date,
-          methodId,
-          receiptNumber,
+          ...others,
+          chequeNumber,
           amount,
         },
         {
           onSuccess: () => {
             updateRefreshCount();
             updateEditingPayment({});
+            onDataChange({ paymentMethod: { value: '' } });
           },
         },
       );
@@ -120,25 +135,39 @@ export const PatientPaymentForm = ({
     onRecord(data, { resetForm });
   };
 
+  const renderChequeNumberField = () => {
+    if (selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID) {
+      return (
+        <FieldContainer width="15%">
+          <Field name="chequeNumber" component={TextField} size="small" />
+        </FieldContainer>
+      );
+    }
+    return showChequeNumberColumn ? <Box width="15%" /> : null;
+  };
+
   return (
     <Form
+      enableReinitialize
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          <FieldContainer width="19%">
             <Field name="date" required component={DateField} saveDateAsString size="small" />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)' }}>
+          </FieldContainer>
+          <FieldContainer width="19%">
             <Field
               name="methodId"
               required
               component={AutocompleteField}
               suggester={paymentMethodSuggester}
               size="small"
+              onChange={e => onDataChange({ paymentMethod: e.target })}
             />
-          </Box>
-          <Box sx={{ width: 'calc(15% - 5px)' }}>
+          </FieldContainer>
+          {renderChequeNumberField()}
+          <FieldContainer width="13%">
             <Field
               name="amount"
               required
@@ -149,8 +178,8 @@ export const PatientPaymentForm = ({
               value={amount}
               onChange={e => setAmount(e.target.value)}
             />
-          </Box>
-          <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
+          </FieldContainer>
+          <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
             <Field
               name="receiptNumber"
               required
@@ -170,7 +199,7 @@ export const PatientPaymentForm = ({
                 <CachedIcon />
               </IconButton>
             </ThemedTooltip>
-          </Box>
+          </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }}>
             <Button
               size="small"
@@ -196,6 +225,14 @@ export const PatientPaymentForm = ({
         methodId: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />),
+        chequeNumber: yup.string().matches(/^[A-Za-z0-9]+$/, {
+          message: (
+            <TranslatedText
+              stringId="invoice.payment.validation.invalidChequeNumber"
+              fallback="Invalid cheque number - alphanumeric characters only"
+            />
+          ),
+        }),
         amount: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />)
@@ -227,10 +264,10 @@ export const PatientPaymentForm = ({
             ),
           }),
       })}
-      enableReinitialize
       initialValues={{
         date: editingPayment.date,
         methodId: editingPayment.patientPayment?.methodId,
+        chequeNumber: editingPayment.patientPayment?.chequeNumber,
         amount: editingPayment.amount,
         receiptNumber: editingPayment.receiptNumber,
       }}

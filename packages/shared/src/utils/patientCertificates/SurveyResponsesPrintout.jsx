@@ -59,6 +59,9 @@ const pageStyles = StyleSheet.create({
     border: '0.5px solid black',
     gap: 5,
   },
+  robotoFont: {
+    fontFamily: "Roboto"
+  },
 });
 
 const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '10px' }} />;
@@ -66,7 +69,7 @@ const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '
 const ResultBox = ({ resultText, resultName }) => (
   <View style={pageStyles.resultBox}>
     <Text>{resultName}</Text>
-    <Text style={[pageStyles.itemText, pageStyles.boldText]}>{resultText}</Text>
+    <Text style={[pageStyles.itemText, pageStyles.robotoFont]}>{resultText}</Text>
   </View>
 );
 
@@ -96,7 +99,9 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{getAnswers({ answer, type, sourceType })}</Text>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {getAnswers({ answer, type, sourceType })}
+      </Text>
     </View>
   );
 };

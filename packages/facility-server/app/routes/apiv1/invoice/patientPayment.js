@@ -16,6 +16,7 @@ const createPatientPaymentSchema = z
     amount: z.coerce.number().transform(amount => round(amount, 2)),
     receiptNumber: z.string().regex(/^[A-Za-z0-9]+$/),
     methodId: z.string(),
+    chequeNumber: z.string().optional(),
   })
   .strip();
 
@@ -25,6 +26,7 @@ const updatePatientPaymentSchema = z
     amount: z.coerce.number().transform(amount => round(amount, 2)),
     receiptNumber: z.string().regex(/^[A-Za-z0-9]+$/),
     methodId: z.string(),
+    chequeNumber: z.string().optional(),
   })
   .strip();
 
@@ -68,6 +70,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
       {
         invoicePaymentId: payment.id,
         methodId: data.methodId,
+        chequeNumber: data.chequeNumber,
       },
       { transaction },
     );
@@ -134,6 +137,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.InvoicePatientPayment.update(
       {
         methodId: data.methodId,
+        chequeNumber: data.chequeNumber,
       },
       { where: { invoicePaymentId: paymentId } },
       { transaction },

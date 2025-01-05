@@ -7,7 +7,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistry } from './ProgramRegistry';
 
-@Entity('program_registry_clinical_status')
+@Entity('program_registry_clinical_statuses')
 export class ProgramRegistryClinicalStatus extends BaseModel
   implements IProgramRegistryClinicalStatus {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -34,8 +34,4 @@ export class ProgramRegistryClinicalStatus extends BaseModel
     ({ programRegistryClinicalStatus }) => programRegistryClinicalStatus,
   )
   patientProgramRegistrations: PatientProgramRegistration[];
-
-  static getTableNameForSync(): string {
-    return 'program_registry_clinical_statuses';
-  }
 }

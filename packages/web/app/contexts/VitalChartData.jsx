@@ -1,16 +1,16 @@
-import React, { useContext, useState } from 'react';
-import { addDays, format } from 'date-fns';
-
-import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
+import React, { useContext } from 'react';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { GraphDataProviderFactory } from './GraphData';
+import { useChartsVisualisationConfigsQuery } from '../api/queries/useChartsVisualisationConfigsQuery';
 
 export const VitalChartDataContext = React.createContext({
   visualisationConfigs: [],
+  allGraphedChartKeys: [],
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
   setChartKeys: () => {},
-  chartKeys: ['vital-chart'],
-  modalTitle: 'Vital Chart',
+  chartKeys: [''],
+  modalTitle: '',
   setModalTitle: () => {},
   setDateRange: () => {},
   dateRange: ['', ''],
@@ -21,34 +21,23 @@ export const VitalChartDataContext = React.createContext({
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
 export const VitalChartDataProvider = ({ children }) => {
-  const [chartKeys, setChartKeys] = useState([]);
-  const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
-  const [modalTitle, setModalTitle] = useState(null);
-  const [dateRange, setDateRange] = useState([
-    format(addDays(new Date(), -1), DATE_TIME_FORMAT),
-    format(new Date(), DATE_TIME_FORMAT),
-  ]);
-  const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
-  const { data } = useVitalsVisualisationConfigsQuery();
-  const { visualisationConfigs } = data;
-
   return (
-    <VitalChartDataContext.Provider
-      value={{
-        visualisationConfigs,
-        vitalChartModalOpen,
-        setVitalChartModalOpen,
-        chartKeys,
-        setChartKeys,
-        modalTitle,
-        setModalTitle,
-        dateRange,
-        setDateRange,
-        isInMultiChartsView,
-        setIsInMultiChartsView,
-      }}
+    <GraphDataProviderFactory
+      visualisationConfigQueryFn={useVitalsVisualisationConfigsQuery}
+      Context={VitalChartDataContext}
     >
       {children}
-    </VitalChartDataContext.Provider>
+    </GraphDataProviderFactory>
+  );
+};
+
+export const ChartGraphDataProvider = ({ children }) => {
+  return (
+    <GraphDataProviderFactory
+      visualisationConfigQueryFn={useChartsVisualisationConfigsQuery}
+      Context={VitalChartDataContext}
+    >
+      {children}
+    </GraphDataProviderFactory>
   );
 };

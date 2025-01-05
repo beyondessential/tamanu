@@ -33,24 +33,6 @@ sources:
             description: "{{ doc('generic__date') }} in lab_tests."
             data_tests:
               - not_null
-          - name: status
-            data_type: character varying(31)
-            description: "{{ doc('lab_tests__status') }}"
-            data_tests:
-              - not_null
-              - accepted_values:
-                  values:
-                    - reception_pending
-                    - results_pending
-                    - interim_results
-                    - to_be_verified
-                    - verified
-                    - published
-                    - cancelled
-                    - invalidated
-                    - deleted
-                    - sample-not-collected
-                    - entered-in-error
           - name: result
             data_type: character varying(255)
             description: "{{ doc('lab_tests__result') }}"

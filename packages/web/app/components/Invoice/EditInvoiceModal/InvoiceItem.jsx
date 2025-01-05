@@ -14,6 +14,7 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
+import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -145,7 +146,11 @@ export const InvoiceItemRow = ({
           ...item,
           discount: {
             ...item.discount,
-            percentage: data.percentage / 100,
+            amount:
+              data.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE
+                ? data.amount / 100
+                : data.amount,
+            type: data.type,
             reason: data.reason,
           },
         });
@@ -156,7 +161,11 @@ export const InvoiceItemRow = ({
           ...item,
           discount: {
             ...item.discount,
-            percentage: -(data.percentage / 100),
+            amount:
+              data.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE
+                ? -(data.amount / 100)
+                : -data.amount,
+            type: data.type,
             reason: data.reason,
           },
         });
@@ -183,7 +192,7 @@ export const InvoiceItemRow = ({
   const menuItems = [
     {
       label:
-        Number(item.discount?.percentage) < 0 ? (
+        Number(item.discount?.amount) < 0 ? (
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeMarkup"
             fallback="Remove markup"
@@ -195,7 +204,7 @@ export const InvoiceItemRow = ({
           />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-      hidden: !item.discount?.percentage,
+      hidden: !item.discount?.amount,
     },
     {
       label: (
@@ -203,7 +212,7 @@ export const InvoiceItemRow = ({
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
-      hidden: !!item.discount?.percentage,
+      hidden: !!item.discount?.amount,
     },
     {
       label: (
@@ -211,7 +220,7 @@ export const InvoiceItemRow = ({
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
-      hidden: !!item.discount?.percentage,
+      hidden: !!item.discount?.amount,
     },
     {
       label: item.note ? (
@@ -252,7 +261,7 @@ export const InvoiceItemRow = ({
 
   return (
     <>
-      <StyledItemRow container alignItems="center" spacing={1} wrap="nowrap">
+      <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
         <StyledItemCell width="12%">
           {isItemEditable ? (
             <Field

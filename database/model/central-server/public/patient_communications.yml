@@ -71,3 +71,9 @@ sources:
           - name: hash
             data_type: integer
             description: "{{ doc('patient_communications__hash') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              patient_communications."
+            data_tests:
+              - not_null
