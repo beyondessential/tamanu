@@ -300,10 +300,6 @@ export const TimeSlotPicker = ({
    * Treating the `startTime` and `endTime` string values from the Formik context as the source of
    * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
    * currently selected start and end times.
-   *
-   * The `appointments.bookingSlots` configuration may have changed since the last time a given
-   * appointment was updated. This `useEffect` hook realigns an appointment’s start and end times
-   * with the currently available slots.
    */
   useEffect(() => {
     if (hasNoLegalSelection) {
