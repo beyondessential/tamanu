@@ -93,6 +93,7 @@ export const StyledTextField = styled(MuiTextField)`
 `;
 
 export const TextInput = ({ value = '', label, ...props }) => {
+  // eslint-disable-next-line no-unused-vars
   const { saveDateAsString, ...rest } = props;
   return (
     <OuterLabelFieldWrapper label={label} {...props}>

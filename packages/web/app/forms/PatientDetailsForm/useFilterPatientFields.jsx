@@ -20,6 +20,7 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
       .map(fieldName => {
+        // eslint-disable-next-line no-unused-vars
         const { condition, ...rest } = fields[fieldName];
         return {
           ...rest,
