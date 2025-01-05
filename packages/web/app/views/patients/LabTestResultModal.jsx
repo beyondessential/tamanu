@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLabTest } from '../../api/queries/useLabTest';
+import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 
 import { Colors } from '../../constants';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -48,7 +48,7 @@ const ValueDisplay = ({ title, value }) => (
 );
 
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
-  const { data: labTest } = useLabTest(labTestId);
+  const { data: labTest } = useLabTestQuery(labTestId);
   return (
     <Modal
       title={

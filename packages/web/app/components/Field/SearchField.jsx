@@ -39,6 +39,8 @@ export const SearchField = props => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
+    placeholder,
+    onChange,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -48,9 +50,15 @@ export const SearchField = props => {
 
   const clearSearch = () => {
     setSearchValue('');
-    if (setFieldValue) {
-      setFieldValue(name, '');
-    }
+    setFieldValue?.(name, '');
+
+    // For some reason, using `clearSearch` doesn’t fire the `SearchField`’s change event
+    onChange?.({
+      target: {
+        value: '',
+        type: 'change',
+      },
+    });
   };
 
   return (
@@ -67,18 +75,10 @@ export const SearchField = props => {
           </StyledIconButton>
         ),
       }}
-      placeholder={
-        label
-          ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-              replacements: {
-                label: getTranslation(label.props.stringId, label.props.fallback, {
-                  casing: 'lower',
-                }),
-              },
-            })
-          : ''
-      }
       {...props}
+      placeholder={
+        placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
+      }
       value={searchValue}
     />
   );

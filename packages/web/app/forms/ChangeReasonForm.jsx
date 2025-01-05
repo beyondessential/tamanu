@@ -62,3 +62,7 @@ ChangeReasonForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   reasonForEncounter: PropTypes.string.isRequired,
 };
+
+ChangeReasonForm.defaultProps = {
+  reasonForEncounter: '',
+};

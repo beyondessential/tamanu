@@ -10,7 +10,7 @@ import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 
-@Entity('administered_vaccine')
+@Entity('administered_vaccines')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

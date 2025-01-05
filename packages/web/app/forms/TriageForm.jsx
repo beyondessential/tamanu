@@ -61,6 +61,7 @@ export const TriageForm = ({
   noRedirectOnSubmit,
   patient,
   editedObject,
+  initialValues,
 }) => {
   const api = useApi();
   const { facilityId } = useAuth();
@@ -222,6 +223,7 @@ export const TriageForm = ({
       initialValues={{
         triageTime: getCurrentDateTimeString(),
         ...editedObject,
+        ...initialValues,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({

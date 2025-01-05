@@ -15,7 +15,7 @@ import {
   useSelectableColumn,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
-import { useLabRequestNotes } from '../../../api/queries';
+import { useLabRequestNotesQuery } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
@@ -136,7 +136,7 @@ export const LabRequestSummaryPane = React.memo(
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
-    const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } = useLabRequestNotes(id);
+    const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } = useLabRequestNotesQuery(id);
 
     return (
       <Container>

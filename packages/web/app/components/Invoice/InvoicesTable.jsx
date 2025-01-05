@@ -22,7 +22,7 @@ import {
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
 import {
-  useEncounterInvoice,
+  useEncounterInvoiceQuery,
   useInvoiceTotalOutstandingBalanceQuery,
 } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
@@ -194,7 +194,7 @@ export const InvoicesTable = ({ patient }) => {
   const [selectedInvoice, setSelectedInvoice] = useState();
   const [refreshTable, setRefreshTable] = useState(0);
 
-  const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
+  const { data: invoice } = useEncounterInvoiceQuery(selectedInvoice?.encounterId);
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);

@@ -5,7 +5,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { IPatientSecondaryId } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('patient_secondary_id')
+@Entity('patient_secondary_ids')
 export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

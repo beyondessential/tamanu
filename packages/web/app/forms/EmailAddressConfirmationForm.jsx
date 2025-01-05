@@ -8,26 +8,28 @@ import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
-export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
+export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit, emailOverride }) => {
   const { getTranslation } = useTranslation();
   const patient = useSelector(state => state.patient);
 
   return (
     <Form
       onSubmit={onSubmit}
-      initialValues={{ email: patient.email }}
+      initialValues={{ email: emailOverride || patient.email }}
+      enableReinitialize
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .nullable()
-          .required(),
+          .required(getTranslation('validation.required.inline', '*Required')),
         confirmEmail: Yup.string()
           .oneOf(
             [Yup.ref('email'), null],
             getTranslation('validation.rule.emailsMatch', 'Emails must match'),
           )
-          .required(),
+          .required(getTranslation('validation.required.inline', '*Required')),
       })}
+      suppressErrorDialog
       render={({ submitForm }) => (
         <FormGrid columns={1}>
           <Field

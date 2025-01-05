@@ -10,7 +10,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useSurveyResponse } from '../../../api/queries/useSurveyResponse';
+import { useSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
 import { useAuth } from '../../../contexts/Auth';
 
 export const SurveyResponsesPrintModal = React.memo(
@@ -42,7 +42,7 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponse(surveyResponseId);
+    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(surveyResponseId);
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', surveyResponse?.userId],

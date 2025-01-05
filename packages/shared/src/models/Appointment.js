@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -11,16 +11,13 @@ export class Appointment extends Model {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
         endTime: dateTimeType('endTime'),
-        type: {
-          type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
-        },
         status: {
           type: Sequelize.STRING,
           allowNull: false,
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
+        typeLegacy: { type: Sequelize.STRING, allowNull: true },
+        isHighPriority: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -30,8 +27,14 @@ export class Appointment extends Model {
     return [
       { association: 'patient', include: ['village'] },
       'clinician',
-      'location',
+      {
+        association: 'location',
+        include: ['locationGroup'],
+      },
       'locationGroup',
+      'appointmentType',
+      'bookingType',
+      'encounter',
     ];
   }
 
@@ -51,10 +54,24 @@ export class Appointment extends Model {
       foreignKey: 'locationGroupId',
     });
 
-    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'appointmentTypeId',
+      as: 'appointmentType',
+    });
+
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
+      as: 'encounter',
     });
   }
 
@@ -63,14 +80,17 @@ export class Appointment extends Model {
       return null;
     }
     return `
-      JOIN
+      LEFT JOIN
         location_groups
       ON
         appointments.location_group_id = location_groups.id
+      LEFT JOIN
+        locations
+      ON appointments.location_id = locations.id
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id in (:facilityIds)
+        COALESCE(location_groups.facility_id, locations.facility_id) IN (:facilityIds)
       AND
         appointments.updated_at_sync_tick > :since
     `;
@@ -80,10 +100,11 @@ export class Appointment extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
-        facilityId: 'location_groups.facility_id',
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `
-        JOIN location_groups ON appointments.location_group_id = location_groups.id
+        LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
+        LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
   }

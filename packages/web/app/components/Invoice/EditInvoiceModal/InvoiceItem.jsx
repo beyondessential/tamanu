@@ -261,7 +261,7 @@ export const InvoiceItemRow = ({
 
   return (
     <>
-      <StyledItemRow container alignItems="center" spacing={1} wrap="nowrap">
+      <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
         <StyledItemCell width="12%">
           {isItemEditable ? (
             <Field

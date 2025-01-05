@@ -2,7 +2,7 @@ import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column, Like } from 
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('translated_string')
+@Entity('translated_strings')
 export class TranslatedString extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

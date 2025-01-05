@@ -2,23 +2,15 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientCurrentEncounter } from '../../../api/queries';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
-
-const PATIENT_STATUS_COLORS = {
-  [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
-  [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
-  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
-  [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
-  [undefined]: Colors.primary, // Blue
-};
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -183,7 +175,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const { getLocalisation } = useLocalisation();
-  const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
+  const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;

@@ -13,7 +13,7 @@ import { Department } from './Department';
 
 const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled', 'invalidated'];
 
-@Entity('labRequest')
+@Entity('lab_requests')
 export class LabRequest extends BaseModel implements ILabRequest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -99,10 +99,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
     labTest => labTest.labRequest,
   )
   tests: LabTest[];
-
-  static getTableNameForSync(): string {
-    return 'lab_requests'; // unusual camel case table here on mobile
-  }
 
   static async getForPatient(patientId: string): Promise<LabRequest[]> {
     return this.getRepository()
