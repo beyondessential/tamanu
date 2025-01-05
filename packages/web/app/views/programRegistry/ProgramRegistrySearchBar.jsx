@@ -59,7 +59,6 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         <>
           <LocalisedField
             name="sex"
-            defaultLabel="Sex"
             label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
             component={BaseSelectField}
             options={sexOptions}

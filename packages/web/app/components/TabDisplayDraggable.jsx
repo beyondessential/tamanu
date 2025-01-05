@@ -79,6 +79,10 @@ export const TabDisplayDraggable = ({
   handleDragEnd,
   ...tabProps
 }) => {
+  tabs = tabs.map((t, index) => ({
+    ...t,
+    order: index,
+  }));
   const currentTabData = tabs.find(t => t.key === currentTab);
 
   const onDragEnd = result => {
@@ -94,7 +98,7 @@ export const TabDisplayDraggable = ({
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : 'fixed'}
               scrollButtons={scrollable ? 'on' : 'off'}
-              value={currentTab}
+              value={currentTabData?.order || 0}
               {...provided.droppableProps}
             >
               {tabs.map(({ key, label, render, icon }, index) => (

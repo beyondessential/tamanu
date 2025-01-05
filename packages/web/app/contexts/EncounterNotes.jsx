@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
 const EncounterNotesContext = createContext({
-  noteType: null,
+  noteType: '',
   setNoteType: () => {},
   resetNoteContext: () => {},
 });
@@ -12,9 +12,9 @@ export const useEncounterNotes = () => {
 };
 
 export const EncounterNotesProvider = ({ children }) => {
-  const [noteType, setNoteType] = useState(null);
+  const [noteType, setNoteType] = useState('');
   const resetNoteContext = () => {
-    setNoteType(null);
+    setNoteType('');
   };
 
   return (

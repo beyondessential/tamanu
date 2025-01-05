@@ -471,6 +471,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
 
   const COLUMNS = [
     {
+      key: '',
       accessor: getStatus,
       maxWidth: 20,
       sortable: false,
