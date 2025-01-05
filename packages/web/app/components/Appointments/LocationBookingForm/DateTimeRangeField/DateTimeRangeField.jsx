@@ -1,10 +1,17 @@
-import { addDays } from 'date-fns';
+import { addDays, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 
 import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
+
+const dayAfter = dateStr => {
+  const date = parseISO(dateStr);
+  return addDays(date, 1);
+};
 
 export const DateTimeRangeField = ({ disabled, required, separate = false, ...props }) => {
   const {
@@ -18,7 +25,7 @@ export const DateTimeRangeField = ({ disabled, required, separate = false, ...pr
         <StartDateTimePicker disabled={disabled} required={required} />
         <EndDateTimePicker
           disabled={isEndPickerDisabled}
-          minDate={!isEndPickerDisabled ? addDays(new Date(startDate), 1) : null}
+          minDate={isEndPickerDisabled ? null : toDateString(dayAfter(startDate))}
           required={required}
         />
       </>

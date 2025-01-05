@@ -96,7 +96,7 @@ jobs:
               ...${{ steps.control.outputs.result }},
               ref: process.env.REF,
             });
-            console.log(allDeploys);
+            console.log(JSON.stringify(allDeploys, null, 2));
 
             const matrix = ({ name, control, options }) => ({ name, control, options: JSON.stringify(options) });
             const filter = ({ options: { pause, imagesonly } }) => !pause && !imagesonly;

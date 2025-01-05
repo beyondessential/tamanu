@@ -37,7 +37,7 @@ import { Note } from './Note';
 
 const TIME_OFFSET = 3;
 
-@Entity('encounter')
+@Entity('encounters')
 export class Encounter extends BaseModel implements IEncounter {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -277,7 +277,7 @@ export class Encounter extends BaseModel implements IEncounter {
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
+            .from('survey_responses', 'surveyResponse')
             .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'sr',
         '"sr"."encounterId" = encounter.id',

@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
-import { ILabTest, LabTestStatus } from '~/types';
+import { ILabTest } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
@@ -9,16 +9,13 @@ import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 import { DateStringColumn } from './DateColumns';
 
-@Entity('labTest')
+@Entity('lab_tests')
 export class LabTest extends BaseModel implements ILabTest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
   @DateStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
   date: string;
-
-  @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
-  status: LabTestStatus;
 
   @Column({ type: 'varchar', nullable: false, default: '' })
   result: string;
@@ -40,8 +37,4 @@ export class LabTest extends BaseModel implements ILabTest {
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
   labTestTypeId: string;
-
-  static getTableNameForSync(): string {
-    return 'lab_tests'; // unusual camel case table here on mobile
-  }
 }

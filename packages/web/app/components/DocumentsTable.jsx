@@ -138,6 +138,7 @@ export const DocumentsTable = React.memo(
           allowExport={false}
           elevated={false}
           onRowClick={row => openDocumentPreview(row)}
+          rowIdKey="id"
         />
         <DeleteDocumentModal
           open={modalOpen}

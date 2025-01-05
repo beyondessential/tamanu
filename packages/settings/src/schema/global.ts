@@ -39,6 +39,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        restrictUsersToSync: {
+          description: 'Restrict users from being able to sync based on permissions',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
     ageDisplayFormat: {
@@ -156,6 +161,14 @@ export const globalSettings = {
           defaultValue: false,
         },
         reminderContactModule: {
+          properties: {
+            enabled: {
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        desktopCharting: {
           properties: {
             enabled: {
               type: yup.boolean(),

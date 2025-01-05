@@ -7,7 +7,7 @@ import { Location } from './Location';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('locationGroup')
+@Entity('location_groups')
 export class LocationGroup extends BaseModel implements ILocationGroup {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -31,8 +31,4 @@ export class LocationGroup extends BaseModel implements ILocationGroup {
     ({ locationGroup }) => locationGroup,
   )
   locations: Location[];
-
-  static getTableNameForSync(): string {
-    return 'location_groups';
-  }
 }

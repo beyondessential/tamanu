@@ -158,6 +158,7 @@ export class SurveyResponse extends Model {
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
         notified: { type: Sequelize.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
+        metadata: { type: Sequelize.JSONB, allowNull: true },
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,

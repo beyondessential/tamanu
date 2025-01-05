@@ -5,7 +5,7 @@ import { BaseModel } from './BaseModel';
 import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('patient_field_definition')
+@Entity('patient_field_definitions')
 export class PatientFieldDefinition extends BaseModel implements IPatientFieldDefinition {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -55,9 +55,5 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
 
       return sanitizedRow;
     });
-  }
-
-  static getTableNameForSync(): string {
-    return 'patient_field_definitions';
   }
 }

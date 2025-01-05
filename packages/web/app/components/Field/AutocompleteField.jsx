@@ -164,7 +164,7 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const currentOption = await suggester.fetchCurrentOption(value);
+      const currentOption = await suggester?.fetchCurrentOption(value);
       if (currentOption) {
         this.setState({
           selectedOption: {
@@ -300,7 +300,7 @@ export class AutocompleteInput extends Component {
         <Typography variant="body2">
           {isCustomizedOption ? (
             <>
-              &quot;{suggestion.label}&quot; (
+              &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
