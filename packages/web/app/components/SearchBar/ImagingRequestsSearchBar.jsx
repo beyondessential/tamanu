@@ -144,7 +144,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       />
       <LocalisedField
         name="requestId"
-        defaultLabel="Request ID"
         label={
           <TranslatedText stringId="general.localisedField.requestId.label" fallback="Request ID" />
         }
