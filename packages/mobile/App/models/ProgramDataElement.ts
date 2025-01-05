@@ -5,7 +5,7 @@ import { DataElementType, IProgramDataElement } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { SurveyScreenComponent } from './SurveyScreenComponent';
 
-@Entity('program_data_element')
+@Entity('program_data_elements')
 export class ProgramDataElement extends BaseModel implements IProgramDataElement {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

@@ -69,7 +69,7 @@ class DatabaseHelper {
         "SELECT * FROM sqlite_master WHERE type='table' AND name='migrations';",
       );
       const patientTable = await this.client.query(
-        "SELECT * FROM sqlite_master WHERE type='table' AND name='patient';",
+        "SELECT * FROM sqlite_master WHERE type='table' AND name='patients';",
       );
 
       if (!migrationsTable.length && patientTable.length) {

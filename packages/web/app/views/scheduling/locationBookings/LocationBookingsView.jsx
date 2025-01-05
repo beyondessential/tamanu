@@ -5,6 +5,8 @@ import { omit } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';

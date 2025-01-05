@@ -8,7 +8,7 @@ import { TimeSlotPicker } from '../../app/components/Appointments/LocationBookin
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { MockedApi } from '../utils/mockedApi';
 
-const todaysDate = toDateString(new Date());
+const todaysDate = toDateString(startOfToday());
 
 const mockAppointments = [
   {

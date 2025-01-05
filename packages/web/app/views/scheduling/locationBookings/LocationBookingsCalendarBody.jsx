@@ -1,16 +1,13 @@
 import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import {
-  partitionAppointmentsByDate,
-  generateIdFromCell,
-} from './utils';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { generateIdFromCell, partitionAppointmentsByDate } from './utils';
 
 export const BookingsCell = ({
   appointments,
@@ -19,7 +16,7 @@ export const BookingsCell = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const { selectedCell } = useLocationBookingsContext();
+  const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
   return (
@@ -27,7 +24,8 @@ export const BookingsCell = ({
       id={generateIdFromCell({ locationId, date })}
       onClick={e => {
         if (e.target.closest('.appointment-tile')) return;
-        openBookingForm({ startTime: toDateTimeString(date), locationId });
+        openBookingForm({ startDate: toDateString(date), locationId });
+        updateSelectedCell({ date, locationId });
       }}
       $selected={isSelected}
     >

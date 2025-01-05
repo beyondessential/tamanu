@@ -643,6 +643,7 @@ describe('User', () => {
         .send({ facilityId, ...userPreferences });
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
+        id: expect.any(String),
         userId: user.id,
       });
       return result;

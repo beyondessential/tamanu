@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { useTranslationLanguages } from '../api/queries';
+import { useTranslationLanguagesQuery } from '../api/queries';
 import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
@@ -60,7 +60,7 @@ const customStyles = {
 
 export const LanguageSelector = () => {
   const { updateStoredLanguage, storedLanguage } = useTranslation();
-  const { data = {}, error } = useTranslationLanguages();
+  const { data = {}, error } = useTranslationLanguagesQuery();
 
   const { languageNames = [], languagesInDb = [] } = data;
 

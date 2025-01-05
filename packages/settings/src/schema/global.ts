@@ -168,6 +168,14 @@ export const globalSettings = {
             },
           },
         },
+        desktopCharting: {
+          properties: {
+            enabled: {
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
         idleTimeout: {
           description: 'Automatically logout idle users / inactive sessions after a certain time',
           properties: {

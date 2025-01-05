@@ -105,7 +105,7 @@ async function writeToPatientFields(
   }
 }
 
-@Entity('survey_response')
+@Entity('survey_responses')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { getDependentAssociations } from './getDependentAssociations';
 
 async function getIds(options) {
   let ids = options.where?.id?.[Op.in];
@@ -9,12 +10,6 @@ async function getIds(options) {
 
   const instances = await options.model.findAll(options);
   return instances.map(x => x.id);
-}
-
-function getDependantAssociations(model) {
-  return Object.values(model.associations).filter(
-    ({ associationType }) => ['HasMany', 'HasOne'].includes(associationType),
-  );
 }
 
 async function executeInsideTransaction(sequelize, arg, fn) {
@@ -28,7 +23,7 @@ async function executeInsideTransaction(sequelize, arg, fn) {
 }
 
 async function beforeDestroy(instance) {
-  const dependantAssociations = getDependantAssociations(instance.constructor);
+  const dependantAssociations = getDependentAssociations(instance.constructor);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
@@ -42,7 +37,7 @@ async function beforeBulkDestroy(options) {
     return;
   }
 
-  const dependantAssociations = getDependantAssociations(options.model);
+  const dependantAssociations = getDependentAssociations(options.model);
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
