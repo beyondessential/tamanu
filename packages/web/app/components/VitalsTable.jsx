@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
-import { useVitals } from '../api/queries/useVitals';
+import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
@@ -10,7 +10,7 @@ import { useSettings } from '../contexts/Settings';
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const { data, recordedDates, error, isLoading } = useVitalsQuery(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const { getSetting } = useSettings();

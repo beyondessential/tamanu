@@ -8,7 +8,7 @@ const queryResponseToDataURL = response => {
   return `data:${assetDataType};base64,${assetData}`;
 };
 
-export const useAsset = assetName => {
+export const useAssetQuery = assetName => {
   const api = useApi();
   const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
 

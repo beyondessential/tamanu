@@ -12,7 +12,7 @@ import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
-import { useImagingRequests } from '../contexts/ImagingRequests';
+import { useImagingRequestsQuery } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -46,7 +46,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const { searchParameters } = useImagingRequests(memoryKey);
+  const { searchParameters } = useImagingRequestsQuery(memoryKey);
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
   const [isRowsDisabled, setIsRowsDisabled] = useState(false);
 

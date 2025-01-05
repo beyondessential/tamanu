@@ -164,16 +164,14 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      if (suggester) {
-        const currentOption = await suggester.fetchCurrentOption(value);
-        if (currentOption) {
-          this.setState({
-            selectedOption: {
-              value: currentOption.label,
-              tag: currentOption.tag,
-            },
-          });
-        }
+      const currentOption = await suggester?.fetchCurrentOption(value);
+      if (currentOption) {
+        this.setState({
+          selectedOption: {
+            value: currentOption.label,
+            tag: currentOption.tag,
+          },
+        });
       }
     } else if (allowFreeTextForExistingValue && value) {
       this.setState({ selectedOption: { value, tag: null } });

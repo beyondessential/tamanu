@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { usePatientAdditionalDataQuery, usePatientCurrentEncounter } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { TextButton } from '../../Button';
 import { EncounterModal } from '../../EncounterModal';
@@ -32,7 +32,7 @@ const StyledButton = styled(TextButton)`
 `;
 
 export const CheckInButton = ({ appointment }) => {
-  const { data: encounter } = usePatientCurrentEncounter(appointment?.patient?.id);
+  const { data: encounter } = usePatientCurrentEncounterQuery(appointment?.patient?.id);
   const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

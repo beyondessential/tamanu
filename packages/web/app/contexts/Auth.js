@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { idleTimeout, logout } from '../store';
 import { useApi } from '../api';
-import { useEncounterNotes } from './EncounterNotes';
+import { useEncounterNotesQuery } from './EncounterNotes';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
@@ -13,7 +13,7 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const api = useApi();
   const queries = useQueryClient();
-  const { resetNoteContext } = useEncounterNotes();
+  const { resetNoteContext } = useEncounterNotesQuery();
 
   const cleanupSession = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
