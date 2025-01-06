@@ -49,3 +49,7 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) recording this sur
 If the [survey](#!/source/source.tamanu.tamanu.surveys) is `notifiable`, whether this response's
 notification has been sent.
 {% enddocs %}
+
+{% docs survey_responses__metadata %}
+Metadata for a survey response, (eg: if a survey response is linked to another survey response)
+{% enddocs %}

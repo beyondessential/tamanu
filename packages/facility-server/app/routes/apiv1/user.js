@@ -133,9 +133,7 @@ user.get(
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.findOne({
-      where: { userId: currentUser.id },
-    });
+    const userPreferences = await UserPreference.getAllPreferences(currentUser.id);
 
     // Return {} as default if no user preferences exist
     res.send(userPreferences || {});
@@ -148,43 +146,15 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body: {
-        locationBookingFilters,
-        outpatientAppointmentFilters,
-        selectedGraphedVitalsOnFilter,
-        clinicianDashboardTaskingTableFilter,
-      },
-    } = req;
-
-    req.checkPermission('write', currentUser);
-
-    const [userPreferences] = await UserPreference.upsert({
-      selectedGraphedVitalsOnFilter,
-      locationBookingFilters,
-      clinicianDashboardTaskingTableFilter,
-      outpatientAppointmentFilters,
-      userId: currentUser.id,
-      deletedAt: null,
-    });
-
-    res.send(userPreferences);
-  }),
-);
-
-user.post(
-  '/userPreferences/reorderEncounterTab',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { UserPreference },
-      user: currentUser,
       body,
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const { encounterTabOrders } = body;
+    const { key, value } = body;
     const [userPreferences] = await UserPreference.upsert({
-      encounterTabOrders,
+      key,
+      value,
       userId: currentUser.id,
       deletedAt: null,
     });

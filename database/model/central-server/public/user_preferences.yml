@@ -10,8 +10,11 @@ sources:
           - system
         columns:
           - name: id
-            data_type: text
+            data_type: uuid
             description: "{{ doc('generic__id') }} in user_preferences."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in user_preferences."
@@ -31,12 +34,6 @@ sources:
             data_tests:
               - unique
               - not_null
-          - name: selected_graphed_vitals_on_filter
-            data_type: character varying(255)
-            description: "{{ doc('user_preferences__selected_graphed_vitals_on_filter') }}"
-          - name: encounter_tab_orders
-            data_type: jsonb
-            description: "{{ doc('user_preferences__encounter_tab_orders') }}"
           - name: clinician_dashboard_tasking_table_filter
             data_type: jsonb
             description: "{{
@@ -47,12 +44,14 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_preferences."
             data_tests:
               - not_null
-          - name: location_booking_filters
+          - name: key
+            data_type: character varying(255)
+            description: "{{ doc('user_preferences__key') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: value
             data_type: jsonb
-            description: "{{ doc('user_preferences__location_booking_filters') }}"
-          - name: outpatient_appointment_filters
-            data_type: jsonb
-            description: "{{ doc('user_preferences__outpatient_appointment_filters') }}"
-          - name: encounter_tab_orders
-            data_type: jsonb
-            description: "{{ doc('user_preferences__encounter_tab_orders') }}"
+            description: "{{ doc('user_preferences__value') }}"
+            data_tests:
+              - not_null

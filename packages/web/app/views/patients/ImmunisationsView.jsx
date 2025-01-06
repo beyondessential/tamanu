@@ -100,7 +100,7 @@ export const ImmunisationsView = () => {
         }
       />
       <ContentPane>
-        <StyledSearchTableTitle>
+        <StyledSearchTableTitle component="div">
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"

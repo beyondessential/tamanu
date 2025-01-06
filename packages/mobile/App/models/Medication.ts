@@ -6,7 +6,7 @@ import { Encounter } from './Encounter';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('medication')
+@Entity('encounter_medications')
 export class Medication extends BaseModel implements IMedication {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -57,8 +57,4 @@ export class Medication extends BaseModel implements IMedication {
 
   @Column({ nullable: true })
   qtyNight?: number;
-
-  static getTableNameForSync(): string {
-    return 'encounter_medications';
-  }
 }

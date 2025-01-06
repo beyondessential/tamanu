@@ -6,7 +6,7 @@ import { Facility } from './Facility';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('patient_facility')
+@Entity('patient_facilities')
 export class PatientFacility extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -37,9 +37,5 @@ export class PatientFacility extends BaseModel {
 
     //patient actually stores the patientId in @BeforeInsert
     this.id = `${this.patient.replace(';', ':')};${this.facility.replace(';', ':')}`;
-  }
-
-  static getTableNameForSync(): string {
-    return 'patient_facilities';
   }
 }

@@ -71,7 +71,7 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
           patient.id IN
             (
               SELECT DISTINCT ppr.patientId
-              FROM patient_program_registration ppr
+              FROM patient_program_registrations ppr
               WHERE ppr.programRegistryId = :programRegistryId
               AND ppr.registrationStatus = :active
               AND ppr.isMostRecent = 1

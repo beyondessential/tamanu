@@ -20,7 +20,7 @@ export class VRSRemote {
 
   tokenExpiry = 0; // timestamp of token expiry in milliseconds
 
-  fetchImplementation = fetch; // overriden in tests
+  fetchImplementation = fetch; // overridden in tests
 
   constructor(store, { host, username, password, tokenExpiryMarginMs }) {
     this.patientAdapter = new VRSPatientAdapter(store);
