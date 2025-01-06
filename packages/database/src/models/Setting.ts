@@ -253,7 +253,7 @@ function buildSettingsRecords(
   keyPrefix: string,
   value: object,
   facilityId: string | null,
-  scope: string,
+  scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
 ): { key: string; value: object; facilityId: string | null; scope: string }[] {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>

@@ -3,6 +3,7 @@ import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
 
+
 export interface SessionConfig {
   syncAllLabRequests: boolean;
   isMobile: boolean;
@@ -33,3 +34,5 @@ export interface SyncSnapshotAttributes {
   updatedAtByFieldSum: number;
   syncLookupId: number;
 }
+
+export type ModelSanitizeArgs<T extends Record<string, any> = { [key: string]: any }> = T;

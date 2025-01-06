@@ -10,7 +10,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
-import type { SessionConfig } from '../types/sync';
+import type { ModelSanitizeArgs, SessionConfig } from '../types/sync';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -191,7 +191,7 @@ export class Model<
     });
   }
 
-  static sanitizeForCentralServer(values: object) {
+  static sanitizeForCentralServer(values: ModelSanitizeArgs) {
     // implement on the specific model if needed
     return values;
   }

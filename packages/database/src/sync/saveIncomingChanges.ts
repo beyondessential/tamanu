@@ -10,7 +10,7 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
 import type { Models } from '../types/model';
 import type { Model } from '../models/Model';
-import type { RecordType } from '../types/sync';
+import type { ModelSanitizeArgs, RecordType } from '../types/sync';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 
@@ -19,7 +19,7 @@ export const saveChangesForModel = async (
   changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
   isCentralServer: boolean,
 ) => {
-  const sanitizeData = (d: object) =>
+  const sanitizeData = (d: ModelSanitizeArgs) =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete

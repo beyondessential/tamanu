@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
+import type { ModelSanitizeArgs } from '../types/sync';
 
 export class Attachment extends Model {
   declare id: string;
@@ -24,14 +25,14 @@ export class Attachment extends Model {
     );
   }
 
-  static sanitizeForDatabase({ data, ...restOfValues }: { data: any; [key: string]: any }) {
-    return { ...restOfValues, data: Buffer.from(data, 'base64') } as { [key: string]: any };
+  static sanitizeForDatabase({ data, ...restOfValues }: ModelSanitizeArgs<{ data: string }>) {
+    return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 
   // Attachments don't sync on facility. Strangely, they do actually sync as
   // their upload mechanism on mobile. We should probably change this to be consistent on both
   // https://github.com/beyondessential/tamanu/pull/3352
-  static sanitizeForCentralServer(values: { [key: string]: any; data: any }) {
+  static sanitizeForCentralServer(values: ModelSanitizeArgs<{ data: string }>) {
     return this.sanitizeForDatabase(values);
   }
 }
