@@ -8,7 +8,7 @@ describes how the question is displayed.
 {% docs program_data_elements__code %}
 Machine-friendly short name for the question.
 
-This is also used to refer to questions within criterias and such.
+This is also used to refer to questions within criteria and such.
 {% enddocs %}
 
 {% docs program_data_elements__name %}

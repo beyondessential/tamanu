@@ -14,21 +14,21 @@ export function BaseStory(): ReactElement {
   }, [showMessage]);
   const [text, setText] = useState('');
 
-  const showDeboucedMessage = debounce(() => setShowMessage(true), 800);
+  const showDebouncedMessage = debounce(() => setShowMessage(true), 800);
 
   const onChangeText = useCallback(
     (newText: string) => {
       setText(newText);
-      showDeboucedMessage();
+      showDebouncedMessage();
     },
-    [showDeboucedMessage],
+    [showDebouncedMessage],
   );
 
   return (
     <>
       {showMessage && (
         <StyledText fontSize={30} color={theme.colors.WHITE}>
-          Something called after debouce.
+          Something called after debounce.
         </StyledText>
       )}
       <SearchInput

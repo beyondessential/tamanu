@@ -24,7 +24,7 @@ import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
-  // Outter styled view to momentarily add distance between fields
+  // Outer styled view to momentarily add distance between fields
   <StyledView key={fieldName} paddingTop={15}>
     <LocalisedField
       label={labels[fieldName]}

@@ -20,7 +20,7 @@ async function buildSheetDataForDataType(context, dataType) {
       ...data.map(row =>
         headers.map(header => {
           const value = row[header];
-          return modelExporter.formatedCell(header, value);
+          return modelExporter.formattedCell(header, value);
         }),
       ),
     ],

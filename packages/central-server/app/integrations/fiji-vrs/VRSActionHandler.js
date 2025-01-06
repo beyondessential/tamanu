@@ -46,7 +46,7 @@ export class VRSActionHandler {
           successCount++;
         }
       } catch (e) {
-        log.error('VRSActionHandler: Recieved error while applying action', {
+        log.error('VRSActionHandler: Received error while applying action', {
           fetchId: action?.Id,
         });
         log.error(e);
@@ -114,7 +114,7 @@ export class VRSActionHandler {
       await this.remote.acknowledge(fetchId);
     } catch (e) {
       throw new RemoteCallFailedError(
-        `vrs: Patient import succeded, but received an error while acknowledging: (displayId=${
+        `vrs: Patient import succeeded, but received an error while acknowledging: (displayId=${
           patient.displayId
         }, error=${util.inspect(e)}`,
       );

@@ -11,7 +11,6 @@ import {
   UIManager,
   View,
 } from 'react-native';
-// import {ViewPropTypes, TextPropTypes} from 'deprecated-react-native-prop-types';
 import PropTypes from 'prop-types';
 import reject from 'lodash/reject';
 import find from 'lodash/find';
@@ -19,44 +18,6 @@ import get from 'lodash/get';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles, { colorPack } from './styles';
 import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
-
-const ViewPropTypes = {
-  style: PropTypes.any,
-  pointerEvents: PropTypes.oneOf(['auto', 'none', 'box-none', 'box-only']),
-  accessibilityLabel: PropTypes.string,
-  accessibilityHint: PropTypes.string,
-  accessibilityRole: PropTypes.string,
-  accessibilityStates: PropTypes.array,
-  accessibilityState: PropTypes.object,
-  testID: PropTypes.string,
-  // hitSlop: EdgeInsetsPropType,
-  onLayout: PropTypes.func,
-  nativeID: PropTypes.string,
-  collapsable: PropTypes.bool,
-  needsOffscreenAlphaCompositing: PropTypes.bool,
-  renderToHardwareTextureAndroid: PropTypes.bool,
-  shouldRasterizeIOS: PropTypes.bool,
-  onAccessibilityEscape: PropTypes.func,
-  onAccessibilityTap: PropTypes.func,
-  isTVSelectable: PropTypes.bool,
-};
-
-const TextPropTypes = {
-  style: PropTypes.any,
-  ellipsizeMode: PropTypes.oneOf(['head', 'middle', 'tail', 'clip']),
-  numberOfLines: PropTypes.number,
-  textBreakStrategy: PropTypes.oneOf(['simple', 'highQuality', 'balanced']),
-  onPress: PropTypes.func,
-  onLongPress: PropTypes.func,
-  testID: PropTypes.string,
-  allowFontScaling: PropTypes.bool,
-  maxFontSizeMultiplier: PropTypes.number,
-  selectable: PropTypes.bool,
-  adjustsFontSizeToFit: PropTypes.bool,
-  minimumFontScale: PropTypes.number,
-  suppressHighlighting: PropTypes.bool,
-  onTextLayout: PropTypes.func,
-};
 
 const nodeTypes = PropTypes.oneOfType([
   PropTypes.element,
@@ -82,7 +43,7 @@ export class MultiSelect extends Component {
     uniqueKey: PropTypes.string,
     tagBorderColor: PropTypes.string,
     tagTextColor: PropTypes.string,
-    tagContainerStyle: ViewPropTypes.style,
+    tagContainerStyle: PropTypes.any,
     fontFamily: PropTypes.string,
     tagRemoveIconColor: PropTypes.string,
     onSelectedItemsChange: PropTypes.func.isRequired,
@@ -96,18 +57,18 @@ export class MultiSelect extends Component {
     searchInputPlaceholderText: PropTypes.string,
     searchInputStyle: PropTypes.object,
     selectText: PropTypes.string,
-    styleDropdownMenu: ViewPropTypes.style,
-    styleDropdownMenuSubsection: ViewPropTypes.style,
-    styleInputGroup: ViewPropTypes.style,
-    styleItemsContainer: ViewPropTypes.style,
-    styleListContainer: ViewPropTypes.style,
-    styleMainWrapper: ViewPropTypes.style,
-    styleRowList: ViewPropTypes.style,
-    styleSelectorContainer: ViewPropTypes.style,
-    styleTextDropdown: TextPropTypes.style,
-    styleTextDropdownSelected: TextPropTypes.style,
-    styleTextTag: TextPropTypes.style,
-    styleIndicator: ViewPropTypes.style,
+    styleDropdownMenu: PropTypes.any,
+    styleDropdownMenuSubsection: PropTypes.any,
+    styleInputGroup: PropTypes.any,
+    styleItemsContainer: PropTypes.any,
+    styleListContainer: PropTypes.any,
+    styleMainWrapper: PropTypes.any,
+    styleRowList: PropTypes.any,
+    styleSelectorContainer: PropTypes.any,
+    styleTextDropdown: PropTypes.any,
+    styleTextDropdownSelected: PropTypes.any,
+    styleTextTag: PropTypes.any,
+    styleIndicator: PropTypes.any,
     altFontFamily: PropTypes.string,
     hideSubmitButton: PropTypes.bool,
     hideDropdown: PropTypes.bool,
@@ -186,14 +147,14 @@ export class MultiSelect extends Component {
     return true;
   }
 
-  getSelectedItemsExt = optionalSelctedItems => (
+  getSelectedItemsExt = optionalSelectedItems => (
     <View
       style={{
         flexDirection: 'row',
         flexWrap: 'wrap',
       }}
     >
-      {this._displaySelectedItems(optionalSelctedItems)}
+      {this._displaySelectedItems(optionalSelectedItems)}
     </View>
   );
 

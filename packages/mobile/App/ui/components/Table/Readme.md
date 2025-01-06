@@ -45,7 +45,7 @@ Inside the TableData, it renders the table data as a column <strong> with the he
 #### Table Columns
 A JSON data provided with the accessor method to be provided inside TableCol and render the columns of the data provided:
 
-example of a columms object:
+example of a columns object:
 ```ts
 export const vitalsTableCols: Column[] = [
   {
