@@ -8,7 +8,7 @@ import { TranslatedText } from '../../Translation';
 import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 
-export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
+export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
   const { values } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
@@ -34,6 +34,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       name="startTime"
       label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
       component={DateTimeField}
+      onChange={onChange}
       saveDateAsString
       required
       save

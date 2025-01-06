@@ -17,6 +17,9 @@ import {
   startOfDay,
   startOfWeek,
   sub,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
 } from 'date-fns';
 import { z } from 'zod';
 
@@ -298,3 +301,9 @@ export const minValidDate = dates => {
   const validDates = dates.filter(isValid);
   return validDates.length === 0 ? null : min(validDates);
 };
+
+export const eachDayInMonth = date =>
+  eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
+  });
