@@ -13,13 +13,13 @@ import config from 'config';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 describe('Appointments', () => {
+  const [facilityId] = selectFacilityIds(config);
   let baseApp;
   let models;
   let userApp;
   let patient;
   let appointment;
   let ctx;
-  const [facilityId] = selectFacilityIds(config);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -29,7 +29,7 @@ describe('Appointments', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
-  it('should create a new outpatient appointment', async () => {
+  it('should create a new appointment', async () => {
     const result = await userApp.post('/api/appointments').send({
       patientId: patient.id,
       startTime: add(new Date(), { days: 1 }), // create a date in the future
@@ -62,7 +62,7 @@ describe('Appointments', () => {
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
   });
 
-  it('should return appropriate partial matches to displayId or name when passed filter string', async () => {
+  it('should return appropriate full/partial matches to displayId or name when passed filter string', async () => {
     appointment = await models.Appointment.create({
       ...fake(models.Appointment),
       patientId: patient.id,
