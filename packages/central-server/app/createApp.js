@@ -11,6 +11,7 @@ import { registerSyncLookupUpdateListener } from './sync';
 export async function createApp(ctx) {
   const api = await createApi(ctx);
 
+  // create db notifier
   const dbNotifier = await defineDbNotifier(ctx.store.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
