@@ -62,6 +62,34 @@ describe('Appointments', () => {
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
   });
 
+  it('should return appropriate partial matches to displayId or name when passed filter string', async () => {
+    appointment = await models.Appointment.create({
+      ...fake(models.Appointment),
+      patientId: patient.id,
+    });
+
+    const searchPatientNameOrId = query =>
+      userApp.get(`/api/appointments?patientNameOrId=${query}`);
+
+    // Valid searches
+    const searchById = await searchPatientNameOrId(patient.displayId);
+    const searchByPartialId = await searchPatientNameOrId(patient.displayId.slice(0, 3));
+    const searchByFirstName = await searchPatientNameOrId(patient.firstName);
+    const searchByPartialFirstName = await searchPatientNameOrId(patient.firstName.slice(0, 3));
+    const searchByLastName = await searchPatientNameOrId(patient.lastName);
+    const searchByPartialLastName = await searchPatientNameOrId(patient.lastName.slice(0, 3));
+    expect(searchById.body.count).toBe(1);
+    expect(searchByPartialId.body.count).toBe(1);
+    expect(searchByFirstName.body.count).toBe(1);
+    expect(searchByPartialFirstName.body.count).toBe(1);
+    expect(searchByLastName.body.count).toBe(1);
+    expect(searchByPartialLastName.body.count).toBe(1);
+
+    // Invalid searches
+    const searchByInvalidString = await searchPatientNameOrId(patient.firstName + 'invalid');
+    expect(searchByInvalidString.body.count).toBe(0);
+  });
+
   describe('outpatient appointments', () => {
     describe('reminder emails', () => {
       const TEST_EMAIL = 'test@email.com';
@@ -72,7 +100,6 @@ describe('Appointments', () => {
         });
       });
       afterEach(async () => {
-        // await models.Appointment.truncate({ cascade: true, force: true });
         await models.PatientCommunication.truncate({ cascade: true, force: true });
       });
 
@@ -136,7 +163,6 @@ describe('Appointments', () => {
         expect(patientCommunication.content).toBe(TEST_CONTENT);
       });
     });
-    it.todo('patientname or id filter');
   });
 
   describe('location bookings', () => {
