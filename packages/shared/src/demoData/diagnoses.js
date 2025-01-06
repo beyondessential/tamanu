@@ -1349,7 +1349,7 @@ export const DIAGNOSES = splitIds(`
   Cutaneous cysts	L72.9
   Cutaneous tuberculosis	A18.4
   Cyanosis	R23.0
-  Cyclic vomitting	R11
+  Cyclic vomiting	R11
   Cyclitis	H20.9
   Cyclothymia	F34.0
   Cyst eyelid, infected	H00.0
@@ -3994,7 +3994,7 @@ export const DIAGNOSES = splitIds(`
   Pelvic pain	R10.2
   Pelvic peritoneal adhesion, female	N73.6
   Pelvic peritoneal adhesion, male	K66.0
-  Pelvic seperation, obstetrical trauma	O71.6
+  Pelvic separation, obstetrical trauma	O71.6
   Pelviperitonitis	N73.5
   Pelvis pain	R10.2
   Pemphigoid	L12.9
@@ -4537,7 +4537,7 @@ export const DIAGNOSES = splitIds(`
   Radiculopathy	M54.1
   Radiodermatitis	L58.9
   Raped victim	T74.2
-  Rapidly progressie nephritic syndrome	N01.9
+  Rapidly progressing nephritic syndrome	N01.9
   Rash	R21
   Rat-bite fever	A25.9
   Reaction to severe stress	F43.9

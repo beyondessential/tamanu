@@ -57,7 +57,7 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   return null;
 };
 
-// These two functions both take the generated object based on the matcher from the above function and alters the data names to be relavant to the table.
+// These two functions both take the generated object based on the matcher from the above function and alters the data names to be relevant to the table.
 // It will either loop through the generic history and rename the keys to relevant ones or it will just grab the current encounter details if there is no note history
 const extractEncounterTypeHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, encounterTypeNoteMatcher);

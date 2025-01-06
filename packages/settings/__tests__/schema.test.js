@@ -213,7 +213,7 @@ describe('Schemas', () => {
       ).resolves.not.toThrow();
     });
 
-    it('Should throw error for invald settings', async () => {
+    it('Should throw error for invalid settings', async () => {
       const invalidSettings = {
         templates: {
           letterhead: {},

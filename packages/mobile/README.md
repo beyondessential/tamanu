@@ -92,7 +92,7 @@ To generate android apk file run:
 npm run build:android
 ```
 
-The builded app will be in:
+The built app will be in:
 
 ```
 tamanu-mobile/android/app/build/outputs/apk/release/app-release.apk

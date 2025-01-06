@@ -8,7 +8,7 @@ const IMAGING_REQUEST_SEARCH_KEYS = {
   COMPLETED: IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey,
 };
 
-// This key is used to store seperate search parameters for the different kinds of imaging request tables
+// This key is used to store separate search parameters for the different kinds of imaging request tables
 export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE) => {
   const {
     searchParameters: allSearchParameters,
