@@ -164,7 +164,7 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const currentOption = await suggester.fetchCurrentOption(value);
+      const currentOption = await suggester?.fetchCurrentOption(value);
       if (currentOption) {
         this.setState({
           selectedOption: {

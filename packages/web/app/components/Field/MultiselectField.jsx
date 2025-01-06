@@ -202,7 +202,7 @@ export const TranslatedMultiSelectField = props => {
 
 MultiselectInput.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
@@ -212,7 +212,7 @@ MultiselectInput.propTypes = {
 };
 
 MultiselectInput.defaultProps = {
-  value: '',
+  value: [],
   options: [],
   fullWidth: true,
   form: {

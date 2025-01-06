@@ -101,7 +101,7 @@ const DashboardItem = ({ color, title, loading, description }) => {
       {loading ? (
         <LoadingIndicator backgroundColor="transparent" height="3em" width="2em" size="2em" />
       ) : (
-        <DashboardItemTitle color={color}>{title}</DashboardItemTitle>
+        <DashboardItemTitle style={{ color }}>{title}</DashboardItemTitle>
       )}
       <DashboardItemDescription>{description}</DashboardItemDescription>
     </DashboardItemContainer>

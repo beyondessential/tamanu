@@ -26,7 +26,7 @@ import {
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
-import { useReferenceData } from '../../api/queries';
+import { useReferenceDataQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
@@ -158,7 +158,7 @@ export const EncounterView = () => {
   const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
+  const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
