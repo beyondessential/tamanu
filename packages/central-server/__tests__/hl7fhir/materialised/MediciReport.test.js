@@ -1,4 +1,4 @@
-import { intervalToDuration, sub } from 'date-fns';
+import { sub } from 'date-fns';
 import { fake, chance } from '@tamanu/shared/test-helpers';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
