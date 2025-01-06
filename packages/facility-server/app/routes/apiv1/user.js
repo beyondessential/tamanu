@@ -118,8 +118,6 @@ user.post(
   }),
 );
 
-const GENERAL_PREFERENCE_KEY = 'general';
-
 user.get(
   '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {
@@ -144,27 +142,16 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body: { facilityId = null, ...preferences },
+      body: { facilityId = null, key, value },
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const preferenceKey = facilityId ?? GENERAL_PREFERENCE_KEY;
-
-    const existingPreferences = await UserPreference.findOne({
-      where: { userId: currentUser.id },
-      raw: true,
-    });
-    const existingPreferencesForFacility = existingPreferences?.preferences?.[preferenceKey];
-
-    const updatedPreferencesForFacility = { ...existingPreferencesForFacility, ...preferences };
-
     const [userPreferences] = await UserPreference.upsert({
-      preferences: {
-        ...existingPreferences?.preferences,
-        [preferenceKey]: updatedPreferencesForFacility,
-      },
+      key,
+      value,
       userId: currentUser.id,
+      facilityId,
       deletedAt: null,
     });
 
