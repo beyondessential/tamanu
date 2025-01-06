@@ -26,7 +26,7 @@ const CardCell = styled.div`
   line-height: 21px;
   position: relative;
   color: ${props => props.theme.palette.text.tertiary};
-  &:not(:first-child)::before {
+  &:not(:nth-child(${props => props.$numberOfColumns}n + 1))::before {
     content: '';
     position: absolute;
     left: -20px;
@@ -50,6 +50,7 @@ const Card = styled.div`
   border-radius: 5px;
   padding: ${props => `${props.$contentPadding || 32}px`};
   border: 1px solid ${Colors.outline};
+  ${props => (props.$contentMarginBottom ? `margin-bottom: ${props.$contentMarginBottom}px` : '')};
 
   ${CardLabel} {
     ${({ $inlineValues }) => ($inlineValues ? 'margin-right: 5px' : 'margin-bottom: 8px')};
@@ -97,11 +98,17 @@ export const InfoCard = ({
   children,
   elevated,
   contentPadding,
+  contentMarginBottom,
   inlineValues,
   headerContent = null,
   numberOfColumns = 2,
 }) => (
-  <Card $elevated={elevated} $inlineValues={inlineValues} $contentPadding={contentPadding}>
+  <Card
+    $elevated={elevated}
+    $inlineValues={inlineValues}
+    $contentPadding={contentPadding}
+    $contentMarginBottom={contentMarginBottom}
+  >
     {headerContent}
     <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
   </Card>

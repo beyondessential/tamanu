@@ -23,6 +23,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   const columns = useMemo(() => {
     return [
       {
+        key: 'registrationStatus',
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
@@ -135,6 +136,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         maxWidth: 200,
       },
       {
+        key: 'actions',
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;

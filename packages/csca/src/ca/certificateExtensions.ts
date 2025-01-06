@@ -83,7 +83,7 @@ export const ComputedExtension = 'computed';
 // MUST NOT have the extension (except for CSCA Links, not handled at this time).
 const BC_VALUE_ERROR = 'Invalid BasicConstraint value: expected a boolean and a uint';
 function bc({ critical, value }: Extension): X509Extension {
-  if (value === ComputedExtension) throw new Error('BasicConstraint connot be computed');
+  if (value === ComputedExtension) throw new Error('BasicConstraint cannot be computed');
   if (value.length !== 2) throw new Error(BC_VALUE_ERROR);
 
   const [ca, pathLen] = value;
@@ -409,7 +409,7 @@ function urlToDispPoint(url: string): DistributionPoint {
 // When present, the extension MUST contain at least one DistributionPoint (DP),
 // and MUST NOT use the `reasons` or `crlIssuer` fields. DPs MUST use the scheme
 // `http`, `https`, or `ldap`, although `https` is NOT recommended by RFC 5280.
-// Further requirements and guidelines are specifed in §7.1.1.4.
+// Further requirements and guidelines are specified in §7.1.1.4.
 //
 // VDS-NC specifies that its barcode signers must comply with the barcode signer
 // profile defined in Doc 9303-12 §7.1.3, which prohibits this extension.

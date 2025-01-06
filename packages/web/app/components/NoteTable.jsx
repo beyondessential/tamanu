@@ -186,7 +186,7 @@ const NoteContent = ({
             const hiddenHeight =
               elementRef?.offsetTop + elementRef?.offsetHeight - contentOffsetHeight;
             return (
-              <>
+              <React.Fragment key={line}>
                 <span
                   ref={el => {
                     const tempLineClipping = [...(contentLineClipping?.current || [])];
@@ -209,7 +209,7 @@ const NoteContent = ({
                     <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
                   </ShowLessSpan>
                 )}
-              </>
+              </React.Fragment>
             );
           })}
         </NoteContentContainer>

@@ -6,6 +6,7 @@ import { useLocationBookingsContext } from '../../../../contexts/LocationBooking
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
+import { TIME_SLOT_PICKER_VARIANTS } from './constants';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
@@ -51,7 +52,7 @@ export const DateTimeRangePicker = ({
         key={appointmentId ?? `${locationId}_${dateFieldValue}`}
         label={timePickerLabel}
         required={required}
-        variant="range"
+        variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
       />
     </>
   );

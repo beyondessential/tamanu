@@ -63,7 +63,7 @@ describe('EU DCC: Vaccination', () => {
     const patient = await Patient.create({
       ...fake(Patient),
       firstName: 'Fiamē Naomi',
-      lastName: 'Mataʻafa',
+      lastName: 'Mataʻafa', // spellchecker:disable-line
       dateOfBirth: '1957-04-29',
       sex: 'female',
     });
@@ -120,7 +120,7 @@ describe('EU DCC: Vaccination', () => {
     expect(msg).to.deep.equal({
       ver: '1.3.0',
       nam: {
-        fn: 'Mataʻafa',
+        fn: 'Mataʻafa', // spellchecker:disable-line
         fnt: 'MATAAFA',
         gn: 'Fiamē Naomi',
         gnt: 'FIAME<NAOMI',

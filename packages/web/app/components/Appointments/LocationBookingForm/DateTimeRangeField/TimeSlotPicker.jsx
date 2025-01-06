@@ -68,9 +68,9 @@ export const TimeSlotPicker = ({
   date,
   disabled = false,
   /**
-   * If true, this instance is probably a picker for the end time slot of an overnight booking
-   * where the start time has been modified to a time such that there is a conflicting booking
-   * between the start time and this `date`. Any state this instance had is now invalid, and
+   * If true, this instance is a picker for the end time slot of an overnight booking where the
+   * start time has been modified to a time such that there is a conflicting booking between the
+   * start time and this `date`. Any state this instance had is now invalid, and
    * hasNoLegalSelection={true} indicates that this component should render with fresh state.
    */
   hasNoLegalSelection = false,
@@ -317,6 +317,9 @@ export const TimeSlotPicker = ({
     const startTime = values.startTime;
     const endTime = values.endTime;
 
+    const start = parseISO(startTime);
+    const end = parseISO(endTime);
+
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
       if (!startTime) {
         setSelectedToggles([]);
@@ -345,20 +348,15 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const start = parseISO(startTime);
       const hasConflict = bookedIntervals.some(interval =>
         areIntervalsOverlapping({ start, end: dayEnd }, interval),
       );
       if (hasConflict) {
-        setSelectedToggles([]);
-        updateInterval({ start: null });
+        const startValue = start.valueOf();
+        setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
+        updateInterval({ start });
         return;
       }
-
-      const startValue = start.valueOf();
-      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
-      updateInterval({ start });
-      return;
     }
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
@@ -367,7 +365,6 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const end = parseISO(endTime);
       const endValue = end.valueOf();
       setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
       updateInterval({ end });
@@ -403,7 +400,7 @@ export const TimeSlotPicker = ({
         error={showError}
         {...props}
       >
-        {isFetchingExistingBookings || isTimeSlotsPending ? (
+        {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
           <PlaceholderTimeSlotToggles />
         ) : (
           timeSlots?.map(timeSlot => {

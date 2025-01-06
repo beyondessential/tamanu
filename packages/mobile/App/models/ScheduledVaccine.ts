@@ -6,7 +6,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('scheduled_vaccine')
+@Entity('scheduled_vaccines')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

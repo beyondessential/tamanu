@@ -18,7 +18,7 @@ const OMIT_COLUMNS = [
 ];
 
 const BASE_PATH = process.argv[2] || '.';
-const DOC_ID = '10CIUe83xHRUUycwPJEwlQJaMsGWRkMydBy3zE-6D5y0';
+const DOC_ID = '10CIUe83xHRUUycwPJEwlQJaMsGWRkMydBy3zE-6D5y0'; // spellchecker:disable-line
 const doc = new GoogleSpreadsheet(DOC_ID);
 
 const log = console.log;

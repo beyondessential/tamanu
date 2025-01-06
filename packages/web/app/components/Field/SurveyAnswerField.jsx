@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLatestAnswerForPatient } from '../../api/queries/useLatestAnswerForPatient';
+import { useLatestAnswerForPatientQuery } from '../../api/queries/useLatestAnswerForPatientQuery';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
 
 const Container = styled.div`
@@ -14,7 +14,7 @@ const Container = styled.div`
 export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
 
-  const { data: answer } = useLatestAnswerForPatient(patient.id, config?.source || config?.Source);
+  const { data: answer } = useLatestAnswerForPatientQuery(patient.id, config?.source || config?.Source);
 
   useEffect(() => {
     if (!answer) return;

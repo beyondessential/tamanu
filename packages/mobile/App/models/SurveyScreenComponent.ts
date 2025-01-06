@@ -7,7 +7,7 @@ import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types'
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
-@Entity('survey_screen_component')
+@Entity('survey_screen_components')
 export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

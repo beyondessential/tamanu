@@ -1,3 +1,5 @@
+import waitForExpect from 'wait-for-expect';
+
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   SYNC_DIRECTIONS,
@@ -774,7 +776,7 @@ describe('Sync Lookup data', () => {
     await models.Patient.create(fake(models.Patient));
 
     const expectedTick = CURRENT_SYNC_TICK + 3; // + 3 because tickTocked twice
-    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 becaused tickTocked twice
+    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 because tickTocked twice
     const originalTickTockImplementation = centralSyncManager.tickTockGlobalClock;
 
     const spy = jest
@@ -1421,6 +1423,137 @@ describe('Sync Lookup data', () => {
 
       expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
       expect(snapshotPatientFromAnotherFacility).toBeDefined();
+    });
+  });
+
+  describe('updates child records when parent records are updated in sync_lookup', () => {
+    const setupAutocompleteSurvey = async (sscConfig, answerBody) => {
+      const {
+        Facility,
+        Location,
+        Department,
+        Patient,
+        User,
+        Encounter,
+        Program,
+        Survey,
+        SurveyResponse,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponseAnswer,
+      } = models;
+
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
+      const examiner = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: examiner.id,
+      });
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+      });
+      const response = await SurveyResponse.create({
+        ...fake(SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const dataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: 'Autocomplete',
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        responseId: response.id,
+        dataElementId: dataElement.id,
+        surveyId: survey.id,
+        config: sscConfig,
+      });
+      const answer = await SurveyResponseAnswer.create({
+        ...fake(SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response.id,
+        body: answerBody,
+      });
+
+      return { patient, encounter, answer, response };
+    };
+
+    it('updates patient_id of child records when patient_id of parent records are updated in sync_lookup', async () => {
+      const { patient, encounter, answer, response } = await setupAutocompleteSurvey(
+        JSON.stringify({
+          source: 'Facility',
+        }),
+        facility.id,
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const encounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter.id },
+      });
+      const responseLookupData = await models.SyncLookup.findOne({
+        where: { recordId: response.id },
+      });
+      const answerLookupData = await models.SyncLookup.findOne({
+        where: { recordId: answer.id },
+      });
+
+      expect(encounterLookupData.patientId).toBe(patient.id);
+      expect(responseLookupData.patientId).toBe(patient.id);
+      expect(answerLookupData.patientId).toBe(patient.id);
+
+      const patient2 = await models.Patient.create(fake(models.Patient));
+
+      // eslint-disable-next-line require-atomic-updates
+      encounter.patientId = patient2.id;
+
+      const newTick = 10;
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newTick);
+
+      await encounter.save();
+
+      // Expect the db listener (registered in registerSyncLookupUpdateListener.js)
+      // to also update the dependent records of encounter
+      await waitForExpect(async () => {
+        await encounter.reload();
+        await response.reload();
+        await answer.reload();
+
+        // sequelize returns bigint as string
+        expect(parseInt(encounter.updatedAtSyncTick, 10)).toBe(newTick);
+        expect(parseInt(response.updatedAtSyncTick, 10)).toBe(newTick);
+        expect(parseInt(answer.updatedAtSyncTick, 10)).toBe(newTick);
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const encounterLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: encounter.id },
+      });
+      const responseLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: response.id },
+      });
+      const answerLookupData2 = await models.SyncLookup.findOne({
+        where: { recordId: answer.id },
+      });
+
+      expect(encounterLookupData2.patientId).toBe(patient2.id);
+      expect(responseLookupData2.patientId).toBe(patient2.id);
+      expect(answerLookupData2.patientId).toBe(patient2.id);
     });
   });
 });

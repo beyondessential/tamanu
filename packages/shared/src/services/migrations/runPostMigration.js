@@ -57,6 +57,34 @@ const TABLES_WITHOUT_TRIGGER_QUERY = `
     t.table_name NOT IN (${NON_SYNCING_TABLES.map(t => `'${t}'`).join(',')});
 `;
 
+const TABLES_WITHOUT_NOTIFY_TRIGGER = `
+  SELECT
+    t.table_name as table
+  FROM
+    information_schema.tables t
+  LEFT JOIN
+    information_schema.table_privileges privileges
+  ON
+    t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+  WHERE
+    NOT EXISTS (
+      SELECT
+        *
+      FROM
+        pg_trigger p
+      WHERE
+        p.tgname = substring(concat('notify_', lower(t.table_name), '_changed'), 0, 64)
+    )
+  AND
+    privileges.privilege_type = 'TRIGGER'
+  AND
+    t.table_schema = 'public'
+  AND
+    t.table_type != 'VIEW'
+  AND
+    t.table_name NOT IN (${NON_SYNCING_TABLES.map(t => `'${t}'`).join(',')});
+`;
+
 export async function runPostMigration(log, sequelize) {
   // add column: holds last update tick, default to -999 (not marked for sync) on facility,
   // and 0 (will be caught in any initial sync) on central server
@@ -83,6 +111,18 @@ export async function runPostMigration(log, sequelize) {
       BEFORE INSERT OR UPDATE ON ${table}
       FOR EACH ROW
       EXECUTE FUNCTION set_updated_at_sync_tick();
+    `);
+  }
+
+  // add trigger to table for pg notify
+  const [tablesWithoutNotifyTrigger] = await sequelize.query(TABLES_WITHOUT_NOTIFY_TRIGGER);
+  for (const { table } of tablesWithoutNotifyTrigger) {
+    log.info(`Adding notify change trigger to ${table}`);
+    await sequelize.query(`
+      CREATE TRIGGER notify_${table}_changed
+      AFTER INSERT OR UPDATE OR DELETE ON ${table}
+      FOR EACH ROW
+      EXECUTE FUNCTION notify_table_changed();
     `);
   }
 }

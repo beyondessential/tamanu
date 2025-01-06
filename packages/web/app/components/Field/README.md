@@ -10,7 +10,7 @@ really important. We have a few design goals here:
   - straightforward validation
 - altering a form must be simple and intuitive
   - swapping out controls (for eg exchanging a TextField for a DateField) should be a 1-line change
-  - moving components around within the heirarchy should not affect how the form behaves
+  - moving components around within the hierarchy should not affect how the form behaves
   - input components should be able to be nested (for eg in a `div`) without issues
 
 ## Forms
@@ -127,7 +127,7 @@ a nested field, or when there's only one control).
 
 Note that the `onChange` method expects an event object, not a raw value. This is
 just because a lot of handlers expect things in that format. For a custom control,
-it's safe to create a dummy event value; the only requred attributes on `e.target`
+it's safe to create a dummy event value; the only required attributes on `e.target`
 for successful Formik interaction are `name` and `value`.
 
 ```javascript

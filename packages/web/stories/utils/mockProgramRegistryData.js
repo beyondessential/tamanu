@@ -728,7 +728,7 @@ export const patientProgramRegistration = {
   registeringFacilityId: 'registering_facility_id',
   registeringFacility: {
     id: 'registering_facility_id',
-    code: 'registring_facitlity',
+    code: 'registering_facility',
     name: 'Hospital 1',
   },
   facitlityId: 'facitliId',

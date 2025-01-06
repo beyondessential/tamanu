@@ -61,7 +61,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     this.options = options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
     this.formatter = formatter;
-    // Frontend filter applied to the data recieved. Use this to filter by permission
+    // Frontend filter applied to the data received. Use this to filter by permission
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = filter;
   }
