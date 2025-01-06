@@ -11,6 +11,14 @@ import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
 
+export const CENTRAL_SERVER_APP_TYPES = {
+  API: 'api',
+  FHIR_WORKER: 'fhir-worker',
+  MAIN: 'main',
+  MIGRATE: 'migrate',
+  TASKS: 'tasks',
+};
+
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
  * @typedef {import('@tamanu/settings/types').CentralSettingPath} CentralSettingPath
@@ -36,7 +44,7 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ testMode, appType } = {}) {
+  async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -49,7 +57,7 @@ export class ApplicationContext {
 
     this.emailService = new EmailService();
 
-    this.store = await initDatabase({ testMode, dbKey: appType ?? 'main' });
+    this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
     this.settings = new ReadSettings(this.store.models);
 
