@@ -1,12 +1,12 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  // write your up migration here
+  await query.addColumn('user_preferences', 'facility_id', {
+    type: DataTypes.STRING,
+    allowNull: true,
+  });
 }
 
 export async function down(query) {
-  // write your down migration here
+  await query.removeColumn('user_preferences', 'facility_id');
 }
