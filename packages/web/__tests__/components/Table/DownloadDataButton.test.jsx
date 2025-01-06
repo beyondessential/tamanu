@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * Tests the rendering and translation of the ‘Export’ button itself.
  *
@@ -42,8 +43,14 @@ const chance = new Chance();
 
 const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
 // eslint-disable-next-line no-unused-vars
-const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
-  mockTranslations[stringId] ?? fallback;
+const mockGetTranslation = (
+  stringId,
+  fallback,
+  _replacements,
+  _uppercase,
+  _lowercase,
+  _upperFirst,
+) => mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
   updateStoredLanguage: () => {},
@@ -85,6 +92,7 @@ describe('DownloadDataButton', () => {
     expect(getTranslationSpy).toHaveBeenCalledWith(
       'general.action.download',
       'Download',
+      undefined,
       undefined,
       undefined,
       undefined,

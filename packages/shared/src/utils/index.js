@@ -1,4 +1,5 @@
 export * from './arrayToDbString';
+export * from './appointmentScheduling';
 export * from './buildVersionCompatibilityCheck';
 export * from './configSelectors';
 export * from './encodings';
