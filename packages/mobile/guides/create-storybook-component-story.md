@@ -1,6 +1,6 @@
 # Creating Component Story
 
-I've been able to configure Storybook only using it's storiesOf APi.
+I've been able to configure Storybook only using its storiesOf APi.
 
 Basically what you will need is to create a .stories.tsx file for your component story:
 
@@ -20,5 +20,5 @@ storiesOf('Place here the name of the component - Name of the component must be 
 ```
 
 - The storiesOf first argument should be unique considering all other stories to avoid errors. 
-- addDecorator is beign used here to centralize all stories of this file
--  add should render the component to be tested in the story. There can be as many "add"  
+- addDecorator is being used here to centralize all stories of this file
+- add should render the component to be tested in the story. There can be as many "add"  

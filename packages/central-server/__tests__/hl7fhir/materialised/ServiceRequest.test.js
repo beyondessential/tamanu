@@ -1020,14 +1020,14 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         const { FhirServiceRequest } = ctx.store.models;
 
         const initialRequestedDate = '2022-03-04 15:30:00';
-        const intitialStatus = LAB_REQUEST_STATUSES.PUBLISHED;
+        const initialStatus = LAB_REQUEST_STATUSES.PUBLISHED;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
           ctx.store.models,
           resources,
           true,
           {
             requestedDate: initialRequestedDate,
-            status: intitialStatus,
+            status: initialStatus,
           },
         );
 

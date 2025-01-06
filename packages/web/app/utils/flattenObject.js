@@ -5,7 +5,7 @@ import { isValidElement } from 'react';
 This helper function will return a flat object containing
 the 'string path' of each value as keys. Besides making the
 object flat, it will minimize the chance of namespace collisions
-ocurring by prefixing keys accordingly.
+occurring by prefixing keys accordingly.
 
 i.e.
 

@@ -54,7 +54,7 @@ export const FormScreenView = ({
     setLayoutHeight(nativeEvent.layout.height);
   }, []);
 
-  // Formula to get current position realted to end of the screen threshold
+  // Formula to get current position related to end of the screen threshold
   // contentSize - size of the scrollComponent
   // offset - scroll offset so far
   // layoutSize - size of the actual layout of the component

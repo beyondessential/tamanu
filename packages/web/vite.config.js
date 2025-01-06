@@ -13,7 +13,7 @@ export default async ({ mode }) => {
   try {
     revision = execSync('git log --format="%h" -n1', { timeout: 100, encoding: 'utf-8' }).trim();
     if (execSync('git status -s', { timeout: 100, encoding: 'utf-8' }).trim()) {
-      // repo is dirty (has uncommited files)
+      // repo is dirty (has uncommitted files)
       revision += '~';
     }
   } catch (_) {

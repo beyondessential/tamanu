@@ -12,5 +12,5 @@ Key of the fact.
 {% docs local_system_facts__value %}
 Value of the fact.
 
-This is `text`, but may be intepreted as other things, e.g. JSON objects or numbers.
+This is `text`, but may be interpreted as other things, e.g. JSON objects or numbers.
 {% enddocs %}
