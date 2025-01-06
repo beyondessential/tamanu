@@ -97,6 +97,7 @@ describe('Appointments', () => {
         appointment = await models.Appointment.create({
           ...fake(models.Appointment),
           patientId: patient.id,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
         });
       });
       afterEach(async () => {
@@ -110,6 +111,7 @@ describe('Appointments', () => {
           clinicianId: userApp.user.dataValues.id,
           appointmentTypeId: 'appointmentType-standard',
           email: TEST_EMAIL,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
           facilityId,
         });
         expect(appointmentWithEmail).toHaveSucceeded();

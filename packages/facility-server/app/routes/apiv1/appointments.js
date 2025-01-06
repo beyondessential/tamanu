@@ -58,7 +58,7 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
     facilityName: facility.name,
     startDate: format(start, 'PPPP'),
     startTime: format(start, 'p'),
-    locationName: locationGroup?.name,
+    locationName: locationGroup.name,
     clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
   });
 
