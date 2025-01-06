@@ -14,7 +14,7 @@ const dst = process.argv.slice(3).map((d, i) => [
   d.replace(/\/?$/, '/'),
 ]);
 
-const files = await glob(`${src}/**/*.{d.ts,d.ts.map}`, { ignore: 'node_modules/**' });
+const files = await glob(`${src}/**/*.d.ts{,.map}`, { ignore: 'node_modules/**' });
 if (files.length === 0) {
   process.exit(0);
 }
