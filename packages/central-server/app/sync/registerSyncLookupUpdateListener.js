@@ -34,7 +34,7 @@ export async function updateChildRecordsForSyncLookup(model, instanceId) {
 
     // If there are any child records, also recursively update them
     // so that they are also updated in the sync_lookup table
-    // eg: if survey_response is updated, we must also updated survey_response_answers
+    // eg: if survey_responses is updated, we must also updated survey_response_answers
     for (const updatedRow of updatedRows) {
       await updateChildRecordsForSyncLookup(target, updatedRow.id);
     }
