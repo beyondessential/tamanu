@@ -65,6 +65,17 @@ describe('Appointments', () => {
   describe('outpatient appointments', () => {
     describe('reminder emails', () => {
       const TEST_EMAIL = 'test@email.com';
+      beforeAll(async () => {
+        appointment = await models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: patient.id,
+        });
+      });
+      afterEach(async () => {
+        // await models.Appointment.truncate({ cascade: true, force: true });
+        await models.PatientCommunication.truncate({ cascade: true, force: true });
+      });
+
       it('should create patient communication record when created with email in request body', async () => {
         const appointmentWithEmail = await userApp.post('/api/appointments').send({
           patientId: patient.id,
@@ -86,13 +97,9 @@ describe('Appointments', () => {
       });
 
       it('should create patient communication record when hitting email endpoint', async () => {
-        const newAppointment = await models.Appointment.create({
-          ...fake(models.Appointment),
-          patientId: patient.id,
-        });
         const result1 = await userApp
           .post('/api/appointments/emailReminder')
-          .send({ facilityId, appointmentId: newAppointment.id, email: TEST_EMAIL });
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
         expect(result1).toHaveSucceeded();
         const patientCommunications = await models.PatientCommunication.findAll();
         expect(patientCommunications.length).toBe(1);
@@ -102,6 +109,7 @@ describe('Appointments', () => {
           destination: TEST_EMAIL,
         });
       });
+
       it('should use template from settings for email subject and body', async () => {
         const TEST_SUBJECT = 'test subject';
         const TEST_CONTENT = 'test body';
@@ -115,13 +123,9 @@ describe('Appointments', () => {
           SETTINGS_SCOPES.GLOBAL,
         );
 
-        const newAppointment = await models.Appointment.create({
-          ...fake(models.Appointment),
-          patientId: patient.id,
-        });
         await userApp
           .post('/api/appointments/emailReminder')
-          .send({ facilityId, appointmentId: newAppointment.id, email: TEST_EMAIL });
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
         const patientCommunication = await models.PatientCommunication.findOne({
           where: {
             destination: TEST_EMAIL,
