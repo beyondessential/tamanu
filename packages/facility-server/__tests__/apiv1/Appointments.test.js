@@ -1,10 +1,16 @@
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
-
-// TODO: reorganise this file to work with new appointment logic
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import config from 'config';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 describe('Appointments', () => {
   let baseApp;
@@ -13,6 +19,7 @@ describe('Appointments', () => {
   let patient;
   let appointment;
   let ctx;
+  const [facilityId] = selectFacilityIds(config);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -57,9 +64,73 @@ describe('Appointments', () => {
 
   describe('outpatient appointments', () => {
     describe('reminder emails', () => {
-      it.todo('should create patient communication record when hitting email endpoint');
-      it.todo('should create patient communication record when created with email in request body');
-      it.todo('should use template from settings for email subject and body');
+      const TEST_EMAIL = 'test@email.com';
+      it('should create patient communication record when created with email in request body', async () => {
+        const appointmentWithEmail = await userApp.post('/api/appointments').send({
+          patientId: patient.id,
+          startTime: add(new Date(), { days: 1 }),
+          clinicianId: userApp.user.dataValues.id,
+          appointmentTypeId: 'appointmentType-standard',
+          email: TEST_EMAIL,
+          facilityId,
+        });
+        expect(appointmentWithEmail).toHaveSucceeded();
+
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should create patient communication record when hitting email endpoint', async () => {
+        const newAppointment = await models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: patient.id,
+        });
+        const result1 = await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: newAppointment.id, email: TEST_EMAIL });
+        expect(result1).toHaveSucceeded();
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+      it('should use template from settings for email subject and body', async () => {
+        const TEST_SUBJECT = 'test subject';
+        const TEST_CONTENT = 'test body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation',
+          {
+            subject: TEST_SUBJECT,
+            body: TEST_CONTENT,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        const newAppointment = await models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: patient.id,
+        });
+        await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: newAppointment.id, email: TEST_EMAIL });
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
+        expect(patientCommunication.content).toBe(TEST_CONTENT);
+      });
     });
     it.todo('patientname or id filter');
   });
