@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { useImagingRequest } from '../../../../api/queries/useImagingRequest';
+import { useImagingRequestQuery } from '../../../../api/queries/useImagingRequestQuery';
 import { DateDisplay } from '../../../DateDisplay';
 import { TranslatedReferenceData } from '../../../Translation';
 
 export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
-  const imagingRequestQuery = useImagingRequest(imagingRequestId);
+  const imagingRequestQuery = useImagingRequestQuery(imagingRequestId);
   const imagingRequest = imagingRequestQuery.data;
   if (dataType === 'areas') {
     const areas = imagingRequest?.areas?.length

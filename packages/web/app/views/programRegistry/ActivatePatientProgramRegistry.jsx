@@ -24,7 +24,7 @@ import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections'
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
-} from '../../api/queries/usePatientProgramRegistryConditions';
+} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';

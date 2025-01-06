@@ -16,7 +16,7 @@ import {
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
 import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
-import { useAdministeredVaccines } from '../../../api/queries';
+import { useAdministeredVaccinesQuery } from '../../../api/queries';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -69,7 +69,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
     setVaccineData(null);
   }, []);
 
-  const { data: vaccines } = useAdministeredVaccines(patient.id);
+  const { data: vaccines } = useAdministeredVaccinesQuery(patient.id);
   const vaccinations = vaccines?.data || [];
   const certifiable = vaccinations.some(v => v.certifiable);
 

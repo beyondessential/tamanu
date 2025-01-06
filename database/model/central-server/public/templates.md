@@ -23,5 +23,5 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this t
 {% enddocs %}
 
 {% docs templates__type %}
-Type of the template (refered to in code).
+Type of the template (referred to in code).
 {% enddocs %}

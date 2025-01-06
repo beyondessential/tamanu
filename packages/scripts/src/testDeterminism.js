@@ -30,7 +30,7 @@ function tableNamesFromQuery(query) {
   try {
     visitor.statement(parseFirst(query));
   } catch (e) {
-    // intentionally ignore unparseable queries, since they're probably functions
+    // intentionally ignore unparsable queries, since they're probably functions
     // for debugging, uncomment:
     // console.error(e, query);
   }

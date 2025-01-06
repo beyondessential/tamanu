@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useAdministeredVaccines = (patientId, query) => {
+export const useAdministeredVaccinesQuery = (patientId, query) => {
   const api = useApi();
 
   return useQuery(['administeredVaccines', patientId], () =>

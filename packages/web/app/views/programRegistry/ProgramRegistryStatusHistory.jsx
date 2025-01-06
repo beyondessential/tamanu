@@ -5,7 +5,7 @@ import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
+import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 
@@ -26,7 +26,7 @@ export const ProgramRegistryStatusHistory = ({
   patientProgramRegistration,
   programRegistryConditions,
 }) => {
-  const { data, isLoading } = useProgramRegistryClinicalStatus(
+  const { data, isLoading } = useProgramRegistryClinicalStatusQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
     {

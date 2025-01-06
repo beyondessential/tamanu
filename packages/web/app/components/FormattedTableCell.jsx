@@ -128,7 +128,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
 
   return (
     <TableTooltip
-      title={value}
+      title={value ?? ''}
       open={isClamped && tooltipOpen}
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}

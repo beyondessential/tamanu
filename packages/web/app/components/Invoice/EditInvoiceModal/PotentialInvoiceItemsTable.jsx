@@ -147,6 +147,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
+      key: 'actions',
       sortable: false,
       accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>

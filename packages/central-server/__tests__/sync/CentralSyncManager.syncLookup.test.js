@@ -777,7 +777,7 @@ describe('Sync Lookup data', () => {
     await models.Patient.create(fake(models.Patient));
 
     const expectedTick = CURRENT_SYNC_TICK + 3; // + 3 because tickTocked twice
-    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 becaused tickTocked twice
+    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 because tickTocked twice
     const originalTickTockImplementation = centralSyncManager.tickTockGlobalClock;
 
     const spy = jest

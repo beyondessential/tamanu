@@ -32,7 +32,7 @@ async function printRoutes() {
   const { express: app } = await createApp(context);
 
   // console instead of log.info is fine here because the aim is to output the
-  // routes without wrapping, supressing, or transporting the output
+  // routes without wrapping, suppressing, or transporting the output
   // eslint-disable-next-line no-console
   console.log(getRoutes(app._router).join('\n'));
   context.close();

@@ -42,7 +42,7 @@ const columns = [
   },
 ];
 
-const prescriptonSectionStyles = StyleSheet.create({
+const prescriptionSectionStyles = StyleSheet.create({
   tableContainer: {
     marginTop: 12,
   },
@@ -88,7 +88,7 @@ const PrescriptionsSection = ({
           <DataItem label="Facility" value={facility?.name} />
         </Col>
       </DataSection>
-      <View style={prescriptonSectionStyles.tableContainer}>
+      <View style={prescriptionSectionStyles.tableContainer}>
         <Table
           columns={columns}
           data={prescriptions}

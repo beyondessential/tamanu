@@ -109,7 +109,7 @@ describe('Reference data exporter', () => {
         .responseType('blob');
 
       // when downloading a file, for some reasons,
-      // status of supertest is alwasy 404 even tho we are sure that it is successful
+      // status of supertest is always 404 even tho we are sure that it is successful
       // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
       expect(Buffer.isBuffer(result.body)).toBeTrue();
     });

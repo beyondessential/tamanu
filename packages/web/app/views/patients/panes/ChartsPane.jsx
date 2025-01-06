@@ -124,7 +124,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   } = useChartSurveysQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentComplexChartTab, setCurrenComplexChartTab] = useState('');
+  const [currentComplexChartTab, setCurrentComplexChartTab] = useState('');
 
   // State for the chart survey to record responses in the modal
   const [chartSurveyIdToSubmit, setChartSurveyIdToSubmit] = useState();
@@ -198,7 +198,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   // Set default current tab if not set
   useEffect(() => {
     if (!currentComplexChartTab && complexChartInstanceTabs?.length) {
-      setCurrenComplexChartTab(complexChartInstanceTabs[0].key);
+      setCurrentComplexChartTab(complexChartInstanceTabs[0].key);
     }
   }, [complexChartInstanceTabs, currentComplexChartTab]);
 
@@ -234,7 +234,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       );
 
       handleCloseModal();
-      setCurrenComplexChartTab(null);
+      setCurrentComplexChartTab(null);
 
       // reload the chart instance tabs
       queryClient.invalidateQueries([
@@ -327,7 +327,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
               <ComplexChartInstancesTab
                 tabs={complexChartInstanceTabs}
                 currentTab={currentComplexChartTab}
-                onTabSelect={tabKey => setCurrenComplexChartTab(tabKey)}
+                onTabSelect={tabKey => setCurrentComplexChartTab(tabKey)}
               />
             ) : null}
 

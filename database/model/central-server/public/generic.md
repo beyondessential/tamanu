@@ -2,7 +2,7 @@
 Contains the primary data for Tamanu.
 
 This is the main namespace for Tamanu data. All contained here is generally regarded as the source
-of truth within Tamanu, with data in other schemas being ether auxilliary or derived from this in
+of truth within Tamanu, with data in other schemas being ether auxiliary or derived from this in
 some way.
 
 Despite the name, this schema is not accessible publicly via postgres, and requires authentication.

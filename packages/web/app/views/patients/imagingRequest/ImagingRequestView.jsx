@@ -222,7 +222,7 @@ const ImagingResultRow = ({ result }) => {
         label={
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
-        value={description}
+        value={description ?? ''}
         multiline
         disabled
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}

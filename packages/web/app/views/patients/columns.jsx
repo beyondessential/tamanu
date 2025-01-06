@@ -11,8 +11,8 @@ import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
-const SyncedCell = React.memo(({ value }) => (
-  value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />),
+const SyncedCell = React.memo(({ value }) =>
+  value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />,
 );
 
 export const markedForSync = {
@@ -86,7 +86,11 @@ export const village = {
   title: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   minWidth: 100,
   accessor: row => (
-    <TranslatedReferenceData fallback={row.villageName} value={row.villageId} category="village" />
+    <TranslatedReferenceData
+      fallback={row.villageName ?? ''}
+      value={row.villageId}
+      category="village"
+    />
   ),
 };
 
@@ -96,7 +100,7 @@ export const department = {
   minWidth: 100,
   accessor: row => (
     <TranslatedReferenceData
-      fallback={row.departmentName}
+      fallback={row.departmentName ?? ''}
       value={row.departmentId}
       category="department"
     />

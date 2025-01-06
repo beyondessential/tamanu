@@ -65,7 +65,7 @@ export abstract class BaseModel extends BaseModelWithoutId {
       return null;
     }
 
-    // Get appropiate key/value pairs to manage relations
+    // Get appropriate key/value pairs to manage relations
     const mappedValues = getMappedFormValues(values);
 
     // Update each specified value

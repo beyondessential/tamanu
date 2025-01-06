@@ -352,6 +352,16 @@ jobs:
       - run: npm install
       - run: npm run dbt-check-todos
 
+  typos:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check spelling
+        uses: crate-ci/typos@master
+        with:
+          config: .typos.toml
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -366,6 +376,7 @@ jobs:
       - test-package-lock
       - dbt-model
       - dbt-todos
+      - typos
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1

@@ -493,7 +493,7 @@ describe('Suggestions', () => {
 
     const DATA_TYPE = 'diagnosis';
     const DATA_ID = 'test-diagnosis';
-    const ORIGINAL_LABEL = 'AAAOrignal label'; // A's are to ensure it comes first in the list
+    const ORIGINAL_LABEL = 'AAAOriginal label'; // A's are to ensure it comes first in the list
     const ENGLISH_LABEL = 'AAAEnglish label';
     const KHMER_LABEL = 'AAAKhmer label';
     const ENGLISH_CODE = 'en';

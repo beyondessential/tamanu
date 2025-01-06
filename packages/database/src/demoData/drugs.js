@@ -207,7 +207,7 @@ export const DRUGS = splitIds(`
   Chloramphenicol 250mg capsule
   Condoms
   Copper containing device
-  Ciprofloxacin (hyclate) 2mg/ml soultion for iv infusion
+  Ciprofloxacin (hyclate) 2mg/ml solution for iv infusion
   Ciprofloxacin (anhydrous) 250mg/5ml oral liquid
   Ciprofloxacin (hydrochloride) 250mg tablet
   Clopidogrel 75mg tablet
@@ -267,7 +267,7 @@ export const DRUGS = splitIds(`
   Diaphragm
   Diphtheria antitoxin 10 000 iu injection
   Diphtheria antitoxin 20 000 iu injection
-  Diptheria vaccine
+  Diphtheria vaccine
   Delamanid 50mg tablet
   Desmopressin (acetate) 4mc/ml in 1ml ampoule
   Darunavir 75mg tablet
@@ -490,7 +490,7 @@ export const DRUGS = splitIds(`
   Irinotecan 100mg in 5ml vial
   Irinotecan 40mg in 2ml vial
   Irinotecan 500mg in 25ml vial
-  Isosorbide dinitrate 5mg sublingual tabl
+  Isosorbide dinitrate 5mg sublingual tablet
   Isoflurane
   Isoniazid & pyrazinamide & rifampicin  150mg & 500mg & 150mg
   Isoniazid & pyrazinamide & rifampicin  75mg & 400mg & 150mg
@@ -664,10 +664,10 @@ export const DRUGS = splitIds(`
   Normal immunoglobulin 16% protein solution for intramuscular administration
   Normal immunoglobulin 16% protein solution for subcutaneous administration
   Norethisterone enantate 200mg/ml in 1ml ampoule oily solution
-  Nicotine replacemet therapry 2mg chewing gum (polacrilex)
-  Nicotine replacemet therapry 4mg chewing gum (polacrilex)
-  Nicotine replacemet therapry 5mg-30mg/16hrs transdermal patch
-  Nicotine replacemet therapry 7mg-21mg/24hrs transdermal patch
+  Nicotine replacement therapy 2mg chewing gum (polacrilex)
+  Nicotine replacement therapy 4mg chewing gum (polacrilex)
+  Nicotine replacement therapy 5mg-30mg/16hrs transdermal patch
+  Nicotine replacement therapy 7mg-21mg/24hrs transdermal patch
   Neostigmine (metilsulfate) 2.5mg in 1ml ampoule injection
   Neostigmine (bromide) 15mg tablet
   Neostigmine 500mcg in 1ml ampoule injection
@@ -896,7 +896,7 @@ export const DRUGS = splitIds(`
   Terbinafine (hydrochloride) 1% cream
   Terbinafine (hydrochloride) 1% ointment
   Ethambutol & isoniazid 400mg & 150mg
-  Tuberculins, purified protien derivative (ppd) injection
+  Tuberculins, purified protein derivative (ppd) injection
   Triclabendazole 250mg tablet
   Testosterone (enanthate) 200mg in 1 ml ampoule injection
   Tetanus vaccine

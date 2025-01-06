@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useProgramRegistryConditions = (programRegistryId, fetchOptions) => {
+export const useProgramRegistryConditionsQuery = (programRegistryId, fetchOptions) => {
   const api = useApi();
   return useQuery(['programRegistry', programRegistryId, 'conditions'], () =>
     api.get(`programRegistry/${encodeURIComponent(programRegistryId)}/conditions`, {

@@ -1,14 +1,14 @@
 import { useEncounter } from '../../contexts/Encounter';
 import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
 import { combineQueries } from '../combineQueries';
-import { usePatientData } from './usePatientData';
+import { usePatientDataQuery } from './usePatientDataQuery';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 
 export const useVitalsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
-  const patientQuery = usePatientData(encounter.patientId);
+  const patientQuery = usePatientDataQuery(encounter.patientId);
   const vitalsSurveyQuery = useVitalsSurveyQuery();
 
   const {
