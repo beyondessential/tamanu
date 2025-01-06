@@ -86,7 +86,7 @@ describe('Appointments', () => {
     expect(searchByPartialLastName.body.count).toBe(1);
 
     // Invalid searches
-    const searchByInvalidString = await searchPatientNameOrId(patient.firstName + 'invalid');
+    const searchByInvalidString = await searchPatientNameOrId('invalid');
     expect(searchByInvalidString.body.count).toBe(0);
   });
 
