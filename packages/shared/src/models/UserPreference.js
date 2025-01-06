@@ -13,12 +13,18 @@ export class UserPreference extends Model {
           primaryKey: true,
           defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
-        preferences: {
-          type: DataTypes.JSONB,
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        value: {
+          type: Sequelize.JSONB,
+          allowNull: false,
         },
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [{ fields: ['user_id', 'key', 'facilityId'], unique: true }],
         ...options,
       },
     );
@@ -42,6 +48,10 @@ export class UserPreference extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
+    });
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
     });
   }
 
