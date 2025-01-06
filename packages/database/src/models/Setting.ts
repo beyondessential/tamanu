@@ -6,6 +6,9 @@ import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
+import type { SettingPath } from '@tamanu/settings/types';
+
+const SETTINGS_SCOPES_VALUES = Object.values(SETTINGS_SCOPES);
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -102,7 +105,11 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scopeOverride = null) {
+  static async get(
+    key: SettingPath | '' = '',
+    facilityId = null,
+    scopeOverride: (typeof SETTINGS_SCOPES_VALUES)[number] | null = null,
+  ) {
     const determineScope = () => {
       if (scopeOverride) {
         return scopeOverride;
@@ -159,7 +166,12 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key: string, value: object, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
+  static async set(
+    key: SettingPath | '' = '',
+    value: object,
+    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    facilityId = null,
+  ) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
     const schema = getScopedSchema(scope);
     const defaultsForScope = extractDefaults(schema);
