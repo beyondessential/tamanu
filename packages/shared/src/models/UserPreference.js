@@ -30,14 +30,21 @@ export class UserPreference extends Model {
     );
   }
 
-  static async getAllPreferences(userId) {
+  static async getAllPreferences(userId, facilityId) {
     const userPreferences = await UserPreference.findAll({
       where: { userId },
+    });
+
+    const userFacilityPreferences = await UserPreference.findAll({
+      where: { userId, facilityId },
     });
 
     const allPreferences = {};
 
     for (const userPreference of userPreferences) {
+      allPreferences[userPreference.key] = userPreference.value;
+    }
+    for (const userPreference of userFacilityPreferences) {
       allPreferences[userPreference.key] = userPreference.value;
     }
 

@@ -131,19 +131,10 @@ user.get(
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.findOne({
-      where: { userId: currentUser.id },
-      raw: true,
-    });
+    const userPreferences = await UserPreference.getAllPreferences(currentUser.id, facilityId);
 
-    const facilityPreferences = userPreferences?.preferences?.[facilityId] ?? {};
-    const generalPreferences = userPreferences?.preferences?.[GENERAL_PREFERENCE_KEY] ?? {};
-
-    const customizer = (objValue, srcValue) => (isEmpty(srcValue) ? objValue : srcValue);
-
-    const combinedPreferences = mergeWith({}, generalPreferences, facilityPreferences, customizer);
-
-    res.send({ ...userPreferences, preferences: combinedPreferences });
+    // Return {} as default if no user preferences exist
+    res.send(userPreferences || {});
   }),
 );
 
