@@ -1,16 +1,18 @@
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import config from 'config';
 import { add } from 'date-fns';
+
 import {
   APPOINTMENT_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
-import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import config from 'config';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
+import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {
   const [facilityId] = selectFacilityIds(config);
