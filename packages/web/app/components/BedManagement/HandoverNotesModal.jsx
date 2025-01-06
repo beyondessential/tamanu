@@ -34,6 +34,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   } = useQuery(
     ['locationGroupHandoverNotes', facilityId],
     () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`, { facilityId }),
+    { enabled: !!areaId },
   );
 
   useEffect(() => {

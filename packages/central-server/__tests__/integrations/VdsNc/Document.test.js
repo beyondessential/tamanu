@@ -109,7 +109,7 @@ describe('VDS-NC: Document cryptography', () => {
     const patient = await Patient.create({
       ...fake(Patient),
       firstName: 'Fiamē Naomi',
-      lastName: 'Mataʻafa',
+      lastName: 'Mataʻafa', // spellchecker:disable-line
       dateOfBirth: new Date(Date.parse('29 April 1957, UTC')),
       sex: 'female',
     });

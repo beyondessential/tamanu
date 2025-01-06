@@ -5,7 +5,7 @@ import { IconButton, Menu } from '@material-ui/core';
 import { Launch, MoreVert } from '@material-ui/icons';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
-import { useTranslationLanguages } from '../../api/queries';
+import { useTranslationLanguagesQuery } from '../../api/queries';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 
@@ -53,7 +53,7 @@ export const KebabMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isChangingLanguage, setChangingLanguage] = useState(false);
   const open = Boolean(anchorEl);
-  const { data = {} } = useTranslationLanguages();
+  const { data = {} } = useTranslationLanguagesQuery();
   const { getLocalisation } = useLocalisation();
   const { languageNames = [], languagesInDb = [] } = data;
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');

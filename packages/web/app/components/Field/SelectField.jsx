@@ -216,7 +216,7 @@ export const SelectInput = ({
             ClearIndicator: innerProps => (
               <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
             ),
-            DropdownIndicator: ExpandMoreIcon,
+            DropdownIndicator: () => <ExpandMoreIcon />,
           }}
           {...props}
         />
@@ -240,10 +240,11 @@ export const TranslatedSelectField = props => {
 };
 
 SelectField.propTypes = {
-  options: PropTypes.object.isRequired,
-  prefix: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  options: PropTypes.oneOfType([PropTypes.object, PropTypes.arrayOf(PropTypes.object)]).isRequired,
+  prefix: PropTypes.string,
+  // Should be required in SelectInput
+  name: PropTypes.string,
+  value: PropTypes.string,
 };
 
 /*
@@ -277,8 +278,8 @@ export const StyledSelectField = props => (
 );
 
 SelectInput.propTypes = {
-  name: PropTypes.string,
-  value: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,

@@ -75,7 +75,7 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
 
 TopBar.propTypes = {
   title: PropTypes.node,
-  subTitle: PropTypes.string,
+  subTitle: PropTypes.node,
   className: PropTypes.string,
 };
 
@@ -95,7 +95,7 @@ export const SimpleTopBar = React.memo(({ title, children, className }) => (
 ));
 
 SimpleTopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   className: PropTypes.string,
 };
 
@@ -127,10 +127,10 @@ export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
 );
 
 EncounterTopBar.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.node.isRequired,
   encounter: PropTypes.shape({ startDate: PropTypes.string, examiner: PropTypes.object })
     .isRequired,
-  subTitle: PropTypes.string,
+  subTitle: PropTypes.node,
 };
 
 EncounterTopBar.defaultProps = {

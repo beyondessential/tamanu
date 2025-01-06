@@ -50,7 +50,7 @@ describe('User', () => {
 
     beforeAll(async () => {
       const { User, Role } = models;
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
       deactivatedUser = await User.create(
@@ -88,7 +88,7 @@ describe('User', () => {
       expect(result.body.availableFacilities).toStrictEqual([facility1]);
     });
 
-    it('should succeed if setting a facilitiy with permission', async () => {
+    it('should succeed if setting a facility with permission', async () => {
       const userAgent = await baseApp.asUser(authUser);
       const validFacilityResult = await userAgent.post('/api/setFacility').send({
         facilityId: facility1.id,
@@ -96,7 +96,7 @@ describe('User', () => {
       expect(validFacilityResult).toHaveSucceeded();
     });
 
-    it('should throw error if trying to set a facilitiy without permission', async () => {
+    it('should throw error if trying to set a facility without permission', async () => {
       const userAgent = await baseApp.asUser(authUser);
       const validFacilityResult = await userAgent.post('/api/setFacility').send({
         facilityId: facility2.id,
@@ -346,7 +346,7 @@ describe('User', () => {
     const validUserFacilityIds = validUserFacilities.map(f => f.id);
 
     beforeAll(async () => {
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       superUser = await models.User.create(
         createUser({
           role: 'admin',
@@ -634,7 +634,7 @@ describe('User', () => {
       const result = await app.post('/api/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        id: user.id,
+        id: expect.any(String),
         userId: user.id,
         ...userPreference,
       });
@@ -650,7 +650,8 @@ describe('User', () => {
       app = await baseApp.asUser(user);
 
       await updateUserPreference({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+        key: 'selectedGraphedVitalsOnFilter',
+        value: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 
@@ -663,12 +664,14 @@ describe('User', () => {
     });
 
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
-      const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
-      const result1 = await app.get('/api/user/userPreferences');
-      const result2 = await updateUserPreference({
-        selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
+      const result1 = await models.UserPreference.findOne({
+        where: { key: 'selectedGraphedVitalsOnFilter' },
       });
-      const result1Date = new Date(result1.body.updatedAt);
+      const result2 = await updateUserPreference({
+        key: 'selectedGraphedVitalsOnFilter',
+        value: defaultSelectedGraphedVitalsOnFilter,
+      });
+      const result1Date = new Date(result1.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
     });

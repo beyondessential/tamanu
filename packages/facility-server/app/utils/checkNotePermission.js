@@ -30,11 +30,11 @@ export async function checkNotePermission(req, note, verb) {
 
     // if rootNote is not available, it means that the current user is creating the root note.
     // then no need to check for special write permissions
-    const isCurrentUserEdittingOtherPeopleNote = rootNote && user.id !== rootNote.authorId;
+    const isCurrentUserEditingOtherPeopleNote = rootNote && user.id !== rootNote.authorId;
 
     // Check if user has permission to edit other people's treatment plan notes
     if (
-      isCurrentUserEdittingOtherPeopleNote && // check if current user is not the person who created the note originally
+      isCurrentUserEditingOtherPeopleNote && // check if current user is not the person who created the note originally
       noteType === NOTE_TYPES.TREATMENT_PLAN &&
       parentRecordVerb === 'write'
     ) {
@@ -43,7 +43,7 @@ export async function checkNotePermission(req, note, verb) {
     }
 
     // Check if user has permission to edit other people's notes
-    if (isCurrentUserEdittingOtherPeopleNote && parentRecordVerb === 'write') {
+    if (isCurrentUserEditingOtherPeopleNote && parentRecordVerb === 'write') {
       req.checkPermission(
         parentRecordVerb,
         NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE,

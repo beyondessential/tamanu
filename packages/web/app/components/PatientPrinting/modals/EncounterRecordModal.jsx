@@ -9,13 +9,13 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientData } from '../../../api/queries/usePatientData';
-import { useLabRequests } from '../../../api/queries/useLabRequests';
+import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
+import { useLabRequestsQuery } from '../../../api/queries/useLabRequestsQuery';
 import { combineQueries } from '../../../api/combineQueries';
-import { useImagingRequests } from '../../../api/queries/useImagingRequests';
-import { useEncounterNotes } from '../../../api/queries/useEncounterNotes';
-import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarge';
-import { useReferenceData } from '../../../api/queries/useReferenceData';
+import { useImagingRequestsQuery } from '../../../api/queries/useImagingRequestsQuery';
+import { useEncounterNotesQuery } from '../../../api/queries/useEncounterNotesQuery';
+import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
+import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
@@ -23,7 +23,7 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { useVitals } from '../../../api/queries/useVitals';
+import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 
@@ -57,7 +57,7 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   return null;
 };
 
-// These two functions both take the generated object based on the matcher from the above function and alters the data names to be relavant to the table.
+// These two functions both take the generated object based on the matcher from the above function and alters the data names to be relevant to the table.
 // It will either loop through the generic history and rename the keys to relevant ones or it will just grab the current encounter details if there is no note history
 const extractEncounterTypeHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, encounterTypeNoteMatcher);
@@ -108,37 +108,37 @@ const getDateTitleArray = date => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage, getTranslation } = useTranslation();
-  const { data: vitalsData, recordedDates } = useVitals(encounter.id);
+  const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
-  const patientQuery = usePatientData(encounter.patientId);
+  const patientQuery = usePatientDataQuery(encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const { data: additionalData } = padDataQuery;
 
-  const labRequestsQuery = useLabRequests(encounter.id, {
+  const labRequestsQuery = useLabRequestsQuery(encounter.id, {
     order: 'asc',
     orderBy: 'requestedDate',
   });
   const labRequests = labRequestsQuery.data;
 
-  const imagingRequestsQuery = useImagingRequests(encounter.id, {
+  const imagingRequestsQuery = useImagingRequestsQuery(encounter.id, {
     order: 'asc',
     orderBy: 'requestedDate',
   });
   const imagingRequestsData = imagingRequestsQuery.data?.data || [];
 
-  const dischargeQuery = useEncounterDischarge(encounter);
+  const dischargeQuery = useEncounterDischargeQuery(encounter);
   const discharge = dischargeQuery.data;
 
-  const villageQuery = useReferenceData(patient?.villageId);
+  const villageQuery = useReferenceDataQuery(patient?.villageId);
   const village = villageQuery.data;
 
-  const notesQuery = useEncounterNotes(encounter.id, {
+  const notesQuery = useEncounterNotesQuery(encounter.id, {
     orderBy: 'date',
     order: 'ASC',
   }); // order notes by edited date

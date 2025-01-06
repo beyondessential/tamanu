@@ -146,8 +146,8 @@ export const LocationInput = React.memo(
 );
 
 LocationInput.propTypes = {
-  label: PropTypes.string,
-  locationGroupLabel: PropTypes.string,
+  label: PropTypes.node,
+  locationGroupLabel: PropTypes.node,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,

@@ -7,7 +7,7 @@ import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
 
-@Entity('diagnosis')
+@Entity('encounter_diagnoses')
 export class Diagnosis extends BaseModel implements IDiagnosis {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -37,10 +37,6 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   clinician: User;
   @RelationId(({ clinician }) => clinician)
   clinicianId: string;
-
-  static getTableNameForSync(): string {
-    return 'encounter_diagnoses';
-  }
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
     return this.getRepository()

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from '@react-pdf/renderer';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { getLocationName } from '../../patientAccessors';
@@ -13,13 +14,15 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 
-  const primaryDiagnoses = diagnoses
-    .filter(diagnosis => diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const filterAndSortDiagnoses = isPrimary =>
+    diagnoses
+      .filter(diagnosis => diagnosis.isPrimary === isPrimary)
+      .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
+      .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 
-  const secondaryDiagnoses = diagnoses
-    .filter(diagnosis => !diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const primaryDiagnoses = filterAndSortDiagnoses(true);
+  const secondaryDiagnoses = filterAndSortDiagnoses(false);
+
   return (
     <>
       <DataSection

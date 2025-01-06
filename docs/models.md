@@ -7,7 +7,7 @@ Models implementations can be found in: `packages/shared/src/models`
 
 ### AdministeredVaccine
 
-A vaccination a patient has recieved. The specific vaccine is represented in the ScheduledVaccine relationship.
+A vaccination a patient has received. The specific vaccine is represented in the ScheduledVaccine relationship.
 
 ### Attachment
 

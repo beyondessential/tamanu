@@ -24,7 +24,7 @@ Identifier of the row in the public schema that is the upstream source of this F
 {% enddocs %}
 
 {% docs fhir__generic__last_updated %}
-Timestamp of when this FHIR recource was last materialised.
+Timestamp of when this FHIR resource was last materialised.
 {% enddocs %}
 
 {% docs fhir__generic__is_live %}

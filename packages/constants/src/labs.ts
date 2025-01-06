@@ -81,8 +81,6 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
 };
 
-export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
-
 export const LAB_TEST_RESULT_TYPES = {
   FREE_TEXT: 'FreeText',
   NUMBER: 'Number',

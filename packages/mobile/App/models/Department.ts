@@ -7,7 +7,7 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('department')
+@Entity('departments')
 export class Department extends BaseModel implements IDepartment {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

@@ -2,8 +2,8 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import {
-  useEncounterData,
-  useLabRequestNotes,
+  useEncounterDataQuery,
+  useLabRequestNotesQuery,
   usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -21,7 +21,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterDataQuery(
     labRequest.encounterId,
   );
 
@@ -30,7 +30,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     isLoading: isAdditionalDataLoading,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: notes, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
+  const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
 
   const { data: testsData, isLoading: areTestsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],

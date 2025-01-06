@@ -3,7 +3,7 @@ import { Column, Entity } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('local_system_fact')
+@Entity('local_system_facts')
 export class LocalSystemFact extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 

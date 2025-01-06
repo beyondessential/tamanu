@@ -3,6 +3,7 @@ import { debounce } from 'lodash';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
+import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  * Similar to useQuery but with a listener to a socket channel matching the endpoint that indicates

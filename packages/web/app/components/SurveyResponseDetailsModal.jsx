@@ -6,7 +6,7 @@ import { Modal } from './Modal';
 import { Table } from './Table';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useSurveyResponse } from '../api/queries/useSurveyResponse';
+import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 
@@ -55,7 +55,7 @@ function shouldShow(component) {
 }
 
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
-  const { data: surveyDetails, isLoading, error } = useSurveyResponse(surveyResponseId);
+  const { data: surveyDetails, isLoading, error } = useSurveyResponseQuery(surveyResponseId);
   if (error) {
     return (
       <Modal
