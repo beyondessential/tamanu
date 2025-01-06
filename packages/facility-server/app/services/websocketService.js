@@ -1,11 +1,7 @@
 import { Server } from 'socket.io';
 
 import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
-import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
 
-/**
- *
- * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/shared/models')}} injector
 /**
  *
  * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/shared/models')}} injector
