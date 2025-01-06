@@ -50,7 +50,11 @@ export const defineWebsocketService = injector => {
         ],
       });
 
-      const userIds = new Set(task?.designations?.flatMap(designation  => designation.designationUsers.map(user => user.id)) ?? []);
+      const userIds = new Set(
+        task?.designations?.flatMap(designation =>
+          designation.designationUsers.map(user => user.id),
+        ) ?? [],
+      );
 
       if (userIds.size === 0) {
         socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
@@ -58,6 +62,23 @@ export const defineWebsocketService = injector => {
         for (const userId of userIds) {
           socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${userId}`, task);
         }
+      }
+    }
+    if (payload.table === 'appointments') {
+      const appointment = await injector.models.Appointment.findOne({
+        where: { id: payload.newId },
+      });
+
+      if (!appointment) {
+        console.error('Appointment not found for ID:', payload.newId);
+        return;
+      }
+
+      const userId = appointment.clinicianId;
+      if (!appointment.locationGroupId) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${userId}`, appointment);
+      } else if (!appointment.locationId) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${userId}`, appointment);
       }
     }
   });
