@@ -48,7 +48,7 @@ describe('Read Settings - Cache', () => {
   });
 
   it('Should not use cache if timestamp is not in ttl', async () => {
-    // Call .get,hould store that in cache
+    // Call .get should store that in cache
     const value = await settings.get('timezone');
     expect(value).toEqual('gmt-3');
 

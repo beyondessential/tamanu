@@ -42,7 +42,7 @@ const StyledQrContainer = styled.div`
   }
 `;
 
-const ErrorMessege = styled.div`
+const ErrorMessage = styled.div`
   color: ${Colors.alert};
 `;
 
@@ -99,7 +99,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
       <StyledQrContainer>
         {!isFetching && qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
         {isFetching && <CircularProgress />}
-        {isError && <ErrorMessege>{error.message}</ErrorMessege>}
+        {isError && <ErrorMessage>{error.message}</ErrorMessage>}
       </StyledQrContainer>
       <ModalCancelRow
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

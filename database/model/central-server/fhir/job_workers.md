@@ -4,7 +4,7 @@ Worker registry for the FHIR job queue.
 See the `fhir.jobs` table for more.
 
 For workers to grab jobs from the queue, they first must register. Once a worker has registered, it
-must "heartbeat" regularly by calling `job_worker_heartbeat()`. The recommended hearbeat time is
+must "heartbeat" regularly by calling `job_worker_heartbeat()`. The recommended heartbeat time is
 1/10th of the timeout, which is defined in the `public.settings` table at
 `key=fhir.worker.assumeDroppedAfter`. A worker may also voluntarily deregister (e.g. during a
 graceful shutdown).

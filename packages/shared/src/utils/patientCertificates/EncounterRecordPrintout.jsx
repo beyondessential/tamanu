@@ -142,16 +142,16 @@ const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   const { getTranslation } = useLanguageContext();
-  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurence && subPageNumber) {
-          firstPageOccurence = pageNumber;
+        if (pageNumber < firstPageOccurrence && subPageNumber) {
+          firstPageOccurrence = pageNumber;
         }
-        return pageNumber === firstPageOccurence
+        return pageNumber === firstPageOccurrence
           ? title
           : `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
       }}
@@ -242,15 +242,15 @@ const NoteFooter = ({ note }) => {
   );
 };
 const NotesMultipageCellPadding = () => {
-  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <View
       fixed
       render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurence && subPageNumber) {
-          firstPageOccurence = pageNumber;
+        if (pageNumber < firstPageOccurrence && subPageNumber) {
+          firstPageOccurrence = pageNumber;
         }
-        return pageNumber !== firstPageOccurence && <View style={{ paddingBottom: 7 }} />;
+        return pageNumber !== firstPageOccurrence && <View style={{ paddingBottom: 7 }} />;
       }}
     />
   );
