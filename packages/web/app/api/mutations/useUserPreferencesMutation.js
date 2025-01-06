@@ -11,8 +11,7 @@ export const useUserPreferencesMutation = facilityId => {
 
   return useMutation({
     mutationKey: ['userPreferences'],
-    mutationFn: newUserPreferences =>
-      api.post('user/userPreferences', { facilityId, ...newUserPreferences }),
+    mutationFn: ({ key, value }) => api.post('user/userPreferences', { facilityId, key, value }),
     onSuccess: data => {
       queryClient.setQueriesData(['userPreferences', currentUser.id], data);
     },
