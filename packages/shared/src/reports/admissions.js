@@ -8,38 +8,37 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { Location } from '../models/Location';
-import { ageInYears, format, toDateTimeString } from '../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
-  { title: 'Patient First Name', accessor: data => data.patient.firstName },
-  { title: 'Patient Last Name', accessor: data => data.patient.lastName },
-  { title: 'Patient ID', accessor: data => data.patient.displayId },
-  { title: 'Sex', accessor: data => data.patient.sex },
-  { title: 'Village', accessor: data => data.patient.village.name },
+  { title: 'Patient First Name', accessor: (data) => data.patient.firstName },
+  { title: 'Patient Last Name', accessor: (data) => data.patient.lastName },
+  { title: 'Patient ID', accessor: (data) => data.patient.displayId },
+  { title: 'Sex', accessor: (data) => data.patient.sex },
+  { title: 'Village', accessor: (data) => data.patient.village.name },
   {
     title: 'Date of Birth',
-    accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy'),
+    accessor: (data) => format(data.patient.dateOfBirth, 'dd/MM/yyyy'),
   },
   {
     title: 'Age',
-    accessor: data => ageInYears(data.patient.dateOfBirth),
+    accessor: (data) => ageInYears(data.patient.dateOfBirth),
   },
-  { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
-  { title: 'Admitting Clinician', accessor: data => data.examiner?.displayName },
+  { title: 'Patient Type', accessor: (data) => data.patientBillingType?.name },
+  { title: 'Admitting Clinician', accessor: (data) => data.examiner?.displayName },
   {
     title: 'Admission Date',
-    accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),
+    accessor: (data) => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),
   },
   {
     title: 'Discharge Date',
-    accessor: data => data.endDate && format(data.endDate, 'dd/MM/yyyy h:mm:ss a'),
+    accessor: (data) => data.endDate && format(data.endDate, 'dd/MM/yyyy h:mm:ss a'),
   },
-  { title: 'Location', accessor: data => data.locationHistoryString },
-  { title: 'Department', accessor: data => data.departmentHistoryString },
-  { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
-  { title: 'Secondary diagnoses', accessor: data => data.secondaryDiagnoses },
+  { title: 'Location', accessor: (data) => data.locationHistoryString },
+  { title: 'Department', accessor: (data) => data.departmentHistoryString },
+  { title: 'Primary diagnoses', accessor: (data) => data.primaryDiagnoses },
+  { title: 'Secondary diagnoses', accessor: (data) => data.secondaryDiagnoses },
 ];
 
 function parametersToSqlWhere(parameters) {
@@ -111,14 +110,14 @@ const patternsForPlaceTypes = {
   location: locationExtractorPattern,
 };
 
-const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
+const getPlaceHistoryFromNotes = (models, changeNotes, encounterData, placeType) => {
   const relevantNotes = changeNotes
     .filter(({ recordId }) => recordId === encounterData.id)
     .sort(({ date }) => date);
 
   if (!relevantNotes.length) {
     const { [placeType]: place, startDate } = encounterData;
-    const placeName = Location.formatFullLocationName(place);
+    const placeName = models.Location.formatFullLocationName(place);
     return [{ to: placeName, date: startDate }];
   }
 
@@ -174,16 +173,16 @@ const filterResults = async (models, results, parameters) => {
   const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
 
   const locationFilteredResults = locationGroup
-    ? results.filter(result =>
+    ? results.filter((result) =>
         result.locationHistory.some(({ to }) => {
-          const { group, location } = Location.parseFullLocationName(to);
+          const { group, location } = models.Location.parseFullLocationName(to);
           return group ? group === locationGroupName : locationNames.includes(location);
         }),
       )
     : results;
 
   const departmentFilteredResults = requiredDepartment
-    ? locationFilteredResults.filter(result =>
+    ? locationFilteredResults.filter((result) =>
         result.departmentHistory.map(({ to }) => to).includes(requiredDepartment),
       )
     : locationFilteredResults;
@@ -220,21 +219,26 @@ async function queryAdmissionsData(models, parameters) {
       ],
       where: parametersToSqlWhere(parameters),
     })
-  ).map(x => x.get({ plain: true }));
+  ).map((x) => x.get({ plain: true }));
 
   const encounterIds = results.map(({ id }) => id);
   const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(models, encounterIds);
 
-  const resultsWithHistory = results.map(result => ({
+  const resultsWithHistory = results.map((result) => ({
     ...result,
-    locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
-    departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
+    locationHistory: getPlaceHistoryFromNotes(models, locationChangeNotes, result, 'location'),
+    departmentHistory: getPlaceHistoryFromNotes(
+      models,
+      departmentChangeNotes,
+      result,
+      'department',
+    ),
   }));
 
   const filteredResults = await filterResults(models, resultsWithHistory, parameters);
 
   return Promise.all(
-    filteredResults.map(async result => {
+    filteredResults.map(async (result) => {
       const locationHistoryString = formatHistory(result.locationHistory, 'location');
       return {
         ...result,

@@ -3,7 +3,7 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomVitals,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import {
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
@@ -16,11 +16,11 @@ import {
 import {
   createAdministeredVaccine,
   createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
+} from '@tamanu/database/demoData/vaccines';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { toDateString } from '@tamanu/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { subDays } from 'date-fns';
 
 describe('PatientVaccine', () => {
@@ -276,7 +276,7 @@ describe('PatientVaccine', () => {
         `/api/patient/${patient.id}/administeredVaccines?page=0&rowsPerPage=3&orderBy=vaccineDisplayName&order=desc`,
       );
       expect(result).toHaveSucceeded();
-      expect(result.body.data.map(x => x.vaccineDisplayName)).toEqual(expectedOrder);
+      expect(result.body.data.map((x) => x.vaccineDisplayName)).toEqual(expectedOrder);
     });
 
     it('Should include not given vaccines', async () => {
@@ -530,7 +530,7 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
 
-      const ids = result.body.data.map(x => x.id);
+      const ids = result.body.data.map((x) => x.id);
       expect(ids[0]).toEqual(vaccineNull.id);
       expect(ids[1]).toEqual(vaccineOld.id);
       expect(ids[2]).toEqual(vaccineNew.id);
@@ -543,7 +543,7 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
 
-      const ids = result.body.data.map(x => x.id);
+      const ids = result.body.data.map((x) => x.id);
       expect(ids[0]).toEqual(vaccineNew.id);
       expect(ids[1]).toEqual(vaccineOld.id);
       expect(ids[2]).toEqual(vaccineNull.id);

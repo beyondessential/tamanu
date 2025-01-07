@@ -11,21 +11,21 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
-    ?.filter(result => !result.deletedAt)
-    .map(result => result.get({ plain: true }));
+    ?.filter((result) => !result.deletedAt)
+    .map((result) => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
   const imagingProvider = await getImagingProvider(models, settings);
   if (imagingProvider) {
     const urls = await Promise.all(
-      imagingRequest.results.map(async result => {
+      imagingRequest.results.map(async (result) => {
         // catch all errors so we never fail to show the request if the external provider errors
         try {
           const url = await imagingProvider.getUrlForResult(result);
@@ -39,7 +39,7 @@ async function renderResults({ models, settings }, imagingRequest) {
     );
 
     for (const result of results) {
-      const externalResult = urls.find(url => url?.resultId === result.id);
+      const externalResult = urls.find((url) => url?.resultId === result.id);
       if (!externalResult) continue;
 
       const { url, err } = externalResult;
@@ -227,6 +227,13 @@ imagingRequest.put(
         imagingRequestObject.results.push(imagingResult);
       } else {
         imagingRequestObject.results = [imagingResult];
+      }
+
+      if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+        await Notification.pushNotification(
+          NOTIFICATION_TYPES.IMAGING_REQUEST,
+          imagingRequestObject,
+        );
       }
     }
 
@@ -454,7 +461,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map(row => row.get({ plain: true }));
+    const data = rows.map((row) => row.get({ plain: true }));
     res.send({
       count,
       data,

@@ -1,0 +1,19 @@
+{
+  "db": {
+    "name": "tamanu-database-test",
+    "migrateOnStartup": true,
+    "sqlitePath": "/tmp/tamanu-database-src-tests.db",
+    "testMode": true,
+    "verbose": false
+  },
+  "log": {
+    "consoleLevel": "none"
+  },
+  "sync": {
+    "persistedCacheBatchSize": 10000,
+    "persistUpdateWorkerPoolSize": 5,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
+  },
+  "countryTimeZone": "Australia/Melbourne",
+  "serverFacilityIds": ["facility-1"]
+}

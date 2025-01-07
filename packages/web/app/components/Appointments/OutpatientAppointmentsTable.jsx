@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
+import {
+  getCurrentDateTimeString,
+  toDateString,
+  formatShortest,
+  formatTime,
+} from '@tamanu/utils/dateTime';
 
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
-import { formatShortest, formatTime } from '../DateDisplay';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
@@ -160,9 +164,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;
@@ -253,7 +257,7 @@ const TableHeader = ({ title, patient }) => {
         <ViewPastBookingsButton
           component={'span'}
           onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr='6px'
+          mr="6px"
         >
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"

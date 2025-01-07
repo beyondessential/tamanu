@@ -5,7 +5,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@
 
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
-import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { statkey, updateStat } from '../stats';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';

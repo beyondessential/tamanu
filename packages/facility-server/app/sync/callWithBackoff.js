@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,

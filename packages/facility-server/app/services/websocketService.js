@@ -4,7 +4,7 @@ import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
- * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/shared/models')}} injector
+ * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/database/models')}} injector
  * @returns
  */
 export const defineWebsocketService = injector => {

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { format } from '@tamanu/shared/utils/dateTime';
+import { format } from '@tamanu/utils/dateTime';
 
 import { INJECTION_SITE_VALUES, VACCINE_STATUS } from '@tamanu/constants';
 import { parseHL7Reference } from './utils';

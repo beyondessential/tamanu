@@ -5,7 +5,7 @@ import { join } from 'path';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';

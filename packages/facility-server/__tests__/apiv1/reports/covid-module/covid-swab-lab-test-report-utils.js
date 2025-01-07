@@ -1,9 +1,9 @@
-import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
+import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { formatISO } from 'date-fns';
 
 export const LAB_CATEGORY_ID = 'labTestCategory-COVID';
@@ -46,7 +46,13 @@ export async function createLabTests(models) {
   }
 }
 
-export async function createCovidTestForPatient(models, patient, testDate, testOverrides, requestOverrides = {}) {
+export async function createCovidTestForPatient(
+  models,
+  patient,
+  testDate,
+  testOverrides,
+  requestOverrides = {},
+) {
   if (!testDate) {
     testDate = formatISO(new Date(), { representation: 'date' });
   }

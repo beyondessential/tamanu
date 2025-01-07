@@ -15,10 +15,10 @@ import {
   createVaccine,
   destroyPermission,
 } from './referenceDataUtils';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
-import { parseDate } from '@tamanu/shared/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { writeExcelFile } from '../../dist/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
@@ -435,10 +435,8 @@ describe('Reference data exporter', () => {
     await createDataForEncounter(models);
     const vaccine = await createVaccine(models, { label: 'Covid', doseLabel: 'Dose 1' });
     const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
-    const {
-      administeredVaccine: administeredVaccine2,
-      encounter: encounter2,
-    } = await createAdministeredVaccineData(models, vaccine);
+    const { administeredVaccine: administeredVaccine2, encounter: encounter2 } =
+      await createAdministeredVaccineData(models, vaccine);
 
     await exporter(store, {
       1: 'administeredVaccine',

@@ -2,7 +2,7 @@ import config from 'config';
 import { Op } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
+import { completeSyncSession } from '@tamanu/database/sync';
 
 export class StaleSyncSessionCleaner extends ScheduledTask {
   getName() {

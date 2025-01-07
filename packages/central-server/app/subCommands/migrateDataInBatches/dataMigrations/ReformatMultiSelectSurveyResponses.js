@@ -1,4 +1,4 @@
-import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
+import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
 export class ReformatMultiSelectSurveyResponses extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
@@ -11,7 +11,7 @@ export class ReformatMultiSelectSurveyResponses extends CursorDataMigration {
     return `
       WITH updated AS (
         UPDATE survey_response_answers as sra
-        SET body = ('["' || REPLACE(sra.body, ', ', '","') || '"]') 
+        SET body = ('["' || REPLACE(sra.body, ', ', '","') || '"]')
         WHERE id IN (
             SELECT survey_response_answers.id
             FROM survey_response_answers
@@ -24,7 +24,7 @@ export class ReformatMultiSelectSurveyResponses extends CursorDataMigration {
         )
         RETURNING id
       )
-      SELECT 
+      SELECT
         MAX(id::text) AS "maxId",
         COUNT(id) AS "count"
       FROM updated;

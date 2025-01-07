@@ -6,7 +6,8 @@ import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { parseDate } from '@tamanu/shared/utils/dateTime';
+
+import { parseDate } from '@tamanu/utils/dateTime';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
