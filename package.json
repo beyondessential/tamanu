@@ -52,9 +52,7 @@
   "workspaces": {
     "packages": [
       "packages/build-tooling",
-      "packages/csca",
       "packages/scripts",
-      "packages/qr-tester",
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
