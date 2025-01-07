@@ -70,14 +70,7 @@ labRequest.put(
       if (labRequestData.specimenTypeId !== undefined) {
         labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
       }
-      const newLabRequestRecord = await labRequestRecord.update(labRequestData);
-
-      if (shouldPushNotification) {
-        await models.Notification.pushNotification(
-          NOTIFICATION_TYPES.LAB_REQUEST,
-          newLabRequestRecord,
-        );
-      }
+      await labRequestRecord.update(labRequestData);
     });
 
     res.send(labRequestRecord);
