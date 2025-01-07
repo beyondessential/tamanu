@@ -55,11 +55,20 @@ export class ApplicationContext {
       }
     }
 
-    this.emailService = new EmailService();
-
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
+
     this.settings = new ReadSettings(this.store.models);
+
+    // no need to set up services, integrations, etc. for migrations
+    if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
+      return this;
+    }
+
+    this.emailService = new EmailService();
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
@@ -75,9 +84,6 @@ export class ApplicationContext {
       return null;
     }
 
-    this.closePromise = new Promise(resolve => {
-      this.onClose(resolve);
-    });
     await initIntegrations(this);
     return this;
   }
