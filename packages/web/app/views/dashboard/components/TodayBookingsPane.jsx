@@ -9,7 +9,7 @@ import TimelineDot from '@material-ui/lab/TimelineDot';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
-import { formatTime, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box } from '@material-ui/core';
 
 import { Heading4, TranslatedText } from '../../../components';
