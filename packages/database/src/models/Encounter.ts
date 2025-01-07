@@ -143,9 +143,9 @@ export class Encounter extends Model {
               individualHooks: true,
             });
           },
-          afterUpdate: async (encounter: Encounter) => {
+          afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
-              await models.Task.onEncounterDischarged(encounter, opts.transaction);
+              await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
             }
           },
         },

@@ -46,7 +46,7 @@ export class ImagingRequest extends Model {
   declare location?: Location;
   declare locationGroup?: LocationGroup;
 
-  static initModel(options: InitOptions) {
+  static initModel(options: InitOptions, models: Models) {
     super.init(
       {
         id: {
@@ -102,7 +102,7 @@ export class ImagingRequest extends Model {
           },
         },
         hooks: {
-          afterUpdate: async (imagingRequest) => {
+          afterUpdate: async (imagingRequest: ImagingRequest) => {
             const shouldPushNotification = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED].includes(
               imagingRequest.status,
             );

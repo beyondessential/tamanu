@@ -321,7 +321,7 @@ export class Task extends Model {
     }
   }
 
-  static async onEncounterDischarged(encounter: Encounter, transaction: Transaction) {
+  static async onEncounterDischarged(encounter: Encounter, transaction?: Transaction) {
     const { models } = this.sequelize;
     const encounterId = encounter.id;
     const endTime = encounter.endDate;
