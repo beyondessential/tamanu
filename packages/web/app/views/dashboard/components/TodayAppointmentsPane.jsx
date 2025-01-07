@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
 
 import { Heading4, TranslatedText } from '../../../components';

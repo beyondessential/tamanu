@@ -25,7 +25,7 @@ The FHIR-compatible APIs and integrations are licensed under the Business Source
 License, Version 1.1 <LICENSE-BSL> or <https://mariadb.com/bsl11/>. These
 include the following source files:
 
-- all files in packages/shared/src/models/fhir
+- all files in packages/database/src/models/fhir
 - all files in packages/shared/src/services/fhirTypes
 - all files in packages/central-server/__tests__/hl7fhir
 - all files in packages/central-server/__tests__/integrations

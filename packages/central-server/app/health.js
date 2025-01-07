@@ -4,7 +4,7 @@ import config from 'config';
 import { isObject } from 'lodash';
 
 import { log } from '@tamanu/shared/services/logging';
-import { createMigrationInterface } from '@tamanu/shared/services/migrations';
+import { createMigrationInterface } from '@tamanu/database/services/migrations';
 
 import { version } from './serverInfo';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
@@ -43,7 +43,7 @@ function sanitise(object) {
 async function getMigrations(sequelize) {
   try {
     const migrationManager = createMigrationInterface(log, sequelize);
-    const migrations = (await migrationManager.executed()).map(x => x.file);
+    const migrations = (await migrationManager.executed()).map((x) => x.file);
     return {
       migrations,
     };

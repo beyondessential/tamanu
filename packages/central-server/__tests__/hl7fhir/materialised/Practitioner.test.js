@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';

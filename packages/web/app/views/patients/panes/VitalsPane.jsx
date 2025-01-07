@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
 import { Button, FormModal, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';

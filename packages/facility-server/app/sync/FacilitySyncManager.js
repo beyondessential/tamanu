@@ -2,18 +2,16 @@ import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
-  CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_SYNC_PULL_KEY,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/shared/sync/constants';
-import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
   getModelsForDirection,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
-} from '@tamanu/shared/sync';
+  CURRENT_SYNC_TIME_KEY,
+  LAST_SUCCESSFUL_SYNC_PULL_KEY,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from '@tamanu/database/sync';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';

@@ -3,11 +3,10 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Colors } from '../../constants';
-import { formatShortest, formatTime } from '../DateDisplay';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
@@ -111,8 +110,8 @@ const StatusBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]};
-  background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
+  color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]};
+  background-color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
 const OvernightIcon = styled.span`
@@ -175,7 +174,7 @@ const COLUMNS = [
       <TranslatedText stringId="bookings.modal.pastBookings.table.column.area" fallback="Area" />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'location',
@@ -187,7 +186,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -198,7 +197,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'bookingType',
@@ -209,7 +208,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',
