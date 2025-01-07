@@ -80,7 +80,7 @@ export class FhirJob extends Model {
     );
   }
 
-  static async backlogUntilLimit(topic: unknown, limit: unknown, includeDropped = true) {
+  static async backlogUntilLimit(topic: string, limit: number, includeDropped = true) {
     // Retrieving the size of the whole backlog can be expensive, and sometimes
     // we only need to check how many records can be retrieved up to a limit of
     // n, so this method returns the minimum of limit and backlog size
@@ -94,7 +94,7 @@ export class FhirJob extends Model {
     return result?.[0]?.count;
   }
 
-  static async grab(workerId: unknown, topic: unknown) {
+  static async grab(workerId: string, topic: string) {
     // We need to have strong isolation when grabbing, to avoid grabbing the
     // same job twice. But that runs the risk of failing due to serialization
     // failures, so we retry a few times, and add a bit of jitter to increase
@@ -138,7 +138,7 @@ export class FhirJob extends Model {
     throw new Error(`Failed to grab job after ${GRAB_RETRY} retries`);
   }
 
-  static async submit(topic: unknown, payload = {}, { priority = 1000, discriminant = null } = {}) {
+  static async submit(topic: string, payload = {}, { priority = 1000, discriminant = null } = {}) {
     const result = await this.sequelize.query<{ id: string }>(
       `
       SELECT fhir.job_submit(
@@ -156,21 +156,21 @@ export class FhirJob extends Model {
     return result?.[0]?.id;
   }
 
-  async start(workerId: unknown) {
+  async start(workerId: string) {
     await this.sequelize.query('SELECT fhir.job_start($jobId, $workerId)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId },
     });
   }
 
-  async complete(workerId: unknown) {
+  async complete(workerId: string) {
     await this.sequelize.query('SELECT fhir.job_complete($jobId, $workerId)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId },
     });
   }
 
-  async fail(workerId: unknown, error: unknown) {
+  async fail(workerId: string, error: string) {
     await this.sequelize.query('SELECT fhir.job_fail($jobId, $workerId, $error)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId, error },
