@@ -60,16 +60,16 @@ export class MedicationDiscontinuer extends ScheduledTask {
       discontinued: {
         [Op.not]: true,
       },
-      encounter_id: {
+      id: {
         [Op.in]: Sequelize.literal(
           `(
-            -- Get all encounters with the same facility ID as this facility server (from local_system_facts).
+            -- Get all prescriptions associated with encounters from the same facility ID as this facility server
             -- Note that the facility ID will be read from the department associated to each encounter.
-            SELECT encounters.id
-            FROM encounters
-            INNER JOIN
-              departments ON encounters.department_id = departments.id
-            WHERE departments.facility_id in (
+            SELECT encounter_prescriptions.prescription_id
+            FROM encounter_prescriptions
+            INNER JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+            INNER JOIN departments ON encounters.department_id = departments.id
+            WHERE departments.facility_id IN (
               SELECT jsonb_array_elements_text(value::jsonb)
               FROM local_system_facts
               WHERE key = 'facilityIds'
@@ -85,6 +85,6 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // Discontinue medications that match the conditions from
     // the identifier with the values provided
     const queryInterface = this.sequelize.getQueryInterface();
-    await queryInterface.bulkUpdate('encounter_medications', values, identifier);
+    await queryInterface.bulkUpdate('prescriptions', values, identifier);
   }
 }
