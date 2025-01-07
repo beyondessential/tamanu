@@ -6,7 +6,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
-export class EncounterMedication extends Model {
+export class Prescription extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -23,10 +23,6 @@ export class EncounterMedication extends Model {
         indication: Sequelize.STRING,
         route: Sequelize.STRING,
 
-        qtyMorning: Sequelize.INTEGER,
-        qtyLunch: Sequelize.INTEGER,
-        qtyEvening: Sequelize.INTEGER,
-        qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
 
         discontinued: Sequelize.BOOLEAN,
@@ -43,14 +39,15 @@ export class EncounterMedication extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
-          mustHaveMedication() {
-            if (!this.medicationId) {
-              throw new Error('An encounter medication must be attached to a medication.');
+          mustHavePrescriptions() {
+            if (!this.prescriptionId) {
+              throw new Error('An encounter medication must be attached to a prescription.');
             }
           },
-          mustHaveEncounter() {
-            if (!this.encounterId) {
-              throw new Error('An encounter medication must be attached to an encounter.');
+          async mustHaveEncounters() {
+            const encounterCount = await this.countEncounters(); // Custom method to count encounters
+            if (encounterCount === 0) {
+              throw new Error('A prescription must be associated with at least one encounter.');
             }
           },
         },
@@ -68,18 +65,19 @@ export class EncounterMedication extends Model {
       as: 'discontinuingClinician',
     });
 
-    this.belongsTo(models.Encounter, {
+    this.belongsToMany(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'encounter',
+      as: 'encounters',
+      through: models.EncounterPrescription,
     });
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'medicationId',
-      as: 'Medication',
+      foreignKey: 'prescriptionId',
+      as: 'prescriptions',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
+    return ['prescriptions', 'encounters', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -94,5 +92,9 @@ export class EncounterMedication extends Model {
 
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
+  }
+
+  async countEncounters() {
+    return await this.getEncounters({ attributes: ['id'] }).then(encounters => encounters.length);
   }
 }
