@@ -29,20 +29,12 @@
       "path": "packages/constants",
     },
     {
-      "name": "csca",
-      "path": "packages/csca",
-    },
-    {
       "name": "meta-server",
       "path": "packages/meta-server",
     },
     {
       "name": "mobile",
       "path": "packages/mobile",
-    },
-    {
-      "name": "qr-tester",
-      "path": "packages/qr-tester",
     },
     {
       "name": "scripts",
