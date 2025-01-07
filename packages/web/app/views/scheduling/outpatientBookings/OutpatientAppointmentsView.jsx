@@ -118,9 +118,10 @@ export const OutpatientAppointmentsView = () => {
     setDrawerOpen(true);
   };
 
-  // TODO: needs to check for list or read
   const canListAppointment = ability.can('list', 'Appointment');
   const canReadAppointment = ability.can('read', 'Appointment');
+  const canCreateAppointment = ability.can('create', 'Appointment');
+
   if (!canListAppointment && !canReadAppointment) {
     // TODO: missed margin
     return <NoPermissionScreen />;
@@ -137,9 +138,11 @@ export const OutpatientAppointmentsView = () => {
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
           <OutpatientAppointmentsFilter />
-          <Button onClick={() => handleOpenDrawer({})}>
-            <AddIcon aria-hidden /> Book appointment
-          </Button>
+          {canCreateAppointment && (
+            <Button onClick={() => handleOpenDrawer({})}>
+              <AddIcon aria-hidden /> Book appointment
+            </Button>
+          )}
         </AppointmentTopBar>
         <CalendarWrapper>
           <DateSelector value={selectedDate} onChange={handleChangeDate} />

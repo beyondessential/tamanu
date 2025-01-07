@@ -9,6 +9,7 @@ import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constan
 import { useAppointmentMutation } from '../../../api/mutations';
 import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
+import { useAuth } from '../../../contexts/Auth';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
   status => status !== APPOINTMENT_STATUSES.CANCELLED,
@@ -32,25 +33,24 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
-  const { mutateAsync: updateAppointment } = useAppointmentMutation(
-    appointment.id,
-    {
-      onSuccess: () =>
-        toast.success(
-          <TranslatedText
-            stringId="scheduling.action.changeStatus.success"
-            fallback="Appointment status updated"
-          />,
-        ),
-      onError: () =>
-        toast.error(
-          <TranslatedText
-            stringId="scheduling.action.changeStatus.error"
-            fallback="Couldn’t update appointment status"
-          />,
-        ),
-    },
-  );
+  const { ability } = useAuth();
+
+  const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
+    onSuccess: () =>
+      toast.success(
+        <TranslatedText
+          stringId="scheduling.action.changeStatus.success"
+          fallback="Appointment status updated"
+        />,
+      ),
+    onError: () =>
+      toast.error(
+        <TranslatedText
+          stringId="scheduling.action.changeStatus.error"
+          fallback="Couldn’t update appointment status"
+        />,
+      ),
+  });
 
   if (!appointment.status) return <PlaceholderStatusSelector />;
 
@@ -61,6 +61,9 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
 
   const handleChange = (_event, newStatus) => updateAppointmentStatus(newStatus);
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
+  // TODO: disable as per card
   return (
     <ChipGroup
       aria-label="Appointment status"
@@ -75,7 +78,7 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
         return (
           <AppointmentStatusChip
             appointmentStatus={status}
-            disabled={disabled || isSelected}
+            disabled={disabled || isSelected || !canWriteAppointment}
             key={status}
             selected={isSelected}
             value={status}

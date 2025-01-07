@@ -13,6 +13,7 @@ import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmen
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../contexts/Auth';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -140,6 +141,7 @@ export const HeadCell = ({ title, count }) => (
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+  const { ability } = useAuth();
   const {
     data: { headData = [], cellData, titleKey },
     isLoading,
@@ -195,6 +197,9 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       </StatusText>
     );
   }
+
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   return (
     <Box
       className={APPOINTMENT_CALENDAR_CLASS}
@@ -215,27 +220,29 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   appointment={a}
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
-                  actions={[
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.newAppointment"
-                          fallback="New appointment"
-                        />
-                      ),
-                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.emailAppointment"
-                          fallback="Email appointment"
-                        />
-                      ),
-                      action: () =>
-                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                    },
-                  ]}
+                  actions={
+                    canWriteAppointment && [
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.newAppointment"
+                            fallback="New appointment"
+                          />
+                        ),
+                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                      },
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.emailAppointment"
+                            fallback="Email appointment"
+                          />
+                        ),
+                        action: () =>
+                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                      },
+                    ]
+                  }
                 />
               ))}
             </AppointmentColumnWrapper>
