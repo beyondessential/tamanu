@@ -8,10 +8,11 @@ export class UserPreference extends Model {
     super.init(
       {
         id: {
-          type: DataTypes.UUID,
-          allowNull: false,
+          type: `TEXT GENERATED ALWAYS AS ("user_id" || ';' || "key" || ';' || COALESCE("facility_id", '')) STORED`,
           primaryKey: true,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
         },
         key: {
           type: DataTypes.STRING,
@@ -24,7 +25,7 @@ export class UserPreference extends Model {
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [{ fields: ['user_id', 'key', 'facilityId'], unique: true }],
+        indexes: [{ fields: ['user_id', 'key', 'facility_id'], unique: true }],
         ...options,
       },
     );
