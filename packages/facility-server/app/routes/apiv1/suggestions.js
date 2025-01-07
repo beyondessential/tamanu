@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy, omit } from 'lodash';
+import { camelCase, keyBy } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -22,7 +22,7 @@ import { customAlphabet } from 'nanoid';
 
 export const suggestions = express.Router();
 
-const defaultLimit = 25;
+const MAX_SUGGESTED_RESULTS = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
@@ -67,24 +67,36 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      const translations = isTranslatable
+      const translatedStringsResult = isTranslatable
         ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
             language,
             refDataType: dataType,
             queryString: searchQuery,
-            limit: defaultLimit,
+            order: [literal(
+              `POSITION(LOWER(:positionMatch) in LOWER("TranslatedString"."text")) > 1`
+            )],
+            replacements: {
+              positionMatch: searchQuery
+            },
+            limit: MAX_SUGGESTED_RESULTS,
           })
         : [];
-      const suggestedIds = translations.map(extractDataId);
+
+      const translatedMatchDict = translatedStringsResult.reduce((acc, translatedString)=> ({
+        ...acc,
+        [extractDataId(translatedString)]: translatedString.text
+      }), {});
+
+      const translatedMatchIds = Object.keys(translatedMatchDict);
+
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
 
       const where = {
-        [Op.or]: [
+        [Op.and]: [
           whereQuery,
           {
-            id: { [Op.in]: suggestedIds },
-            ...omit(whereQuery, 'name'),
+            id: { [Op.notIn]: translatedMatchIds },
           },
         ],
       };
@@ -96,7 +108,7 @@ function createSuggesterRoute(
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
 
-      const results = await model.findAll({
+      const untranslatedResults = await Promise.all((await model.findAll({
         where,
         include,
         order: [
@@ -108,13 +120,47 @@ function createSuggesterRoute(
           positionMatch: searchQuery,
           ...extraReplacementsBuilder(query),
         },
-        limit: defaultLimit,
-      });
+        limit: MAX_SUGGESTED_RESULTS,
+      })).map(r => mapper(r)));
 
-      // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(r => mapper(r)));
 
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      if (!isTranslatable) {
+        res.send(untranslatedResults)
+      }
+
+      const translatedResults = await Promise.all((await model.findAll({
+        where: {
+          [Op.and]: [
+            whereQuery,
+            {
+              id: { [Op.in]: translatedMatchIds },
+            },
+          ],
+        }
+      })).map(refData => mapper({
+        ...refData,
+        name: translatedMatchDict[refData.id]
+      })))
+
+      const results = [...translatedResults, ...untranslatedResults]
+      .sort(({name: aName}, {name: bName}) => {
+        const startsWithA = aName.startsWith(searchQuery);
+        const startsWithB = bName.startsWith(searchQuery);
+
+        if (startsWithA && !startsWithB) return 1;
+        if (startsWithB && !startsWithA) return -1;
+
+        const includesA = aName.includes(searchQuery);
+        const includesB = bName.includes(searchQuery);
+
+        if (includesA && !includesB) return 1;
+        if (includesB && !includesA) return -1;
+
+        return aName.localeCompare(bName);
+      })
+      .slice(0, MAX_SUGGESTED_RESULTS)
+
+      res.send(results);
     }),
   );
 }
