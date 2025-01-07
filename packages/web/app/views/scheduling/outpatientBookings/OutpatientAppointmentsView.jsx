@@ -18,6 +18,8 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
+import { useAuth } from '../../../contexts/Auth';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -69,6 +71,8 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const { ability } = useAuth();
+
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -113,6 +117,14 @@ export const OutpatientAppointmentsView = () => {
     );
     setDrawerOpen(true);
   };
+
+  // TODO: needs to check for list or read
+  const canListAppointment = ability.can('list', 'Appointment');
+  const canReadAppointment = ability.can('read', 'Appointment');
+  if (!canListAppointment && !canReadAppointment) {
+    // TODO: missed margin
+    return <NoPermissionScreen />;
+  }
 
   return (
     <Container>
