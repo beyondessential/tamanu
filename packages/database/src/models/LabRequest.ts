@@ -11,7 +11,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { SessionConfig } from '../types/sync';
-import { type LabTest } from './LabTest';
+import type { LabTest } from './LabTest';
 import type { ReferenceData } from './ReferenceData';
 import type { Encounter } from './Encounter';
 import type { User } from './User';
