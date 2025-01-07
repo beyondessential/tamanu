@@ -21,7 +21,7 @@ import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
-} from '@tamanu/database';
+} from '@tamanu/database/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getPatientLinkedModels } from './getPatientLinkedModels';

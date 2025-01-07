@@ -1,7 +1,7 @@
 import { Op, Transaction } from 'sequelize';
 
 import { log } from '@tamanu/shared/services/logging/log';
-import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from '@tamanu/database';
+import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 

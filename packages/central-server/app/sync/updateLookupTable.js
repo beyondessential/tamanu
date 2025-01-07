@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
-import { buildSyncLookupSelect, SYNC_LOOKUP_PENDING_UPDATE_FLAG } from '@tamanu/database';
+import { buildSyncLookupSelect, SYNC_LOOKUP_PENDING_UPDATE_FLAG } from '@tamanu/database/sync';
 
 const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;

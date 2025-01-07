@@ -1,4 +1,4 @@
-import { getMarkedForSyncPatientsTableName } from '@tamanu/database';
+import { getMarkedForSyncPatientsTableName } from '@tamanu/database/sync';
 
 export const createMarkedForSyncPatientsTable = async (
   sequelize,

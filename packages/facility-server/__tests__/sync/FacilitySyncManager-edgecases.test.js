@@ -8,7 +8,7 @@ import {
   CURRENT_SYNC_TIME_KEY,
   LAST_SUCCESSFUL_SYNC_PULL_KEY,
   LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/database';
+} from '@tamanu/database/sync';
 
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';

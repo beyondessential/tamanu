@@ -8,7 +8,7 @@ import {
   findSyncSnapshotRecords,
   getModelsForDirection,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/database';
+} from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { fakeUUID } from '@tamanu/utils/generateId';

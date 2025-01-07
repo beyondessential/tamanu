@@ -2,7 +2,7 @@ import {
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
   LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/database';
+} from '@tamanu/database/sync';
 
 /**
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.

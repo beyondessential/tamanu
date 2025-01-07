@@ -18,7 +18,7 @@ import {
   SYNC_SESSION_DIRECTION,
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY
-} from '@tamanu/database';
+} from '@tamanu/database/sync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
