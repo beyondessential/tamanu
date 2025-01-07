@@ -228,13 +228,6 @@ imagingRequest.put(
       } else {
         imagingRequestObject.results = [imagingResult];
       }
-
-      if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-        await Notification.pushNotification(
-          NOTIFICATION_TYPES.IMAGING_REQUEST,
-          imagingRequestObject,
-        );
-      }
     }
 
     res.send({
