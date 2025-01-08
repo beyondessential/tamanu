@@ -1,8 +1,10 @@
 import config from 'config';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
+
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
-import { randomRecordId } from '@tamanu/shared/demoData/utilities';
+
 import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {

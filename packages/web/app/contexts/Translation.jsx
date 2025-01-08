@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { useTranslations } from '../api/queries/useTranslations';
+import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -18,7 +18,7 @@ export const useTranslation = () => {
 export const TranslationProvider = ({ children }) => {
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
 
-  const { data: translations } = useTranslations(storedLanguage);
+  const { data: translations } = useTranslationsQuery(storedLanguage);
 
   const translationFunc = translationFactory(translations);
 

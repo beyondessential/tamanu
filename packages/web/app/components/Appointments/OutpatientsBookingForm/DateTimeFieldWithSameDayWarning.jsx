@@ -2,7 +2,7 @@ import React from 'react';
 import { Field, useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { TranslatedText } from '../../Translation';
 import { DateTimeField } from '../..';

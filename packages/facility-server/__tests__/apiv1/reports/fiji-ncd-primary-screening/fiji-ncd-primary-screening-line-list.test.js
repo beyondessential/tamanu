@@ -1,4 +1,4 @@
-import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/database/demoData/patients';
 import { REFERENCE_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 import {
@@ -179,7 +179,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       // Should take the latest results
       // NOTE: Have to find row like this because the report can return records in random order.
       const row1 = result.body.find(
-        r =>
+        (r) =>
           getProperty(r, 'firstName') === expectedPatient1.firstName &&
           getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-12'),
       );
@@ -215,7 +215,7 @@ describe('Fiji NCD Primary Screening line list', () => {
 
       // Patient 1 on 2021-03-12 with single CVD submission and single referral on the same date
       const row2 = result.body.find(
-        r =>
+        (r) =>
           getProperty(r, 'firstName') === expectedPatient1.firstName &&
           getProperty(r, 'dateOfScreening').includes('FijCVD002-on-2021-03-12'),
       );
@@ -252,7 +252,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       /*******PATIENT 2*********/
       // Patient 2 on 2021-03-14 with Breast Cancer form submission but not referral on the same date
       const row3 = result.body.find(
-        r =>
+        (r) =>
           getProperty(r, 'firstName') === expectedPatient2.firstName &&
           getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-14'),
       );

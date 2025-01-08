@@ -92,11 +92,15 @@ export const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value = '', label, ...props }) => (
-  <OuterLabelFieldWrapper label={label} {...props}>
-    <StyledTextField value={value} variant="outlined" {...props} />
-  </OuterLabelFieldWrapper>
-);
+export const TextInput = ({ value = '', label, ...props }) => {
+  // eslint-disable-next-line no-unused-vars
+  const { saveDateAsString, ...rest } = props;
+  return (
+    <OuterLabelFieldWrapper label={label} {...props}>
+      <StyledTextField value={value} variant="outlined" {...rest} />
+    </OuterLabelFieldWrapper>
+  );
+};
 
 export const LimitedTextField = ({ limit = 255, ...props }) => (
   <TextField {...props} inputProps={{ maxLength: limit }} />

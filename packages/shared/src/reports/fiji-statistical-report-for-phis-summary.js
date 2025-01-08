@@ -9,7 +9,7 @@ import {
   subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { generateReportFromQueryData } from './utilities';
 

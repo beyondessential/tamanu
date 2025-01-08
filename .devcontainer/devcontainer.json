@@ -16,7 +16,7 @@
   // "forwardPorts": [ 5432],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "corepack enable yarn && yes | yarn install",
+  "postCreateCommand": "npm install",
 
   // Configure tool-specific properties.
   // "customizations": {},

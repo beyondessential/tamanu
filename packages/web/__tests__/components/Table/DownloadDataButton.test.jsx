@@ -13,7 +13,7 @@ import { userEvent } from '@testing-library/user-event';
 import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';
 import {

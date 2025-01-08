@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
-import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
-import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditions';
+import { usePatientProgramRegistrationQuery } from '../../api/queries/usePatientProgramRegistrationQuery';
+import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -47,7 +47,7 @@ export const PatientProgramRegistryView = () => {
   const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
+  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(patientId, programRegistryId);
   const {
     data: programRegistryConditions = [],
     isLoading: conditionsLoading,

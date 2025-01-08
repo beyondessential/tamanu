@@ -3,7 +3,7 @@ import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidConfigError } from '@tamanu/shared/errors';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export class PatientTelegramCommunicationProcessor extends ScheduledTask {
   constructor(context) {

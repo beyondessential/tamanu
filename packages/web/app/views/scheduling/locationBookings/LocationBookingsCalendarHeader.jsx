@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
+import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
 
-import { Button, MonthPicker, formatShort, formatWeekdayShort } from '../../../components';
+import { Button, MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
@@ -92,7 +92,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
+  const isFirstDisplayedDate = (date) => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
   const location = useLocation();
@@ -120,12 +120,12 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
         <StyledMonthPicker key={monthPickerRefreshKey} value={monthOf} onChange={setMonthOf} />
         <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
-      {displayedDates.map(d => {
+      {displayedDates.map((d) => {
         const id = isStartOfThisWeek(d)
           ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-          ? FIRST_DISPLAYED_DAY_ID
-          : null;
+            ? FIRST_DISPLAYED_DAY_ID
+            : null;
         return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
       })}
     </CarouselGrid.HeaderRow>

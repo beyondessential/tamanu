@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, PLACE_OF_DEATHS } from '@tamanu/constants';
-import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,

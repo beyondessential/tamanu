@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
+import { BodyText, DateDisplay } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const COLUMN_WIDTHS = [150, 120, 120];
@@ -16,19 +17,19 @@ const StyledTable = styled(Table)`
     position: relative;
     width: initial;
 
-    thead tr th:nth-child(-n + ${props => props.$stickyColumns}),
-    tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
+    thead tr th:nth-child(-n + ${(props) => props.$stickyColumns}),
+    tbody tr td:nth-child(-n + ${(props) => props.$stickyColumns}) {
       position: sticky;
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
     }
 
-    thead tr th:nth-child(${props => props.$stickyColumns}),
-    tbody tr td:nth-child(${props => props.$stickyColumns}) {
+    thead tr th:nth-child(${(props) => props.$stickyColumns}),
+    tbody tr td:nth-child(${(props) => props.$stickyColumns}) {
       border-right: 2px solid ${Colors.outline};
     }
 
-    ${props =>
+    ${(props) =>
       COLUMN_WIDTHS.slice(0, props.$stickyColumns)
         .map(
           (width, index) => `
@@ -58,7 +59,7 @@ const StyledTable = styled(Table)`
     }
 
     thead tr th {
-      color: ${props => props.theme.palette.text.secondary};
+      color: ${(props) => props.theme.palette.text.secondary};
       background: ${Colors.background};
       white-space: break-spaces;
     }
@@ -104,7 +105,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const getTitle = value => {
+const getTitle = (value) => {
   const date = DateDisplay.stringFormat(value);
   const timeWithSeconds = DateDisplay.stringFormat(value, formatTimeWithSeconds);
   return `${date} ${timeWithSeconds}`;
@@ -114,7 +115,7 @@ export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
-    const openModal = id => {
+    const openModal = (id) => {
       if (id) {
         setModalLabTestId(id);
         setModalOpen(true);
@@ -123,7 +124,7 @@ export const PatientLabTestsTable = React.memo(
 
     const allDates = isLoading
       ? []
-      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
+      : Object.keys(Object.assign({}, ...labTests.map((x) => x.results)));
 
     const stickyColumns = [
       // Only include category column if not filtering by category
@@ -132,7 +133,7 @@ export const PatientLabTestsTable = React.memo(
             {
               key: 'testCategory.id',
               title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
-              accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
+              accessor: (row) => <CategoryCell>{row.testCategory}</CategoryCell>,
               sortable: false,
             },
           ]
@@ -145,7 +146,7 @@ export const PatientLabTestsTable = React.memo(
             fallback="Test type"
           />
         ),
-        accessor: row => (
+        accessor: (row) => (
           <CategoryCell>
             {row.testType}
             <br />
@@ -162,7 +163,7 @@ export const PatientLabTestsTable = React.memo(
             fallback="Normal range"
           />
         ),
-        accessor: row => {
+        accessor: (row) => {
           const range = row.normalRanges[patient?.sex];
           const value = !range.min
             ? '—' // em dash
@@ -177,11 +178,11 @@ export const PatientLabTestsTable = React.memo(
       ...stickyColumns,
       ...allDates
         .sort((a, b) => b.localeCompare(a))
-        .map(date => ({
+        .map((date) => ({
           title: <DateHeadCell value={date} />,
           sortable: false,
           key: date,
-          accessor: row => {
+          accessor: (row) => {
             const normalRange = row.normalRanges[patient?.sex];
             const cellData = row.results[date];
             if (cellData) {
@@ -200,7 +201,7 @@ export const PatientLabTestsTable = React.memo(
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
-            accessor: row => row.results[date]?.result || '—', // em dash
+            accessor: (row) => row.results[date]?.result || '—', // em dash
           },
         })),
     ];
@@ -222,6 +223,7 @@ export const PatientLabTestsTable = React.memo(
           allowExport
           exportName="PatientResults"
           $stickyColumns={stickyColumns.length}
+          rowIdKey="testType"
         />
         <LabTestResultModal
           open={modalOpen}

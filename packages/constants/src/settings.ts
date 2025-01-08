@@ -10,10 +10,11 @@ export const SETTING_KEYS = {
   SYNC_ALL_LAB_REQUESTS: 'sync.syncAllLabRequests',
   SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',
   INTEGRATIONS_IMAGING: 'integrations.imaging',
+  FEATURES_DESKTOP_CHARTING_ENABLED: 'features.desktopCharting.enabled',
 };
 
 export const SETTINGS_SCOPES = {
   CENTRAL: 'central',
   GLOBAL: 'global',
   FACILITY: 'facility',
-};
+} as const;

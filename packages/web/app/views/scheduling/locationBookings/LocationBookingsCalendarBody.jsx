@@ -1,7 +1,7 @@
 import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';

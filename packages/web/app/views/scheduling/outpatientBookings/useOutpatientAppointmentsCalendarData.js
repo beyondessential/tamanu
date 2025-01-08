@@ -2,7 +2,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';

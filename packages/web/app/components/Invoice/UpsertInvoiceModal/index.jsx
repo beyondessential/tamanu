@@ -7,7 +7,7 @@ import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useApi } from '../../../api';
-import { getCurrentDateTimeString } from '../../../../../shared/src/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../../contexts/Auth';
 
 const ACTIVE_VIEW = {

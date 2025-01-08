@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { formatShortest, formatTime } from '../../DateDisplay';
 import { LimitedLinesCell } from '../../FormattedTableCell';
 import { Modal } from '../../Modal';
 import { Table } from '../../Table';
@@ -104,8 +103,8 @@ const StatusBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]};
-  background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
+  color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]};
+  background-color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
 const getDate = ({ startTime }) => (
@@ -121,13 +120,13 @@ const COLUMNS = [
     key: 'startTime',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
     accessor: getDate,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'outpatientAppointmentArea',
     title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
     accessor: ({ locationGroup }) => locationGroup?.name,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'clinician',
@@ -138,7 +137,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'appointmentType',
@@ -146,7 +145,7 @@ const COLUMNS = [
       <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'status',

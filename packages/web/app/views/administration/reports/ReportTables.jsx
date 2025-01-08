@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { DateDisplay, formatTime } from '../../../components';
+import { formatTime } from '@tamanu/utils/dateTime';
+import { DateDisplay } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
@@ -46,7 +47,7 @@ const ReportStatusTag = ({ status }) => {
   );
 };
 
-const getDateTime = value => {
+const getDateTime = (value) => {
   if (!value) return '-';
 
   const date = DateDisplay.stringFormat(value);

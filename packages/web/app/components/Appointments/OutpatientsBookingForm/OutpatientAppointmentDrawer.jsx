@@ -11,7 +11,7 @@ import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentSched
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
-import { usePatientData } from '../../../api/queries/usePatientData';
+import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
@@ -158,7 +158,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 const EmailFields = ({ patientId }) => {
   const { setFieldValue } = useFormikContext();
-  const { data: patient } = usePatientData(patientId);
+  const { data: patient } = usePatientDataQuery(patientId);
 
   // Keep form state up to date with relevant selected patient email
   useEffect(() => {

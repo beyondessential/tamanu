@@ -11,7 +11,7 @@ import {
 } from '../../../components';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
-import { useEncounterNotes } from '../../../contexts/EncounterNotes';
+import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
@@ -21,7 +21,7 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { noteType, setNoteType } = useEncounterNotes();
+  const { noteType, setNoteType } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
 
   const noteModalOnSaved = async () => {

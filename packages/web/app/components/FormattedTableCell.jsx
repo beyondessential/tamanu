@@ -1,9 +1,9 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-
+import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -128,7 +128,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
 
   return (
     <TableTooltip
-      title={value}
+      title={value ?? ''}
       open={isClamped && tooltipOpen}
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}
@@ -175,11 +175,10 @@ export const RangeValidatedCell = React.memo(
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-      float,
-      config,
-      validationCriteria,
-    ]);
+    const { tooltip, severity } = useMemo(
+      () => getTooltip(float, config, validationCriteria),
+      [float, config, validationCriteria],
+    );
 
     const cell = (
       <CellContainer onClick={onClick} severity={severity} {...props}>

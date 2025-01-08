@@ -54,6 +54,8 @@
     "@tamanu/api-client": "*",
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
+    "@tamanu/database": "*",
     "@tanstack/react-query": "^4.0.10",
     "@tanstack/react-query-devtools": "^4.0.10",
     "@types/react-autosuggest": "^9.3.7",

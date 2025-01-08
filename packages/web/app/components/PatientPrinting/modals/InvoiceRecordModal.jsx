@@ -5,9 +5,9 @@ import { ForbiddenError } from '@tamanu/shared/errors';
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientData } from '../../../api/queries/usePatientData';
+import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
-import { useReferenceData } from '../../../api/queries/useReferenceData';
+import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
@@ -39,13 +39,13 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     }
   }, [invoice.encounter.id]);
 
-  const patientQuery = usePatientData(invoice.encounter.patientId);
+  const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const { data: additionalData } = padDataQuery;
 
-  const villageQuery = useReferenceData(patient?.villageId);
+  const villageQuery = useReferenceDataQuery(patient?.villageId);
   const village = villageQuery.data;
 
   const allQueries = combineQueries([patientQuery, certificateQuery, villageQuery, padDataQuery]);

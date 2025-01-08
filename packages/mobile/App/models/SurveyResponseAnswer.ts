@@ -8,7 +8,7 @@ import { VitalLog } from './VitalLog';
 import { ISurveyResponseAnswer } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('survey_response_answer')
+@Entity('survey_response_answers')
 export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAnswer {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

@@ -71,17 +71,18 @@ const StyledMenuItem = styled(MenuItem)`
   font-size: 13px;
 `;
 
-// eslint-disable-next-line no-unused-vars
-const ChevronComponent = React.forwardRef((props, ref) => <ChevronIcon {...props} />);
+const ChevronComponent = React.forwardRef(({ children, ...props }, ref) => (
+  <div ref={ref} {...props}>
+    {children}
+  </div>
+));
 
 const PreviousButton = styled(ChevronComponent)`
   padding: 8px;
-  transform: rotate(90deg);
 `;
 
 const NextButton = styled(ChevronComponent)`
   padding: 8px;
-  transform: rotate(-90deg);
 `;
 
 const useStyles = makeStyles({

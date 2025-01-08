@@ -1,19 +1,19 @@
-const config = require('config');
-const Chance = require('chance');
-const { v4: uuidv4 } = require('uuid');
-const { fake } = require('@tamanu/shared/test-helpers/fake');
-const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
-const { randomRecord } = require('@tamanu/shared/demoData/utilities');
-const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
-const {
+import config from 'config';
+import Chance from 'chance';
+import { v4 as uuidv4 } from 'uuid';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { randomReferenceData } from '@tamanu/database/demoData/patients';
+import { randomRecord } from '@tamanu/database/demoData/utilities';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import {
   NOTE_RECORD_TYPES,
   REFERENCE_TYPES,
   IMAGING_TYPES_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
-} = require('@tamanu/constants');
-const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
-const { selectFacilityIds } = require('@tamanu/shared/utils/configSelectors');
+} from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 // These stats were gathered by the data team from three different deployments,
 // then, we grabbed the max on each model.
@@ -118,8 +118,8 @@ async function createProgramSurveyResponse(models, facilityId) {
   });
   const answers = {};
   sscs
-    .filter(ssc => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
-    .forEach(ssc => {
+    .filter((ssc) => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
+    .forEach((ssc) => {
       answers[ssc.dataElement.id] = SIMPLE_PDE_TYPES_HANDLERS[ssc.dataElement.type]();
     });
 
@@ -338,27 +338,27 @@ const ACTIONS = {
   },
   updateAdministeredVaccine: {
     likelihood: calculateLikelihood('AdministeredVaccine', false),
-    generator: async models => updateRecord(models.AdministeredVaccine),
+    generator: async (models) => updateRecord(models.AdministeredVaccine),
   },
   updateAppointment: {
     likelihood: calculateLikelihood('Appointment', false),
-    generator: async models => updateRecord(models.Appointment),
+    generator: async (models) => updateRecord(models.Appointment),
   },
   updateEncounter: {
     likelihood: calculateLikelihood('Encounter', false),
-    generator: async models => updateRecord(models.Encounter),
+    generator: async (models) => updateRecord(models.Encounter),
   },
   updateImagingRequest: {
     likelihood: calculateLikelihood('ImagingRequest', false),
-    generator: async models => updateRecord(models.ImagingRequest),
+    generator: async (models) => updateRecord(models.ImagingRequest),
   },
   updateLabTest: {
     likelihood: calculateLikelihood('LabTest', false),
-    generator: async models => updateRecord(models.LabTest),
+    generator: async (models) => updateRecord(models.LabTest),
   },
   updatePatient: {
     likelihood: calculateLikelihood('Patient', false),
-    generator: async models => updateRecord(models.Patient),
+    generator: async (models) => updateRecord(models.Patient),
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
@@ -371,7 +371,7 @@ function startOrAdd(key, obj) {
   }
 }
 
-async function simulateUsage(models, sequelize, hours = 1) {
+export async function simulateUsage(models, sequelize, hours = 1) {
   const [facilityId] = selectFacilityIds(config);
   const totalLoops = (hours * 60 * 60 * 1000) / INSERT_INTERVAL_MS;
   const actionsTaken = {};
@@ -412,7 +412,3 @@ async function simulateUsage(models, sequelize, hours = 1) {
   const { simulateUsage } = require('@tamanu/facility-server/scripts/simulateUsage.js');
   await simulateUsage(models, context.sequelize);
 */
-
-module.exports = {
-  simulateUsage: simulateUsage,
-};
