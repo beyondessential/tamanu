@@ -12,7 +12,7 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { add, isBefore, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import type { AppointmentSchedule } from './AppointmentSchedule';
+import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
 
 export class Appointment extends Model {
   declare id: string;
@@ -28,6 +28,7 @@ export class Appointment extends Model {
   declare bookingTypeId?: string;
   declare appointmentTypeId?: string;
   declare encounterId?: string;
+  declare scheduleId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -142,7 +143,7 @@ export class Appointment extends Model {
   }
 
   static async generateRepeatingAppointment(
-    scheduleData: ModelProperties<AppointmentSchedule>,
+    scheduleData: AppointmentScheduleCreateData,
     firstAppointmentData: ModelProperties<Appointment>,
   ) {
     const { maxInitialRepeatingAppointments } = config?.appointments || {};
@@ -152,21 +153,20 @@ export class Appointment extends Model {
         startDate: firstAppointmentData.startTime,
       });
 
-      const { interval, frequency, untilDate, daysOfWeek, nthWeekday, occurrenceCount } = schedule;
+      const { interval, frequency, untilDate, occurrenceCount } = schedule;
       const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
 
-      const incrementByInterval = (date?: string) => {
-        if (!date) return null;
-        const parsedDate = parseISO(date);
-        const incrementedDate = add(parsedDate, {
+      const incrementByInterval = (date: string) => {
+        const incrementedDate = add(parseISO(date), {
           [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
         });
 
-        if (frequency === REPEAT_FREQUENCY.WEEKLY) {
-          return toDateTimeString(incrementedDate);
+        if (scheduleData.frequency === REPEAT_FREQUENCY.WEEKLY) {
+          return toDateTimeString(incrementedDate) as string;
         }
-        if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-          const [weekday] = daysOfWeek || [];
+        if (scheduleData.frequency === REPEAT_FREQUENCY.MONTHLY) {
+          const { nthWeekday, daysOfWeek } = scheduleData;
+          const [weekday] = daysOfWeek;
           const weekdayPosition = weekdayAtOrdinalPosition(
             incrementedDate,
             weekday,
@@ -177,18 +177,21 @@ export class Appointment extends Model {
             set(incrementedDate, {
               date: weekdayPosition,
             }),
-          );
+          ) as string;
         }
-        return null;
+        throw new Error('Invalid frequency when generating repeating appointments');
       };
 
       const pushNextAppointment = () => {
         const currentAppointment = appointments.at(-1);
-        if (!currentAppointment) return;
+        if (!currentAppointment)
+          throw new Error('No latest appointment found when generating repeating appointments');
+        if (!currentAppointment.startTime)
+          throw new Error('No next start time found when generating repeating appointments');
         const nextAppointment = {
           ...currentAppointment,
           startTime: incrementByInterval(currentAppointment.startTime),
-          endTime: incrementByInterval(currentAppointment?.endTime),
+          endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
         };
         appointments.push(nextAppointment);
         return nextAppointment;
@@ -205,11 +208,10 @@ export class Appointment extends Model {
       while (appointments.length < limit && continueGenerating) {
         const { startTime: latestStartTime } = pushNextAppointment();
 
-        if (untilDate) {
-          continueGenerating = isBefore(
-            parseISO(incrementByInterval(latestStartTime)),
-            parsedUntilDate,
-          );
+        if (parsedUntilDate) {
+          const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
+          if (!incrementedStartTime) throw new Error('No incremented start time found');
+          continueGenerating = isBefore(incrementedStartTime, parsedUntilDate);
         }
       }
       return this.bulkCreate(appointments);

@@ -15,7 +15,7 @@ import {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
-import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
+import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { Colors } from '../../../constants';
 import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';

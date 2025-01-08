@@ -127,6 +127,7 @@ describe('DownloadDataButton', () => {
       undefined,
       undefined,
       undefined,
+      undefined,
     );
     expect(button.textContent).toBe(translationFallback);
   });

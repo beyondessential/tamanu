@@ -312,8 +312,8 @@ export const TimeSlotPicker = ({
     const startTime = values.startTime;
     const endTime = values.endTime;
 
-    const start = parseISO(startTime);
-    const end = parseISO(endTime);
+    const start = startTime && parseISO(startTime);
+    const end = endTime && parseISO(endTime);
     const isOvernight = startTime && endTime ? !isSameDay(start, end) : null;
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {

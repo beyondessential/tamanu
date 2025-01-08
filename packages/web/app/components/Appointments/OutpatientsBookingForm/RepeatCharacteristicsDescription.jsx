@@ -9,7 +9,7 @@ import {
 
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
-import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
+import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();

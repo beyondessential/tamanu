@@ -1,5 +1,3 @@
-export * from './arrayToDbString';
-export * from './appointmentScheduling';
 export * from './buildVersionCompatibilityCheck';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';

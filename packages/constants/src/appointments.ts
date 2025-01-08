@@ -3,7 +3,7 @@ export const DAYS_OF_WEEK = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 export const REPEAT_FREQUENCY = {
   WEEKLY: 'WEEKLY',
   MONTHLY: 'MONTHLY',
-};
+} as const;
 
 export const REPEAT_FREQUENCY_VALUES = Object.values(REPEAT_FREQUENCY);
 

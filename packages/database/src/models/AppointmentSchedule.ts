@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
 import { isNumber } from 'lodash';
+import { DataTypes } from 'sequelize';
 
 import {
   DAYS_OF_WEEK,
@@ -14,6 +14,21 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import type { InitOptions, Models } from '../types/model';
 
+export type AppointmentScheduleBaseCreateData = Omit<AppointmentSchedule, 'id'>;
+
+export type WeeklyScheduleCreateData = AppointmentScheduleBaseCreateData & {
+  frequency: typeof REPEAT_FREQUENCY.WEEKLY;
+  daysOfWeek: [string];
+};
+
+export type MonthlySchedule = AppointmentScheduleBaseCreateData & {
+  frequency: typeof REPEAT_FREQUENCY.MONTHLY;
+  daysOfWeek: [string];
+  nthWeekday: number;
+};
+
+export type AppointmentScheduleCreateData = WeeklyScheduleCreateData | MonthlySchedule;
+
 /**
  * Schema to follow iCalendar standard for recurring events.
  * @see https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
@@ -23,8 +38,8 @@ export class AppointmentSchedule extends Model {
   declare startDate: string;
   declare untilDate?: string;
   declare interval: number;
-  declare frequency: (typeof REPEAT_FREQUENCY_VALUES)[number];
-  declare daysOfWeek?: string[];
+  declare frequency: keyof typeof REPEAT_FREQUENCY;
+  declare daysOfWeek?: [string];
   declare nthWeekday?: number;
   declare occurrenceCount?: number;
 
@@ -36,7 +51,7 @@ export class AppointmentSchedule extends Model {
         untilDate: dateTimeType('untilDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
           allowNull: false,
         },
         daysOfWeek: {
@@ -56,25 +71,24 @@ export class AppointmentSchedule extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
-          mustHaveEitherUntilDateOrOccurrenceCount: function () {
+          mustHaveEitherUntilDateOrOccurrenceCount() {
             if (!this.untilDate && !this.occurrenceCount) {
               throw new InvalidOperationError(
                 'AppointmentSchedule must have either untilDate or occurrenceCount',
               );
             }
           },
-          mustHaveOneWeekday: function () {
+          mustHaveOneWeekday() {
             const daysOfWeek = this.daysOfWeek as string[];
             if (
-              daysOfWeek?.length === 1 &&
-              daysOfWeek[0] &&
-              !DAYS_OF_WEEK.includes(daysOfWeek[0])
+              daysOfWeek.length !== 1 ||
+              (daysOfWeek[0] && !DAYS_OF_WEEK.includes(daysOfWeek[0]))
             ) {
               // Currently only supporting one weekday for recurring events
               throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
             }
           },
-          mustHaveNthWeekdayForMonthly: function () {
+          mustHaveNthWeekdayForMonthly() {
             if (this.frequency === REPEAT_FREQUENCY.MONTHLY && !isNumber(this.nthWeekday)) {
               throw new InvalidOperationError(
                 'AppointmentSchedule must have nthWeekday for MONTHLY frequency',

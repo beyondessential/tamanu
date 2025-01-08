@@ -18,7 +18,7 @@ import {
   subMonths,
 } from 'date-fns';
 
-import { eachDayInMonth } from '@tamanu/shared/utils/dateTime';
+import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
-import { getWeekdayOrdinalPosition } from '@tamanu/shared/utils/appointmentScheduling';
+import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -408,7 +408,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           <Field
             name="endTime"
             disabled={!values.startTime}
-            date={parseISO(values.startTime)}
+            date={values.startTime && parseISO(values.startTime)}
             label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
             component={TimeWithFixedDateField}
             saveDateAsString
