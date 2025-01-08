@@ -28,14 +28,6 @@ export async function up(query) {
         key: 'id',
       },
     },
-    patient_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'patients',
-        key: 'id',
-      },
-    },
     created_time: {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,
