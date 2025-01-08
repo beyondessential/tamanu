@@ -142,7 +142,7 @@ export class CentralServerConnection {
 
         return await response.json();
       } catch (e) {
-        if (e instanceof AbortError) {
+        if (e.name === 'AbortError') {
           throw new RemoteTimeoutError(
             `Server failed to respond within ${this.timeout}ms - ${url}`,
           );
