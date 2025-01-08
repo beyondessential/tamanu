@@ -68,8 +68,9 @@ describe(`Materialised - MediciReport`, () => {
       ImagingRequest,
       Procedure,
       EncounterDiagnosis,
-      EncounterMedication,
+      EncounterPrescription,
       Note,
+      Prescription,
     } = ctx.store.models;
 
     const startDate = '2023-11-11 00:00:00';
@@ -163,11 +164,14 @@ describe(`Materialised - MediciReport`, () => {
     const { id: medicationId } = await ReferenceData.create(
       fake(ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
     );
-    const encounterMedication = await EncounterMedication.create({
-      ...fake(EncounterMedication),
-      encounterId: encounter.id,
+    const prescription = await Prescription.create({
+      ...fake(Prescription),
       medicationId,
       discontinued: false,
+    });
+    await EncounterPrescription.create({
+      encounterId: encounter.id,
+      prescriptionId: prescription.id,
     });
 
     const rootNote = await Note.create(
@@ -184,7 +188,7 @@ describe(`Materialised - MediciReport`, () => {
     return {
       encounter,
       encounterDiagnosis,
-      encounterMedication,
+      prescription,
       procedure,
       procedureType,
       rootNote,
@@ -196,7 +200,7 @@ describe(`Materialised - MediciReport`, () => {
     const {
       encounter,
       encounterDiagnosis,
-      encounterMedication,
+      prescription,
       procedureType,
       labTestType,
     } = await makeEncounter({
@@ -248,8 +252,8 @@ describe(`Materialised - MediciReport`, () => {
       medications: [
         {
           discontinued: false,
-          discontinuedDate: encounterMedication.discontinuedDate,
-          discontinuingReason: encounterMedication.discontinuingReason,
+          discontinuedDate: prescription.discontinuedDate,
+          discontinuingReason: prescription.discontinuingReason,
           name: 'Glucose (hypertonic) 5%',
         },
       ],

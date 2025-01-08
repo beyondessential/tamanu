@@ -38,19 +38,6 @@ export class Prescription extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        validate: {
-          mustHavePrescriptions() {
-            if (!this.prescriptionId) {
-              throw new Error('An encounter medication must be attached to a prescription.');
-            }
-          },
-          async mustHaveEncounters() {
-            const encounterCount = await this.countEncounters(); // Custom method to count encounters
-            if (encounterCount === 0) {
-              throw new Error('A prescription must be associated with at least one encounter.');
-            }
-          },
-        },
       },
     );
   }
@@ -72,12 +59,12 @@ export class Prescription extends Model {
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'prescriptionId',
-      as: 'prescriptions',
+      as: 'Medication',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['prescriptions', 'encounters', 'prescriber', 'discontinuingClinician'];
+    return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -92,9 +79,5 @@ export class Prescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
-  }
-
-  async countEncounters() {
-    return await this.getEncounters({ attributes: ['id'] }).then(encounters => encounters.length);
   }
 }

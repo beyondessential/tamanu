@@ -20,6 +20,7 @@ export * from './PatientFieldValue';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';
+export * from './PatientOngoingPrescription';
 export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 

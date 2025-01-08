@@ -12,14 +12,18 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
     },
   });
 
-  const encounterMedications = openEncounter
-    ? await models.EncounterMedication.findAll({
-      where: {
-        encounterId: openEncounter.id,
-      },
-      include: ['Medication'],
+  const prescriptions = openEncounter
+  ? await models.Prescription.findAll({
+      include: [
+        {
+          model: models.Encounter,
+          through: { model: models.EncounterPrescriptions },
+          where: { id: openEncounter.id },
+        },
+        'Medication',
+      ],
     })
-    : [];
+  : [];
 
   const medicationStatementsHeader = {
     resourceType: FHIR_RESOURCE_TYPES.MEDICATION_STATEMENT,
@@ -27,8 +31,8 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
     subject: getEntryResourceSubject(patient),
   };
 
-  if (!encounterMedications?.length) {
-    const encounterMedicationDisplay = 'No information about medications';
+  if (!prescriptions?.length) {
+    const prescriptionDisplay = 'No information about medications';
     return [
       {
         id: uuidv4(),
@@ -38,36 +42,36 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
             {
               system: dataDictionariesIps.absentUnknown,
               code: 'no-medication-info',
-              display: encounterMedicationDisplay,
+              display: prescriptionDisplay,
             },
           ],
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedicationDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${prescriptionDisplay}. Please review the data for more detail.</div>`,
         },
       },
     ];
   }
 
-  return encounterMedications.map(encounterMedication => ({
+  return prescriptions.map(prescription => ({
     id: uuidv4(),
     ...medicationStatementsHeader,
     medicationCodeableConcept: {
       coding: [
         {
           system: dataDictionariesIps.medicationEncoding,
-          code: encounterMedication.Medication.code,
-          display: encounterMedication.Medication.name,
+          code: prescription.Medication.code,
+          display: prescription.Medication.name,
         },
       ],
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.Medication.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${prescription.Medication.name}. Please review the data for more detail.</div>`,
     },
     effectivePeriod: {
-      start: formatFhirDate(encounterMedication.date),
+      start: formatFhirDate(prescription.date),
     },
     dosage: [
       {
@@ -78,10 +82,10 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
         },
         doseAndRate: [
           {
-            doseQuantity: { value: encounterMedication.qtyMorning },
+            doseQuantity: { value: prescription.qtyMorning },
           },
         ],
-        route: { text: encounterMedication.route },
+        route: { text: prescription.route },
       },
       {
         timing: {
@@ -91,7 +95,7 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
         },
         doseAndRate: [
           {
-            doseQuantity: { value: encounterMedication.qtyLunch },
+            doseQuantity: { value: prescription.qtyLunch },
           },
         ],
       },
@@ -103,7 +107,7 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
         },
         doseAndRate: [
           {
-            doseQuantity: { value: encounterMedication.qtyEvening },
+            doseQuantity: { value: prescription.qtyEvening },
           },
         ],
       },
@@ -115,7 +119,7 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
         },
         doseAndRate: [
           {
-            doseQuantity: { value: encounterMedication.qtyNight },
+            doseQuantity: { value: prescription.qtyNight },
           },
         ],
       },
