@@ -1,6 +1,5 @@
 /* eslint no-console: "off" */
-const fetch = require('node-fetch');
-const fs = require('fs');
+const fs = require('node:fs');
 const prompts = require('prompts');
 const program = require('commander');
 
