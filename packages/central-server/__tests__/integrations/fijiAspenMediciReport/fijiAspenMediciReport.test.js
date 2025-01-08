@@ -203,9 +203,8 @@ const fakeAllData = async (models, ctx) => {
       date: '2022-06-09T11:10:54.225+00:00',
     }),
   );
-  await models.EncounterMedication.create(
-    fake(models.EncounterMedication, {
-      encounterId,
+  const prescription = await models.Prescription.create(
+    fake(models.Prescription, {
       medicationId: medication5Id,
       discontinued: true,
       date: '2022-06-10T01:10:54.225+00:00',
@@ -213,14 +212,25 @@ const fakeAllData = async (models, ctx) => {
       discontinuingReason: 'It was not enough',
     }),
   );
-  await models.EncounterMedication.create(
-    fake(models.EncounterMedication, {
+  await models.EncounterPrescription.create(
+    fake(models.EncounterPrescription, {
       encounterId,
+      prescriptionId: prescription.id,
+    }),
+  );
+  const prescription1 = await models.Prescription.create(
+    fake(models.Prescription, {
       medicationId: medication10Id,
       discontinued: null,
       date: '2022-06-10T01:20:54.225+00:00',
       discontinuedDate: null,
       discontinuingReason: null,
+    }),
+  );
+  await models.EncounterPrescription.create(
+    fake(models.EncounterPrescription, {
+      encounterId,
+      prescriptionId: prescription1.id,
     }),
   );
   await models.AdministeredVaccine.create(

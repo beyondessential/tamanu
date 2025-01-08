@@ -119,7 +119,8 @@ describe('Sync Lookup data', () => {
       EncounterDiagnosis,
       EncounterDiet,
       EncounterHistory,
-      EncounterMedication,
+      EncounterPrescription,
+      Prescription,
       ImagingRequest,
       ImagingRequestArea,
       ImagingResult,
@@ -265,10 +266,16 @@ describe('Sync Lookup data', () => {
         dietId: referenceData.id,
       }),
     );
-    await EncounterMedication.create(
-      fake(EncounterMedication, {
+    const prescription = await Prescription.create(
+      fake(Prescription, {
         encounterId: encounter1.id,
         medicationId: referenceData.id,
+      }),
+    );
+    await EncounterPrescription.create(
+      fake(EncounterPrescription, {
+        encounterId: encounter1.id,
+        prescriptionId: prescription.id,
       }),
     );
     const imagingRequest = await ImagingRequest.create(
