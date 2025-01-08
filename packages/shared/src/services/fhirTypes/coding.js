@@ -1,5 +1,5 @@
 import { random, sample } from 'lodash';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';

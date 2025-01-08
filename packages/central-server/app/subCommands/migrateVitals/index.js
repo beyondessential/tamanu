@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import config from 'config';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { initDatabase } from '../../database';
 

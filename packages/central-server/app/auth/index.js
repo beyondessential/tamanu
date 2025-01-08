@@ -1,5 +1,5 @@
 import config from 'config';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import readSync from 'read';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 

@@ -1,7 +1,7 @@
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
 import Sequelize, { DataTypes } from 'sequelize';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import { formatISO9075 } from 'date-fns';
 
 import {

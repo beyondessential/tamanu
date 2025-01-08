@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { execFileSync } from 'child_process';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 function cleanupLeadingGarbage(jsonStr) {
   if (jsonStr.startsWith('{')) return jsonStr;

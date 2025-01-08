@@ -1,6 +1,6 @@
 // import hl7schema from './fhir.schema.json';
 //
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 
 function setupValidator() {
   /*

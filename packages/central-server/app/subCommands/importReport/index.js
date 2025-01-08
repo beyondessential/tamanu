@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';

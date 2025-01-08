@@ -1,7 +1,7 @@
 import defineExpress from 'express';
 
 import errorHandler from './middleware/errorHandler';
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
 import { sync as syncRoutes } from './routes/sync/sync';
 

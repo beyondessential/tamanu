@@ -1,5 +1,5 @@
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 

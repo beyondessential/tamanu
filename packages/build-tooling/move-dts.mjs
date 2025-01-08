@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { glob } from 'glob';
 import { ensureDirectoryExists } from './dirs.mjs';
 

@@ -10,7 +10,7 @@ import {
 } from '@tamanu/central-server/app/integrations/Signer';
 import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from '@tamanu/utils/encodings';

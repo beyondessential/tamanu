@@ -1,7 +1,7 @@
 /**
  * Create custom datetime Sequelize types and link to Postgres types.
  */
-import util from 'util';
+import util from 'node:util';
 import { DataTypes, Utils } from 'sequelize';
 
 // Necessary as DataTypes.ABSTRACT is wrapped with classToInvokable()

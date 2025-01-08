@@ -1,6 +1,6 @@
 import config from 'config';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';

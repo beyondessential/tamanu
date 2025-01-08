@@ -1,4 +1,4 @@
-import fs, { promises as asyncFs } from 'fs';
+import fs, { promises as asyncFs } from 'node:fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';

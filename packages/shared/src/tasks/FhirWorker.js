@@ -2,7 +2,7 @@ import { SpanStatusCode } from '@opentelemetry/api';
 import theConfig from 'config';
 import { formatRFC3339 } from 'date-fns';
 import ms from 'ms';
-import { hostname } from 'os';
+import { hostname } from 'node:os';
 
 import { getTracer, spanWrapFn } from '../services/logging';
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
 import { cloneDeep } from 'lodash';
-import path from 'path';
+import path from 'node:path';
 import { FONT } from '@tamanu/constants';
 import { Font } from '@react-pdf/renderer';
 import { translationFactory } from '../translation/translationFactory';

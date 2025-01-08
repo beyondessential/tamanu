@@ -1,8 +1,8 @@
 import config from 'config';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import { createReadStream } from 'fs';
-import { basename } from 'path';
+import { createReadStream } from 'node:fs';
+import { basename } from 'node:path';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 

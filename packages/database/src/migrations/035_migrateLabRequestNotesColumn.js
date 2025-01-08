@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 const Sequelize = require('sequelize');
 

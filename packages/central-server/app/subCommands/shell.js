@@ -1,6 +1,6 @@
-import repl from 'repl';
-import { homedir } from 'os';
-import { join } from 'path';
+import repl from 'node:repl';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 import { Command } from 'commander';
 

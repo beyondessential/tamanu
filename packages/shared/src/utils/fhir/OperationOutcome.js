@@ -1,5 +1,5 @@
 import { last } from 'lodash';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { FHIR_ISSUE_SEVERITY } from '@tamanu/constants';
 import { FhirError, Invalid } from './errors';

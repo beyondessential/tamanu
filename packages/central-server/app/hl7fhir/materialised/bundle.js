@@ -1,6 +1,6 @@
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import { formatFhirDate, OperationOutcome } from '@tamanu/shared/utils/fhir';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { getBaseUrl, getHL7Link } from '../utils';
 

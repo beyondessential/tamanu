@@ -1,6 +1,6 @@
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
-import { randomBytes, randomInt } from 'crypto';
-import { promisify } from 'util';
+import { randomBytes, randomInt } from 'node:crypto';
+import { promisify } from 'node:util';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 

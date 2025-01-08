@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'node:fs';
 
 function createOrMakeDir(dirPath) {
   if (!existsSync(dirPath)){

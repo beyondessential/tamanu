@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import fs, { promises as asyncFs } from 'fs';
+import fs, { promises as asyncFs } from 'node:fs';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
