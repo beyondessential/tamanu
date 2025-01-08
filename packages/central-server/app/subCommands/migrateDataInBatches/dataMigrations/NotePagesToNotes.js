@@ -1,4 +1,4 @@
-import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
+import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
 export class NotePagesToNotes extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
@@ -26,7 +26,7 @@ export class NotePagesToNotes extends CursorDataMigration {
               revised_by_id,
               content
           )
-          SELECT 
+          SELECT
               note_items.id,
               note_items.created_at,
               note_items.updated_at,
@@ -48,7 +48,7 @@ export class NotePagesToNotes extends CursorDataMigration {
           LIMIT $limit
           RETURNING id
       )
-      SELECT 
+      SELECT
         MAX(id::text) AS "maxId",
         COUNT(id) AS "count"
       FROM inserted;

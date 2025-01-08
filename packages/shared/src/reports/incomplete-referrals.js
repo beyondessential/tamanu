@@ -2,7 +2,7 @@
 
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [

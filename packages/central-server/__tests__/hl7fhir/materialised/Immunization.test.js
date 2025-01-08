@@ -2,7 +2,7 @@ import { formatRFC7231 } from 'date-fns';
 
 import { chance, fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 

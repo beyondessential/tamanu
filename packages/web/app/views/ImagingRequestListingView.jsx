@@ -50,7 +50,7 @@ export const ImagingRequestListingView = () => (
 export const CompletedImagingRequestListingView = () => (
   <PageContainer>
     <TopBar title="Completed imaging requests" />
-    {/* This is the same situation as above. We decided to seperate out the active and completed components as we were
+    {/* This is the same situation as above. We decided to separate out the active and completed components as we were
     running into state problems when switching between contexts for the same component */}
     <ImagingRequestListing
       tableVersion={IMAGING_TABLE_VERSIONS.COMPLETED}

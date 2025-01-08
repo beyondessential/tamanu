@@ -4,7 +4,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -14,7 +14,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   simpleGet,
@@ -80,7 +80,10 @@ labRequest.put(
       const newLabRequestRecord = await labRequestRecord.update(labRequestData);
 
       if (shouldPushNotification) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
+        await models.Notification.pushNotification(
+          NOTIFICATION_TYPES.LAB_REQUEST,
+          newLabRequestRecord,
+        );
       }
     });
 
@@ -415,7 +418,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the indivudual lab workflow
+      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
       where: {
         visibilityStatus: {
           [Op.notIn]: [

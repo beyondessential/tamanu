@@ -9,7 +9,7 @@ import {
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -384,7 +384,7 @@ describe('fijiAspenMediciReport', () => {
 
     it('should filter by encounter id - 0 results', async () => {
       const query = `period.start=2022-06-12T00:00:00Z&period.end=2022-06-12T00:59:00Z&encounters=${encodeURIComponent(
-        ['nonexistant-id'],
+        ['nonexistent-id'],
       )}`;
       const response = await app
         .get(`/api/integration/fijiAspenMediciReport?${query}`)
@@ -396,7 +396,7 @@ describe('fijiAspenMediciReport', () => {
 
     it('should filter by encounter id - 1 result', async () => {
       const query = `period.start=2022-06-12T00:00:00Z&period.end=2022-06-12T00:59:00Z&encounters=${encodeURIComponent(
-        [fakedata.encounterId, 'nonexistant-id'],
+        [fakedata.encounterId, 'nonexistent-id'],
       )}`;
       const response = await app
         .get(`/api/integration/fijiAspenMediciReport?${query}`)

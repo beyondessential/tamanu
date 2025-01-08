@@ -1,5 +1,5 @@
 import React from 'react';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { set as dateFnsSet, parseISO, getYear, getDate, getMonth } from 'date-fns';
 import { TimeInput } from '../../Field';
 

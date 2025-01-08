@@ -4,7 +4,7 @@ import { LocationBookingDrawer } from '../../app/components/Appointments/Locatio
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { Button } from '../../app/components';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import {
   mockLocationData,

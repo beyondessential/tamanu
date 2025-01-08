@@ -1,6 +1,6 @@
 import { eachDayOfInterval, isSameDay, isValid, parseISO } from 'date-fns';
 
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
 import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';

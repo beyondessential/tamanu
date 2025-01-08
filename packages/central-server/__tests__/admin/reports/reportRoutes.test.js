@@ -1,7 +1,7 @@
 import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
-import { User } from '@tamanu/shared/models/User';
+import { User } from '@tamanu/database';
 import path from 'path';
 
 describe('reportRoutes', () => {

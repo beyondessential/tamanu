@@ -2,7 +2,7 @@ import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constant
 import { pick } from 'lodash';
 import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
@@ -88,7 +88,7 @@ describe('User', () => {
       expect(result.body.availableFacilities).toStrictEqual([facility1]);
     });
 
-    it('should succeed if setting a facilitiy with permission', async () => {
+    it('should succeed if setting a facility with permission', async () => {
       const userAgent = await baseApp.asUser(authUser);
       const validFacilityResult = await userAgent.post('/api/setFacility').send({
         facilityId: facility1.id,
@@ -96,7 +96,7 @@ describe('User', () => {
       expect(validFacilityResult).toHaveSucceeded();
     });
 
-    it('should throw error if trying to set a facilitiy without permission', async () => {
+    it('should throw error if trying to set a facility without permission', async () => {
       const userAgent = await baseApp.asUser(authUser);
       const validFacilityResult = await userAgent.post('/api/setFacility').send({
         facilityId: facility2.id,

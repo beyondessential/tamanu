@@ -2,7 +2,7 @@
 Core or adjunct patient data that doesn't fit elsewhere, but is only downloaded to a facility once a
 patient is marked for sync.
 
-This is often refered to as "PAD".
+This is often referred to as "PAD".
 
 See also `patient_field_definition_categories`, `patient_field_definitions`, and `patient_field_values`,
 which define and specify custom/non-standard data to be stored against patients.

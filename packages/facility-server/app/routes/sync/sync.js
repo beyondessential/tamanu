@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import {
   LAST_SUCCESSFUL_SYNC_PULL_KEY,
   LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/shared/sync/constants';
+} from '@tamanu/database/sync';
 
 export const sync = express.Router();
 

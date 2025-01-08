@@ -2,7 +2,7 @@ import { endOfDay, isBefore, parseISO, startOfDay, subDays } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 
-import { ageInYears, format, toDateTimeString } from '../../../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 

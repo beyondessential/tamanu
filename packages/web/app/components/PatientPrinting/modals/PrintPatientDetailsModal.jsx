@@ -17,9 +17,9 @@ import { IPSQRCodeModal } from './IPSQRCodeModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
 import { MultilabelIdIcon } from '../icons/MultilabelIdIcon';
 import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon';
-import { ClearenceCertificateCovid19Icon } from '../icons/ClearenceCertificateCovid19Icon';
+import { ClearanceCertificateCovid19Icon } from '../icons/ClearanceCertificateCovid19Icon';
 import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
-import { InternationPatientSummaryIcon } from '../icons/InternationPatientSummaryIcon';
+import { InternationalPatientSummaryIcon } from '../icons/InternationalPatientSummaryIcon';
 import { useSettings } from '../../../contexts/Settings';
 
 const PRINT_OPTIONS = {
@@ -79,7 +79,7 @@ const PRINT_OPTIONS = {
         fallback="Patient COVID-19 clearance certificate"
       />
     ),
-    icon: ClearenceCertificateCovid19Icon,
+    icon: ClearanceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
     condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
   },
@@ -112,7 +112,7 @@ const PRINT_OPTIONS = {
         fallback="Email International Patient Summary QR Code"
       />
     ),
-    icon: InternationPatientSummaryIcon,
+    icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
     condition: (_, ability) => ability?.can('create', 'IPSRequest'),
   },

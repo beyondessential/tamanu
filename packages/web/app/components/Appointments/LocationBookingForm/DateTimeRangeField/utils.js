@@ -1,4 +1,4 @@
-import { isBefore, isValid, isWithinInterval, parseISO } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 import { isEqual } from 'lodash';
 
 export const appointmentToInterval = appointment => {
@@ -15,9 +15,6 @@ export const appointmentToInterval = appointment => {
 };
 
 export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
-
-export const isWithinIntervalExcludingEnd = (date, interval) =>
-  isBefore(date, interval.end) && isWithinInterval(date, interval);
 
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
   if (referenceArr.length === 0) return false;

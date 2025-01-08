@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### This expects to be run in the production docker container in /Dockerfile.
-# While not strictly required, it is prefered to run with an init process.
+# While not strictly required, it is preferred to run with an init process.
 
 if [[ "$1" == "healthcheck" ]]; then
   # used as healthcheck command in ECS

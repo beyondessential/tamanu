@@ -15,10 +15,10 @@ import {
   createVaccine,
   destroyPermission,
 } from './referenceDataUtils';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
-import { parseDate } from '@tamanu/shared/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { writeExcelFile } from '../../dist/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
@@ -109,7 +109,7 @@ describe('Reference data exporter', () => {
         .responseType('blob');
 
       // when downloading a file, for some reasons,
-      // status of supertest is alwasy 404 even tho we are sure that it is successful
+      // status of supertest is always 404 even tho we are sure that it is successful
       // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
       expect(Buffer.isBuffer(result.body)).toBeTrue();
     });
@@ -435,10 +435,8 @@ describe('Reference data exporter', () => {
     await createDataForEncounter(models);
     const vaccine = await createVaccine(models, { label: 'Covid', doseLabel: 'Dose 1' });
     const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
-    const {
-      administeredVaccine: administeredVaccine2,
-      encounter: encounter2,
-    } = await createAdministeredVaccineData(models, vaccine);
+    const { administeredVaccine: administeredVaccine2, encounter: encounter2 } =
+      await createAdministeredVaccineData(models, vaccine);
 
     await exporter(store, {
       1: 'administeredVaccine',

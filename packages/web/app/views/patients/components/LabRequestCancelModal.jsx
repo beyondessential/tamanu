@@ -1,6 +1,6 @@
 import React from 'react';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi } from '../../../api';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';

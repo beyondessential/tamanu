@@ -1,4 +1,4 @@
-import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
+import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
 export class ReferenceDataICD10ToDiagnosis extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;

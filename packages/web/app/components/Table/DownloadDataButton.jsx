@@ -1,6 +1,6 @@
 import React, { Children, cloneElement, isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 

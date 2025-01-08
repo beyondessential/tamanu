@@ -1,8 +1,8 @@
 import config from 'config';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 let baseApp = null;
 let models = null;
@@ -86,7 +86,7 @@ describe('Referrals', () => {
     testProgram = await createDummyProgram();
     testSurvey = await createDummySurvey(testProgram, 6);
 
-    testSurvey.dataElements.forEach(q => {
+    testSurvey.dataElements.forEach((q) => {
       answers[q.id] = getRandomAnswer(q);
     });
   });

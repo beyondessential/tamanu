@@ -6,7 +6,7 @@ import shortid from 'shortid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormCancelButton } from '../components/Button';
