@@ -61,7 +61,7 @@ describe('fhir sub commands', () => {
     await fhir({ refresh: 'ServiceRequest' });
 
     await fhirServiceRequest.reload();
-    // See mapping at packages/shared/src/models/fhir/ServiceRequest/getValues.js
+    // See mapping at packages/database/src/models/fhir/ServiceRequest/getValues.js
     expect(fhirServiceRequest.status).toEqual(FHIR_REQUEST_STATUS.ACTIVE);
   });
 
@@ -85,7 +85,7 @@ describe('fhir sub commands', () => {
 
     await fhirImagingServiceRequest.reload();
     await fhirLabServiceRequest.reload();
-    // See mapping at packages/shared/src/models/fhir/ServiceRequest/getValues.js
+    // See mapping at packages/database/src/models/fhir/ServiceRequest/getValues.js
     expect(fhirImagingServiceRequest.status).toEqual(FHIR_REQUEST_STATUS.ACTIVE);
     expect(fhirLabServiceRequest.status).toEqual(FHIR_REQUEST_STATUS.ACTIVE);
   });

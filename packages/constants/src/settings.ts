@@ -17,4 +17,4 @@ export const SETTINGS_SCOPES = {
   CENTRAL: 'central',
   GLOBAL: 'global',
   FACILITY: 'facility',
-};
+} as const;

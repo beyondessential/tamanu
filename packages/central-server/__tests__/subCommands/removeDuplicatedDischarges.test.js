@@ -1,9 +1,9 @@
 import { sub } from 'date-fns';
 
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { removeDuplicatedDischarges } from '../../dist/subCommands';
@@ -22,7 +22,7 @@ describe('removeDuplicatedDischarges', () => {
     batchSize: 1,
   };
 
-  const getDateSubtractedFromNow = daysToSubtract =>
+  const getDateSubtractedFromNow = (daysToSubtract) =>
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 
   const createEncounter = async (encounterPatient, overrides = {}) => {

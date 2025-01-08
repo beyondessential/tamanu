@@ -1,6 +1,6 @@
 import { sub } from 'date-fns';
 import { fake, chance } from '@tamanu/shared/test-helpers';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   REFERENCE_TYPES,
@@ -193,15 +193,10 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const {
-      encounter,
-      encounterDiagnosis,
-      encounterMedication,
-      procedureType,
-      labTestType,
-    } = await makeEncounter({
-      encounterType: 'emergency',
-    });
+    const { encounter, encounterDiagnosis, encounterMedication, procedureType, labTestType } =
+      await makeEncounter({
+        encounterType: 'emergency',
+      });
 
     const { MediciReport } = ctx.store.models;
 

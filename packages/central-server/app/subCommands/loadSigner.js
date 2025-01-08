@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { Signer } from '@tamanu/shared/models';
+import { Signer } from '@tamanu/database';
 
 import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';

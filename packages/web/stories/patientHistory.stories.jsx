@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { fakeEncounter } from '../.storybook/__mocks__/defaultEndpoints.js';
 
 import { PatientHistory } from '../app/components/PatientHistory';

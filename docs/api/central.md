@@ -1,3 +1,8 @@
+> [!WARNING]
+> We don't currently have thorough or complete documentation of these APIs.
+>
+> The below is correct but very partial, with many many routes undocumented.
+
 # Central server API docs
 
 ## Application routes

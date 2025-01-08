@@ -2,7 +2,7 @@ import {
   createDummyPatient,
   randomReferenceId,
   randomUser,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Ongoing conditions', () => {

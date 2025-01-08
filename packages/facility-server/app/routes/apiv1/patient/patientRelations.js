@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -34,7 +34,7 @@ patientRelations.get(
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
       encounterType: `
-        CASE 
+        CASE
           ${ENCOUNTER_TYPE_VALUES.map(
             value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
           ).join(' ')}

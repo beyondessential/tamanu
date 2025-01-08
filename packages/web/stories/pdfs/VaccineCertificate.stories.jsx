@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { VaccineCertificate as Component } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from '../assets/signing-image.png';
@@ -108,7 +108,7 @@ const certificateData = {
   subTitle: 'PO Box 12345, Melbourne, Australia',
 };
 
-const healthFacility = 'State level'
+const healthFacility = 'State level';
 
 export const VaccineCertificate = () => {
   const [vdsSrc, setVdsSrc] = useState();

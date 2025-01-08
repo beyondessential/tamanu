@@ -2,7 +2,7 @@ import { WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 /**
- * @typedef {import('@tamanu/shared/models')} Models
+ * @typedef {import('@tamanu/database/models')} Models
  * @param {{ websocketService: ReturnType<import('../services/websocketService').defineWebsocketService>, models: Models}} injector
  */
 export const registerPatientContactInsert = injector => {

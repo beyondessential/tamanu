@@ -14,9 +14,9 @@ function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
 
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
-    let dependencies = []
+    let dependencies = [];
     if (info.dependencies) {
-      dependencies = Object.keys(info.dependencies).filter(dependency =>
+      dependencies = Object.keys(info.dependencies).filter((dependency) =>
         workspaces.has(dependency),
       );
     }
@@ -44,7 +44,10 @@ export function doWithAllPackages(fn) {
   const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
   const packagesThatAreDependedOn = new Set(Object.values(dependencyTree).flat());
 
-  while (processed.size < workspaces.size) {
+  // find and build dependencies for each workspace
+  // max number of iterations is pow(workspaces.size, 2)
+  for (let i = 0; i <= workspaces.size; i++) {
+    if (processed.size === workspaces.size) break;
     for (const workspace of workspaces) {
       if (processed.has(workspace)) continue;
 
@@ -52,7 +55,7 @@ export function doWithAllPackages(fn) {
       const location = extractLocation(resolved);
       const workspaceDependencies = dependencyTree[workspace];
 
-      if (workspaceDependencies.every(dep => processed.has(dep))) {
+      if (workspaceDependencies.every((dep) => processed.has(dep))) {
         processed.add(workspace);
 
         const pkgPath = `./${location}/package.json`;

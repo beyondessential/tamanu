@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { createTestContext } from '../../utilities';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -39,7 +39,7 @@ describe(`Materialised FHIR - Organization`, () => {
         identifier: [
           {
             value: facility.code,
-          }
+          },
         ],
         name: facility.name,
         active: true,

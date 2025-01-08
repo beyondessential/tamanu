@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { PATIENT_ISSUE_TYPES, PATIENT_ISSUE_LABELS } from '@tamanu/constants';
 import { DateField, Field, Form, TextField, TranslatedSelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
