@@ -89,7 +89,7 @@ encounter.put(
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { isDischarge, quantity, repeats } = medicationValues;
           if (isDischarge) {
-            const medication = await models.EncounterMedication.findByPk(medicationId);
+            const medication = await models.Prescription.findByPk(medicationId);
             await medication.update({ isDischarge, quantity, repeats });
           }
         }
@@ -170,7 +170,43 @@ const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
-encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
+encounterRelations.get(
+  '/:id/medications',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+
+    req.checkPermission('list', 'Prescription');
+
+    const associations = Prescription.getListReferenceAssociations() || [];
+
+    const baseQueryOptions = {
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      include: [...associations, {
+        model: models.Encounter,
+        as: 'encounters',
+        through: { attributes: [] },
+        where: { id: params.id },
+      }],
+    };
+
+    const count = await Prescription.count({
+      ...baseQueryOptions,
+      distinct: true,
+    });
+
+    const objects = await Prescription.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = objects.map((x) => x.forResponse());
+
+    res.send({count, data });
+  }),
+);
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',
@@ -233,12 +269,12 @@ encounterRelations.get(
     });
 
     const data = await Promise.all(
-      objects.map(async ir => {
+      objects.map(async (ir) => {
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map(a => a.forResponse()),
-          results: ir.results.map(result => result.forResponse()),
+          areas: ir.areas.map((a) => a.forResponse()),
+          results: ir.results.map((result) => result.forResponse()),
         };
       }),
     );
@@ -259,7 +295,7 @@ encounterRelations.get(
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
-    noteTypeCounts.forEach(n => {
+    noteTypeCounts.forEach((n) => {
       noteTypeToCount[n.noteType] = n.count;
     });
     res.send({ data: noteTypeToCount });
@@ -469,7 +505,7 @@ async function getAnswersWithHistory(req) {
     },
   );
 
-  const data = result.map(r => r.result);
+  const data = result.map((r) => r.result);
   return { count, data };
 }
 
@@ -510,7 +546,7 @@ encounterRelations.get(
       },
     });
 
-    const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
+    const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
 
     const answers = await SurveyResponseAnswer.findAll({
       where: {
@@ -521,10 +557,10 @@ encounterRelations.get(
     });
 
     const data = answers
-      .map(answer => {
+      .map((answer) => {
         const { responseId } = answer;
         const recordedDateAnswer = dateAnswers.find(
-          dateAnswer => dateAnswer.responseId === responseId,
+          (dateAnswer) => dateAnswer.responseId === responseId,
         );
         const recordedDate = recordedDateAnswer.body;
         return { ...answer.dataValues, recordedDate };
@@ -555,29 +591,17 @@ encounterRelations.get(
 
 const encounterTasksQuerySchema = z.object({
   order: z.preprocess(
-    value => (typeof value === 'string' ? value.toUpperCase() : value),
-    z
-      .enum(['ASC', 'DESC'])
-      .optional()
-      .default('ASC'),
+    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    z.enum(['ASC', 'DESC']).optional().default('ASC'),
   ),
-  orderBy: z
-    .enum(['dueTime', 'name'])
-    .optional()
-    .default('dueTime'),
+  orderBy: z.enum(['dueTime', 'name']).optional().default('dueTime'),
   statuses: z
     .array(z.enum(Object.values(TASK_STATUSES)))
     .optional()
     .default([TASK_STATUSES.TODO]),
   assignedTo: z.string().optional(),
-  page: z.coerce
-    .number()
-    .optional()
-    .default(0),
-  rowsPerPage: z.coerce
-    .number()
-    .optional()
-    .default(10),
+  page: z.coerce.number().optional().default(0),
+  rowsPerPage: z.coerce.number().optional().default(10),
 });
 encounterRelations.get(
   '/:id/tasks',
@@ -624,7 +648,7 @@ encounterRelations.get(
       offset: page * rowsPerPage,
       include: Task.getFullReferenceAssociations(),
     });
-    const results = queryResults.map(x => x.forResponse());
+    const results = queryResults.map((x) => x.forResponse());
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });

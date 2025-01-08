@@ -191,18 +191,13 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix = 'test-') {
+export function fakePrescription(prefix = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    qtyMorning: chance.integer({ min: 0, max: 10 }),
-    qtyLunch: chance.integer({ min: 0, max: 10 }),
-    qtyEvening: chance.integer({ min: 0, max: 10 }),
-    qtyNight: chance.integer({ min: 0, max: 10 }),
-    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+    ...fakeStringFields(`${prefix}prescription${id}_`, [
       'id',
-      'prescription',
       'note',
       'indication',
       'route',

@@ -178,7 +178,7 @@ patientRoute.get(
   '/:id/lastDischargedEncounter/medications',
   asyncHandler(async (req, res) => {
     const {
-      models: { Encounter, EncounterMedication },
+      models: { Encounter, Prescription },
       params,
       query,
     } = req;
@@ -187,7 +187,7 @@ patientRoute.get(
 
     req.checkPermission('read', 'Patient');
     req.checkPermission('read', 'Encounter');
-    req.checkPermission('list', 'EncounterMedication');
+    req.checkPermission('list', 'Prescription');
 
     const lastDischargedEncounter = await Encounter.findOne({
       where: {
@@ -207,13 +207,21 @@ patientRoute.get(
     }
 
     // Find and return all associated encounter medications
-    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
-      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+    const lastPrescriptions = await Prescription.findAndCountAll({
+      where: { isDischarge: true },
       include: [
-        ...EncounterMedication.getFullReferenceAssociations(),
+        ...Prescription.getFullReferenceAssociations(),
         {
-          association: 'encounter',
-          include: [{ association: 'location', include: ['facility'] }],
+          model: Encounter, // Include the Encounter model
+          as: 'encounters', // Use the alias defined in the association
+          through: { attributes: [] }, // Exclude join table attributes from results
+          where: { id: lastDischargedEncounter.id }, // Filter by the specific encounter ID
+          include: [
+            {
+              association: 'location', // Include associated location
+              include: ['facility'], // Include facility associated with the location
+            },
+          ],
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
@@ -221,8 +229,8 @@ patientRoute.get(
       offset: page * rowsPerPage,
     });
 
-    const { count } = lastEncounterMedications;
-    const data = lastEncounterMedications.rows.map(x => x.forResponse());
+    const { count } = lastPrescriptions;
+    const data = lastPrescriptions.rows.map((x) => x.forResponse());
 
     res.send({
       count,
@@ -253,14 +261,14 @@ patientRoute.get(
       PATIENT_SORT_KEYS.firstName,
       PATIENT_SORT_KEYS.displayId,
     ]
-      .filter(v => v !== orderBy)
-      .map(v => `${v} ASC`)
+      .filter((v) => v !== orderBy)
+      .map((v) => `${v} ASC`)
       .join(', ');
 
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin']
-      .filter(k => filterParams[k])
-      .forEach(k => {
+      .filter((k) => filterParams[k])
+      .forEach((k) => {
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
@@ -277,7 +285,7 @@ patientRoute.get(
     // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
     // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
     if (!orderBy) {
-      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter((v) => filterParams[v]);
       if (selectedFilters?.length) {
         filterSortReplacements = selectedFilters.reduce((acc, filter) => {
           return {
@@ -290,18 +298,20 @@ patientRoute.get(
         // Exact match sort
         const exactMatchSort = selectedFilters
           .map(
-            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+            (filter) => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
           )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .map(
+            (filter) => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`,
+          )
           .join(', ');
 
         // the last one is
         const alphabeticSort = selectedFilters
-          .map(filter => `patients.${snakeCase(filter)} ASC`)
+          .map((filter) => `patients.${snakeCase(filter)} ASC`)
           .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
@@ -437,8 +447,9 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY  ${filterSort &&
-          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${
+          filterSort && `${filterSort},`
+        } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
@@ -455,7 +466,7 @@ patientRoute.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       data: forResponse,

@@ -4,7 +4,7 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
+  createDummyPrescription,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
@@ -95,13 +95,19 @@ describe('Patient', () => {
     });
 
     // Create two medications for encounterTwo (the one we should get)
-    const dischargedMedication = await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models, { isDischarge: true })),
-      encounterId: encounterTwo.id,
+    const dischargedMedication = await models.Prescription.create({
+      ...(await createDummyPrescription(models, { isDischarge: true })),
     });
-    await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models)),
+    await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
+      prescriptionId: dischargedMedication.id,
+    });
+    const medication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
+    });
+    await models.EncounterPrescription.create({
+      encounterId: encounterTwo.id,
+      prescriptionId: medication.id,
     });
 
     // Edit the first two encounters to simulate a discharge
@@ -123,7 +129,7 @@ describe('Patient', () => {
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
-      encounter: {
+      encounters: {
         location: expect.any(Object),
       },
     });
