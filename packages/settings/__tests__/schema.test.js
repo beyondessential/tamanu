@@ -1,7 +1,7 @@
 import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
 import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
-import { fail } from 'assert';
+import { fail } from 'node:assert';
 import { VACCINE_STATUS } from '@tamanu/constants';
 
 describe('Schemas', () => {
