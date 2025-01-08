@@ -14,7 +14,6 @@ import {
   makeDeletedAtIsNullFilter,
   makeFilter,
 } from '../../utils/query';
-import { isEmpty, mergeWith } from 'lodash';
 
 export const user = express.Router();
 
