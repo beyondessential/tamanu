@@ -2,11 +2,11 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import {
   createAdministeredVaccine,
   createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
+} from '@tamanu/database/demoData/vaccines';
 import { parseISO, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
 

@@ -1,8 +1,8 @@
 import { sub } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
@@ -125,7 +125,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
   const NOTE_SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
 
-  const getDateSubtractedFromNow = daysToSubtract =>
+  const getDateSubtractedFromNow = (daysToSubtract) =>
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 
   const createEncounter = async (encounterPatient, overrides = {}) => {

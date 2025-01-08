@@ -1,7 +1,0 @@
-/node_modules
-/www/vendor
-/build
-
-.DS_Store
-npm-debug.log*
-

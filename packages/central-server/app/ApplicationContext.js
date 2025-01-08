@@ -2,7 +2,7 @@ import config from 'config';
 import { omit } from 'lodash';
 
 import { ReadSettings } from '@tamanu/settings';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 
 import { EmailService } from './services/EmailService';

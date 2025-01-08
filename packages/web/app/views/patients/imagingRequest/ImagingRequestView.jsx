@@ -12,7 +12,7 @@ import {
   LAB_REQUEST_STATUS_CONFIG,
   NOTE_TYPES,
 } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';

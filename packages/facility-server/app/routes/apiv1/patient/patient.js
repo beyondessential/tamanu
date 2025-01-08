@@ -9,9 +9,9 @@ import {
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { isGeneratedDisplayId } from '@tamanu/shared/utils/generateId';
+import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
 
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
@@ -241,13 +241,7 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const {
-      orderBy,
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
+    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';

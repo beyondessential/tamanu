@@ -3,7 +3,12 @@ import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { ageInYears, differenceInMilliseconds, format, toDateTimeString } from '../utils/dateTime';
+import {
+  ageInYears,
+  differenceInMilliseconds,
+  format,
+  toDateTimeString,
+} from '@tamanu/utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const newParameters = { ...parameters };
