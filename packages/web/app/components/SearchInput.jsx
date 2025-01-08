@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
-import { ClearIcon } from '../Icons/ClearIcon';
-import { TextField } from './TextField';
-import { Colors } from '../../constants';
-import { useTranslation } from '../../contexts/Translation';
+import { ClearIcon } from './Icons/ClearIcon';
+import { TextInput } from './Field/TextField';
+import { Colors } from '../constants';
+import { useTranslation } from '../contexts/Translation';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
@@ -14,7 +14,7 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
-const StyledTextField = styled(TextField)`
+const StyledTextInput = styled(TextInput)`
   .MuiInputBase-root {
     padding-left: 10px;
   }
@@ -32,39 +32,18 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-// N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
-// component for standalone search fields
-export const SearchField = props => {
+// N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
+export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
-  const {
-    field: { value, name },
-    form: { setFieldValue } = {},
-    label,
-    placeholder,
-    onChange,
-  } = props;
-  const [searchValue, setSearchValue] = useState(value);
-
-  useEffect(() => {
-    setSearchValue(value);
-  }, [value]);
+  const { label, placeholder, searchValue, setSearchValue } = props;
 
   const clearSearch = () => {
     setSearchValue('');
-    setFieldValue?.(name, '');
-
-    // For some reason, using `clearSearch` doesn’t fire the `SearchField`’s change event
-    onChange?.({
-      target: {
-        value: '',
-        type: 'change',
-      },
-    });
   };
 
   return (
-    <StyledTextField
+    <StyledTextInput
       InputProps={{
         startAdornment: (
           <Icon position="start">
@@ -77,11 +56,11 @@ export const SearchField = props => {
           </StyledIconButton>
         ),
       }}
-      {...props}
       placeholder={
         placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }
       value={searchValue}
+      onChange={e => setSearchValue(e.target.value)}
     />
   );
 };
