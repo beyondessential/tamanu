@@ -5,7 +5,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { JOB_TOPICS } from '@tamanu/constants';
 
 import pkg from '../../package.json';
-import { ApplicationContext } from '../ApplicationContext';
+import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startApi } from './startApi';
 import { startFhirWorker } from './startFhirWorker';
 import { startTasks } from './startTasks';
@@ -14,7 +14,9 @@ export const serveAll = async ({ skipMigrationCheck }) => {
   log.info(`Starting Tamanu Central version ${pkg.version}`);
 
   if (config.db.migrateOnStartup) {
-    const { store } = await new ApplicationContext().init({ appType: 'migrate' });
+    const { store } = await new ApplicationContext().init({
+      appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,
+    });
     await store.sequelize.migrate('up');
   }
 
