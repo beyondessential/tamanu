@@ -1,5 +1,5 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 

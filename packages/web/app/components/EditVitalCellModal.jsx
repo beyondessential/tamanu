@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { FormModal } from './FormModal';
-import { formatShortest, formatTime } from './DateDisplay';
+import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 
 export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {

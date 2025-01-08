@@ -1,8 +1,8 @@
 import config from 'config';
 
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { chance } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
@@ -67,7 +67,7 @@ function getRandomAnswer(dataElement) {
 
 function createDummySurveyResponse(survey) {
   const answers = {};
-  survey.dataElements.forEach(q => {
+  survey.dataElements.forEach((q) => {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
@@ -133,7 +133,7 @@ describe('Programs', () => {
       const { body } = result;
       expect(body.count).toEqual(body.data.length);
 
-      expect(body.data.every(p => p.name));
+      expect(body.data.every((p) => p.name));
     });
 
     it('should list surveys within a program', async () => {
@@ -156,7 +156,7 @@ describe('Programs', () => {
 
       const result = await app.get('/api/suggestions/survey');
       expect(result).toHaveSucceeded();
-      const resultIds = result.body.map(x => x.id);
+      const resultIds = result.body.map((x) => x.id);
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
@@ -172,8 +172,8 @@ describe('Programs', () => {
     const { components } = body;
     expect(components.length).toEqual(6);
     // look for every component to have a defined dataElement with text
-    expect(components.every(q => q.dataElement)).toEqual(true);
-    expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
+    expect(components.every((q) => q.dataElement)).toEqual(true);
+    expect(components.every((q) => q.dataElement.defaultText)).toEqual(true);
   });
 
   describe('Survey responses', () => {
@@ -195,7 +195,7 @@ describe('Programs', () => {
 
       const answers = await models.SurveyResponseAnswer.findAll({ where: { responseId: id } });
       expect(answers).toHaveLength(Object.keys(responseData.answers).length);
-      answers.forEach(a => {
+      answers.forEach((a) => {
         // answers are always stored as strings so we have to convert the numbery ones here
         expect(responseData.answers[a.dataElementId].toString()).toEqual(a.body);
       });
@@ -229,7 +229,7 @@ describe('Programs', () => {
       expect(programResponses).toHaveSucceeded();
 
       expect(programResponses.body.count).toEqual(NUMBER_PROGRAM_RESPONSES);
-      programResponses.body.data.forEach(response => {
+      programResponses.body.data.forEach((response) => {
         expect(response.encounterId).toEqual(encounter.id);
         expect(response.surveyId).toEqual(testSurvey3.id);
       });
@@ -273,7 +273,7 @@ describe('Programs', () => {
       expect(result.body.count).toEqual(15);
       expect(result.body.data.length).toEqual(10);
 
-      const checkResult = response => {
+      const checkResult = (response) => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included

@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
-import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
+import { differenceInMilliseconds, format, isISOString } from '@tamanu/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 // also update getNameColumnForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
@@ -41,9 +41,7 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
       );
     }
 
-    throw new Error(
-      `Selected answer ${componentConfig.source}[${answer}] not found`,
-    );
+    throw new Error(`Selected answer ${componentConfig.source}[${answer}] not found`);
   }
 
   return getDisplayNameForModel(componentConfig.source, result);

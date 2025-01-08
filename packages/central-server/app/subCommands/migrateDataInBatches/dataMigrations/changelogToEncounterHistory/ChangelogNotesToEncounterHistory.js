@@ -1,4 +1,4 @@
-import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
+import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 import { getChangelogToEncounterHistoryQuery } from './getChangelogToEncounterHistoryQuery';
 
 const NOTE_SUB_QUERY = `

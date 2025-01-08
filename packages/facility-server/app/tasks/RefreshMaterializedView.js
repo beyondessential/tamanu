@@ -8,7 +8,7 @@ import {
   NOTIFY_CHANNELS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getCurrentISO8601DateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentISO8601DateString } from '@tamanu/utils/dateTime';
 
 const buildRefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
@@ -35,7 +35,9 @@ const buildRefreshMaterializedViewTask = viewName =>
           { timezone: config.countryTimeZone },
         );
         await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`); // Revert to sequelize timezone
-        await this.sequelize.query(`NOTIFY ${NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED}, '${this.viewName}'`);
+        await this.sequelize.query(
+          `NOTIFY ${NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED}, '${this.viewName}'`,
+        );
       });
       await this.models.LocalSystemFact.set(
         `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${this.viewName}`,

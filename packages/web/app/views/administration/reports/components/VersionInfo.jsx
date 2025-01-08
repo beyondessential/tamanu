@@ -1,5 +1,6 @@
 import React from 'react';
-import { DateDisplay, formatShortest, formatTime } from '../../../../components';
+import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { DateDisplay } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 

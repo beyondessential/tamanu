@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';

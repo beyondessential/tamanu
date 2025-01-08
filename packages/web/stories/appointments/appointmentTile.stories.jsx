@@ -5,7 +5,7 @@ import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { AppointmentTile } from '../../app/components/Appointments/AppointmentTile';
 import { fakePractitioner } from '../../.storybook/__mocks__/defaultEndpoints';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { MockedApi } from '../utils/mockedApi';
 
 const endpoints = {

@@ -6,9 +6,9 @@ import {
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();

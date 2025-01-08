@@ -6,7 +6,6 @@ services:
       - ~/.ssh:/root/.ssh:ro # Use the host SSH config.
     command: sleep infinity
 
-
   central-db:
     image: postgres:latest
     restart: unless-stopped

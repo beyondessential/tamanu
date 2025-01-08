@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { replaceInTemplate } from '@tamanu/shared/utils/replaceInTemplate';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
 

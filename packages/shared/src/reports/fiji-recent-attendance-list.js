@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
-import { ageInYears, format, toDateTimeString } from '../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import {
@@ -15,7 +15,12 @@ import {
   Form,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow, getReferenceDataStringId, TranslatedReferenceData, TranslatedText } from '../../components';
+import {
+  ConfirmCancelRow,
+  getReferenceDataStringId,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';

@@ -2,7 +2,7 @@ import config from 'config';
 import { omit } from 'lodash';
 
 import { ReadSettings } from '@tamanu/settings';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 
 import { EmailService } from './services/EmailService';
@@ -57,7 +57,7 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.settings = new ReadSettings(this.store.models)
+    this.settings = new ReadSettings(this.store.models);
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
@@ -69,7 +69,7 @@ export class ApplicationContext {
       return null;
     }
 
-    this.closePromise = new Promise(resolve => {
+    this.closePromise = new Promise((resolve) => {
       this.onClose(resolve);
     });
     await initIntegrations(this);

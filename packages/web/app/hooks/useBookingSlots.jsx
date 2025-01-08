@@ -2,7 +2,7 @@ import { addMilliseconds, differenceInMilliseconds, isValid, parse } from 'date-
 import ms from 'ms';
 import { useMemo } from 'react';
 
-import { isWithinIntervalExcludingEnd } from '@tamanu/shared/utils/dateTime';
+import { isWithinIntervalExcludingEnd } from '@tamanu/utils/dateTime';
 
 import { useSettings } from '../contexts/Settings';
 
