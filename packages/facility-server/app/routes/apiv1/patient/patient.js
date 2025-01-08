@@ -210,11 +210,9 @@ patientRoute.get(
     const lastPrescriptions = await Prescription.findAndCountAll({
       where: { isDischarge: true },
       include: [
-        ...Prescription.getFullReferenceAssociations(),
+        ...Prescription.getListReferenceAssociations(),
         {
-          model: Encounter, // Include the Encounter model
-          as: 'encounters', // Use the alias defined in the association
-          through: { attributes: [] }, // Exclude join table attributes from results
+          association: 'encounters', // Use the alias defined in the association
           where: { id: lastDischargedEncounter.id }, // Filter by the specific encounter ID
           include: [
             {
@@ -230,8 +228,10 @@ patientRoute.get(
     });
 
     const { count } = lastPrescriptions;
-    const data = lastPrescriptions.rows.map((x) => x.forResponse());
-
+    const data = lastPrescriptions.rows.map((x) => ({
+      ...x.forResponse(),
+      encounters: x.encounters.map((e) => e.forResponse()),
+    }));
     res.send({
       count,
       data,
