@@ -2,22 +2,15 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
-export class EncounterMedication extends Model {
+export class Prescription extends Model {
   declare id: string;
   declare date: string;
   declare endDate?: string;
-  declare prescription?: string;
   declare note?: string;
   declare indication?: string;
   declare route?: string;
-  declare qtyMorning?: number;
-  declare qtyLunch?: number;
-  declare qtyEvening?: number;
-  declare qtyNight?: number;
   declare quantity?: number;
   declare discontinued?: boolean;
   declare discontinuedDate?: string;
@@ -26,7 +19,6 @@ export class EncounterMedication extends Model {
   declare isDischarge: boolean;
   declare prescriberId?: string;
   declare discontinuingClinicianId?: string;
-  declare encounterId?: string;
   declare medicationId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -40,15 +32,10 @@ export class EncounterMedication extends Model {
         }),
         endDate: dateTimeType('endDate'),
 
-        prescription: DataTypes.STRING,
         note: DataTypes.STRING,
         indication: DataTypes.STRING,
         route: DataTypes.STRING,
 
-        qtyMorning: DataTypes.INTEGER,
-        qtyLunch: DataTypes.INTEGER,
-        qtyEvening: DataTypes.INTEGER,
-        qtyNight: DataTypes.INTEGER,
         quantity: DataTypes.INTEGER,
 
         discontinued: DataTypes.BOOLEAN,
@@ -64,18 +51,6 @@ export class EncounterMedication extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        validate: {
-          mustHaveMedication() {
-            if (!this.medicationId) {
-              throw new Error('An encounter medication must be attached to a medication.');
-            }
-          },
-          mustHaveEncounter() {
-            if (!this.encounterId) {
-              throw new Error('An encounter medication must be attached to an encounter.');
-            }
-          },
-        },
       },
     );
   }
@@ -90,10 +65,18 @@ export class EncounterMedication extends Model {
       as: 'discontinuingClinician',
     });
 
-    this.belongsTo(models.Encounter, {
-      foreignKey: 'encounterId',
-      as: 'encounter',
+    this.belongsToMany(models.Encounter, {
+      through: models.EncounterPrescription,
+      foreignKey: 'prescriptionId',
+      as: 'encounters',
     });
+
+    this.belongsToMany(models.Patient, {
+      through: models.PatientOngoingPrescription,
+      foreignKey: 'prescriptionId',
+      as: 'patients',
+    });
+
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
       as: 'Medication',
@@ -101,20 +84,14 @@ export class EncounterMedication extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
+    return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
   }
 
-  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
-    if (patientCount === 0) {
-      return null;
-    }
-    return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'encounters'],
-      markedForSyncPatientsTable,
-    );
+  static buildPatientSyncFilter() {
+    return null; // syncs everywhere
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this);
+    return null; // syncs everywhere
   }
 }
