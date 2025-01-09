@@ -192,8 +192,9 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
         <Box mr={2} width="250px">
           <SearchInput
             label={<TranslatedText stringId="general.action.search" fallback="Search" />}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onClear={() => setSearchValue('')}
           />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>

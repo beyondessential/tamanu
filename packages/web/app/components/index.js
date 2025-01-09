@@ -21,7 +21,6 @@ export * from './Paper';
 export * from './Preloader';
 export * from './LocationSearchBar';
 export * from './SearchBar';
-export * from './SearchInput';
 export * from './Table';
 export * from './Logo';
 export * from './Tag';
