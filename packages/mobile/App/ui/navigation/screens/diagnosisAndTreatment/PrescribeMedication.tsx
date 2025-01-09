@@ -54,10 +54,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       ...values,
     });
 
-    const encounterPrescription = await models.EncounterPrescription.create();
-    encounterPrescription.encounter = encounter;
-    encounterPrescription.prescription = prescription;
-    await encounterPrescription.save();
+    await models.EncounterPrescription.createAndSaveOne({
+      encounter,
+      prescription,
+    });
 
     navigateToHistory();
   }, []);
