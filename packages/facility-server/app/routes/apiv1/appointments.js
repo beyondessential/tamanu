@@ -76,7 +76,7 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
 appointments.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Appointment');
+    req.checkPermission('create', 'Appointment');
     const {
       models,
       db,
@@ -104,7 +104,7 @@ appointments.post(
 appointments.post(
   '/emailReminder',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Appointment');
+    req.checkPermission('create', 'Appointment');
     const {
       models,
       body: { facilityId, appointmentId, email },
@@ -123,7 +123,7 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
-const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
@@ -160,7 +160,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = patientNameOrId => {
+const buildPatientNameOrIdQuery = (patientNameOrId) => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -274,7 +274,7 @@ appointments.post('/locationBooking', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
       const conflictCount = await Appointment.count({
         where: {
@@ -311,7 +311,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const existingBooking = await Appointment.findByPk(id, { transaction });
 
       if (!existingBooking) {
