@@ -59,7 +59,6 @@
     "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
-    "hookable": "^5.5.3",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.5",
     "mathjs": "^9.3.0",
