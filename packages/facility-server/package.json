@@ -59,6 +59,7 @@
     "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
+    "hookable": "^5.5.3",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.5",
     "mathjs": "^9.3.0",
@@ -76,12 +77,10 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "umzug": "^2.3.0",
+    "uuid": "^11.0.3",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "yup": "^0.32.9",
-    "uuid": "^11.0.3",
-    "zod": "^3.23.8",
-    "pg-notify": "^1.0.5",
-    "hookable": "^5.5.3"
+    "zod": "^3.23.8"
   }
 }
