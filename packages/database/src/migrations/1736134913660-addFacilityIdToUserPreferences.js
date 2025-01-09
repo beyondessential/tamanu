@@ -37,7 +37,7 @@ export async function up(query) {
 
 export async function down(query) {
   await query.sequelize.query(`
-    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_unique_with_facility_id;
+    ALTER TABLE user_preferences DROP INDEX user_preferences_unique_with_facility_id;
   `);
 
   await query.removeColumn('user_preferences', 'id');
