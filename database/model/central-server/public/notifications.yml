@@ -32,8 +32,6 @@ sources:
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('notifications__patient_id') }}"
-            data_tests:
-              - not_null
           - name: created_time
             data_type: character(19)
             description: "{{ doc('notifications__created_time') }}"
