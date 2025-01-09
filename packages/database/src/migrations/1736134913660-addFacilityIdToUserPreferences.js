@@ -25,17 +25,19 @@ export async function up(query) {
     ALTER TABLE user_preferences ADD PRIMARY KEY (id);
   `);
 
-  await query.addIndex('user_preferences', {
-    name: 'user_facility_unique_index',
-    unique: true,
-    fields: ['user_id', 'key', 'facility_id'],
-  });
+  await query.sequelize.query(`
+    CREATE UNIQUE INDEX user_preferences_unique_with_facility_id
+    ON user_preferences (
+      key,
+      user_id,
+      COALESCE(facility_id, '###')
+    );
+  `);
 }
 
 export async function down(query) {
   await query.sequelize.query(`
-    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_pkey;
-    ALTER TABLE user_preferences DROP CONSTRAINT user_facility_unique_index;
+    ALTER TABLE user_preferences DROP CONSTRAINT user_preferences_unique_with_facility_id;
   `);
 
   await query.removeColumn('user_preferences', 'id');

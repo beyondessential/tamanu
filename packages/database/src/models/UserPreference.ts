@@ -32,7 +32,8 @@ export class UserPreference extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [{ fields: ['user_id', 'key', 'facility_id'], unique: true }],
+        // TODO: cannot get this index to work no matter what i try
+        // indexes: [{ fields: ['user_id', 'key', Sequelize.fn('COALESCE', (Sequelize.col('facility_id')), '###')], unique: true }],
       },
     );
   }
