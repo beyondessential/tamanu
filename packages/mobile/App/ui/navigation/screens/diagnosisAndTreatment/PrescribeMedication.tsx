@@ -49,11 +49,15 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       user.id,
     );
 
-    await models.Medication.createAndSaveOne({
-      encounter: encounter.id,
+    const prescription = await models.Prescription.createAndSaveOne({
       date: getCurrentDateTimeString(),
       ...values,
     });
+
+    const encounterPrescription = await models.EncounterPrescription.create();
+    encounterPrescription.encounter = encounter;
+    encounterPrescription.prescription = prescription;
+    await encounterPrescription.save();
 
     navigateToHistory();
   }, []);

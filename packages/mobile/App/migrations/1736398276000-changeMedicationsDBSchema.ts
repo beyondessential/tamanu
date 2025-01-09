@@ -143,7 +143,11 @@ const PatientOngoingPrescriptions = new Table({
 export class changeMedicationsDBSchema1736398276000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(Prescriptions, true);
-    await queryRunner.query(`INSERT INTO prescriptions SELECT * FROM encounter_medications;`);
+    await queryRunner.query(
+      `INSERT INTO prescriptions 
+      SELECT id, date, endDate, prescription, note, indication, route, quantity, medicationId, createdAt, updatedAt, updatedAtSyncTick, deletedAt 
+      FROM encounter_medications;`,
+    );
 
     await queryRunner.createTable(EncounterPrescriptions, true);
     await queryRunner.query(
