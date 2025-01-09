@@ -17,3 +17,7 @@ TODO
 {% docs user_preferences__value %}
 TODO
 {% enddocs %}
+
+{% docs user_preferences__facility_id %}
+TODO
+{% enddocs %}
