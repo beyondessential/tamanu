@@ -122,7 +122,7 @@ export const OutpatientAppointmentsView = () => {
   const canReadAppointment = ability.can('read', 'Appointment');
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  if (!canListAppointment && !canReadAppointment) {
+  if (!canListAppointment || !canReadAppointment) {
     // TODO: missed margin
     return <NoPermissionScreen />;
   }
