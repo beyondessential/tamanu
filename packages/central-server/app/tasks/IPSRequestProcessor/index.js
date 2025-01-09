@@ -1,5 +1,5 @@
 import config from 'config';
-import path from 'path';
+import path from 'node:path';
 import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
 import { base64UrlEncode } from '@tamanu/utils/encodings';

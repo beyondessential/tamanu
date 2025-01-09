@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { Sequelize } from 'sequelize';
 import pg from 'pg';
-import util from 'util';
+import util from 'node:util';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';

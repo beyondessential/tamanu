@@ -1,6 +1,6 @@
 import express from 'express';
 import config from 'config';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';

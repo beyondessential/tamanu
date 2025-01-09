@@ -1,4 +1,4 @@
-import util from 'util';
+import util from 'node:util';
 
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidOperationError, RemoteCallFailedError } from '@tamanu/shared/errors';

@@ -1,5 +1,5 @@
 import config from 'config';
-import nodeCrypto from 'crypto';
+import nodeCrypto from 'node:crypto';
 import { add } from 'date-fns';
 import { Crypto } from '@peculiar/webcrypto';
 import {

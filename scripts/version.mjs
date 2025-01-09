@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 
 import fs from 'fs/promises';
-import path from 'path';
+import path from 'node:path';
 
 let version = process.argv[2]?.toLowerCase();
 if (!version) {

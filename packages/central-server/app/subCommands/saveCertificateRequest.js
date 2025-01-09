@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { log } from '@tamanu/shared/services/logging';
 
 import { Signer } from '@tamanu/database';

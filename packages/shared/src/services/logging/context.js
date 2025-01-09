@@ -1,7 +1,7 @@
 import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-conventions';
 import config from 'config';
 import shortid from 'shortid';
-import os from 'os';
+import os from 'node:os';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 export const ENV = process.env.NODE_ENV ?? 'development';

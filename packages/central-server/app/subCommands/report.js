@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import path from 'path';
+import path from 'node:path';
 
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';

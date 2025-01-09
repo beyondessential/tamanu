@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
-import path from 'path';
+import path from 'node:path';
 import { get } from 'lodash';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { SETTING_KEYS } from '@tamanu/constants';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {

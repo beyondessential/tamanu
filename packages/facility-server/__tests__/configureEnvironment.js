@@ -1,6 +1,6 @@
 import { extendExpect } from './utilities';
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 globalThis.crypto = crypto;
 
 jest.setTimeout(100000);

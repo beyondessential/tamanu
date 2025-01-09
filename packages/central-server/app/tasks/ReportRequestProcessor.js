@@ -1,6 +1,6 @@
 import config from 'config';
 import sequelize from 'sequelize';
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';

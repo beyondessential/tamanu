@@ -1,4 +1,4 @@
-import { execFileSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
 import { doWithAllPackages } from './_do-with-all-packages.mjs';
 
 const args = process.argv.slice(2);

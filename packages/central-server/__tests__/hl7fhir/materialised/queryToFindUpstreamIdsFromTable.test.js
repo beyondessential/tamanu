@@ -6,7 +6,7 @@ If your PR is red because of this test, you likely need to either:
      (probably only applicable if your model has multiple UpstreamModels defined)
 */
 
-import util from 'util';
+import util from 'node:util';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';

@@ -2,7 +2,7 @@ import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/consta
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/database';
-import path from 'path';
+import path from 'node:path';
 
 describe('reportRoutes', () => {
   let ctx;

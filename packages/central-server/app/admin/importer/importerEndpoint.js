@@ -1,6 +1,6 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';

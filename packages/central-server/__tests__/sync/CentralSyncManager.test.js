@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
 import {

@@ -11,7 +11,7 @@ import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';

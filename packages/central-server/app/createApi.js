@@ -17,7 +17,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 

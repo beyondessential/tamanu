@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirBaseType } from './baseType';

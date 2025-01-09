@@ -1,5 +1,5 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import { lte as semverLte } from 'semver';
 import { MAX_CLIENT_VERSION, MIN_CLIENT_VERSION } from '../dist/middleware/versionCompatibility';
 

@@ -2,8 +2,8 @@ import { context, propagation, trace } from '@opentelemetry/api';
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
-import { promisify } from 'util';
-import crypto from 'crypto';
+import { promisify } from 'node:util';
+import crypto from 'node:crypto';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';

@@ -1,6 +1,6 @@
 import Umzug from 'umzug';
-import { readdirSync } from 'fs';
-import path from 'path';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 import { runPostMigration } from './runPostMigration';
 import { wrap, chain } from 'lodash';
 

@@ -1,5 +1,5 @@
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../dist/middleware/versionCompatibility';

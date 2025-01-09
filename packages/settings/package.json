@@ -64,6 +64,8 @@
   "dependencies": {
     "@tamanu/constants": "*",
     "@types/lodash": "^4.14.197",
+    "config": "^3.3.12",
+    "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "yup": "^1.4.0"
   }
