@@ -5,7 +5,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { createApp } from '../createApp';
-import { ApplicationContext } from '../ApplicationContext';
+import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
 export const startApi = async ({ skipMigrationCheck }) => {
@@ -15,7 +15,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init({ appType: 'api' });
+  const context = await new ApplicationContext().init({ appType: CENTRAL_SERVER_APP_TYPES.API });
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
@@ -42,7 +42,9 @@ export const startApi = async ({ skipMigrationCheck }) => {
   }
 
   let { port } = config;
-  if (+process.env.PORT) { port = +process.env.PORT; }
+  if (+process.env.PORT) {
+    port = +process.env.PORT;
+  }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });

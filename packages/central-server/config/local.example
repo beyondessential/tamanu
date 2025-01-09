@@ -1,18 +1,20 @@
 {
   "db": {
-    "host": "central-db",
+    "host": "localhost",
     "port": "5432",
     "name": "postgres",
     "verbose": false,
     "username": "postgres",
     "password": "postgres",
-    "migrateOnStartup": true,
+    "migrateOnStartup": true
   },
   "countryTimeZone": "Australia/Sydney",
   "localisation": {
     "data": {
       "imagingTypes": {
-        "xRay": { "label": "X-Ray" }
+        "xRay": {
+          "label": "X-Ray"
+        }
       }
     }
   }
