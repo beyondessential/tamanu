@@ -1,0 +1,7 @@
+---
+schema: public
+name: patient_care_plans
+transformers:
+  - name: SetNull
+    params:
+      column: date_legacy

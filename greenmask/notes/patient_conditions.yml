@@ -1,0 +1,11 @@
+---
+schema: public
+name: patient_conditions
+transformers:
+  - name: Masking
+    params:
+      column: note
+
+  - name: Masking
+    params:
+      column: resolution_note

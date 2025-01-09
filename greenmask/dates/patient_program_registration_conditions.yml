@@ -1,0 +1,18 @@
+---
+schema: public
+name: patient_program_registration_conditions
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerTimestamp -}}'
+
+  - name: Template
+    params:
+      column: deletion_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}

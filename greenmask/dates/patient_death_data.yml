@@ -1,0 +1,23 @@
+---
+schema: public
+name: patient_death_data
+transformers:
+  - name: Template
+    params:
+      column: external_cause_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
+
+  - name: Template
+    params:
+      column: last_surgery_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}

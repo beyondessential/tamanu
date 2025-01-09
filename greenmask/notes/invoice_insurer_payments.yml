@@ -1,0 +1,7 @@
+---
+schema: public
+name: invoice_insurer_payments
+transformers:
+  - name: Masking
+    params:
+      column: reason

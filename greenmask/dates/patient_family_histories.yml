@@ -1,0 +1,8 @@
+---
+schema: public
+name: patient_family_histories
+transformers:
+  - name: Template
+    params:
+      column: recorded_date
+      template: '{{- fakerTimestamp -}}'

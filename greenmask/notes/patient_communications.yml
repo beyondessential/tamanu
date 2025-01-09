@@ -1,0 +1,19 @@
+---
+schema: public
+name: patient_communications
+transformers:
+  - name: Masking
+    params:
+      column: subject
+
+  - name: Masking
+    params:
+      column: content
+
+  - name: Masking
+    params:
+      column: destination
+
+  - name: Masking
+    params:
+      column: attachment

@@ -1,0 +1,7 @@
+---
+schema: public
+name: invoice_items
+transformers:
+  - name: Masking
+    params:
+      column: note

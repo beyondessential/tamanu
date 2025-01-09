@@ -1,0 +1,7 @@
+---
+schema: public
+name: patient_allergies
+transformers:
+  - name: Masking
+    params:
+      column: note
