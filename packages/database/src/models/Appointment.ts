@@ -167,7 +167,7 @@ export class Appointment extends Model {
         if (scheduleData.frequency === REPEAT_FREQUENCY.MONTHLY) {
           const { nthWeekday, daysOfWeek } = scheduleData;
           const [weekday] = daysOfWeek;
-          const weekdayPosition = weekdayAtOrdinalPosition(
+          const weekdayDate = weekdayAtOrdinalPosition(
             incrementedDate,
             weekday,
             nthWeekday,
@@ -175,7 +175,7 @@ export class Appointment extends Model {
           // Set the date to the nth weekday of the month as incremented startTime will fall on a different weekday
           return toDateTimeString(
             set(incrementedDate, {
-              date: weekdayPosition,
+              date: weekdayDate,
             }),
           ) as string;
         }
@@ -184,10 +184,9 @@ export class Appointment extends Model {
 
       const pushNextAppointment = () => {
         const currentAppointment = appointments.at(-1);
-        if (!currentAppointment)
+        if (!currentAppointment) {
           throw new Error('No latest appointment found when generating repeating appointments');
-        if (!currentAppointment.startTime)
-          throw new Error('No next start time found when generating repeating appointments');
+        }
         const nextAppointment = {
           ...currentAppointment,
           startTime: incrementByInterval(currentAppointment.startTime),
