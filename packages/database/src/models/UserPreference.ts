@@ -33,7 +33,7 @@ export class UserPreference extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         // Adding this index to the model will break the upsert (https://github.com/sequelize/sequelize/issues/12595)
-        // Since we dont use .sync() this is just for readability so leaving off
+        // Since we dont use .sync() this is just for readability so just leaving as comment
         // indexes: [
         //   {
         //     fields: ['user_id', 'key', Sequilize.literal(`COALESCE(facility_id, '')`)],
