@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
@@ -32,8 +32,6 @@ export class UserPreference extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        // TODO: cannot get this index to work no matter what i try
-        // indexes: [{ fields: ['user_id', 'key', Sequelize.fn('COALESCE', (Sequelize.col('facility_id')), '###')], unique: true }],
       },
     );
   }
