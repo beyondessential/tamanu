@@ -18,6 +18,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -64,7 +65,7 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
 
   const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
@@ -117,6 +118,14 @@ export const LocationBookingsView = () => {
 
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
+
+  const canListAppointment = ability.can('list', 'Appointment');
+  const canReadAppointment = ability.can('read', 'Appointment');
+
+  if (!canListAppointment && !canReadAppointment) {
+    // TODO: missed margin
+    return <NoPermissionScreen />;
+  }
 
   return (
     <Wrapper>
