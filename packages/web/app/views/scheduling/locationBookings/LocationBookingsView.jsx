@@ -121,6 +121,7 @@ export const LocationBookingsView = () => {
 
   const canListAppointment = ability.can('list', 'Appointment');
   const canReadAppointment = ability.can('read', 'Appointment');
+  const canCreateAppointment = ability.can('create', 'Appointment');
 
   if (!canListAppointment && !canReadAppointment) {
     // TODO: missed margin
@@ -131,13 +132,15 @@ export const LocationBookingsView = () => {
     <Wrapper>
       <LocationBookingsTopBar>
         <LocationBookingsFilter onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={handleNewBooking}>
-          <PlusIcon />
-          <TranslatedText
-            stringId="locationBooking.calendar.bookLocation"
-            fallback="Book location"
-          />
-        </NewBookingButton>
+        {canCreateAppointment && (
+          <NewBookingButton onClick={handleNewBooking}>
+            <PlusIcon />
+            <TranslatedText
+              stringId="locationBooking.calendar.bookLocation"
+              fallback="Book location"
+            />
+          </NewBookingButton>
+        )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>
