@@ -637,10 +637,8 @@ describe('User', () => {
       },
     };
 
-    const updateUserPreferences = async ({ userPreferences, facilityId = null }) => {
-      const result = await app
-        .post('/api/user/userPreferences')
-        .send({ facilityId, ...userPreferences });
+    const updateUserPreference = async ({ key, value, facilityId }) => {
+      const result = await app.post('/api/user/userPreferences').send({ key, value, facilityId });
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         id: expect.any(String),
@@ -660,7 +658,15 @@ describe('User', () => {
       facilityA = await models.Facility.create(fake(models.Facility));
       facilityB = await models.Facility.create(fake(models.Facility));
 
-      await updateUserPreferences({ userPreferences: defaultPreferences });
+      await updateUserPreference({
+        key: 'selectedGraphedVitalsOnFilter',
+        value: defaultPreferences.selectedGraphedVitalsOnFilter,
+      });
+
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: defaultPreferences.outpatientAppointmentFilters,
+      });
     });
 
     it('should fetch current user existing user preference', async () => {
@@ -677,17 +683,15 @@ describe('User', () => {
         appointmentTypeId: ['appointmentType-other'],
       };
 
-      await updateUserPreferences({
-        userPreferences: {
-          outpatientAppointmentFilters: facilityAOutpatientAppointmentFilters,
-        },
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: facilityAOutpatientAppointmentFilters,
         facilityId: facilityA.id,
       });
 
-      await updateUserPreferences({
-        userPreferences: {
-          outpatientAppointmentFilters: facilityBOutpatientAppointmentFilters,
-        },
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: facilityBOutpatientAppointmentFilters,
         facilityId: facilityB.id,
       });
 
@@ -709,10 +713,16 @@ describe('User', () => {
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
       const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
       const result1 = await app.get(`/api/user/userPreferences/${facilityA.id}`);
-      const result2 = await updateUserPreferences({
-        userPreferences: {
-          selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
-        },
+      const result2 = await updateUserPreference({
+        key: 'selectedGraphedVitalsOnFilter',
+        value: newSelectedGraphedVitalsOnFilter,
+        facilityId: facilityB.id,
+      });
+
+      await updateUserPreference({
+        key: 'selectedGraphedVitalsOnFilter',
+        value: newSelectedGraphedVitalsOnFilter,
+        facilityId: facilityB.id,
       });
 
       const result1Date = new Date(result1.body.updatedAt);
