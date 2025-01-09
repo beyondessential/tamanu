@@ -30,7 +30,7 @@ export async function up(query) {
     ON user_preferences (
       key,
       user_id,
-      COALESCE(facility_id, '###')
+      COALESCE(facility_id, '')
     );
   `);
 }
