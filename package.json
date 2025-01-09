@@ -60,7 +60,9 @@
       "packages/constants",
       "packages/settings",
       "packages/api-client",
-      "packages/mobile"
+      "packages/mobile",
+      "packages/database",
+      "packages/utils"
     ]
   },
   "devDependencies": {
@@ -73,7 +75,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^13.24.0",
-    "prettier": "^1.17.1",
+    "prettier": "^3.4.2",
     "yaml": "^2.2.1"
   },
   "dependencies": {

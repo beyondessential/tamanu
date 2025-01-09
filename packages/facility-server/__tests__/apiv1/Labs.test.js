@@ -8,10 +8,10 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomLabRequest,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { chance, fake } from '@tamanu/shared/test-helpers';
-import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { createLabTestTypes } from '@tamanu/database/demoData/labRequests';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
 describe('Labs', () => {
@@ -46,7 +46,7 @@ describe('Labs', () => {
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+    expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
     const createdLogs = await models.LabRequestLog.findAll({
       where: { labRequestId: createdRequest.id },
@@ -88,7 +88,7 @@ describe('Labs', () => {
         where: { labRequestId: createdRequest.id },
       });
       expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
-      expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+      expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
       const createdLogs = await models.LabRequestLog.findAll({
         where: { labRequestId: createdRequest.id },
@@ -204,7 +204,7 @@ describe('Labs', () => {
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labTestTypes.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+    expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
     const createdLogs = await models.LabRequestLog.findAll({
       where: { labRequestId: createdRequest.id },
@@ -257,7 +257,7 @@ describe('Labs', () => {
     expect(createdTests).toHaveLength(labTestTypes.length);
     expect(
       createdTests.every(
-        x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
+        (x) => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
       ),
     );
 
@@ -333,7 +333,7 @@ describe('Labs', () => {
   });
 
   it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
-    const makeLabTestType = async visibilityStatus => {
+    const makeLabTestType = async (visibilityStatus) => {
       const category = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
         type: 'labTestCategory',
@@ -362,7 +362,7 @@ describe('Labs', () => {
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.length).toBe(3);
-    body.forEach(labTestType => {
+    body.forEach((labTestType) => {
       expect(labTestType.visibilityStatus).toBe(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
     });
   });
@@ -377,7 +377,7 @@ describe('Labs', () => {
     expect(result).toHaveSucceeded();
     const { body } = result;
 
-    expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
+    expect(body.every((panel) => panel.visibilityStatus === 'current')).toBeTruthy();
   });
 
   describe('Lab test results', () => {
@@ -475,7 +475,7 @@ describe('Labs', () => {
     ];
     const [facilityId] = selectFacilityIds(config);
     const otherFacilityId = 'kerang';
-    const makeRequestAtFacility = async facilityId => {
+    const makeRequestAtFacility = async (facilityId) => {
       const location = await models.Location.create({
         ...fake(models.Location),
         facilityId,
@@ -509,7 +509,7 @@ describe('Labs', () => {
     it('should omit external requests when allFacilities is false', async () => {
       const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
-      result.body.data.forEach(lr => {
+      result.body.data.forEach((lr) => {
         expect(lr.facilityId).toBe(facilityId);
       });
     });
@@ -518,10 +518,10 @@ describe('Labs', () => {
       const result = await app.get(`/api/labRequest?allFacilities=true`);
       expect(result).toHaveSucceeded();
 
-      const hasConfigFacility = result.body.data.some(lr => lr.facilityId === facilityId);
+      const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
       expect(hasConfigFacility).toBe(true);
 
-      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
+      const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
       expect(hasOtherFacility).toBe(true);
     });
   });
@@ -529,7 +529,7 @@ describe('Labs', () => {
 async function createTestTypesForPanel(models, labTestPanel) {
   const labTestTypes = await createLabTestTypes(models);
   await Promise.all(
-    labTestTypes.map(ltt =>
+    labTestTypes.map((ltt) =>
       models.LabTestPanelLabTestTypes.create({
         labTestPanelId: labTestPanel.id,
         labTestTypeId: ltt.id,

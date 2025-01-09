@@ -2,14 +2,14 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
-import { sleepAsync } from '@tamanu/shared/utils';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 import {
   SYSTEM_USER_UUID,
   TASK_NOTE_COMPLETE_OVERDUE_REASON_ID,
   TASK_STATUSES,
 } from '@tamanu/constants';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 const MILLISECONDS_PER_DAY = 86400000;
 

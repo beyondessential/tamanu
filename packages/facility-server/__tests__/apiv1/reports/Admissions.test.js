@@ -4,11 +4,11 @@ import {
   createDummyPatient,
   randomRecord,
   randomReferenceData,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { format } from '@tamanu/shared/utils/dateTime';
+import { format } from '@tamanu/utils/dateTime';
 import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 

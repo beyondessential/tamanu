@@ -3,7 +3,7 @@ import { omit } from 'lodash';
 
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -12,7 +12,7 @@ import { VERSION } from './middleware/versionCompatibility.js';
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
  * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
  * @typedef {import('sequelize').Sequelize} Sequelize
- * @typedef {import('@tamanu/shared/models')} Models
+ * @typedef {import('@tamanu/database/models')} Models
  */
 
 export class ApplicationContext {

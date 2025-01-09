@@ -2,7 +2,7 @@
 
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { format, toDateTimeString } from '../../utils/dateTime';
+import { format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';

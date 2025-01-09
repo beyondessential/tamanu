@@ -5,12 +5,12 @@ import {
   createDummyTriage,
   randomRecordId,
   randomReferenceId,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { fake } from '@tamanu/shared/test-helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 describe('Triage', () => {
   let app = null;
@@ -294,7 +294,7 @@ describe('Triage', () => {
         facilityId: facility.id,
       });
 
-      createTestTriage = async overrides => {
+      createTestTriage = async (overrides) => {
         const { Patient, Triage } = models;
         const encounterPatient = await Patient.create(await createDummyPatient(models));
         return Triage.create(
@@ -307,9 +307,9 @@ describe('Triage', () => {
         );
       };
 
-      bulkCreateTestTriage = async triageConfigs => {
+      bulkCreateTestTriage = async (triageConfigs) => {
         const promises = [];
-        triageConfigs.forEach(c => {
+        triageConfigs.forEach((c) => {
           promises.push(createTestTriage(c));
         });
         await Promise.all(promises);
@@ -382,7 +382,7 @@ describe('Triage', () => {
       });
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
-      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
     test.todo('should get a list of all triages with relevant attached data');

@@ -4,7 +4,7 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
 import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';

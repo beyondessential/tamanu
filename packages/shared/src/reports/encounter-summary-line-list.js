@@ -1,7 +1,7 @@
 import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const BASE_FIELDS = [
@@ -82,15 +82,15 @@ with
     group by record_id
   ),
   lab_test_info as (
-    select 
+    select
       lab_request_id,
       json_agg(ltt.name) tests
     from lab_tests lt
     join lab_test_types ltt on ltt.id = lt.lab_test_type_id
-    group by lab_request_id 
+    group by lab_request_id
   ),
   lab_request_info as (
-    select 
+    select
       encounter_id,
       json_agg(
         json_build_object(
@@ -99,7 +99,7 @@ with
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
-    where lr.status NOT IN(:lab_request_statuses) 
+    where lr.status NOT IN(:lab_request_statuses)
     group by encounter_id
   ),
   procedure_info as (
@@ -118,7 +118,7 @@ with
     from "procedures" p
     left join reference_data proc ON proc.id = procedure_type_id
     left join locations loc on loc.id = location_id
-    group by encounter_id 
+    group by encounter_id
   ),
   medications_info as (
     select
@@ -163,14 +163,14 @@ with
         '; '
       ) "Vaccinations"
     from administered_vaccines av
-    join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
-    join reference_data drug on drug.id = sv.vaccine_id 
+    join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
+    join reference_data drug on drug.id = sv.vaccine_id
     group by encounter_id
   ),
   area_locations as (
-    select 
-      id 
-    from locations 
+    select
+      id
+    from locations
     where location_group_id = :location_group_id
   ),
   imaging_areas_by_request as (
@@ -194,7 +194,7 @@ with
       ) "Imaging requests"
     from imaging_requests ir
     left join notes_info ni on ni.record_id = ir.id
-    left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+    left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id
     where ir.status NOT IN ('deleted', 'cancelled', 'entered_in_error')
     group by encounter_id
   ),
@@ -228,7 +228,7 @@ with
         regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
       from notes
     ) matched_vals
-    on matched_vals.id = n.id 
+    on matched_vals.id = n.id
     where note_type = 'system'
     and n.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
@@ -273,7 +273,7 @@ with
       e.id encounter_id,
       nh.change_type place,
       jsonb_build_array(
-        case when nh.change_type = 'location' then e.location_id else e.department_id end) 
+        case when nh.change_type = 'location' then e.location_id else e.department_id end)
         || jsonb_agg(case when nh.change_type = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
@@ -345,7 +345,7 @@ with
       and change_type = 'type'
       union all
       select e.encounter_type, e.end_date
-    ) type_history on true 
+    ) type_history on true
   ),
   encounter_type_info as (
     select distinct
@@ -445,8 +445,8 @@ ${includedPatientFieldIds
   .join('\n')}
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 
-and case when :location_group_id is not null then li.place_id_list::jsonb ?| (select array_append(array_agg(id), :location_group_id) from area_locations) else true end 
+and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end
+and case when :location_group_id is not null then li.place_id_list::jsonb ?| (select array_append(array_agg(id), :location_group_id) from area_locations) else true end
 and case when :from_date is not null then e.start_date::timestamp >= :from_date::timestamp else true end
 and case when :to_date is not null then e.start_date::timestamp <= :to_date::timestamp else true end
 order by e.start_date desc;

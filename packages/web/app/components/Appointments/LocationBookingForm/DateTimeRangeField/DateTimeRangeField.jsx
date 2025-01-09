@@ -2,7 +2,7 @@ import { addDays, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';

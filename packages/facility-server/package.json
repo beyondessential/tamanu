@@ -38,7 +38,9 @@
     "@casl/ability": "^6.7.1",
     "@opentelemetry/api": "^1.9.0",
     "@tamanu/constants": "*",
+    "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.1.1",
@@ -77,7 +79,7 @@
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "yup": "^0.32.9",
-    "uuid": "^8.3.2",
+    "uuid": "^11.0.3",
     "zod": "^3.23.8",
     "pg-notify": "^1.0.5",
     "hookable": "^5.5.3"
