@@ -2,7 +2,6 @@
 # The general concept is to build in build-base, then copy into a slimmer run-base
 FROM node:20-alpine AS base
 WORKDIR /app
-ENV NODE_ENV=production
 COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
@@ -19,6 +18,7 @@ COPY common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base
+ENV NODE_ENV=production
 RUN apk add --no-cache bash curl jq
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
@@ -35,6 +35,7 @@ COPY packages/ packages/
 
 # do the build, which will also reduce to just the target package
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
+RUN npm prune --production
 
 
 ## Normal final target for servers
