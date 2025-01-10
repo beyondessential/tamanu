@@ -313,7 +313,7 @@ export const TimeSlotPicker = ({
       return;
     }
 
-    // Not a destructure to convince linter we don’t need `values` as object dependency
+    // Not a destructure to convince linter we don’t need `values` object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
 
