@@ -87,6 +87,7 @@ export const AppointmentDetailPopper = ({
   ];
 
   const canWriteAppointment = ability.can('write', 'Appointment');
+  const canCreateEncounter = ability.can('create', 'Encounter');
 
   return (
     <Popper
@@ -118,7 +119,9 @@ export const AppointmentDetailPopper = ({
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <Footer>
               <AppointmentStatusSelector appointment={appointment} />
-              {canWriteAppointment && <CheckInButton appointment={appointment} />}
+              {canWriteAppointment && canCreateEncounter && (
+                <CheckInButton appointment={appointment} />
+              )}
             </Footer>
           </StyledPaper>
         </div>
