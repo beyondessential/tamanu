@@ -440,20 +440,22 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
             onChange={handleResetEmailFields}
           />
-          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-          <Field
-            name="isRepeatingAppointment"
-            onChange={handleChangeIsRepeatingAppointment}
-            disabled={!values.startTime}
-            label={
-              <TranslatedText
-                stringId="appointment.isRepeatingAppointment.label"
-                fallback="Repeat appointment"
-              />
-            }
-            component={CheckField}
-          />
-          {values.isRepeatingAppointment && !isEdit && (
+          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}\
+          {!isEdit && (
+            <Field
+              name="isRepeatingAppointment"
+              onChange={handleChangeIsRepeatingAppointment}
+              disabled={!values.startTime}
+              label={
+                <TranslatedText
+                  stringId="appointment.isRepeatingAppointment.label"
+                  fallback="Repeat appointment"
+                />
+              }
+              component={CheckField}
+            />
+          )}
+          {values.isRepeatingAppointment && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
