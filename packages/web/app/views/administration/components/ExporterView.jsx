@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -19,7 +19,7 @@ const ExportButtonRow = styled(ButtonRow)`
   justify-content: flex-start;
 `;
 
-const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
+const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
   <FormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
@@ -35,9 +35,7 @@ const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
       />
     )}
     <ExportButtonRow>
-      <FormSubmitButton
-        text={<TranslatedText stringId="general.action.export" fallback="Export" />}
-      />
+      <FormSubmitButton text={buttonLabel} />
     </ExportButtonRow>
   </FormGrid>
 );
@@ -60,9 +58,22 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
     [api, title, endpoint],
   );
 
+  const buttonLabel = useMemo(() => {
+    return (
+      <span>
+        <TranslatedText stringId="general.action.export" fallback="Export" /> {title.toLowerCase()}
+      </span>
+    );
+  }, [title]);
+
   const renderForm = useCallback(
     props => (
-      <ExportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+      <ExportForm
+        dataTypes={dataTypes}
+        dataTypesSelectable={dataTypesSelectable}
+        buttonLabel={buttonLabel}
+        {...props}
+      />
     ),
     [dataTypes, dataTypesSelectable],
   );
