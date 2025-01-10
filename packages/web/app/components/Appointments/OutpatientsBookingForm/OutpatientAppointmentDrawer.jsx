@@ -449,7 +449,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
               label={
                 <TranslatedText
                   stringId="appointment.isRepeatingAppointment.label"
-                  fallback="Repeat appointment"
+                  fallback="Repeating appointment"
                 />
               }
               component={CheckField}
