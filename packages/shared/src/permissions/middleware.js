@@ -1,3 +1,4 @@
+import { every, isFalsy } from 'lodash';
 import { BadAuthenticationError, ForbiddenError } from '../errors';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
@@ -50,20 +51,7 @@ const checkPermission = (req, action, subject, field = '') => {
     req.audit.addPermissionCheck(action, subjectName, subject?.id);
   }
 
-  if (!hasPermission) {
-    // user is logged in fine, they're just not allowed - 403
-    const rule = ability.relevantRuleFor(action, subject, field);
-    const reason =
-      (rule && rule.reason) || `No permission to perform action "${action}" on "${subjectName}"`;
-
-    if (req.audit) {
-      req.audit.annotate({
-        forbiddenReason: reason,
-      });
-    }
-
-    throw new ForbiddenError(reason);
-  }
+  return hasPermission;
 };
 
 // this middleware goes at the top of the middleware stack
@@ -71,7 +59,33 @@ export function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
 
   req.checkPermission = (action, subject) => {
-    checkPermission(req, action, subject);
+    const rule = req.ability.relevantRuleFor(action, subject);
+    const subjectName = getSubjectName(subject);
+    const reason =
+      (rule && rule.reason) || `No permission to perform action "${action}" on "${subjectName}"`;
+    const hasPermission = checkPermission(req, action, subject);
+    if (!hasPermission) {
+      if (req.audit) {
+        req.audit.annotate({
+          forbiddenReason: reason,
+        });
+      }
+      throw new ForbiddenError(reason);
+    }
+  };
+
+  req.checkForOneOfPermission = (actions, subject) => {
+    const permissionChecks = actions.map((action) => checkPermission(req, action, subject));
+    if (every(permissionChecks, isFalsy)) {
+      const subjectName = getSubjectName(subject);
+      const reason = `No permission to perform any of actions "${actions}" on "${subjectName}"`;
+      if (req.audit) {
+        req.audit.annotate({
+          forbiddenReason: reason,
+        });
+      }
+      throw new ForbiddenError(reason);
+    }
   };
 
   req.flagPermissionChecked = () => {
