@@ -8,11 +8,9 @@ import { useTranslation } from '../../../contexts/Translation';
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
 const TranslationEditView = () => (
-  <PageContainer>
-    <ContentPane>
-      <TranslationForm />
-    </ContentPane>
-  </PageContainer>
+  <ContentPane>
+    <TranslationForm />
+  </ContentPane>
 );
 
 export const TranslationAdminView = () => {
@@ -22,7 +20,7 @@ export const TranslationAdminView = () => {
     label: <TranslatedText stringId="admin.translation.edit" fallback="Edit" />,
     key: 'edit',
     icon: 'fa fa-edit',
-    render: () => <TranslationEditView />,
+    render: TranslationEditView,
   };
   return (
     <ImportExportView
