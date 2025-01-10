@@ -43,17 +43,30 @@ const IntervalText = ({ interval, frequency }) => {
   );
 };
 
-const FrequencyText = ({ frequency, startTimeDate }) => {
-  const weekday = format(startTimeDate, 'EEEE');
-  const ordinalText = useOrdinalText(startTimeDate, frequency);
-  return frequency === REPEAT_FREQUENCY.WEEKLY ? (
+const WeeklyFrequencyText = ({ weekday, interval }) =>
+  interval === 1 ? (
     <TranslatedText
-      stringId="outpatientAppointments.repeating.onWeekdayText"
+      stringId="outpatientAppointments.repeating.onAWeekdayText"
       fallback="on a :weekday"
       replacements={{
         weekday,
       }}
     />
+  ) : (
+    <TranslatedText
+      stringId="outpatientAppointments.repeating.onWeekDayText"
+      fallback="on :weekday"
+      replacements={{
+        weekday,
+      }}
+    />
+  );
+
+const FrequencyText = ({ frequency, interval, startTimeDate }) => {
+  const weekday = format(startTimeDate, 'EEEE');
+  const ordinalText = useOrdinalText(startTimeDate, frequency);
+  return frequency === REPEAT_FREQUENCY.WEEKLY ? (
+    <WeeklyFrequencyText weekday={weekday} interval={interval} />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onNthWeekdayText"
@@ -74,7 +87,7 @@ export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, int
         fallback="Repeats on:"
       />{' '}
       <IntervalText frequency={frequency} interval={interval} />{' '}
-      <FrequencyText frequency={frequency} startTimeDate={startTimeDate} />
+      <FrequencyText frequency={frequency} interval={interval} startTimeDate={startTimeDate} />
     </>
   ) : (
     <TranslatedText
