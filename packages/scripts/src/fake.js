@@ -168,6 +168,8 @@ async function generateData(models) {
       userId: examiner.id,
     }),
   );
+
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
   const prescription = await Prescription.create(
     fake(Prescription, {
       medicationId: referenceData.id,
@@ -235,7 +237,6 @@ async function generateData(models) {
     }),
   );
 
-  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
