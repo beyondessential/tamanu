@@ -198,7 +198,7 @@ const NoteContent = ({
       </NoteBodyContainer>
       <NoteExpandControlContainer>
         {contentIsClipped && !contentIsExpanded && (
-          <ReadMoreSpan $bottom={'0'} onClick={handleReadMore}>
+          <ReadMoreSpan onClick={handleReadMore}>
             ...
             <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
           </ReadMoreSpan>
