@@ -87,7 +87,7 @@ export class Prescription extends Model {
     return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
   }
 
-  static buildPatientSyncFilter() {
+  static buildSyncFilter() {
     return null; // syncs everywhere
   }
 
