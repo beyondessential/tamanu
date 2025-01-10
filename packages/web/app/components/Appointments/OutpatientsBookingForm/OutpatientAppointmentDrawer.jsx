@@ -440,7 +440,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={CheckField}
             onChange={handleResetEmailFields}
           />
-          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}\
+          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           {!isEdit && (
             <Field
               name="isRepeatingAppointment"
