@@ -62,20 +62,34 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
     />
   );
 
+const MonthlyFrequencyText = ({ weekday, nth, interval }) =>
+  interval === 1 ? (
+    <TranslatedText
+      stringId="outpatientAppointments.repeating.onTheNthWeekdayText"
+      fallback="on the :nth :weekday"
+      replacements={{
+        nth,
+        weekday,
+      }}
+    />
+  ) : (
+    <TranslatedText
+      stringId="outpatientAppointments.repeating.onNthWeekdayText"
+      fallback="on :nth :weekday"
+      replacements={{
+        nth,
+        weekday,
+      }}
+    />
+  );
+
 const FrequencyText = ({ frequency, interval, startTimeDate }) => {
   const weekday = format(startTimeDate, 'EEEE');
   const ordinalText = useOrdinalText(startTimeDate, frequency);
   return frequency === REPEAT_FREQUENCY.WEEKLY ? (
     <WeeklyFrequencyText weekday={weekday} interval={interval} />
   ) : (
-    <TranslatedText
-      stringId="outpatientAppointments.repeating.onNthWeekdayText"
-      fallback="on :nth :weekday"
-      replacements={{
-        nth: ordinalText,
-        weekday,
-      }}
-    />
+    <MonthlyFrequencyText weekday={weekday} nth={ordinalText} interval={interval} />
   );
 };
 
