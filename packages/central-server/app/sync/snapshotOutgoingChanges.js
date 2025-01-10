@@ -3,7 +3,7 @@ import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
+} from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';

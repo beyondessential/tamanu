@@ -6,7 +6,7 @@ import {
   randomReferenceId,
   randomReferenceIds,
   randomUser,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { createTestContext } from '../../utilities';
 
 describe('Incomplete Referrals report', () => {

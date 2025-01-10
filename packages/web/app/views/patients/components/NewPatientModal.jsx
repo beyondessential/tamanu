@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { generateId } from '@tamanu/shared/utils/generateId';
+import { generateId } from '@tamanu/utils/generateId';
 
 import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';

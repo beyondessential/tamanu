@@ -7,7 +7,7 @@ import {
   createSnapshotTable,
   findSyncSnapshotRecords,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
+} from '@tamanu/database/sync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
@@ -37,7 +37,7 @@ describe('sanitize binary data', () => {
               startTime,
               lastConnectionTime: startTime,
             });
-            const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+            const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
 
             const asset = await Asset.create(
               fake(Asset, {

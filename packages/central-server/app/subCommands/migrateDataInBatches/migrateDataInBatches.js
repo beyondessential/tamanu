@@ -1,6 +1,6 @@
 import { Argument, Command } from 'commander';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import * as dataMigrations from './dataMigrations';
 import { initDatabase } from '../../database';
 

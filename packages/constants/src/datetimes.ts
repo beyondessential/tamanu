@@ -5,4 +5,4 @@ export const TIME_UNIT_OPTIONS = [
   { unit: 'weeks', minutes: 60 * 24 * 7 },
   { unit: 'months', minutes: 60 * 24 * 30 },
   { unit: 'years', minutes: 60 * 24 * 365 },
-];
+] as const;

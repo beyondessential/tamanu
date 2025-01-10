@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Form, LocalisedField, SuggesterSelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';

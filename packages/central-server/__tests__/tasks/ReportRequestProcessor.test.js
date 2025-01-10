@@ -1,5 +1,5 @@
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
-import { fakeUUID } from '../../../shared/src/utils';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { ReportRequestProcessor } from '../../app/tasks/ReportRequestProcessor';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/shared/test-helpers';

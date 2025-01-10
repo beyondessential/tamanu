@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { DateField } from './DateField';
 import { Field } from './Field';

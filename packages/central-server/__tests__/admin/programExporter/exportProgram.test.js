@@ -1,10 +1,7 @@
 import { exportProgram } from '../../../dist/admin/programExporter';
 import { createTestContext } from '../../utilities';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { Program } from '@tamanu/shared/models/Program';
-import { Survey } from '@tamanu/shared/models/Survey';
-import { ProgramDataElement } from '@tamanu/shared/models/ProgramDataElement';
-import { SurveyScreenComponent } from '@tamanu/shared/models/SurveyScreenComponent';
+import { Program, Survey, ProgramDataElement, SurveyScreenComponent } from '@tamanu/database';
 
 const surveySheetHeaders = [
   'code',

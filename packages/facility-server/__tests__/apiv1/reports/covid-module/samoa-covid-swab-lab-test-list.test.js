@@ -1,5 +1,5 @@
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
@@ -41,7 +41,7 @@ const REPORT_COLUMNS = [
  * dataRow should start at 1, row 0 contains header names
  */
 function getDataForColumn(report, columnName, dataRow) {
-  const columnIndex = REPORT_COLUMNS.findIndex(c => c === columnName);
+  const columnIndex = REPORT_COLUMNS.findIndex((c) => c === columnName);
   return report[dataRow][columnIndex];
 }
 

@@ -11,10 +11,10 @@ export const round = (value, decimals = 2) => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();
 };
 
-/** @typedef {import('../models').Invoice} Invoice */
-/** @typedef {import('../models').InvoiceDiscount} InvoiceDiscount */
-/** @typedef {import('../models').InvoiceInsurer} InvoiceInsurer */
-/** @typedef {import('../models').InvoiceItem} InvoiceItem */
+/** @typedef {import('@tamanu/database/models').Invoice} Invoice */
+/** @typedef {import('@tamanu/database/models').InvoiceDiscount} InvoiceDiscount */
+/** @typedef {import('@tamanu/database/models').InvoiceInsurer} InvoiceInsurer */
+/** @typedef {import('@tamanu/database/models').InvoiceItem} InvoiceItem */
 
 export const isInvoiceEditable = invoice => invoice.status === INVOICE_STATUSES.IN_PROGRESS;
 /**

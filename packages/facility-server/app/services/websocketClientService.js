@@ -3,7 +3,7 @@ import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
- * @param {{config: { sync: { host: string}, language: string}, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('../../../shared/src/models')}} injector
+ * @param {{config: { sync: { host: string}, language: string}, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
   const client = io(injector.config.sync.host, { transports: ['websocket'] });

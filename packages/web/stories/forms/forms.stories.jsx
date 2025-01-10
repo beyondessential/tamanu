@@ -12,7 +12,7 @@ import {
   FACILITIES,
   LOCATIONS,
   USERS,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
