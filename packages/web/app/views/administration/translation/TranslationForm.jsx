@@ -22,6 +22,16 @@ import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 
+const Container = styled.div`
+  padding: 30px;
+  min-height: 0;
+  form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
     text-align: left;
@@ -214,7 +224,7 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
           </OutlinedButton>
         </ButtonRow>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} pagination />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
     </>
   );
 };
@@ -256,20 +266,22 @@ export const TranslationForm = () => {
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 
   return (
-    <Form
-      initialValues={initialValues}
-      enableReinitialize
-      showInlineErrorsOnly
-      onSubmit={handleSubmit}
-      validationSchema={validationSchema}
-      render={props => (
-        <FormContents
-          {...props}
-          data={sortedTranslations}
-          languageNames={languageNames}
-          isSaving={isSaving}
-        />
-      )}
-    />
+    <Container>
+      <Form
+        initialValues={initialValues}
+        enableReinitialize
+        showInlineErrorsOnly
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        render={props => (
+          <FormContents
+            {...props}
+            data={sortedTranslations}
+            languageNames={languageNames}
+            isSaving={isSaving}
+          />
+        )}
+      />
+    </Container>
   );
 };
