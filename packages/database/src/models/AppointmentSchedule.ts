@@ -141,13 +141,12 @@ export class AppointmentSchedule extends Model {
       }),
       joins: `
         JOIN (
-        SELECT DISTINCT ON (schedule_id) *
-        FROM appointments
-        ) appointments ON appointments.schedule_id = appointment_schedules.id
+          SELECT DISTINCT ON (schedule_id) *
+          FROM appointments
+        ) appointments ON appointments.schedule_id = ${this.tableName}.id
         LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
-      where: 'appointments.id IS NOT NULL',
     };
   }
 }
