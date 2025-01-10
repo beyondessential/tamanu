@@ -63,7 +63,6 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
 
   const canWriteAppointment = ability.can('write', 'Appointment');
 
-  // TODO: disable as per card
   return (
     <ChipGroup
       aria-label="Appointment status"

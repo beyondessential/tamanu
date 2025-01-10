@@ -198,7 +198,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     );
   }
 
-  const canWriteAppointment = ability.can('write', 'Appointment');
+  const canCreateAppointment = ability.can('create', 'Appointment');
 
   return (
     <Box
@@ -221,27 +221,29 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                   onEdit={() => onOpenDrawer(a)}
                   onCancel={() => onCancel(a)}
                   actions={
-                    canWriteAppointment && [
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.newAppointment"
-                            fallback="New appointment"
-                          />
-                        ),
-                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.emailAppointment"
-                            fallback="Email appointment"
-                          />
-                        ),
-                        action: () =>
-                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                      },
-                    ]
+                    canCreateAppointment
+                      ? [
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.newAppointment"
+                                fallback="New appointment"
+                              />
+                            ),
+                            action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                          },
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.emailAppointment"
+                                fallback="Email appointment"
+                              />
+                            ),
+                            action: () =>
+                              setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                          },
+                        ]
+                      : []
                   }
                 />
               ))}
