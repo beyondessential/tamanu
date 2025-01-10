@@ -150,7 +150,6 @@ const NoteContent = ({
   const { currentUser, ability } = useAuth();
   const hasIndividualNotePermission = getIndividualNotePermissionCheck(ability, currentUser, note);
   const noteContentContainerRef = useRef();
-  const contentLineClipping = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [contentIsExpanded, setContentIsExpanded] = useState(false);
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
@@ -184,14 +183,7 @@ const NoteContent = ({
         <NoteContentContainer $expanded={contentIsExpanded} ref={noteContentContainerRef}>
           {note?.content?.split('\n').map((line, i) => {
             return (
-              <span
-                key={i}
-                ref={el => {
-                  const tempLineClipping = [...(contentLineClipping?.current || [])];
-                  tempLineClipping[i] = el;
-                  contentLineClipping.current = tempLineClipping;
-                }}
-              >
+              <span key={i}>
                 {line}
                 {'\n'}
               </span>
