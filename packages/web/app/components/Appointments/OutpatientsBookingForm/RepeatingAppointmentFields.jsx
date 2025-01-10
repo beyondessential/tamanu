@@ -57,7 +57,7 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
       padding-bottom: 7px;
     }
     width: 108px;
-    margin-block-start: 23px;
+    margin-block-start: 20px;
   }
 `;
 
