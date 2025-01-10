@@ -30,6 +30,7 @@ export const TranslationAdminView = () => {
       endpoint="referenceData"
       dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
       buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+      defaultTab="edit"
     />
   );
 };
