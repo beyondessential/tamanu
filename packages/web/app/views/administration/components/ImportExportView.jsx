@@ -9,7 +9,6 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
-  border-top: 1px solid #dededede;
 
   .MuiTabs-root {
     padding: 0px 20px;
