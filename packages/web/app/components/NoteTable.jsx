@@ -184,7 +184,7 @@ const NoteContent = ({
         <NoteContentContainer $expanded={contentIsExpanded} ref={noteContentContainerRef}>
           {note?.content?.split('\n').map((line, i) => {
             return (
-              <React.Fragment key={line}>
+              <React.Fragment key={i}>
                 <span
                   ref={el => {
                     const tempLineClipping = [...(contentLineClipping?.current || [])];
