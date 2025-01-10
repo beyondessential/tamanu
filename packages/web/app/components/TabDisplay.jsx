@@ -63,7 +63,7 @@ export const TabDisplay = React.memo(
         >
           {buttons}
         </TabContainer>
-        <div>{currentTabData.render({ ...tabProps })}</div>
+        {currentTabData.render({ ...tabProps })}
       </TabBar>
     );
   },
