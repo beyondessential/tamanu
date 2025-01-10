@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
+import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi } from '../../../api';
@@ -13,6 +14,10 @@ import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifySuccess } from '../../../utils';
+
+const ExportButtonRow = styled(ButtonRow)`
+  justify-content: flex-start;
+`;
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -29,11 +34,11 @@ const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
-    <ButtonRow>
+    <ExportButtonRow>
       <FormSubmitButton
         text={<TranslatedText stringId="general.action.export" fallback="Export" />}
       />
-    </ButtonRow>
+    </ExportButtonRow>
   </FormGrid>
 );
 
