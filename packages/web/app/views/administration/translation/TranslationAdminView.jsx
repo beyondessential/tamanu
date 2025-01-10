@@ -3,6 +3,7 @@ import { ContentPane, PageContainer } from '../../../components';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
+import { useTranslation } from '../../../contexts/Translation';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
@@ -15,6 +16,8 @@ const TranslationEditView = () => (
 );
 
 export const TranslationAdminView = () => {
+  const { getTranslation } = useTranslation();
+
   const editTab = {
     label: <TranslatedText stringId="admin.translation.edit" fallback="Edit" />,
     key: 'edit',
@@ -23,7 +26,7 @@ export const TranslationAdminView = () => {
   };
   return (
     <ImportExportView
-      title={<TranslatedText stringId="admin.translation.title" fallback="Translation" />}
+      title={getTranslation('admin.translation.title', 'Translation')}
       endpoint="referenceData"
       dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
       buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
