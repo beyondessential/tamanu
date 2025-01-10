@@ -61,8 +61,9 @@ const StyledButton = styled(({ ...props }) => {
   }
 
   &.MuiButton-outlinedPrimary {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${props => !props.disabled && props.theme.palette.primary.main};
   }
+
   ${props => props.confirmStyle ?? ''}
 `;
 

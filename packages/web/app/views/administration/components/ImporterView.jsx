@@ -10,12 +10,26 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
+import { FormSubmitButton } from '../../../components/Button';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useFormikContext } from 'formik';
 
 const ColorText = styled.span`
   color: ${props => props.color};
+`;
+
+const ContentRow = styled.div`
+  display: flex;
+  flex-direction: 'row';
+  align-items: flex-end;
+  justify-content: space-between;
+`;
+
+const ContentColumn = props => <FormGrid columns={1} {...props} />;
+
+const StyledButtonRow = styled(ButtonRow)`
+  width: 50%;
 `;
 
 const ERROR_COLUMNS = [
@@ -57,39 +71,47 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
-  <FormGrid columns={1}>
-    <Field
-      component={FileChooserField}
-      filters={[FILTER_EXCEL]}
-      label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
-      name="file"
-      required
-    />
-    {dataTypes && dataTypesSelectable && (
+const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => {
+  const { values } = useFormikContext();
+  const rowLayout = !dataTypesSelectable;
+  const ContentContainer = rowLayout ? ContentRow : ContentColumn;
+  return (
+    <ContentContainer $rowLayout={rowLayout}>
       <Field
-        name="includedDataTypes"
-        label={
-          <TranslatedText
-            stringId="admin.import.includedDataTypes.label"
-            fallback="Select data types to import"
-          />
-        }
-        component={ExpandedMultiSelectField}
-        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
+        component={FileChooserField}
+        filters={[FILTER_EXCEL]}
+        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
+        name="file"
+        required
       />
-    )}
-    <ButtonRow>
-      <LargeOutlinedSubmitButton
-        text={<TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />}
-        onSubmit={event => submitForm(event, { dryRun: true })}
-      />
-      <LargeSubmitButton
-        text={<TranslatedText stringId="general.action.import" fallback="Import" />}
-      />
-    </ButtonRow>
-  </FormGrid>
-);
+      {dataTypes && dataTypesSelectable && (
+        <Field
+          name="includedDataTypes"
+          label={
+            <TranslatedText
+              stringId="admin.import.includedDataTypes.label"
+              fallback="Select data types to import"
+            />
+          }
+          component={ExpandedMultiSelectField}
+          options={dataTypes.map(value => ({ value, label: startCase(value) }))}
+        />
+      )}
+      <StyledButtonRow>
+        <FormSubmitButton
+          variant="outlined"
+          onSubmit={event => submitForm(event, { dryRun: true })}
+          disabled={!values.file}
+        >
+          <TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />
+        </FormSubmitButton>
+        <FormSubmitButton disabled={!values.file}>
+          <TranslatedText stringId="general.action.import" fallback="Import" />
+        </FormSubmitButton>
+      </StyledButtonRow>
+    </ContentContainer>
+  );
+};
 
 function sumStat(stats, fields = ['created', 'updated', 'errored']) {
   return sum(Object.values(stats).map(stat => sum(fields.map(f => stat[f]))));
