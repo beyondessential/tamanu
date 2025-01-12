@@ -11,9 +11,6 @@ const StyledSwitch = styled(Switch)`
   justify-content: center;
   height: 1.25rem;
   width: 3rem;
-  .MuiFormControlLabel-root {
-    margin-left: 0;
-  }
   .MuiButtonBase-root {
     padding: 0;
   }
@@ -43,10 +40,18 @@ const StyledSwitch = styled(Switch)`
   }
 `;
 
+const StyledFormControlLabel = styled(FormControlLabel)`
+  margin-left: 0;
+`;
+
 export const SwitchInput = ({ label, disabled, value, ...props }) => {
+  const handleChange = event => {
+    event.target.value = event.target.checked;
+    props.onChange(event);
+  };
   return (
-    <FormControlLabel
-      control={<StyledSwitch value={value} {...props} />}
+    <StyledFormControlLabel
+      control={<StyledSwitch checked={value} {...props} onChange={handleChange} />}
       label={label}
       disabled={disabled}
     />
