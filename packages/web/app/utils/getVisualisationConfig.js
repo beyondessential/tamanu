@@ -7,7 +7,7 @@ export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => 
   let visualisationConfigs = [];
 
   // Complex charts should not have graphs enabled yet, this will be done later
-  if (surveyData.surveyType === SURVEY_TYPES.COMPLEX_CHART) {
+  if (surveyData?.surveyType === SURVEY_TYPES.COMPLEX_CHART) {
     return { ...restOfQuery, data: { visualisationConfigs, allGraphedChartKeys: [] } };
   }
 

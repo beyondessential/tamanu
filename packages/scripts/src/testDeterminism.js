@@ -7,8 +7,8 @@ const { program } = require('commander');
 const hashObject = require('object-hash');
 const { astVisitor, parseFirst } = require('pgsql-ast-parser');
 
-const { createMigrationInterface } = require('@tamanu/shared/services/migrations');
-const { initDatabase } = require('@tamanu/shared/services/database');
+const { createMigrationInterface } = require('@tamanu/database/services/migrations');
+const { initDatabase } = require('@tamanu/database/services/database');
 const { SYNC_DIRECTIONS } = require('@tamanu/constants');
 const { log } = require('@tamanu/shared/services/logging');
 
@@ -25,12 +25,12 @@ function tableNamesFromQueries(queries) {
 function tableNamesFromQuery(query) {
   const tables = new Set();
   const visitor = astVisitor(() => ({
-    tableRef: t => tables.add(t.name),
+    tableRef: (t) => tables.add(t.name),
   }));
   try {
     visitor.statement(parseFirst(query));
   } catch (e) {
-    // intentionally ignore unparseable queries, since they're probably functions
+    // intentionally ignore unparsable queries, since they're probably functions
     // for debugging, uncomment:
     // console.error(e, query);
   }
@@ -125,7 +125,7 @@ async function getHashesForTables(sequelize, tables) {
     // exclude postgres tables, sync info, etc.
     if (UNHASHED_TABLES.includes(table)) continue;
 
-    const model = sequelize.modelManager.findModel(m => m.tableName === table);
+    const model = sequelize.modelManager.findModel((m) => m.tableName === table);
 
     // No need for determinism test when data is not shared between central and facility
     if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
@@ -133,7 +133,7 @@ async function getHashesForTables(sequelize, tables) {
     // get columns
     const allColumns = await getColumnsForModel(model);
     const columns = difference(allColumns, UNHASHED_COLUMNS);
-    columns.forEach(c => {
+    columns.forEach((c) => {
       if (typeof c !== 'string') throw new Error('column name must be a string');
       if (c.includes('"')) throw new Error("shouldn't have a double quote in column name");
     });
@@ -145,7 +145,7 @@ async function getHashesForTables(sequelize, tables) {
         attributes: columns,
         order: [[orderBy, 'DESC']],
       })
-    ).map(d => d.dataValues);
+    ).map((d) => d.dataValues);
     if (data.length === 0)
       throw new Error(
         `table not populated with data: ${table}. ` +
@@ -164,8 +164,8 @@ async function getColumnsForModel(model) {
 
 async function run(command, args) {
   const proc = spawn(command, args);
-  proc.stdout.on('data', d => console.log(d.toString()));
-  proc.stderr.on('data', d => console.error(d.toString()));
+  proc.stdout.on('data', (d) => console.log(d.toString()));
+  proc.stderr.on('data', (d) => console.error(d.toString()));
   const [code] = await once(proc, 'exit');
   if (code !== 0) {
     console.error(`${command} failed with ${code}.`);
@@ -219,5 +219,5 @@ async function getHashesForDb(migrationsInfo) {
       process.exit(1);
     }
   }
-  console.log(`The migrations are deterministic. Tested: ${hashesList1.map(h => h.name)}`);
+  console.log(`The migrations are deterministic. Tested: ${hashesList1.map((h) => h.name)}`);
 })();

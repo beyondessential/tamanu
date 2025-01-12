@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi } from '../../api';
 
 import { Table } from './Table';
@@ -9,8 +9,8 @@ import { TableRefreshButton } from './TableRefreshButton';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
+import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
 const initialiseFetchState = () => ({

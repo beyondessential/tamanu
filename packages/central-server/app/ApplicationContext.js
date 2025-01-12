@@ -2,7 +2,7 @@ import config from 'config';
 import { omit } from 'lodash';
 
 import { ReadSettings } from '@tamanu/settings';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 
 import { EmailService } from './services/EmailService';
@@ -10,6 +10,14 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
+
+export const CENTRAL_SERVER_APP_TYPES = {
+  API: 'api',
+  FHIR_WORKER: 'fhir-worker',
+  MAIN: 'main',
+  MIGRATE: 'migrate',
+  TASKS: 'tasks',
+};
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
@@ -36,7 +44,7 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ testMode, appType } = {}) {
+  async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -47,17 +55,24 @@ export class ApplicationContext {
       }
     }
 
-    this.emailService = new EmailService();
+    this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
-    this.store = await initDatabase({ testMode, dbKey: appType ?? 'main' });
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
 
     this.settings = new ReadSettings(this.store.models);
+
+    // no need to set up services, integrations, etc. for migrations
+    if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
+      return this;
+    }
+
+    this.emailService = new EmailService();
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
-
-    this.settings = new ReadSettings(this.store.models)
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
@@ -69,9 +84,6 @@ export class ApplicationContext {
       return null;
     }
 
-    this.closePromise = new Promise(resolve => {
-      this.onClose(resolve);
-    });
     await initIntegrations(this);
     return this;
   }

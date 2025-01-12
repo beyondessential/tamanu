@@ -9,16 +9,15 @@ import { useApi, useSuggester } from '../../api';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { MultiAutocompleteInput } from './MultiAutocompleteField';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
-  return useQuery(
-    ['locationSuggestion', locationId],
-    () => api.get(`suggestions/location/${locationId}`),
-    {
-      enabled: !!locationId,
-    },
-  );
+  // Get the last selected location id to determine its location group
+  const id = Array.isArray(locationId) ? locationId[locationId.length - 1] : locationId;
+  return useQuery(['locationSuggestion', id], () => api.get(`suggestions/location/${id}`), {
+    enabled: !!id,
+  });
 };
 
 export const LocationInput = React.memo(
@@ -33,9 +32,12 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    size = 'medium',
     form = {},
     enableLocationStatus = true,
     locationGroupSuggesterType = 'facilityLocationGroup',
+    autofill = true,
+    isMulti = false,
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -62,6 +64,12 @@ export const LocationInput = React.memo(
       setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
+
+    useEffect(() => {
+      if (value) {
+        setLocationId(value);
+      }
+    }, [value]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -100,6 +108,8 @@ export const LocationInput = React.memo(
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
+    const LocationAutocompleteInput = isMulti ? MultiAutocompleteInput : AutocompleteInput;
+
     return (
       <>
         {/* Show required asterisk but the field is not actually required */}
@@ -111,11 +121,12 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
-          autofill={!value} // do not autofill if there is a pre-filled value
+          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          size={size}
           helperText={helperText}
           error={error}
         />
-        <AutocompleteInput
+        <LocationAutocompleteInput
           label={label}
           disabled={locationSelectIsDisabled || disabled}
           name={name}
@@ -126,7 +137,8 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
-          autofill={!value} // do not autofill if there is a pre-filled value
+          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          size={size}
         />
       </>
     );

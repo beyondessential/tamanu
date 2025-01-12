@@ -5,17 +5,17 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import {
   createDummyAefiProgramDataElements,
   createDummyAefiSurveyAnswers,
   createDummyAefiSurveyScreenComponent,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import {
   createAdministeredVaccine,
   createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+} from '@tamanu/database/demoData/vaccines';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../../utilities';
 

@@ -9,7 +9,7 @@ import { Table } from './Table';
 import { DataSection } from './printComponents/DataSection';
 import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
-import { getCurrentDateString } from '../dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
 import { withLanguageContext } from '../pdf/languageContext';
@@ -42,7 +42,7 @@ const columns = [
   },
 ];
 
-const prescriptonSectionStyles = StyleSheet.create({
+const prescriptionSectionStyles = StyleSheet.create({
   tableContainer: {
     marginTop: 12,
   },
@@ -88,7 +88,7 @@ const PrescriptionsSection = ({
           <DataItem label="Facility" value={facility?.name} />
         </Col>
       </DataSection>
-      <View style={prescriptonSectionStyles.tableContainer}>
+      <View style={prescriptionSectionStyles.tableContainer}>
         <Table
           columns={columns}
           data={prescriptions}

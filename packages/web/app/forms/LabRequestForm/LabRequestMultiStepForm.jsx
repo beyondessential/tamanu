@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';

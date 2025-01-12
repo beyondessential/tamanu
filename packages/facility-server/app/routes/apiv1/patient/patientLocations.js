@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { objectToCamelCase } from '@tamanu/shared/utils';
+import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) => `
@@ -380,7 +380,7 @@ patientLocations.get(
     );
 
     res.send({
-      data: data.map(entry => objectToCamelCase(entry)),
+      data: data.map(entry => camelCaseProperties(entry)),
       count: parseInt(count, 10),
     });
   }),

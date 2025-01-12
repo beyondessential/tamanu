@@ -36,7 +36,7 @@ The priority of the request, normalized.
 
 Tamanu priorities are fully customisable, to accommodate a wide range of clinical practices.
 However this means there is no obvious way to map priorities to the FHIR set. It is an
-administrator's reponsibility to ensure the set of priorities in a Tamanu deployment matches usage.
+administrator's responsibility to ensure the set of priorities in a Tamanu deployment matches usage.
 As a stopgap, Tamanu priorities which do not match one of the FHIR priorities (`routine`, `urgent`,
 `asap`, `stat`) are encoded as `null`.
 {% enddocs %}

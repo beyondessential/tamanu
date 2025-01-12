@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
 import ms from 'ms';
 
-import { sleepAsync } from '../utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { getTracer, spanWrapFn } from '../services/logging';
 

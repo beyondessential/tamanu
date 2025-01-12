@@ -2,7 +2,7 @@ import config from 'config';
 import path from 'path';
 import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
-import { base64UrlEncode } from '@tamanu/shared/utils/encodings';
+import { base64UrlEncode } from '@tamanu/utils/encodings';
 
 import {
   COMMUNICATION_STATUSES,

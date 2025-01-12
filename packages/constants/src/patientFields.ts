@@ -32,7 +32,7 @@ export const MARTIAL_STATUS_LABELS = {
   [MARTIAL_STATUS_VALUES.UNKNOWN]: 'Unknown',
 };
 
-// TODO: used in BirthNotifcationCertificate and can be removed once translations are implemented there
+// TODO: used in BirthNotificationCertificate and can be removed once translations are implemented there
 export const MARITAL_STATUS_OPTIONS = [
   {
     value: MARTIAL_STATUS_VALUES.DEFACTO,

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';

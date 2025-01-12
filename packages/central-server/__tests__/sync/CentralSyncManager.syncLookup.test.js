@@ -9,15 +9,16 @@ import {
   REPORT_STATUSES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   getModelsForDirection,
   findSyncSnapshotRecords,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
-} from '@tamanu/shared/sync';
-import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY
+} from '@tamanu/database/sync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
@@ -151,6 +152,7 @@ describe('Sync Lookup data', () => {
       TaskTemplate,
       TaskTemplateDesignation,
       UserDesignation,
+      Notification,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -575,6 +577,13 @@ describe('Sync Lookup data', () => {
         designationId: referenceData.id,
       }),
     );
+
+    await Notification.create(
+      fake(Notification, {
+        userId: examiner.id,
+        patientId: patient.id,
+      }),
+    );
   };
 
   beforeAll(async () => {
@@ -776,7 +785,7 @@ describe('Sync Lookup data', () => {
     await models.Patient.create(fake(models.Patient));
 
     const expectedTick = CURRENT_SYNC_TICK + 3; // + 3 because tickTocked twice
-    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 becaused tickTocked twice
+    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 because tickTocked twice
     const originalTickTockImplementation = centralSyncManager.tickTockGlobalClock;
 
     const spy = jest

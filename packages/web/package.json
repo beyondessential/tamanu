@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -54,6 +54,8 @@
     "@tamanu/api-client": "*",
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
+    "@tamanu/database": "*",
     "@tanstack/react-query": "^4.0.10",
     "@tanstack/react-query-devtools": "^4.0.10",
     "@types/react-autosuggest": "^9.3.7",

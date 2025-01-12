@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { REPEATS_LABELS } from '@tamanu/constants';
 import { isFuture, parseISO, set } from 'date-fns';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';

@@ -1,6 +1,6 @@
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { subMinutes } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -61,7 +61,7 @@ const REPORT_COLUMNS = [
  * dataRow should start at 1, row 0 contains header names
  */
 function getDataForColumn(report, columnName, dataRow) {
-  const columnIndex = REPORT_COLUMNS.findIndex(c => c === columnName);
+  const columnIndex = REPORT_COLUMNS.findIndex((c) => c === columnName);
   return report[dataRow][columnIndex];
 }
 
@@ -99,8 +99,7 @@ async function createTravellerSurvey(models) {
     {
       id: 'pde-FijCOVRDT003',
       code: 'FijCOVRDT003',
-      name:
-        'Name of the facility where test is being conducted (hotel, resort or private testing facility)',
+      name: 'Name of the facility where test is being conducted (hotel, resort or private testing facility)',
       type: 'FreeText',
     },
     {

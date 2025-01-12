@@ -9,11 +9,11 @@ import {
   SETTINGS_SCOPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 
@@ -152,14 +152,14 @@ describe('Imaging requests', () => {
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.count).toBeGreaterThan(0);
-      const retrievedImgReq = body.data.find(ir => ir.id === createdImagingRequest.id);
+      const retrievedImgReq = body.data.find((ir) => ir.id === createdImagingRequest.id);
       expect(retrievedImgReq).toMatchObject({
         note: 'test-note',
         areaNote: 'test-area-note',
       });
       expect(
         retrievedImgReq.notes
-          .map(note => note.id)
+          .map((note) => note.id)
           .sort()
           .join(','),
       ).toBe([n1.id, n2.id].sort().join(','));
@@ -464,7 +464,7 @@ describe('Imaging requests', () => {
       it('should omit external requests when allFacilities is false', async () => {
         const result = await app.get(`/api/imagingRequest?allFacilities=false`);
         expect(result).toHaveSucceeded();
-        result.body.data.forEach(ir => {
+        result.body.data.forEach((ir) => {
           expect(ir.encounter.location.facilityId).toBe(facilityId);
         });
       });
@@ -474,12 +474,12 @@ describe('Imaging requests', () => {
         expect(result).toHaveSucceeded();
 
         const hasConfigFacility = result.body.data.some(
-          ir => ir.encounter.location.facilityId === facilityId,
+          (ir) => ir.encounter.location.facilityId === facilityId,
         );
         expect(hasConfigFacility).toBe(true);
 
         const hasOtherFacility = result.body.data.some(
-          ir => ir.encounter.location.facilityId === otherFacilityId,
+          (ir) => ir.encounter.location.facilityId === otherFacilityId,
         );
         expect(hasOtherFacility).toBe(true);
       });
@@ -489,7 +489,7 @@ describe('Imaging requests', () => {
           `/api/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
         );
         expect(result).toHaveSucceeded();
-        result.body.data.forEach(ir => {
+        result.body.data.forEach((ir) => {
           expect(ir.status).toBe(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
         });
       });
@@ -524,7 +524,7 @@ describe('Imaging requests', () => {
       });
 
       it('Should paginate correctly', async () => {
-        const getPage = async page => {
+        const getPage = async (page) => {
           const result = await app.get(`/api/imagingRequest?facilityId=${facilityId}&page=${page}`);
           expect(result).toHaveSucceeded();
           return result;
@@ -539,14 +539,14 @@ describe('Imaging requests', () => {
         expect(result2.body.data).toHaveLength(10); // page
 
         const ids = new Set([
-          ...result.body.data.map(x => x.id),
-          ...result2.body.data.map(x => x.id),
+          ...result.body.data.map((x) => x.id),
+          ...result2.body.data.map((x) => x.id),
         ]);
         expect(ids.size).toBe(20); // ie no duplicates in the two result sets
       });
 
       it('Should paginate correctly when sorting by completedAt', async () => {
-        const getPage = async page => {
+        const getPage = async (page) => {
           const result = await app.get(
             `/api/imagingRequest?facilityId=${facilityId}&orderBy=completedAt&page=${page}&order=DESC`,
           );
@@ -569,21 +569,21 @@ describe('Imaging requests', () => {
         const allResults = [...result.body.data, ...result2.body.data, ...result3.body.data];
 
         const completed = allResults.filter(
-          x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          (x) => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
         );
         expect(completed).toHaveLength(completedCount);
 
         const notCompleted = allResults.filter(
-          x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          (x) => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
         );
         expect(notCompleted).toHaveLength(incompleteCount);
 
-        const ids = new Set(allResults.map(x => x.id));
+        const ids = new Set(allResults.map((x) => x.id));
         expect(ids.size).toBe(totalCount); // ie no duplicates in the two result sets
       });
 
       it('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
-        const getPage = async page => {
+        const getPage = async (page) => {
           const result = await app.get(
             `/api/imagingRequest?facilityId=${facilityId}&status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
           );
@@ -606,16 +606,16 @@ describe('Imaging requests', () => {
         const allResults = [...result.body.data, ...result2.body.data, ...result3.body.data];
 
         const completed = allResults.filter(
-          x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          (x) => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
         );
         expect(completed).toHaveLength(completedCount);
 
         const notCompleted = allResults.filter(
-          x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          (x) => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
         );
         expect(notCompleted).toHaveLength(0);
 
-        const ids = new Set(allResults.map(x => x.id));
+        const ids = new Set(allResults.map((x) => x.id));
         expect(ids.size).toBe(completedCount); // ie no duplicates in the two result sets
       });
     });

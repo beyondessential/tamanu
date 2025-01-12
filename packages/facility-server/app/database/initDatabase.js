@@ -1,7 +1,7 @@
 import config from 'config';
 
-import { closeAllDatabases, openDatabase } from '@tamanu/shared/services/database';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 

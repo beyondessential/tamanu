@@ -1,7 +1,7 @@
 import Chance from 'chance';
 import React from 'react';
 
-import { createDummyPatient } from '@tamanu/shared/demoData';
+import { createDummyPatient } from '@tamanu/database/demoData';
 
 import { fakePractitioner } from '../../.storybook/__mocks__/defaultEndpoints';
 import { AppointmentStatusSelector } from '../../app/components/Appointments/AppointmentDetailPopper/AppointmentStatusSelector';
