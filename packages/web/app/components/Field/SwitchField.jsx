@@ -22,6 +22,7 @@ const StyledSwitch = styled(Switch)`
     width: 0.875rem;
     height: 0.875rem;
     box-shadow: none;
+    background-color: ${Colors.white};
   }
   .MuiSwitch-track {
     height: 1.25rem;
@@ -29,6 +30,11 @@ const StyledSwitch = styled(Switch)`
     background-color: ${Colors.softText};
     opacity: 1;
     border-radius: 1.25rem;
+  }
+
+  .Mui-checked + .MuiSwitch-track {
+    background-color: ${Colors.primary};
+    opacity: 1;
   }
 `;
 
