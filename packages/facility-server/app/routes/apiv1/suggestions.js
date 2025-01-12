@@ -489,6 +489,12 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
 
+// Location groups filtered by isBookable. Used in location bookings view
+createNameSuggester('bookableLocationGroup', 'LocationGroup', (search, query) => ({
+  ...filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+  isBookable: true,
+}));
+
 createNameSuggester('survey', 'Survey', (search, { programId }) => ({
   name: { [Op.iLike]: search },
   ...(programId ? { programId } : programId),

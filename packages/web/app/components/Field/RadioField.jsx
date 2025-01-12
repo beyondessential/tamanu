@@ -189,7 +189,7 @@ export const RadioInput = ({
 
 RadioInput.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
   fullWidth: PropTypes.bool,
@@ -210,6 +210,6 @@ export const RadioField = ({ field, error, ...props }) => (
   />
 );
 
-export const TranslatedRadioField = props => {
-  return <TranslatedEnumField {...props} component={RadioInput} />;
+export const TranslatedRadioField = ({ error, ...props }) => {
+  return <TranslatedEnumField error={error || undefined} {...props} component={RadioInput} />;
 };

@@ -3,7 +3,6 @@ import { action } from '@storybook/addon-actions';
 import Box from '@material-ui/core/Box';
 import {
   AllPatientsSearchBar,
-  AppointmentsSearchBar,
   CovidPatientsSearchBar,
   ImagingRequestsSearchBar,
   ImmunisationSearchBar,
@@ -25,11 +24,6 @@ export default {
 
 const AllPatientsTemplate = args => <AllPatientsSearchBar onSearch={action('search')} {...args} />;
 export const AllPatients = AllPatientsTemplate.bind({});
-
-const AppointmentsTemplate = args => (
-  <AppointmentsSearchBar onSearch={action('search')} {...args} />
-);
-export const Appointments = AppointmentsTemplate.bind({});
 
 const CovidPatientsTemplate = args => (
   <CovidPatientsSearchBar onSearch={action('search')} {...args} />

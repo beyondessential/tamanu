@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
-import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
@@ -15,11 +15,11 @@ import {
   VaccineGivenForm,
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
-import { usePatientCurrentEncounter } from '../api/queries';
+import { usePatientCurrentEncounterQuery } from '../api/queries';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
-import { usePatientData } from '../api/queries/usePatientData';
+import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { isAfter, isBefore, parse } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
@@ -52,12 +52,12 @@ export const VaccineForm = ({
     data: patientData,
     isLoading: isLoadingPatientData,
     error: patientDataError,
-  } = usePatientData(patientId);
+  } = usePatientDataQuery(patientId);
   const {
     data: currentEncounter,
     isLoading: isLoadingCurrentEncounter,
     error: currentEncounterError,
-  } = usePatientCurrentEncounter(patientId);
+  } = usePatientCurrentEncounterQuery(patientId);
 
   const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
   const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');

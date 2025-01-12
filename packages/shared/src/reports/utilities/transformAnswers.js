@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
-import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
+import { differenceInMilliseconds, format, isISOString } from '@tamanu/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 // also update getNameColumnForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
@@ -41,9 +41,7 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
       );
     }
 
-    throw new Error(
-      `Selected answer ${componentConfig.source}[${answer}] not found`,
-    );
+    throw new Error(`Selected answer ${componentConfig.source}[${answer}] not found`);
   }
 
   return getDisplayNameForModel(componentConfig.source, result);
@@ -145,7 +143,7 @@ export const transformAnswers = async (
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   // Some questions in the front end are not answered but still record the answer as empty string in the database
-  // So we should filter any answers thare are empty.
+  // So we should filter any answers that are empty.
   const nonEmptyAnswers = surveyResponseAnswers.filter(
     answer => answer.body !== null && answer.body !== undefined && answer.body !== '',
   );
@@ -163,7 +161,7 @@ export const transformAnswers = async (
     let sourceType;
     const componentConfig = autocompleteComponentMap.get(dataElementId);
 
-    // If the answer is a survey answer, we need to look up the type from the soruce survey components
+    // If the answer is a survey answer, we need to look up the type from the source survey components
     if (type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER) {
       const config = JSON.parse(dataElementIdToComponent[dataElementId].config);
       const ssc = await models.SurveyScreenComponent.findOne({

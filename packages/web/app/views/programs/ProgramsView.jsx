@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
@@ -35,7 +35,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
-  const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [selectedProgramId, setSelectedProgramId] = useState('');
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
@@ -144,6 +144,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
+            name="program"
             options={programs.map(p => ({ value: p.id, label: p.name }))}
             value={selectedProgramId}
             onChange={selectProgram}

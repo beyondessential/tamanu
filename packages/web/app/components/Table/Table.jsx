@@ -490,7 +490,7 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count } = this.props;
+    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
@@ -502,7 +502,7 @@ class TableComponent extends React.Component {
         <StyledTableRow $lazyLoading={lazyLoading}>
           {allowExport ? (
             <TableCell colSpan={page !== null ? 2 : columns.length}>
-              <DownloadDataButton exportName={exportName} columns={columns} data={data} />
+              <DownloadDataButton exportName={exportName} columns={columns} data={data} ExportButton={ExportButton} />
             </TableCell>
           ) : null}
           {page !== null && !lazyLoading && this.renderPaginator()}
@@ -611,6 +611,7 @@ TableComponent.propTypes = {
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
   getRowTooltip: PropTypes.func,
+  ExportButton: PropTypes.func,
 };
 
 TableComponent.defaultProps = {

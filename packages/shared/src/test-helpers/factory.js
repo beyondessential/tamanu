@@ -1,5 +1,5 @@
 import { IMAGING_REQUEST_STATUS_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
-import { fakeUUID } from '../utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   fake,
   fakeAdministeredVaccine,

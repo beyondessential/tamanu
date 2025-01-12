@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
-import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTestResults';
+import { usePatientLabTestResultsQuery } from '../../../api/queries/usePatientLabTestResultsQuery';
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
@@ -65,7 +65,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
     setLabResultParameters: setSearchParameters,
   } = usePatientSearchParameters();
 
-  const { data, isLoading } = usePatientLabTestResults(patient.id, {
+  const { data, isLoading } = usePatientLabTestResultsQuery(patient.id, {
     ...searchParameters,
   });
 

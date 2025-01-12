@@ -120,13 +120,13 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
 const NoteItemMain = ({ noteItem }) => <span>{noteItem.content} </span>;
 
-const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission }) => {
+const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) => {
   const [isTooltipOpen, setTooltipOpen] = useState(false);
   const { currentUser } = useAuth();
 
   return (
     <StyledNoteItemSecondaryWrapper>
-      {!isEditting && (hasPermission || currentUser.id === noteItem.authorId) && (
+      {!isEditing && (hasPermission || currentUser.id === noteItem.authorId) && (
         <StyledEditIcon onClick={onEditClick} />
       )}
       <br />
@@ -156,18 +156,18 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission })
 const NoteItemSecondaryWithPermission = withPermissionCheck(NoteItemSecondary);
 
 export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) => {
-  const [isEditting, setIsEditting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(noteItem.content);
   const handleDone = () => {
     onEditNoteItem(noteItem, content);
-    setIsEditting(!isEditting);
+    setIsEditing(!isEditing);
   };
 
   return (
     <>
       {index !== 0 && <Divider />}
       <ListItem ref={lastNoteItemRef}>
-        {isEditting ? (
+        {isEditing ? (
           <EditTextWrapper>
             <TextInput
               style={{ width: '100%' }}
@@ -181,7 +181,7 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
               onClick={() => {
                 // resetting note item content
                 setContent(noteItem.content);
-                setIsEditting(!isEditting);
+                setIsEditing(!isEditing);
               }}
             >
               Cancel
@@ -194,8 +194,8 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
                 <NoteItemMain noteItem={noteItem} />
                 <NoteItemSecondaryWithPermission
                   noteItem={noteItem}
-                  isEditting={isEditting}
-                  onEditClick={() => setIsEditting(!isEditting)}
+                  isEditing={isEditing}
+                  onEditClick={() => setIsEditing(!isEditing)}
                   verb="write"
                   noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
                 />

@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi } from '../../../api';
 import { Field, Form } from '../../../components/Field';

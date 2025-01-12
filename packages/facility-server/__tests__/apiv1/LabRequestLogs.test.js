@@ -1,5 +1,5 @@
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { createDummyPatient, randomLabRequest } from '@tamanu/shared/demoData';
+import { createDummyPatient, randomLabRequest } from '@tamanu/database/demoData';
 
 import { createTestContext } from '../utilities';
 

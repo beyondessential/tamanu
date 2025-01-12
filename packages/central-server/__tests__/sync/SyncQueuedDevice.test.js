@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from '@jest/globals';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
 import { createTestContext } from '../utilities';
@@ -12,10 +12,11 @@ describe('SyncQueuedDevice', () => {
   let app;
 
   const closeActiveSyncSessions = async () => {
-    await models.SyncSession.update({
-      completedAt: new Date(),
-    },
-    { where: {} }
+    await models.SyncSession.update(
+      {
+        completedAt: new Date(),
+      },
+      { where: {} },
     );
   };
 
@@ -36,13 +37,9 @@ describe('SyncQueuedDevice', () => {
     app = await baseApp.asRole('admin');
 
     await Promise.all(
-      [
-      'facilityA',
-      'facilityB',
-      'facilityC',
-      'facilityD',
-      'facilityE',
-      ].map(id => models.Facility.create(fake(models.Facility, { id, name: id })))
+      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map(id =>
+        models.Facility.create(fake(models.Facility, { id, name: id })),
+      ),
     );
 
     const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
@@ -50,9 +47,8 @@ describe('SyncQueuedDevice', () => {
       sync: {
         awaitPreparation: true,
         maxConcurrentSessions: 1,
-      }
+      },
     });
-
   });
 
   beforeEach(async () => {
@@ -116,7 +112,7 @@ describe('SyncQueuedDevice', () => {
       const waiting = await requestSync('E', 10);
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
 
-      const started = await requestSync('C', 200);  // previous urgent flag should stick
+      const started = await requestSync('C', 200); // previous urgent flag should stick
       expect(started.body).toHaveProperty('sessionId');
     });
 
@@ -162,5 +158,4 @@ describe('SyncQueuedDevice', () => {
       expect(started.body).toHaveProperty('sessionId');
     });
   });
-
 });

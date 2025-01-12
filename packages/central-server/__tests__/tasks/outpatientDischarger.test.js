@@ -1,7 +1,7 @@
 import { endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { OutpatientDischarger } from '../../dist/tasks/OutpatientDischarger';
 import { createTestContext } from '../utilities';

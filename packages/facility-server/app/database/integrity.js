@@ -1,7 +1,7 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {
@@ -51,7 +51,7 @@ async function ensureFacilityMatches(context) {
   }
 
   // ensure both arrays contain the same set of facility ids
-  const match = JSON.parse(lastFacilities).every(facilityId =>
+  const match = JSON.parse(lastFacilities).every((facilityId) =>
     configuredFacilities.includes(facilityId),
   );
   if (!match) {

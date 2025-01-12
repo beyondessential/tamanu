@@ -15,7 +15,7 @@ notifications.get(
     req.flagPermissionChecked();
     const { models, user } = req;
 
-    const recentNotificationsTimeFrame = config.notification?.recentNotificationsTimeFrame || 48;
+    const recentNotificationsTimeFrame = config.notification?.recentNotificationsTimeFrame || 8;
     const readNotifications = await models.Notification.findAll({
       where: {
         userId: user.id,
@@ -61,7 +61,7 @@ notifications.get(
       ],
     });
 
-    res.json({ readNotifications, unreadNotifications });
+    res.json({ readNotifications, unreadNotifications, recentNotificationsTimeFrame });
   }),
 );
 

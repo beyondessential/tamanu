@@ -5,7 +5,7 @@ import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertif
 import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDob, getName, getSex } from '../patientAccessors';
-import { format as formatDate } from '../dateTime';
+import { format as formatDate } from '@tamanu/utils/dateTime';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 

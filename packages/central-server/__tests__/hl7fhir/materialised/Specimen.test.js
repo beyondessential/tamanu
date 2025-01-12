@@ -1,14 +1,11 @@
 /* eslint-disable no-unused-expressions */
 
 import { formatRFC7231 } from 'date-fns';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import {
-  fakeResourcesOfFhirServiceRequest,
-  fakeResourcesOfFhirSpecimen,
-} from '../../fake/fhir';
+import { fakeResourcesOfFhirServiceRequest, fakeResourcesOfFhirSpecimen } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -50,9 +47,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       fhirResources.fhirEncounter = fhirEncounter;
-
     });
-
 
     it('fetches a specimen by materialised ID', async () => {
       // arrange
@@ -61,7 +56,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ctx.store.models,
         resources,
       );
-      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
+        labRequest.id,
+      );
       const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
       await FhirSpecimen.resolveUpstreams();
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${materialiseSpecimen.id}`;
@@ -88,46 +85,52 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           collector: {
             type: 'Practitioner',
             display: fhirPractitioner.name[0].text,
-            reference: `Practitioner/${fhirPractitioner.id}`
+            reference: `Practitioner/${fhirPractitioner.id}`,
           },
           bodySite: {
-            coding: [{
-              code: bodySiteRef.code,
-              system: 'http://bodySITE.NEW',
-              display: bodySiteRef.name
-            }]
+            coding: [
+              {
+                code: bodySiteRef.code,
+                system: 'http://bodySITE.NEW',
+                display: bodySiteRef.name,
+              },
+            ],
           },
         },
         type: {
-          coding: [{
-            code: specimenType.code,
-            system: 'http://www.senaite.com/data/sample_types',
-            display: specimenType.name
-          }]
+          coding: [
+            {
+              code: specimenType.code,
+              system: 'http://www.senaite.com/data/sample_types',
+              display: specimenType.name,
+            },
+          ],
         },
-        request: [{
-          type: 'ServiceRequest',
-          reference: `ServiceRequest/${materialisedServiceRequest.id}`
-        }]
+        request: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${materialisedServiceRequest.id}`,
+          },
+        ],
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
+      expect(response.headers['last-modified']).toBe(
+        formatRFC7231(new Date(materialiseSpecimen.lastUpdated)),
+      );
       expect(response).toHaveSucceeded();
     });
 
     it('should handle a minimal specimen elegantly', async () => {
       // arrange
       const { FhirSpecimen, FhirServiceRequest } = ctx.store.models;
-      const { labRequest } = await fakeResourcesOfFhirSpecimen(
-        ctx.store.models,
-        resources,
-        {
-          labSampleSiteId: null,
-          specimenTypeId: null,
-          sampleTime: null,
-          collectedById: null,
-        }
+      const { labRequest } = await fakeResourcesOfFhirSpecimen(ctx.store.models, resources, {
+        labSampleSiteId: null,
+        specimenTypeId: null,
+        sampleTime: null,
+        collectedById: null,
+      });
+      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
+        labRequest.id,
       );
-      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
       await FhirSpecimen.resolveUpstreams();
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${materialiseSpecimen.id}`;
@@ -152,16 +155,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         meta: {
           lastUpdated: formatFhirDate(materialiseSpecimen.lastUpdated),
         },
-        request: [{
-          type: 'ServiceRequest',
-          reference: `ServiceRequest/${materialisedServiceRequest.id}`
-        }]
+        request: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${materialisedServiceRequest.id}`,
+          },
+        ],
       });
-      expect(headers['last-modified']).toBe(formatRFC7231(new Date(materialiseSpecimen.lastUpdated)));
+      expect(headers['last-modified']).toBe(
+        formatRFC7231(new Date(materialiseSpecimen.lastUpdated)),
+      );
       expect(response).toHaveSucceeded();
     });
-
-
   });
 
   describe('search', () => {
@@ -177,7 +182,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         const { labRequest } = await fakeResourcesOfFhirSpecimen(
           ctx.store.models,
           resources,
-          overrides
+          overrides,
         );
         await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
@@ -192,7 +197,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.entry).toHaveLength(3);
       expect(response).toHaveSucceeded();
     });
-    
+
     describe('sorts', () => {
       it('should sort by lastUpdated ascending', async () => {
         const response = await app.get(
@@ -220,7 +225,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     });
 
     describe('including', () => {
-  
       beforeEach(async () => {
         const { models } = ctx.store;
         const { FhirSpecimen, FhirPractitioner, LabRequest } = models;
@@ -234,21 +238,19 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         const { FhirSpecimen, FhirPractitioner } = models;
         const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
         const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
-        const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(labRequest.collectedById);
-        
+        const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(
+          labRequest.collectedById,
+        );
+
         await FhirSpecimen.resolveUpstreams();
-        
+
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Specimen?_include=Practitioner:collector`;
         const response = await app.get(path);
         const { entry } = response.body;
 
-        const fetchedSpecimen = entry.find(
-          ({ search: { mode } }) => mode === 'match',
-        );
-  
-        const includedPractitioner = entry.find(
-          ({ search: { mode } }) => mode === 'include',
-        );
+        const fetchedSpecimen = entry.find(({ search: { mode } }) => mode === 'match');
+
+        const includedPractitioner = entry.find(({ search: { mode } }) => mode === 'include');
         expect(response).toHaveSucceeded();
         expect(includedPractitioner).toBeDefined();
         expect(fetchedSpecimen.resource.id).toBe(materialiseSpecimen.id);

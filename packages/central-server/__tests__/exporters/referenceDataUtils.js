@@ -1,9 +1,9 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import {
   createAdministeredVaccine,
   createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
+} from '@tamanu/database/demoData/vaccines';
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {

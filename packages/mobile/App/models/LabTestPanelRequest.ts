@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { LabTestPanel } from './LabTestPanel';
 
-@Entity('lab_test_panel_request')
+@Entity('lab_test_panel_requests')
 export class LabTestPanelRequest extends BaseModel implements ILabTestPanelRequest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 

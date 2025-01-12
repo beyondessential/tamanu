@@ -1,9 +1,9 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-
+import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -97,18 +97,18 @@ export const DateHeadCell = React.memo(({ value }) => (
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  ${({ maxLines }) =>
-    maxLines <= 1
+  ${({ maxLines, isOneLine }) =>
+    maxLines <= 1 && !isOneLine
       ? ''
       : `
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: ${maxLines};
+    -webkit-line-clamp: ${isOneLine ? 1 : maxLines};
   `}
   ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
-export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
+export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = false }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -128,12 +128,17 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
 
   return (
     <TableTooltip
-      title={value}
+      title={value ?? ''}
       open={isClamped && tooltipOpen}
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}
     >
-      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines} maxWidth={maxWidth}>
+      <LimitedLinesCellWrapper
+        ref={contentRef}
+        maxLines={maxLines}
+        maxWidth={maxWidth}
+        isOneLine={isOneLine}
+      >
         {value}
       </LimitedLinesCellWrapper>
     </TableTooltip>
@@ -170,11 +175,10 @@ export const RangeValidatedCell = React.memo(
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-      float,
-      config,
-      validationCriteria,
-    ]);
+    const { tooltip, severity } = useMemo(
+      () => getTooltip(float, config, validationCriteria),
+      [float, config, validationCriteria],
+    );
 
     const cell = (
       <CellContainer onClick={onClick} severity={severity} {...props}>

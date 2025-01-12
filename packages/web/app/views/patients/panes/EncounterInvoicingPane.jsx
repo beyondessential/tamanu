@@ -12,7 +12,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryPanel';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { useEncounterInvoice } from '../../../api/queries/useInvoiceQuery';
+import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
 
@@ -26,7 +26,7 @@ const ActionsPane = styled.div`
   align-items: center;
 `;
 
-const InvoiceHeading = styled(Typography)`
+const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
   display: flex;
   gap: 20px;
 `;
@@ -55,7 +55,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const { ability } = useAuth();
   const [openInvoiceModal, setOpenInvoiceModal] = useState();
 
-  const { data: invoice } = useEncounterInvoice(encounter.id);
+  const { data: invoice } = useEncounterInvoiceQuery(encounter.id);
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 

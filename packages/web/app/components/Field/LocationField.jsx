@@ -9,16 +9,15 @@ import { useApi, useSuggester } from '../../api';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { MultiAutocompleteInput } from './MultiAutocompleteField';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
-  return useQuery(
-    ['locationSuggestion', locationId],
-    () => api.get(`suggestions/location/${locationId}`),
-    {
-      enabled: !!locationId,
-    },
-  );
+  // Get the last selected location id to determine its location group
+  const id = Array.isArray(locationId) ? locationId[locationId.length - 1] : locationId;
+  return useQuery(['locationSuggestion', id], () => api.get(`suggestions/location/${id}`), {
+    enabled: !!id,
+  });
 };
 
 export const LocationInput = React.memo(
@@ -33,7 +32,12 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    size = 'medium',
+    form = {},
     enableLocationStatus = true,
+    locationGroupSuggesterType = 'facilityLocationGroup',
+    autofill = true,
+    isMulti = false,
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -50,8 +54,22 @@ export const LocationInput = React.memo(
       },
       baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester('facilityLocationGroup');
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
     const { data: location } = useLocationSuggestion(locationId);
+    const { initialValues } = form;
+
+    useEffect(() => {
+      if (!initialValues) return;
+      // Form is reinitialised, reset the state handled group and location values
+      setGroupId('');
+      setLocationId(initialValues[name] ?? '');
+    }, [initialValues, name]);
+
+    useEffect(() => {
+      if (value) {
+        setLocationId(value);
+      }
+    }, [value]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -90,19 +108,25 @@ export const LocationInput = React.memo(
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
+    const LocationAutocompleteInput = isMulti ? MultiAutocompleteInput : AutocompleteInput;
+
     return (
       <>
         {/* Show required asterisk but the field is not actually required */}
         <AutocompleteInput
           label={locationGroupLabel}
           required={required}
+          name="locationGroup"
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
-          autofill={!value} // do not autofill if there is a pre-filled value
+          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          size={size}
+          helperText={helperText}
+          error={error}
         />
-        <AutocompleteInput
+        <LocationAutocompleteInput
           label={label}
           disabled={locationSelectIsDisabled || disabled}
           name={name}
@@ -113,7 +137,8 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
-          autofill={!value} // do not autofill if there is a pre-filled value
+          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          size={size}
         />
       </>
     );
@@ -121,8 +146,8 @@ export const LocationInput = React.memo(
 );
 
 LocationInput.propTypes = {
-  label: PropTypes.string,
-  locationGroupLabel: PropTypes.string,
+  label: PropTypes.node,
+  locationGroupLabel: PropTypes.node,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
@@ -143,7 +168,6 @@ LocationInput.defaultProps = {
 };
 
 export const LocationField = React.memo(({ field, ...props }) => {
-  delete props.error;
   return (
     <LocationInput
       name={field.name}

@@ -89,10 +89,6 @@ export class Vitals extends BaseModel implements IVitals {
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
 
-  static getTableNameForSync(): string {
-    return 'vitals'; // already pluralised
-  }
-
   static async getForPatient(patientId: string): Promise<Vitals[]> {
     return this.getRepository()
       .createQueryBuilder('vitals')

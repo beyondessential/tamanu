@@ -6,7 +6,7 @@ import { useApi, useSuggester } from '../api';
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.

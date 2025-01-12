@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Tooltip } from '@material-ui/core';
 import { Colors } from '../constants';
 
@@ -8,8 +8,15 @@ export const ThemedTooltip = styled(props => (
 ))`
   .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
-    padding: 8px;
-    font-size: 11px;
+    font-size: 0.6875rem;
+    padding: 0.5rem;
+    text-align: center;
+
+    ${({ $maxWidth }) =>
+      $maxWidth &&
+      css`
+        max-inline-size: ${$maxWidth};
+      `}
   }
   .MuiTooltip-arrow {
     color: ${Colors.primaryDark};

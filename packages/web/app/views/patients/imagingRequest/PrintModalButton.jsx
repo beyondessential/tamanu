@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useEncounterData } from '../../../api/queries';
+import { useEncounterDataQuery } from '../../../api/queries';
 import { Button } from '../../../components/Button';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
@@ -10,7 +10,7 @@ import { Colors } from '../../../constants';
 import { printPDF } from '../../../components/PatientPrinting/PDFLoader';
 
 const PrintModalInternals = ({ imagingRequest }) => {
-  const encounterQuery = useEncounterData(imagingRequest.encounterId);
+  const encounterQuery = useEncounterDataQuery(imagingRequest.encounterId);
 
   if (encounterQuery.isError) {
     return (

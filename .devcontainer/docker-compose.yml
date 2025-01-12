@@ -2,10 +2,10 @@ services:
   app:
     image: mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm
     volumes:
-      - ../..:/workspaces:cached
+      - ..:/workspace:cached
       - ~/.ssh:/root/.ssh:ro # Use the host SSH config.
+      - node_modules:/workspace/node_modules
     command: sleep infinity
-
 
   central-db:
     image: postgres:latest
@@ -14,11 +14,11 @@ services:
       # - central-data:/var/lib/postgresql/data # Uncomment this line to persist data.
       - ./db/central.sql.gz:/docker-entrypoint-initdb.d/init.sql.gz
     environment:
+      PGPORT: 5432
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
-    ports:
-      - 5432:5432 # Allow access to this database via localhost:5432.
+    network_mode: service:app
 
   facility-db:
     image: postgres:latest
@@ -27,12 +27,23 @@ services:
       # - facility-data:/var/lib/postgresql/data # Uncomment this line to persist data.
       - ./db/facility.sql.gz:/docker-entrypoint-initdb.d/init.sql.gz
     environment:
+      PGPORT: 5433
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
-    ports:
-      - 5433:5432 # Allow access to this database via localhost:5433.
+    network_mode: service:app
+
+  test-db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      PGPORT: 5434
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    network_mode: service:app
 
 volumes:
+  node_modules:
   central-data:
   facility-data:

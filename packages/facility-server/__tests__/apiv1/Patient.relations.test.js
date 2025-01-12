@@ -3,8 +3,8 @@ import {
   createDummyPatient,
   randomReferenceData,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
-import { randomDate, randomLabRequest } from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData/patients';
+import { randomDate, randomLabRequest } from '@tamanu/database/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
@@ -100,7 +100,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map(x => x.endTime)).toEqual([
+      expect(response.body.data.map((x) => x.endTime)).toEqual([
         '2019-01-01 00:00:00',
         '2019-01-02 00:00:00',
         '2019-01-03 00:00:00',
@@ -140,7 +140,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map(x => x.surveyName)).toEqual([
+      expect(response.body.data.map((x) => x.surveyName)).toEqual([
         'survey-a',
         'survey-b',
         'survey-c',
@@ -178,7 +178,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data.map(x => x.surveyName)).toEqual(['survey-d']);
+      expect(response.body.data.map((x) => x.surveyName)).toEqual(['survey-d']);
     });
   });
 
@@ -295,7 +295,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map(x => x.surveyResponse.submissionDate)).toEqual([
+      expect(response.body.data.map((x) => x.surveyResponse.submissionDate)).toEqual([
         '2019-01-01',
         '2019-01-02',
         '2019-01-03',
@@ -336,7 +336,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
+      expect(response.body.data.map((x) => x.surveyResponse.survey.name)).toEqual([
         'name-a',
         'name-b',
         'name-c',
@@ -378,7 +378,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(2);
       expect(response.body.data).toHaveLength(2);
-      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
+      expect(response.body.data.map((x) => x.surveyResponse.survey.name)).toEqual([
         'name-a',
         'name-b',
       ]);
@@ -417,7 +417,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/issues`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
     });
   });
 
@@ -453,7 +453,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/allergies`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -502,7 +502,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -551,7 +551,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/conditions`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -641,12 +641,8 @@ describe('Patient relations', () => {
   describe('fields', () => {
     it('should get a map of definitionIds to values', async () => {
       // Arrange
-      const {
-        Patient,
-        PatientFieldDefinitionCategory,
-        PatientFieldDefinition,
-        PatientFieldValue,
-      } = models;
+      const { Patient, PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } =
+        models;
 
       const category1 = await PatientFieldDefinitionCategory.create({
         name: 'Test Category 1',
@@ -781,8 +777,8 @@ describe('Patient relations', () => {
       const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      response.body.data.forEach(testResults => {
-        Object.values(testResults.results).forEach(res =>
+      response.body.data.forEach((testResults) => {
+        Object.values(testResults.results).forEach((res) =>
           expect(publishedLabTests).toContain(res.id),
         );
       });
@@ -794,8 +790,8 @@ describe('Patient relations', () => {
       );
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      response.body.data.forEach(testResults => {
-        Object.values(testResults.results).forEach(res =>
+      response.body.data.forEach((testResults) => {
+        Object.values(testResults.results).forEach((res) =>
           expect(unpublishedLabTests).toContain(res.id),
         );
       });
@@ -805,7 +801,7 @@ describe('Patient relations', () => {
       const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      const uniqueCategories = [...new Set(response.body.data.map(x => x.testCategory))];
+      const uniqueCategories = [...new Set(response.body.data.map((x) => x.testCategory))];
       expect(uniqueCategories.length).toBeGreaterThan(1);
     });
 
@@ -814,7 +810,7 @@ describe('Patient relations', () => {
         `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
       );
       expect(response).toHaveSucceeded();
-      response.body.data.forEach(labTest => {
+      response.body.data.forEach((labTest) => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
     });

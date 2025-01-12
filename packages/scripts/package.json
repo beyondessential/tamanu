@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.22.1",
+  "version": "2.23.0",
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "scripts": {
@@ -19,7 +19,8 @@
     "pg": "^8.5.1",
     "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",
-    "yaml": "^2.2.1"
+    "yaml": "^2.2.1",
+    "@tamanu/database": "*"
   },
   "devDependencies": {
     "tape": "^5.7.5"

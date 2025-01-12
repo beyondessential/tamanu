@@ -5,7 +5,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -61,6 +61,7 @@ export const TriageForm = ({
   noRedirectOnSubmit,
   patient,
   editedObject,
+  initialValues,
 }) => {
   const api = useApi();
   const { facilityId } = useAuth();
@@ -222,6 +223,7 @@ export const TriageForm = ({
       initialValues={{
         triageTime: getCurrentDateTimeString(),
         ...editedObject,
+        ...initialValues,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
