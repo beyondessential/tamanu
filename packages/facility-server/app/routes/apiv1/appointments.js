@@ -185,7 +185,7 @@ const buildPatientNameOrIdQuery = (patientNameOrId) => {
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkListOrRead('Appointment');
+    req.checkListOrReadPermission('Appointment');
 
     const {
       models: { Appointment },
