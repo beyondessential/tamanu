@@ -140,7 +140,10 @@ export class AppointmentSchedule extends Model {
         facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `
-        JOIN appointments ON appointments.schedule_id = appointment_schedules.id
+        JOIN (
+          SELECT DISTINCT ON (schedule_id) *
+          FROM appointments
+        ) appointments ON appointments.schedule_id = ${this.tableName}.id
         LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
