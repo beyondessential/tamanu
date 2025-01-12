@@ -5,23 +5,30 @@ import { styled } from '@mui/material/styles';
 import { Colors } from '../../constants';
 
 const StyledSwitch = styled(Switch)`
-  height: 45px;
   padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  .MuiButtonBase-root {
+    padding: 0;
+  }
+  .MuiTouchRipple-root {
+    display: none;
+  }
   .MuiSwitch-thumb {
     position: absolute;
-    top: 15px;
-    left: 3px;
-    width: 14px;
-    height: 14px;
+    inset-block-start: 0.75rem;
+    inset-inline-start: 0.188rem;
+    width: 0.875rem;
+    height: 0.875rem;
+    box-shadow: none;
   }
   .MuiSwitch-track {
-    height: 20px;
-    width: 40px;
+    height: 1.25rem;
+    width: 2.5rem;
     background-color: ${Colors.softText};
     opacity: 1;
+    border-radius: 1.25rem;
   }
 `;
 
