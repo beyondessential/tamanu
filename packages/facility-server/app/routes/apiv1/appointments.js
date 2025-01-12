@@ -185,7 +185,7 @@ const buildPatientNameOrIdQuery = (patientNameOrId) => {
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkForOneOfPermissions(['list', 'read'], 'Appointment');
+    req.checkListOrRead('Appointment');
 
     const {
       models: { Appointment },
