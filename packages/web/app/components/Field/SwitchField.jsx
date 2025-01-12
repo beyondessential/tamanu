@@ -9,6 +9,11 @@ const StyledSwitch = styled(Switch)`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  height: 1.25rem;
+  width: 3rem;
+  .MuiFormControlLabel-root {
+    margin-left: 0;
+  }
   .MuiButtonBase-root {
     padding: 0;
   }
@@ -17,7 +22,7 @@ const StyledSwitch = styled(Switch)`
   }
   .MuiSwitch-thumb {
     position: absolute;
-    inset-block-start: 0.75rem;
+    inset-block-start: 0.188rem;
     inset-inline-start: 0.188rem;
     width: 0.875rem;
     height: 0.875rem;
@@ -41,7 +46,7 @@ const StyledSwitch = styled(Switch)`
 export const SwitchInput = ({ label, disabled, value, ...props }) => {
   return (
     <FormControlLabel
-      control={<StyledSwitch checked={value} {...props} />}
+      control={<StyledSwitch value={value} {...props} />}
       label={label}
       disabled={disabled}
     />
