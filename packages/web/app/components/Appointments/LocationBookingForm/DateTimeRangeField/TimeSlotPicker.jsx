@@ -365,6 +365,10 @@ export const TimeSlotPicker = ({
         return;
       }
 
+      if (!isSameDay(end, date)) {
+        updateInterval({ end: null });
+      }
+
       const endValue = end.valueOf();
       setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
       updateInterval({ end });
