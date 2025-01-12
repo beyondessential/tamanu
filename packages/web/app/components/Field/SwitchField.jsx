@@ -2,7 +2,6 @@ import React from 'react';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
-import { Colors } from '../../constants';
 
 const StyledSwitch = styled(Switch)`
     .Mui-checked {
@@ -11,7 +10,7 @@ const StyledSwitch = styled(Switch)`
         }
 `;
 
-export const SwitchField = ({ label, disabled, value, ...props }) => {
+export const SwitchInput = ({ label, disabled, value, ...props }) => {
   return (
     <FormControlLabel
       control={<StyledSwitch checked={value} {...props} />}
@@ -20,3 +19,7 @@ export const SwitchField = ({ label, disabled, value, ...props }) => {
     />
   );
 };
+
+export const SwitchField = ({ field, ...props }) => (
+  <SwitchInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+);
