@@ -1,6 +1,6 @@
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import { areIntervalsOverlapping, max, min, parseISO } from 'date-fns';
+import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
@@ -307,12 +307,6 @@ export const TimeSlotPicker = ({
    * with the currently available slots.
    */
   useEffect(() => {
-    if (hasNoLegalSelection) {
-      setSelectedToggles([]);
-      updateInterval({ end: null });
-      return;
-    }
-
     // Not a destructure to convince linter we don’t need `values` object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
@@ -326,10 +320,15 @@ export const TimeSlotPicker = ({
         return;
       }
 
+      /**
+       * It’s only possible to have a start time but no end time if the user has just switched from
+       * an overnight booking. Preserve the first time slot from that selection.
+       */
       if (!endTime) {
         const start = parseISO(startTime);
         const slot = slotContaining(start);
-        setSelectedToggles([idOfTimeSlot(slot)]);
+
+        // Retriggers this useEffect hook, but sets an `endTime` so will fall to the next branch
         updateInterval(slot);
         return;
       }
@@ -338,7 +337,6 @@ export const TimeSlotPicker = ({
       setSelectedToggles(
         timeSlots?.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
       );
-      updateInterval(interval);
       return;
     }
 
@@ -352,11 +350,14 @@ export const TimeSlotPicker = ({
         areIntervalsOverlapping({ start, end: dayEnd }, interval),
       );
       if (hasConflict) {
-        const startValue = start.valueOf();
-        setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
-        updateInterval({ start });
+        // Retriggers this useEffect hook, but will take previous branch
+        updateInterval({ start: null });
         return;
       }
+
+      const startValue = start.valueOf();
+      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
+      return;
     }
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
@@ -365,18 +366,21 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      if (!isSameDay(end, date)) {
+      if (hasNoLegalSelection || !isSameDay(end, dayStart)) {
+        // Retriggers this useEffect hook, but will take previous branch
         updateInterval({ end: null });
+        return;
       }
 
       const endValue = end.valueOf();
       setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
-      updateInterval({ end });
       return;
     }
   }, [
     bookedIntervals,
+    date,
     dayEnd,
+    dayStart,
     hasNoLegalSelection,
     slotContaining,
     timeSlots,
