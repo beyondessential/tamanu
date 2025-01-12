@@ -26,6 +26,7 @@ import {
   Field,
   Form,
   TextField,
+  SwitchField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -452,7 +453,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
                   fallback="Repeating appointment"
                 />
               }
-              component={CheckField}
+              component={SwitchField}
             />
           )}
           {values.isRepeatingAppointment && (
