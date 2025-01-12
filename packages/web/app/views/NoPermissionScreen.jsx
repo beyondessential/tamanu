@@ -7,8 +7,9 @@ import { Colors } from '../constants';
 const Container = styled.div`
   border: 1px #dedede solid;
   border-radius: 3px;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  margin: 20px;
   display: flex;
   justify-content: center;
   position: relative;
@@ -37,6 +38,7 @@ const Description = styled.h4`
   color: ${Colors.darkText};
 `;
 
+// To be rendered in place of content when user has no permission for an entire view
 export const NoPermissionScreen = () => {
   return (
     <Container>
