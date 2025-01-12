@@ -7,10 +7,10 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { randomRecordId } from '@tamanu/shared/demoData/utilities';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
 
@@ -70,7 +70,7 @@ describe('Appointments', () => {
       patientId: patient.id,
     });
 
-    const searchPatientNameOrId = query =>
+    const searchPatientNameOrId = (query) =>
       userApp.get(`/api/appointments?patientNameOrId=${query}`);
 
     // Valid searches
