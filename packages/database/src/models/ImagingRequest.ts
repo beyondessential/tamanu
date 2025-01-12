@@ -3,6 +3,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
+  NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -45,7 +46,7 @@ export class ImagingRequest extends Model {
   declare location?: Location;
   declare locationGroup?: LocationGroup;
 
-  static initModel(options: InitOptions) {
+  static initModel(options: InitOptions, models: Models) {
     super.init(
       {
         id: {
@@ -97,6 +98,41 @@ export class ImagingRequest extends Model {
           mustHaveValidRequester() {
             if (!this.requestedById) {
               throw new InvalidOperationError('An imaging request must have a valid requester.');
+            }
+          },
+        },
+        hooks: {
+          afterUpdate: async (imagingRequest: ImagingRequest) => {
+            const shouldPushNotification = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED].includes(
+              imagingRequest.status,
+            );
+
+            if (
+              shouldPushNotification &&
+              imagingRequest.status !== imagingRequest.previous('status')
+            ) {
+              await models.Notification.pushNotification(
+                NOTIFICATION_TYPES.IMAGING_REQUEST,
+                imagingRequest,
+              );
+            }
+
+            const shouldDeleteNotification = [
+              IMAGING_REQUEST_STATUS_TYPES.DELETED,
+              IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            ].includes(imagingRequest.status);
+
+            if (
+              shouldDeleteNotification &&
+              imagingRequest.status !== imagingRequest.previous('status')
+            ) {
+              await models.Notification.destroy({
+                where: {
+                  metadata: {
+                    id: imagingRequest.id,
+                  },
+                },
+              });
             }
           },
         },
