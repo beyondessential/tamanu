@@ -1,4 +1,3 @@
-import { every, isFalsy } from 'lodash';
 import { BadAuthenticationError, ForbiddenError } from '../errors';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
@@ -27,7 +26,7 @@ export async function constructPermission(req, res, next) {
   }
 }
 
-const checkPermission = (req, action, subject, field = '') => {
+const checkIfHasPermission = (req, action, subject, field = '') => {
   if (req.flagPermissionChecked) {
     req.flagPermissionChecked();
   }
@@ -44,14 +43,11 @@ const checkPermission = (req, action, subject, field = '') => {
     throw new BadAuthenticationError('No permission');
   }
 
-  const subjectName = getSubjectName(subject);
-  const hasPermission = ability.can(action, subject, field);
-
   if (req.audit) {
-    req.audit.addPermissionCheck(action, subjectName, subject?.id);
+    req.audit.addPermissionCheck(action, getSubjectName(subject), subject?.id);
   }
 
-  return hasPermission;
+  return ability.can(action, subject, field);
 };
 
 // this middleware goes at the top of the middleware stack
@@ -59,12 +55,12 @@ export function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
 
   req.checkPermission = (action, subject) => {
-    const rule = req.ability.relevantRuleFor(action, subject);
-    const subjectName = getSubjectName(subject);
-    const reason =
-      (rule && rule.reason) || `No permission to perform action "${action}" on "${subjectName}"`;
-    const hasPermission = checkPermission(req, action, subject);
+    const hasPermission = checkIfHasPermission(req, action, subject);
     if (!hasPermission) {
+      const rule = req.ability.relevantRuleFor(action, subject);
+      const reason =
+        (rule && rule.reason) ||
+        `No permission to perform action "${action}" on "${getSubjectName(subject)}"`;
       if (req.audit) {
         req.audit.annotate({
           forbiddenReason: reason,
@@ -74,11 +70,11 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkForOneOfPermission = (actions, subject) => {
-    const permissionChecks = actions.map((action) => checkPermission(req, action, subject));
-    if (every(permissionChecks, isFalsy)) {
-      const subjectName = getSubjectName(subject);
-      const reason = `No permission to perform any of actions "${actions}" on "${subjectName}"`;
+  req.checkForOneOfPermissions = (actions, subject) => {
+    const permissionChecks = actions.map((action) => checkIfHasPermission(req, action, subject));
+    const hasPermission = permissionChecks.some(Boolean);
+    if (!hasPermission) {
+      const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
       if (req.audit) {
         req.audit.annotate({
           forbiddenReason: reason,
