@@ -24,10 +24,6 @@ const SETTING_TABS = {
   JSON: 'JSON',
 };
 
-const StyledAdminViewContainer = styled(AdminViewContainer)`
-  height: 100%;
-`;
-
 const StyledTabDisplay = styled(TabDisplay)`
   height: 100%;
   border-top: 1px solid ${Colors.outline};
@@ -113,7 +109,7 @@ export const SettingsView = () => {
   };
 
   return (
-    <StyledAdminViewContainer
+    <AdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       {settingsFetchError ? (
@@ -135,7 +131,7 @@ export const SettingsView = () => {
           style={{ flex: 1 }}
         />
       )}
-    </StyledAdminViewContainer>
+    </AdminViewContainer>
   );
 };
 

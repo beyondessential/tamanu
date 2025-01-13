@@ -8,7 +8,7 @@ const OuterContainer = styled.div`
   background-color: white;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: 100%;
   > div {
     display: flex;
     flex-direction: column;

@@ -1,17 +1,10 @@
 import React from 'react';
-import { ContentPane, PageContainer } from '../../../components';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
 import { useTranslation } from '../../../contexts/Translation';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
-
-const TranslationEditView = () => (
-  <ContentPane>
-    <TranslationForm />
-  </ContentPane>
-);
 
 export const TranslationAdminView = () => {
   const { getTranslation } = useTranslation();
@@ -20,7 +13,7 @@ export const TranslationAdminView = () => {
     label: <TranslatedText stringId="admin.translation.edit" fallback="Edit" />,
     key: 'edit',
     icon: 'fa fa-edit',
-    render: TranslationEditView,
+    render: TranslationForm,
   };
   return (
     <ImportExportView
