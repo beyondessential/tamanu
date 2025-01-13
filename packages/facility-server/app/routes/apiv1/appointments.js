@@ -126,7 +126,7 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
-const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
@@ -163,7 +163,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = patientNameOrId => {
+const buildPatientNameOrIdQuery = (patientNameOrId) => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -267,7 +267,20 @@ appointments.get(
   }),
 );
 
-appointments.put('/:id', simplePut('Appointment'));
+appointments.put('/:id', async (req, res) => {
+  const { models, params } = req;
+  req.checkPermission('read', 'Appointment');
+  const object = await models.Appointment.findByPk(params.id);
+  if (!object) throw new NotFoundError();
+  req.checkPermission('write', object);
+
+  // TODO: If req.body.status == cancelled and object.appointment_schedule
+  // appointmentschedule.destroy()
+  // Find all future appts and set to cancelled
+
+  await object.update(req.body);
+  res.send(object);
+});
 
 appointments.post('/locationBooking', async (req, res) => {
   req.checkPermission('create', 'Appointment');
@@ -277,7 +290,7 @@ appointments.post('/locationBooking', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
       const conflictCount = await Appointment.count({
         where: {
@@ -314,7 +327,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const existingBooking = await Appointment.findByPk(id, { transaction });
 
       if (!existingBooking) {
