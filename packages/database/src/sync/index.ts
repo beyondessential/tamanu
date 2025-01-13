@@ -18,3 +18,5 @@ export * from './removeEchoedChanges';
 export * from './saveChanges';
 export * from './saveIncomingChanges';
 export * from './waitForPendingEditsUsingSyncTick';
+export * from './markForSyncRepullData';
+export * from './alignDataForPersistence';

@@ -5,8 +5,11 @@ import {
   getLabTestsFromLabRequests,
 } from '@tamanu/shared/utils';
 import { Model } from './Model';
-import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
 import type { PatientAdditionalData } from './PatientAdditionalData';
+import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds';
+
+import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
+import type { SyncSnapshotAttributes } from 'types/sync';
 
 export class Patient extends Model {
   declare id: string;
@@ -336,5 +339,12 @@ export class Patient extends Model {
 
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
+  }
+
+  static async alignDataForPersistence(
+    sessionId: string,
+    changes: SyncSnapshotAttributes[],
+  ): Promise<void> {
+    await resolveDuplicatedPatientDisplayIds(this.sequelize, sessionId, this, changes);
   }
 }

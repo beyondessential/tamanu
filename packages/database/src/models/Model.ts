@@ -10,7 +10,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
-import type { ModelSanitizeArgs, SessionConfig } from '../types/sync';
+import type { ModelSanitizeArgs, SessionConfig, SyncSnapshotAttributes } from '../types/sync';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -34,6 +34,7 @@ export class Model<
     _sessionConfig: SessionConfig,
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
+  declare static alignDataForPersistence?: (sessionId: string, changes: SyncSnapshotAttributes[]) => Promise<void>;
 
   static init(
     modelAttributes: ModelAttributes,

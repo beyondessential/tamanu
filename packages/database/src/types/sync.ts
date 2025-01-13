@@ -29,6 +29,7 @@ export interface SyncSnapshotAttributes {
   isDeleted: boolean;
   data: {
     id: number;
+    [key: string]: any;
   };
   savedAtSyncTick: number;
   updatedAtByFieldSum: number;
