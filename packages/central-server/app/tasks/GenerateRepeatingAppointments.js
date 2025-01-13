@@ -37,7 +37,10 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       possible_incomplete_schedules AS (
         SELECT *
         FROM past_appointment_schedules
-        WHERE (occurrence_count IS NULL AND until_date > start_time) OR (occurrence_count > (
+        WHERE
+          (occurrence_count IS NULL AND until_date > start_time)
+        OR
+          (occurrence_count > (
             SELECT COUNT(*)
             FROM appointments
             WHERE schedule_id = past_appointment_schedules.id
