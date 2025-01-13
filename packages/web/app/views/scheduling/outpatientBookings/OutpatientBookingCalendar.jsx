@@ -214,39 +214,40 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           <ColumnWrapper className="column-wrapper" key={cell.id}>
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
-              {appointments.map(a => (
-                <AppointmentTile
-                  key={a.id}
-                  appointment={a}
-                  onEdit={() => onOpenDrawer(a)}
-                  onCancel={() => onCancel(a)}
-                  actions={
-                    canCreateAppointment
-                      ? [
-                          {
-                            label: (
-                              <TranslatedText
-                                stringId="appointments.action.newAppointment"
-                                fallback="New appointment"
-                              />
-                            ),
-                            action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                          },
-                          {
-                            label: (
-                              <TranslatedText
-                                stringId="appointments.action.emailAppointment"
-                                fallback="Email appointment"
-                              />
-                            ),
-                            action: () =>
-                              setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                          },
-                        ]
-                      : []
-                  }
-                />
-              ))}
+              {appointments.map(a => {
+                const actions = canCreateAppointment
+                  ? [
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.newAppointment"
+                            fallback="New appointment"
+                          />
+                        ),
+                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                      },
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.emailAppointment"
+                            fallback="Email appointment"
+                          />
+                        ),
+                        action: () =>
+                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                      },
+                    ]
+                  : [];
+                return (
+                  <AppointmentTile
+                    key={a.id}
+                    appointment={a}
+                    onEdit={() => onOpenDrawer(a)}
+                    onCancel={() => onCancel(a)}
+                    actions={actions}
+                  />
+                );
+              })}
             </AppointmentColumnWrapper>
           </ColumnWrapper>
         );
