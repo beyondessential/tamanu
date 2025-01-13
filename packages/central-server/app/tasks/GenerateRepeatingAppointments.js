@@ -21,7 +21,11 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
     return 'GenerateRepeatingAppointments';
   }
 
-  async countQueue() {}
+  async countQueue() {
+    // Get all appointmentSchedules whos appointment count is < maxOccurrences and the last appointment is in the past
+    // Or the last appointment + increment is before the end date and the last appointment is in the past
+    // Then count the number of appointments that need to be generated for each schedule and return the total
+  }
 
   async run() {}
 }
