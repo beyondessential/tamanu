@@ -123,7 +123,7 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
-const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
@@ -160,7 +160,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = patientNameOrId => {
+const buildPatientNameOrIdQuery = (patientNameOrId) => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -185,7 +185,6 @@ const buildPatientNameOrIdQuery = patientNameOrId => {
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
-    // TODO: should allow list or read
     req.checkPermission('list', 'Appointment');
     const {
       models: { Appointment },
@@ -275,7 +274,7 @@ appointments.post('/locationBooking', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
       const conflictCount = await Appointment.count({
         where: {
@@ -312,7 +311,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const existingBooking = await Appointment.findByPk(id, { transaction });
 
       if (!existingBooking) {
