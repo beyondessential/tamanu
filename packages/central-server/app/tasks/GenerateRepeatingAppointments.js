@@ -21,10 +21,9 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
     return 'GenerateRepeatingAppointments';
   }
 
-
-
   async run() {
-    await this.sequelize.query(`
+    await this.sequelize.query(
+      `
       WITH latest_appointments AS (
           SELECT schedule_id, MAX(start_time) AS latest_start_time
           FROM appointments
@@ -42,7 +41,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         WHERE
           (occurrence_count IS NULL AND until_date > latest_start_time)
         OR
-        (occurrence_count > (
+          (occurrence_count > (
             SELECT COUNT(*)
             FROM appointments
             WHERE schedule_id = past_appointment_schedules.id
@@ -50,7 +49,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         )
       )
       select * from possible_incomplete_schedules;
-    `,
+      `,
       { type: this.sequelize.QueryTypes.SELECT },
     );
     // We gotta problem where by we can't easily check next tues or
