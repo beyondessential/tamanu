@@ -34,7 +34,7 @@ const StyledSwitch = styled(Switch)`
     border-radius: 1.25rem;
   }
 
-  .Mui-checked + .MuiSwitch-track {
+  .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
     background-color: ${Colors.primary};
     opacity: 1;
   }
