@@ -22,6 +22,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
+    // TODO introduce an offset so new appointments are created say a few weeks before they are due
     await this.sequelize.query(
       `
       WITH latest_appointments AS (
@@ -52,6 +53,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       `,
       { type: this.sequelize.QueryTypes.SELECT },
     );
+
     // We gotta problem where by we can't easily check next tues or
     // 3rd tues in month for until_date variation so maybe we just do in js with date-fns
   }
