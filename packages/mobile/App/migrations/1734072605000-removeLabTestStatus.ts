@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { getTable } from './utils/queryRunner.js';
+import { getTable } from './utils/queryRunner';
 
 export class removeLabTestStatus1734072605000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
