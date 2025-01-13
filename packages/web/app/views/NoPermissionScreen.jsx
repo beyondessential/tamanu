@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import backgroundImage from '../assets/images/hospital_illustration_background.svg';
 import { Colors } from '../constants';
+import { TranslatedText } from '../components';
 
 const Container = styled.div`
   border: 1px #dedede solid;
@@ -43,10 +44,17 @@ export const NoPermissionScreen = () => {
   return (
     <Container>
       <Message>
-        <Heading>Permission required</Heading>
+        <Heading>
+          <TranslatedText
+            stringId="general.permission.permissionRequired"
+            fallback="Permission required"
+          />
+        </Heading>
         <Description>
-          You do not have permission to use this feature <br />
-          Please speak to your System Administrator if you think this is incorrect.
+          <TranslatedText
+            stringId="general.permission.permissionRequiredMessage"
+            fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
+          />
         </Description>
       </Message>
     </Container>
