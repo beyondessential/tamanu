@@ -42,6 +42,7 @@ export class AppointmentSchedule extends Model {
   declare daysOfWeek?: [string];
   declare nthWeekday?: number;
   declare occurrenceCount?: number;
+  declare isFullyGenerated: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -65,6 +66,11 @@ export class AppointmentSchedule extends Model {
         occurrenceCount: {
           type: DataTypes.INTEGER,
           allowNull: true,
+        },
+        isFullyGenerated: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {
