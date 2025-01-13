@@ -19,6 +19,8 @@ export const markForSyncRepullData = async (
   persistedModels: Models,
   sessionId: string,
 ) => {
+  // No need to load records in batches for memory issue as
+  // the number of records that require repull should be small
   const records = await findSyncSnapshotRecords(
     sequelize,
     sessionId,
