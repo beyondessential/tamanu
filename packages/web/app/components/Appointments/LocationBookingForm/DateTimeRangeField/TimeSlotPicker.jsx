@@ -312,11 +312,20 @@ export const TimeSlotPicker = ({
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
       if (!startTime) {
-        setSelectedToggles([]);
+        /*
+         * The RANGE must have both start and end times, or neither. If the user has switched from
+         * an overnight booking with only an end time selected, we must discard it.
+         */
+        if (endTime) {
+          // Retriggers this useEffect hook, but will fall to the `else` branch
+          updateInterval({ end: null });
+        } else {
+          setSelectedToggles([]);
+        }
         return;
       }
 
-      /**
+      /*
        * It’s only possible to have a start time but no end time if the user has just switched from
        * an overnight booking. Preserve the first time slot from that selection.
        */
@@ -324,8 +333,7 @@ export const TimeSlotPicker = ({
         const start = parseISO(startTime);
         const slot = slotContaining(start);
 
-        // Retriggers this useEffect hook, but sets an `endTime` so will fall to the next branch
-        updateInterval(slot);
+        updateInterval(slot); // Retriggers this useEffect hook, but will fall to the next branch
         return;
       }
 
