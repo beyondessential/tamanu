@@ -41,16 +41,12 @@ export const replaceStringVariables = (templateString, { replacements, casing },
   return applyCasing(result, casing);
 };
 
-export const translationFactory = translations => (stringId, fallback, replacements, casing) => {
-  const replacementConfig = {
-    replacements,
-    casing,
-  };
+export const translationFactory = (translations) => (stringId, fallback, translationOptions) => {
   if (!translations)
-    return { value: replaceStringVariables(fallback, replacementConfig, translations) };
+    return { value: replaceStringVariables(fallback, translationOptions, translations) };
   const translation = translations[stringId] ?? fallback;
   return {
-    value: replaceStringVariables(translation, replacementConfig, translations),
+    value: replaceStringVariables(translation, translationOptions, translations),
     notExisting: !translations[stringId],
   };
 };
