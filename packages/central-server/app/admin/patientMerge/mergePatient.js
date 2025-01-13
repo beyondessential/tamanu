@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import { chunk, omit, omitBy } from 'lodash';
-import config from 'config';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
