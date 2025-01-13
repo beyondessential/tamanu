@@ -54,6 +54,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       { type: this.sequelize.QueryTypes.SELECT },
     );
 
+    
     // We gotta problem where by we can't easily check next tues or
     // 3rd tues in month for until_date variation so maybe we just do in js with date-fns
   }
