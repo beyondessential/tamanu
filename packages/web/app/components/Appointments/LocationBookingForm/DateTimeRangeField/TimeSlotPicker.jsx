@@ -301,10 +301,6 @@ export const TimeSlotPicker = ({
    *   legal state.
    * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
    *   simply discarded when toggling the `overnight` checkbox.
-   *
-   * The `appointments.bookingSlots` configuration may have changed since the last time a given
-   * appointment was updated. This `useEffect` hook realigns an appointment’s start and end times
-   * with the currently available slots.
    */
   useEffect(() => {
     // Not a destructure to convince linter we don’t need `values` object dependency
@@ -378,7 +374,6 @@ export const TimeSlotPicker = ({
     }
   }, [
     bookedIntervals,
-    date,
     dayEnd,
     dayStart,
     hasNoLegalSelection,
