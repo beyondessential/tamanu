@@ -9,7 +9,7 @@ import {
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { add, isBefore, parseISO, set } from 'date-fns';
+import { add, isAfter, isBefore, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
@@ -196,23 +196,23 @@ export class Appointment extends Model {
         return nextAppointment;
       };
 
-      let continueGenerating = true;
+      let isFullyGenerated = false;
       const parsedUntilDate = untilDate && parseISO(untilDate);
       // Generate appointments until the limit is reached or until the
       // incremented startTime is after the untilDate
-      while (appointments.length < maxInitialRepeatingAppointments && continueGenerating) {
+      while (appointments.length < maxInitialRepeatingAppointments && !isFullyGenerated) {
         const { startTime: latestStartTime } = pushNextAppointment();
 
         if (parsedUntilDate) {
           const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
           if (!incrementedStartTime) throw new Error('No incremented start time found');
-          continueGenerating = isBefore(incrementedStartTime, parsedUntilDate);
+          isFullyGenerated = isAfter(incrementedStartTime, parsedUntilDate);
         } else if (occurrenceCount) {
-          continueGenerating = appointments.length < occurrenceCount;
+          isFullyGenerated = appointments.length === occurrenceCount;
         }
       }
 
-      console.log('isFullyGenerated', !continueGenerating);
+      console.log('isFullyGenerated', isFullyGenerated);
       const appointmentData = this.bulkCreate(appointments);
       return appointmentData;
     });
