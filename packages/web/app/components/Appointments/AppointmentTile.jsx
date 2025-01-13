@@ -107,7 +107,7 @@ export const AppointmentTile = ({
     if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
         setOpen(true);
-        ref.current.scrollIntoView({ block: 'center', inline: 'start' });
+        ref.current.scrollIntoView({ block: 'center', inline: 'center' });
       });
     }
   }, [appointment.id, hideTime, location.search]);
