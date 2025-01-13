@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { pluralize } from 'inflection';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi } from '../../../api';
@@ -61,7 +62,8 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
   const buttonLabel = useMemo(() => {
     return (
       <span>
-        <TranslatedText stringId="general.action.export" fallback="Export" /> {title.toLowerCase()}
+        <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
+        {pluralize(title).toLowerCase()}
       </span>
     );
   }, [title]);
