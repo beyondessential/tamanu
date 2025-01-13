@@ -988,7 +988,7 @@ export const globalSettings = {
         patientTabs: {
           description: 'The tabs on patient view',
           properties: {
-            history: {
+            summary: {
               description: '_',
               properties: unhideableLayoutModuleProperties,
             },
