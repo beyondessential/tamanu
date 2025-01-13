@@ -186,6 +186,12 @@ export class User extends Model {
       foreignKey: 'userId',
       as: 'designations',
     });
+
+    this.belongsToMany(models.ReferenceData, {
+      through: models.UserDesignation,
+      foreignKey: 'userId',
+      as: 'designationData',
+    });
   }
 
   static buildSyncFilter() {

@@ -33,6 +33,11 @@ sources:
             description: "{{ doc('user_preferences__user_id') }}"
             data_tests:
               - not_null
+          - name: clinician_dashboard_tasking_table_filter
+            data_type: jsonb
+            description: "{{
+              doc('user_preferences__clinician_dashboard_tasking_table_filter')
+              }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_preferences."
