@@ -196,24 +196,25 @@ export class Appointment extends Model {
         return nextAppointment;
       };
 
-      const limit = occurrenceCount
-        ? Math.min(occurrenceCount, maxInitialRepeatingAppointments)
-        : maxInitialRepeatingAppointments;
-
       let continueGenerating = true;
       const parsedUntilDate = untilDate && parseISO(untilDate);
       // Generate appointments until the limit is reached or until the
       // incremented startTime is after the untilDate
-      while (appointments.length < limit && continueGenerating) {
+      while (appointments.length < maxInitialRepeatingAppointments && continueGenerating) {
         const { startTime: latestStartTime } = pushNextAppointment();
 
         if (parsedUntilDate) {
           const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
           if (!incrementedStartTime) throw new Error('No incremented start time found');
           continueGenerating = isBefore(incrementedStartTime, parsedUntilDate);
+        } else if (occurrenceCount) {
+          continueGenerating = appointments.length < occurrenceCount;
         }
       }
-      return this.bulkCreate(appointments);
+
+      console.log('isFullyGenerated', !continueGenerating);
+      const appointmentData = this.bulkCreate(appointments);
+      return appointmentData;
     });
   }
 }
