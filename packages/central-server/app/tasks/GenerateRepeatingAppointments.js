@@ -21,26 +21,28 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
     return 'GenerateRepeatingAppointments';
   }
 
+
+
   async run() {
-    await this.sequelize.query(
-      `
-      WITH schedules_with_latest_appointment_in_past AS (
-          SELECT * FROM appointment_schedules
-          JOIN LATERAL (
-            SELECT start_time FROM appointments
-            WHERE appointments.schedule_id = appointment_schedules.id
-            ORDER BY appointments.start_time DESC
-            LIMIT 1
-          ) AS latest_appointment ON true
-          WHERE latest_appointment.start_time::date < NOW()
+    await this.sequelize.query(`
+      WITH latest_appointments AS (
+          SELECT schedule_id, MAX(start_time) AS latest_start_time
+          FROM appointments
+          GROUP BY schedule_id
         ),
+      past_appointment_schedules AS (
+        SELECT *
+        FROM appointment_schedules
+        LEFT JOIN latest_appointments ON appointment_schedules.id = latest_appointments.schedule_id
+        WHERE latest_appointments.latest_start_time::date < NOW()
+      ),
       possible_incomplete_schedules AS (
         SELECT *
         FROM past_appointment_schedules
         WHERE
-          (occurrence_count IS NULL AND until_date > start_time)
+          (occurrence_count IS NULL AND until_date > latest_start_time)
         OR
-          (occurrence_count > (
+        (occurrence_count > (
             SELECT COUNT(*)
             FROM appointments
             WHERE schedule_id = past_appointment_schedules.id
