@@ -22,6 +22,20 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async countQueue() {
+    await this.sequelize.query(`
+    WITH latest_appointments AS (
+      SELECT schedule_id, MAX(start_time) AS latest_start_time
+      FROM appointments
+      GROUP BY schedule_id
+    ),
+    past_appointment_schedules AS (
+      SELECT *
+      FROM appointment_schedules
+      LEFT JOIN latest_appointments ON appointment_schedules.id = latest_appointments.schedule_id
+      WHERE latest_appointments.latest_start_time::date < NOW()
+    )
+    select * from past_appointment_schedules;
+      `);
     // Get all appointmentSchedules whos appointment count is < maxOccurrences and the last appointment is in the past
     // Or the last appointment + increment is before the end date and the last appointment is in the past
     // Then count the number of appointments that need to be generated for each schedule and return the total
