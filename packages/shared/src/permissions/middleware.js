@@ -84,7 +84,7 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkListOrReadPermission = (subject) => {
+  req.checkListOrRead = (subject) => {
     req.checkForOneOfPermissions(['list', 'read'], subject);
   };
 
