@@ -25,6 +25,7 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
+import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 
 export const globalSettings = {
   title: 'Global settings',
@@ -232,13 +233,13 @@ export const globalSettings = {
           },
         },
         disableInputPasting: {
-          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
           type: yup.boolean(),
           defaultValue: false,
         },
         discharge: {
-          description:
-            'Encounter discharge configuration',
+          description: 'Encounter discharge configuration',
           properties: {
             dischargeNoteMandatory: {
               type: yup.boolean(),
@@ -1297,8 +1298,91 @@ export const globalSettings = {
           description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
           defaultValue: 48,
-        }
-      }
+        },
+      },
+    },
+    medications: {
+      properties: {
+        frequencies: {
+          properties: {
+            [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.IMMEDIATELY]: {
+              description: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE]: {
+              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
     },
   },
 };
