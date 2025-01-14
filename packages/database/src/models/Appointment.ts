@@ -9,7 +9,7 @@ import {
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { add, isAfter, isBefore, parseISO, set } from 'date-fns';
+import { add, isAfter, parseISO, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
@@ -212,8 +212,10 @@ export class Appointment extends Model {
         }
       }
 
-      console.log('isFullyGenerated', isFullyGenerated);
-      const appointmentData = this.bulkCreate(appointments);
+      const appointmentData = await this.bulkCreate(appointments);
+      if (isFullyGenerated) {
+        await schedule.update({ isFullyGenerated });
+      }
       return appointmentData;
     });
   }
