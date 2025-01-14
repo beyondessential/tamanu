@@ -33,7 +33,7 @@ export const PATIENT_PATHS = {
 };
 
 export const PATIENT_TABS = {
-  HISTORY: 'history',
+  SUMMARY: 'summary',
   DETAILS: 'details',
   RESULTS: 'results',
   REFERRALS: 'referrals',
