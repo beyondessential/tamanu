@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
+import { formatTime } from '@tamanu/utils/dateTime';
 
-import { DateDisplay, formatTime } from '../DateDisplay';
+import { DateDisplay } from '../DateDisplay';
 import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
 

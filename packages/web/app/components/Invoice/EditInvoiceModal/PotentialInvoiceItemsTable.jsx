@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { differenceBy } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
@@ -147,6 +147,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
+      key: 'actions',
       sortable: false,
       accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>

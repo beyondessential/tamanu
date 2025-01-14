@@ -1,4 +1,4 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
@@ -173,7 +173,9 @@ describe('PatientDocumentMetadata', () => {
       },
     ]);
 
-    const result = await app.get(`/api/patient/${patient.id}/documentMetadata?documentOwner=ownerA`);
+    const result = await app.get(
+      `/api/patient/${patient.id}/documentMetadata?documentOwner=ownerA`,
+    );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(2);
   });
@@ -271,7 +273,7 @@ describe('PatientDocumentMetadata', () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
 
     // Mock function gets called inside api route
-    uploadAttachment.mockImplementationOnce(req => ({
+    uploadAttachment.mockImplementationOnce((req) => ({
       metadata: { ...req.body },
       type: 'application/pdf',
       attachmentId: '123456789',

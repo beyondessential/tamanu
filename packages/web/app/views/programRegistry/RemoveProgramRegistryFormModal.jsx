@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../components';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
@@ -120,11 +120,13 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Value>
               {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility?.name
-                : patientProgramRegistration.facility?.name && <TranslatedReferenceData
-                  fallback={patientProgramRegistration.facility.name}
-                  value={patientProgramRegistration.facility.id}
-                  category="facility"
-                />) || '-'}
+                : patientProgramRegistration.facility?.name && (
+                    <TranslatedReferenceData
+                      fallback={patientProgramRegistration.facility.name}
+                      value={patientProgramRegistration.facility.id}
+                      category="facility"
+                    />
+                  )) || '-'}
             </Value>
           </Info>
         </InfoColumn>

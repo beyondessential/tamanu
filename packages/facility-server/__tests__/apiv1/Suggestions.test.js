@@ -12,7 +12,7 @@ import {
   randomRecords,
   randomLabRequest,
   splitIds,
-} from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData';
 import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
@@ -146,20 +146,20 @@ describe('Suggestions', () => {
 
       const { body } = result;
 
-      const occupiedResult = body.find(x => x.id === occupiedLocation.id);
+      const occupiedResult = body.find((x) => x.id === occupiedLocation.id);
       expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
 
-      const reservedResult = body.find(x => x.id === reservedLocation.id);
+      const reservedResult = body.find((x) => x.id === reservedLocation.id);
       expect(reservedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.RESERVED);
 
-      const unrestrictedResult = body.find(x => x.id === unrestrictedLocation.id);
+      const unrestrictedResult = body.find((x) => x.id === unrestrictedLocation.id);
       expect(unrestrictedResult).toHaveProperty(
         'availability',
         LOCATION_AVAILABILITY_STATUS.AVAILABLE,
       );
 
       const otherResults = body.filter(
-        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
+        (x) => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
       );
       for (const location of otherResults) {
         expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
@@ -339,7 +339,9 @@ describe('Suggestions', () => {
     });
 
     it('should get a partial list of diagnoses with a specific query', async () => {
-      const count = testDiagnoses.filter(td => td.name.toLowerCase().includes('bacterial')).length;
+      const count = testDiagnoses.filter((td) =>
+        td.name.toLowerCase().includes('bacterial'),
+      ).length;
       expect(count).toBeLessThan(limit); // ensure we're actually testing filtering!
       const result = await userApp.get('/api/suggestions/diagnosis?q=bacterial');
       expect(result).toHaveSucceeded();
@@ -491,7 +493,7 @@ describe('Suggestions', () => {
 
     const DATA_TYPE = 'diagnosis';
     const DATA_ID = 'test-diagnosis';
-    const ORIGINAL_LABEL = 'AAAOrignal label'; // A's are to ensure it comes first in the list
+    const ORIGINAL_LABEL = 'AAAOriginal label'; // A's are to ensure it comes first in the list
     const ENGLISH_LABEL = 'AAAEnglish label';
     const KHMER_LABEL = 'AAAKhmer label';
     const ENGLISH_CODE = 'en';

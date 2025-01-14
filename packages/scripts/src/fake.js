@@ -1,15 +1,16 @@
 const { REPORT_STATUSES, NOTE_RECORD_TYPES, REPORT_DB_SCHEMAS } = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
-const { initDatabase } = require('@tamanu/shared/services/database');
+const { initDatabase } = require('@tamanu/database/services/database');
 const config = require('config');
 
 // generate fake data enough to test recent migrations
 /**
  *
- * @param {import('@tamanu/shared/models')} models
+ * @param {import('@tamanu/database/models')} models
  */
 async function generateData(models) {
   const {
+    Appointment,
     Department,
     Discharge,
     Encounter,
@@ -310,6 +311,14 @@ async function generateData(models) {
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
+    }),
+  );
+
+  await Appointment.create(
+    fake(Appointment, {
+      patientId: patient.id,
+      clinicianId: examiner.id,
+      locationGroupId: locationGroup.id,
     }),
   );
 

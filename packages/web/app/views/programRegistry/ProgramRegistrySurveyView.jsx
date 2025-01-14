@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientProgramRegistrySurveys';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
-import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientProgramRegistrationQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -28,9 +28,9 @@ export const ProgramRegistrySurveyView = () => {
   const {
     data: patientProgramRegistration,
     isLoading: patientProgramRegistrationLoading,
-  } = usePatientProgramRegistration(patient.id, programRegistryId);
+  } = usePatientProgramRegistrationQuery(patient.id, programRegistryId);
 
-  const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveys(
+  const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveysQuery(
     patientId,
     programRegistryId,
     surveyId,

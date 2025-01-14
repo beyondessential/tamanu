@@ -10,7 +10,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { User } from './User';
 
-@Entity('note')
+@Entity('notes')
 export class Note extends BaseModel implements INote {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 
@@ -67,9 +67,5 @@ export class Note extends BaseModel implements INote {
       content,
       author,
     });
-  }
-
-  static getTableNameForSync(): string {
-    return 'notes';
   }
 }

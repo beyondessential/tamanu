@@ -6,8 +6,8 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
   createDummyPatient,
-} from '@tamanu/shared/demoData/patients';
-import { randomLabRequest } from '@tamanu/shared/demoData';
+} from '@tamanu/database/demoData/patients';
+import { randomLabRequest } from '@tamanu/database/demoData';
 import {
   DOCUMENT_SOURCES,
   EncounterChangeType,
@@ -16,12 +16,14 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  CHARTING_DATA_ELEMENT_IDS,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
-import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
+import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
@@ -83,17 +85,17 @@ describe('Encounter', () => {
     const result = await app.get(`/api/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
-    expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
-    expect(result.body.data.some(x => x.id === c.id)).toEqual(true);
+    expect(result.body.data.some((x) => x.id === v.id)).toEqual(true);
+    expect(result.body.data.some((x) => x.id === c.id)).toEqual(true);
 
-    expect(result.body.data.find(x => x.id === v.id)).toMatchObject({
+    expect(result.body.data.find((x) => x.id === v.id)).toMatchObject({
       id: v.id,
       endDate: expect.any(String),
     });
-    expect(result.body.data.find(x => x.id === c.id)).toMatchObject({
+    expect(result.body.data.find((x) => x.id === c.id)).toMatchObject({
       id: c.id,
     });
-    expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
+    expect(result.body.data.find((x) => x.id === c.id)).not.toHaveProperty('endDate');
   });
 
   it('should fail to get an encounter that does not exist', async () => {
@@ -153,7 +155,7 @@ describe('Encounter', () => {
     const result = await app.get(`/api/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every((x) => x.content.match(/^Test \d$/))).toEqual(true);
     expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
@@ -171,7 +173,7 @@ describe('Encounter', () => {
     const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every((x) => x.noteType === 'treatmentPlan')).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
@@ -470,6 +472,71 @@ describe('Encounter', () => {
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
       expect(result.body.data[0].notes[0].content).toEqual(note.content);
+    });
+  });
+
+  describe('GET encounter chart instances', () => {
+    it('should get a list of chart instances of a chart for an encounter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const program = await models.Program.create({ ...fake(models.Program) });
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        code: 'complex-chart-core',
+        programId: program.id,
+        surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+      });
+      const dataElement = await models.ProgramDataElement.create({
+        ...fake(models.ProgramDataElement),
+        id: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+      });
+      const response1 = await models.SurveyResponse.create({
+        ...fake(models.SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const response2 = await models.SurveyResponse.create({
+        ...fake(models.SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+      const chartInstance1Answer1 = await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response1.id,
+        body: 'Chart 1',
+      });
+      const chartInstance1Answer2 = await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: response2.id,
+        body: 'Chart 2',
+      });
+
+      const result = await app.get(
+        `/api/encounter/${encounter.id}/charts/${survey.id}/chartInstances`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 2,
+        data: expect.any(Array),
+      });
+      const chartInstance1 = result.body.data.find((x) => x.chartInstanceId === response1.id);
+      const chartInstance2 = result.body.data.find((x) => x.chartInstanceId === response2.id);
+
+      expect(chartInstance1).toMatchObject({
+        chartSurveyId: survey.id,
+        chartInstanceId: response1.id,
+        chartInstanceName: chartInstance1Answer1.body,
+      });
+
+      expect(chartInstance2).toMatchObject({
+        chartSurveyId: survey.id,
+        chartInstanceId: response2.id,
+        chartInstanceName: chartInstance1Answer2.body,
+      });
     });
   });
 
@@ -1235,7 +1302,7 @@ describe('Encounter', () => {
           const startDateString = formatISO9075(addHours(new Date(), -4));
           const endDateString = formatISO9075(new Date());
           const expectedAnswers = answers.filter(
-            answer => answer.value !== '' && answer.value !== nullAnswer.value,
+            (answer) => answer.value !== '' && answer.value !== nullAnswer.value,
           );
 
           const result = await app.get(
@@ -1248,7 +1315,7 @@ describe('Encounter', () => {
           expect(body).toHaveProperty('data');
           expect(body.data).toEqual(
             expect.arrayContaining(
-              expectedAnswers.map(answer =>
+              expectedAnswers.map((answer) =>
                 expect.objectContaining({
                   dataElementId: patientVitalSbpKey,
                   body: answer.value.toString(),
@@ -1260,8 +1327,8 @@ describe('Encounter', () => {
 
           const expectedRecordedDate = [...expectedAnswers]
             .sort((a, b) => (a.submissionDate > b.submissionDate ? 1 : -1))
-            .map(answer => answer.submissionDate);
-          const resultRecordedDate = body.data.map(data => data.recordedDate);
+            .map((answer) => answer.submissionDate);
+          const resultRecordedDate = body.data.map((data) => data.recordedDate);
           expect(resultRecordedDate).toEqual(expectedRecordedDate);
         });
 
@@ -1289,6 +1356,108 @@ describe('Encounter', () => {
       });
     });
 
+    describe('charting', () => {
+      let chartsEncounter = null;
+      let chartsPatient = null;
+
+      beforeAll(async () => {
+        chartsPatient = await models.Patient.create(await createDummyPatient(models));
+        chartsEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models, { endDate: null })),
+          patientId: chartsPatient.id,
+          reasonForEncounter: 'charting test',
+        });
+
+        await setupSurveyFromObject(models, {
+          program: {
+            id: 'charts-program',
+          },
+          survey: {
+            id: 'simple-chart-survey',
+            survey_type: 'simpleChart',
+          },
+          questions: [
+            {
+              name: 'PatientChartingDate',
+              type: 'DateTime',
+            },
+            {
+              name: 'ChartQuestionOne',
+              type: 'Number',
+            },
+            {
+              name: 'ChartQuestionTwo',
+              type: 'Number',
+            },
+          ],
+        });
+      });
+
+      beforeEach(async () => {
+        await models.SurveyResponseAnswer.truncate({});
+        await models.SurveyResponse.truncate({});
+      });
+
+      it('should record a new simple chart reading', async () => {
+        const submissionDate = getCurrentDateTimeString();
+        const result = await app.post('/api/surveyResponse').send({
+          surveyId: 'simple-chart-survey',
+          patientId: chartsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers: {
+            [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+            'pde-ChartQuestionOne': 1234,
+          },
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        const saved = await models.SurveyResponseAnswer.findOne({
+          where: { dataElementId: 'pde-ChartQuestionOne', body: '1234' },
+        });
+        expect(saved).toHaveProperty('body', '1234');
+      });
+
+      it('should get simple chart readings for an encounter', async () => {
+        const surveyId = 'simple-chart-survey';
+        const submissionDate = getCurrentDateTimeString();
+        const answers = {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOne': 123,
+          'pde-ChartQuestionTwo': 456,
+        };
+        await app.post('/api/surveyResponse').send({
+          surveyId,
+          patientId: chartsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers,
+          facilityId,
+        });
+        const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body).toHaveProperty('count');
+        expect(body.count).toBeGreaterThan(0);
+        expect(body).toHaveProperty('data');
+        expect(body.data).toEqual(
+          expect.arrayContaining(
+            Object.entries(answers).map(([key, value]) =>
+              expect.objectContaining({
+                dataElementId: key,
+                records: {
+                  [submissionDate]: expect.objectContaining({
+                    id: expect.any(String),
+                    body: value.toString(),
+                    logs: null,
+                  }),
+                },
+              }),
+            ),
+          ),
+        );
+      });
+    });
     describe('program responses', () => {
       disableHardcodedPermissionsForSuite();
 
@@ -1357,7 +1526,7 @@ describe('Encounter', () => {
         });
 
         // Mock function gets called inside api route
-        uploadAttachment.mockImplementationOnce(req => ({
+        uploadAttachment.mockImplementationOnce((req) => ({
           metadata: { ...req.body },
           type: 'application/pdf',
           attachmentId: '123456789',

@@ -15,15 +15,6 @@
 /packages/mobile/App/services/sync/                     @edmofro @chris-bes
 
 #
-# Kamaka currently owns VDS-NC/EU-DCC/Signer and CSCA.
-# Same reasoning, but it's not core to Tamanu.
-#
-/packages/csca/src/                                          @beyondessential/kamaka
-/packages/central-server/integrations/EuDcc                  @beyondessential/kamaka
-/packages/central-server/integrations/Signer                 @beyondessential/kamaka
-/packages/central-server/integrations/VdsNc                  @beyondessential/kamaka
-
-#
 # The deployment team are code owner of the default config files to make sure
 # that they're across any changes that might need to be made to any particular
 # server.

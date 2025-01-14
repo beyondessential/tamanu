@@ -81,7 +81,7 @@ export const OvalCheckbox = ({
       <RowView style={styles.row}>
         {value ? (
           <StyledView style={styles.checked}>
-            <CheckboxMarkIcon style={styles.icon} width={14} heigh={14} />
+            <CheckboxMarkIcon style={styles.icon} width={14} height={14} />
           </StyledView>
         ) : (
           <StyledView style={styles.unchecked} />

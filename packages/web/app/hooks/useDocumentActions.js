@@ -17,7 +17,7 @@ export const useDocumentActions = () => {
   const { getTranslation } = useTranslation();
 
   // In order to make sure we cleanup any iframes we create from printing, we need to
-  // trigger it in a useEffect with a cleanup function that wil remove the iframe
+  // trigger it in a useEffect with a cleanup function that will remove the iframe
   // when unmounted.
   useEffect(() => {
     if (!dataUrl) return () => {};

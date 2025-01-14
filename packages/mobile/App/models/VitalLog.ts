@@ -8,7 +8,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 import { DateStringColumn } from './DateColumns';
 
-@Entity('vital_log')
+@Entity('vital_logs')
 export class VitalLog extends BaseModel implements IVitalLog {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 

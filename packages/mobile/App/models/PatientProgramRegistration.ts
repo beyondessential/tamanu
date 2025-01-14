@@ -37,7 +37,7 @@ const getValuesFromRelations = values => {
   };
 };
 
-@Entity('patient_program_registration')
+@Entity('patient_program_registrations')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -168,9 +168,5 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patient: patientId,
       isMostRecent: true,
     });
-  }
-
-  static getTableNameForSync(): string {
-    return 'patient_program_registrations';
   }
 }

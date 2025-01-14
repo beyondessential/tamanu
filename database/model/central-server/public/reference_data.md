@@ -14,9 +14,9 @@ Code of the data item (short value, alphanumerics and hyphens).
 {% enddocs %}
 
 {% docs reference_data__type %}
-Class of the data (refered to in code).
+Class of the data (referred to in code).
 
-Whenever this table is refered to in a relationship, it's to a specific `type` here. For example a
+Whenever this table is referred to in a relationship, it's to a specific `type` here. For example a
 table might have a `diagnosis_id`, which is a reference to this table, for specifically only the
 rows with `type = diagnosis`.
 {% enddocs %}

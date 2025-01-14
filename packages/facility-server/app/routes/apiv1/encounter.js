@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
@@ -10,6 +10,7 @@ import {
   DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
 } from '@tamanu/constants';
@@ -365,18 +366,52 @@ encounterRelations.get(
 
 encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
-encounterRelations.get(
-  '/:id/vitals',
-  asyncHandler(async (req, res) => {
-    const { db, params, query } = req;
-    req.checkPermission('list', 'Vitals');
-    const encounterId = params.id;
-    const { order = 'DESC' } = query;
-    // The LIMIT and OFFSET occur in an unusual place in this query
-    // So we can't run it through the generic runPaginatedQuery function
-    const countResult = await db.query(
-      `
-        SELECT COUNT(1) AS count
+// Used in charts and vitals to query responses based on the date of a response answer
+async function getAnswersWithHistory(req) {
+  const { db, params, query } = req;
+  const { id: encounterId, surveyId = null } = params;
+  const { order = 'DESC' } = query;
+
+  const isVitals = surveyId === null;
+  const dateDataElement = isVitals
+    ? VITALS_DATA_ELEMENT_IDS.dateRecorded
+    : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
+  const historyTable = 'vital_logs'; // TODO: Create new model/table and use it here if its not vitals query
+  // The LIMIT and OFFSET occur in an unusual place in this query
+  // So we can't run it through the generic runPaginatedQuery function
+  const countResult = await db.query(
+    `
+      SELECT COUNT(1) AS count
+      FROM survey_response_answers
+      INNER JOIN survey_responses response
+      ON response.id = response_id
+      WHERE data_element_id = :dateDataElement
+      AND body IS NOT NULL
+      AND response.encounter_id = :encounterId
+      AND response.deleted_at IS NULL
+      AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
+    `,
+    {
+      replacements: {
+        encounterId,
+        dateDataElement,
+        surveyId,
+      },
+      type: QueryTypes.SELECT,
+    },
+  );
+  const { count } = countResult[0];
+  if (count === 0) {
+    return { data: [], count: 0 };
+  }
+
+  const { page = 0, rowsPerPage = 10 } = query;
+
+  const result = await db.query(
+    `
+      WITH
+      date AS (
+        SELECT response_id, body
         FROM survey_response_answers
         INNER JOIN survey_responses response
         ON response.id = response_id
@@ -384,87 +419,65 @@ encounterRelations.get(
         AND body IS NOT NULL
         AND response.encounter_id = :encounterId
         AND response.deleted_at IS NULL
-      `,
-      {
-        replacements: {
-          encounterId,
-          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
-        },
-        type: QueryTypes.SELECT,
-      },
-    );
-    const { count } = countResult[0];
-    if (count === 0) {
-      res.send({
-        data: [],
-        count: 0,
-      });
-      return;
-    }
-
-    const { page = 0, rowsPerPage = 10 } = query;
-
-    const result = await db.query(
-      `
-        WITH
-        date AS (
-          SELECT response_id, body
-          FROM survey_response_answers
-          INNER JOIN survey_responses response
-          ON response.id = response_id
-          WHERE data_element_id = :dateDataElement
-          AND body IS NOT NULL
-          AND response.encounter_id = :encounterId
-          AND response.deleted_at IS NULL
-          ORDER BY body ${order} LIMIT :limit OFFSET :offset
-        ),
-        history AS (
-          SELECT
-            vl.answer_id,
-            ARRAY_AGG((
-              JSONB_BUILD_OBJECT(
-                'newValue', vl.new_value,
-                'reasonForChange', vl.reason_for_change,
-                'date', vl.date,
-                'userDisplayName', u.display_name
-              )
-            )) logs
-          FROM survey_response_answers sra
-          	INNER JOIN survey_responses sr ON sr.id = sra.response_id
-          	LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
-          	LEFT JOIN users u ON u.id = vl.recorded_by_id
-          WHERE sr.encounter_id = :encounterId
-          	AND sr.deleted_at IS NULL
-          GROUP BY vl.answer_id
-        )
-
+        AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
+        ORDER BY body ${order} LIMIT :limit OFFSET :offset
+      ),
+      history AS (
         SELECT
-          JSONB_BUILD_OBJECT(
-            'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
-          ) result
-        FROM
-          survey_response_answers answer
-        INNER JOIN
-          date
-        ON date.response_id = answer.response_id
-        LEFT JOIN
-          history
-        ON history.answer_id = answer.id
-        GROUP BY answer.data_element_id
-      `,
-      {
-        replacements: {
-          encounterId,
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
-          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
-        },
-        type: QueryTypes.SELECT,
-      },
-    );
+          history_table.answer_id,
+          ARRAY_AGG((
+            JSONB_BUILD_OBJECT(
+              'newValue', history_table.new_value,
+              'reasonForChange', history_table.reason_for_change,
+              'date', history_table.date,
+              'userDisplayName', u.display_name
+            )
+          )) logs
+        FROM survey_response_answers sra
+          INNER JOIN survey_responses sr ON sr.id = sra.response_id
+          LEFT JOIN ${historyTable} history_table ON history_table.answer_id = sra.id
+          LEFT JOIN users u ON u.id = history_table.recorded_by_id
+        WHERE sr.encounter_id = :encounterId
+          AND sr.deleted_at IS NULL
+        GROUP BY history_table.answer_id
+      )
 
-    const data = result.map(r => r.result);
+      SELECT
+        JSONB_BUILD_OBJECT(
+          'dataElementId', answer.data_element_id,
+          'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
+        ) result
+      FROM
+        survey_response_answers answer
+      INNER JOIN
+        date
+      ON date.response_id = answer.response_id
+      LEFT JOIN
+        history
+      ON history.answer_id = answer.id
+      GROUP BY answer.data_element_id
+    `,
+    {
+      replacements: {
+        encounterId,
+        limit: rowsPerPage,
+        offset: page * rowsPerPage,
+        dateDataElement,
+        surveyId,
+      },
+      type: QueryTypes.SELECT,
+    },
+  );
+
+  const data = result.map(r => r.result);
+  return { count, data };
+}
+
+encounterRelations.get(
+  '/:id/vitals',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Vitals');
+    const { count, data } = await getAnswersWithHistory(req);
 
     res.send({
       count: parseInt(count, 10),
@@ -522,6 +535,19 @@ encounterRelations.get(
 
     res.send({
       count: data.length,
+      data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/charts/:surveyId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'SurveyResponse');
+    const { count, data } = await getAnswersWithHistory(req);
+
+    res.send({
+      count: parseInt(count, 10),
       data,
     });
   }),
@@ -602,6 +628,84 @@ encounterRelations.get(
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/charts/:chartSurveyId/chartInstances',
+  asyncHandler(async (req, res) => {
+    const { db, params } = req;
+    req.checkPermission('list', 'Charting');
+
+    const { id: encounterId, chartSurveyId } = params;
+
+    const results = await db.query(
+      `
+        WITH chart_instances AS (
+          SELECT
+            sr.id AS "chartInstanceId",
+            sr.survey_id AS "chartSurveyId",
+            MAX(CASE WHEN sra.data_element_id = :complexChartInstanceNameElementId THEN sra.body END) AS "chartInstanceName",
+            MAX(CASE WHEN sra.data_element_id = :complexChartDateElementId THEN sra.body END) AS "chartDate",
+            MAX(CASE WHEN sra.data_element_id = :complexChartTypeElementId THEN sra.body END) AS "chartType",
+            MAX(CASE WHEN sra.data_element_id = :complexChartSubtypeElementId THEN sra.body END) AS "chartSubtype"
+          FROM
+            survey_responses sr
+          LEFT JOIN
+            survey_response_answers sra
+          ON
+            sr.id = sra.response_id
+          WHERE
+            sr.survey_id = :chartSurveyId AND
+            sr.encounter_id = :encounterId AND
+            sr.deleted_at IS NULL
+          GROUP BY
+            sr.id
+        )
+
+        SELECT
+          *
+        FROM chart_instances
+        ORDER BY "chartDate" DESC;
+      `,
+      {
+        replacements: {
+          encounterId,
+          chartSurveyId,
+          complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+          complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+          complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
+          complexChartSubtypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      count: results.length,
+      data: results,
+    });
+  }),
+);
+
+encounterRelations.delete(
+  '/:id/chartInstances/:chartInstanceResponseId',
+  asyncHandler(async (req, res) => {
+    const { db, params, models } = req;
+    req.checkPermission('delete', 'Charting');
+
+    const { chartInstanceResponseId } = params;
+
+    // all answers will also be soft deleted automatically
+    await db.transaction(async () => {
+      await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
+
+      await models.SurveyResponse.destroy({
+        where: { 'metadata.chartInstanceResponseId': chartInstanceResponseId },
+      });
+    });
+
+    res.send({});
   }),
 );
 

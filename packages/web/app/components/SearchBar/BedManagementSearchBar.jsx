@@ -90,7 +90,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         <LocalisedField
           name="area"
           label={<TranslatedText stringId="general.localisedField.area.label" fallback="Area" />}
-          defaultLabel="Area"
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}

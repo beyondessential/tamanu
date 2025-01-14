@@ -1,11 +1,13 @@
 import config from 'config';
-import { nzEthnicity } from '@tamanu/shared/models/fhir/extensions';
+import { nzEthnicity } from '@tamanu/database/utils/fhir';
 
 describe('New Zealand ethnicity extension', () => {
   const patient = {
-    additionalData: {
-      ethnicityId: null,
-    },
+    additionalData: [
+      {
+        ethnicityId: null,
+      },
+    ],
   };
 
   it('returns empty array when feature flag is off', () => {

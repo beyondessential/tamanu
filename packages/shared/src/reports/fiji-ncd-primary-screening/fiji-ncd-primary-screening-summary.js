@@ -2,7 +2,7 @@
 
 import { endOfDay, format, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
-import { toDateTimeString } from '../../utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {

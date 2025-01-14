@@ -17,7 +17,7 @@ describe.skip('<TableData />', () => {
       // expect(getByText(titleProp)).not.toBeNull();
     });
 
-    it('should render TableData header informations', () => {
+    it('should render TableData header information', () => {
       // vitalsTableCols.forEach(col => {
       //   expect(getByText(col.title)).not.toBeNull();
       // });

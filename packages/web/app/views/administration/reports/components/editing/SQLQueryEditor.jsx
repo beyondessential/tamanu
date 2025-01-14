@@ -30,7 +30,7 @@ export const SQLQueryEditor = props => {
 
   const [originalHighlightList, setOriginalHighlightList] = useState([]);
   const [annotations, setAnnotations] = useState({});
-  const shouldIgnoreErrorMesssage = errorMessage => {
+  const shouldIgnoreErrorMessage = errorMessage => {
     return IGNORED_MESSAGES.includes(errorMessage);
   };
   const validateQuery = query => {
@@ -44,7 +44,7 @@ export const SQLQueryEditor = props => {
       // js-sql-parser is throwing errors for some valid queries.
       // see: https://linear.app/bes/issue/NASS-877/bug-in-query-box-in-reports-modal
       // So we are ignoring some of them and let the backend do the validation in some scenarios
-      if (shouldIgnoreErrorMesssage(e.message)) {
+      if (shouldIgnoreErrorMessage(e.message)) {
         setAnnotations({});
         return;
       }

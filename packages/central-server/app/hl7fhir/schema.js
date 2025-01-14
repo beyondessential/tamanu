@@ -67,7 +67,7 @@ const getPatientParameters = () => {
     // Add the parameter without suffix
     parameters[paramName] = validationSchema;
 
-    // Add the paramater with all the supported modifiers
+    // Add the parameter with all the supported modifiers
     supportedModifiers.forEach(modifier => {
       const suffixedName = `${paramName}:${modifier}`;
       parameters[suffixedName] = validationSchema;

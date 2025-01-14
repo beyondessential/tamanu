@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { WS_EVENTS } from '@tamanu/constants';
 
 import {
   ContentPane,
@@ -71,7 +72,13 @@ export const ImmunisationsView = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const dispatch = useDispatch();
 
-  const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
+  // listen to any updates on the root collection, i.e. the first segment of the endpoint
+  // updates at the root level indicate anything below needs to be re-fetched
+  const rootCollection = 'upcomingVaccinations';
+  const endpoint = `${rootCollection}/updateStats`;
+  const updateDetectionChannel = `${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${rootCollection}`;
+
+  const { data: updateStats, error } = useAutoUpdatingQuery(endpoint, {}, updateDetectionChannel);
 
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
@@ -93,7 +100,7 @@ export const ImmunisationsView = () => {
         }
       />
       <ContentPane>
-        <StyledSearchTableTitle>
+        <StyledSearchTableTitle component="div">
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"

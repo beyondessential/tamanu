@@ -7,7 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '../dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,
@@ -293,16 +293,16 @@ const COLUMNS = {
 };
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
-  let firstPageOccurence = Number.MAX_SAFE_INTEGER;
+  let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurence && subPageNumber) {
-          firstPageOccurence = pageNumber;
+        if (pageNumber < firstPageOccurrence && subPageNumber) {
+          firstPageOccurrence = pageNumber;
         }
-        return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+        return pageNumber === firstPageOccurrence ? title : `${title} cont...`;
       }}
     />
   );

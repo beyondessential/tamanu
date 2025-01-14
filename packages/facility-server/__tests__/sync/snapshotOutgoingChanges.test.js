@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
 
 import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
-import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
@@ -25,7 +25,7 @@ describe('snapshotOutgoingChanges', () => {
     'if nothing changed returns empty array',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tick - 1);
       expect(result).toEqual([]);
@@ -36,7 +36,7 @@ describe('snapshotOutgoingChanges', () => {
     'throws error when outgoing models contain invalid sync direction',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
 
       await expect(snapshotOutgoingChanges(ctx.sequelize, models, tick - 1)).rejects.toThrowError();
     }),
@@ -46,7 +46,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
 
       const row = await ReferenceData.create(fakeReferenceData());
 
@@ -75,10 +75,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.increment('currentSyncTick');
+      const tickBefore = await LocalSystemFact.incrementValue('currentSyncTick');
       await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.increment('currentSyncTick');
+      await LocalSystemFact.incrementValue('currentSyncTick');
       const row = await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore);
@@ -106,10 +106,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.increment('currentSyncTick');
+      const tickBefore = await LocalSystemFact.incrementValue('currentSyncTick');
       const rowBefore = await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.increment('currentSyncTick');
+      await LocalSystemFact.incrementValue('currentSyncTick');
       const rowAfter = await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore - 1);
@@ -165,7 +165,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.increment('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
@@ -244,7 +244,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.increment('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
@@ -343,7 +343,7 @@ describe('snapshotOutgoingChanges', () => {
     const { LocalSystemFact } = models;
 
     // start a sync session
-    const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+    const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
 
     // create a bunch of records, more than the call stack limit
     await ctx.sequelize.query(`

@@ -1,7 +1,7 @@
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds, format, toDateTimeString } from '../../utils/dateTime';
+import { differenceInMilliseconds, format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { transformAnswers } from '../utilities';
 
 import {

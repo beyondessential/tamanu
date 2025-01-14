@@ -1,8 +1,8 @@
 import React from 'react';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { usePatientData } from '../../../api/queries/usePatientData';
-import { useReferenceData } from '../../../api/queries/useReferenceData';
+import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
+import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -12,9 +12,9 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-  const { data: patient, isLoading: isPatientLoading } = usePatientData(encounter.patientId);
+  const { data: patient, isLoading: isPatientLoading } = usePatientDataQuery(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
-  const { data: village, isLoading: isVillageLoading } = useReferenceData(patient?.villageId);
+  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
   const isLoading =
     isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
   return (

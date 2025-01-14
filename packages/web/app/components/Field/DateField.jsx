@@ -4,11 +4,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
-import {
-  format as formatDate,
-  toDateString,
-  toDateTimeString,
-} from '@tamanu/shared/utils/dateTime';
+import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import PropTypes from 'prop-types';
 
 import { TextInput } from './TextField';
@@ -32,9 +28,9 @@ import { DefaultIconButton } from '../Button';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
-// Here I have made a data URL for the new calendar icon. The existing calander icon was a psuedo element
-// in the user agent shadow DOM. In order to add a new icon I had to make the psuedo element invisible
-// a new icon I had to make the psuedo element invisible and render a replacement on top using svg data url.
+// Here I have made a data URL for the new calendar icon. The existing calander icon was a pseudo element
+// in the user agent shadow DOM. In order to add a new icon I had to make the pseudo element invisible
+// a new icon I had to make the pseudo element invisible and render a replacement on top using svg data url.
 const CustomIconTextInput = styled(TextInput)`
   input::-webkit-calendar-picker-indicator {
     color: rgba(0, 0, 0, 0);
@@ -126,7 +122,7 @@ export const DateInput = ({
         return;
       }
     }
-  }
+  };
 
   useEffect(() => {
     const formattedValue = fromRFC3339(value, format);

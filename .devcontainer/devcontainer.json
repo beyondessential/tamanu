@@ -4,7 +4,7 @@
   "name": "Tamanu devcontainer",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspace",
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
@@ -13,10 +13,10 @@
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
-  // "forwardPorts": [ 5432],
+  "forwardPorts": [5432, 5433, 5434],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "corepack enable yarn && yes | yarn install",
+  "postCreateCommand": "npm install",
 
   // Configure tool-specific properties.
   // "customizations": {},
@@ -36,7 +36,16 @@
         "albert.TabOut",
         "sburg.vscode-javascript-booster",
         "wix.vscode-import-cost",
-        "mikestead.dotenv"
+        "mikestead.dotenv",
+        "usernamehw.errorlens",
+        "GitHub.copilot",
+        "oderwat.indent-rainbow",
+        "xabikos.JavaScriptSnippets",
+        "mrmlnc.vscode-json5",
+        "yzhang.markdown-all-in-one",
+        "ryanlaws.toggle-case",
+        "ChakrounAnas.turbo-console-log",
+        "chwoerz.type-buddy"
       ]
     }
   }

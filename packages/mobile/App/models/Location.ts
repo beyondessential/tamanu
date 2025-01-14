@@ -9,7 +9,7 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('location')
+@Entity('locations')
 export class Location extends BaseModel implements ILocation {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 

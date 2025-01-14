@@ -40,6 +40,7 @@ export const LocationGroupCell = ({
   locationGroupId,
   plannedLocationGroupName,
   plannedLocationGroupId,
+  ...props
 }) => {
   return (
     <LocationCell
@@ -47,8 +48,8 @@ export const LocationGroupCell = ({
       locationId={locationGroupId}
       plannedLocationName={plannedLocationGroupName}
       plannedLocationId={plannedLocationGroupId}
-      style={{ minWidth: 100 }}
       category="locationGroup"
+      {...props}
     />
   );
 };
