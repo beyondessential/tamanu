@@ -1,10 +1,10 @@
 import { DataTypes } from 'sequelize';
-import config from 'config';
 import { SYNC_DIRECTIONS, NOTIFICATION_TYPES, NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildPatientLinkedLookupFilter, buildPatientSyncFilterViaPatientId } from '../sync';
 
 const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
 const NOTIFICATION_STATUS_VALUES = Object.values(NOTIFICATION_STATUSES);
@@ -51,14 +51,17 @@ export class Notification extends Model {
       foreignKey: 'userId',
       as: 'user',
     });
+
+    this.belongsTo(models.Patient, {
+      foreignKey: 'patientId',
+      as: 'patient',
+    });
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static getFullReferenceAssociations() {
@@ -83,8 +86,6 @@ export class Notification extends Model {
     metadata: Record<string, any>,
   ) {
     try {
-      if (!config.notification?.enabled) return;
-
       const { models } = this.sequelize;
 
       let patientId;
@@ -112,8 +113,9 @@ export class Notification extends Model {
 
       await this.create({
         type,
-        metadata: { ...metadata, patientId },
+        metadata,
         userId,
+        patientId,
         createdTime: getCurrentDateTimeString(),
       });
     } catch (error) {
