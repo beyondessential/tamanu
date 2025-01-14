@@ -22,40 +22,6 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
-    // TODO introduce an offset so new appointments are created say a few weeks before they are due
-    await this.sequelize.query(
-      `
-      WITH latest_appointments AS (
-          SELECT schedule_id, MAX(start_time) AS latest_start_time
-          FROM appointments
-          GROUP BY schedule_id
-        ),
-      past_appointment_schedules AS (
-        SELECT *
-        FROM appointment_schedules
-        LEFT JOIN latest_appointments ON appointment_schedules.id = latest_appointments.schedule_id
-        WHERE latest_appointments.latest_start_time::date < NOW()
-      ),
-      possible_incomplete_schedules AS (
-        SELECT *
-        FROM past_appointment_schedules
-        WHERE
-          (occurrence_count IS NULL AND until_date > latest_start_time)
-        OR
-          (occurrence_count > (
-            SELECT COUNT(*)
-            FROM appointments
-            WHERE schedule_id = past_appointment_schedules.id
-          )
-        )
-      )
-      select * from possible_incomplete_schedules;
-      `,
-      { type: this.sequelize.QueryTypes.SELECT },
-    );
-
-    
-    // We gotta problem where by we can't easily check next tues or
-    // 3rd tues in month for until_date variation so maybe we just do in js with date-fns
+    // This is going to be real simple because of changes
   }
 }
