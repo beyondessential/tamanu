@@ -161,12 +161,12 @@ export class Appointment extends Model {
 
   static async generateRepeatingAppointment(
     schedule: WeeklyOrMonthlySchedule,
-    fromAppointment: Appointment,
+    baseAppointment: Appointment,
     existingAppointmentCount: number = 1, // Include the initial appointment
   ) {
     const { maxInitialRepeatingAppointments } = config?.appointments || {};
     const { interval, frequency, untilDate, occurrenceCount } = schedule;
-    const appointmentDataBase = omit(fromAppointment.get({ plain: true }), [
+    const baseAppointmentCreateData = omit(baseAppointment.get({ plain: true }), [
       'id',
       'createdAt',
       'updatedAt',
@@ -200,7 +200,7 @@ export class Appointment extends Model {
     };
 
     const pushNextAppointment = () => {
-      const currentAppointment = appointments.at(-1) || appointmentDataBase;
+      const currentAppointment = appointments.at(-1) || baseAppointmentCreateData;
       const nextAppointment = {
         ...currentAppointment,
         startTime: incrementByInterval(currentAppointment.startTime),
