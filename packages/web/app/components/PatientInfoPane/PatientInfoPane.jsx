@@ -215,7 +215,7 @@ export const PatientInfoPane = () => {
   const { data: deathData, isLoading } = useQuery(
     ['patientDeathSummary', patient.id],
     () => api.get(`patient/${patient.id}/death`, { isErrorUnknown: isErrorUnknownAllow404s }),
-    { enabled: patientDeathsEnabled },
+    { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 
   const readonly = !!patient.death;
