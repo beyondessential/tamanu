@@ -223,7 +223,7 @@ const NoDataMessage = () => (
 
 const COLUMNS = [
   {
-    key: 'status',
+    key: '',
     accessor: getStatus,
     maxWidth: 20,
     sortable: false,
