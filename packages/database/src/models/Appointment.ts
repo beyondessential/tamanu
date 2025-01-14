@@ -159,10 +159,17 @@ export class Appointment extends Model {
     });
   }
 
+  /**
+   * @param schedule appointmentSchedule instance
+   * @param baseAppointment base appointment instance that the repeating appointments will be incremental created from
+   * @param existingAppointmentCount The total number of appointments that already exist for the schedule at time of generation
+   * In case of continued generation, this will be the count of appointments that were generated in the previous batch
+   * And in the case of initial generation, this will be 1 for the base appointment
+   */
   static async generateRepeatingAppointment(
     schedule: WeeklyOrMonthlySchedule,
     baseAppointment: Appointment,
-    existingAppointmentCount: number = 1, // Include the initial appointment
+    existingAppointmentCount: number = 1,
   ) {
     const { maxInitialRepeatingAppointments } = config?.appointments || {};
     const { interval, frequency, untilDate, occurrenceCount } = schedule;
