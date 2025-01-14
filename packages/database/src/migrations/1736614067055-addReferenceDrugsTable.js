@@ -48,14 +48,6 @@ export async function up(query) {
       allowNull: true,
     },
   });
-
-  const drugsReferenceData = await query.sequelize.query(`
-    SELECT id from reference_data WHERE type = 'drug';
-  `);
-  await query.bulkInsert(
-    'reference_drugs',
-    drugsReferenceData[0].map((it) => ({ reference_data_id: it.id })),
-  );
 }
 
 /**
