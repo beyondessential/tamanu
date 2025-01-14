@@ -25,6 +25,7 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
+import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 
 export const globalSettings = {
   title: 'Global settings',
@@ -1103,17 +1104,11 @@ export const globalSettings = {
           description: 'The email sent to confirm an appointment',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Appointment confirmation',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
             },
@@ -1127,17 +1122,11 @@ export const globalSettings = {
           description: 'The email sent when the signer runs out',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Tamanu ICAO Certificate Signing Request',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
             },
@@ -1147,17 +1136,11 @@ export const globalSettings = {
           description: 'The email containing patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1167,17 +1150,11 @@ export const globalSettings = {
           description: 'The email containing COVID patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1187,17 +1164,11 @@ export const globalSettings = {
           description: 'Email with certificate containing the list of COVID tests for this patient',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1208,17 +1179,11 @@ export const globalSettings = {
             'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'COVID-19 Clearance Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1239,10 +1204,7 @@ export const globalSettings = {
             },
             healthFacility: {
               description: '_',
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'State level',
             },
           },
@@ -1297,6 +1259,89 @@ export const globalSettings = {
       description: 'Customise the options available for vital reason for edit',
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+    },
+    medications: {
+      properties: {
+        frequencies: {
+          properties: {
+            [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.IMMEDIATELY]: {
+              description: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE]: {
+              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
     },
   },
 };
