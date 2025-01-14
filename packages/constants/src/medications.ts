@@ -82,7 +82,7 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     },
     [ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY]: {
       synonyms: ['TID', 'TDS', 'T.I.D.'],
-      startTimes: ['06:00', '14:00', '22:00'],
+      startTimes: ['06:00', '12:00', '18:00'],
       dosesPerDay: 3,
     },
     [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
@@ -102,13 +102,13 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     },
     [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: {
       synonyms: ['q8h', '8h', '8 hourly', '8 hrly'],
-      startTimes: ['00:00', '08:00', '16:00'],
+      startTimes: ['06:00', '14:00', '22:00'],
       dosesPerDay: 3,
     },
     [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
       synonyms: ['QOD', 'Q.O.D.', 'Every other day'],
       startTimes: ['06:00'],
-      dosesPerDay: 0.5,
+      dosesPerDay: 1 / 2,
     },
     [ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK]: {
       synonyms: ['Weekly', 'Once weekly'],
