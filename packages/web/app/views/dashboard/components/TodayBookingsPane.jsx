@@ -238,7 +238,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         <Heading4 margin={0}>
           <TranslatedText
             stringId="dashboard.bookings.todayBookings.title"
-            fallback="Today's Bookings"
+            fallback="Today's bookings"
           />
         </Heading4>
         {!!appointments.length && (
