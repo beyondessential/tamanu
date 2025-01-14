@@ -14,20 +14,23 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import type { InitOptions, Models } from '../types/model';
 
-export type AppointmentScheduleBaseCreateData = Omit<AppointmentSchedule, 'id'>;
+export type AppointmentScheduleCreateData = Omit<
+  AppointmentSchedule,
+  'id' | 'createdAt' | 'deletedAt'
+>;
 
-export type WeeklyScheduleCreateData = AppointmentScheduleBaseCreateData & {
+export type WeeklySchedule = AppointmentSchedule & {
   frequency: typeof REPEAT_FREQUENCY.WEEKLY;
   daysOfWeek: [string];
 };
 
-export type MonthlySchedule = AppointmentScheduleBaseCreateData & {
+export type MonthlySchedule = AppointmentSchedule & {
   frequency: typeof REPEAT_FREQUENCY.MONTHLY;
   daysOfWeek: [string];
   nthWeekday: number;
 };
 
-export type AppointmentScheduleCreateData = WeeklyScheduleCreateData | MonthlySchedule;
+export type WeeklyOrMonthlySchedule = WeeklySchedule | MonthlySchedule;
 
 /**
  * Schema to follow iCalendar standard for recurring events.

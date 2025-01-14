@@ -154,7 +154,7 @@ describe('Appointments', () => {
     });
   });
 
-  describe('generateRepeatingAppointment', () => {
+  describe('createWithSchedule', () => {
     const testRepeatingAppointment = async (appointmentSchedule, expected) => {
       const result = await userApp.post('/api/appointments').send({
         appointmentSchedule,
@@ -169,7 +169,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
       if (!expected) return appointmentsInSchedule;
-      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
+      expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual(expected);
     };
     it('should generate repeating weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
