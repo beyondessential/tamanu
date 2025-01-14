@@ -120,11 +120,10 @@ export const OutpatientAppointmentsView = () => {
     setDrawerOpen(true);
   };
 
-  const canListAppointment = ability.can('list', 'Appointment');
-  const canReadAppointment = ability.can('read', 'Appointment');
   const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
-  if (!canListAppointment && !canReadAppointment) {
+  if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
 

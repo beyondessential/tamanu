@@ -119,11 +119,10 @@ export const LocationBookingsView = () => {
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
-  const canListAppointment = ability.can('list', 'Appointment');
-  const canReadAppointment = ability.can('read', 'Appointment');
   const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
-  if (!canListAppointment && !canReadAppointment) {
+  if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
 
