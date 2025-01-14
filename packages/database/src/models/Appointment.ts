@@ -149,8 +149,8 @@ export class Appointment extends Model {
   }
 
   static async createWithSchedule(
-    scheduleData: AppointmentScheduleCreateData,
     appointmentData: AppointmentCreateData,
+    scheduleData: AppointmentScheduleCreateData,
   ) {
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
