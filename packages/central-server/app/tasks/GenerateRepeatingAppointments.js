@@ -10,7 +10,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.generateRepeatingAppointment;
+    const conf = config.schedules.generateRepeatingAppointments;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
