@@ -493,7 +493,4 @@
   "tasking": {
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },
-  "appointments": {
-    maxInitialRepeatingAppointments: 50,
-  }
 }
