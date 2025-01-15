@@ -1,9 +1,11 @@
-import { isNumber } from 'lodash';
+import config from 'config';
+import { isNumber, omit } from 'lodash';
 import { DataTypes } from 'sequelize';
 
 import {
   DAYS_OF_WEEK,
   REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
@@ -13,6 +15,10 @@ import { dateTimeType } from './../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import type { InitOptions, Models } from '../types/model';
+import type { Appointment, AppointmentCreateData } from './Appointment';
+import { parseISO, add, set, isAfter } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
@@ -46,6 +52,8 @@ export class AppointmentSchedule extends Model {
   declare nthWeekday?: number;
   declare occurrenceCount?: number;
   declare isFullyGenerated: boolean;
+
+  declare getAppointments: () => Promise<Appointment[]>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -157,5 +165,89 @@ export class AppointmentSchedule extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  async generateRepeatingAppointment() {
+    const { Appointment } = this.sequelize.models;
+    const existingAppointments = await Appointment.findAll({
+      where: { scheduleId: this.id },
+      order: [['startTime', 'DESC']],
+    });
+    const existingAppointmentCount = existingAppointments.length;
+    if (!existingAppointments || !existingAppointments[0]) {
+      return;
+    }
+    const baseAppointmentData = omit(existingAppointments[0].get({ plain: true }), [
+      'id',
+      'createdAt',
+      'updatedAt',
+    ]) as AppointmentCreateData;
+
+    const { maxInitialRepeatingAppointments } = config?.appointments || {};
+    const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
+      this as WeeklyOrMonthlySchedule;
+
+    const appointments = [] as AppointmentCreateData[];
+
+    const incrementByInterval = (date: string) => {
+      const incrementedDate = add(parseISO(date), {
+        [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
+      });
+
+      if (frequency === REPEAT_FREQUENCY.WEEKLY) {
+        return toDateTimeString(incrementedDate) as string;
+      }
+      if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+        const [weekday] = daysOfWeek;
+        const weekdayDate = weekdayAtOrdinalPosition(
+          incrementedDate,
+          weekday,
+          nthWeekday,
+        )?.getDate();
+        // Set the date to the nth weekday of the month as incremented startTime will fall on a different weekday
+        return toDateTimeString(
+          set(incrementedDate, {
+            date: weekdayDate,
+          }),
+        ) as string;
+      }
+      throw new Error('Invalid frequency when generating repeating appointments');
+    };
+
+    const pushNextAppointment = () => {
+      const currentAppointment = appointments.at(-1) || baseAppointmentData;
+      const nextAppointment = {
+        ...currentAppointment,
+        startTime: incrementByInterval(currentAppointment.startTime),
+        endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
+      };
+      appointments.push(nextAppointment);
+      return nextAppointment;
+    };
+
+    let isFullyGenerated = false;
+    const parsedUntilDate = untilDate && parseISO(untilDate);
+    // Generate appointments until the limit is reached or until the
+    // incremented startTime is after the untilDate
+    while (
+      appointments.length + existingAppointmentCount < maxInitialRepeatingAppointments &&
+      !isFullyGenerated
+    ) {
+      const { startTime: latestStartTime } = pushNextAppointment();
+
+      if (parsedUntilDate) {
+        const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
+        if (!incrementedStartTime) throw new Error('No incremented start time found');
+        isFullyGenerated = isAfter(incrementedStartTime, parsedUntilDate);
+      } else if (occurrenceCount) {
+        isFullyGenerated = appointments.length + existingAppointmentCount === occurrenceCount;
+      }
+    }
+
+    const appointmentData = await Appointment.bulkCreate(appointments);
+    if (isFullyGenerated) {
+      await this.update({ isFullyGenerated });
+    }
+    return appointmentData;
   }
 }
