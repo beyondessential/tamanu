@@ -24,7 +24,6 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
-    console.log(this.config);
     const schedules = await this.sequelize.query(
       `
       SELECT
@@ -45,7 +44,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         type: QueryTypes.SELECT,
         model: this.models.AppointmentSchedule,
         mapToModel: true,
-        replacements: { offsetDays: String(this.config.generationOffsetDays) },
+        replacements: { offsetDays: `${this.config.generateOffsetDays}` },
       },
     );
     if (!schedules.length) {
