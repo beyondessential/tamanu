@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
+import type { ReadSettings } from '@tamanu/settings';
 
 export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
 
@@ -136,12 +137,13 @@ export class Appointment extends Model {
   }
 
   static async createWithSchedule(
+    settings: ReadSettings,
     appointmentData: AppointmentCreateData,
     scheduleData: AppointmentScheduleCreateData,
   ) {
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
-      return schedule.generateRepeatingAppointment(appointmentData);
+      return schedule.generateRepeatingAppointment(settings, appointmentData);
     });
   }
 }

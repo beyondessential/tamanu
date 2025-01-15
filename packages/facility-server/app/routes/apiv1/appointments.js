@@ -87,7 +87,7 @@ appointments.post(
 
     await db.transaction(async () => {
       const result = appointmentSchedule
-        ? (await Appointment.createWithSchedule(body, appointmentSchedule))[0]
+        ? (await Appointment.createWithSchedule(settings[facilityId], body, appointmentSchedule))[0]
         : await Appointment.create(body);
 
       if (body.email) {

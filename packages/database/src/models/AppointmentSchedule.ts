@@ -1,4 +1,3 @@
-import config from 'config';
 import { isNumber, omit } from 'lodash';
 import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
 
@@ -19,6 +18,7 @@ import type { Appointment, AppointmentCreateData } from './Appointment';
 import { parseISO, add, set, isAfter } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import type { ReadSettings } from '@tamanu/settings';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
@@ -167,7 +167,13 @@ export class AppointmentSchedule extends Model {
     };
   }
 
-  async generateRepeatingAppointment(initialAppointmentData?: AppointmentCreateData) {
+  async generateRepeatingAppointment(
+    settings: ReadSettings,
+    initialAppointmentData?: AppointmentCreateData,
+  ) {
+    const maxRepeatingAppointmentsPerGeneration = (await settings.get(
+      'appointments.maxRepeatingAppointmentsPerGeneration',
+    )) as number;
     const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
@@ -179,7 +185,6 @@ export class AppointmentSchedule extends Model {
       );
     }
 
-    const { maxInitialRepeatingAppointments } = config?.appointments || {};
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
 
@@ -234,7 +239,7 @@ export class AppointmentSchedule extends Model {
     const parsedUntilDate = untilDate && parseISO(untilDate);
     // Generate appointments until the limit is reached or until the
     // incremented startTime is after the untilDate
-    while (appointments.length < maxInitialRepeatingAppointments && !isFullyGenerated) {
+    while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
       const { startTime: latestStartTime } = pushNextAppointment();
 
       if (parsedUntilDate) {

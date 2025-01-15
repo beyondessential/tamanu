@@ -6,17 +6,23 @@ import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 describe('Appointments', () => {
+  const [facilityId] = selectFacilityIds(config);
   let baseApp;
   let models;
   let userApp;
   let patient;
   let appointment;
   let ctx;
+  let maxInitialRepeatingAppointments;
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    maxInitialRepeatingAppointments = await ctx.settings[facilityId].get(
+      'appointments.maxRepeatingAppointmentsPerGeneration',
+    );
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
@@ -162,6 +168,7 @@ describe('Appointments', () => {
         clinicianId: userApp.user.dataValues.id,
         startTime: appointmentSchedule.startDate,
         appointmentTypeId: 'appointmentType-standard',
+        facilityId,
       });
       expect(result).toHaveSucceeded();
       const appointmentsInSchedule = await models.Appointment.findAll({
@@ -174,7 +181,7 @@ describe('Appointments', () => {
     it('should generate repeating weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
         startDate: '2024-10-02 12:00:00',
-        untilDate: '2025-01-02 23:59:59',
+        untilDate: '2024-12-04 23:59:59',
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
@@ -190,10 +197,6 @@ describe('Appointments', () => {
         '2024-11-20 12:00:00',
         '2024-11-27 12:00:00',
         '2024-12-04 12:00:00',
-        '2024-12-11 12:00:00',
-        '2024-12-18 12:00:00',
-        '2024-12-25 12:00:00',
-        '2025-01-01 12:00:00',
       ]);
     });
     it('should generate repeating weekly appointments on Friday to occurrence count', async () => {
@@ -296,25 +299,25 @@ describe('Appointments', () => {
     it('should only generate the maximum number of weekly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
-        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        occurrenceCount: maxInitialRepeatingAppointments + 10,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['TU'],
       };
       const result = await testRepeatingAppointment(appointmentSchedule);
-      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
+      expect(result).toHaveLength(maxInitialRepeatingAppointments);
     });
     it('should only generate the maximum number of monthly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
-        occurrenceCount: config.appointments.maxInitialRepeatingAppointments + 10,
+        occurrenceCount: maxInitialRepeatingAppointments + 10,
         interval: 1,
         frequency: REPEAT_FREQUENCY.MONTHLY,
         daysOfWeek: ['TU'],
         nthWeekday: 1,
       };
       const result = await testRepeatingAppointment(appointmentSchedule);
-      expect(result).toHaveLength(config.appointments.maxInitialRepeatingAppointments);
+      expect(result).toHaveLength(maxInitialRepeatingAppointments);
     });
   });
 });

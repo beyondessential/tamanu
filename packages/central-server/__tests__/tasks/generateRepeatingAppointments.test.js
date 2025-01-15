@@ -1,23 +1,26 @@
-import config from 'config';
-import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { GenerateRepeatingAppointments } from '../../app/tasks/GenerateRepeatingAppointments';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 describe('GenerateRepeatingAppointments', () => {
   let ctx;
+  let settings;
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    settings = ctx.settings;
   });
   afterAll(async () => {
     await ctx.close();
   });
 
   it('should generate repeating appointments for large occurrence count across multiple runs', async () => {
-    const { maxInitialRepeatingAppointments } = config.appointments;
+    const maxRepeatingAppointmentsPerGeneration = await settings.get(
+      'appointments.maxRepeatingAppointmentsPerGeneration',
+    );
     const { Appointment, AppointmentSchedule } = ctx.store.models;
     const [appointment] = await Appointment.createWithSchedule(
+      settings,
       {
         status: APPOINTMENT_STATUSES.CONFIRMED,
         startTime: '1990-10-02 12:00:00',
@@ -25,7 +28,7 @@ describe('GenerateRepeatingAppointments', () => {
       },
       {
         startDate: '1990-10-02 12:00:00',
-        occurrenceCount: maxInitialRepeatingAppointments * 3 + 2,
+        occurrenceCount: maxRepeatingAppointmentsPerGeneration * 3 + 2,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
@@ -45,15 +48,15 @@ describe('GenerateRepeatingAppointments', () => {
     };
 
     // Should hit the limit of maxInitialRepeatingAppointments
-    await testStep(maxInitialRepeatingAppointments);
+    await testStep(maxRepeatingAppointmentsPerGeneration);
     await task.run();
     // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
-    await testStep(maxInitialRepeatingAppointments * 2);
+    await testStep(maxRepeatingAppointmentsPerGeneration * 2);
     await task.run();
     // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
-    await testStep(maxInitialRepeatingAppointments * 3);
+    await testStep(maxRepeatingAppointmentsPerGeneration * 3);
     await task.run();
     // Should complete generation of repeating appointments
-    await testStep(maxInitialRepeatingAppointments * 3 + 2, true);
+    await testStep(maxRepeatingAppointmentsPerGeneration * 3 + 2, true);
   });
 });

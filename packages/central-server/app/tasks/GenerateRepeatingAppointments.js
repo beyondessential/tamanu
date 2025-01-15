@@ -18,6 +18,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
     this.models = context.store.models;
     this.config = conf;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   getName() {
@@ -58,7 +59,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
 
     await Promise.all(
       schedules.map(async (schedule) => {
-        const appointments = await schedule.generateRepeatingAppointment();
+        const appointments = await schedule.generateRepeatingAppointment(this.settings);
         this.log.info('Generated appointments for schedule', {
           count: appointments.length,
           scheduleId: schedule.id,
