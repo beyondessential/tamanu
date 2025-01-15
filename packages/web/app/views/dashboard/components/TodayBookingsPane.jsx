@@ -6,7 +6,7 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
-import { WS_EVENTS } from '@tamanu/constants';
+import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
 import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -228,7 +228,10 @@ export const TodayBookingsPane = ({ showTasks }) => {
   };
 
   const onLocationBookingsClick = async () => {
-    await mutateUserPreferences({ locationBookingFilters: {} });
+    await mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+      value: { [facilityId]: {} },
+    });
     history.push(`/appointments/locations`);
   };
 
