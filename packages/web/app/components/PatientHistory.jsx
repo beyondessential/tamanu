@@ -36,6 +36,7 @@ const ReasonForEncounterWrapper = styled.div`
 `;
 
 const StyledTable = styled(DataFetchingTable)`
+  box-shadow: none;
   padding: 0 21px;
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
