@@ -1,4 +1,6 @@
 import { DataTypes } from 'sequelize';
+import { keyBy, mapValues } from 'lodash';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
@@ -54,15 +56,10 @@ export class UserPreference extends Model {
       where: { userId, facilityId },
     });
 
-    const allPreferences: Record<string, any> = {};
-
-    for (const userPreference of userPreferences) {
-      allPreferences[userPreference.key] = userPreference.value;
-    }
-    for (const userPreference of userFacilityPreferences) {
-      allPreferences[userPreference.key] = userPreference.value;
-    }
-
+    const allPreferences: Record<string, any> = mapValues(
+      { ...keyBy(userPreferences, 'key'), ...keyBy(userFacilityPreferences, 'key') },
+      'value',
+    );
     return allPreferences;
   }
 
