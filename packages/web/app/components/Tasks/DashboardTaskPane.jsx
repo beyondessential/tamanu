@@ -7,6 +7,7 @@ import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { useAuth } from '../../contexts/Auth';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 const TabPane = styled.div`
   flex-grow: 1;
@@ -56,10 +57,10 @@ const FilterGrid = styled.div`
 
 export const DashboardTaskPane = React.memo(() => {
   const { facilityId } = useAuth();
-  const userPreferencesMutation = useUserPreferencesMutation();
+  const userPreferencesMutation = useUserPreferencesMutation(facilityId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
-    userPreferences?.clinicianDashboardTaskingTableFilter?.[facilityId] || {};
+    userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
   const onLocationIdChange = e => {
     const { value } = e.target;
@@ -69,9 +70,8 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'locationId');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: {
-        [facilityId]: newParams,
-      },
+      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
+      value: newParams,
     });
   };
 
@@ -83,9 +83,8 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: {
-        [facilityId]: newParams,
-      },
+      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
+      value: newParams,
     });
   };
 
