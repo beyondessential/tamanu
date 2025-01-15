@@ -14,35 +14,45 @@ describe('GenerateRepeatingAppointments', () => {
     await ctx.close();
   });
 
-  it('should generate repeating appointments', async () => {
+  it('should generate repeating appointments for large occurrence count across multiple runs', async () => {
     const { maxInitialRepeatingAppointments } = config.appointments;
-    const { Appointment } = ctx.store.models;
+    const { Appointment, AppointmentSchedule } = ctx.store.models;
     const [appointment] = await Appointment.createWithSchedule(
       fake(ctx.store.models.Appointment, {
-        startTime: '2020-10-02 12:00:00',
-        endTime: '2020-10-02 13:00:00',
+        startTime: '1990-10-02 12:00:00',
+        endTime: '1990-10-02 13:00:00',
       }),
       {
-        startDate: '2020-10-02 12:00:00',
-        occurrenceCount: maxInitialRepeatingAppointments * 2,
+        startDate: '1990-10-02 12:00:00',
+        occurrenceCount: maxInitialRepeatingAppointments * 3 + 2,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
       },
     );
 
-    expect(
-      await Appointment.count({
-        where: { scheduleId: appointment.scheduleId },
-      }),
-    ).toBe(maxInitialRepeatingAppointments);
-
     const task = new GenerateRepeatingAppointments(ctx);
+    const testStep = async (expectedCount, expectedIsFullyGenerated = false) => {
+      expect(
+        await Appointment.count({
+          where: { scheduleId: appointment.scheduleId },
+        }),
+      ).toBe(expectedCount);
+      expect((await AppointmentSchedule.findByPk(appointment.scheduleId)).isFullyGenerated).toBe(
+        expectedIsFullyGenerated,
+      );
+    };
+
+    // Should hit the limit of maxInitialRepeatingAppointments
+    testStep(maxInitialRepeatingAppointments);
     await task.run();
-    expect(
-      await Appointment.count({
-        where: { scheduleId: appointment.scheduleId },
-      }),
-    ).toBe(maxInitialRepeatingAppointments * 2);
+    // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
+    testStep(maxInitialRepeatingAppointments * 2);
+    await task.run();
+    // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
+    testStep(maxInitialRepeatingAppointments * 3);
+    await task.run();
+    // Should complete generation of repeating appointments
+    testStep(maxInitialRepeatingAppointments * 3 + 2, true);
   });
 });
