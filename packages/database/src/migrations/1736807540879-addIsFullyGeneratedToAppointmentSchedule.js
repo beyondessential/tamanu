@@ -9,5 +9,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropColumn('appointment_schedules', 'is_fully_generated');
+  await query.removeColumn('appointment_schedules', 'is_fully_generated');
 }
