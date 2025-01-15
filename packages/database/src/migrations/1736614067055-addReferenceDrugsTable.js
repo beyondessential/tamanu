@@ -55,7 +55,7 @@ export async function up(query) {
   console.log(
     drugsReferenceData
   );
-  if (drugsReferenceData.length) {
+  if (drugsReferenceData[0].length) {
     await query.bulkInsert(
       'reference_drugs',
       drugsReferenceData[0].map((it) => ({ reference_data_id: it.id })),
