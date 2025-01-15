@@ -50,7 +50,11 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         replacements: { offsetDays: String(OFFSET_DAYS) },
       },
     );
-    this.log.info('Found incomplete schedules to generate appointments for', {
+    if (!schedules.length) {
+      this.log.info('No incomplete schedules found within time frame');
+      return;
+    }
+    this.log.info('Found incomplete schedules within time frame', {
       count: schedules.length,
     });
 
