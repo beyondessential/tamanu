@@ -1,6 +1,6 @@
 import config from 'config';
 import { isNumber, omit } from 'lodash';
-import { DataTypes } from 'sequelize';
+import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
 
 import {
   DAYS_OF_WEEK,
@@ -53,7 +53,7 @@ export class AppointmentSchedule extends Model {
   declare occurrenceCount?: number;
   declare isFullyGenerated: boolean;
 
-  declare getAppointments: () => Promise<Appointment[]>;
+  declare getAppointments: HasManyGetAssociationsMixin<Appointment>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -169,8 +169,7 @@ export class AppointmentSchedule extends Model {
 
   async generateRepeatingAppointment() {
     const { Appointment } = this.sequelize.models;
-    const existingAppointments = await Appointment.findAll({
-      where: { scheduleId: this.id },
+    const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
     });
     const existingAppointmentCount = existingAppointments.length;
