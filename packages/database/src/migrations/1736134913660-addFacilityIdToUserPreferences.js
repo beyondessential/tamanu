@@ -18,7 +18,6 @@ export async function up(query) {
   await query.removeColumn('user_preferences', 'id');
   await query.addColumn('user_preferences', 'id', {
     type: `TEXT GENERATED ALWAYS AS ("user_id" || ';' || "key" || ';' || COALESCE("facility_id", '')) STORED`,
-    primaryKey: true,
   });
 
   await query.sequelize.query(`
