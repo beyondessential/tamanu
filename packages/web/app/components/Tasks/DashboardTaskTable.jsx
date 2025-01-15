@@ -285,7 +285,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${currentUser?.id}`,
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`,
     ],
-    { keepPreviousData: true },
+    { keepPreviousData: true, refetchOnMount: true },
   );
   const isLoading = isUserTasksLoading || isPreviousData;
 
