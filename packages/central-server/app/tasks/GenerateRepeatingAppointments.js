@@ -29,17 +29,11 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       `
       SELECT
           appointment_schedules.*,
-          latest_appointment.start_time AS "appointment.start_time",
-          latest_appointment.end_time AS "appointment.end_time",
-          latest_appointment.clinician_id AS "appointment.clinician_id",
-          latest_appointment.location_group_id AS "appointment.location_group_id",
-          latest_appointment.appointment_type_id AS "appointment.appointment_type_id",
-          latest_appointment.patient_id AS "appointment.patient_id",
-          latest_appointment.is_high_priority AS "appointment.is_high_priority",
-          latest_appointment.status AS "appointment.status"
+          latest_appointment.start_time AS latest_appointment_start_time
+
         FROM appointment_schedules
         LEFT JOIN LATERAL (
-          SELECT *
+          SELECT start_time
           FROM appointments
           WHERE appointments.schedule_id = appointment_schedules.id
           ORDER BY appointments.start_time DESC
@@ -48,10 +42,12 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         WHERE latest_appointment.start_time::date < NOW()
         AND appointment_schedules.is_fully_generated = false
       `,
-      { type: QueryTypes.SELECT, nest: true },
+      {
+        type: QueryTypes.SELECT,
+        model: this.models.AppointmentSchedule,
+        mapToModel: true,
+      },
     );
-
-    console.log(JSON.stringify(schedules, null, 2));
 
     for (const schedule of schedules) {
       const { appointment, ...scheduleData } = schedule;
