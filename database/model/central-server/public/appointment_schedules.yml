@@ -60,3 +60,8 @@ sources:
               appointment_schedules."
             data_tests:
               - not_null
+          - name: is_fully_generated
+            data_type: boolean
+            description: "{{ doc('appointment_schedules__is_fully_generated') }}"
+            data_tests:
+              - not_null
