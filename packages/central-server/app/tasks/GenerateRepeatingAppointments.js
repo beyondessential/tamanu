@@ -25,8 +25,6 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
-    // TODO introduce an offset so new appointments are created say a few weeks before they are due
-
     const schedules = await this.sequelize.query(
       `
       SELECT
