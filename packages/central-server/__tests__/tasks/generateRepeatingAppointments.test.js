@@ -47,13 +47,13 @@ describe('GenerateRepeatingAppointments', () => {
       );
     };
 
-    // Should hit the limit of maxInitialRepeatingAppointments
+    // Should hit the limit of maxRepeatingAppointmentsPerGeneration
     await testStep(maxRepeatingAppointmentsPerGeneration);
     await task.run();
-    // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
+    // Should generate another set of appointments and hit the limit of maxRepeatingAppointmentsPerGeneration
     await testStep(maxRepeatingAppointmentsPerGeneration * 2);
     await task.run();
-    // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
+    // Should generate another set of appointments and hit the limit of maxRepeatingAppointmentsPerGeneration
     await testStep(maxRepeatingAppointmentsPerGeneration * 3);
     await task.run();
     // Should complete generation of repeating appointments

@@ -16,11 +16,11 @@ describe('Appointments', () => {
   let patient;
   let appointment;
   let ctx;
-  let maxInitialRepeatingAppointments;
+  let maxRepeatingAppointmentsPerGeneration;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    maxInitialRepeatingAppointments = await ctx.settings[facilityId].get(
+    maxRepeatingAppointmentsPerGeneration = await ctx.settings[facilityId].get(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
     baseApp = ctx.baseApp;
@@ -299,25 +299,25 @@ describe('Appointments', () => {
     it('should only generate the maximum number of weekly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
-        occurrenceCount: maxInitialRepeatingAppointments + 10,
+        occurrenceCount: maxRepeatingAppointmentsPerGeneration + 10,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['TU'],
       };
       const result = await testRepeatingAppointment(appointmentSchedule);
-      expect(result).toHaveLength(maxInitialRepeatingAppointments);
+      expect(result).toHaveLength(maxRepeatingAppointmentsPerGeneration);
     });
     it('should only generate the maximum number of monthly appointments', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-04 12:00:00',
-        occurrenceCount: maxInitialRepeatingAppointments + 10,
+        occurrenceCount: maxRepeatingAppointmentsPerGeneration + 10,
         interval: 1,
         frequency: REPEAT_FREQUENCY.MONTHLY,
         daysOfWeek: ['TU'],
         nthWeekday: 1,
       };
       const result = await testRepeatingAppointment(appointmentSchedule);
-      expect(result).toHaveLength(maxInitialRepeatingAppointments);
+      expect(result).toHaveLength(maxRepeatingAppointmentsPerGeneration);
     });
   });
 });
