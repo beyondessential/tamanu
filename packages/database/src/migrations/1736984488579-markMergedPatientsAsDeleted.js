@@ -1,5 +1,5 @@
 import config from 'config';
-import { selectFacilityIds } from '../utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 // We had a "rename" patient merge strategy, which didn't soft delete merged patients
 // instead, it just renamed them to "Delete Patient". This migration ensures that all
