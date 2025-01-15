@@ -30,7 +30,6 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       SELECT
           appointment_schedules.*,
           latest_appointment.start_time AS latest_appointment_start_time
-
         FROM appointment_schedules
         LEFT JOIN LATERAL (
           SELECT start_time
@@ -50,11 +49,8 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       },
     );
 
-    for (const schedule of schedules) {
-      const { appointment, ...scheduleData } = schedule;
-    }
-
-    // We gotta problem where by we can't easily check next tues or
-    // 3rd tues in month for until_date variation so maybe we just do in js with date-fns
+    const result = await Promise.all(
+      schedules.map((schedule) => schedule.generateRepeatingAppointment()),
+    );
   }
 }
