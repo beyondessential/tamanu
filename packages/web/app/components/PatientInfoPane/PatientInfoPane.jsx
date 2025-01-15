@@ -218,7 +218,7 @@ export const PatientInfoPane = () => {
     { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 
-  const readonly = !!patient.death;
+  const readonly = !!patient.dateOfDeath;
   const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
