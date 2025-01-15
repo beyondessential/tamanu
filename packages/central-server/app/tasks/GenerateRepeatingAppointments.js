@@ -24,6 +24,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
+    // Find all schedules that are incomplete and have a latest appointment that is older than the offset days
     const schedules = await this.sequelize.query(
       `
       SELECT
