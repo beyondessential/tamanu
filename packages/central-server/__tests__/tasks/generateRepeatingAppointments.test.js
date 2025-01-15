@@ -2,7 +2,7 @@ import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { GenerateRepeatingAppointments } from '../../app/tasks/GenerateRepeatingAppointments';
-import { REPEAT_FREQUENCY } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 describe('GenerateRepeatingAppointments', () => {
   let ctx;
@@ -18,10 +18,11 @@ describe('GenerateRepeatingAppointments', () => {
     const { maxInitialRepeatingAppointments } = config.appointments;
     const { Appointment, AppointmentSchedule } = ctx.store.models;
     const [appointment] = await Appointment.createWithSchedule(
-      fake(ctx.store.models.Appointment, {
+      {
+        status: APPOINTMENT_STATUSES.CONFIRMED,
         startTime: '1990-10-02 12:00:00',
         endTime: '1990-10-02 13:00:00',
-      }),
+      },
       {
         startDate: '1990-10-02 12:00:00',
         occurrenceCount: maxInitialRepeatingAppointments * 3 + 2,
@@ -44,15 +45,15 @@ describe('GenerateRepeatingAppointments', () => {
     };
 
     // Should hit the limit of maxInitialRepeatingAppointments
-    testStep(maxInitialRepeatingAppointments);
+    await testStep(maxInitialRepeatingAppointments);
     await task.run();
     // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
-    testStep(maxInitialRepeatingAppointments * 2);
+    await testStep(maxInitialRepeatingAppointments * 2);
     await task.run();
     // Should generate another set of appointments and hit the limit of maxInitialRepeatingAppointments
-    testStep(maxInitialRepeatingAppointments * 3);
+    await testStep(maxInitialRepeatingAppointments * 3);
     await task.run();
     // Should complete generation of repeating appointments
-    testStep(maxInitialRepeatingAppointments * 3 + 2, true);
+    await testStep(maxInitialRepeatingAppointments * 3 + 2, true);
   });
 });

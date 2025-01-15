@@ -167,30 +167,25 @@ export class AppointmentSchedule extends Model {
     };
   }
 
-  async generateRepeatingAppointment() {
+  async generateRepeatingAppointment(initialAppointmentData?: AppointmentCreateData) {
     const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
     });
 
-    const isInitialGeneration = existingAppointments.length === 1;
-
-    if (!existingAppointments[0]) {
+    if (!initialAppointmentData && !existingAppointments) {
       throw new Error(
-        'There must be at least one base appointment to generate repeating appointments',
+        'Cannot generate repeating appointments without initial appointment data or existing appointments',
       );
     }
-    const baseAppointmentData = omit(existingAppointments[0].get({ plain: true }), [
-      'id',
-      'createdAt',
-      'updatedAt',
-    ]) as AppointmentCreateData;
 
     const { maxInitialRepeatingAppointments } = config?.appointments || {};
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
 
-    const appointments = [] as AppointmentCreateData[];
+    const appointments = initialAppointmentData
+      ? [{ ...initialAppointmentData, scheduleId: this.id }]
+      : ([] as AppointmentCreateData[]);
 
     const incrementByInterval = (date: string) => {
       const incrementedDate = add(parseISO(date), {
@@ -218,7 +213,14 @@ export class AppointmentSchedule extends Model {
     };
 
     const pushNextAppointment = () => {
-      const currentAppointment = appointments.at(-1) || baseAppointmentData;
+      // Get the last appointment or the initial appointment data
+      const currentAppointment =
+        appointments.at(-1) ||
+        (omit(existingAppointments[0]!.get({ plain: true }), [
+          'id',
+          'createdAt',
+          'updatedAt',
+        ]) as AppointmentCreateData);
       const nextAppointment = {
         ...currentAppointment,
         startTime: incrementByInterval(currentAppointment.startTime),
@@ -232,10 +234,7 @@ export class AppointmentSchedule extends Model {
     const parsedUntilDate = untilDate && parseISO(untilDate);
     // Generate appointments until the limit is reached or until the
     // incremented startTime is after the untilDate
-    while (
-      appointments.length + (isInitialGeneration ? 1 : 0) < maxInitialRepeatingAppointments &&
-      !isFullyGenerated
-    ) {
+    while (appointments.length < maxInitialRepeatingAppointments && !isFullyGenerated) {
       const { startTime: latestStartTime } = pushNextAppointment();
 
       if (parsedUntilDate) {
