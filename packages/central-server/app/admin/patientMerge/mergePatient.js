@@ -398,7 +398,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       updates.PatientFacility = facilityUpdates.length;
     }
 
-    // Destroy at the end to avoid deleting everything under the patient
+    // Destroy at the end to avoid cascade deleting everything referencing the patient
     await unwantedPatient.destroy();
 
     log.info('patientMerge: finished', {
