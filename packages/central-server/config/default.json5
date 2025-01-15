@@ -492,5 +492,5 @@
   "language": "en",
   "tasking": {
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
-  },
+  }
 }
