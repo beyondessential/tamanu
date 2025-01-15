@@ -1,5 +1,6 @@
 import { isNumber, omit } from 'lodash';
 import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
+import { parseISO, add, set, isAfter } from 'date-fns';
 
 import {
   DAYS_OF_WEEK,
@@ -8,17 +9,16 @@ import {
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
-
-import { Model } from './Model';
-import { dateTimeType } from './../types/model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { InvalidOperationError } from '@tamanu/shared/errors';
-import type { InitOptions, Models } from '../types/model';
-import type { Appointment, AppointmentCreateData } from './Appointment';
-import { parseISO, add, set, isAfter } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import type { ReadSettings } from '@tamanu/settings';
+
+import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import type { Appointment, AppointmentCreateData } from './Appointment';
+import { dateTimeType } from './../types/model';
+import type { InitOptions, Models } from '../types/model';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,

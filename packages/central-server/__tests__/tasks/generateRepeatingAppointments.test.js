@@ -1,6 +1,7 @@
+import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
+
 import { createTestContext } from '../utilities';
 import { GenerateRepeatingAppointments } from '../../app/tasks/GenerateRepeatingAppointments';
-import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 describe('GenerateRepeatingAppointments', () => {
   let ctx;

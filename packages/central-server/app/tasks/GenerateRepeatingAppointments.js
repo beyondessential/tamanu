@@ -1,8 +1,8 @@
 import config from 'config';
+import { QueryTypes } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { QueryTypes } from 'sequelize';
 
 export class GenerateRepeatingAppointments extends ScheduledTask {
   /**

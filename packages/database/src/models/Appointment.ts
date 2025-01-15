@@ -1,10 +1,12 @@
 import { DataTypes } from 'sequelize';
+
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import type { ReadSettings } from '@tamanu/settings';
+
 import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
-import type { ReadSettings } from '@tamanu/settings';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
 

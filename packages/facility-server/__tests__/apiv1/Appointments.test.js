@@ -4,9 +4,9 @@ import { add } from 'date-fns';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 describe('Appointments', () => {
   const [facilityId] = selectFacilityIds(config);
