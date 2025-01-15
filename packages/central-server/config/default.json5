@@ -256,6 +256,7 @@
     "generateRepeatingAppointments": {
       // every day at 1 AM
       "schedule": "0 1 * * *",
+      "generateOffsetDays": 7,
     }
   },
   "integrations": {

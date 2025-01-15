@@ -4,15 +4,13 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { QueryTypes } from 'sequelize';
 
-const OFFSET_DAYS = 7;
-
 export class GenerateRepeatingAppointments extends ScheduledTask {
   /**
    *
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.generateRepeatingTasks;
+    const conf = config.schedules.generateRepeatingAppointment;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
@@ -26,6 +24,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
   }
 
   async run() {
+    console.log(this.config);
     const schedules = await this.sequelize.query(
       `
       SELECT
@@ -46,7 +45,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         type: QueryTypes.SELECT,
         model: this.models.AppointmentSchedule,
         mapToModel: true,
-        replacements: { offsetDays: String(OFFSET_DAYS) },
+        replacements: { offsetDays: String(this.config.generationOffsetDays) },
       },
     );
     if (!schedules.length) {
