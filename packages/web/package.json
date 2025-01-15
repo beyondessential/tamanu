@@ -11,6 +11,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "clean": "rimraf dist",
+    "clean:deps": "rimraf node_modules",
     "preview": "vite preview",
     "start-dev": "vite",
     "test": "NODE_ENV=test vitest run",
@@ -33,6 +35,7 @@
     "jsdom": "^24.1.0",
     "prettier": "^1.14.0",
     "react-test-renderer": "^18.3.1",
+    "rimraf": "^6.0.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.20",
     "vitest": "^1.1.0"
