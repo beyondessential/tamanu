@@ -276,8 +276,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
 
   const {
     data: userTasks,
-    isLoading: isUserTasksLoading,
-    isPreviousData,
+    isLoading,
   } = useAutoUpdatingQuery(
     'user/tasks',
     queryParams,
@@ -287,7 +286,6 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     ],
     { keepPreviousData: true, refetchOnMount: true },
   );
-  const isLoading = isUserTasksLoading || isPreviousData;
 
   if (!userTasks?.count && !isLoading) {
     return (
@@ -320,7 +318,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         onRowClick={onRowClick}
         rowIdKey="id"
       />
-      {!isUserTasksLoading && (
+      {!isLoading && (
         <PaginatorContainer>
           <Paginator
             page={page}
