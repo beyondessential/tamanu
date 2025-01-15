@@ -237,8 +237,7 @@ export class AppointmentSchedule extends Model {
 
     let isFullyGenerated = false;
     const parsedUntilDate = untilDate && parseISO(untilDate);
-    // Generate appointments until the limit is reached or until the
-    // incremented startTime is after the untilDate
+    // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
     while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
       const { startTime: latestStartTime } = pushNextAppointment();
 
