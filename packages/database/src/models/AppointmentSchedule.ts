@@ -172,7 +172,9 @@ export class AppointmentSchedule extends Model {
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
     });
-    const existingAppointmentCount = existingAppointments.length;
+
+    const isInitialGeneration = existingAppointments.length === 1;
+
     if (!existingAppointments[0]) {
       throw new Error(
         'There must be at least one base appointment to generate repeating appointments',
@@ -231,7 +233,7 @@ export class AppointmentSchedule extends Model {
     // Generate appointments until the limit is reached or until the
     // incremented startTime is after the untilDate
     while (
-      appointments.length + existingAppointmentCount < maxInitialRepeatingAppointments &&
+      appointments.length + (isInitialGeneration ? 1 : 0) < maxInitialRepeatingAppointments &&
       !isFullyGenerated
     ) {
       const { startTime: latestStartTime } = pushNextAppointment();
@@ -241,7 +243,7 @@ export class AppointmentSchedule extends Model {
         if (!incrementedStartTime) throw new Error('No incremented start time found');
         isFullyGenerated = isAfter(incrementedStartTime, parsedUntilDate);
       } else if (occurrenceCount) {
-        isFullyGenerated = appointments.length + existingAppointmentCount === occurrenceCount;
+        isFullyGenerated = appointments.length + existingAppointments.length === occurrenceCount;
       }
     }
 

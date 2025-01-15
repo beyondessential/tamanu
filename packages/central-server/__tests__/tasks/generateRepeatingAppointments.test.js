@@ -1,3 +1,4 @@
+import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { GenerateRepeatingAppointments } from '../../app/tasks/GenerateRepeatingAppointments';
@@ -14,22 +15,34 @@ describe('GenerateRepeatingAppointments', () => {
   });
 
   it('should generate repeating appointments', async () => {
-    const schedule = await ctx.store.models.AppointmentSchedule.create({
-      startDate: '2024-10-02 12:00:00',
-      untilDate: '2024-12-10 12:00:00',
-      interval: 1,
-      frequency: REPEAT_FREQUENCY.WEEKLY,
-      daysOfWeek: ['WE'],
-    });
-    await ctx.store.models.Appointment.create(
+    const { maxInitialRepeatingAppointments } = config.appointments;
+    const { Appointment } = ctx.store.models;
+    const [appointment] = await Appointment.createWithSchedule(
       fake(ctx.store.models.Appointment, {
-        scheduleId: schedule.id,
-        startTime: '2024-10-02 12:00:00',
-        endTime: '2024-10-02 13:00:00',
+        startTime: '2020-10-02 12:00:00',
+        endTime: '2020-10-02 13:00:00',
       }),
+      {
+        startDate: '2020-10-02 12:00:00',
+        occurrenceCount: maxInitialRepeatingAppointments * 2,
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      },
     );
+
+    expect(
+      await Appointment.count({
+        where: { scheduleId: appointment.scheduleId },
+      }),
+    ).toBe(maxInitialRepeatingAppointments);
+
     const task = new GenerateRepeatingAppointments(ctx);
     await task.run();
-    expect(true).toBe(true);
+    expect(
+      await Appointment.count({
+        where: { scheduleId: appointment.scheduleId },
+      }),
+    ).toBe(maxInitialRepeatingAppointments * 2);
   });
 });
