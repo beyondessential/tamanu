@@ -173,8 +173,10 @@ export class AppointmentSchedule extends Model {
       order: [['startTime', 'DESC']],
     });
     const existingAppointmentCount = existingAppointments.length;
-    if (!existingAppointments || !existingAppointments[0]) {
-      return;
+    if (!existingAppointments[0]) {
+      throw new Error(
+        'There must be at least one base appointment to generate repeating appointments',
+      );
     }
     const baseAppointmentData = omit(existingAppointments[0].get({ plain: true }), [
       'id',

@@ -16,7 +16,7 @@ describe('GenerateRepeatingAppointments', () => {
   it('should generate repeating appointments', async () => {
     const schedule = await ctx.store.models.AppointmentSchedule.create({
       startDate: '2024-10-02 12:00:00',
-      untilDate: '2024-10-10 12:00:00',
+      untilDate: '2024-12-10 12:00:00',
       interval: 1,
       frequency: REPEAT_FREQUENCY.WEEKLY,
       daysOfWeek: ['WE'],
@@ -25,6 +25,7 @@ describe('GenerateRepeatingAppointments', () => {
       fake(ctx.store.models.Appointment, {
         scheduleId: schedule.id,
         startTime: '2024-10-02 12:00:00',
+        endTime: '2024-10-02 13:00:00',
       }),
     );
     const task = new GenerateRepeatingAppointments(ctx);

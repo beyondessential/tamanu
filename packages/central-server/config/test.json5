@@ -127,5 +127,8 @@
   "validateQuestionConfigs": {
     "enabled": true
   },
-  "countryTimeZone": "Pacific/Auckland"
+  "countryTimeZone": "Pacific/Auckland",
+  "appointments": {
+    maxInitialRepeatingAppointments: 10,
+  }
 }

@@ -4,6 +4,8 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { QueryTypes } from 'sequelize';
 
+const OFFSET_DAYS = 7;
+
 export class GenerateRepeatingAppointments extends ScheduledTask {
   /**
    *
@@ -38,19 +40,28 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
           ORDER BY appointments.start_time DESC
           LIMIT 1
         ) AS latest_appointment ON true
-        WHERE latest_appointment.start_time::date < NOW()  - INTERVAL :offsetDays DAY
+        WHERE latest_appointment.start_time::date < NOW() - INTERVAL :offsetDays DAY
         AND appointment_schedules.is_fully_generated = false
       `,
       {
         type: QueryTypes.SELECT,
         model: this.models.AppointmentSchedule,
         mapToModel: true,
-        replacements: { offsetDays: '7' },
+        replacements: { offsetDays: String(OFFSET_DAYS) },
       },
     );
+    this.log.info('Found incomplete schedules to generate appointments for', {
+      count: schedules.length,
+    });
 
-    const result = await Promise.all(
-      schedules.map((schedule) => schedule.generateRepeatingAppointment()),
+    await Promise.all(
+      schedules.map(async (schedule) => {
+        const appointments = await schedule.generateRepeatingAppointment();
+        this.log.info('Generated appointments for schedule', {
+          count: appointments.length,
+          scheduleId: schedule.id,
+        });
+      }),
     );
   }
 }
