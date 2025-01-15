@@ -324,7 +324,6 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       mergedIntoId: keepPatientId,
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
-    await unwantedPatient.destroy();
 
     updates.Patient = 2;
 
@@ -398,6 +397,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     if (facilityUpdates.length > 0) {
       updates.PatientFacility = facilityUpdates.length;
     }
+
+    // Destroy at the end to avoid deleting everything under the patient
+    await unwantedPatient.destroy();
 
     log.info('patientMerge: finished', {
       keepPatientId,
