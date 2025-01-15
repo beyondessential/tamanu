@@ -181,7 +181,7 @@ export class AppointmentSchedule extends Model {
 
     if (!initialAppointmentData && !existingAppointments) {
       throw new Error(
-        'Cannot generate repeating appointments without initial appointment data or existing appointments',
+        'Cannot generate repeating appointments without initial appointment data or existing appointments within the schedule',
       );
     }
 
