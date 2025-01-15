@@ -1,6 +1,6 @@
 import { addMilliseconds, differenceInMilliseconds, isValid, parse } from 'date-fns';
 import ms from 'ms';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { isWithinIntervalExcludingEnd } from '@tamanu/utils/dateTime';
 
@@ -54,8 +54,13 @@ export const useBookingSlots = date => {
     [date?.valueOf(), endTime, isPending, slotDuration, startTime],
   );
 
-  const slotContaining = time => slots?.find(slot => isWithinIntervalExcludingEnd(time, slot));
-  const endOfSlotContaining = time => slotContaining(time)?.end ?? null;
+  const slotContaining = useCallback(
+    time => slots?.find(slot => isWithinIntervalExcludingEnd(time, slot)),
+    [slots],
+  );
+  const endOfSlotContaining = useCallback(time => slotContaining(time)?.end ?? null, [
+    slotContaining,
+  ]);
 
   return {
     isPending,
