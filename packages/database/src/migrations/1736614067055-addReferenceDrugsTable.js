@@ -55,10 +55,12 @@ export async function up(query) {
   console.log(
     drugsReferenceData
   );
-  await query.bulkInsert(
-    'reference_drugs',
-    drugsReferenceData[0].map((it) => ({ reference_data_id: it.id })),
-  );
+  if (drugsReferenceData.length) {
+    await query.bulkInsert(
+      'reference_drugs',
+      drugsReferenceData[0].map((it) => ({ reference_data_id: it.id })),
+    );
+  }
 }
 
 /**
