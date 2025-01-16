@@ -169,6 +169,12 @@ export class AppointmentSchedule extends Model {
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
   ) {
+    // throw error if not in a transaction
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error(
+        'AppointmentSchedule.generateRepeatingAppointment must always run inside a transaction',
+      );
+    }
     const maxRepeatingAppointmentsPerGeneration = (await settings.get(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     )) as number;
@@ -233,6 +239,7 @@ export class AppointmentSchedule extends Model {
       pushNextAppointment();
 
       if (parsedUntilDate) {
+        // Generation is considered complete if the next appointments startTime falls after the untilDate
         isFullyGenerated = isAfter(
           parseISO(incrementDateString(appointments.at(-1)!.startTime)),
           parsedUntilDate,
