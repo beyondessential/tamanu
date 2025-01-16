@@ -11,12 +11,13 @@ import { EditVitalCellModal } from './EditVitalCellModal';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
 
-export const EmptyChartsTable = ({ noDataMessage }) => (
+export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   <Table
     columns={[]}
     data={[]}
     elevated={false}
     noDataBackgroundColor={Colors.background}
+    isLoading={isLoading}
     noDataMessage={
       <Box color={Colors.primary} fontWeight={500}>
         {noDataMessage}

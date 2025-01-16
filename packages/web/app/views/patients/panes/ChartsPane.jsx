@@ -262,7 +262,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   }`;
   const recordButtonEnabled =
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
-  const hasNoCharts = !isLoadingChartSurveys && !chartTypes?.length;
+  const hasNoCharts = chartTypes.length === 0;
 
   const baseChartModalProps = {
     open: modalOpen,
@@ -272,10 +272,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     onSubmit: handleSubmitChart,
   };
 
-  if (hasNoCharts) {
+  if (isLoadingChartSurveys || hasNoCharts) {
     return (
       <TabPane>
         <EmptyChartsTable
+          isLoading={isLoadingChartSurveys}
           noDataMessage={
             <TranslatedText
               stringId="chart.table.noSelectableCharts"
