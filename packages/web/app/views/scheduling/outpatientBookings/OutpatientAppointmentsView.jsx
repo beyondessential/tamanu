@@ -18,6 +18,7 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
+import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -70,6 +71,7 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -121,6 +123,10 @@ export const OutpatientAppointmentsView = () => {
           appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
+        />
+        <ModifyRepeatingAppointmentModal
+          open={isModifyRepeatingModalOpen}
+          onClose={() => setIsModifyRepeatingModalOpen(false)}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
