@@ -123,7 +123,7 @@ export const PatientView = () => {
   const patient = useSelector(state => state.patient);
   const queryTab = query.get('tab');
   const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.SUMMARY);
-  const disabled = !!patient.death;
+  const disabled = !!patient.dateOfDeath;
   const api = useApi();
   const syncState = useSyncState();
   const isSyncing = syncState.isPatientSyncing(patient.id);
