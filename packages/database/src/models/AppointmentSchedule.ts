@@ -194,23 +194,22 @@ export class AppointmentSchedule extends Model {
       appointments.push({ ...initialAppointmentData, scheduleId: this.id });
     }
 
-    const incrementByInterval = (date: string) => {
+    const adjustDateForInterval = (date: Date) => {
+      if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+        const weekdayDate = weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday);
+        if (!weekdayDate) throw new Error('No weekday date found');
+        return set(date, {
+          date: weekdayDate.getDate(),
+        });
+      }
+      return date;
+    };
+
+    const incrementDateString = (date: string) => {
       const incrementedDate = add(parseISO(date), {
         [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
       });
-      if (frequency === REPEAT_FREQUENCY.WEEKLY) {
-        return toDateTimeString(incrementedDate) as string;
-      }
-      if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-        const weekdayDate = weekdayAtOrdinalPosition(incrementedDate, daysOfWeek[0], nthWeekday);
-        if (!weekdayDate) throw new Error('No weekday date found');
-        return toDateTimeString(
-          set(incrementedDate, {
-            date: weekdayDate.getDate(),
-          }),
-        ) as string;
-      }
-      throw new Error('Unsupported frequency');
+      return toDateTimeString(adjustDateForInterval(incrementedDate)) as string;
     };
 
     const pushNextAppointment = () => {
@@ -224,8 +223,8 @@ export class AppointmentSchedule extends Model {
         ]) as AppointmentCreateData);
       appointments.push({
         ...lastAppointment,
-        startTime: incrementByInterval(lastAppointment.startTime),
-        endTime: lastAppointment.endTime && incrementByInterval(lastAppointment.endTime),
+        startTime: incrementDateString(lastAppointment.startTime),
+        endTime: lastAppointment.endTime && incrementDateString(lastAppointment.endTime),
       });
     };
 
@@ -237,7 +236,7 @@ export class AppointmentSchedule extends Model {
 
       if (parsedUntilDate) {
         isFullyGenerated = isAfter(
-          parseISO(incrementByInterval(appointments.at(-1)!.startTime)),
+          parseISO(incrementDateString(appointments.at(-1)!.startTime)),
           parsedUntilDate,
         );
       } else if (occurrenceCount) {

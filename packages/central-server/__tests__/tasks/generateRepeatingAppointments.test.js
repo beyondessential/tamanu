@@ -20,21 +20,21 @@ describe('GenerateRepeatingAppointments', () => {
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
     const { Appointment, AppointmentSchedule } = ctx.store.models;
-    const [appointment] = await Appointment.createWithSchedule(
+    const [appointment] = await Appointment.createWithSchedule({
       settings,
-      {
+      appointmentData: {
         status: APPOINTMENT_STATUSES.CONFIRMED,
         startTime: '1990-10-02 12:00:00',
         endTime: '1990-10-02 13:00:00',
       },
-      {
+      scheduleData: {
         startDate: '1990-10-02 12:00:00',
         occurrenceCount: maxRepeatingAppointmentsPerGeneration * 3 + 2,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
       },
-    );
+    });
 
     const task = new GenerateRepeatingAppointments(ctx);
     const testStep = async (expectedCount, expectedIsFullyGenerated = false) => {
