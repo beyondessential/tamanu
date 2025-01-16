@@ -17,7 +17,7 @@ import type { ReadSettings } from '@tamanu/settings';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { Appointment, AppointmentCreateData } from './Appointment';
-import { dateTimeType } from './../types/model';
+import { dateType } from './../types/model';
 import type { InitOptions, Models } from '../types/model';
 
 export type AppointmentScheduleCreateData = Omit<
@@ -44,7 +44,6 @@ export type WeeklyOrMonthlySchedule = WeeklySchedule | MonthlySchedule;
  */
 export class AppointmentSchedule extends Model {
   declare id: string;
-  declare startDate: string;
   declare untilDate?: string;
   declare interval: number;
   declare frequency: keyof typeof REPEAT_FREQUENCY;
@@ -59,8 +58,7 @@ export class AppointmentSchedule extends Model {
     super.init(
       {
         id: primaryKey,
-        startDate: dateTimeType('startDate', { allowNull: false }),
-        untilDate: dateTimeType('untilDate', { allowNull: true }),
+        untilDate: dateType('untilDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
           type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
