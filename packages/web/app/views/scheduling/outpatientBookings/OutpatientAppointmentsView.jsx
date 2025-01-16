@@ -71,7 +71,7 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(true);
+  const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -113,7 +113,22 @@ export const OutpatientAppointmentsView = () => {
         'isHighPriority',
       ]),
     );
+    if (appointment?.scheduleId) {
+      setIsModifyRepeatingModalOpen(true);
+    } else {
+      setDrawerOpen(true);
+    }
+  };
+
+  const handleConfirmModifyRepeatingModal = modifyRepeatingMode => {
+    setIsModifyRepeatingModalOpen(false);
+    setSelectedAppointment({ ...selectedAppointment, modifyRepeatingMode });
     setDrawerOpen(true);
+  };
+
+  const handleCloseModifyRepeatingModal = () => {
+    setIsModifyRepeatingModalOpen(false);
+    setSelectedAppointment({});
   };
 
   return (
@@ -126,7 +141,8 @@ export const OutpatientAppointmentsView = () => {
         />
         <ModifyRepeatingAppointmentModal
           open={isModifyRepeatingModalOpen}
-          onClose={() => setIsModifyRepeatingModalOpen(false)}
+          onClose={handleCloseModifyRepeatingModal}
+          onConfirm={handleConfirmModifyRepeatingModal}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
