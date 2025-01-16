@@ -188,9 +188,11 @@ export class AppointmentSchedule extends Model {
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
 
-    const appointments: AppointmentCreateData[] = initialAppointmentData
-      ? [{ ...initialAppointmentData, scheduleId: this.id }]
-      : [];
+    const appointments: AppointmentCreateData[] = [];
+
+    if (initialAppointmentData) {
+      appointments.push({ ...initialAppointmentData, scheduleId: this.id });
+    }
 
     const incrementByInterval = (date: string) => {
       let incrementedDate = add(parseISO(date), {
@@ -211,7 +213,7 @@ export class AppointmentSchedule extends Model {
 
     const pushNextAppointment = () => {
       // Get the most recent appointment or the initial appointment data
-      const currentAppointment =
+      const lastAppointment =
         appointments.at(-1) ||
         (omit(existingAppointments[0]!.get({ plain: true }), [
           'id',
@@ -219,9 +221,9 @@ export class AppointmentSchedule extends Model {
           'updatedAt',
         ]) as AppointmentCreateData);
       appointments.push({
-        ...currentAppointment,
-        startTime: incrementByInterval(currentAppointment.startTime),
-        endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
+        ...lastAppointment,
+        startTime: incrementByInterval(lastAppointment.startTime),
+        endTime: lastAppointment.endTime && incrementByInterval(lastAppointment.endTime),
       });
     };
 
