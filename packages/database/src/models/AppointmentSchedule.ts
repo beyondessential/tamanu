@@ -211,9 +211,8 @@ export class AppointmentSchedule extends Model {
     const adjustDateForFrequency = (date: Date) => {
       if (frequency === REPEAT_FREQUENCY.MONTHLY) {
         // Set the date to the nth weekday of the month i.e 3rd Monday
-        const weekdayDate = weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday);
         return set(date, {
-          date: weekdayDate.getDate(),
+          date: weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday).getDate(),
         });
       }
       return date;
