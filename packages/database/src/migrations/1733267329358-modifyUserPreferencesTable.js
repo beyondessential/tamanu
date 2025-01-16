@@ -78,6 +78,7 @@ export async function up(query) {
 
   await query.removeColumn('user_preferences', 'selected_graphed_vitals_on_filter');
   await query.removeColumn('user_preferences', 'encounter_tab_orders');
+  await query.removeColumn('user_preferences', 'clinician_dashboard_tasking_table_filter');
   await query.changeColumn('user_preferences', 'key', {
     type: DataTypes.STRING,
     allowNull: false,
@@ -94,6 +95,10 @@ export async function down(query) {
     allowNull: true,
   });
   await query.addColumn('user_preferences', 'encounter_tab_orders', {
+    type: DataTypes.JSONB,
+    defaultValue: {},
+  });
+  await query.addColumn('user_preferences', 'clinician_dashboard_tasking_table_filter', {
     type: DataTypes.JSONB,
     defaultValue: {},
   });
