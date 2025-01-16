@@ -25,7 +25,7 @@ function tableNamesFromQueries(queries) {
 function tableNamesFromQuery(query) {
   const tables = new Set();
   const visitor = astVisitor(() => ({
-    tableRef: (t) => console.log('tableref', t) && tables.add(t.name),
+    tableRef: (t) => { console.log('tableref', t); return tables.add(t.name) },
   }));
   try {
     visitor.statement(parseFirst(query));
