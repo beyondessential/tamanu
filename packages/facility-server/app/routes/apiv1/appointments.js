@@ -84,14 +84,13 @@ appointments.post(
       settings,
     } = req;
     const { Appointment } = models;
-
     await db.transaction(async () => {
       const result = scheduleData
         ? (
             await Appointment.createWithSchedule({
               settings: settings[facilityId],
-              appointmentData: appointmentData,
-              scheduleData: scheduleData,
+              appointmentData,
+              scheduleData,
             })
           )[0]
         : await Appointment.create(appointmentData);

@@ -1,6 +1,6 @@
 import { isNumber, omit } from 'lodash';
 import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
-import { parseISO, add, set, isAfter } from 'date-fns';
+import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
 import {
   DAYS_OF_WEEK,
@@ -227,7 +227,7 @@ export class AppointmentSchedule extends Model {
     };
 
     let isFullyGenerated = false;
-    const parsedUntilDate = untilDate && parseISO(untilDate);
+    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
     // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
     while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
       pushNextAppointment();
