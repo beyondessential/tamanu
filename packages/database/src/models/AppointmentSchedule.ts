@@ -195,20 +195,22 @@ export class AppointmentSchedule extends Model {
     }
 
     const incrementByInterval = (date: string) => {
-      let incrementedDate = add(parseISO(date), {
+      const incrementedDate = add(parseISO(date), {
         [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
       });
-
-      if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-        const [weekday] = daysOfWeek;
-        const weekdayDate = weekdayAtOrdinalPosition(incrementedDate, weekday, nthWeekday);
-        if (!weekdayDate) throw new Error('No weekday date found');
-        incrementedDate = set(incrementedDate, {
-          date: weekdayDate.getDate(),
-        });
+      if (frequency === REPEAT_FREQUENCY.WEEKLY) {
+        return toDateTimeString(incrementedDate) as string;
       }
-
-      return toDateTimeString(incrementedDate) as string;
+      if (frequency === REPEAT_FREQUENCY.MONTHLY) {
+        const weekdayDate = weekdayAtOrdinalPosition(incrementedDate, daysOfWeek[0], nthWeekday);
+        if (!weekdayDate) throw new Error('No weekday date found');
+        return toDateTimeString(
+          set(incrementedDate, {
+            date: weekdayDate.getDate(),
+          }),
+        ) as string;
+      }
+      throw new Error('Unsupported frequency');
     };
 
     const pushNextAppointment = () => {
