@@ -212,7 +212,7 @@ export class AppointmentSchedule extends Model {
     };
 
     const pushNextAppointment = () => {
-      // Get the most recent appointment or the initial appointment data
+      // Get the most recent appointment or start off where the last generation left off
       const lastAppointment =
         appointments.at(-1) ||
         (omit(existingAppointments[0]!.get({ plain: true }), [
