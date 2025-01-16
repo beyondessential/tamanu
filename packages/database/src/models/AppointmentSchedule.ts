@@ -232,20 +232,25 @@ export class AppointmentSchedule extends Model {
       });
     };
 
+    const checkComplete = () => {
+      // Generation is considered complete if the next appointments startTime falls after the untilDate
+      const nextAppointmentAfterUntilDate =
+        parsedUntilDate &&
+        isAfter(parseISO(incrementDateString(appointments.at(-1)!.startTime)), parsedUntilDate);
+      // Or if the occurrenceCount is reached
+      const hasReachedOccurrenceCount =
+        occurrenceCount && appointments.length + existingAppointments.length === occurrenceCount;
+      return nextAppointmentAfterUntilDate || hasReachedOccurrenceCount;
+    };
+
     let isFullyGenerated = false;
     const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
-    // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
-    while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
-      pushNextAppointment();
 
-      if (parsedUntilDate) {
-        // Generation is considered complete if the next appointments startTime falls after the untilDate
-        isFullyGenerated = isAfter(
-          parseISO(incrementDateString(appointments.at(-1)!.startTime)),
-          parsedUntilDate,
-        );
-      } else if (occurrenceCount) {
-        isFullyGenerated = appointments.length + existingAppointments.length === occurrenceCount;
+    for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
+      pushNextAppointment();
+      if (checkComplete()) {
+        isFullyGenerated = true;
+        break;
       }
     }
 
