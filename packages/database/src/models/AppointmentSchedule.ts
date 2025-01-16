@@ -176,10 +176,14 @@ export class AppointmentSchedule extends Model {
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
   ) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error(
+        'AppointmentSchedule.generateRepeatingAppointment must always run inside a transaction',
+      );
+    }
     const maxRepeatingAppointmentsPerGeneration = await settings.get<number>(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
-
     const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
@@ -194,6 +198,7 @@ export class AppointmentSchedule extends Model {
 
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
+    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
     const appointments: AppointmentCreateData[] = [];
 
@@ -232,19 +237,23 @@ export class AppointmentSchedule extends Model {
       });
     };
 
-    let isFullyGenerated = false;
-    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
-    // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
-    while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
-      pushNextAppointment();
+    const checkComplete = () => {
+      // Generation is considered complete if the next appointments startTime falls after the untilDate
+      const nextAppointmentAfterUntilDate =
+        parsedUntilDate &&
+        isAfter(parseISO(incrementDateString(appointments.at(-1)!.startTime)), parsedUntilDate);
+      // Or if the occurrenceCount is reached
+      const hasReachedOccurrenceCount =
+        occurrenceCount && appointments.length + existingAppointments.length === occurrenceCount;
+      return nextAppointmentAfterUntilDate || hasReachedOccurrenceCount;
+    };
 
-      if (parsedUntilDate) {
-        isFullyGenerated = isAfter(
-          parseISO(incrementDateString(appointments.at(-1)!.startTime)),
-          parsedUntilDate,
-        );
-      } else if (occurrenceCount) {
-        isFullyGenerated = appointments.length + existingAppointments.length === occurrenceCount;
+    let isFullyGenerated = false;
+    for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
+      pushNextAppointment();
+      if (checkComplete()) {
+        isFullyGenerated = true;
+        break;
       }
     }
 

@@ -56,14 +56,16 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
       count: schedules.length,
     });
 
-    await Promise.all(
-      schedules.map(async (schedule) => {
-        const appointments = await schedule.generateRepeatingAppointment(this.settings);
-        this.log.info('Generated appointments for schedule', {
-          count: appointments.length,
-          scheduleId: schedule.id,
-        });
-      }),
+    await this.sequelize.transaction(() =>
+      Promise.all(
+        schedules.map(async (schedule) => {
+          const appointments = await schedule.generateRepeatingAppointment(this.settings);
+          this.log.info('Generated appointments for schedule', {
+            count: appointments.length,
+            scheduleId: schedule.id,
+          });
+        }),
+      ),
     );
   }
 }
