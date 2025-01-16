@@ -1,4 +1,14 @@
-import { add, differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, formatDuration, intervalToDuration, startOfDay, type Duration } from 'date-fns';
+import {
+  add,
+  differenceInDays,
+  differenceInMonths,
+  differenceInWeeks,
+  differenceInYears,
+  formatDuration,
+  intervalToDuration,
+  startOfDay,
+  type Duration,
+} from 'date-fns';
 import { isISOString, parseDate } from './dateTime';
 
 export const getAgeDurationFromDate = (date: string | Date | null | undefined) => {
@@ -26,21 +36,26 @@ const getDifferenceFnByUnit = {
 };
 
 // eslint-disable-next-line no-unused-vars
-const comparators: Record<string, (left: Date| number, right: Date| number) => boolean> = {
+const comparators: Record<string, (left: Date | number, right: Date | number) => boolean> = {
   '>': (left, right) => left > right,
   '<': (left, right) => left < right,
   '>=': (left, right) => left >= right,
   '<=': (left, right) => left <= right,
 };
 
-const compareDate = (leftDate: Date| number, operator: string, rightDate: Date| number, exclusive: boolean = false) => {
+const compareDate = (
+  leftDate: Date | number,
+  operator: string,
+  rightDate: Date | number,
+  exclusive: boolean = false,
+) => {
   let comparator = operator;
   if (!exclusive) comparator += '=';
 
   const comparatorFn = comparators[comparator];
 
   return comparatorFn?.(leftDate, rightDate) ?? false;
-}
+};
 
 type AgeRange = {
   min?: {
@@ -51,7 +66,7 @@ type AgeRange = {
     duration: Duration;
     exclusive?: boolean;
   };
-}
+};
 const ageIsWithinRange = (birthDate: Date, range: AgeRange) => {
   const { duration: minDuration, exclusive: minExclusive } = range.min ?? {};
   const { duration: maxDuration, exclusive: maxExclusive } = range.max ?? {};
@@ -62,14 +77,17 @@ const ageIsWithinRange = (birthDate: Date, range: AgeRange) => {
     (!minDate || compareDate(minDate, '<', now, minExclusive)) &&
     (!maxDate || compareDate(now, '<', maxDate, maxExclusive))
   );
-}
+};
 
 export type AgeDisplayFormat = {
   as: 'days' | 'weeks' | 'months' | 'years';
   range: AgeRange;
 };
-export const getDisplayAge = (dateOfBirth: string, ageDisplayFormat: AgeDisplayFormat[] | null | undefined) => {
-  if (!ageDisplayFormat || !isISOString(dateOfBirth)) {
+export const getDisplayAge = (
+  dateOfBirth: string,
+  ageDisplayFormat: AgeDisplayFormat[] | null | undefined,
+) => {
+  if (!ageDisplayFormat || !dateOfBirth || !isISOString(dateOfBirth)) {
     return '';
   }
 
@@ -89,4 +107,4 @@ export const getDisplayAge = (dateOfBirth: string, ageDisplayFormat: AgeDisplayF
   }
 
   return formatDuration(ageDuration, { format: ['years'] });
-}
+};
