@@ -104,22 +104,6 @@ const SuccessMessage = ({ isEdit = false }) =>
     />
   );
 
-const ErrorMessage = ({ isEdit = false, error }) => {
-  return isEdit ? (
-    <TranslatedText
-      stringId="locationBooking.notification.edit.error"
-      fallback="Failed to edit booking with error: :error"
-      replacements={{ error: error.message }}
-    />
-  ) : (
-    <TranslatedText
-      stringId="locationBooking.notification.create.error"
-      fallback="Failed to create booking with error: :error"
-      replacements={{ error: error.message }}
-    />
-  );
-};
-
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationBookingsContext();
@@ -143,16 +127,19 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     {
       onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
-        if (error.message === 409) {
-          notifyError(
+        notifyError(
+          error.message == 409 ? (
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
-            />,
-          );
-        } else {
-          notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
-        }
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.notification.somethingWentWrong"
+              fallback="Something went wrong"
+            />
+          ),
+        );
       },
     },
   );
