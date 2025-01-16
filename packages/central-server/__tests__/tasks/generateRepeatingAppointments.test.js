@@ -28,7 +28,6 @@ describe('GenerateRepeatingAppointments', () => {
         endTime: '1990-10-02 13:00:00',
       },
       scheduleData: {
-        startDate: '1990-10-02 12:00:00',
         occurrenceCount: maxRepeatingAppointmentsPerGeneration * 3 + 2,
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
