@@ -52,9 +52,6 @@ export async function up(query) {
   const drugsReferenceData = await query.sequelize.query(`
     SELECT id from reference_data WHERE type = 'drug';
   `);
-  console.log(
-    drugsReferenceData
-  );
   if (drugsReferenceData[0].length) {
     await query.bulkInsert(
       'reference_drugs',
