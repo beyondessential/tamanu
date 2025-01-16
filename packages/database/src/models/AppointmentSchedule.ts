@@ -1,6 +1,6 @@
 import { isNumber, omit } from 'lodash';
 import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
-import { parseISO, add, set, isAfter } from 'date-fns';
+import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
 import {
   DAYS_OF_WEEK,
@@ -17,7 +17,7 @@ import type { ReadSettings } from '@tamanu/settings';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { Appointment, AppointmentCreateData } from './Appointment';
-import { dateTimeType } from './../types/model';
+import { dateType } from './../types/model';
 import type { InitOptions, Models } from '../types/model';
 
 export type AppointmentScheduleCreateData = Omit<
@@ -44,7 +44,6 @@ export type WeeklyOrMonthlySchedule = WeeklySchedule | MonthlySchedule;
  */
 export class AppointmentSchedule extends Model {
   declare id: string;
-  declare startDate: string;
   declare untilDate?: string;
   declare interval: number;
   declare frequency: keyof typeof REPEAT_FREQUENCY;
@@ -59,8 +58,7 @@ export class AppointmentSchedule extends Model {
     super.init(
       {
         id: primaryKey,
-        startDate: dateTimeType('startDate', { allowNull: false }),
-        untilDate: dateTimeType('untilDate', { allowNull: true }),
+        untilDate: dateType('untilDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
           type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
@@ -229,7 +227,7 @@ export class AppointmentSchedule extends Model {
     };
 
     let isFullyGenerated = false;
-    const parsedUntilDate = untilDate && parseISO(untilDate);
+    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
     // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
     while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
       pushNextAppointment();

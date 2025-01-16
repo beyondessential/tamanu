@@ -2,10 +2,6 @@
 Defines recurrence rules for appointments.
 {% enddocs %}
 
-{% docs appointment_schedules__start_date %}
-the first date of the recurrence, also specifies the time of day that repeated appointments occur.
-{% enddocs %}
-
 {% docs appointment_schedules__until_date %}
 The end date for the recurrence. No occurrences will be generated beyond this date. 
 Both `until_date` and `occurrence_count` cannot be null at the same time to ensure the recurrence has an end condition.
