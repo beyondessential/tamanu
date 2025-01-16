@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "start-dev": "vite",
     "admin-start-dev": "TAMANU_VITE_TARGET=http://localhost:3000 npm run start-dev",
-    "client-start-dev": "TAMANU_VITE_TARGET=http://localhost:4000 npm run start-dev",
+    "client-start-dev": "TAMANU_VITE_TARGET=https://facility-1.main.internal.tamanu.io npm run start-dev",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
     "storybook": "storybook dev",
