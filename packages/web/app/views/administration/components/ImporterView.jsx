@@ -70,7 +70,13 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => {
+const ImportForm = ({
+  submitForm,
+  setValues,
+  dataTypes,
+  dataTypesSelectable,
+  ImportButton = FormSubmitButton,
+}) => {
   const { values } = useFormikContext();
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
   return (
@@ -96,16 +102,21 @@ const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => {
         />
       )}
       <StyledButtonRow>
-        <FormSubmitButton
+        <ImportButton
           variant="outlined"
-          onSubmit={event => submitForm(event, { dryRun: true })}
+          onSubmit={(event, extraFormData) => {
+            submitForm(event, { dryRun: true, ...extraFormData });
+          }}
           disabled={!values.file}
         >
           <TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />
-        </FormSubmitButton>
-        <FormSubmitButton disabled={!values.file}>
+        </ImportButton>
+        <ImportButton
+          disabled={!values.file}
+          onSubmit={(event, extraFormData) => submitForm(event, extraFormData)}
+        >
           <TranslatedText stringId="general.action.import" fallback="Import" />
-        </FormSubmitButton>
+        </ImportButton>
       </StyledButtonRow>
     </ContentContainer>
   );
@@ -166,71 +177,78 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
-  const [resetKey, setResetKey] = useState(Math.random());
-  const [result, setResult] = useState(null);
+export const ImporterView = memo(
+  ({ endpoint, dataTypes, dataTypesSelectable, setIsLoading, ImportButton }) => {
+    const [resetKey, setResetKey] = useState(Math.random());
+    const [result, setResult] = useState(null);
 
-  const api = useApi();
+    const api = useApi();
 
-  const onSubmitUpload = useCallback(
-    async ({ file, ...data }) => {
-      setResult(null);
-      setIsLoading(true);
-      try {
-        const intermediateResult = await api.postWithFileUpload(
-          `admin/import/${endpoint}`,
-          file,
-          data,
-        );
+    const onSubmitUpload = useCallback(
+      async ({ file, ...data }) => {
+        setResult(null);
+        setIsLoading(true);
+        try {
+          const intermediateResult = await api.postWithFileUpload(
+            `admin/import/${endpoint}`,
+            file,
+            data,
+          );
 
-        if (intermediateResult.sentData) {
-          // reset the form
-          setResetKey(Math.random());
+          if (intermediateResult.sentData) {
+            // reset the form
+            setResetKey(Math.random());
+          }
+
+          setResult(intermediateResult);
+          return true;
+        } finally {
+          setIsLoading(false);
         }
+      },
+      [api, endpoint, setIsLoading],
+    );
 
-        setResult(intermediateResult);
-        return true;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [api, endpoint, setIsLoading],
-  );
+    const renderForm = useCallback(
+      props => (
+        <ImportForm
+          dataTypes={dataTypes}
+          dataTypesSelectable={dataTypesSelectable}
+          ImportButton={ImportButton}
+          {...props}
+        />
+      ),
+      [dataTypes, dataTypesSelectable, ImportButton],
+    );
 
-  const renderForm = useCallback(
-    props => (
-      <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
+    const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
-  const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
-
-  return (
-    <>
-      <Form
-        key={resetKey}
-        onSubmit={onSubmitUpload}
-        formType={FORM_TYPES.CREATE_FORM}
-        validationSchema={yup.object().shape({
-          includedDataTypes: dataTypesSelectable
-            ? yup
-                .array()
-                .of(yup.string())
-                .required()
-                .min(1)
-            : undefined,
-          file: yup
-            .string()
-            .required()
-            .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
-        })}
-        initialValues={{
-          includedDataTypes: initialDataTypes,
-        }}
-        render={renderForm}
-      />
-      <OutcomeDisplay result={result} />
-    </>
-  );
-});
+    return (
+      <>
+        <Form
+          key={resetKey}
+          onSubmit={onSubmitUpload}
+          formType={FORM_TYPES.CREATE_FORM}
+          validationSchema={yup.object().shape({
+            includedDataTypes: dataTypesSelectable
+              ? yup
+                  .array()
+                  .of(yup.string())
+                  .required()
+                  .min(1)
+              : undefined,
+            file: yup
+              .string()
+              .required()
+              .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
+          })}
+          initialValues={{
+            includedDataTypes: initialDataTypes,
+          }}
+          render={renderForm}
+        />
+        <OutcomeDisplay result={result} />
+      </>
+    );
+  },
+);
