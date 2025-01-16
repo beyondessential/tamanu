@@ -25,7 +25,7 @@ function tableNamesFromQueries(queries) {
 function tableNamesFromQuery(query) {
   const tables = new Set();
   const visitor = astVisitor(() => ({
-    tableRef: (t) => { console.log('tableref', t); return tables.add(t.name) },
+    tableRef: (t) => tables.add(t.name),
   }));
   try {
     visitor.statement(parseFirst(query));
@@ -71,7 +71,6 @@ async function collectInfoForMigrations(umzug, flushQueries) {
   const migrationsInfo = [];
   const getNextPending = async () => (await umzug.pending())[0]?.file;
   let nextPending = await getNextPending();
-  console.log('nextpending', nextPending);
   while (nextPending) {
     // empty query buffer
     flushQueries();
@@ -90,7 +89,6 @@ async function collectInfoForMigrations(umzug, flushQueries) {
 
   // extract table names
   for (const migrationInfo of migrationsInfo) {
-    console.log('all info', migrationInfo);
     const { up, down } = migrationInfo;
     migrationInfo.upTables = tableNamesFromQueries(up);
     migrationInfo.downTables = tableNamesFromQueries(down);
@@ -128,8 +126,9 @@ async function getHashesForTables(sequelize, tables) {
     if (UNHASHED_TABLES.includes(table)) continue;
 
     const model = sequelize.modelManager.findModel((m) => m.tableName === table);
-    console.log('table', table);
-    console.log('model', model);
+
+    // Model does not exist because it's a CTE
+    if (!model) continue;
 
     // No need for determinism test when data is not shared between central and facility
     if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
@@ -187,7 +186,6 @@ async function getHashesForDb(migrationsInfo) {
   const umzug = createMigrationInterface(log, db.sequelize);
 
   const hashesList = [];
-  console.log('info', migrationsInfo);
   for (const { name, upTables } of migrationsInfo) {
     const meta = (await umzug.up({ to: name }))[0];
 
