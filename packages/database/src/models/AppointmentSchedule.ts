@@ -212,7 +212,6 @@ export class AppointmentSchedule extends Model {
       if (frequency === REPEAT_FREQUENCY.MONTHLY) {
         // Set the date to the nth weekday of the month i.e 3rd Monday
         const weekdayDate = weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday);
-        if (!weekdayDate) throw new Error('No weekday date found');
         return set(date, {
           date: weekdayDate.getDate(),
         });
@@ -237,7 +236,7 @@ export class AppointmentSchedule extends Model {
       });
     };
 
-    const checkComplete = () => {
+    const checkFullyGenerated = () => {
       // Generation is considered complete if the next appointments startTime falls after the untilDate
       const nextAppointmentAfterUntilDate =
         parsedUntilDate &&
@@ -251,7 +250,7 @@ export class AppointmentSchedule extends Model {
     let isFullyGenerated = false;
     for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
-      if (checkComplete()) {
+      if (checkFullyGenerated()) {
         isFullyGenerated = true;
         break;
       }
