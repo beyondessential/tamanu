@@ -126,6 +126,8 @@ async function getHashesForTables(sequelize, tables) {
     if (UNHASHED_TABLES.includes(table)) continue;
 
     const model = sequelize.modelManager.findModel((m) => m.tableName === table);
+    console.log(table);
+    console.log(model);
 
     // No need for determinism test when data is not shared between central and facility
     if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
