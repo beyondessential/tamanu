@@ -117,7 +117,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const queryClient = useQueryClient();
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
-  const { selectedChartTypeId, setSelectedChartTypeId } = useChartData();
+  const {
+    isLoading: isLoadingChartData,
+    selectedChartTypeId,
+    setSelectedChartTypeId,
+  } = useChartData();
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
@@ -272,11 +276,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     onSubmit: handleSubmitChart,
   };
 
-  if (isLoadingChartSurveys || hasNoCharts) {
+  if (isLoadingChartData || isLoadingChartSurveys || hasNoCharts) {
     return (
       <TabPane>
         <EmptyChartsTable
-          isLoading={isLoadingChartSurveys}
+          isLoading={isLoadingChartData || isLoadingChartSurveys}
           noDataMessage={
             <TranslatedText
               stringId="chart.table.noSelectableCharts"
