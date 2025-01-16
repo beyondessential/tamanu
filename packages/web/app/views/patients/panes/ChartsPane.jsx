@@ -306,13 +306,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         <TableButtonRowWrapper>
           <TableButtonRow variant="small" justifyContent="space-between">
             <StyledButtonGroup>
-              {chartTypes?.length ? (
-                <ChartDropdown
-                  selectedChartTypeId={selectedChartTypeId}
-                  setSelectedChartTypeId={setSelectedChartTypeId}
-                  chartTypes={chartTypes}
-                />
-              ) : null}
+              <ChartDropdown
+                selectedChartTypeId={selectedChartTypeId}
+                setSelectedChartTypeId={setSelectedChartTypeId}
+                chartTypes={chartTypes}
+              />
               {isComplexChart ? (
                 <AddComplexChartButton
                   onClick={() => {
