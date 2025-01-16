@@ -120,7 +120,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const { selectedChartTypeId, setSelectedChartTypeId } = useChartData();
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
-    isLoadingChartSurveys,
+    isLoading: isLoadingChartSurveys,
   } = useChartSurveysQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -262,6 +262,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   }`;
   const recordButtonEnabled =
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
+  const hasNoCharts = !isLoadingChartSurveys && !chartTypes?.length;
 
   const baseChartModalProps = {
     open: modalOpen,
@@ -271,7 +272,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     onSubmit: handleSubmitChart,
   };
 
-  if (!isLoadingChartSurveys && !chartTypes?.length) {
+  if (hasNoCharts) {
     return (
       <TabPane>
         <EmptyChartsTable
