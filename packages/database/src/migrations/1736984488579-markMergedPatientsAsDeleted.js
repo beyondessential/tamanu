@@ -14,6 +14,18 @@ export async function up(query) {
     return;
   }
 
+  const [hasUpdatedAtSyncTick] = await query.sequelize.query(`
+    SELECT EXISTS (SELECT TRUE
+    FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'patients' AND column_name = 'updated_at_sync_tick');
+  `);
+
+  // If the patients table does not have the updated_at_sync_tick column it means this is
+  // the first time deploying the server. If that's the case, we can skip the migration.
+  if (!hasUpdatedAtSyncTick?.[0]?.exists) {
+    return;
+  }
+
   // Insert jobs to rematerialize patients that were deleted with "DESTROY" patient merge
   await query.sequelize.query(`
     WITH upstream AS (
