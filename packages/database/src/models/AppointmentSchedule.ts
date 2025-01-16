@@ -188,33 +188,25 @@ export class AppointmentSchedule extends Model {
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
 
-    const appointments = initialAppointmentData
+    const appointments: AppointmentCreateData[] = initialAppointmentData
       ? [{ ...initialAppointmentData, scheduleId: this.id }]
-      : ([] as AppointmentCreateData[]);
+      : [];
 
     const incrementByInterval = (date: string) => {
-      const incrementedDate = add(parseISO(date), {
+      let incrementedDate = add(parseISO(date), {
         [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
       });
 
-      if (frequency === REPEAT_FREQUENCY.WEEKLY) {
-        return toDateTimeString(incrementedDate) as string;
-      }
       if (frequency === REPEAT_FREQUENCY.MONTHLY) {
         const [weekday] = daysOfWeek;
-        const weekdayDate = weekdayAtOrdinalPosition(
-          incrementedDate,
-          weekday,
-          nthWeekday,
-        )?.getDate();
-        // Set the date to the nth weekday of the month as incremented startTime will fall on a different weekday
-        return toDateTimeString(
-          set(incrementedDate, {
-            date: weekdayDate,
-          }),
-        ) as string;
+        const weekdayDate = weekdayAtOrdinalPosition(incrementedDate, weekday, nthWeekday);
+        if (!weekdayDate) throw new Error('No weekday date found');
+        incrementedDate = set(incrementedDate, {
+          date: weekdayDate.getDate(),
+        });
       }
-      throw new Error('Invalid frequency when generating repeating appointments');
+
+      return toDateTimeString(incrementedDate) as string;
     };
 
     const pushNextAppointment = () => {
@@ -232,19 +224,19 @@ export class AppointmentSchedule extends Model {
         endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
       };
       appointments.push(nextAppointment);
-      return nextAppointment;
     };
 
     let isFullyGenerated = false;
     const parsedUntilDate = untilDate && parseISO(untilDate);
     // Generate appointments until the max per generation is reached or until the untilDate or occurrenceCount is reached
     while (appointments.length < maxRepeatingAppointmentsPerGeneration && !isFullyGenerated) {
-      const { startTime: latestStartTime } = pushNextAppointment();
+      pushNextAppointment();
 
       if (parsedUntilDate) {
-        const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
-        if (!incrementedStartTime) throw new Error('No incremented start time found');
-        isFullyGenerated = isAfter(incrementedStartTime, parsedUntilDate);
+        isFullyGenerated = isAfter(
+          parseISO(incrementByInterval(appointments.at(-1)!.startTime)),
+          parsedUntilDate,
+        );
       } else if (occurrenceCount) {
         isFullyGenerated = appointments.length + existingAppointments.length === occurrenceCount;
       }
