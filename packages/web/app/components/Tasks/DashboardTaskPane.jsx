@@ -60,7 +60,7 @@ export const DashboardTaskPane = React.memo(() => {
   const userPreferencesMutation = useUserPreferencesMutation(facilityId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
-    userPreferences?.clinicianDashboardTaskingTableFilter?.[facilityId] || {};
+    userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
   const onLocationIdChange = e => {
     const { value } = e.target;
