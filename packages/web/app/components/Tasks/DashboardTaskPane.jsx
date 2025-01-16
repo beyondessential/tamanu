@@ -57,7 +57,7 @@ const FilterGrid = styled.div`
 
 export const DashboardTaskPane = React.memo(() => {
   const { facilityId } = useAuth();
-  const userPreferencesMutation = useUserPreferencesMutation();
+  const userPreferencesMutation = useUserPreferencesMutation(facilityId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter?.[facilityId] || {};
@@ -71,7 +71,7 @@ export const DashboardTaskPane = React.memo(() => {
 
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: { [facilityId]: newParams },
+      value: newParams,
     });
   };
 
@@ -84,7 +84,7 @@ export const DashboardTaskPane = React.memo(() => {
 
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: { [facilityId]: newParams },
+      value: newParams,
     });
   };
 
