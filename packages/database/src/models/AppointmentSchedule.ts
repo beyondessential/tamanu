@@ -175,9 +175,9 @@ export class AppointmentSchedule extends Model {
         'AppointmentSchedule.generateRepeatingAppointment must always run inside a transaction',
       );
     }
-    const maxRepeatingAppointmentsPerGeneration = (await settings.get(
+    const maxRepeatingAppointmentsPerGeneration = await settings.get<number>(
       'appointments.maxRepeatingAppointmentsPerGeneration',
-    )) as number;
+    );
     const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
@@ -191,6 +191,7 @@ export class AppointmentSchedule extends Model {
 
     const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
       this as WeeklyOrMonthlySchedule;
+    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
     const appointments: AppointmentCreateData[] = [];
 
@@ -244,8 +245,6 @@ export class AppointmentSchedule extends Model {
     };
 
     let isFullyGenerated = false;
-    const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
-
     for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
       if (checkComplete()) {
