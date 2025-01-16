@@ -169,9 +169,10 @@ export class AppointmentSchedule extends Model {
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
   ) {
-    const maxRepeatingAppointmentsPerGeneration = (await settings.get(
+    const maxRepeatingAppointmentsPerGeneration = await settings.get<number>(
       'appointments.maxRepeatingAppointmentsPerGeneration',
-    )) as number;
+    );
+
     const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
