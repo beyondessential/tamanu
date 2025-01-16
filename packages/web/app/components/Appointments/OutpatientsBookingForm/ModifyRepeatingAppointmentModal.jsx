@@ -50,13 +50,13 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-const MODIFY_MODE = {
+export const MODIFY_REPEATING_APPOINTMENT_MODE = {
   THIS_APPOINTMENT: 'thisAppointment',
   THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
 };
 
 export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) => {
-  const [mode, setMode] = useState(MODIFY_MODE.THIS_APPOINTMENT);
+  const [mode, setMode] = useState(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
 
   const handleChangeMode = event => setMode(event.target.value);
   const handleConfirm = () => onConfirm(mode);
@@ -88,7 +88,7 @@ export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) =>
               aria-labelledby="ends-radio"
             >
               <StyledFormControlLabel
-                control={<StyledRadio value={MODIFY_MODE.THIS_APPOINTMENT} />}
+                control={<StyledRadio value={MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT} />}
                 label={
                   <TranslatedText
                     stringId="outpatientAppointment.repeating.modifyMode.option.thisAppointment"
@@ -97,8 +97,11 @@ export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) =>
                 }
               />
               <StyledFormControlLabel
-                value={MODIFY_MODE.THIS_AND_FUTURE_APPOINTMENTS}
-                control={<StyledRadio value={MODIFY_MODE.THIS_AND_FUTURE_APPOINTMENTS} />}
+                control={
+                  <StyledRadio
+                    value={MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS}
+                  />
+                }
                 label={
                   <TranslatedText
                     stringId="outpatientAppointment.repeating.modifyMode.option.thisAndFutureAppointments"

@@ -122,29 +122,30 @@ export const RepeatingAppointmentFields = ({
   setFieldError,
   handleResetRepeatUntilDate,
 }) => {
-  const { startTime, appointmentSchedule } = values;
-  const { interval, frequency, occurrenceCount, untilDate, endsMode } = appointmentSchedule;
+  const { startTime, schedule } = values;
+  console.log(schedule);
+  const { interval, frequency, occurrenceCount, untilDate, endsMode } = schedule;
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
     if (newModeValue === ENDS_MODES.ON) {
       handleResetRepeatUntilDate(startTimeDate);
-      setFieldValue('appointmentSchedule.occurrenceCount', null);
-      setFieldError('appointmentSchedule.occurrenceCount', null);
+      setFieldValue('schedule.occurrenceCount', null);
+      setFieldError('schedule.occurrenceCount', null);
     } else if (newModeValue === ENDS_MODES.AFTER) {
-      setFieldValue('appointmentSchedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
-      setFieldValue('appointmentSchedule.untilDate', null);
-      setFieldError('appointmentSchedule.untilDate', null);
+      setFieldValue('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
+      setFieldValue('schedule.untilDate', null);
+      setFieldError('schedule.untilDate', null);
     }
-    setFieldValue('appointmentSchedule.endsMode', newModeValue);
+    setFieldValue('schedule.endsMode', newModeValue);
   };
 
   const handleFrequencyChange = e => {
     if (e.target.value === REPEAT_FREQUENCY.MONTHLY) {
-      setFieldValue('appointmentSchedule.nthWeekday', getWeekdayOrdinalPosition(startTimeDate));
+      setFieldValue('schedule.nthWeekday', getWeekdayOrdinalPosition(startTimeDate));
     } else if (e.target.value === REPEAT_FREQUENCY.WEEKLY) {
-      setFieldValue('appointmentSchedule.nthWeekday', null);
+      setFieldValue('schedule.nthWeekday', null);
     }
   };
 
@@ -161,10 +162,10 @@ export const RepeatingAppointmentFields = ({
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
         <Field
-          name="appointmentSchedule.interval"
+          name="schedule.interval"
           min={1}
           max={99}
-          onBlur={() => validateKeyboardEnteredNumber('appointmentSchedule.interval')}
+          onBlur={() => validateKeyboardEnteredNumber('schedule.interval')}
           label={
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
@@ -175,7 +176,7 @@ export const RepeatingAppointmentFields = ({
         />
         <Field
           placeholder=""
-          name="appointmentSchedule.frequency"
+          name="schedule.frequency"
           isClearable={false}
           enumValues={
             interval === 1 ? REPEAT_FREQUENCY_UNIT_LABELS : REPEAT_FREQUENCY_UNIT_PLURAL_LABELS
@@ -199,7 +200,7 @@ export const RepeatingAppointmentFields = ({
           <TranslatedText stringId="outpatientAppointment.repeating.ends.label" fallback="Ends" />
         </StyledFormLabel>
         <StyledRadioGroup
-          name="appointmentSchedule.endsMode"
+          name="schedule.endsMode"
           aria-labelledby="ends-radio"
           onChange={handleChangeEndsMode}
           value={endsMode}
@@ -216,7 +217,7 @@ export const RepeatingAppointmentFields = ({
               }
             />
             <Field
-              name="appointmentSchedule.untilDate"
+              name="schedule.untilDate"
               disabled={endsMode !== ENDS_MODES.ON}
               value={endsMode === ENDS_MODES.ON ? untilDate : ''}
               min={format(
@@ -240,17 +241,14 @@ export const RepeatingAppointmentFields = ({
               }
             />
             <Field
-              name="appointmentSchedule.occurrenceCount"
+              name="schedule.occurrenceCount"
               sx={{
                 width: '60px',
               }}
               min={DEFAULT_OCCURRENCE_COUNT}
               max={99}
               onBlur={() =>
-                validateKeyboardEnteredNumber(
-                  'appointmentSchedule.occurrenceCount',
-                  DEFAULT_OCCURRENCE_COUNT,
-                )
+                validateKeyboardEnteredNumber('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT)
               }
               value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
               disabled={endsMode !== ENDS_MODES.AFTER}

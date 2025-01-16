@@ -80,7 +80,7 @@ appointments.post(
     const {
       models,
       db,
-      body: { facilityId, appointmentSchedule: scheduleData, ...appointmentData },
+      body: { facilityId, schedule: scheduleData, ...appointmentData },
       settings,
     } = req;
     const { Appointment } = models;

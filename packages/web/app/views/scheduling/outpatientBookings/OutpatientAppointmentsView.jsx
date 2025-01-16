@@ -19,6 +19,7 @@ import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
+import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -111,6 +112,7 @@ export const OutpatientAppointmentsView = () => {
         'patientId',
         'clinicianId',
         'isHighPriority',
+        'schedule',
       ]),
     );
     if (appointment?.scheduleId) {
@@ -121,8 +123,17 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleConfirmModifyRepeatingModal = modifyRepeatingMode => {
+    const { schedule } = selectedAppointment;
     setIsModifyRepeatingModalOpen(false);
-    setSelectedAppointment({ ...selectedAppointment, modifyRepeatingMode });
+    setSelectedAppointment({
+      ...selectedAppointment,
+      modifyRepeatingMode,
+      isRepeatingAppointment: true,
+      schedule: {
+        ...schedule,
+        endsMode: schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER,
+      },
+    });
     setDrawerOpen(true);
   };
 
