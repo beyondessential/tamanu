@@ -179,7 +179,7 @@ export class AppointmentSchedule extends Model {
       order: [['startTime', 'DESC']],
     });
 
-    if (!initialAppointmentData && !existingAppointments) {
+    if (!(initialAppointmentData || existingAppointments[0])) {
       throw new Error(
         'Cannot generate repeating appointments without initial appointment data or existing appointments within the schedule',
       );
@@ -218,12 +218,11 @@ export class AppointmentSchedule extends Model {
           'createdAt',
           'updatedAt',
         ]) as AppointmentCreateData);
-      const nextAppointment = {
+      appointments.push({
         ...currentAppointment,
         startTime: incrementByInterval(currentAppointment.startTime),
         endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
-      };
-      appointments.push(nextAppointment);
+      });
     };
 
     let isFullyGenerated = false;
