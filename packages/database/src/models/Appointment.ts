@@ -1,4 +1,5 @@
 import { DataTypes } from 'sequelize';
+import { omit } from 'lodash';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings';
@@ -153,5 +154,13 @@ export class Appointment extends Model {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
       return schedule.generateRepeatingAppointment(settings, appointmentData);
     });
+  }
+
+  toCreateData() {
+    return omit(this.get({ plain: true }), [
+      'id',
+      'createdAt',
+      'updatedAt',
+    ]) as AppointmentCreateData;
   }
 }
