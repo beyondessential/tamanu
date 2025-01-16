@@ -17,10 +17,12 @@ export async function up(query) {
   // Insert jobs to rematerialize patients that were deleted with "DESTROY" patient merge
   await query.sequelize.query(`
     WITH upstream AS (
-      SELECT merged_into_id FROM patients WHERE deleted_at IS NOT NULL AND merged_into_id IS NOT NULL
+      SELECT merged_into_id as id FROM patients WHERE deleted_at IS NOT NULL AND merged_into_id IS NOT NULL
     )
-    INSERT INTO fhir.jobs (topic, payload)
-    SELECT 'fhir.refresh.fromUpstream',
+    INSERT INTO fhir.jobs (id, topic, payload)
+    SELECT
+      uuid_generate_v5(uuid_generate_v5(uuid_nil(), 'fhir.jobs_merged_patients'), upstream.id),
+      'fhir.refresh.fromUpstream',
       json_build_object(
         'resource',
         'Patient',
