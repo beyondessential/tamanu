@@ -21,7 +21,6 @@ const ColorText = styled.span`
 
 const ContentRow = styled.div`
   display: flex;
-  flex-direction: 'row';
   align-items: flex-end;
   justify-content: space-between;
 `;
@@ -73,10 +72,9 @@ const ImportStatsDisplay = ({ stats }) => (
 
 const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => {
   const { values } = useFormikContext();
-  const rowLayout = !dataTypesSelectable;
-  const ContentContainer = rowLayout ? ContentRow : ContentColumn;
+  const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
   return (
-    <ContentContainer $rowLayout={rowLayout}>
+    <ContentContainer>
       <Field
         component={FileChooserField}
         filters={[FILTER_EXCEL]}
