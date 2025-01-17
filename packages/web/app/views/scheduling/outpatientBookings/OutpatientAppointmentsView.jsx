@@ -9,7 +9,7 @@ import styled from 'styled-components';
 
 import { parseDate } from '@tamanu/utils/dateTime';
 
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { Button, TopBar, TranslatedText } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
 import { Colors } from '../../../constants';
@@ -19,7 +19,7 @@ import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 
-const Container = styled(PageContainer)`
+const Container = styled.div`
   block-size: 100%;
   display: flex;
   flex-direction: column;

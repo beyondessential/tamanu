@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { ContentPane, PageContainer, TopBar } from '../../../components';
+import { ContentPane, TopBar } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
@@ -63,7 +63,7 @@ export const TemplateView = () => {
   }, [api, updateRefreshCount, editingTemplate?.id]);
 
   return (
-    <PageContainer>
+    <div>
       <EditTemplateModal
         open={!!editingTemplate}
         template={editingTemplate}
@@ -83,6 +83,6 @@ export const TemplateView = () => {
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

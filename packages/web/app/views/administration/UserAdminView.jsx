@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, DataFetchingTable, PageContainer, TopBar } from '../../components';
+import { Button, DataFetchingTable, TopBar } from '../../components';
 import { NewUserForm } from '../../forms';
 import { NewRecordModal } from './components';
 import { USERS_ENDPOINT } from './constants';
@@ -56,7 +56,7 @@ export const UserAdminView = React.memo(() => {
   }, []);
 
   return (
-    <PageContainer>
+    <div>
       <TopBar title="Users">
         <Button color="primary" variant="outlined" onClick={showCreatingUserModal}>
           Add new user
@@ -70,6 +70,6 @@ export const UserAdminView = React.memo(() => {
         onCancel={hideCreatingUserModal}
         Form={NewUserForm}
       />
-    </PageContainer>
+    </div>
   );
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ContentPane, PageContainer, TopBar } from '../components';
+import { ContentPane, TopBar } from '../components';
 import { TriageTable } from '../components/TriageTable';
 import { TriageDashboard } from '../components/TriageDashboard';
 import { Colors } from '../constants';
@@ -12,7 +12,7 @@ const Section = styled.div`
 `;
 
 export const TriageListingView = () => (
-  <PageContainer>
+  <div>
     <TopBar
       title={<TranslatedText stringId="patientList.triage.title" fallback="Emergency patients" />}
     />
@@ -24,5 +24,5 @@ export const TriageListingView = () => (
     <ContentPane>
       <TriageTable />
     </ContentPane>
-  </PageContainer>
+  </div>
 );

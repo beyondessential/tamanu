@@ -6,7 +6,6 @@ import { WS_EVENTS } from '@tamanu/constants';
 import {
   ContentPane,
   ImmunisationSearchBar,
-  PageContainer,
   SearchTableTitle,
   SearchTableWithPermissionCheck,
   TopBar,
@@ -93,7 +92,7 @@ export const ImmunisationsView = () => {
   }, [updateStats]);
 
   return (
-    <PageContainer>
+    <div>
       <TopBar
         title={
           <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
@@ -120,6 +119,6 @@ export const ImmunisationsView = () => {
           fetchOptions={searchParameters}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

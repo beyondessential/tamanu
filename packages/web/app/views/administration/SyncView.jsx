@@ -2,7 +2,7 @@ import ms from 'ms';
 import React from 'react';
 import { Box } from '@material-ui/core';
 
-import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
+import { DataFetchingTable, DateDisplay, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
@@ -41,7 +41,7 @@ const LastSyncs = React.memo(props => (
 
 export const SyncView = React.memo(() => {
   return (
-    <PageContainer>
+    <div>
       <TopBar title={<TranslatedText stringId="admin.syncStatus.title" fallback="Sync status" />} />
       <Box p={4}>
         <p>
@@ -52,6 +52,6 @@ export const SyncView = React.memo(() => {
         </p>
         <LastSyncs />
       </Box>
-    </PageContainer>
+    </div>
   );
 });

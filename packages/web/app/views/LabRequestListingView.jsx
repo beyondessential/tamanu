@@ -1,16 +1,15 @@
+import { LAB_REQUEST_TABLE_STATUS_GROUPINGS } from '@tamanu/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_TABLE_STATUS_GROUPINGS } from '@tamanu/constants';
 import {
   ContentPane,
   LabRequestsSearchBar,
-  PageContainer,
   SearchTableTitle,
   TopBar,
 } from '../components';
-import { LabRequestsTable } from './LabRequestsTable';
-import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
+import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
+import { LabRequestsTable } from './LabRequestsTable';
 
 const StyledContentPane = styled(ContentPane)`
   position: relative;
@@ -35,18 +34,18 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
 };
 
 export const LabRequestListingView = () => (
-  <PageContainer>
+  <div>
     <TopBar title="Active lab requests" />
     <LabRequestListing statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE} />
-  </PageContainer>
+  </div>
 );
 
 export const PublishedLabRequestListingView = () => (
-  <PageContainer>
+  <div>
     <TopBar title="Published lab requests" />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
       searchParamKey={LabRequestSearchParamKeys.Published}
     />
-  </PageContainer>
+  </div>
 );

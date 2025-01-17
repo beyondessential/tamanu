@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ContentPane, PageContainer, TopBar } from '../../components';
+import { ContentPane, TopBar } from '../../components';
 import { Colors } from '../../constants';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -13,7 +13,7 @@ const ContentContainer = styled.div`
 `;
 
 export const ReportGenerator = () => (
-  <PageContainer>
+  <div>
     <TopBar
       title={<TranslatedText stringId="report.generate.title" fallback="Report generator" />}
     />
@@ -22,5 +22,5 @@ export const ReportGenerator = () => (
         <ReportGeneratorForm />
       </ContentContainer>
     </ContentPane>
-  </PageContainer>
+  </div>
 );

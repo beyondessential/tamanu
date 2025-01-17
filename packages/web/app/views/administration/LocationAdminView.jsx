@@ -3,7 +3,6 @@ import {
   Button,
   DataFetchingTable,
   LocationSearchBar,
-  PageContainer,
   TopBar,
 } from '../../components';
 import { NewLocationForm } from '../../forms';
@@ -40,7 +39,7 @@ export const LocationAdminView = React.memo(() => {
   }, []);
 
   return (
-    <PageContainer>
+    <div>
       <TopBar title="Locations">
         <Button color="primary" variant="outlined" onClick={showCreatingLocationModal}>
           Add new location
@@ -55,6 +54,6 @@ export const LocationAdminView = React.memo(() => {
         onCancel={hideCreatingLocationModal}
         Form={NewLocationForm}
       />
-    </PageContainer>
+    </div>
   );
 });

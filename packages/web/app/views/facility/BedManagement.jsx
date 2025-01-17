@@ -12,7 +12,6 @@ import { reloadPatient } from '../../store/patient';
 import {
   BedManagementSearchBar,
   ContentPane,
-  PageContainer,
   SearchTable,
   TopBar,
 } from '../../components';
@@ -235,7 +234,7 @@ export const BedManagement = () => {
   };
 
   return (
-    <PageContainer>
+    <div>
       <TopBar
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
         subTitle={
@@ -323,6 +322,6 @@ export const BedManagement = () => {
           endpoint="patient/locations/bedManagement"
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

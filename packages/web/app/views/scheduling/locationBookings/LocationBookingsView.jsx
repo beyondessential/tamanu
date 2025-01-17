@@ -9,7 +9,7 @@ import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { Button, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { Colors } from '../../../constants';
@@ -35,7 +35,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;
 
-const Wrapper = styled(PageContainer)`
+const Wrapper = styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
   max-block-size: 100%;

@@ -154,7 +154,7 @@ export const PatientListingView = ({ onViewPatient }) => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <div>
       <TopBar
         title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing" />}
       >
@@ -173,7 +173,7 @@ export const PatientListingView = ({ onViewPatient }) => {
           columns={LISTING_COLUMNS}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };
 
@@ -184,7 +184,7 @@ export const AdmittedPatientsView = () => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <div>
       <TopBar
         title={
           <TranslatedText
@@ -209,7 +209,7 @@ export const AdmittedPatientsView = () => {
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };
 
@@ -220,7 +220,7 @@ export const OutpatientsView = () => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <div>
       <TopBar
         title={
           <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
@@ -238,6 +238,6 @@ export const OutpatientsView = () => {
           columns={OUTPATIENT_COLUMNS}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

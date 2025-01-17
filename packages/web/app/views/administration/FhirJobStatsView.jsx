@@ -1,11 +1,11 @@
 import React from 'react';
-import { ContentPane, DataFetchingTable, PageContainer, TopBar } from '../../components';
+import { ContentPane, DataFetchingTable, TopBar } from '../../components';
 import { FHIR_JOB_STATS_ENDPOINT } from './constants';
 import { TranslatedText } from '../../components/Translation';
 
 export const FhirJobStatsView = () => {
   return (
-    <PageContainer>
+    <div>
       <TopBar title={<TranslatedText stringId="admin.fhir.title" fallback="FHIR job stats" />} />
       <ContentPane>
         <p>
@@ -34,6 +34,6 @@ export const FhirJobStatsView = () => {
           noDataMessage={<TranslatedText stringId="general.table.noData" fallback="No data" />}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

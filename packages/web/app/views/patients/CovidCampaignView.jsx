@@ -5,7 +5,6 @@ import {
   ContentPane,
   DataFetchingTable,
   ImmunisationSearchBar,
-  PageContainer,
   TopBar,
 } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
@@ -75,7 +74,7 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
   };
 
   return (
-    <PageContainer>
+    <div>
       <PatientImmunisationsModal
         maxWidth="lg"
         fullWidth={false}
@@ -92,6 +91,6 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
           fetchOptions={searchParameters}
         />
       </ContentPane>
-    </PageContainer>
+    </div>
   );
 };

@@ -1,12 +1,12 @@
 import React from 'react';
-import { ContentPane, PageContainer, TopBar } from '../components';
+import { ContentPane, TopBar } from '../components';
 import { DataFetchingMedicationTable } from '../components/MedicationTable';
 
 export const MedicationListingView = React.memo(() => (
-  <PageContainer>
+  <div>
     <TopBar title="Medication requests" />
     <ContentPane>
       <DataFetchingMedicationTable />
     </ContentPane>
-  </PageContainer>
+  </div>
 ));

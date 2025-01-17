@@ -4,7 +4,7 @@ import { Box, IconButton } from '@material-ui/core';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 
-import { Heading1, Heading5, PageContainer } from '../../components';
+import { Heading1, Heading5 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
@@ -263,7 +263,7 @@ export const DashboardView = () => {
   }
 
   return (
-    <PageContainer>
+    <div>
       <TopBar subtitle={subtitle} />
       <DashboardLayout showTasks={showTasks}>
         <PatientsTasksContainer showTasks={showTasks}>
@@ -277,6 +277,6 @@ export const DashboardView = () => {
           </SchedulePanesContainer>
         )}
       </DashboardLayout>
-    </PageContainer>
+    </div>
   );
 };

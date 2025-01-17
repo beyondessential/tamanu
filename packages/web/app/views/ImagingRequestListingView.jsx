@@ -1,10 +1,9 @@
+import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import {
   ContentPane,
   ImagingRequestsSearchBar,
-  PageContainer,
   SearchTableTitle,
   TopBar,
 } from '../components';
@@ -36,7 +35,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
 };
 
 export const ImagingRequestListingView = () => (
-  <PageContainer>
+  <div>
     <TopBar title="Active imaging requests" />
     {/* Here we give the listing an object containing the code for tracking the search state and also an array
     of statuses to be filtered by for each table */}
@@ -44,11 +43,11 @@ export const ImagingRequestListingView = () => (
       tableVersion={IMAGING_TABLE_VERSIONS.ACTIVE}
       advancedFields={ACTIVE_ADVANCED_FIELDS}
     />
-  </PageContainer>
+  </div>
 );
 
 export const CompletedImagingRequestListingView = () => (
-  <PageContainer>
+  <div>
     <TopBar title="Completed imaging requests" />
     {/* This is the same situation as above. We decided to separate out the active and completed components as we were
     running into state problems when switching between contexts for the same component */}
@@ -56,5 +55,5 @@ export const CompletedImagingRequestListingView = () => (
       tableVersion={IMAGING_TABLE_VERSIONS.COMPLETED}
       advancedFields={COMPLETED_ADVANCED_FIELDS}
     />
-  </PageContainer>
+  </div>
 );
