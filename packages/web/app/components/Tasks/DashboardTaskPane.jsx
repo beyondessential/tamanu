@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { CheckInput, Heading4, LocationInput, TranslatedText } from '../../components';
 import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
@@ -69,9 +70,8 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'locationId');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: {
-        [facilityId]: newParams,
-      },
+      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
+      value: { [facilityId]: newParams },
     });
   };
 
@@ -83,9 +83,8 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
 
     userPreferencesMutation.mutate({
-      clinicianDashboardTaskingTableFilter: {
-        [facilityId]: newParams,
-      },
+      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
+      value: { [facilityId]: newParams },
     });
   };
 
