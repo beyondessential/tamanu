@@ -16,7 +16,6 @@ export class Prescription extends Model {
   declare discontinuedDate?: string;
   declare discontinuingReason?: string;
   declare repeats?: number;
-  declare isDischarge: boolean;
   declare prescriberId?: string;
   declare discontinuingClinicianId?: string;
   declare medicationId?: string;
@@ -42,15 +41,10 @@ export class Prescription extends Model {
         discontinuedDate: DataTypes.STRING,
         discontinuingReason: DataTypes.STRING,
         repeats: DataTypes.INTEGER,
-        isDischarge: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

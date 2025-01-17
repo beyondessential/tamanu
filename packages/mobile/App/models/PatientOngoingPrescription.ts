@@ -1,5 +1,5 @@
 import { ManyToOne, RelationId } from 'typeorm';
-import { Entity, PrimaryColumn } from 'typeorm/browser';
+import { Entity } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';

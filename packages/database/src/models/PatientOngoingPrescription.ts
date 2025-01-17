@@ -5,6 +5,10 @@ import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookup
 import type { InitOptions, Models } from '../types/model';
 
 export class PatientOngoingPrescription extends Model {
+  declare id: string;
+  declare patientId?: string;
+  declare prescriptionId?: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {

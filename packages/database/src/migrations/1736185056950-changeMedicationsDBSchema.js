@@ -13,10 +13,13 @@ export async function up(query) {
   // Drop column 'prescription'
   await query.removeColumn('prescriptions', 'prescription');
 
+  // Drop column 'is_discharge'
+  await query.removeColumn('prescriptions', 'is_discharge');
+
   // Create 'encounter_prescriptions' table
   await query.createTable('encounter_prescriptions', {
     id: {
-      type: DataTypes.UUID, 
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
@@ -54,17 +57,17 @@ export async function up(query) {
   });
 
   // Populate 'encounter_prescriptions' table
-  const prescriptions = await query.sequelize.query(
-    'SELECT id, encounter_id FROM prescriptions',
-    { type: query.sequelize.QueryTypes.SELECT }
-  );
+  const prescriptions = await query.sequelize.query('SELECT id, encounter_id FROM prescriptions', {
+    type: query.sequelize.QueryTypes.SELECT,
+  });
 
-  for (const { id, encounter_id } of prescriptions) {
-    await query.insert('encounter_prescriptions', {
+  await query.bulkInsert(
+    'encounter_prescriptions',
+    prescriptions.map(({ id, encounter_id }) => ({
       encounter_id,
       prescription_id: id,
-    });
-  }
+    })),
+  );
 
   // Drop 'encounter_id' column from 'prescriptions'
   await query.removeColumn('prescriptions', 'encounter_id');
@@ -117,6 +120,23 @@ export async function down(query) {
   // Add back 'encounter_id' column to 'prescriptions'
   await query.addColumn('prescriptions', 'encounter_id', {
     type: DataTypes.STRING,
+    allowNull: true,
+    references: {
+      model: 'encounters',
+      key: 'id',
+    },
+  });
+
+  // Populate 'prescriptions' table with 'encounter_id' values
+  await query.sequelize.query(`
+    UPDATE prescriptions 
+    SET encounter_id = (SELECT encounter_id FROM encounter_prescriptions 
+    WHERE prescription_id = prescriptions.id)
+  `);
+
+  // Make 'encounter_id' non-nullable after backfilling
+  await query.changeColumn('prescriptions', 'encounter_id', {
+    type: DataTypes.STRING,
     allowNull: false,
     references: {
       model: 'encounters',
@@ -135,6 +155,13 @@ export async function down(query) {
   await query.addColumn('prescriptions', 'qty_lunch', { type: DataTypes.INTEGER });
   await query.addColumn('prescriptions', 'qty_evening', { type: DataTypes.INTEGER });
   await query.addColumn('prescriptions', 'qty_night', { type: DataTypes.INTEGER });
+
+  // Re-add column 'is_discharge'
+  await query.addColumn('prescriptions', 'is_discharge', {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  });
 
   // Rename 'prescriptions' back to 'encounter_medications'
   await query.renameTable('prescriptions', 'encounter_medications');

@@ -44,11 +44,6 @@ const Prescriptions = new Table({
       isNullable: true,
     }),
     new TableColumn({
-      name: 'prescription',
-      type: 'string',
-      isNullable: true,
-    }),
-    new TableColumn({
       name: 'note',
       type: 'string',
       isNullable: true,
