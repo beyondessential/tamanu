@@ -60,7 +60,10 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
             <>
               {value.name}
               <ChangeSelectionButton onClick={showFileDialog}>
-                Change selection
+                <TranslatedText
+                  stringId="chooseFile.button.changeSelection.label"
+                  fallback="Change selection"
+                />
               </ChangeSelectionButton>
             </>
           ) : (
