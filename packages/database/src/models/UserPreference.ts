@@ -23,7 +23,6 @@ export class UserPreference extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
         value: {
           type: DataTypes.JSONB,
           allowNull: false,
