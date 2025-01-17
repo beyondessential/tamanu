@@ -130,7 +130,19 @@ appointments.post(
   }),
 );
 
-appointments.put('/:id', simplePut('Appointment'));
+appointments.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    const { Appointment } = models;
+    req.checkPermission('read', 'Appointment');
+    req.checkPermission('write', 'Appointment');
+    const appointment = await Appointment.findByPk(id);
+    const response = await appointment.update(body);
+    res.status(200).send(response);
+  }),
+);
 
 const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
@@ -273,69 +285,27 @@ appointments.get(
   }),
 );
 
-appointments.put('/:id', simplePut('Appointment'));
+appointments.put('/:id');
 
-appointments.post('/locationBooking', async (req, res) => {
-  req.checkPermission('create', 'Appointment');
+appointments.post(
+  '/locationBooking',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Appointment');
 
-  const { models, body } = req;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
+    const { models, body } = req;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
 
-  try {
-    const result = await Appointment.sequelize.transaction(async (transaction) => {
-      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-      const conflictCount = await Appointment.count({
-        where: {
-          [Op.and]: [
-            { locationId },
-            {
-              status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-            },
-            timeQueryWhereClause,
-          ],
-        },
-        bind: timeQueryBindParams,
-        transaction,
-      });
-
-      if (conflictCount > 0) throw new ResourceConflictError();
-
-      return await Appointment.create(body, { transaction });
-    });
-
-    res.status(201).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
-
-appointments.put('/locationBooking/:id', async (req, res) => {
-  req.checkPermission('create', 'Appointment');
-
-  const { models, body, params, query } = req;
-  const { id } = params;
-  const { skipConflictCheck = false } = query;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
-
-  try {
-    const result = await Appointment.sequelize.transaction(async (transaction) => {
-      const existingBooking = await Appointment.findByPk(id, { transaction });
-
-      if (!existingBooking) {
-        throw new NotFoundError();
-      }
-
-      if (!skipConflictCheck) {
+    try {
+      const result = await Appointment.sequelize.transaction(async (transaction) => {
         const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-        const bookingTimeAlreadyTaken = await Appointment.findOne({
+        const conflictCount = await Appointment.count({
           where: {
             [Op.and]: [
-              {
-                id: { [Op.ne]: id },
-              },
               { locationId },
+              {
+                status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+              },
               timeQueryWhereClause,
             ],
           },
@@ -343,17 +313,65 @@ appointments.put('/locationBooking/:id', async (req, res) => {
           transaction,
         });
 
-        if (bookingTimeAlreadyTaken) {
-          throw new ResourceConflictError();
+        if (conflictCount > 0) throw new ResourceConflictError();
+
+        return await Appointment.create(body, { transaction });
+      });
+
+      res.status(201).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);
+
+appointments.put(
+  '/locationBooking/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Appointment');
+
+    const { models, body, params, query } = req;
+    const { id } = params;
+    const { skipConflictCheck = false } = query;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
+
+    try {
+      const result = await Appointment.sequelize.transaction(async (transaction) => {
+        const existingBooking = await Appointment.findByPk(id, { transaction });
+
+        if (!existingBooking) {
+          throw new NotFoundError();
         }
-      }
 
-      const updatedRecord = await existingBooking.update(body, { transaction });
-      return updatedRecord;
-    });
+        if (!skipConflictCheck) {
+          const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
+          const bookingTimeAlreadyTaken = await Appointment.findOne({
+            where: {
+              [Op.and]: [
+                {
+                  id: { [Op.ne]: id },
+                },
+                { locationId },
+                timeQueryWhereClause,
+              ],
+            },
+            bind: timeQueryBindParams,
+            transaction,
+          });
 
-    res.status(200).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
+          if (bookingTimeAlreadyTaken) {
+            throw new ResourceConflictError();
+          }
+        }
+
+        const updatedRecord = await existingBooking.update(body, { transaction });
+        return updatedRecord;
+      });
+
+      res.status(200).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);
