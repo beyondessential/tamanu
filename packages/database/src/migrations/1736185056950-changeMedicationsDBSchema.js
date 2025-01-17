@@ -57,18 +57,11 @@ export async function up(query) {
   });
 
   // Populate 'encounter_prescriptions' table
-  const prescriptions = await query.sequelize.query('SELECT id, encounter_id FROM prescriptions', {
-    type: query.sequelize.QueryTypes.SELECT,
-  });
-
-  await query.bulkInsert(
-    'encounter_prescriptions',
-    prescriptions.map(({ id, encounter_id }) => ({
-      encounter_id,
-      prescription_id: id,
-    })),
-  );
-
+  await query.sequelize.query(`
+    INSERT INTO encounter_prescriptions (encounter_id, prescription_id)
+    SELECT encounter_id, id FROM prescriptions
+  `);
+  
   // Drop 'encounter_id' column from 'prescriptions'
   await query.removeColumn('prescriptions', 'encounter_id');
 
