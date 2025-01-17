@@ -1,17 +1,19 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, type BelongsToGetAssociationMixin } from 'sequelize';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
+import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
-interface CreateWithScheduleParams {
+interface CreateNewScheduleFromAppointmentParams {
   settings: ReadSettings;
-  appointmentData: AppointmentCreateData;
   scheduleData: AppointmentScheduleCreateData;
+}
+interface CreateWithScheduleParams extends CreateNewScheduleFromAppointmentParams {
+  appointmentData: AppointmentCreateData;
 }
 
 export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
@@ -31,6 +33,8 @@ export class Appointment extends Model {
   declare appointmentTypeId?: string;
   declare encounterId?: string;
   declare scheduleId?: string;
+
+  declare getSchedule: BelongsToGetAssociationMixin<AppointmentSchedule>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -144,6 +148,11 @@ export class Appointment extends Model {
       `,
     };
   }
+
+  async createNewScheduleFromAppointment({
+    settings,
+    scheduleData,
+  }: CreateNewScheduleFromAppointmentParams) {}
 
   static async createWithSchedule({
     settings,
