@@ -7,26 +7,69 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
+async function createSimpleChartSurvey(models, index) {
+  const letter = String.fromCharCode(65 + index);
+  const { survey } = await setupSurveyFromObject(models, {
+    program: {
+      id: 'charts-program',
+    },
+    survey: {
+      id: `simple-chart-survey-${index}`,
+      name: `Survey ${letter}`,
+      survey_type: 'simpleChart',
+    },
+    questions: [
+      {
+        name: `ChartQuestionOne${letter}`,
+        type: 'Number',
+      },
+      {
+        name: `ChartQuestionTwo${letter}`,
+        type: 'Number',
+      },
+    ],
+  });
+
+  const chartingDatePde = await models.ProgramDataElement.findOne({
+    where: {
+      id: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+    },
+  });
+  if (!chartingDatePde) {
+    await models.ProgramDataElement.create({
+      id: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+      code: 'PatientChartingDate',
+      name: 'PatientChartingDate',
+      type: 'DateTime',
+    });
+  }
+
+  await models.SurveyScreenComponent.create({
+    dataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+    surveyId: survey.id,
+  });
+}
+
 describe('EncounterCharting', () => {
   const [facilityId] = selectFacilityIds(config);
   let patient = null;
-  let user = null;
   let app = null;
-  let baseApp = null;
   let models = null;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    baseApp = ctx.baseApp;
+    const baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
-    user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+    const user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
     app = await baseApp.asUser(user);
   });
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
-  describe('GET encounter chart instances', () => {
+  describe('Chart instances', () => {
     it('should get a list of chart instances of a chart for an encounter', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
@@ -91,108 +134,88 @@ describe('EncounterCharting', () => {
     });
   });
 
-  describe('write', () => {
-    describe('charting', () => {
-      let chartsEncounter = null;
-      let chartsPatient = null;
+  describe('Chart records', () => {
+    let chartsEncounter = null;
+    let chartsPatient = null;
 
-      beforeAll(async () => {
-        chartsPatient = await models.Patient.create(await createDummyPatient(models));
-        chartsEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models, { endDate: null })),
-          patientId: chartsPatient.id,
-          reasonForEncounter: 'charting test',
-        });
-
-        await setupSurveyFromObject(models, {
-          program: {
-            id: 'charts-program',
-          },
-          survey: {
-            id: 'simple-chart-survey',
-            survey_type: 'simpleChart',
-          },
-          questions: [
-            {
-              name: 'PatientChartingDate',
-              type: 'DateTime',
-            },
-            {
-              name: 'ChartQuestionOne',
-              type: 'Number',
-            },
-            {
-              name: 'ChartQuestionTwo',
-              type: 'Number',
-            },
-          ],
-        });
+    beforeAll(async () => {
+      chartsPatient = await models.Patient.create(await createDummyPatient(models));
+      chartsEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models, { endDate: null })),
+        patientId: chartsPatient.id,
+        reasonForEncounter: 'charting test',
       });
 
-      beforeEach(async () => {
-        await models.SurveyResponseAnswer.truncate({});
-        await models.SurveyResponse.truncate({});
-      });
-
-      it('should record a new simple chart reading', async () => {
-        const submissionDate = getCurrentDateTimeString();
-        const result = await app.post('/api/surveyResponse').send({
-          surveyId: 'simple-chart-survey',
-          patientId: chartsPatient.id,
-          startTime: submissionDate,
-          endTime: submissionDate,
-          answers: {
-            [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
-            'pde-ChartQuestionOne': 1234,
-          },
-          facilityId,
-        });
-        expect(result).toHaveSucceeded();
-        const saved = await models.SurveyResponseAnswer.findOne({
-          where: { dataElementId: 'pde-ChartQuestionOne', body: '1234' },
-        });
-        expect(saved).toHaveProperty('body', '1234');
-      });
-
-      it('should get simple chart readings for an encounter', async () => {
-        const surveyId = 'simple-chart-survey';
-        const submissionDate = getCurrentDateTimeString();
-        const answers = {
-          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
-          'pde-ChartQuestionOne': 123,
-          'pde-ChartQuestionTwo': 456,
-        };
-        await app.post('/api/surveyResponse').send({
-          surveyId,
-          patientId: chartsPatient.id,
-          startTime: submissionDate,
-          endTime: submissionDate,
-          answers,
-          facilityId,
-        });
-        const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
-        expect(result).toHaveSucceeded();
-        const { body } = result;
-        expect(body).toHaveProperty('count');
-        expect(body.count).toBeGreaterThan(0);
-        expect(body).toHaveProperty('data');
-        expect(body.data).toEqual(
-          expect.arrayContaining(
-            Object.entries(answers).map(([key, value]) =>
-              expect.objectContaining({
-                dataElementId: key,
-                records: {
-                  [submissionDate]: expect.objectContaining({
-                    id: expect.any(String),
-                    body: value.toString(),
-                    logs: null,
-                  }),
-                },
-              }),
-            ),
-          ),
-        );
-      });
+      for (let i = 0; i < 3; i++) {
+        await createSimpleChartSurvey(models, i);
+      }
     });
+
+    beforeEach(async () => {
+      await models.SurveyResponseAnswer.truncate({});
+      await models.SurveyResponse.truncate({});
+    });
+
+    it('should record a new simple chart reading', async () => {
+      const submissionDate = getCurrentDateTimeString();
+      const result = await app.post('/api/surveyResponse').send({
+        surveyId: 'simple-chart-survey-0',
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneA': 1234,
+        },
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+      const saved = await models.SurveyResponseAnswer.findOne({
+        where: { dataElementId: 'pde-ChartQuestionOneA', body: '1234' },
+      });
+      expect(saved).toHaveProperty('body', '1234');
+    });
+
+    it('should get simple chart readings for an encounter', async () => {
+      const surveyId = 'simple-chart-survey-0';
+      const submissionDate = getCurrentDateTimeString();
+      const answers = {
+        [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+        'pde-ChartQuestionOneA': 123,
+        'pde-ChartQuestionTwoA': 456,
+      };
+      await app.post('/api/surveyResponse').send({
+        surveyId,
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers,
+        facilityId,
+      });
+      const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body).toHaveProperty('count');
+      expect(body.count).toBeGreaterThan(0);
+      expect(body).toHaveProperty('data');
+      expect(body.data).toEqual(
+        expect.arrayContaining(
+          Object.entries(answers).map(([key, value]) =>
+            expect.objectContaining({
+              dataElementId: key,
+              records: {
+                [submissionDate]: expect.objectContaining({
+                  id: expect.any(String),
+                  body: value.toString(),
+                  logs: null,
+                }),
+              },
+            }),
+          ),
+        ),
+      );
+    });
+
+    it.todo('should return a utility list about chart surveys with responses');
   });
 });
