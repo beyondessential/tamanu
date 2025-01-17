@@ -285,7 +285,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               </OvernightStayLabel>
             }
             component={CheckField}
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            onChange={() => resetFields(['endDate', 'endTime'])}
           />
           <DateTimeRangeField required separate={values.overnight} />
           <Field
