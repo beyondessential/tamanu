@@ -212,7 +212,7 @@ export class AppointmentSchedule extends Model {
       if (frequency === REPEAT_FREQUENCY.MONTHLY) {
         // Set the date to the nth weekday of the month i.e 3rd Monday
         return set(date, {
-          date: weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday).getDate(),
+          date: weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday)!.getDate(),
         });
       }
       return date;
@@ -247,7 +247,8 @@ export class AppointmentSchedule extends Model {
     };
 
     let isFullyGenerated = false;
-    for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
+    // If initial appointment data has been preloaded in appointment array start generating from i = 1
+    for (let i = appointments.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
       if (checkFullyGenerated()) {
         isFullyGenerated = true;
