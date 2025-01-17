@@ -96,7 +96,7 @@ describe('Patient', () => {
 
     // Create two medications for encounterTwo (the one we should get)
     const dischargedMedication = await models.Prescription.create({
-      ...(await createDummyPrescription(models, { isDischarge: true })),
+      ...(await createDummyPrescription(models)),
     });
     await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,

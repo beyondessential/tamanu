@@ -951,12 +951,10 @@ describe('Encounter', () => {
           },
           medications: {
             [medicationOne.id]: {
-              isDischarge: true,
               quantity: 3,
               repeats: 0,
             },
             [medicationTwo.id]: {
-              isDischarge: false,
               quantity: 0,
               repeats: 1,
             },
@@ -970,7 +968,6 @@ describe('Encounter', () => {
         // Only compare explicitly set values
         expect(medicationOne.dataValues).toMatchObject({
           id: medicationOne.id,
-          isDischarge: true,
           quantity: 3,
           repeats: 0,
         });
