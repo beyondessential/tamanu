@@ -15,7 +15,7 @@ export class TaskTemplate extends Model {
       {
         id: primaryKey,
         referenceDataId: {
-          type: DataTypes.TEXT,
+          type: DataTypes.STRING,
           allowNull: false,
           unique: true,
           references: {
