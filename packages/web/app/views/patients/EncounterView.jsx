@@ -164,7 +164,7 @@ export const EncounterView = () => {
 
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
-  const disabled = encounter?.endDate || patient.death;
+  const disabled = encounter?.endDate || !!patient.dateOfDeath;
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
@@ -260,7 +260,7 @@ export const EncounterView = () => {
           )
         }
       />
-      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
+      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} readOnly={disabled} />
       <ContentPane>
         <StyledTabDisplayDraggable
           tabs={visibleTabs}

@@ -1,7 +1,6 @@
 import { Op } from 'sequelize';
 import { chunk, omit, omitBy } from 'lodash';
-import config from 'config';
-import { PATIENT_MERGE_DELETION_ACTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -326,17 +325,6 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    const action = config.patientMerge?.deletionAction;
-    if (action === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
-      await unwantedPatient.update({ firstName: 'Deleted', lastName: 'Patient' });
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
-      await unwantedPatient.destroy(); // this will just set deletedAt
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
-      // do nothing
-    } else {
-      throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
-    }
-
     updates.Patient = 2;
 
     // update associated records
@@ -409,6 +397,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     if (facilityUpdates.length > 0) {
       updates.PatientFacility = facilityUpdates.length;
     }
+
+    // Destroy at the end to avoid cascade deleting everything referencing the patient
+    await unwantedPatient.destroy();
 
     log.info('patientMerge: finished', {
       keepPatientId,
