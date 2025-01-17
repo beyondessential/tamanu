@@ -88,7 +88,7 @@ const ParameterMultiselectField = ({ name, ...props }) => (
   <Field component={BaseMultiselectField} name={name} {...props} />
 );
 
-const EmptyField = styled.div``;
+const EmptyField = 'div';
 
 export const PARAMETER_FIELD_COMPONENTS = {
   VillageField,
