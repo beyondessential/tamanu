@@ -5,7 +5,7 @@ import type { InitOptions, Models } from '../types/model';
 
 export class ReferenceDrug extends Model {
   declare id: string;
-  declare referenceDataId: number;
+  declare referenceDataId: string;
   declare route?: string;
   declare units?: string;
   declare notes?: string;
@@ -15,7 +15,7 @@ export class ReferenceDrug extends Model {
       {
         id: primaryKey,
         referenceDataId: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.TEXT,
           allowNull: false,
           unique: true,
           references: {
