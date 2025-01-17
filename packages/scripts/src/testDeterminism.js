@@ -127,6 +127,9 @@ async function getHashesForTables(sequelize, tables) {
 
     const model = sequelize.modelManager.findModel((m) => m.tableName === table);
 
+    // Model does not exist because it's a CTE
+    if (!model) continue;
+
     // No need for determinism test when data is not shared between central and facility
     if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
 
