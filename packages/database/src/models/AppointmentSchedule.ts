@@ -167,7 +167,6 @@ export class AppointmentSchedule extends Model {
 
   async endScheduleAtAppointment(appointment: Appointment) {
     const { models } = this.sequelize;
-    // throw error if not in a transaction
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
         'AppointmentSchedule.endScheduleAtAppointment must always run inside a transaction',
@@ -191,7 +190,6 @@ export class AppointmentSchedule extends Model {
     initialAppointmentData?: AppointmentCreateData,
   ) {
     const { models } = this.sequelize;
-    // throw error if not in a transaction
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
         'AppointmentSchedule.generateRepeatingAppointment must always run inside a transaction',

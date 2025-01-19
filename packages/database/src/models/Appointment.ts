@@ -149,19 +149,6 @@ export class Appointment extends Model {
     };
   }
 
-  async updateAllFutureAppointments(appointmentData: AppointmentCreateData) {
-    const { Appointment } = this.sequelize.models;
-    return Appointment.update(
-      { startTime: appointmentData.startTime },
-      {
-        where: {
-          scheduleId: this.scheduleId,
-          startTime: { [Op.gte]: appointmentData.startTime },
-        },
-      },
-    );
-  }
-
   static async createWithSchedule({
     settings,
     appointmentData,
