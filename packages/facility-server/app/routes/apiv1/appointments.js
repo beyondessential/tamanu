@@ -10,7 +10,6 @@ import {
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -285,7 +284,18 @@ appointments.get(
   }),
 );
 
-appointments.put('/:id');
+appointments.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+    const { models, body, params } = req;
+    const { id } = params;
+    const { Appointment } = models;
+    const appointment = await Appointment.findByPk(id);
+    const response = await appointment.update(body);
+    res.status(200).send(response);
+  }),
+);
 
 appointments.post(
   '/locationBooking',
