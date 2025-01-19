@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import { keyBy, mapValues } from 'lodash';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
@@ -47,21 +46,21 @@ export class UserPreference extends Model {
   }
 
   static async getAllPreferences(userId: string, facilityId: string) {
-    const userPreferences = await UserPreference.findAll<UserPreference>({
-      where: { userId },
+    const generalUserPreferences = await UserPreference.findAll<UserPreference>({
+      where: { userId, facilityId: null },
     });
 
-    const userFacilityPreferences = await UserPreference.findAll({
+    const facilityUserPreferences = await UserPreference.findAll({
       where: { userId, facilityId },
     });
 
     const allPreferences: Record<string, any> = {};
 
-    for (const userPreference of userPreferences) {
+    for (const userPreference of generalUserPreferences) {
       allPreferences[userPreference.key] = userPreference.value;
     }
 
-    for (const userPreference of userFacilityPreferences) {
+    for (const userPreference of facilityUserPreferences) {
       allPreferences[userPreference.key] = userPreference.value;
     }
 
