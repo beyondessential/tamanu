@@ -1,13 +1,9 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
 import { parseISO } from 'date-fns';
-import { omit } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-
-import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
