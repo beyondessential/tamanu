@@ -1,4 +1,4 @@
-import { isNumber, omit } from 'lodash';
+import { isNumber } from 'lodash';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -35,8 +35,6 @@ export type MonthlySchedule = AppointmentSchedule & {
   daysOfWeek: [string];
   nthWeekday: number;
 };
-
-export type WeeklyOrMonthlySchedule = WeeklySchedule | MonthlySchedule;
 
 /**
  * Schema to follow iCalendar standard for recurring events.
@@ -93,13 +91,13 @@ export class AppointmentSchedule extends Model {
               );
             }
           },
+          // Currently all implemented frequencies require a single weekday, multiple weekdays are currently not supported
           mustHaveOneWeekday() {
             const daysOfWeek = this.daysOfWeek as string[];
             if (
               daysOfWeek.length !== 1 ||
               (daysOfWeek[0] && !DAYS_OF_WEEK.includes(daysOfWeek[0]))
             ) {
-              // Currently only supporting one weekday for recurring events
               throw new InvalidOperationError('AppointmentSchedule must have exactly one weekday');
             }
           },
@@ -185,6 +183,13 @@ export class AppointmentSchedule extends Model {
     });
   }
 
+  /**
+   * Generate repeating appointments based on the schedule parameters and the initial appointment data.
+   * When the generation is complete, the schedule is marked as fully generated.
+   * Otherwise the schedule continues to generate via the scheduled task GenerateRepeatingAppointments
+   * @param settings
+   * @param initialAppointmentData Optional initial appointment data to start the generation
+   */
   async generateRepeatingAppointment(
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
@@ -201,29 +206,32 @@ export class AppointmentSchedule extends Model {
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
     });
+    const latestExistingAppointment = existingAppointments[0];
 
-    if (!(initialAppointmentData || existingAppointments[0])) {
+    if (!(initialAppointmentData || latestExistingAppointment)) {
       throw new Error(
         'Cannot generate repeating appointments without initial appointment data or existing appointments within the schedule',
       );
     }
 
-    const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
-      this as WeeklyOrMonthlySchedule;
+    const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } = this as
+      | WeeklySchedule
+      | MonthlySchedule;
     const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
     const appointments: AppointmentCreateData[] = [];
 
     if (initialAppointmentData) {
+      // Add the initial appointment data to the list of appointments to generate and to act
+      // as a reference for incremented appointments
       appointments.push({ ...initialAppointmentData, scheduleId: this.id });
     }
 
-    const adjustDateForInterval = (date: Date) => {
+    const adjustDateForFrequency = (date: Date) => {
       if (frequency === REPEAT_FREQUENCY.MONTHLY) {
-        const weekdayDate = weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday);
-        if (!weekdayDate) throw new Error('No weekday date found');
+        // Set the date to the nth weekday of the month i.e 3rd Monday
         return set(date, {
-          date: weekdayDate.getDate(),
+          date: weekdayAtOrdinalPosition(date, daysOfWeek[0], nthWeekday)!.getDate(),
         });
       }
       return date;
@@ -231,20 +239,14 @@ export class AppointmentSchedule extends Model {
 
     const incrementDateString = (date: string) => {
       const incrementedDate = add(parseISO(date), {
-        [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
+        [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]]: interval,
       });
-      return toDateTimeString(adjustDateForInterval(incrementedDate)) as string;
+      return toDateTimeString(adjustDateForFrequency(incrementedDate)) as string;
     };
 
     const pushNextAppointment = () => {
       // Get the most recent appointment or start off where the last generation left off
-      const lastAppointment =
-        appointments.at(-1) ||
-        (omit(existingAppointments[0]!.get({ plain: true }), [
-          'id',
-          'createdAt',
-          'updatedAt',
-        ]) as AppointmentCreateData);
+      const lastAppointment = appointments.at(-1) || latestExistingAppointment!.toCreateData();
       appointments.push({
         ...lastAppointment,
         startTime: incrementDateString(lastAppointment.startTime),
@@ -252,7 +254,7 @@ export class AppointmentSchedule extends Model {
       });
     };
 
-    const checkComplete = () => {
+    const checkFullyGenerated = () => {
       // Generation is considered complete if the next appointments startTime falls after the untilDate
       const nextAppointmentAfterUntilDate =
         parsedUntilDate &&
@@ -264,9 +266,10 @@ export class AppointmentSchedule extends Model {
     };
 
     let isFullyGenerated = false;
-    for (let i = 0; i + 1 < maxRepeatingAppointmentsPerGeneration; i++) {
+    // If initial appointment data has been preloaded in appointment array start generating from i = 1
+    for (let i = appointments.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
-      if (checkComplete()) {
+      if (checkFullyGenerated()) {
         isFullyGenerated = true;
         break;
       }

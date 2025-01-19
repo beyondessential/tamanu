@@ -6,20 +6,21 @@ import { GenerateRepeatingAppointments } from '../../app/tasks/GenerateRepeating
 describe('GenerateRepeatingAppointments', () => {
   let ctx;
   let settings;
+  let maxRepeatingAppointmentsPerGeneration;
+  let task;
+  let scheduleId;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     settings = ctx.settings;
-  });
-  afterAll(async () => {
-    await ctx.close();
-  });
-
-  it('should generate repeating appointments for large occurrence count across multiple runs', async () => {
-    const maxRepeatingAppointmentsPerGeneration = await settings.get(
+    maxRepeatingAppointmentsPerGeneration = await settings.get(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
-    const { Appointment, AppointmentSchedule } = ctx.store.models;
+  });
+
+  beforeEach(async () => {
+    task = new GenerateRepeatingAppointments(ctx);
+    const { Appointment } = ctx.store.models;
     const [appointment] = await Appointment.createWithSchedule({
       settings,
       appointmentData: {
@@ -34,29 +35,41 @@ describe('GenerateRepeatingAppointments', () => {
         daysOfWeek: ['WE'],
       },
     });
+    scheduleId = appointment.scheduleId;
+  });
 
-    const task = new GenerateRepeatingAppointments(ctx);
-    const testStep = async (expectedCount, expectedIsFullyGenerated = false) => {
-      expect(
-        await Appointment.count({
-          where: { scheduleId: appointment.scheduleId },
-        }),
-      ).toBe(expectedCount);
-      expect((await AppointmentSchedule.findByPk(appointment.scheduleId)).isFullyGenerated).toBe(
-        expectedIsFullyGenerated,
-      );
-    };
+  afterAll(async () => {
+    await ctx.close();
+  });
 
-    // Should hit the limit of maxRepeatingAppointmentsPerGeneration
-    await testStep(maxRepeatingAppointmentsPerGeneration);
+  const expectAppointmentsGenerated = async ({ count, isFullyGenerated = false }) => {
+    const { Appointment, AppointmentSchedule } = ctx.store.models;
+    expect(
+      await Appointment.count({
+        where: { scheduleId: scheduleId },
+      }),
+    ).toBe(count);
+    expect((await AppointmentSchedule.findByPk(scheduleId)).isFullyGenerated).toBe(
+      isFullyGenerated,
+    );
+  };
+
+  it('should generate repeating appointments twice including initial generation with a single task run', async () => {
     await task.run();
-    // Should generate another set of appointments and hit the limit of maxRepeatingAppointmentsPerGeneration
-    await testStep(maxRepeatingAppointmentsPerGeneration * 2);
+    await expectAppointmentsGenerated({ count: maxRepeatingAppointmentsPerGeneration * 2 });
+  });
+  it('should generate repeating appointments thrice including initial generation with two task runs', async () => {
     await task.run();
-    // Should generate another set of appointments and hit the limit of maxRepeatingAppointmentsPerGeneration
-    await testStep(maxRepeatingAppointmentsPerGeneration * 3);
     await task.run();
-    // Should complete generation of repeating appointments
-    await testStep(maxRepeatingAppointmentsPerGeneration * 3 + 2, true);
+    await expectAppointmentsGenerated({ count: maxRepeatingAppointmentsPerGeneration * 3 });
+  });
+  it('should fully generate appointments in schedule with three task runs and stop at occurrence count', async () => {
+    await task.run();
+    await task.run();
+    await task.run();
+    await expectAppointmentsGenerated({
+      count: maxRepeatingAppointmentsPerGeneration * 3 + 2,
+      isFullyGenerated: true,
+    });
   });
 });

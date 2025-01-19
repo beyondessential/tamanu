@@ -2,7 +2,7 @@ import config from 'config';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { createMockReportingSchemaAndRoles } from '@tamanu/database/demoData';
+import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake, asNewRole } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
@@ -17,6 +17,7 @@ class MockApplicationContext {
   async init() {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
+    await seedSettings(this.store.models);
 
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
