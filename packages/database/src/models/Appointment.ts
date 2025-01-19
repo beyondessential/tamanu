@@ -1,4 +1,4 @@
-import { DataTypes, type BelongsToGetAssociationMixin } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings';
@@ -149,18 +149,27 @@ export class Appointment extends Model {
     };
   }
 
-  async createNewScheduleFromAppointment({
-    settings,
-    scheduleData,
-  }: CreateNewScheduleFromAppointmentParams) {}
+  async updateAllFutureAppointments(appointmentData: AppointmentCreateData) {
+    const { Appointment } = this.sequelize.models;
+    return Appointment.update(
+      { startTime: appointmentData.startTime },
+      {
+        where: {
+          scheduleId: this.scheduleId,
+          startTime: { [Op.gte]: appointmentData.startTime },
+        },
+      },
+    );
+  }
 
   static async createWithSchedule({
     settings,
     appointmentData,
     scheduleData,
   }: CreateWithScheduleParams) {
+    const { AppointmentSchedule } = this.sequelize.models;
     return this.sequelize.transaction(async () => {
-      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
+      const schedule = await AppointmentSchedule.create(scheduleData);
       return schedule.generateRepeatingAppointment(settings, appointmentData);
     });
   }
