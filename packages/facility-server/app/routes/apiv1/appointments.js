@@ -13,6 +13,7 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
+import { matches } from 'lodash';
 
 export const appointments = express.Router();
 
@@ -288,12 +289,37 @@ appointments.put(
   '/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Appointment');
-    const { models, body, params } = req;
+    const { models, body, params, query, settings } = req;
+    const { schedule: scheduleData, facilityId, ...appointmentData } = body;
+    const { updateAllFutureAppointments = false } = query;
     const { id } = params;
     const { Appointment } = models;
     const appointment = await Appointment.findByPk(id);
-    const response = await appointment.update(body);
-    res.status(200).send(response);
+    if (!appointment) {
+      throw new NotFoundError();
+    }
+    if (updateAllFutureAppointments && scheduleData) {
+      const existingSchedule = await appointment.getSchedule();
+      if (!existingSchedule) {
+        throw new Error('Cannot update future appointments for a non-recurring appointment');
+      }
+
+      const isScheduleChanged =
+        existingSchedule && matches(existingSchedule.getCreateData(), scheduleData);
+
+      if (isScheduleChanged) {
+        // Create new schedule and end the existing one
+        await existingSchedule.endScheduleAtAppointment(appointmentData);
+        await Appointment.createWithSchedule({
+          settings: settings[facilityId],
+          appointmentData,
+          scheduleData,
+        });
+      }
+    } else {
+      await appointment.update(appointmentData);
+    }
+    res.status(200).send({ ok: 'ok' });
   }),
 );
 

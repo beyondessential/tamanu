@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isNumber, omit } from 'lodash';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -281,4 +281,12 @@ export class AppointmentSchedule extends Model {
     }
     return appointmentData;
   }
+
+  getAsCreateData = () => {
+    return omit(this.get({ plain: true }), [
+      'id',
+      'createdAt',
+      'updatedAt',
+    ]) as AppointmentScheduleCreateData;
+  };
 }
