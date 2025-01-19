@@ -157,7 +157,7 @@ describe('Appointments', () => {
     });
   });
 
-  describe('createWithSchedule', () => {
+  describe('create with schedule', () => {
     const testRepeatingAppointment = async (appointmentSchedule, startTime, expected) => {
       const result = await userApp.post('/api/appointments').send({
         appointmentSchedule,
@@ -307,6 +307,47 @@ describe('Appointments', () => {
       };
       const result = await testRepeatingAppointment(appointmentSchedule, '2024-06-04 12:00:00');
       expect(result).toHaveLength(maxRepeatingAppointmentsPerGeneration);
+    });
+  });
+  describe('modify with schedule', () => {
+    const generateAppointment = (startTime, scheduleId) => ({
+      patientId: patient.id,
+      startTime,
+      clinicianId: userApp.user.dataValues.id,
+      appointmentTypeId: 'appointmentType-standard',
+      scheduleId,
+    });
+
+    it.only('should update all future appointment if schedule is unchanged', async () => {
+      const appointmentSchedule = {
+        untilDate: '2024-10-23',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+
+      const schedule = await models.AppointmentSchedule.create(appointmentSchedule);
+      const appointments = await models.Appointment.bulkCreate([
+        generateAppointment('2024-10-02 12:00:00', schedule.id),
+        generateAppointment('2024-10-09 12:00:00', schedule.id),
+        generateAppointment('2024-10-16 12:00:00', schedule.id),
+        generateAppointment('2024-10-23 12:00:00', schedule.id),
+      ]);
+
+      await userApp
+        .put(`/api/appointments/${appointments[2].id}?updateAllFutureAppointments=true`)
+        .send({
+          schedule: appointmentSchedule,
+          appointmentTypeId: 'appointmentType-specialist',
+        });
+      const appointmentsInSchedule = await schedule.getAppointments();
+
+      expect(appointmentsInSchedule.map((a) => a.appointmentTypeId)).toEqual([
+        'appointmentType-standard',
+        'appointmentType-standard',
+        'appointmentType-specialist',
+        'appointmentType-specialist',
+      ]);
     });
   });
 });
