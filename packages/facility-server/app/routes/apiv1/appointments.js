@@ -315,6 +315,8 @@ appointments.put(
           appointmentData,
           scheduleData,
         });
+      } else {
+        await existingSchedule.modifyFromAppointment(appointment, appointmentData);
       }
     } else {
       await appointment.update(appointmentData);

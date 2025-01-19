@@ -183,6 +183,24 @@ export class AppointmentSchedule extends Model {
     });
   }
 
+  async modifyFromAppointment(appointment: Appointment, appointmentData: AppointmentCreateData) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error(
+        'AppointmentSchedule.modifyFromAppointment must always run inside a transaction',
+      );
+    }
+    const appointments = await this.getAppointments({
+      where: {
+        startTime: { [Op.gt]: appointment.startTime },
+      },
+    });
+    const updatedAppointments = await Promise.all([
+      appointment.update(appointmentData),
+      ...appointments.map((a) => a.update(appointmentData)),
+    ]);
+    return updatedAppointments;
+  }
+
   /**
    * Generate repeating appointments based on the schedule parameters and the initial appointment data.
    * When the generation is complete, the schedule is marked as fully generated.
