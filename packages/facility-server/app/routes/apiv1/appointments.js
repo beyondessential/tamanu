@@ -294,33 +294,35 @@ appointments.put(
     const { updateAllFutureAppointments = false } = query;
     const { id } = params;
     const { Appointment } = models;
-    const appointment = await Appointment.findByPk(id);
-    if (!appointment) {
-      throw new NotFoundError();
-    }
-    if (updateAllFutureAppointments && scheduleData) {
-      const existingSchedule = await appointment.getSchedule();
-      if (!existingSchedule) {
-        throw new Error('Cannot update future appointments for a non-recurring appointment');
+    await req.db.transaction(async () => {
+      const appointment = await Appointment.findByPk(id);
+      if (!appointment) {
+        throw new NotFoundError();
       }
+      if (updateAllFutureAppointments && scheduleData) {
+        const existingSchedule = await appointment.getSchedule();
+        if (!existingSchedule) {
+          throw new Error('Cannot update future appointments for a non-recurring appointment');
+        }
 
-      const isScheduleChanged =
-        existingSchedule && matches(existingSchedule.getCreateData(), scheduleData);
+        const isScheduleChanged =
+          existingSchedule && matches(existingSchedule.getCreateData(), scheduleData);
 
-      if (isScheduleChanged) {
-        // Create new schedule and end the existing one
-        await existingSchedule.endScheduleAtAppointment(appointmentData);
-        await Appointment.createWithSchedule({
-          settings: settings[facilityId],
-          appointmentData,
-          scheduleData,
-        });
+        if (isScheduleChanged) {
+          // Create new schedule and end the existing one
+          await existingSchedule.endAtAppointment(appointmentData);
+          await Appointment.createWithSchedule({
+            settings: settings[facilityId],
+            appointmentData,
+            scheduleData,
+          });
+        } else {
+          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
+        }
       } else {
-        await existingSchedule.modifyFromAppointment(appointment, appointmentData);
+        await appointment.update(appointmentData);
       }
-    } else {
-      await appointment.update(appointmentData);
-    }
+    });
     res.status(200).send({ ok: 'ok' });
   }),
 );

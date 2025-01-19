@@ -163,12 +163,10 @@ export class AppointmentSchedule extends Model {
     };
   }
 
-  async endScheduleAtAppointment(appointment: Appointment) {
+  async endAtAppointment(appointment: Appointment) {
     const { models } = this.sequelize;
     if (!this.sequelize.isInsideTransaction()) {
-      throw new Error(
-        'AppointmentSchedule.endScheduleAtAppointment must always run inside a transaction',
-      );
+      throw new Error('AppointmentSchedule.endAtAppointment must always run inside a transaction');
     }
     await models.Appointment.destroy({
       where: {
