@@ -54,8 +54,6 @@ export const OutpatientAppointmentsFilter = props => {
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 
-  const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
-
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateUserPreferences = debounce(
     values =>
@@ -68,10 +66,9 @@ export const OutpatientAppointmentsFilter = props => {
 
   const renderForm = ({ setValues }) => {
     return (
-      <Fieldset disabled={isUserPreferencesLoading}>
+      <Fieldset>
         <Field
           component={SearchField}
-          disabled={isUserPreferencesLoading}
           name="patientNameOrId"
           placeholder={getTranslation(
             'scheduling.filter.placeholder.patientNameOrId',
@@ -93,7 +90,6 @@ export const OutpatientAppointmentsFilter = props => {
           onChange={e => updateUserPreferences({ ...filters, appointmentTypeId: e.target.value })}
         />
         <ResetButton
-          disabled={isUserPreferencesLoading}
           onClick={() => {
             setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
             setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
@@ -111,7 +107,7 @@ export const OutpatientAppointmentsFilter = props => {
   return (
     <Form
       enableReinitialize
-      initialValues={userPreferences?.outpatientAppointmentFilters}
+      initialValues={filters}
       onSubmit={async () => {}}
       render={renderForm}
       {...props}
