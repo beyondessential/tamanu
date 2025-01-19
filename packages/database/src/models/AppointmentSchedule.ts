@@ -1,5 +1,5 @@
 import { isNumber, omit } from 'lodash';
-import { DataTypes, type HasManyGetAssociationsMixin } from 'sequelize';
+import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
 import {
@@ -165,10 +165,32 @@ export class AppointmentSchedule extends Model {
     };
   }
 
+  async endScheduleAtAppointment(appointment: Appointment) {
+    const { models } = this.sequelize;
+    // throw error if not in a transaction
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error(
+        'AppointmentSchedule.endScheduleAtAppointment must always run inside a transaction',
+      );
+    }
+    await models.Appointment.destroy({
+      where: {
+        startTime: { [Op.gte]: appointment.startTime },
+        scheduleId: this.id,
+      },
+    });
+    await this.update({
+      isFullyGenerated: true,
+      untilDate: appointment.startTime,
+      occurrenceCount: null,
+    });
+  }
+
   async generateRepeatingAppointment(
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
   ) {
+    const { models } = this.sequelize;
     // throw error if not in a transaction
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
@@ -178,7 +200,6 @@ export class AppointmentSchedule extends Model {
     const maxRepeatingAppointmentsPerGeneration = await settings.get<number>(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
-    const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
     });
@@ -253,7 +274,7 @@ export class AppointmentSchedule extends Model {
       }
     }
 
-    const appointmentData = await Appointment.bulkCreate(appointments);
+    const appointmentData = await models.Appointment.bulkCreate(appointments);
     if (isFullyGenerated) {
       await this.update({ isFullyGenerated });
     }
