@@ -36,8 +36,6 @@ export type MonthlySchedule = AppointmentSchedule & {
   nthWeekday: number;
 };
 
-export type WeeklyOrMonthlySchedule = WeeklySchedule | MonthlySchedule;
-
 /**
  * Schema to follow iCalendar standard for recurring events.
  * @see https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
@@ -196,8 +194,9 @@ export class AppointmentSchedule extends Model {
       );
     }
 
-    const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } =
-      this as WeeklyOrMonthlySchedule;
+    const { interval, frequency, untilDate, occurrenceCount, daysOfWeek, nthWeekday } = this as
+      | WeeklySchedule
+      | MonthlySchedule;
     const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
     const appointments: AppointmentCreateData[] = [];
