@@ -212,14 +212,14 @@ export const PatientInfoPane = () => {
   const patient = useSelector(state => state.patient);
   const api = useApi();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
-  const { data: deathData, isLoading } = useQuery(
+  const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
     () => api.get(`patient/${patient.id}/death`, { isErrorUnknown: isErrorUnknownAllow404s }),
-    { enabled: patientDeathsEnabled },
+    { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 
-  const readonly = !!patient.death;
-  const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
+  const readonly = !!patient.dateOfDeath;
+  const showRecordDeathActions = !isFetching && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   return (

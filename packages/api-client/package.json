@@ -23,10 +23,13 @@
     "build": "npm run build:src && npm run build:cjs && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\""
+    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
+    "clean": "rimraf dist",
+    "clean:deps": "rimraf node_modules"
   },
   "devDependencies": {
-    "@tamanu/build-tooling": "*"
+    "@tamanu/build-tooling": "*",
+    "rimraf": "^6.0.1"
   },
   "dependencies": {
     "@tamanu/constants": "*",

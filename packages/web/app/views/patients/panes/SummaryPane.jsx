@@ -11,7 +11,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
 
-export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
+export const SummaryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
