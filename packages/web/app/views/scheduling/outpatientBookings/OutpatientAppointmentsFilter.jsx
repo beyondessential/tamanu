@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { useUserPreferencesMutation } from '../../../api/mutations';
-import { useUserPreferencesQuery } from '../../../api/queries';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
 import {

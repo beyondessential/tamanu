@@ -66,19 +66,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-
-  const handleFilterChange = useCallback(
-    values => {
-      setFilters(values);
-      mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-        value: omit(values, ['patientNameOrId']),
-      });
-    },
-    [setFilters, mutateUserPreferences],
-  );
+  const { filters, updateSelectedCell } = useLocationBookingsContext();
 
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
@@ -121,7 +109,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <LocationBookingsFilter onFilterChange={handleFilterChange} />
+        <LocationBookingsFilter />
         <NewBookingButton onClick={handleNewBooking}>
           <PlusIcon />
           <TranslatedText
