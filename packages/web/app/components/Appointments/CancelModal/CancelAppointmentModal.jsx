@@ -20,7 +20,15 @@ import {
 } from './BaseModalComponents';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const { patient, startTime, endTime, locationGroup, clinician, appointmentType } = appointment;
+  const {
+    patient,
+    startTime,
+    endTime,
+    locationGroup,
+    clinician,
+    appointmentType,
+    schedule = {},
+  } = appointment;
 
   return (
     <AppointmentDetailsContainer>
@@ -48,6 +56,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             />
           }
         />
+        {schedule.id && (
+          <DetailDisplay
+            label={<TranslatedText stringId="appointment.repeating.label" fallback="Repeating" />}
+            // TODO: translations
+            value={`${schedule.frequency} on ${schedule.daysOfWeek}`}
+          />
+        )}
       </AppointmentDetailsColumnLeft>
       <AppointmentDetailsColumn>
         <DetailDisplay
@@ -78,6 +93,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             />
           }
         />
+        {schedule.id && (
+          <DetailDisplay
+            label={<TranslatedText stringId="appointment.duration.label" fallback="Duration" />}
+            // TODO: translations
+            value={`Ends on ${schedule.untilDate}`}
+          />
+        )}
       </AppointmentDetailsColumn>
     </AppointmentDetailsContainer>
   );
@@ -97,29 +119,26 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: mutateAppointment } = useAppointmentMutation(
-    appointment.id,
-    {
-      onSuccess: () => {
-        toast.success(
-          <TranslatedText
-            stringId="appointment.success.cancelAppointment"
-            fallback="Appointment cancelled successfully"
-          />,
-        );
-        queryClient.invalidateQueries('appointments');
-        onClose();
-      },
-      onError: () => {
-        toast.error(
-          <TranslatedText
-            stringId="appointment.error.cancelAppointment"
-            fallback="Error cancelling appointment"
-          />,
-        );
-      },
+  const { mutateAsync: mutateAppointment } = useAppointmentMutation(appointment.id, {
+    onSuccess: () => {
+      toast.success(
+        <TranslatedText
+          stringId="appointment.success.cancelAppointment"
+          fallback="Appointment cancelled successfully"
+        />,
+      );
+      queryClient.invalidateQueries('appointments');
+      onClose();
     },
-  );
+    onError: () => {
+      toast.error(
+        <TranslatedText
+          stringId="appointment.error.cancelAppointment"
+          fallback="Error cancelling appointment"
+        />,
+      );
+    },
+  });
 
   return (
     <BaseModal
