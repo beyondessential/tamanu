@@ -415,13 +415,23 @@ describe('Appointments', () => {
         '2024-10-09 12:00:00',
       ]);
 
-      // We gotta issue as it should end schedule on 2024-10-09 the appointment before chosen one
-      // const updatedExistingSchedule = await models.AppointmentSchedule.findByPk(
-      //   appointmentsInSchedule[0].scheduleId,
-      // );
-      // expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
+      const newSchedule = await models.AppointmentSchedule.findOne({
+        where: {
+          untilDate: '2024-10-30',
+        },
+        include: [
+          {
+            model: models.Appointment,
+            as: 'appointments',
+          },
+        ],
+      });
 
-      // TODO check new schedule
+      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+        '2024-10-16 12:00:00',
+        '2024-10-23 12:00:00',
+        '2024-10-30 12:00:00',
+      ]);
     });
   });
 });
