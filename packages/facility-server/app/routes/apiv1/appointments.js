@@ -274,20 +274,23 @@ appointments.put('/:id', async (req, res) => {
   const {
     models: { Appointment, AppointmentSchedule },
     params,
+    body: { status, schedule },
   } = req;
-  req.checkPermission('read', 'Appointment');
-  const appointment = await Appointment.findByPk(params.id);
-  if (!appointment) throw new NotFoundError();
   req.checkPermission('write', 'Appointment');
 
-  if (req.body.status === APPOINTMENT_STATUSES.CANCELLED && req.body.schedule.id) {
-    const appointmentSchedule = await AppointmentSchedule.findByPk(req.body.schedule.id);
+  const appointment = await Appointment.findByPk(params.id);
+  if (!appointment) throw new NotFoundError();
+
+  await appointment.update(req.body);
+
+  if (status === APPOINTMENT_STATUSES.CANCELLED && schedule.id) {
+    const appointmentSchedule = await AppointmentSchedule.findByPk(schedule.id);
     await appointmentSchedule.destroy();
     await Appointment.update(
       { status: APPOINTMENT_STATUSES.CANCELLED },
       {
         where: {
-          scheduleId: appointment.scheduleId,
+          scheduleId: schedule.id,
           // TODO: delete all ones in the future of this appointment
           // startTime: {
           //   [Op.gte]: appointment.startTime,
@@ -297,7 +300,6 @@ appointments.put('/:id', async (req, res) => {
     );
   }
 
-  await appointment.update(req.body);
   res.send(appointment);
 });
 

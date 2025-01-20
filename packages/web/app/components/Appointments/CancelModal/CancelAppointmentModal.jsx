@@ -184,7 +184,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
             if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
               mutateAppointment({
                 // TODO: possibly too hacky
-                ...omit(appointment, 'schedule'),
+                ...omit(appointment, 'schedule', 'scheduleId'),
                 status: APPOINTMENT_STATUSES.CANCELLED,
               });
             }
