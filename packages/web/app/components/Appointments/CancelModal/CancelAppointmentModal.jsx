@@ -155,12 +155,22 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
 
   const { mutateAsync: mutateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () => {
-      toast.success(
-        <TranslatedText
-          stringId="appointment.success.cancelAppointment"
-          fallback="Appointment cancelled successfully"
-        />,
-      );
+      if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
+        toast.success(
+          <TranslatedText
+            stringId="appointment.success.cancelAppointment"
+            fallback="Appointment cancelled successfully"
+          />,
+        );
+      }
+      if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+        toast.success(
+          <TranslatedText
+            stringId="appointment.success.cancelRepeatingAppointment"
+            fallback="This and future appointments cancelled successfully"
+          />,
+        );
+      }
       queryClient.invalidateQueries('appointments');
       onClose();
     },
@@ -183,7 +193,6 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
           cancelBooking={() => {
             if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
               mutateAppointment({
-                // TODO: possibly too hacky
                 ...omit(appointment, 'schedule', 'scheduleId'),
                 status: APPOINTMENT_STATUSES.CANCELLED,
               });
