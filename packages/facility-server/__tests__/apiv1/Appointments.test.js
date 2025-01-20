@@ -346,7 +346,9 @@ describe('Appointments', () => {
         .send({
           // Pass unchanged schedule in payload
           schedule: scheduleCreateData,
+          startTime: '2024-10-16 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
+          facilityId,
         });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -369,6 +371,7 @@ describe('Appointments', () => {
         .send({
           // Pass unchanged schedule in payload
           schedule: scheduleCreateData,
+          startTime: '2024-10-02 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,
         });
