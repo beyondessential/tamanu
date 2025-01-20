@@ -147,12 +147,6 @@ appointments.put(
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
-
-        console.log(
-          existingSchedule,
-          scheduleData,
-          existingSchedule.isMatchWithScheduleData(scheduleData),
-        );
         if (existingSchedule.isMatchWithScheduleData(scheduleData)) {
           await existingSchedule.modifyFromAppointment(appointment, appointmentData);
         } else {
