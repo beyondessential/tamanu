@@ -344,8 +344,6 @@ describe('Appointments', () => {
       await userApp
         .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
         .send({
-          // Pass unchanged schedule in payload
-          schedule: scheduleCreateData,
           startTime: '2024-10-16 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,
@@ -369,8 +367,6 @@ describe('Appointments', () => {
       await userApp
         .put(`/api/appointments/${firstAppointment.id}?updateAllFutureAppointments=true`)
         .send({
-          // Pass unchanged schedule in payload
-          schedule: scheduleCreateData,
           startTime: '2024-10-02 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,

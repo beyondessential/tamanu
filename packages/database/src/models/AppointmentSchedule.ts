@@ -1,4 +1,4 @@
-import { isMatch, isNumber, omit, pick } from 'lodash';
+import { isNumber, omit } from 'lodash';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -319,20 +319,5 @@ export class AppointmentSchedule extends Model {
       'updatedAt',
       'updatedAtSyncTick',
     ]) as AppointmentScheduleCreateData;
-  }
-
-  // TODO: this feels annoying but we might split out the need for this in v1 anywho
-  isMatchWithScheduleData(scheduleCreateData: AppointmentScheduleCreateData) {
-    return isMatch(
-      pick(this.get({ plain: true }), [
-        'untilDate',
-        'interval',
-        'frequency',
-        'daysOfWeek',
-        'nthWeekday',
-        'occurrenceCount',
-      ]),
-      scheduleCreateData,
-    );
   }
 }

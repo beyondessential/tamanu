@@ -144,17 +144,12 @@ appointments.put(
       if (!appointment) {
         throw new NotFoundError();
       }
-      if (updateAllFutureAppointments && scheduleData) {
+      if (updateAllFutureAppointments) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
-        if (
-          existingSchedule.isMatchWithScheduleData(scheduleData) &&
-          appointmentData.startTime === appointment.startTime
-        ) {
-          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
-        } else {
+        if (scheduleData) {
           await existingSchedule.endAtAppointment(appointmentData);
           const { schedule } = await Appointment.createWithSchedule({
             settings: settings[facilityId],
@@ -162,6 +157,8 @@ appointments.put(
             scheduleData,
           });
           return { schedule };
+        } else {
+          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
         }
       } else {
         await appointment.update(appointmentData);

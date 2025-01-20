@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { omit, set } from 'lodash';
+import { isMatch, omit, set } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
@@ -487,13 +487,25 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
     },
   });
+
+  const handleSubmitForm = async (values, { resetForm }) => {
+    const scheduleWillBeUnchanged =
+      isEdit &&
+      isMatch(values.schedule, initialValues.schedule) &&
+      values.startTime === initialValues.startTime;
+
+    if (scheduleWillBeUnchanged) {
+      delete values.schedule;
+    }
+
+    await handleSubmit({ ...values, facilityId });
+    resetForm();
+  };
+
   return (
     <>
       <Form
-        onSubmit={async (values, { resetForm }) => {
-          await handleSubmit({ ...values, facilityId });
-          resetForm();
-        }}
+        onSubmit={handleSubmitForm}
         style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
