@@ -268,18 +268,33 @@ appointments.get(
 );
 
 appointments.put('/:id', async (req, res) => {
-  const { models, params } = req;
+  const {
+    models: { Appointment, AppointmentSchedule },
+    params,
+  } = req;
   req.checkPermission('read', 'Appointment');
-  const object = await models.Appointment.findByPk(params.id);
-  if (!object) throw new NotFoundError();
-  req.checkPermission('write', object);
+  const appointment = await Appointment.findByPk(params.id);
+  if (!appointment) throw new NotFoundError();
+  req.checkPermission('write', 'Appointment');
 
-  // TODO: If req.body.status == cancelled and object.appointment_schedule
-  // appointmentschedule.destroy()
-  // Find all future appts and set to cancelled
+  if (req.body.status === APPOINTMENT_STATUSES.CANCELLED && appointment.scheduleId) {
+    const appointmentSchedule = await AppointmentSchedule.findByPk(appointment.scheduleId);
+    await appointmentSchedule.destroy();
+    await Appointment.update(
+      { status: APPOINTMENT_STATUSES.CANCELLED },
+      {
+        where: {
+          scheduleId: appointment.scheduleId,
+          appointmentDate: {
+            [Op.gte]: appointment.startDate,
+          },
+        },
+      },
+    );
+  }
 
-  await object.update(req.body);
-  res.send(object);
+  await appointment.update(req.body);
+  res.send(appointment);
 });
 
 appointments.post('/locationBooking', async (req, res) => {
