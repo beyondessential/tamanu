@@ -20,17 +20,18 @@ export const BookingsCell = ({
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
+  const canCreateBooking = ability.can('create', 'Appointment');
 
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
       onClick={e => {
-        const canCreateBooking = ability.can('create', 'Appointment');
         if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
       }}
       $selected={isSelected}
+      $clickable={canCreateBooking}
     >
       {appointments?.map(a => (
         <AppointmentTile
