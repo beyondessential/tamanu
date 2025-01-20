@@ -134,9 +134,14 @@ appointments.put(
   '/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Appointment');
-    const { models, body, params, query, settings } = req;
-    const { schedule: scheduleData, facilityId, ...appointmentData } = body;
-    const { updateAllFutureAppointments = 'false' } = query;
+    const { models, body, params, settings } = req;
+    const {
+      schedule: scheduleData,
+      facilityId,
+      updateAllFutureAppointments,
+      ...appointmentData
+    } = body;
+
     const { id } = params;
     const { Appointment } = models;
     const result = await req.db.transaction(async () => {
@@ -144,7 +149,7 @@ appointments.put(
       if (!appointment) {
         throw new NotFoundError();
       }
-      if (updateAllFutureAppointments === 'true') {
+      if (updateAllFutureAppointments) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
@@ -158,7 +163,7 @@ appointments.put(
           });
           return { schedule };
         } else {
-          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
+          await existingSchedule.modifyFromAppointment(appointment, omit(appointmentData, 'id'));
         }
       } else {
         await appointment.update(appointmentData);

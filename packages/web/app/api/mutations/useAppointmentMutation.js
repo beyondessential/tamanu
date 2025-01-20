@@ -13,7 +13,7 @@ export const useAppointmentMutation = (existingAppointmentId = null, useMutation
     payload =>
       isEdit
         ? api.put(
-            `appointments/${existingAppointmentId}?updateAllFutureAppointments=${payload.updateAllFutureAppointments}`,
+            `appointments/${existingAppointmentId}`,
             { ...payload, facilityId },
             { throwResponse: true },
           )

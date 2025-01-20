@@ -341,13 +341,12 @@ describe('Appointments', () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
-      await userApp
-        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
-        .send({
-          startTime: '2024-10-16 12:00:00',
-          appointmentTypeId: 'appointmentType-specialist',
-          facilityId,
-        });
+      await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        startTime: '2024-10-16 12:00:00',
+        appointmentTypeId: 'appointmentType-specialist',
+        facilityId,
+        updateAllFutureAppointments: true,
+      });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
       });
@@ -364,13 +363,12 @@ describe('Appointments', () => {
       const [schedule, appointments] = await generateSchedule();
       const firstAppointment = appointments[0];
 
-      await userApp
-        .put(`/api/appointments/${firstAppointment.id}?updateAllFutureAppointments=true`)
-        .send({
-          startTime: '2024-10-02 12:00:00',
-          appointmentTypeId: 'appointmentType-specialist',
-          facilityId,
-        });
+      await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
+        startTime: '2024-10-02 12:00:00',
+        appointmentTypeId: 'appointmentType-specialist',
+        facilityId,
+        updateAllFutureAppointments: true,
+      });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
       });
@@ -384,22 +382,21 @@ describe('Appointments', () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
-      const result = await userApp
-        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
-        .send({
-          schedule: {
-            untilDate: '2024-10-30',
-            interval: 1,
-            frequency: REPEAT_FREQUENCY.WEEKLY,
-            daysOfWeek: ['WE'],
-            occurrenceCount: null,
-            nthWeekday: null,
-          },
-          startTime: '2024-10-16 12:00:00',
-          appointmentTypeId: 'appointmentType-specialist',
-          facilityId,
-          id: thirdAppointment.id,
-        });
+      const result = await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: {
+          untilDate: '2024-10-30',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+          occurrenceCount: null,
+          nthWeekday: null,
+        },
+        startTime: '2024-10-16 12:00:00',
+        appointmentTypeId: 'appointmentType-specialist',
+        facilityId,
+        id: thirdAppointment.id,
+        updateAllFutureAppointments: true,
+      });
 
       expect(result).toHaveSucceeded();
       expect(result.body.schedule).toBeTruthy();
@@ -458,22 +455,21 @@ describe('Appointments', () => {
       const [schedule, appointments] = await generateSchedule();
       const firstAppointment = appointments[0];
 
-      const result = await userApp
-        .put(`/api/appointments/${firstAppointment.id}?updateAllFutureAppointments=true`)
-        .send({
-          schedule: {
-            untilDate: '2024-10-23',
-            interval: 2,
-            frequency: REPEAT_FREQUENCY.WEEKLY,
-            daysOfWeek: ['WE'],
-            occurrenceCount: null,
-            nthWeekday: null,
-          },
-          startTime: '2024-10-02 12:00:00',
-          appointmentTypeId: 'appointmentType-specialist',
-          facilityId,
-          id: firstAppointment.id,
-        });
+      const result = await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
+        schedule: {
+          untilDate: '2024-10-23',
+          interval: 2,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+          occurrenceCount: null,
+          nthWeekday: null,
+        },
+        startTime: '2024-10-02 12:00:00',
+        appointmentTypeId: 'appointmentType-specialist',
+        facilityId,
+        id: firstAppointment.id,
+        updateAllFutureAppointments: true,
+      });
 
       expect(result).toHaveSucceeded();
       expect(result.body.schedule).toBeTruthy();
@@ -524,14 +520,13 @@ describe('Appointments', () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
-      const result = await userApp
-        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
-        .send({
-          schedule: scheduleCreateData,
-          startTime: '2024-10-17 12:00:00',
-          facilityId,
-          id: thirdAppointment.id,
-        });
+      const result = await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: scheduleCreateData,
+        startTime: '2024-10-17 12:00:00',
+        facilityId,
+        id: thirdAppointment.id,
+        updateAllFutureAppointments: true,
+      });
 
       expect(result).toHaveSucceeded();
       expect(result.body.schedule).toBeTruthy();
