@@ -16,7 +16,7 @@ async function createSimpleChartSurvey(models, index) {
     survey: {
       id: `simple-chart-survey-${index}`,
       name: `Survey ${letter}`,
-      survey_type: 'simpleChart',
+      surveyType: SURVEY_TYPES.SIMPLE_CHART,
     },
     questions: [
       {
