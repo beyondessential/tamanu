@@ -51,13 +51,13 @@ const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
             <TranslatedText stringId="general.action.back" fallback="Back" />
           </OutlinedButton>
           <div>
-            <OutlinedButton onClick={onConfirm}>
+            <OutlinedButton onClick={e => onConfirm(e, { skipExisting: true })}>
               <TranslatedText
                 stringId="admin.translation.importNewDefaults"
                 fallback="Import new defaults"
               />
             </OutlinedButton>
-            <StyledConfirmButton onClick={e => onConfirm(e, { overwrite: true })}>
+            <StyledConfirmButton onClick={onConfirm}>
               <TranslatedText
                 stringId="admin.translation.overwriteExisting"
                 fallback="Overwrite existing translations"
