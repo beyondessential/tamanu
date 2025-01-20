@@ -147,7 +147,10 @@ appointments.put(
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
-        if (existingSchedule.isMatchWithScheduleData(scheduleData)) {
+        if (
+          existingSchedule.isMatchWithScheduleData(scheduleData) &&
+          appointmentData.startTime === appointment.startTime
+        ) {
           await existingSchedule.modifyFromAppointment(appointment, appointmentData);
         } else {
           await existingSchedule.endAtAppointment(appointmentData);

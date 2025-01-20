@@ -396,7 +396,6 @@ describe('Appointments', () => {
             occurrenceCount: null,
             nthWeekday: null,
           },
-          // TODO: we need to resolve how we are managing start time as we cant update all future appointments to start time
           startTime: '2024-10-16 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,
