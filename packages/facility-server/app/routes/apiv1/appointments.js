@@ -90,7 +90,7 @@ appointments.post(
               appointmentData,
               scheduleData,
             })
-          )[0]
+          ).appointments[0]
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;

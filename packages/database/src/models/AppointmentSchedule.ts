@@ -175,7 +175,7 @@ export class AppointmentSchedule extends Model {
       },
       {
         where: {
-          startTime: { [Op.gte]: appointment.startTime },
+          [Op.or]: [{ startTime: { [Op.gt]: appointment.startTime } }, { id: appointment.id }],
           scheduleId: this.id,
         },
       },

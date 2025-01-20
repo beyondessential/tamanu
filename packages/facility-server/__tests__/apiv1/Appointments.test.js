@@ -402,6 +402,7 @@ describe('Appointments', () => {
           startTime: '2024-10-16 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,
+          id: thirdAppointment.id,
         });
 
       expect(result).toHaveSucceeded();
@@ -474,6 +475,7 @@ describe('Appointments', () => {
           startTime: '2024-10-02 12:00:00',
           appointmentTypeId: 'appointmentType-specialist',
           facilityId,
+          id: firstAppointment.id,
         });
 
       expect(result).toHaveSucceeded();
@@ -516,6 +518,64 @@ describe('Appointments', () => {
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
+      expect(
+        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+      ).toBeTruthy();
+    });
+    it('should create a new schedule and close existing one if schedule data is unchanged when updating the startTime of appointment mid schedule', async () => {
+      const [schedule, appointments] = await generateSchedule();
+      const thirdAppointment = appointments[2];
+
+      const result = await userApp
+        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
+        .send({
+          schedule: scheduleCreateData,
+          startTime: '2024-10-17 12:00:00',
+          appointmentTypeId: 'appointmentType-specialist',
+          facilityId,
+          id: thirdAppointment.id,
+        });
+
+      expect(result).toHaveSucceeded();
+
+      const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
+        where: {
+          id: schedule.id,
+        },
+        include: [
+          {
+            model: models.Appointment,
+            as: 'appointments',
+            required: false,
+            where: {
+              status: {
+                [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
+              },
+            },
+          },
+        ],
+      });
+
+      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedExistingSchedule.appointments.map((a) => a.startTime)).toEqual([
+        '2024-10-02 12:00:00',
+        '2024-10-09 12:00:00',
+      ]);
+
+      const newSchedule = await models.AppointmentSchedule.findOne({
+        where: {
+          untilDate: '2024-10-23',
+        },
+        orderBy: [['createdAt', 'DESC']],
+        include: [
+          {
+            model: models.Appointment,
+            as: 'appointments',
+          },
+        ],
+      });
+
+      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual(['2024-10-17 12:00:00']);
       expect(
         newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
