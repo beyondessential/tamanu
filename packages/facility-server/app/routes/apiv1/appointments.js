@@ -154,11 +154,13 @@ appointments.put(
           await existingSchedule.modifyFromAppointment(appointment, appointmentData);
         } else {
           await existingSchedule.endAtAppointment(appointmentData);
-          await Appointment.createWithSchedule({
+          const {schedule} = await Appointment.createWithSchedule({
             settings: settings[facilityId],
             appointmentData,
             scheduleData,
           });
+          res.status(200).send({schedule});
+          return;
         }
       } else {
         await appointment.update(appointmentData);

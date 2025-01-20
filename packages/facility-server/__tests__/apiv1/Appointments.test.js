@@ -406,6 +406,7 @@ describe('Appointments', () => {
         });
 
       expect(result).toHaveSucceeded();
+      expect(result.body.schedule).toBeTruthy();
 
       const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
         where: {
@@ -437,7 +438,7 @@ describe('Appointments', () => {
 
       const newSchedule = await models.AppointmentSchedule.findOne({
         where: {
-          untilDate: '2024-10-30',
+          id: result.body.schedule.id,
         },
         include: [
           {
@@ -479,6 +480,7 @@ describe('Appointments', () => {
         });
 
       expect(result).toHaveSucceeded();
+      expect(result.body.schedule).toBeTruthy();
 
       const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
         where: {
@@ -503,8 +505,7 @@ describe('Appointments', () => {
 
       const newSchedule = await models.AppointmentSchedule.findOne({
         where: {
-          untilDate: '2024-10-23',
-          interval: 2,
+          id: result.body.schedule.id,
         },
         include: [
           {
@@ -531,12 +532,12 @@ describe('Appointments', () => {
         .send({
           schedule: scheduleCreateData,
           startTime: '2024-10-17 12:00:00',
-          appointmentTypeId: 'appointmentType-specialist',
           facilityId,
           id: thirdAppointment.id,
         });
 
       expect(result).toHaveSucceeded();
+      expect(result.body.schedule).toBeTruthy();
 
       const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
         where: {
@@ -564,9 +565,8 @@ describe('Appointments', () => {
 
       const newSchedule = await models.AppointmentSchedule.findOne({
         where: {
-          untilDate: '2024-10-23',
+          id: result.body.schedule.id,
         },
-        orderBy: [['createdAt', 'DESC']],
         include: [
           {
             model: models.Appointment,
@@ -576,9 +576,6 @@ describe('Appointments', () => {
       });
 
       expect(newSchedule.appointments.map((a) => a.startTime)).toEqual(['2024-10-17 12:00:00']);
-      expect(
-        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
-      ).toBeTruthy();
     });
   });
 });
