@@ -18,9 +18,15 @@ import {
   BottomModalContainer,
   DetailDisplay,
   StyledConfirmCancelRow,
+  OptionsContainer,
 } from './BaseModalComponents';
 import { RadioInput } from '../../Field';
 import { BodyText } from '../../Typography';
+import styled from 'styled-components';
+
+const StyledBodyText = styled(BodyText)`
+  margin-bottom: 20px;
+`;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const {
@@ -115,11 +121,11 @@ export const CANCEL_REPEATING_APPOINTMENT_MODE = {
 
 const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
   return (
-    <AppointmentDetailsContainer>
-      <BodyText>
+    <OptionsContainer>
+      <StyledBodyText>
         This is a repeating appointment. Would you like to cancel this appointment only or this
         appointment and all future appointments as well?
-      </BodyText>
+      </StyledBodyText>
       <RadioInput
         value={deletionType}
         onChange={e => setDeletionType(e.target.value)}
@@ -131,7 +137,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
           },
         ]}
       />
-    </AppointmentDetailsContainer>
+    </OptionsContainer>
   );
 };
 
