@@ -13,7 +13,6 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
-import { matches } from 'lodash';
 
 export const appointments = express.Router();
 
