@@ -22,7 +22,7 @@ import type { InitOptions, Models } from '../types/model';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
-  'id' | 'createdAt' | 'deletedAt'
+  'id' | 'createdAt' | 'deletedAt' | 'updatedAtSyncTick'
 >;
 
 export type WeeklySchedule = AppointmentSchedule & {
@@ -302,9 +302,11 @@ export class AppointmentSchedule extends Model {
       'id',
       'createdAt',
       'updatedAt',
+      'updatedAtSyncTick',
     ]) as AppointmentScheduleCreateData;
   }
 
+  // TODO: this feels annoying but we might split out the need for this in v1 anywho
   isMatchWithSchedule(scheduleCreateData: AppointmentScheduleCreateData) {
     return isMatch(
       pick(this.get({ plain: true }), [
