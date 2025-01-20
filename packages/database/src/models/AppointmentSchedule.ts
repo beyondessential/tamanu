@@ -307,7 +307,7 @@ export class AppointmentSchedule extends Model {
   }
 
   // TODO: this feels annoying but we might split out the need for this in v1 anywho
-  isMatchWithSchedule(scheduleCreateData: AppointmentScheduleCreateData) {
+  isMatchWithScheduleData(scheduleCreateData: AppointmentScheduleCreateData) {
     return isMatch(
       pick(this.get({ plain: true }), [
         'untilDate',
