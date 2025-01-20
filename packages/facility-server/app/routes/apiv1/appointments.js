@@ -13,7 +13,6 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
-
 export const appointments = express.Router();
 
 /**
@@ -126,6 +125,49 @@ appointments.post(
       settings,
     });
     res.status(200).send(response);
+  }),
+);
+
+appointments.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+    const { models, body, params, query, settings } = req;
+    const { schedule: scheduleData, facilityId, ...appointmentData } = body;
+    const { updateAllFutureAppointments = false } = query;
+    const { id } = params;
+    const { Appointment } = models;
+    await req.db.transaction(async () => {
+      const appointment = await Appointment.findByPk(id);
+      if (!appointment) {
+        throw new NotFoundError();
+      }
+      if (updateAllFutureAppointments && scheduleData) {
+        const existingSchedule = await appointment.getSchedule();
+        if (!existingSchedule) {
+          throw new Error('Cannot update future appointments for a non-recurring appointment');
+        }
+
+        console.log(
+          existingSchedule,
+          scheduleData,
+          existingSchedule.isMatchWithScheduleData(scheduleData),
+        );
+        if (existingSchedule.isMatchWithScheduleData(scheduleData)) {
+          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
+        } else {
+          await existingSchedule.endAtAppointment(appointmentData);
+          await Appointment.createWithSchedule({
+            settings: settings[facilityId],
+            appointmentData,
+            scheduleData,
+          });
+        }
+      } else {
+        await appointment.update(appointmentData);
+      }
+    });
+    res.status(200).send({ ok: 'ok' });
   }),
 );
 
@@ -270,68 +312,67 @@ appointments.get(
   }),
 );
 
-appointments.put(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Appointment');
-    const { models, body, params, query, settings } = req;
-    const { schedule: scheduleData, facilityId, ...appointmentData } = body;
-    const { updateAllFutureAppointments = false } = query;
-    const { id } = params;
-    const { Appointment } = models;
-    await req.db.transaction(async () => {
-      const appointment = await Appointment.findByPk(id);
-      if (!appointment) {
+appointments.post('/locationBooking', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
+  const { models, body } = req;
+  const { startTime, endTime, locationId } = body;
+  const { Appointment } = models;
+
+  try {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
+      const conflictCount = await Appointment.count({
+        where: {
+          [Op.and]: [
+            { locationId },
+            {
+              status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+            },
+            timeQueryWhereClause,
+          ],
+        },
+        bind: timeQueryBindParams,
+        transaction,
+      });
+
+      if (conflictCount > 0) throw new ResourceConflictError();
+
+      return await Appointment.create(body, { transaction });
+    });
+
+    res.status(201).send(result);
+  } catch (error) {
+    res.status(error.status || 500).send();
+  }
+});
+
+appointments.put('/locationBooking/:id', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
+  const { models, body, params, query } = req;
+  const { id } = params;
+  const { skipConflictCheck = false } = query;
+  const { startTime, endTime, locationId } = body;
+  const { Appointment } = models;
+
+  try {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const existingBooking = await Appointment.findByPk(id, { transaction });
+
+      if (!existingBooking) {
         throw new NotFoundError();
       }
-      if (updateAllFutureAppointments && scheduleData) {
-        const existingSchedule = await appointment.getSchedule();
-        if (!existingSchedule) {
-          throw new Error('Cannot update future appointments for a non-recurring appointment');
-        }
 
-        console.log(
-          existingSchedule,
-          scheduleData,
-          existingSchedule.isMatchWithScheduleData(scheduleData),
-        );
-        if (existingSchedule.isMatchWithScheduleData(scheduleData)) {
-          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
-        } else {
-          await existingSchedule.endAtAppointment(appointmentData);
-          await Appointment.createWithSchedule({
-            settings: settings[facilityId],
-            appointmentData,
-            scheduleData,
-          });
-        }
-      } else {
-        await appointment.update(appointmentData);
-      }
-    });
-    res.status(200).send({ ok: 'ok' });
-  }),
-);
-
-appointments.post(
-  '/locationBooking',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Appointment');
-
-    const { models, body } = req;
-    const { startTime, endTime, locationId } = body;
-    const { Appointment } = models;
-
-    try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
+      if (!skipConflictCheck) {
         const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-        const conflictCount = await Appointment.count({
+        const bookingTimeAlreadyTaken = await Appointment.findOne({
           where: {
             [Op.and]: [
-              { locationId },
               {
-                status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+                id: { [Op.ne]: id },
               },
+              { locationId },
               timeQueryWhereClause,
             ],
           },
@@ -339,65 +380,17 @@ appointments.post(
           transaction,
         });
 
-        if (conflictCount > 0) throw new ResourceConflictError();
-
-        return await Appointment.create(body, { transaction });
-      });
-
-      res.status(201).send(result);
-    } catch (error) {
-      res.status(error.status || 500).send();
-    }
-  }),
-);
-
-appointments.put(
-  '/locationBooking/:id',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Appointment');
-
-    const { models, body, params, query } = req;
-    const { id } = params;
-    const { skipConflictCheck = false } = query;
-    const { startTime, endTime, locationId } = body;
-    const { Appointment } = models;
-
-    try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
-        const existingBooking = await Appointment.findByPk(id, { transaction });
-
-        if (!existingBooking) {
-          throw new NotFoundError();
+        if (bookingTimeAlreadyTaken) {
+          throw new ResourceConflictError();
         }
+      }
 
-        if (!skipConflictCheck) {
-          const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-          const bookingTimeAlreadyTaken = await Appointment.findOne({
-            where: {
-              [Op.and]: [
-                {
-                  id: { [Op.ne]: id },
-                },
-                { locationId },
-                timeQueryWhereClause,
-              ],
-            },
-            bind: timeQueryBindParams,
-            transaction,
-          });
+      const updatedRecord = await existingBooking.update(body, { transaction });
+      return updatedRecord;
+    });
 
-          if (bookingTimeAlreadyTaken) {
-            throw new ResourceConflictError();
-          }
-        }
-
-        const updatedRecord = await existingBooking.update(body, { transaction });
-        return updatedRecord;
-      });
-
-      res.status(200).send(result);
-    } catch (error) {
-      res.status(error.status || 500).send();
-    }
-  }),
-);
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(error.status || 500).send();
+  }
+});
