@@ -25,6 +25,9 @@ import { ThemedTooltip } from './Tooltip.jsx';
 const DateWrapper = styled.div`
   position: relative;
   min-width: 90px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
 `;
 
 const FacilityWrapper = styled.div`
@@ -159,14 +162,16 @@ const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
     <DateWrapper>
-      <StatusIndicator patientStatus={patientStatus} />
-      <DateDisplay date={startDate} />
-      &nbsp;&ndash;{' '}
-      {endDate ? (
-        <DateDisplay date={endDate} />
-      ) : (
-        <TranslatedText stringId="general.date.current" fallback="Current" />
-      )}
+      <div>
+        <StatusIndicator patientStatus={patientStatus} />
+        <DateDisplay date={startDate} />
+        &nbsp;&ndash;{' '}
+        {endDate ? (
+          <DateDisplay date={endDate} />
+        ) : (
+          <TranslatedText stringId="general.date.current" fallback="Current" />
+        )}
+      </div>
     </DateWrapper>
   );
 };
