@@ -309,38 +309,42 @@ describe('Appointments', () => {
     });
   });
   describe('modify with schedule', () => {
-    const generateAppointment = (startTime, scheduleId) => ({
-      patientId: patient.id,
-      startTime,
-      clinicianId: userApp.user.dataValues.id,
-      appointmentTypeId: 'appointmentType-standard',
-      scheduleId,
-    });
+    const scheduleCreateData = {
+      untilDate: '2024-10-23',
+      interval: 1,
+      frequency: REPEAT_FREQUENCY.WEEKLY,
+      daysOfWeek: ['WE'],
+      occurrenceCount: null,
+      nthWeekday: null,
+    };
+    const generateSchedule = async () => {
+      const schedule = await models.AppointmentSchedule.create(scheduleCreateData);
+      const appointments = await models.Appointment.bulkCreate(
+        [
+          '2024-10-02 12:00:00',
+          '2024-10-09 12:00:00',
+          '2024-10-16 12:00:00',
+          '2024-10-23 12:00:00',
+        ].map((startTime) => ({
+          patientId: patient.id,
+          startTime,
+          clinicianId: userApp.user.dataValues.id,
+          appointmentTypeId: 'appointmentType-standard',
+          scheduleId: schedule.id,
+        })),
+      );
+      return [schedule, appointments];
+    };
 
     it('should update all future appointment if schedule is unchanged', async () => {
-      const appointmentSchedule = {
-        untilDate: '2024-10-23',
-        interval: 1,
-        frequency: REPEAT_FREQUENCY.WEEKLY,
-        daysOfWeek: ['WE'],
-        occurrenceCount: null,
-        nthWeekday: null,
-      };
-
-      const schedule = await models.AppointmentSchedule.create(appointmentSchedule);
-      const appointments = await models.Appointment.bulkCreate([
-        generateAppointment('2024-10-02 12:00:00', schedule.id),
-        generateAppointment('2024-10-09 12:00:00', schedule.id),
-        generateAppointment('2024-10-16 12:00:00', schedule.id),
-        generateAppointment('2024-10-23 12:00:00', schedule.id),
-      ]);
-
+      const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
       await userApp
         .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
         .send({
-          schedule: appointmentSchedule,
+          // Pass unchanged schedule in payload
+          schedule: scheduleCreateData,
           appointmentTypeId: 'appointmentType-specialist',
         });
       const appointmentsInSchedule = await schedule.getAppointments({
