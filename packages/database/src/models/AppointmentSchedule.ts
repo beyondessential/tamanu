@@ -182,21 +182,15 @@ export class AppointmentSchedule extends Model {
   }
 
   async modifyFromAppointment(appointment: Appointment, appointmentData: AppointmentCreateData) {
-    if (!this.sequelize.isInsideTransaction()) {
-      throw new Error(
-        'AppointmentSchedule.modifyFromAppointment must always run inside a transaction',
-      );
-    }
-    const appointments = await this.getAppointments({
+    const { models } = this.sequelize;
+    return models.Appointment.update(appointmentData, {
       where: {
-        startTime: { [Op.gt]: appointment.startTime },
+        startTime: {
+          [Op.gte]: appointment.startTime,
+        },
+        scheduleId: this.id,
       },
     });
-    const updatedAppointments = await Promise.all([
-      appointment.update(appointmentData),
-      ...appointments.map((a) => a.update(appointmentData)),
-    ]);
-    return updatedAppointments;
   }
 
   /**
@@ -298,11 +292,11 @@ export class AppointmentSchedule extends Model {
     return appointmentData;
   }
 
-  getAsCreateData = () => {
+  toCreateData() {
     return omit(this.get({ plain: true }), [
       'id',
       'createdAt',
       'updatedAt',
     ]) as AppointmentScheduleCreateData;
-  };
+  }
 }

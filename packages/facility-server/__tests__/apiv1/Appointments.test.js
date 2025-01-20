@@ -318,7 +318,7 @@ describe('Appointments', () => {
       scheduleId,
     });
 
-    it.only('should update all future appointment if schedule is unchanged', async () => {
+    it('should update all future appointment if schedule is unchanged', async () => {
       const appointmentSchedule = {
         untilDate: '2024-10-23',
         interval: 1,
@@ -334,14 +334,19 @@ describe('Appointments', () => {
         generateAppointment('2024-10-23 12:00:00', schedule.id),
       ]);
 
+      const thirdAppointment = appointments[2];
+
       await userApp
-        .put(`/api/appointments/${appointments[2].id}?updateAllFutureAppointments=true`)
+        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
         .send({
           schedule: appointmentSchedule,
           appointmentTypeId: 'appointmentType-specialist',
         });
-      const appointmentsInSchedule = await schedule.getAppointments();
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+      });
 
+      // 3rd and 4th appointments should be updated
       expect(appointmentsInSchedule.map((a) => a.appointmentTypeId)).toEqual([
         'appointmentType-standard',
         'appointmentType-standard',
