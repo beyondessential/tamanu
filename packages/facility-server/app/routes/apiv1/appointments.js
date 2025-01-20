@@ -10,7 +10,6 @@ import {
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -129,8 +128,6 @@ appointments.post(
     res.status(200).send(response);
   }),
 );
-
-appointments.put('/:id', simplePut('Appointment'));
 
 const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
