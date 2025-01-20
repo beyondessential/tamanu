@@ -415,6 +415,12 @@ describe('Appointments', () => {
         '2024-10-09 12:00:00',
       ]);
 
+      // We gotta issue as it should end schedule on 2024-10-09 the appointment before chosen one
+      // const updatedExistingSchedule = await models.AppointmentSchedule.findByPk(
+      //   appointmentsInSchedule[0].scheduleId,
+      // );
+      // expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
+
       // TODO check new schedule
     });
   });
