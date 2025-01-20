@@ -274,7 +274,7 @@ appointments.put('/:id', async (req, res) => {
   const {
     models: { Appointment, AppointmentSchedule },
     params,
-    body: { status, schedule },
+    body: { status, schedule = {} },
   } = req;
   req.checkPermission('write', 'Appointment');
 
