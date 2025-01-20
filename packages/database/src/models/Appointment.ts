@@ -153,10 +153,10 @@ export class Appointment extends Model {
     appointmentData,
     scheduleData,
   }: CreateWithScheduleParams) {
-    return this.sequelize.transaction(async () => {
+    return await this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
       const appointments = await schedule.generateRepeatingAppointment(settings, appointmentData);
-      return { appointments, schedule };
+      return { appointment: appointments[0], schedule };
     });
   }
 

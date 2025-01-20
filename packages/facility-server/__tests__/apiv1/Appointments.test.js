@@ -523,6 +523,7 @@ describe('Appointments', () => {
         newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
+
     it('should create a new schedule and close existing one if schedule data is unchanged when updating the startTime of appointment mid schedule', async () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
@@ -575,7 +576,10 @@ describe('Appointments', () => {
         ],
       });
 
-      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual(['2024-10-17 12:00:00']);
+      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+        '2024-10-17 12:00:00',
+        '2024-10-24 12:00:00',
+      ]);
     });
   });
 });

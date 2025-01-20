@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, Sequelize, literal } from 'sequelize';
+import { omit } from 'lodash';
 
 import {
   APPOINTMENT_STATUSES,
@@ -13,6 +14,7 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
+
 export const appointments = express.Router();
 
 /**
@@ -137,7 +139,7 @@ appointments.put(
     const { updateAllFutureAppointments = false } = query;
     const { id } = params;
     const { Appointment } = models;
-    await req.db.transaction(async () => {
+    const result = await req.db.transaction(async () => {
       const appointment = await Appointment.findByPk(id);
       if (!appointment) {
         throw new NotFoundError();
@@ -154,19 +156,18 @@ appointments.put(
           await existingSchedule.modifyFromAppointment(appointment, appointmentData);
         } else {
           await existingSchedule.endAtAppointment(appointmentData);
-          const {schedule} = await Appointment.createWithSchedule({
+          const { schedule } = await Appointment.createWithSchedule({
             settings: settings[facilityId],
-            appointmentData,
+            appointmentData: omit(appointmentData, 'id'),
             scheduleData,
           });
-          res.status(200).send({schedule});
-          return;
+          return { schedule };
         }
       } else {
         await appointment.update(appointmentData);
       }
     });
-    res.status(200).send({ ok: 'ok' });
+    res.status(200).send(result || { ok: 'ok' });
   }),
 );
 
