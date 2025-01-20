@@ -201,7 +201,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
   // Sets initial instance tab when selecting a complex chart
   useEffect(() => {
-    console.log('running');
     if (complexChartInstanceTabs?.length) {
       setCurrentComplexChartTab(complexChartInstanceTabs[0].key);
     }
