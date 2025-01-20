@@ -20,6 +20,7 @@ export async function referenceDataImporter({
   data = null,
   includedDataTypes = [],
   checkPermission,
+  skipExisting,
 }) {
   log.info('Importing data definitions from file', { file });
 
@@ -89,6 +90,7 @@ export async function referenceDataImporter({
         loader: referenceDataLoaderFactory(refType),
         sheetName: refType,
         sheet,
+        skipExisting,
       }),
     );
     importedRef.push(refType);
@@ -138,6 +140,7 @@ export async function referenceDataImporter({
         loader,
         sheetName: dataType,
         sheet,
+        skipExisting,
       }),
     );
     importedData.push(dataType);

@@ -40,6 +40,7 @@ export async function importerTransaction({
   dryRun = false,
   includedDataTypes = [],
   checkPermission,
+  ...extraOptions
 }) {
   const errors = [];
   const stats = [];
@@ -65,7 +66,15 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, includedDataTypes, checkPermission });
+          await importer({
+            errors,
+            models,
+            stats,
+            file,
+            includedDataTypes,
+            checkPermission,
+            ...extraOptions,
+          });
         } catch (err) {
           errors.push(err);
         }
