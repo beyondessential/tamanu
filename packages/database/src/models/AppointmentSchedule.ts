@@ -3,6 +3,7 @@ import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
 import {
+  APPOINTMENT_STATUSES,
   DAYS_OF_WEEK,
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
@@ -168,12 +169,17 @@ export class AppointmentSchedule extends Model {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('AppointmentSchedule.endAtAppointment must always run inside a transaction');
     }
-    await models.Appointment.destroy({
-      where: {
-        startTime: { [Op.gte]: appointment.startTime },
-        scheduleId: this.id,
+    await models.Appointment.update(
+      {
+        status: APPOINTMENT_STATUSES.CANCELLED,
       },
-    });
+      {
+        where: {
+          startTime: { [Op.gte]: appointment.startTime },
+          scheduleId: this.id,
+        },
+      },
+    );
     await this.update({
       isFullyGenerated: true,
       untilDate: appointment.startTime,

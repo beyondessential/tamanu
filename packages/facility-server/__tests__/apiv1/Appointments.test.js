@@ -1,5 +1,6 @@
 import config from 'config';
 import { add } from 'date-fns';
+import { Op } from 'sequelize';
 
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
@@ -369,6 +370,7 @@ describe('Appointments', () => {
           // Pass unchanged schedule in payload
           schedule: scheduleCreateData,
           appointmentTypeId: 'appointmentType-specialist',
+          facilityId,
         });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -378,6 +380,42 @@ describe('Appointments', () => {
       expect(
         appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
+    });
+    it('should create a new schedule and close existing one if schedule data is changed when updating a mid schedule appointment', async () => {
+      const [schedule, appointments] = await generateSchedule();
+      const thirdAppointment = appointments[2];
+
+      await userApp
+        .put(`/api/appointments/${thirdAppointment.id}?updateAllFutureAppointments=true`)
+        .send({
+          schedule: {
+            untilDate: '2024-10-30',
+            interval: 1,
+            frequency: REPEAT_FREQUENCY.WEEKLY,
+            daysOfWeek: ['WE'],
+            occurrenceCount: null,
+            nthWeekday: null,
+          },
+          // TODO: we need to resolve how we are managing start time as we cant update all future appointments to start time
+          startTime: '2024-10-16 12:00:00',
+          appointmentTypeId: 'appointmentType-specialist',
+          facilityId,
+        });
+
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+        where: {
+          status: {
+            [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
+          },
+        },
+      });
+      expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual([
+        '2024-10-02 12:00:00',
+        '2024-10-09 12:00:00',
+      ]);
+
+      // TODO check new schedule
     });
   });
 });
