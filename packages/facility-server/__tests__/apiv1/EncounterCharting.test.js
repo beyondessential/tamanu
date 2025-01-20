@@ -216,6 +216,36 @@ describe('EncounterCharting', () => {
       );
     });
 
-    it.todo('should return a utility list about chart surveys with responses');
+    it('should return a utility list about chart surveys with responses', async () => {
+      const submissionDate = getCurrentDateTimeString();
+      await app.post('/api/surveyResponse').send({
+        surveyId: 'simple-chart-survey-2',
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneC': 123,
+          'pde-ChartQuestionTwoC': 456,
+        },
+        facilityId,
+      });
+      await app.post('/api/surveyResponse').send({
+        surveyId: 'simple-chart-survey-1',
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneB': 123,
+          'pde-ChartQuestionTwoB': 456,
+        },
+        facilityId,
+      });
+
+      const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data[0].survey.name).toBe('Survey B');
+    });
   });
 });
