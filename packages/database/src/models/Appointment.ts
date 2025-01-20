@@ -9,12 +9,10 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
-interface CreateNewScheduleFromAppointmentParams {
+interface CreateWithScheduleParams {
+  appointmentData: AppointmentCreateData;
   settings: ReadSettings;
   scheduleData: AppointmentScheduleCreateData;
-}
-interface CreateWithScheduleParams extends CreateNewScheduleFromAppointmentParams {
-  appointmentData: AppointmentCreateData;
 }
 
 export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
@@ -155,9 +153,8 @@ export class Appointment extends Model {
     appointmentData,
     scheduleData,
   }: CreateWithScheduleParams) {
-    const { AppointmentSchedule } = this.sequelize.models;
     return this.sequelize.transaction(async () => {
-      const schedule = await AppointmentSchedule.create(scheduleData);
+      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
       return schedule.generateRepeatingAppointment(settings, appointmentData);
     });
   }
