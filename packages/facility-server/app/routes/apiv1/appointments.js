@@ -136,7 +136,7 @@ appointments.put(
     req.checkPermission('write', 'Appointment');
     const { models, body, params, query, settings } = req;
     const { schedule: scheduleData, facilityId, ...appointmentData } = body;
-    const { updateAllFutureAppointments = false } = query;
+    const { updateAllFutureAppointments = 'false' } = query;
     const { id } = params;
     const { Appointment } = models;
     const result = await req.db.transaction(async () => {
@@ -144,7 +144,7 @@ appointments.put(
       if (!appointment) {
         throw new NotFoundError();
       }
-      if (updateAllFutureAppointments) {
+      if (updateAllFutureAppointments === 'true') {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
