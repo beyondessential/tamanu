@@ -30,6 +30,15 @@ const StyledBodyText = styled(BodyText)`
   margin-bottom: 20px;
 `;
 
+const StyledRadioInput = styled(RadioInput)`
+  flex-direction: column;
+  .MuiFormControlLabel-root {
+    justify-content: flex-start;
+    border: none;
+    // TODO: last bit of padding here
+  }
+`;
+
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const {
     patient,
@@ -138,7 +147,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
         This is a repeating appointment. Would you like to cancel this appointment only or this
         appointment and all future appointments as well?
       </StyledBodyText>
-      <RadioInput
+      <StyledRadioInput
         value={deletionType}
         onChange={e => setDeletionType(e.target.value)}
         options={[
@@ -170,6 +179,11 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const [deletionType, setDeletionType] = useState(
     CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
   );
+
+  const handleCloseModal = () => {
+    setDeletionType(CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
+    onClose();
+  };
 
   const { mutateAsync: mutateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () => {
@@ -219,11 +233,11 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
               mutateAppointment({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED });
             }
           }}
-          onClose={onClose}
+          onClose={handleCloseModal}
         />
       }
       open={open}
-      onClose={onClose}
+      onClose={handleCloseModal}
     >
       <BodyContainer>
         <TranslatedText
