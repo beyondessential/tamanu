@@ -308,7 +308,7 @@ appointments.post(
 appointments.put(
   '/locationBooking/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Appointment');
+    req.checkPermission('write', 'Appointment');
 
     const { models, body, params, query } = req;
     const { id } = params;
