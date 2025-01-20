@@ -35,7 +35,10 @@ const StyledRadioInput = styled(RadioInput)`
   .MuiFormControlLabel-root {
     justify-content: flex-start;
     border: none;
-    // TODO: last bit of padding here
+    padding-left: 0;
+    .MuiButtonBase-root {
+      margin-left: 0;
+    }
   }
 `;
 
@@ -238,6 +241,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
       }
       open={open}
       onClose={handleCloseModal}
+      width="md"
     >
       <BodyContainer>
         <TranslatedText
