@@ -278,13 +278,17 @@ appointments.put('/:id', async (req, res) => {
     models: { Appointment, AppointmentSchedule },
     params,
   } = req;
+  console.log('HITTING THE PUT ENDPOINT');
   req.checkPermission('read', 'Appointment');
   const appointment = await Appointment.findByPk(params.id);
   if (!appointment) throw new NotFoundError();
   req.checkPermission('write', 'Appointment');
 
-  if (req.body.status === APPOINTMENT_STATUSES.CANCELLED && appointment.scheduleId) {
-    const appointmentSchedule = await AppointmentSchedule.findByPk(appointment.scheduleId);
+  console.log('body', req.body);
+
+  if (req.body.status === APPOINTMENT_STATUSES.CANCELLED && req.body.schedule.id) {
+    const appointmentSchedule = await AppointmentSchedule.findByPk(req.body.schedule.id);
+    console.log('appointmentSchedule to destroy', appointmentSchedule);
     await appointmentSchedule.destroy();
     await Appointment.update(
       { status: APPOINTMENT_STATUSES.CANCELLED },
