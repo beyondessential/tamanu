@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_drugs
-        description: "{{ doc('table__reference_drugs') }}"
+        description: '{{ doc("table__reference_drugs") }}'
         tags: []
         columns:
           - name: id
