@@ -24,6 +24,7 @@ import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
 import { SyncLookupRefresher } from './SyncLookupRefresher';
 import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
+import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -45,7 +46,8 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
     SurveyCompletionNotifierProcessor,
     SyncLookupRefresher,
-    GenerateRepeatingTasks
+    GenerateRepeatingTasks,
+    GenerateRepeatingAppointments,
   ];
 
   if (config.integrations.fijiVrs.enabled) {
@@ -57,7 +59,7 @@ export async function startScheduledTasks(context) {
 
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map(TaskClass => {
+    ...taskClasses.map((TaskClass) => {
       try {
         log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
         return new TaskClass(context);
@@ -67,9 +69,9 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter(x => x);
-  tasks.forEach(t => t.beginPolling());
-  return () => tasks.forEach(t => t.cancelPolling());
+  ].filter((x) => x);
+  tasks.forEach((t) => t.beginPolling());
+  return () => tasks.forEach((t) => t.cancelPolling());
 }
 
 async function getReportSchedulers(context) {

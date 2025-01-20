@@ -1,18 +1,21 @@
-import config from 'config';
 import { DataTypes } from 'sequelize';
-import {
-  APPOINTMENT_STATUSES,
-  REPEAT_FREQUENCY,
-  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
-  SYNC_DIRECTIONS,
-} from '@tamanu/constants';
+import { omit } from 'lodash';
+
+import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import type { ReadSettings } from '@tamanu/settings';
+
 import { Model } from './Model';
-import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { add, isBefore, parseISO, set } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
+
+interface CreateWithScheduleParams {
+  settings: ReadSettings;
+  appointmentData: AppointmentCreateData;
+  scheduleData: AppointmentScheduleCreateData;
+}
+
+export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
 
 export class Appointment extends Model {
   declare id: string;
@@ -142,78 +145,22 @@ export class Appointment extends Model {
     };
   }
 
-  static async generateRepeatingAppointment(
-    scheduleData: AppointmentScheduleCreateData,
-    firstAppointmentData: ModelProperties<Appointment>,
-  ) {
-    const { maxInitialRepeatingAppointments } = config?.appointments || {};
+  static async createWithSchedule({
+    settings,
+    appointmentData,
+    scheduleData,
+  }: CreateWithScheduleParams) {
     return this.sequelize.transaction(async () => {
-      const schedule = await this.sequelize.models.AppointmentSchedule.create({
-        ...scheduleData,
-        startDate: firstAppointmentData.startTime,
-      });
-
-      const { interval, frequency, untilDate, occurrenceCount } = schedule;
-      const appointments = [{ ...firstAppointmentData, scheduleId: schedule.id }];
-
-      const incrementByInterval = (date: string) => {
-        const incrementedDate = add(parseISO(date), {
-          [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency] as string]: interval,
-        });
-
-        if (scheduleData.frequency === REPEAT_FREQUENCY.WEEKLY) {
-          return toDateTimeString(incrementedDate) as string;
-        }
-        if (scheduleData.frequency === REPEAT_FREQUENCY.MONTHLY) {
-          const { nthWeekday, daysOfWeek } = scheduleData;
-          const [weekday] = daysOfWeek;
-          const weekdayDate = weekdayAtOrdinalPosition(
-            incrementedDate,
-            weekday,
-            nthWeekday,
-          )?.getDate();
-          // Set the date to the nth weekday of the month as incremented startTime will fall on a different weekday
-          return toDateTimeString(
-            set(incrementedDate, {
-              date: weekdayDate,
-            }),
-          ) as string;
-        }
-        throw new Error('Invalid frequency when generating repeating appointments');
-      };
-
-      const pushNextAppointment = () => {
-        const currentAppointment = appointments.at(-1);
-        if (!currentAppointment) {
-          throw new Error('No latest appointment found when generating repeating appointments');
-        }
-        const nextAppointment = {
-          ...currentAppointment,
-          startTime: incrementByInterval(currentAppointment.startTime),
-          endTime: currentAppointment.endTime && incrementByInterval(currentAppointment.endTime),
-        };
-        appointments.push(nextAppointment);
-        return nextAppointment;
-      };
-
-      const limit = occurrenceCount
-        ? Math.min(occurrenceCount, maxInitialRepeatingAppointments)
-        : maxInitialRepeatingAppointments;
-
-      let continueGenerating = true;
-      const parsedUntilDate = untilDate && parseISO(untilDate);
-      // Generate appointments until the limit is reached or until the
-      // incremented startTime is after the untilDate
-      while (appointments.length < limit && continueGenerating) {
-        const { startTime: latestStartTime } = pushNextAppointment();
-
-        if (parsedUntilDate) {
-          const incrementedStartTime = parseISO(incrementByInterval(latestStartTime));
-          if (!incrementedStartTime) throw new Error('No incremented start time found');
-          continueGenerating = isBefore(incrementedStartTime, parsedUntilDate);
-        }
-      }
-      return this.bulkCreate(appointments);
+      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
+      return schedule.generateRepeatingAppointment(settings, appointmentData);
     });
+  }
+
+  toCreateData() {
+    return omit(this.get({ plain: true }), [
+      'id',
+      'createdAt',
+      'updatedAt',
+    ]) as AppointmentCreateData;
   }
 }

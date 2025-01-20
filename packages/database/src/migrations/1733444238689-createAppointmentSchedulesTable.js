@@ -8,12 +8,8 @@ export async function up(query) {
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
-    start_date: {
-      type: DataTypes.DATETIMESTRING,
-      allowNull: false,
-    },
     until_date: {
-      type: DataTypes.DATETIMESTRING,
+      type: DataTypes.DATESTRING,
       allowNull: true,
     },
     interval: {

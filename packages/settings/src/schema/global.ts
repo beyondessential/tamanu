@@ -51,6 +51,16 @@ export const globalSettings = {
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
+    appointments: {
+      description: 'Appointment settings',
+      properties: {
+        maxRepeatingAppointmentsPerGeneration: {
+          description: 'The maximum number of appointments that can be generated at once',
+          type: yup.number().min(1),
+          defaultValue: 50,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -1103,17 +1113,11 @@ export const globalSettings = {
           description: 'The email sent to confirm an appointment',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Appointment confirmation',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
             },
@@ -1127,17 +1131,11 @@ export const globalSettings = {
           description: 'The email sent when the signer runs out',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Tamanu ICAO Certificate Signing Request',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
             },
@@ -1147,17 +1145,11 @@ export const globalSettings = {
           description: 'The email containing patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1167,17 +1159,11 @@ export const globalSettings = {
           description: 'The email containing COVID patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1187,17 +1173,11 @@ export const globalSettings = {
           description: 'Email with certificate containing the list of COVID tests for this patient',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1208,17 +1188,11 @@ export const globalSettings = {
             'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'COVID-19 Clearance Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1239,10 +1213,7 @@ export const globalSettings = {
             },
             healthFacility: {
               description: '_',
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'State level',
             },
           },

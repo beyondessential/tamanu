@@ -80,20 +80,26 @@ appointments.post(
     const {
       models,
       db,
-      body: { facilityId, appointmentSchedule, ...body },
+      body: { facilityId, appointmentSchedule: scheduleData, ...appointmentData },
       settings,
     } = req;
     const { Appointment } = models;
-
     await db.transaction(async () => {
-      const result = appointmentSchedule
-        ? (await Appointment.generateRepeatingAppointment(appointmentSchedule, body))[0]
-        : await Appointment.create(body);
+      const result = scheduleData
+        ? (
+            await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData,
+              scheduleData,
+            })
+          )[0]
+        : await Appointment.create(appointmentData);
 
-      if (body.email) {
+      const { email } = appointmentData;
+      if (email) {
         await sendAppointmentReminder({
           appointmentId: result.id,
-          email: body.email,
+          email,
           facilityId,
           models,
           settings,

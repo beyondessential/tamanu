@@ -14,13 +14,8 @@ sources:
             data_tests:
               - unique
               - not_null
-          - name: start_date
-            data_type: character(19)
-            description: "{{ doc('appointment_schedules__start_date') }}"
-            data_tests:
-              - not_null
           - name: until_date
-            data_type: character(19)
+            data_type: character(10)
             description: "{{ doc('appointment_schedules__until_date') }}"
           - name: interval
             data_type: integer
@@ -58,5 +53,10 @@ sources:
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in
               appointment_schedules."
+            data_tests:
+              - not_null
+          - name: is_fully_generated
+            data_type: boolean
+            description: "{{ doc('appointment_schedules__is_fully_generated') }}"
             data_tests:
               - not_null
