@@ -278,29 +278,20 @@ appointments.put('/:id', async (req, res) => {
   } = req;
   req.checkPermission('write', 'Appointment');
 
-  const appointment = await Appointment.findByPk(params.id);
-  if (!appointment) throw new NotFoundError();
+  const result = await req.db.transaction(async () => {
+    const appointment = await Appointment.findByPk(params.id);
+    if (!appointment) throw new NotFoundError();
 
-  await appointment.update(req.body);
+    await appointment.update(req.body);
 
-  if (status === APPOINTMENT_STATUSES.CANCELLED && schedule.id) {
-    const appointmentSchedule = await AppointmentSchedule.findByPk(schedule.id);
-    await appointmentSchedule.destroy();
-    await Appointment.update(
-      { status: APPOINTMENT_STATUSES.CANCELLED },
-      {
-        where: {
-          scheduleId: schedule.id,
-          // TODO: delete all ones in the future of this appointment
-          // startTime: {
-          //   [Op.gte]: appointment.startTime,
-          // },
-        },
-      },
-    );
-  }
+    if (status === APPOINTMENT_STATUSES.CANCELLED && schedule.id) {
+      const appointmentSchedule = await AppointmentSchedule.findByPk(schedule.id);
+      await appointmentSchedule.endAtAppointment(appointment);
+    }
+    return appointment;
+  });
 
-  res.send(appointment);
+  res.send(result);
 });
 
 appointments.post('/locationBooking', async (req, res) => {
