@@ -324,6 +324,8 @@ describe('Appointments', () => {
         interval: 1,
         frequency: REPEAT_FREQUENCY.WEEKLY,
         daysOfWeek: ['WE'],
+        occurrenceCount: null,
+        nthWeekday: null,
       };
 
       const schedule = await models.AppointmentSchedule.create(appointmentSchedule);

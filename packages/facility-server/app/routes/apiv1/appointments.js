@@ -291,20 +291,16 @@ appointments.put(
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
 
-        // Need a way to determine if the schedule has changed
-        // const isScheduleChanged =
-        //   existingSchedule && matches(existingSchedule.toCreateData(), scheduleData);
-        // if (isScheduleChanged) {
-        //   // Create new schedule and end the existing one
-        //   await existingSchedule.endAtAppointment(appointmentData);
-        //   await Appointment.createWithSchedule({
-        //     settings: settings[facilityId],
-        //     appointmentData,
-        //     scheduleData,
-        //   });
-        // } else {
-        await existingSchedule.modifyFromAppointment(appointment, appointmentData);
-        // }
+        if (existingSchedule.isMatchWithScheduleData(existingSchedule, scheduleData)) {
+          await existingSchedule.modifyFromAppointment(appointment, appointmentData);
+        } else {
+          await existingSchedule.endAtAppointment(appointmentData);
+          await Appointment.createWithSchedule({
+            settings: settings[facilityId],
+            appointmentData,
+            scheduleData,
+          });
+        }
       } else {
         await appointment.update(appointmentData);
       }
