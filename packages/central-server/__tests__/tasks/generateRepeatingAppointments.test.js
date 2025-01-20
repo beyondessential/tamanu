@@ -21,9 +21,7 @@ describe('GenerateRepeatingAppointments', () => {
   beforeEach(async () => {
     task = new GenerateRepeatingAppointments(ctx);
     const { Appointment } = ctx.store.models;
-    const {
-      appointments: [appointment],
-    } = await Appointment.createWithSchedule({
+    const { appointment } = await Appointment.createWithSchedule({
       settings,
       appointmentData: {
         status: APPOINTMENT_STATUSES.CONFIRMED,
