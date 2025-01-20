@@ -199,12 +199,13 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [complexChartInstancesById, currentComplexChartTab],
   );
 
-  // Set default current tab if not set
+  // Sets initial instance tab when selecting a complex chart
   useEffect(() => {
-    if (!currentComplexChartTab && complexChartInstanceTabs?.length) {
+    console.log('running');
+    if (complexChartInstanceTabs?.length) {
       setCurrentComplexChartTab(complexChartInstanceTabs[0].key);
     }
-  }, [complexChartInstanceTabs, currentComplexChartTab]);
+  }, [complexChartInstanceTabs, selectedChartTypeId]);
 
   const handleCloseModal = () => setModalOpen(false);
 
