@@ -123,7 +123,6 @@ export const RepeatingAppointmentFields = ({
   handleResetRepeatUntilDate,
 }) => {
   const { startTime, schedule } = values;
-  console.log(schedule);
   const { interval, frequency, occurrenceCount, untilDate, endsMode } = schedule;
   const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
 

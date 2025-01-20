@@ -491,6 +491,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const handleSubmitForm = async (values, { resetForm }) => {
     const scheduleWillBeUnchanged =
       isEdit &&
+      initialValues.schedule &&
       isMatch(values.schedule, initialValues.schedule) &&
       values.startTime === initialValues.startTime;
 
