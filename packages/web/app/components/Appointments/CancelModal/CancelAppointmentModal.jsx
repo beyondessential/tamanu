@@ -6,7 +6,7 @@ import { omit } from 'lodash';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { formatDateTimeRange } from '../../../utils/dateTime';
+import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
 import { BaseModal } from '../../BaseModal';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
@@ -23,6 +23,8 @@ import {
 import { RadioInput } from '../../Field';
 import { BodyText } from '../../Typography';
 import styled from 'styled-components';
+import { RepeatCharacteristicsDescription } from '../OutpatientsBookingForm/RepeatCharacteristicsDescription';
+import { parseISO } from 'date-fns';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 20px;
@@ -68,8 +70,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         {schedule.id && (
           <DetailDisplay
             label={<TranslatedText stringId="appointment.repeating.label" fallback="Repeating" />}
-            // TODO: translations + formatting + all variations
-            value={`${schedule.frequency} on ${schedule.daysOfWeek}`}
+            value={
+              <RepeatCharacteristicsDescription
+                startTimeDate={parseISO(startTime)}
+                frequency={schedule.frequency}
+                interval={schedule.interval}
+              />
+            }
           />
         )}
       </AppointmentDetailsColumnLeft>
@@ -105,8 +112,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         {schedule.id && (
           <DetailDisplay
             label={<TranslatedText stringId="appointment.duration.label" fallback="Duration" />}
-            // TODO: translations + formatting + all variations
-            value={`Ends on ${schedule.untilDate}`}
+            value={
+              <TranslatedText
+                stringId="appointment.duration.endsOn"
+                fallback="Ends on :date"
+                replacements={{ date: formatShort(schedule.untilDate) }}
+              />
+            }
           />
         )}
       </AppointmentDetailsColumn>
@@ -114,7 +126,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
   );
 };
 
-export const CANCEL_REPEATING_APPOINTMENT_MODE = {
+const CANCEL_REPEATING_APPOINTMENT_MODE = {
   THIS_APPOINTMENT: 'thisAppointment',
   THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
 };

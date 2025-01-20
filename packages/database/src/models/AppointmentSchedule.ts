@@ -180,9 +180,18 @@ export class AppointmentSchedule extends Model {
         },
       },
     );
+    const [previousAppointment] = await this.getAppointments({
+      order: [['startTime', 'DESC']],
+      limit: 1,
+      where: {
+        status: {
+          [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
+        },
+      },
+    });
     await this.update({
       isFullyGenerated: true,
-      untilDate: appointment.startTime,
+      untilDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
       occurrenceCount: null,
     });
   }
