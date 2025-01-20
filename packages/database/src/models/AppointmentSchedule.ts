@@ -229,12 +229,12 @@ export class AppointmentSchedule extends Model {
       | MonthlySchedule;
     const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
-    const appointments: AppointmentCreateData[] = [];
+    const appointmentsToCreate: AppointmentCreateData[] = [];
 
     if (initialAppointmentData) {
       // Add the initial appointment data to the list of appointments to generate and to act
       // as a reference for incremented appointments
-      appointments.push({ ...initialAppointmentData, scheduleId: this.id });
+      appointmentsToCreate.push({ ...initialAppointmentData, scheduleId: this.id });
     }
 
     const adjustDateForFrequency = (date: Date) => {
@@ -256,8 +256,9 @@ export class AppointmentSchedule extends Model {
 
     const pushNextAppointment = () => {
       // Get the most recent appointment or start off where the last generation left off
-      const lastAppointment = appointments.at(-1) || latestExistingAppointment!.toCreateData();
-      appointments.push({
+      const lastAppointment =
+        appointmentsToCreate.at(-1) || latestExistingAppointment!.toCreateData();
+      appointmentsToCreate.push({
         ...lastAppointment,
         startTime: incrementDateString(lastAppointment.startTime),
         endTime: lastAppointment.endTime && incrementDateString(lastAppointment.endTime),
@@ -268,16 +269,20 @@ export class AppointmentSchedule extends Model {
       // Generation is considered complete if the next appointments startTime falls after the untilDate
       const nextAppointmentAfterUntilDate =
         parsedUntilDate &&
-        isAfter(parseISO(incrementDateString(appointments.at(-1)!.startTime)), parsedUntilDate);
+        isAfter(
+          parseISO(incrementDateString(appointmentsToCreate.at(-1)!.startTime)),
+          parsedUntilDate,
+        );
       // Or if the occurrenceCount is reached
       const hasReachedOccurrenceCount =
-        occurrenceCount && appointments.length + existingAppointments.length === occurrenceCount;
+        occurrenceCount &&
+        appointmentsToCreate.length + existingAppointments.length === occurrenceCount;
       return nextAppointmentAfterUntilDate || hasReachedOccurrenceCount;
     };
 
     let isFullyGenerated = false;
     // If initial appointment data has been preloaded in appointment array start generating from i = 1
-    for (let i = appointments.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
+    for (let i = appointmentsToCreate.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
       if (checkFullyGenerated()) {
         isFullyGenerated = true;
@@ -285,11 +290,11 @@ export class AppointmentSchedule extends Model {
       }
     }
 
-    const appointmentData = await models.Appointment.bulkCreate(appointments);
+    const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
     if (isFullyGenerated) {
       await this.update({ isFullyGenerated });
     }
-    return appointmentData;
+    return appointments;
   }
 
   toCreateData() {

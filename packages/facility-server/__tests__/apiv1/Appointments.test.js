@@ -157,9 +157,9 @@ describe('Appointments', () => {
   });
 
   describe('create with schedule', () => {
-    const testRepeatingAppointment = async (appointmentSchedule, startTime, expected) => {
+    const testRepeatingAppointment = async (schedule, startTime, expected) => {
       const result = await userApp.post('/api/appointments').send({
-        appointmentSchedule,
+        schedule,
         patientId: patient.id,
         clinicianId: userApp.user.dataValues.id,
         appointmentTypeId: 'appointmentType-standard',
