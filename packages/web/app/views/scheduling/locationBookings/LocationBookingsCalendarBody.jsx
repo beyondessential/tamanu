@@ -8,6 +8,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { generateIdFromCell, partitionAppointmentsByDate } from './utils';
+import { useAuth } from '../../../contexts/Auth';
 
 export const BookingsCell = ({
   appointments,
@@ -16,6 +17,7 @@ export const BookingsCell = ({
   openBookingForm,
   openCancelModal,
 }) => {
+  const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
@@ -23,7 +25,8 @@ export const BookingsCell = ({
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
       onClick={e => {
-        if (e.target.closest('.appointment-tile')) return;
+        const canCreateBooking = ability.can('create', 'Appointment');
+        if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
       }}
