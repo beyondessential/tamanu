@@ -336,7 +336,7 @@ describe('Appointments', () => {
       return [schedule, appointments];
     };
 
-    it('should update all future appointment if schedule is unchanged', async () => {
+    it('should update all future appointments if schedule is unchanged and updating a mid schedule appointment', async () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
@@ -358,6 +358,26 @@ describe('Appointments', () => {
         'appointmentType-specialist',
         'appointmentType-specialist',
       ]);
+    });
+    it('should update all appointments if schedule is unchanged and updating first appointment', async () => {
+      const [schedule, appointments] = await generateSchedule();
+      const firstAppointment = appointments[0];
+
+      await userApp
+        .put(`/api/appointments/${firstAppointment.id}?updateAllFutureAppointments=true`)
+        .send({
+          // Pass unchanged schedule in payload
+          schedule: scheduleCreateData,
+          appointmentTypeId: 'appointmentType-specialist',
+        });
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+      });
+
+      // All appointments should be updated
+      expect(
+        appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+      ).toBeTruthy();
     });
   });
 });
