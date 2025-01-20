@@ -292,9 +292,10 @@ appointments.put('/:id', async (req, res) => {
       {
         where: {
           scheduleId: appointment.scheduleId,
-          appointmentDate: {
-            [Op.gte]: appointment.startDate,
-          },
+          // TODO: delete all ones in the future of this appointment
+          // startTime: {
+          //   [Op.gte]: appointment.startTime,
+          // },
         },
       },
     );
