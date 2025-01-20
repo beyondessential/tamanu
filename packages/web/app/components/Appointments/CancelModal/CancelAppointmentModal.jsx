@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import { omit } from 'lodash';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 
@@ -18,6 +19,8 @@ import {
   DetailDisplay,
   StyledConfirmCancelRow,
 } from './BaseModalComponents';
+import { RadioInput } from '../../Field';
+import { BodyText } from '../../Typography';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const {
@@ -59,7 +62,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         {schedule.id && (
           <DetailDisplay
             label={<TranslatedText stringId="appointment.repeating.label" fallback="Repeating" />}
-            // TODO: translations
+            // TODO: translations + formatting + all variations
             value={`${schedule.frequency} on ${schedule.daysOfWeek}`}
           />
         )}
@@ -96,11 +99,38 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         {schedule.id && (
           <DetailDisplay
             label={<TranslatedText stringId="appointment.duration.label" fallback="Duration" />}
-            // TODO: translations
+            // TODO: translations + formatting + all variations
             value={`Ends on ${schedule.untilDate}`}
           />
         )}
       </AppointmentDetailsColumn>
+    </AppointmentDetailsContainer>
+  );
+};
+
+export const CANCEL_REPEATING_APPOINTMENT_MODE = {
+  THIS_APPOINTMENT: 'thisAppointment',
+  THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
+};
+
+const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
+  return (
+    <AppointmentDetailsContainer>
+      <BodyText>
+        This is a repeating appointment. Would you like to cancel this appointment only or this
+        appointment and all future appointments as well?
+      </BodyText>
+      <RadioInput
+        value={deletionType}
+        onChange={e => setDeletionType(e.target.value)}
+        options={[
+          { label: 'This appointment', value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT },
+          {
+            label: 'This and future appointments',
+            value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+          },
+        ]}
+      />
     </AppointmentDetailsContainer>
   );
 };
@@ -118,6 +148,10 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 
 export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
+
+  const [deletionType, setDeletionType] = useState(
+    CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+  );
 
   const { mutateAsync: mutateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () => {
@@ -146,9 +180,18 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
       fixedBottomRow // Ensures that bottom modal content can place a border across entire modal
       bottomRowContent={
         <BottomModalContent
-          cancelBooking={() =>
-            mutateAppointment({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
-          }
+          cancelBooking={() => {
+            if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
+              mutateAppointment({
+                // TODO: possibly too hacky
+                ...omit(appointment, 'schedule'),
+                status: APPOINTMENT_STATUSES.CANCELLED,
+              });
+            }
+            if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+              mutateAppointment({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED });
+            }
+          }}
           onClose={onClose}
         />
       }
@@ -161,6 +204,12 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
           fallback="Are you sure you would like to cancel the below appointment?"
         />
         <AppointmentDetailsDisplay appointment={appointment} />
+        {appointment.schedule && (
+          <RepeatingAppointmentOptions
+            deletionType={deletionType}
+            setDeletionType={setDeletionType}
+          />
+        )}
       </BodyContainer>
     </BaseModal>
   );
