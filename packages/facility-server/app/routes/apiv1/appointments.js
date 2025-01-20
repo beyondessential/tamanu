@@ -80,20 +80,26 @@ appointments.post(
     const {
       models,
       db,
-      body: { facilityId, appointmentSchedule, ...body },
+      body: { facilityId, appointmentSchedule: scheduleData, ...appointmentData },
       settings,
     } = req;
     const { Appointment } = models;
-
     await db.transaction(async () => {
-      const result = appointmentSchedule
-        ? (await Appointment.generateRepeatingAppointment(appointmentSchedule, body))[0]
-        : await Appointment.create(body);
+      const result = scheduleData
+        ? (
+            await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData,
+              scheduleData,
+            })
+          )[0]
+        : await Appointment.create(appointmentData);
 
-      if (body.email) {
+      const { email } = appointmentData;
+      if (email) {
         await sendAppointmentReminder({
           appointmentId: result.id,
-          email: body.email,
+          email,
           facilityId,
           models,
           settings,
@@ -126,7 +132,7 @@ appointments.post(
 
 appointments.put('/:id', simplePut('Appointment'));
 
-const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
@@ -163,7 +169,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = patientNameOrId => {
+const buildPatientNameOrIdQuery = (patientNameOrId) => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -277,7 +283,7 @@ appointments.post('/locationBooking', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
       const conflictCount = await Appointment.count({
         where: {
@@ -314,7 +320,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const { Appointment } = models;
 
   try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
+    const result = await Appointment.sequelize.transaction(async (transaction) => {
       const existingBooking = await Appointment.findByPk(id, { transaction });
 
       if (!existingBooking) {

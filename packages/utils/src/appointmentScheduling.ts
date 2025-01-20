@@ -13,7 +13,11 @@ export const weekdayAtOrdinalPosition = (
   const matchingWeekdays = eachWeekdayInMonth(date, DAYS_OF_WEEK.indexOf(day));
   // Convert ordinal positioning to 0-based index but leave -1 as last occurrence
   const atIndex = Math.max(nth - 1, -1);
-  return matchingWeekdays.at(atIndex);
+  const matchingWeekday = matchingWeekdays.at(atIndex);
+  if (!matchingWeekday) {
+    throw new Error('No weekday found at the specified ordinal position');
+  }
+  return matchingWeekday;
 };
 
 export const getWeekdayOrdinalPosition = (date: Date) => {
