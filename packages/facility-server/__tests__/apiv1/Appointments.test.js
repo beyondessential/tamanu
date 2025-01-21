@@ -4,7 +4,11 @@ import { Op } from 'sequelize';
 
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
-import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  REPEAT_FREQUENCY,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
+} from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
@@ -345,7 +349,7 @@ describe('Appointments', () => {
         startTime: '2024-10-16 12:00:00',
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        updateAllFutureAppointments: true,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -367,7 +371,7 @@ describe('Appointments', () => {
         startTime: '2024-10-02 12:00:00',
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        updateAllFutureAppointments: true,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -395,7 +399,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: thirdAppointment.id,
-        updateAllFutureAppointments: true,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -468,7 +472,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: firstAppointment.id,
-        updateAllFutureAppointments: true,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();

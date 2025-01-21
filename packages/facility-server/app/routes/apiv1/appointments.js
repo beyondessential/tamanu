@@ -9,6 +9,7 @@ import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
@@ -135,12 +136,7 @@ appointments.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Appointment');
     const { models, body, params, settings } = req;
-    const {
-      schedule: scheduleData,
-      facilityId,
-      updateAllFutureAppointments,
-      ...appointmentData
-    } = body;
+    const { schedule: scheduleData, facilityId, modifyRepeatingMode, ...appointmentData } = body;
 
     const { id } = params;
     const { Appointment } = models;
@@ -149,7 +145,7 @@ appointments.put(
       if (!appointment) {
         throw new NotFoundError();
       }
-      if (updateAllFutureAppointments) {
+      if (modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');

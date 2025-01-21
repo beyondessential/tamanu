@@ -6,7 +6,11 @@ import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
+} from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -32,7 +36,6 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { ENDS_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
-import { MODIFY_REPEATING_APPOINTMENT_MODE } from './ModifyRepeatingAppointmentModal';
 
 const IconLabel = styled.div`
   display: flex;
@@ -489,13 +492,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   });
 
   const handleSubmitForm = async ({ modifyRepeatingMode, ...values }, { resetForm }) => {
-    if (modifyRepeatingMode) {
-      values.updateAllFutureAppointments =
-        modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
-      if (isScheduleUnchanged(values, initialValues)) {
-        // Don't attempt to update schedule if it hasn't changed
-        delete values.schedule;
-      }
+    if (modifyRepeatingMode && isScheduleUnchanged(values, initialValues)) {
+      // Don't attempt to update schedule if it hasn't changed
+      delete values.schedule;
     }
 
     await handleSubmit(values);

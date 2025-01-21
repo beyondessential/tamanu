@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+import { typographyClasses } from '@mui/material/Typography';
+import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormControlLabel';
+import Radio, { radioClasses } from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+
+import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
+
 import { ConfirmModal } from '../../ConfirmModal';
 import { TranslatedText } from '../../Translation';
-import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormControlLabel';
-import { typographyClasses } from '@mui/material/Typography';
-import Radio, { radioClasses } from '@mui/material/Radio';
-import styled from 'styled-components';
 import { BodyText } from '../../Typography';
 import { Colors } from '../../../constants';
-import RadioGroup from '@mui/material/RadioGroup';
 
 const StyledConfirmModal = styled(ConfirmModal)`
   & .MuiPaper-root {
@@ -49,11 +52,6 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     }
   }
 `;
-
-export const MODIFY_REPEATING_APPOINTMENT_MODE = {
-  THIS_APPOINTMENT: 'thisAppointment',
-  THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
-};
 
 export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) => {
   const [mode, setMode] = useState(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
