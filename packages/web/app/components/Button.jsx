@@ -370,6 +370,7 @@ export const ToggleButton = styled(MuiToggleButton)`
 
    &:disabled,
    &.${toggleButtonClasses.disabled} {
+     background-color: ${Colors.softOutline};
      border-color: ${Colors.softText};
      color: ${Colors.softText};
      cursor: not-allowed;
