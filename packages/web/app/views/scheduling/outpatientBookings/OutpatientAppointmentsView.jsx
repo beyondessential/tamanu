@@ -139,7 +139,7 @@ export const OutpatientAppointmentsView = () => {
 
   const handleCloseModifyRepeatingModal = () => {
     setIsModifyRepeatingModalOpen(false);
-    setSelectedAppointment(null);
+    setSelectedAppointment({});
   };
 
   return (

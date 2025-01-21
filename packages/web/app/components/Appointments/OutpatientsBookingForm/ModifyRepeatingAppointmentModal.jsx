@@ -65,7 +65,7 @@ export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) =>
   return (
     <StyledConfirmModal
       open={open}
-      onClose={onClose}
+      onCancel={onClose}
       onConfirm={handleConfirm}
       title={
         <TranslatedText
