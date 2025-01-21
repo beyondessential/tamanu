@@ -278,10 +278,10 @@ appointments.put('/:id', async (req, res) => {
   } = req;
   req.checkPermission('write', 'Appointment');
 
-  const result = await req.db.transaction(async () => {
-    const appointment = await Appointment.findByPk(params.id);
-    if (!appointment) throw new NotFoundError();
+  const appointment = await Appointment.findByPk(params.id);
+  if (!appointment) throw new NotFoundError();
 
+  const result = await req.db.transaction(async () => {
     await appointment.update(req.body);
 
     if (status === APPOINTMENT_STATUSES.CANCELLED && schedule.id) {
