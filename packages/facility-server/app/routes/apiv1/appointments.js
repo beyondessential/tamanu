@@ -151,7 +151,7 @@ appointments.put(
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
         if (scheduleData) {
-          await existingSchedule.endAtAppointment(appointmentData);
+          await existingSchedule.endAtAppointment(appointment);
           if (appointmentData.status !== APPOINTMENT_STATUSES.CANCELLED) {
             const { schedule } = await Appointment.createWithSchedule({
               settings: settings[facilityId],
