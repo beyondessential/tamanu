@@ -208,6 +208,7 @@ patientRoute.get(
 
     // Find and return all associated encounter medications
     const lastPrescriptions = await Prescription.findAndCountAll({
+      where: { isDischarge: true },
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
