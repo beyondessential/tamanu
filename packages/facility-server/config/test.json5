@@ -26,6 +26,9 @@
         // every 50 mins
         "schedule": "*/50 * * * *"
       }
+    },
+    "cleanUpAppointments": {
+      "batchSize": 2,
     }
   },
   "serverFacilityIds": ["balwyn", "kerang", "lake-charm"],
