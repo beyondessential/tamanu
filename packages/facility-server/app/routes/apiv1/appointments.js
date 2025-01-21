@@ -10,7 +10,6 @@ import {
   PATIENT_COMMUNICATION_TYPES,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -129,8 +128,6 @@ appointments.post(
     res.status(200).send(response);
   }),
 );
-
-appointments.put('/:id', simplePut('Appointment'));
 
 const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
@@ -273,7 +270,29 @@ appointments.get(
   }),
 );
 
-appointments.put('/:id', simplePut('Appointment'));
+appointments.put('/:id', async (req, res) => {
+  const {
+    models: { Appointment, AppointmentSchedule },
+    params,
+    body: { status, schedule = {} },
+  } = req;
+  req.checkPermission('write', 'Appointment');
+
+  const appointment = await Appointment.findByPk(params.id);
+  if (!appointment) throw new NotFoundError();
+
+  const result = await req.db.transaction(async () => {
+    await appointment.update(req.body);
+
+    if (status === APPOINTMENT_STATUSES.CANCELLED && schedule.id) {
+      const appointmentSchedule = await AppointmentSchedule.findByPk(schedule.id);
+      await appointmentSchedule.endAtAppointment(appointment);
+    }
+    return appointment;
+  });
+
+  res.send(result);
+});
 
 appointments.post('/locationBooking', async (req, res) => {
   req.checkPermission('create', 'Appointment');

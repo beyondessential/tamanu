@@ -66,6 +66,7 @@ export class Appointment extends Model {
       'appointmentType',
       'bookingType',
       'encounter',
+      'schedule',
     ];
   }
 
