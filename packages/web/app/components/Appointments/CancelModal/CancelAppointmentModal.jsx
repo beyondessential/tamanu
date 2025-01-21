@@ -147,16 +147,32 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
   return (
     <OptionsContainer>
       <StyledBodyText>
-        This is a repeating appointment. Would you like to cancel this appointment only or this
-        appointment and all future appointments as well?
+        <TranslatedText
+          stringId="appointment.cancelRepeating.message"
+          fallback="This is a repeating appointment. Would you like to cancel this appointment only or this
+        appointment and all future appointments as well?"
+        />
       </StyledBodyText>
       <StyledRadioInput
         value={deletionType}
         onChange={e => setDeletionType(e.target.value)}
         options={[
-          { label: 'This appointment', value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT },
           {
-            label: 'This and future appointments',
+            label: (
+              <TranslatedText
+                stringId="appointment.modify.option.thisAppointment"
+                fallback="This appointment"
+              />
+            ),
+            value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+          },
+          {
+            label: (
+              <TranslatedText
+                stringId="appointment.modify.option.thisAndFutureAppointments"
+                fallback="This and future appointments"
+              />
+            ),
             value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
           },
         ]}
