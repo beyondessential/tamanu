@@ -1,3 +1,4 @@
+import config from 'config';
 import { CleanUpAppointments } from '../../app/tasks/CleanUpAppointments';
 import { createTestContext } from '../utilities';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
@@ -41,6 +42,8 @@ describe('Clean up appointments', () => {
     expect(
       appointments.every((appointment) => appointment.status === APPOINTMENT_STATUSES.CANCELLED),
     ).toBeTruthy();
-    expect(cancelAppointmentSpy).toHaveBeenCalledTimes(2);
+    expect(cancelAppointmentSpy).toHaveBeenCalledTimes(
+      Math.ceil(3 / config.schedules.cleanUpAppointments.batchSize),
+    );
   });
 });
