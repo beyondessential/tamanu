@@ -59,8 +59,7 @@ export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) =>
   const [mode, setMode] = useState(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
 
   const handleChangeMode = event => setMode(event.target.value);
-  const handleConfirm = () =>
-    onConfirm(mode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS);
+  const handleConfirm = () => onConfirm(mode);
 
   return (
     <StyledConfirmModal

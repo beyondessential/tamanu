@@ -13,7 +13,6 @@ import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -55,7 +54,7 @@ const formStyles = {
 };
 
 const isScheduleUnchanged = (values, initialValues) =>
-  values.updateAllFutureAppointments &&
+  values.modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS &&
   isMatch(values.schedule, initialValues.schedule) &&
   values.startTime === initialValues.startTime &&
   values.endTime === initialValues.endTime;
@@ -200,7 +199,6 @@ const EmailFields = ({ patientId }) => {
 };
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
-  const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -291,9 +289,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     setFieldError,
     setValues,
   }) => {
-    const isRepeatingAppointmentDisabled =
-      !values.startTime ||
-      values.modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT;
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -450,11 +445,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-
           <Field
             name="isRepeatingAppointment"
             onChange={handleChangeIsRepeatingAppointment}
-            disabled={isRepeatingAppointmentDisabled}
+            disabled={!values.startTime || isEdit}
             label={
               <TranslatedText
                 stringId="appointment.isRepeatingAppointment.label"
@@ -463,15 +457,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={SwitchField}
           />
-
-          {values.isRepeatingAppointment && !isRepeatingAppointmentDisabled && (
-            <RepeatingAppointmentFields
-              values={values}
-              setFieldValue={setFieldValue}
-              setFieldError={setFieldError}
-              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
-            />
-          )}
+          {values.isRepeatingAppointment &&
+            values.modifyRepeatingMode !== MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT && (
+              <RepeatingAppointmentFields
+                values={values}
+                setFieldValue={setFieldValue}
+                setFieldError={setFieldError}
+                handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+              />
+            )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>
@@ -494,10 +488,14 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     },
   });
 
-  const handleSubmitForm = async (values, { resetForm }) => {
-    if (isEdit && isScheduleUnchanged(values, initialValues)) {
-      // Don't attempt to update schedule if it hasn't changed
-      delete values.schedule;
+  const handleSubmitForm = async ({ modifyRepeatingMode, ...values }, { resetForm }) => {
+    if (modifyRepeatingMode) {
+      values.updateAllFutureAppointments =
+        modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
+      if (isScheduleUnchanged(values, initialValues)) {
+        // Don't attempt to update schedule if it hasn't changed
+        delete values.schedule;
+      }
     }
 
     await handleSubmit(values);

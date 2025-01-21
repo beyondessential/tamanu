@@ -122,12 +122,12 @@ export const OutpatientAppointmentsView = () => {
     }
   };
 
-  const handleConfirmModifyRepeatingModal = updateAllFutureAppointments => {
+  const handleConfirmModifyRepeatingModal = modifyRepeatingMode => {
     const { schedule } = selectedAppointment;
     setIsModifyRepeatingModalOpen(false);
     setSelectedAppointment({
       ...selectedAppointment,
-      updateAllFutureAppointments,
+      modifyRepeatingMode,
       isRepeatingAppointment: true,
       schedule: {
         ...schedule,
