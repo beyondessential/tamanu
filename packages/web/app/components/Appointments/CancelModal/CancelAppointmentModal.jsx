@@ -127,13 +127,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             value={
               schedule.untilDate ? (
                 <TranslatedText
-                  stringId="appointment.duration.endsOn"
+                  stringId="appointment.duration.endsOnDate"
                   fallback="Ends on :date"
                   replacements={{ date: formatShort(schedule.untilDate) }}
                 />
               ) : (
                 <TranslatedText
-                  stringId="appointment.duration.endsOn"
+                  stringId="appointment.duration.endsAfterOccurrences"
                   fallback="Ends after :numberOfOccurrences occurrences"
                   replacements={{ numberOfOccurrences: schedule.occurrenceCount }}
                 />
