@@ -1,29 +1,38 @@
-import React from "react";
-import { ADMINISTRATION_FREQUENCY_DETAILS } from "@tamanu/constants";
-import { AutocompleteInput } from "../Field";
-import { FrequencySuggester } from "./frequencySuggester";
-import { TranslatedText } from "../Translation/TranslatedText";
-import { useTranslation } from "../../contexts/Translation";
+import React from 'react';
+import {
+  ADMINISTRATION_FREQUENCY_DETAILS,
+  ADMINISTRATION_FREQUENCY_SYNONYMS,
+} from '@tamanu/constants';
+import { AutocompleteInput } from '../Field';
+import { FrequencySuggester } from './frequencySuggester';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { useTranslation } from '../../contexts/Translation';
 
-const getFrequencySuggestions = (details, language) => {
-  return Object.entries(details[language]).map(([key, value]) => ({
-    label: `${key} (${value.synonyms[0]})`,
+const getFrequencySuggestions = (synonyms, details, language) => {
+  return Object.entries(synonyms[language]).map(([key, value]) => ({
+    label: `${key} (${value[0]})`,
     value: key,
-    synonyms: value.synonyms,
-    startTimes: value.startTimes,
-    dosesPerDay: value.dosesPerDay,
+    synonyms: value,
+    startTimes: details[key].startTimes,
+    dosesPerDay: details[key].dosesPerDay,
   }));
 };
 
-export const FrequencySearchInput = () => {
+export const FrequencySearchInput = ({ onChange }) => {
   const { storedLanguage } = useTranslation();
 
-  const frequencySuggestions = getFrequencySuggestions(ADMINISTRATION_FREQUENCY_DETAILS, storedLanguage);
+  const frequencySuggestions = getFrequencySuggestions(
+    ADMINISTRATION_FREQUENCY_SYNONYMS,
+    ADMINISTRATION_FREQUENCY_DETAILS,
+    storedLanguage,
+  );
   const frequencySuggester = new FrequencySuggester(frequencySuggestions);
 
-  return <AutocompleteInput
-    onChange={() => {}}
-    label={<TranslatedText stringId="medication.frequency.label" fallback="Frequency" />}
-    suggester={frequencySuggester}
-  />;
+  return (
+    <AutocompleteInput
+      onChange={onChange}
+      label={<TranslatedText stringId="medication.frequency.label" fallback="Frequency" />}
+      suggester={frequencySuggester}
+    />
+  );
 };
