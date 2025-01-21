@@ -159,7 +159,7 @@ appointments.put(
           const { schedule } = await Appointment.createWithSchedule({
             settings: settings[facilityId],
             appointmentData: omit(appointmentData, 'id'),
-            scheduleData,
+            scheduleData: omit(scheduleData, 'id'),
           });
           return { schedule };
         } else {

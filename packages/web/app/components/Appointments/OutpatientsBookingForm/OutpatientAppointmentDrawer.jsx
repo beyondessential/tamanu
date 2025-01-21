@@ -496,6 +496,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
   const handleSubmitForm = async (values, { resetForm }) => {
     if (isEdit && isScheduleUnchanged(values, initialValues)) {
+      // Don't attempt to update schedule if it hasn't changed
       delete values.schedule;
     }
 
