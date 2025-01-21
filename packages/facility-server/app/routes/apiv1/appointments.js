@@ -151,8 +151,11 @@ appointments.put(
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
         if (scheduleData) {
+          // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
+          // To do this we cancel this and all future appointments and mark existing schedule as ended
           await existingSchedule.endAtAppointment(appointment);
           if (appointmentData.status !== APPOINTMENT_STATUSES.CANCELLED) {
+            // Then if not cancelling the repeating appointments we generate a new schedule starting with the updated appointment
             const { schedule } = await Appointment.createWithSchedule({
               settings: settings[facilityId],
               appointmentData: omit(appointmentData, 'id'),
@@ -163,6 +166,8 @@ appointments.put(
         } else {
           await existingSchedule.modifyFromAppointment(
             appointment,
+            // When modifying all future appointments we strip startTime, and endTime
+            // in order to preserve the incremental time difference between appointments
             omit(appointmentData, 'id', 'startTime', 'endTime'),
           );
         }
