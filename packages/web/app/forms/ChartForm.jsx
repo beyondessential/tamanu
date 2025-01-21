@@ -70,22 +70,20 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
         [CHARTING_DATA_ELEMENT_IDS.complexChartDate]: getCurrentDateTimeString(),
       }}
       render={({ submitForm, values, setFieldValue }) => (
-        <>
-          <SurveyScreen
-            allComponents={visibleComponents}
-            patient={patient}
-            cols={2}
-            values={values}
-            setFieldValue={setFieldValue}
-            submitButton={
-              <FormSubmitCancelRow
-                confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
-                onConfirm={submitForm}
-                onCancel={onClose}
-              />
-            }
-          />
-        </>
+        <SurveyScreen
+          allComponents={visibleComponents}
+          patient={patient}
+          cols={2}
+          values={values}
+          setFieldValue={setFieldValue}
+          submitButton={
+            <FormSubmitCancelRow
+              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+              onConfirm={submitForm}
+              onCancel={onClose}
+            />
+          }
+        />
       )}
     />
   );
