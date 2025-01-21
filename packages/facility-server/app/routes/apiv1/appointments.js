@@ -152,12 +152,14 @@ appointments.put(
         }
         if (scheduleData) {
           await existingSchedule.endAtAppointment(appointmentData);
-          const { schedule } = await Appointment.createWithSchedule({
-            settings: settings[facilityId],
-            appointmentData: omit(appointmentData, 'id'),
-            scheduleData: omit(scheduleData, 'id'),
-          });
-          return { schedule };
+          if (appointmentData.status !== APPOINTMENT_STATUSES.CANCELLED) {
+            const { schedule } = await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData: omit(appointmentData, 'id'),
+              scheduleData: omit(scheduleData, 'id'),
+            });
+            return { schedule };
+          }
         } else {
           await existingSchedule.modifyFromAppointment(
             appointment,
