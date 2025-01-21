@@ -62,7 +62,7 @@ const TABS = [
         <ChartsPane {...props} />
       </ChartDataProvider>
     ),
-    condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
+    // condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,

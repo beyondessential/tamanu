@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
 import { SurveyScreen } from '../components/Surveys';
@@ -11,12 +12,24 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
+import { useTranslation } from '../contexts/Translation';
+import { getValidationSchema } from '../utils';
+import { useEncounter } from '../contexts/Encounter';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
+  const { getTranslation } = useTranslation();
+  const { encounter } = useEncounter();
   const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
   const { components = [] } = chartSurvey || {};
   const visibleComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  );
+  const validationSchema = useMemo(
+    () =>
+      getValidationSchema({ components: visibleComponents }, getTranslation, {
+        encounterType: encounter?.encounterType,
+      }),
+    [visibleComponents, encounter?.encounterType, getTranslation],
   );
 
   const { ability } = useAuth();
@@ -52,24 +65,27 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
+      validationSchema={validationSchema}
+      initialValues={{
+        [CHARTING_DATA_ELEMENT_IDS.complexChartDate]: getCurrentDateTimeString(),
+      }}
       render={({ submitForm, values, setFieldValue }) => (
         <>
-        <SurveyScreen
-          allComponents={visibleComponents}
-          patient={patient}
-          cols={2}
-          values={values}
-          setFieldValue={setFieldValue}
-          submitButton={
-            <FormSubmitCancelRow
-              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
-              onConfirm={submitForm}
-              onCancel={onClose}
-            />
-          }
-        />
+          <SurveyScreen
+            allComponents={visibleComponents}
+            patient={patient}
+            cols={2}
+            values={values}
+            setFieldValue={setFieldValue}
+            submitButton={
+              <FormSubmitCancelRow
+                confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+                onConfirm={submitForm}
+                onCancel={onClose}
+              />
+            }
+          />
         </>
-        
       )}
     />
   );
