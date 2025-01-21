@@ -1,5 +1,5 @@
 import config from 'config';
-import { DataTypes } from 'sequelize';
+import { DataTypes, type Attributes, type WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
 import {
@@ -14,7 +14,7 @@ import { FhirAnnotation, FhirIdentifier, FhirReference } from '@tamanu/shared/se
 import { Deleted, Invalid } from '@tamanu/shared/utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { FhirResource } from './Resource';
-import { FHIR_ENDPOINT_SCHEMA } from './fhirEndpoint';
+import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';
 import type { InitOptions, Models } from '../../types/model';
 import type { ImagingRequest } from '../../models/ImagingRequest';
 
@@ -24,6 +24,7 @@ export class FhirImagingStudy extends FhirResource {
   declare started?: string;
   declare status: string;
   declare note?: { text: string }[];
+  declare contained?: FhirEndpointType[];
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -194,7 +195,9 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     const { ImagingResult } = this.sequelize.models;
-    const whereClause = { imagingRequestId: imagingRequest.id };
+    const whereClause: WhereOptions<Attributes<ImagingRequest>> = {
+      imagingRequestId: imagingRequest.id,
+    };
     if (imagingAccessCode) {
       whereClause.externalCode = imagingAccessCode;
     }

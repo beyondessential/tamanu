@@ -2,15 +2,13 @@ import * as yup from 'yup';
 
 const endpointStatuses = ['active', 'suspended', 'error', 'off', 'entered-in-error', 'test'];
 
+export type FhirEndpointType = yup.InferType<typeof FHIR_ENDPOINT_SCHEMA>;
 export const FHIR_ENDPOINT_SCHEMA = yup.object({
   resourceType: yup
     .string()
     .oneOf(['Endpoint'], 'ImagingStudy only supports a contained Endpoint resource')
     .required(),
-  status: yup
-    .string()
-    .oneOf(endpointStatuses)
-    .required(),
+  status: yup.string().oneOf(endpointStatuses).required(),
   address: yup.string().required(),
   connectionType: yup
     .object({
