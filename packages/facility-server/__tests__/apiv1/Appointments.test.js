@@ -521,7 +521,7 @@ describe('Appointments', () => {
     });
   });
   describe('delete with schedule', () => {
-    const scheduleCreateData = {
+    const scheduleData = {
       untilDate: '2024-10-23',
       interval: 1,
       frequency: REPEAT_FREQUENCY.WEEKLY,
@@ -530,7 +530,7 @@ describe('Appointments', () => {
       nthWeekday: null,
     };
     const generateSchedule = async () => {
-      const schedule = await models.AppointmentSchedule.create(scheduleCreateData);
+      const schedule = await models.AppointmentSchedule.create(scheduleData);
       const appointments = await models.Appointment.bulkCreate(
         [
           '2024-10-02 12:00:00',
@@ -552,7 +552,7 @@ describe('Appointments', () => {
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
-        schedule: scheduleCreateData,
+        schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
         modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
@@ -576,7 +576,7 @@ describe('Appointments', () => {
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
-        schedule: scheduleCreateData,
+        schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
         modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
