@@ -40,6 +40,11 @@ export async function up(query) {
         key: 'id',
       },
     },
+    is_discharge: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

@@ -1,4 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
@@ -8,11 +9,17 @@ export class EncounterPrescription extends Model {
   declare id: string;
   declare encounterId?: string;
   declare prescriptionId?: string;
+  declare isDischarge: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
+        isDischarge: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+        }
       },
       {
         ...options,
