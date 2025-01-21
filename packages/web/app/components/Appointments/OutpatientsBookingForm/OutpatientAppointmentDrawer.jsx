@@ -500,7 +500,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       delete values.schedule;
     }
 
-    await handleSubmit({ ...values, facilityId });
+    await handleSubmit(values);
     resetForm();
   };
 
