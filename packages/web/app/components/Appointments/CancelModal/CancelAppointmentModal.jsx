@@ -134,8 +134,8 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               ) : (
                 <TranslatedText
                   stringId="appointment.duration.endsOn"
-                  fallback="Ends after :numberOfOccurences occurrences"
-                  replacements={{ numberOfOccurences: schedule.occurrenceCount }}
+                  fallback="Ends after :numberOfOccurrences occurrences"
+                  replacements={{ numberOfOccurrences: schedule.occurrenceCount }}
                 />
               )
             }
