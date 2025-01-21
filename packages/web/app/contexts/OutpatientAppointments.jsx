@@ -19,8 +19,6 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
     }
   }, [userPreferences]);
 
-  console.log(filters);
-
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters }}>
       {children}
