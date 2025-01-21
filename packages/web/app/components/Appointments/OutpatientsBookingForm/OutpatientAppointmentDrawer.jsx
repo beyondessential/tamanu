@@ -54,6 +54,12 @@ const formStyles = {
   minWidth: 'fit-content',
 };
 
+const isScheduleUnchanged = (values, initialValues) =>
+  values.updateAllFutureAppointments &&
+  isMatch(values.schedule, initialValues.schedule) &&
+  values.startTime === initialValues.startTime &&
+  values.endTime === initialValues.endTime;
+
 const getDescription = (isEdit, isLockedPatient) => {
   if (isEdit) {
     return (
@@ -489,13 +495,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    const scheduleWillBeUnchanged =
-      isEdit &&
-      initialValues.schedule &&
-      isMatch(values.schedule, initialValues.schedule) &&
-      values.startTime === initialValues.startTime;
-
-    if (scheduleWillBeUnchanged) {
+    if (isEdit && isScheduleUnchanged(values, initialValues)) {
       delete values.schedule;
     }
 

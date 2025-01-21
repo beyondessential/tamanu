@@ -163,7 +163,10 @@ appointments.put(
           });
           return { schedule };
         } else {
-          await existingSchedule.modifyFromAppointment(appointment, omit(appointmentData, 'id'));
+          await existingSchedule.modifyFromAppointment(
+            appointment,
+            omit(appointmentData, 'id', 'startTime', 'endTime'),
+          );
         }
       } else {
         await appointment.update(appointmentData);
