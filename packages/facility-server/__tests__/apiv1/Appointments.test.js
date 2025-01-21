@@ -552,6 +552,7 @@ describe('Appointments', () => {
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: scheduleCreateData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
         modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
@@ -575,6 +576,7 @@ describe('Appointments', () => {
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: scheduleCreateData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
         modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
