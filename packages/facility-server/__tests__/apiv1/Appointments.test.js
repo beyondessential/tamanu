@@ -378,7 +378,7 @@ describe('Appointments', () => {
         appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
-    it('should create a new schedule and close existing one if schedule data is changed when updating a mid schedule appointment', async () => {
+    it('should create a new schedule and close existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
       const [schedule, appointments] = await generateSchedule();
       const thirdAppointment = appointments[2];
 
@@ -451,7 +451,7 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close existing one if schedule data is changed when updating the first appointment in schedule', async () => {
+    it('should create a new schedule and close existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
       const [schedule, appointments] = await generateSchedule();
       const firstAppointment = appointments[0];
 
