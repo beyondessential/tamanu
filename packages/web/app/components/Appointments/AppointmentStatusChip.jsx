@@ -42,6 +42,7 @@ const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
   </Toggle>
 );
 
+// TODO: correct disabled styling
 export const AppointmentStatusChip = ({
   appointmentStatus,
   disabled = false,
