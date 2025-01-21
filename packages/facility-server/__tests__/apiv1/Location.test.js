@@ -1,4 +1,4 @@
-import { Location } from '@tamanu/shared/models/Location';
+import { Location } from '@tamanu/database';
 
 describe('Location', () => {
   describe('parseFullLocationName', () => {

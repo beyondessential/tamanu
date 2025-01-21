@@ -1,25 +1,28 @@
 import React from 'react';
 import { View } from '@react-pdf/renderer';
+import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { getLocationName } from '../../patientAccessors';
 import { Col, Row } from '../Layout';
 import { HorizontalRule } from './HorizontalRule';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { formatShort } from '../../dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 import { P } from '../Typography';
 
 export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 
-  const primaryDiagnoses = diagnoses
-    .filter(diagnosis => diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const filterAndSortDiagnoses = (isPrimary) =>
+    diagnoses
+      .filter((diagnosis) => diagnosis.isPrimary === isPrimary)
+      .filter(({ certainty }) => certainty === DIAGNOSIS_CERTAINTY.CONFIRMED)
+      .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 
-  const secondaryDiagnoses = diagnoses
-    .filter(diagnosis => !diagnosis.isPrimary)
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+  const primaryDiagnoses = filterAndSortDiagnoses(true);
+  const secondaryDiagnoses = filterAndSortDiagnoses(false);
+
   return (
     <>
       <DataSection
@@ -58,7 +61,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.primaryDiagnoses.label', 'Primary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {primaryDiagnoses.map(diagnosis => (
+            {primaryDiagnoses.map((diagnosis) => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>
@@ -72,7 +75,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.secondaryDiagnoses.label', 'Secondary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {secondaryDiagnoses.map(diagnosis => (
+            {secondaryDiagnoses.map((diagnosis) => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>

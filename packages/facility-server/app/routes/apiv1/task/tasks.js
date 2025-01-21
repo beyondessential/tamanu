@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
-import { datetimeCustomValidation, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { datetimeCustomValidation, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };

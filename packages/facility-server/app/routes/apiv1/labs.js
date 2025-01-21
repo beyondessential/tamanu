@@ -4,17 +4,16 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  NOTIFICATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   simpleGet,
@@ -59,7 +58,6 @@ labRequest.put(
     }
 
     await db.transaction(async () => {
-      let shouldPushNotification = false;
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
         if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
         await models.LabRequestLog.create({
@@ -67,21 +65,12 @@ labRequest.put(
           labRequestId: params.id,
           updatedById: userId,
         });
-        shouldPushNotification = [
-          LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-          LAB_REQUEST_STATUSES.PUBLISHED,
-          LAB_REQUEST_STATUSES.INVALIDATED,
-        ].includes(labRequestData.status);
       }
 
       if (labRequestData.specimenTypeId !== undefined) {
         labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
       }
-      const newLabRequestRecord = await labRequestRecord.update(labRequestData);
-
-      if (shouldPushNotification) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.LAB_REQUEST, newLabRequestRecord)
-      }
+      await labRequestRecord.update(labRequestData);
     });
 
     res.send(labRequestRecord);
@@ -193,7 +182,7 @@ labRequest.get(
         },
       ),
       makeDeletedAtIsNullFilter('encounter'),
-    ].filter(f => f);
+    ].filter((f) => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
@@ -297,7 +286,7 @@ labRequest.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
     res.send({
       data: forResponse,
       count,
@@ -360,7 +349,7 @@ labRelations.put(
     db.transaction(async () => {
       const promises = [];
 
-      labTests.forEach(labTest => {
+      labTests.forEach((labTest) => {
         req.checkPermission('write', labTest);
         const labTestBody = body[labTest.id];
         const updated = labTest.set(labTestBody);
@@ -415,7 +404,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the indivudual lab workflow
+      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
       where: {
         visibilityStatus: {
           [Op.notIn]: [
@@ -489,7 +478,7 @@ async function createPanelLabRequests(models, body, note, user) {
   });
 
   const response = await Promise.all(
-    panels.map(async panel => {
+    panels.map(async (panel) => {
       const panelId = panel.id;
       const testPanelRequest = await models.LabTestPanelRequest.create({
         labTestPanelId: panelId,
@@ -498,7 +487,7 @@ async function createPanelLabRequests(models, body, note, user) {
       const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
       const requestSampleDetails = sampleDetails[panelId] || {};
-      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+      const labTestTypeIds = panel.labTestTypes?.map((testType) => testType.id) || [];
       const labTestCategoryId = panel.categoryId;
       const newLabRequest = await createLabRequest(
         innerLabRequestBody,
@@ -578,7 +567,7 @@ async function createIndividualLabRequests(models, body, note, user) {
   const { sampleDetails = {}, ...labRequestBody } = body;
 
   const response = await Promise.all(
-    categories.map(async category => {
+    categories.map(async (category) => {
       const categoryId = category.get('lab_test_category_id');
       const requestSampleDetails = sampleDetails[categoryId] || {};
       const newLabRequest = await createLabRequest(

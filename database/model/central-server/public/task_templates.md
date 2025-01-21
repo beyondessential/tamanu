@@ -3,7 +3,7 @@ Template of tasks which then can be created upon
 {% enddocs %}
 
 {% docs task_templates__reference_data_id %}
-The name of task template, refered to ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
+The name of task template, referred to ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs task_templates__high_priority %}

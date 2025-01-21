@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
 import { initDeviceId } from '../sync/initDeviceId';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';

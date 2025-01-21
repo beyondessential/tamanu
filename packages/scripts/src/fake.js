@@ -6,16 +6,17 @@ const {
   IMAGING_TYPES,
 } = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
-const { initDatabase } = require('@tamanu/shared/services/database');
+const { initDatabase } = require('@tamanu/database/services/database');
 const config = require('config');
 
 // generate fake data enough to test recent migrations
 /**
  *
- * @param {import('@tamanu/shared/models')} models
+ * @param {import('@tamanu/database/models')} models
  */
 async function generateData(models) {
   const {
+    Appointment,
     Department,
     Discharge,
     Encounter,
@@ -340,6 +341,14 @@ async function generateData(models) {
       completedById: examiner.id,
       description: 'This is a test result',
       completedAt: '2022-03-04 15:30:00',
+    }),
+  );
+
+  await Appointment.create(
+    fake(Appointment, {
+      patientId: patient.id,
+      clinicianId: examiner.id,
+      locationGroupId: locationGroup.id,
     }),
   );
 

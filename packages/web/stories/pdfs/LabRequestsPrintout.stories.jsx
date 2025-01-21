@@ -147,7 +147,7 @@ const labRequests = [
           createdAt: '2023-11-07T02:15:47.994Z',
           updatedAt: '2023-11-07T02:15:47.994Z',
           deletedAt: null,
-          labTestCategoryId: 'labTestCategory-UE',
+          labTestCategoryId: 'labTestCategory-UE', // spellchecker:disable-line
         },
       },
       {
@@ -178,7 +178,7 @@ const labRequests = [
           createdAt: '2023-11-07T02:15:47.994Z',
           updatedAt: '2023-11-07T02:15:47.994Z',
           deletedAt: null,
-          labTestCategoryId: 'labTestCategory-UE',
+          labTestCategoryId: 'labTestCategory-UE', // spellchecker:disable-line
         },
       },
       {
@@ -240,7 +240,7 @@ const labRequests = [
           createdAt: '2023-11-07T02:15:47.994Z',
           updatedAt: '2023-11-07T02:15:47.994Z',
           deletedAt: null,
-          labTestCategoryId: 'labTestCategory-UE',
+          labTestCategoryId: 'labTestCategory-UE', // spellchecker:disable-line
         },
       },
       {

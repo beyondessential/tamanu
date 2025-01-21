@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { showError } from '@tamanu/shared/test-helpers';
 import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
 
@@ -20,8 +20,7 @@ jest.mock('@tamanu/constants', () => {
       CODE_DISPLAY: '$.code.coding[*].display',
     },
   };
-}
-);
+});
 
 describe(`Materialised FHIR - WriteLog`, () => {
   let ctx;
@@ -153,34 +152,40 @@ describe(`Materialised FHIR - WriteLog`, () => {
             value: 'ACCESSION',
           },
         ],
-        presentedForm: [{
-          presentedForm: [{
+        presentedForm: [
+          {
+            presentedForm: [
+              {
+                language: 'en',
+                data: 'do not replace this',
+              },
+            ],
             language: 'en',
-            data: 'do not replace this',
-          }],
-          language: 'en',
-          data: 'replace this',
-        },
-        {
-          baz: 'angu',
-          language: 'en',
-          data: 'replace this',
-        }],
+            data: 'replace this',
+          },
+          {
+            baz: 'angu',
+            language: 'en',
+            data: 'replace this',
+          },
+        ],
         code: {
           coding: [
             {
               system: 'http://encoding.org',
               code: 'COD-123',
               display: 'replace this',
-            }
-          ]
+            },
+          ],
         },
         burger: [
           {
-            presentedForm: [{
-              language: 'en',
-              data: 'do not replace this',
-            }],
+            presentedForm: [
+              {
+                language: 'en',
+                data: 'do not replace this',
+              },
+            ],
             identifier: {
               system: 'http://example.com',
               value: '123',
@@ -205,34 +210,40 @@ describe(`Materialised FHIR - WriteLog`, () => {
             value: 'ACCESSION',
           },
         ],
-        presentedForm: [{
-          presentedForm: [{
+        presentedForm: [
+          {
+            presentedForm: [
+              {
+                language: 'en',
+                data: 'do not replace this',
+              },
+            ],
             language: 'en',
-            data: 'do not replace this',
-          }],
-          language: 'en',
-          data: SCRUBBED_DATA_MESSAGE,
-        },
-        {
-          baz: 'angu',
-          language: 'en',
-          data: SCRUBBED_DATA_MESSAGE,
-        }],
+            data: SCRUBBED_DATA_MESSAGE,
+          },
+          {
+            baz: 'angu',
+            language: 'en',
+            data: SCRUBBED_DATA_MESSAGE,
+          },
+        ],
         code: {
           coding: [
             {
               system: 'http://encoding.org',
               code: 'COD-123',
               display: SCRUBBED_DATA_MESSAGE,
-            }
-          ]
+            },
+          ],
         },
         burger: [
           {
-            presentedForm: [{
-              language: 'en',
-              data: 'do not replace this',
-            }],
+            presentedForm: [
+              {
+                language: 'en',
+                data: 'do not replace this',
+              },
+            ],
             identifier: {
               system: 'http://example.com',
               value: '123',
@@ -241,5 +252,4 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       });
     }));
-
 });

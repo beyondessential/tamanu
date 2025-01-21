@@ -67,10 +67,7 @@ describe('Patient merge', () => {
     expect(keep).toHaveProperty('deletedAt', null);
     expect(merge).toHaveProperty('mergedIntoId', keep.id);
     expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-
-    // As long as the default strategy is RENAME, then we expect these two:
-    expect(merge.deletedAt).toBe(null);
-    expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
+    expect(merge.deletedAt).toBeTruthy();
   });
 
   it('Should merge encounters across', async () => {
@@ -770,10 +767,7 @@ describe('Patient merge', () => {
       expect(keep).toHaveProperty('deletedAt', null);
       expect(merge).toHaveProperty('mergedIntoId', keep.id);
       expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-      // TODO: TAN-1802 removed this, but it should be added back once we've fixed
-      // the underlying issue
-      // expect(merge.deletedAt).toBeTruthy();
-      expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
+      expect(merge.deletedAt).toBeTruthy();
     });
 
     it('Should only allow admins to merge patients', async () => {
@@ -849,7 +843,7 @@ describe('Patient merge', () => {
       });
 
       // increment sync tick so the reconciler knows how to merge the records
-      await LocalSystemFact.increment('currentSyncTick');
+      await LocalSystemFact.incrementValue('currentSyncTick');
 
       // create second record
       const mergePad = await PatientAdditionalData.create({

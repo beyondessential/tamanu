@@ -52,6 +52,10 @@ export const StyledTextField = styled(MuiTextField)`
     margin: 4px 2px 2px;
   }
 
+  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.outline};
+  }
+
   // Hover state
   .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
     border-color: ${props => props.theme.palette.grey['400']};
@@ -88,11 +92,15 @@ export const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value = '', label, ...props }) => (
-  <OuterLabelFieldWrapper label={label} {...props}>
-    <StyledTextField value={value} variant="outlined" {...props} />
-  </OuterLabelFieldWrapper>
-);
+export const TextInput = ({ value = '', label, ...props }) => {
+  // eslint-disable-next-line no-unused-vars
+  const { saveDateAsString, ...rest } = props;
+  return (
+    <OuterLabelFieldWrapper label={label} {...props}>
+      <StyledTextField value={value} variant="outlined" {...rest} />
+    </OuterLabelFieldWrapper>
+  );
+};
 
 export const LimitedTextField = ({ limit = 255, ...props }) => (
   <TextField {...props} inputProps={{ maxLength: limit }} />

@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';

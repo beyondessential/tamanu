@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useReorderEncounterTabs } from '../../api/mutations/useUserPreferencesMutation';
+import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
@@ -20,20 +20,21 @@ import {
   NotesPane,
   ProcedurePane,
   VitalsPane,
+  ChartsPane,
   TasksPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
-import { useReferenceData } from '../../api/queries';
+import { useReferenceDataQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
-import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'lodash';
+import { ChartDataProvider } from '../../contexts/ChartData';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -51,11 +52,17 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
+    render: props => <VitalsPane {...props} />,
+  },
+  {
+    label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
+    key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => (
-      <VitalChartDataProvider>
-        <VitalsPane {...props} />
-      </VitalChartDataProvider>
+      <ChartDataProvider>
+        <ChartsPane {...props} />
+      </ChartDataProvider>
     ),
+    condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
@@ -151,13 +158,13 @@ export const EncounterView = () => {
   const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
+  const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
-  const { mutate: reorderEncounterTabs } = useReorderEncounterTabs();
+  const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
-  const disabled = encounter?.endDate || patient.death;
+  const disabled = encounter?.endDate || !!patient.dateOfDeath;
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
@@ -207,9 +214,12 @@ export const EncounterView = () => {
       curr[tab.key] = index + 1;
       return curr;
     }, {});
-    reorderEncounterTabs(newTabOrders, {
-      onError: () => setTabs(currentVisibleTabs),
-    });
+    reorderEncounterTabs(
+      { key: 'encounterTabOrders', value: newTabOrders },
+      {
+        onError: () => setTabs(currentVisibleTabs),
+      },
+    );
   };
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
@@ -250,7 +260,7 @@ export const EncounterView = () => {
           )
         }
       />
-      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
+      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} readOnly={disabled} />
       <ContentPane>
         <StyledTabDisplayDraggable
           tabs={visibleTabs}

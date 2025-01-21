@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { combineQueries, useApi, useSuggester } from '../api';
 import { FormModal } from './FormModal';
@@ -21,7 +21,7 @@ const SECTION_TITLES = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
 };
 
-const useLabRequests = labRequestIds => {
+const useLabRequestsQuery = labRequestIds => {
   const api = useApi();
   const queries = useQueries({
     queries: labRequestIds.map(labRequestId => {
@@ -40,7 +40,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
+  const { isSuccess, isLoading, data: newLabRequests } = useLabRequestsQuery(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
   const labSampleSiteSuggester = useSuggester('labSampleSite');

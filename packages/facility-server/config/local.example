@@ -3,17 +3,19 @@
     "host": "http://localhost:3000",
     "email": "admin@tamanu.io",
     "password": "admin",
-    "enabled": true,
+    "enabled": true
   },
   "db": {
-    "host": "facility-db",
-    "port": "5432",
+    "host": "localhost",
+    "port": "5433",
     "name": "postgres",
     "verbose": false,
     "username": "postgres",
     "password": "postgres",
-    "migrateOnStartup": true,
+    "migrateOnStartup": true
   },
   "log": {},
-  "serverFacilityIds": ["facility-BaHealthCentre"]
+  "serverFacilityIds": [
+    "facility-BaHealthCentre"
+  ]
 }

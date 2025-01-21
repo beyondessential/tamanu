@@ -4,7 +4,7 @@ import {
   createDummyEncounterDiagnosis,
   createDummyPatient,
   randomReferenceId,
-} from '@tamanu/shared/demoData/patients';
+} from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../../utilities';
 import {
   createBreastCancerFormSurveyResponse,

@@ -27,7 +27,11 @@ export const FieldTypes = {
   USER_DATA: 'UserData',
   PHOTO: 'Photo',
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
-  GEOLOCATE: 'Geolocate'
+  GEOLOCATE: 'Geolocate',
+  COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
+  COMPLEX_CHART_DATE: 'ComplexChartDate',
+  COMPLEX_CHART_TYPE: 'ComplexChartType',
+  COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
 };
 
 export const PatientFieldDefinitionTypes = {

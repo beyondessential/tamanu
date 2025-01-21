@@ -18,7 +18,7 @@ import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
-import { usePatientCurrentEncounter } from '../../api/queries';
+import { usePatientCurrentEncounterQuery } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
@@ -152,7 +152,7 @@ const Details = styled.div`
 `;
 
 const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
-  const { type, patient } = appointment;
+  const { appointmentType, patient } = appointment;
   return (
     <Modal
       width="sm"
@@ -176,7 +176,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
           <TranslatedText
             stringId="scheduling.modal.cancelAppointment.detailsText"
             fallback=":appointmentType appointment for"
-            replacements={{ appointmentType: type }}
+            replacements={{ appointmentType: appointmentType.name }}
           />
         }{' '}
         <PatientNameDisplay patient={patient} />
@@ -227,12 +227,12 @@ const StyledIconButton = styled(IconButton)`
 
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
-  const { id, type, status, clinician, patient, locationGroup } = appointment;
+  const { id, appointmentType, status, clinician, patient, locationGroup } = appointment;
   const {
     data: currentEncounter,
     error: currentEncounterError,
     isLoading: currentEncounterLoading,
-  } = usePatientCurrentEncounter(patient.id);
+  } = usePatientCurrentEncounterQuery(patient.id);
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', patient.id],
@@ -291,10 +291,18 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
-          <Heading>
-            <TranslatedText stringId="general.type.label" fallback="Type" />
-          </Heading>
-          {type}
+          {appointmentType && (
+            <>
+              <Heading>
+                <TranslatedText stringId="general.type.label" fallback="Type" />
+              </Heading>
+              <TranslatedReferenceData
+                value={appointmentType.id}
+                fallback={appointmentType.name}
+                category="appointmentType"
+              />
+            </>
+          )}
           <Heading>
             <TranslatedText stringId="general.time.label" fallback="Time" />
           </Heading>

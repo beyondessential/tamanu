@@ -137,10 +137,6 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
     return results.map(r => ({ label: r.name, value: r.id }));
   }
-
-  static getTableNameForSync(): string {
-    return 'reference_data';
-  }
 }
 
 export const ReferenceDataRelation = (): any =>

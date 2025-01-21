@@ -1,6 +1,6 @@
 export { PatientDetailsPane } from './DetailsPane';
 export * from './DocumentsPane';
-export { HistoryPane } from './HistoryPane';
+export { SummaryPane } from './SummaryPane';
 export { VaccinesPane } from './VaccinesPane';
 export { ImagingPane } from './ImagingPane';
 export { LabsPane } from './LabsPane';
@@ -15,5 +15,6 @@ export { ReferralPane } from './ReferralPane';
 export { EncounterInvoicingPane } from './EncounterInvoicingPane';
 export { InvoicesPane } from './InvoicesPane';
 export { VitalsPane } from './VitalsPane';
+export { ChartsPane } from './ChartsPane';
 export { PatientResultsPane } from './PatientResultsPane';
 export { TasksPane } from './TasksPane';

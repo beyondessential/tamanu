@@ -6,10 +6,10 @@ import {
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_STATUSES,
 } from '@tamanu/constants';
+import { formatShortest } from '@tamanu/utils/dateTime';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
@@ -22,7 +22,7 @@ import {
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
 import {
-  useEncounterInvoice,
+  useEncounterInvoiceQuery,
   useInvoiceTotalOutstandingBalanceQuery,
 } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
@@ -190,7 +190,7 @@ export const InvoicesTable = ({ patient }) => {
   const [selectedInvoice, setSelectedInvoice] = useState();
   const [refreshTable, setRefreshTable] = useState(0);
 
-  const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
+  const { data: invoice } = useEncounterInvoiceQuery(selectedInvoice?.encounterId);
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);

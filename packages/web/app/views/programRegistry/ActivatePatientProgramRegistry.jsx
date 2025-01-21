@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { difference } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
@@ -24,7 +24,7 @@ import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections'
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
-} from '../../api/queries/usePatientProgramRegistryConditions';
+} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';

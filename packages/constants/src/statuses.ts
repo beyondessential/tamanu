@@ -51,26 +51,16 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
   },
 };
 
-export const APPOINTMENT_TYPES = {
-  STANDARD: 'Standard',
-  EMERGENCY: 'Emergency',
-  SPECIALIST: 'Specialist',
-  OTHER: 'Other',
-};
-
-export const APPOINTMENT_TYPE_LABELS = {
-  [APPOINTMENT_TYPES.STANDARD]: 'Standard',
-  [APPOINTMENT_TYPES.EMERGENCY]: 'Emergency',
-  [APPOINTMENT_TYPES.SPECIALIST]: 'Specialist',
-  [APPOINTMENT_TYPES.OTHER]: 'Other',
-};
-
 export const APPOINTMENT_STATUSES = {
   CONFIRMED: 'Confirmed',
   ARRIVED: 'Arrived',
+  ASSESSED: 'Assessed',
+  SEEN: 'Seen',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
 };
+
+export const APPOINTMENT_STATUS_VALUES = Object.values(APPOINTMENT_STATUSES);
 
 export const REFERRAL_STATUSES = {
   PENDING: 'pending',
@@ -101,9 +91,3 @@ export const JOB_QUEUE_STATUSES = {
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
-
-export const PATIENT_MERGE_DELETION_ACTIONS = {
-  RENAME: 'RENAME',
-  DESTROY: 'DESTROY',
-  NONE: 'NONE',
-};

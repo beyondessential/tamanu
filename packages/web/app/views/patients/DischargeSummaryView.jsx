@@ -11,12 +11,12 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { useTranslation } from '../../contexts/Translation';
 import {
   usePatientAdditionalDataQuery,
-  useReferenceData,
-  usePatientConditions,
+  useReferenceDataQuery,
+  usePatientConditionsQuery,
 } from '../../api/queries';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
-import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
+import { useEncounterDischargeQuery } from '../../api/queries/useEncounterDischargeQuery';
 import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
@@ -42,10 +42,10 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
-  const { data: village } = useReferenceData(patient?.villageId);
-  const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischarge(encounter);
+  const { data: village } = useReferenceDataQuery(patient?.villageId);
+  const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischargeQuery(encounter);
 
-  const { data: patientConditions, isFetching: isLoadingPatientConditions } = usePatientConditions(
+  const { data: patientConditions, isFetching: isLoadingPatientConditions } = usePatientConditionsQuery(
     patient.id,
   );
   // If there is no encounter loaded then this screen can't be displayed

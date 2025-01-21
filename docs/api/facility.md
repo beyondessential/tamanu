@@ -1,8 +1,11 @@
-# Facility server API Endpoint Docs
+> [!WARNING]
+> We don't currently have thorough or complete documentation of these APIs.
+>
+> The below is correct but very partial, with many many routes undocumented.
+
+# Facility server API routes
 
 Route implementations can be found in: `packages/facility-server/app/routes`
-
-TODO: Add explanation of how route permissions work.
 
 ### Suggestions
 

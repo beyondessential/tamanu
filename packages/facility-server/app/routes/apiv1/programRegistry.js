@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { subject } from '@casl/ability';
 import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { deepRenameObjectKeys } from '@tamanu/shared/utils';
+import { deepRenameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 import {

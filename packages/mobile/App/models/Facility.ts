@@ -6,7 +6,7 @@ import { Location } from './Location';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
-@Entity('facility')
+@Entity('facilities')
 export class Facility extends BaseModel implements IFacility {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
@@ -48,8 +48,4 @@ export class Facility extends BaseModel implements IFacility {
     ({ facility }) => facility,
   )
   departments: Department[];
-
-  static getTableNameForSync(): string {
-    return 'facilities';
-  }
 }

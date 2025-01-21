@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { doAgeRangesHaveGaps, doAgeRangesOverlap } from '@tamanu/shared/utils/dateTime';
+import { doAgeRangesHaveGaps, doAgeRangesOverlap } from '@tamanu/utils/dateTime';
 import { isNumberOrFloat } from '../../utils/numbers';
 
 // Applies to:

@@ -1,5 +1,5 @@
 import { addDays, endOfDay, parseISO, startOfDay } from 'date-fns';
-import { format, toDateTimeString } from '../utils/dateTime';
+import { format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -33,7 +33,7 @@ const reportColumnTemplate = FIELDS.map(field =>
 const query = `
 with
 	billing_type as (
-		select 
+		select
 			patient_id,
 			max(billing.name) billing_type_name
 		from patient_additional_data
@@ -60,7 +60,7 @@ left join reference_data vil on vil.id = p.village_id
 left join billing_type bt on bt.patient_id = p.id
 left join users u on u.id = a.clinician_id
 left join location_groups lg on lg.id = a.location_group_id
-where case when :location_group_id is not null then lg.id = :location_group_id else true end 
+where case when :location_group_id is not null then lg.id = :location_group_id else true end
 and case when :from_date is not null then a.start_time::date >= :from_date::date else true end
 and case when :to_date is not null then a.start_time::date <= :to_date::date else true end
 and case when :appointment_status is not null then a.status = :appointment_status else true end

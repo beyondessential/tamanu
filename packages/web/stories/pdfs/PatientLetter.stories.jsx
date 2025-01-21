@@ -1,8 +1,8 @@
 import React from 'react';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { PDFViewer } from '@react-pdf/renderer';
 import { PatientLetter as Component } from '@tamanu/shared/utils/patientLetters/PatientLetter';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Logo from '../assets/tamanu-logo.png';
 
 export default {

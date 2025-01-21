@@ -3,7 +3,7 @@ import config from 'config';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const reportsUtils = {
   __esModule: true,
