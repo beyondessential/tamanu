@@ -96,11 +96,12 @@ describe('Patient', () => {
 
     // Create two medications for encounterTwo (the one we should get)
     const dischargedMedication = await models.Prescription.create({
-      ...(await createDummyPrescription(models, { isDischarge: true })),
+      ...(await createDummyPrescription(models)),
     });
     await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
       prescriptionId: dischargedMedication.id,
+      isDischarge: true,
     });
     const medication = await models.Prescription.create({
       ...(await createDummyPrescription(models)),
@@ -108,6 +109,7 @@ describe('Patient', () => {
     await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
       prescriptionId: medication.id,
+      isDischarge: false,
     });
 
     // Edit the first two encounters to simulate a discharge
@@ -130,7 +132,11 @@ describe('Patient', () => {
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
-      encounters: expect.any(Array),
+      encounters: expect.arrayContaining([
+        expect.objectContaining({
+          location: expect.any(Object),
+        }),
+      ]),
     });
   });
 

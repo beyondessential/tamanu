@@ -208,16 +208,16 @@ patientRoute.get(
 
     // Find and return all associated encounter medications
     const lastPrescriptions = await Prescription.findAndCountAll({
-      where: { isDischarge: true },
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
-          association: 'encounters', // Use the alias defined in the association
-          where: { id: lastDischargedEncounter.id }, // Filter by the specific encounter ID
+          association: 'encounters',
+          where: { id: lastDischargedEncounter.id },
+          through: { where: { isDischarge: true } },
           include: [
             {
-              association: 'location', // Include associated location
-              include: ['facility'], // Include facility associated with the location
+              association: 'location',
+              include: ['facility'],
             },
           ],
         },
