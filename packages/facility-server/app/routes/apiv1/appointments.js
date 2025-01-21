@@ -171,8 +171,9 @@ appointments.put(
       } else {
         await appointment.update(appointmentData);
       }
+      return { ok: 'ok' };
     });
-    res.status(200).send(result || { ok: 'ok' });
+    res.status(200).send(result);
   }),
 );
 
