@@ -21,7 +21,7 @@ export class CleanUpAppointments extends ScheduledTask {
   }
 
   async countQueue() {
-    return this.sequelize.query(
+    const { count } = await this.sequelize.query(
       `SELECT COUNT(*)
        FROM appointments
        JOIN appointment_schedules ON appointments.schedule_id = appointment_schedules.id
@@ -31,6 +31,33 @@ export class CleanUpAppointments extends ScheduledTask {
         type: this.sequelize.QueryTypes.SELECT,
         replacements: {
           canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
+        },
+      },
+    );
+    return Number(count);
+  }
+
+  async cancelAppointments() {
+    await this.sequelize.query(
+      `
+      WITH appointments_to_cancel AS (
+        SELECT appointments.id
+        FROM appointments
+        JOIN appointment_schedules ON appointments.schedule_id = appointment_schedules.id
+        WHERE appointments.status <> :canceledStatus AND appointments.start_time > appointment_schedules.until_date
+        ORDER BY appointments.start_time
+        FOR UPDATE
+        LIMIT :batchSize
+      )
+      UPDATE appointments
+      SET status = :canceledStatus
+      FROM appointments_to_cancel
+      WHERE appointments.id = appointments_to_cancel.id;
+      `,
+      {
+        replacements: {
+          canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
+          batchSize: this.config.batchSize,
         },
       },
     );
@@ -57,29 +84,7 @@ export class CleanUpAppointments extends ScheduledTask {
       batchSize,
     });
     for (let i = 0; i < batchCount; i++) {
-      await this.sequelize.query(
-        `
-        WITH appointments_to_cancel AS (
-          SELECT appointments.id
-          FROM appointments
-          JOIN appointment_schedules ON appointments.schedule_id = appointment_schedules.id
-          WHERE appointments.status <> :canceledStatus AND appointments.start_time > appointment_schedules.until_date
-          ORDER BY appointments.start_time
-          FOR UPDATE
-          LIMIT :batchSize
-        )
-        UPDATE appointments
-        SET status = :canceledStatus
-        FROM appointments_to_cancel
-        WHERE appointments.id = appointments_to_cancel.id;
-        `,
-        {
-          replacements: {
-            canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
-            batchSize,
-          },
-        },
-      );
+      await this.cancelAppointments();
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
   }

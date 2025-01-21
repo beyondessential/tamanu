@@ -9,10 +9,18 @@ describe('Clean up appointments', () => {
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
+  });
+
+  beforeEach(() => {
     task = new CleanUpAppointments(context);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should cancel appointments that are past the schedule until date', async () => {
+    const cancelAppointmentSpy = jest.spyOn(task, 'cancelAppointments');
     const { Appointment, AppointmentSchedule } = models;
     const schedule = await AppointmentSchedule.create({
       untilDate: '1990-10-02',
@@ -28,10 +36,11 @@ describe('Clean up appointments', () => {
       })),
     );
     await task.run();
-    const appointments = await Appointment.findAll();
+    const appointments = await schedule.getAppointments();
     expect(appointments).toHaveLength(3);
     expect(
       appointments.every((appointment) => appointment.status === APPOINTMENT_STATUSES.CANCELLED),
-    );
+    ).toBeTruthy();
+    expect(cancelAppointmentSpy).toHaveBeenCalledTimes(2);
   });
 });
