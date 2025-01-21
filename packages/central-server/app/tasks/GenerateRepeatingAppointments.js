@@ -3,6 +3,7 @@ import { QueryTypes } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export class GenerateRepeatingAppointments extends ScheduledTask {
   /**
@@ -34,7 +35,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         LEFT JOIN LATERAL (
           SELECT start_time
           FROM appointments
-          WHERE appointments.schedule_id = appointment_schedules.id
+          WHERE appointments.schedule_id = appointment_schedules.id AND appointments.status <> :canceledStatus
           ORDER BY appointments.start_time DESC
           LIMIT 1
         ) AS latest_appointment ON true
@@ -45,7 +46,10 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         type: QueryTypes.SELECT,
         model: this.models.AppointmentSchedule,
         mapToModel: true,
-        replacements: { offsetDays: `${this.config.generateOffsetDays}` },
+        replacements: {
+          offsetDays: `${this.config.generateOffsetDays}`,
+          canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
+        },
       },
     );
     if (!schedules.length) {

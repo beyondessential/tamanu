@@ -230,6 +230,11 @@ export class AppointmentSchedule extends Model {
     );
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
+      where: {
+        status: {
+          [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
+        },
+      },
     });
     const latestExistingAppointment = existingAppointments[0];
 
