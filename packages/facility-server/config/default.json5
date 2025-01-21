@@ -110,6 +110,12 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "cleanUpAppointments": {
+      // every day at 12:01 AM
+      "schedule": "1 0 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"

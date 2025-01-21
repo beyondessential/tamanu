@@ -14,6 +14,7 @@ export class CleanUpAppointments extends ScheduledTask {
   constructor(context) {
     const { schedule, jitterTime, enabled } = config.schedules.cleanUpAppointments;
     super(schedule, log, jitterTime, enabled);
+    this.config = config.schedules.cleanUpAppointments;
     this.sequelize = context.sequelize;
     this.models = context.models;
     this.runImmediately();
