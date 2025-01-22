@@ -36,6 +36,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { ENDS_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
+import { useSettings } from '../../../contexts/Settings';
 
 const IconLabel = styled.div`
   display: flex;
@@ -203,6 +204,8 @@ const EmailFields = ({ patientId }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
+  const isModifyRepeatingAppointmentsEnabled = getSetting('features.modifyRepeatingAppointments');
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -450,6 +453,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
             name="isRepeatingAppointment"
+            value={values.isRepeatingAppointment || values.schedule}
             onChange={handleChangeIsRepeatingAppointment}
             disabled={!values.startTime || isEdit}
             label={
@@ -492,7 +496,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    if (isScheduleUnchanged(values, initialValues)) {
+    if (isModifyRepeatingAppointmentsEnabled && isScheduleUnchanged(values, initialValues)) {
       // Don't attempt to update schedule if it hasn't changed
       delete values.schedule;
     }

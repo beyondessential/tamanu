@@ -19,6 +19,7 @@ import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
+import { useSettings } from '../../../contexts/Settings';
 import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
@@ -71,6 +72,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const { getSetting } = useSettings();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -78,6 +80,7 @@ export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
   const location = useLocation();
+  const isModifyRepeatingAppointmentsEnabled = getSetting('features.modifyRepeatingAppointments');
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
@@ -115,7 +118,7 @@ export const OutpatientAppointmentsView = () => {
         'schedule',
       ]),
     );
-    if (appointment?.scheduleId) {
+    if (isModifyRepeatingAppointmentsEnabled && appointment?.scheduleId) {
       setIsModifyRepeatingModalOpen(true);
     } else {
       setDrawerOpen(true);

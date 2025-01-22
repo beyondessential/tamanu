@@ -165,6 +165,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        modifyRepeatingAppointments: {
+          description: 'Allow modification of repeating appointments',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         enableVitalEdit: {
           description: 'Allow existing vitals records to be edited',
           type: yup.boolean(),
