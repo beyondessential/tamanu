@@ -9,7 +9,7 @@ import type { PatientAdditionalData } from './PatientAdditionalData';
 import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds';
 
 import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
-import type { SyncSnapshotAttributes } from 'types/sync';
+import type { AlignedChanges, SyncSnapshotAttributes } from 'types/sync';
 
 export class Patient extends Model {
   declare id: string;
@@ -342,9 +342,8 @@ export class Patient extends Model {
   }
 
   static async alignDataForPersistence(
-    sessionId: string,
     changes: SyncSnapshotAttributes[],
-  ): Promise<void> {
-    await resolveDuplicatedPatientDisplayIds(this.sequelize, sessionId, this, changes);
+  ): Promise<AlignedChanges | undefined>{
+    return resolveDuplicatedPatientDisplayIds(this, changes);
   }
 }

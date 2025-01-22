@@ -20,3 +20,4 @@ export * from './saveIncomingChanges';
 export * from './waitForPendingEditsUsingSyncTick';
 export * from './markForSyncRepullData';
 export * from './alignDataForPersistence';
+export * from './sanitizeRecord';
