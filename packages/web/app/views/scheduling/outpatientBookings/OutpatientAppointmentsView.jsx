@@ -18,8 +18,6 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
-import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
-import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -72,7 +70,6 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -102,44 +99,22 @@ export const OutpatientAppointmentsView = () => {
   const handleCloseDrawer = () => setDrawerOpen(false);
 
   const handleOpenDrawer = appointment => {
-    setSelectedAppointment(
-      pick(appointment, [
-        'id',
-        'locationGroupId',
-        'appointmentTypeId',
-        'startTime',
-        'endTime',
-        'patientId',
-        'clinicianId',
-        'isHighPriority',
-        'schedule',
-      ]),
-    );
-    if (appointment?.scheduleId) {
-      setIsModifyRepeatingModalOpen(true);
-    } else {
-      setDrawerOpen(true);
-    }
-  };
-
-  const handleConfirmModifyRepeatingModal = modifyRepeatingMode => {
-    const { schedule } = selectedAppointment;
-    setIsModifyRepeatingModalOpen(false);
+    const appointmentFormValues = pick(appointment, [
+      'id',
+      'locationGroupId',
+      'appointmentTypeId',
+      'startTime',
+      'endTime',
+      'patientId',
+      'clinicianId',
+      'isHighPriority',
+      'schedule',
+    ]);
     setSelectedAppointment({
-      ...selectedAppointment,
-      modifyRepeatingMode,
-      isRepeatingAppointment: true,
-      schedule: {
-        ...schedule,
-        endsMode: schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER,
-      },
+      ...appointmentFormValues,
+      isRepeatingAppointment: !!appointmentFormValues.schedule,
     });
     setDrawerOpen(true);
-  };
-
-  const handleCloseModifyRepeatingModal = () => {
-    setIsModifyRepeatingModalOpen(false);
-    setSelectedAppointment({});
   };
 
   return (
@@ -149,11 +124,6 @@ export const OutpatientAppointmentsView = () => {
           appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
-        />
-        <ModifyRepeatingAppointmentModal
-          open={isModifyRepeatingModalOpen}
-          onClose={handleCloseModifyRepeatingModal}
-          onConfirm={handleConfirmModifyRepeatingModal}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
