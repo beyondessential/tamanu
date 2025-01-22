@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUserPreferencesQuery } from '../api/queries';
 
 const OutpatientAppointmentsContext = createContext(null);
@@ -11,9 +11,13 @@ export const OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE = {
 
 export const OutpatientAppointmentsContextProvider = ({ children }) => {
   const { data: userPreferences } = useUserPreferencesQuery();
-  const [filters, setFilters] = useState(
-    userPreferences?.outpatientAppointmentFilters ?? OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE,
-  );
+  const [filters, setFilters] = useState(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+
+  useEffect(() => {
+    if (userPreferences?.outpatientAppointmentFilters) {
+      setFilters(userPreferences?.outpatientAppointmentFilters);
+    }
+  }, [userPreferences]);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters }}>

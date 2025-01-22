@@ -1,13 +1,9 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
 import { parseISO } from 'date-fns';
-import { omit } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-
-import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
@@ -67,19 +63,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { ability, facilityId } = useAuth();
 
-  const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
-
-  const handleFilterChange = useCallback(
-    values => {
-      setFilters(values);
-      mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-        value: { [facilityId]: omit(values, ['patientNameOrId']) },
-      });
-    },
-    [setFilters, mutateUserPreferences, facilityId],
-  );
+  const { filters, updateSelectedCell } = useLocationBookingsContext();
 
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
@@ -129,7 +113,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <LocationBookingsFilter onFilterChange={handleFilterChange} />
+        <LocationBookingsFilter />
         {canCreateAppointment && (
           <NewBookingButton onClick={handleNewBooking}>
             <PlusIcon />

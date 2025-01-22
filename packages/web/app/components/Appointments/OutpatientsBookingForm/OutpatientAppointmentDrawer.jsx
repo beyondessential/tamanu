@@ -43,7 +43,7 @@ const getDescription = (isEdit, isLockedPatient) => {
     return (
       <TranslatedText
         stringId="outpatientAppointment.form.edit.description"
-        fallback="Modify the selected appointment below"
+        fallback="Modify the selected appointment below."
       />
     );
   }
@@ -52,7 +52,7 @@ const getDescription = (isEdit, isLockedPatient) => {
     return (
       <TranslatedText
         stringId="outpatientAppointment.form.newForPatient.description"
-        fallback="Complete appointment details below to create a new appointment for the selected patient"
+        fallback="Complete appointment details below to create a new appointment for the selected patient."
       />
     );
   }
@@ -60,7 +60,7 @@ const getDescription = (isEdit, isLockedPatient) => {
   return (
     <TranslatedText
       stringId="outpatientAppointment.form.new.description"
-      fallback="Select a patient from the below list and add relevant appointment details to create a new appointment"
+      fallback="Select a patient from the below list and add relevant appointment details to create a new appointment."
     />
   );
 };
