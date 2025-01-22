@@ -93,7 +93,7 @@ appointments.post(
               appointmentData,
               scheduleData,
             })
-          ).appointment
+          ).firstAppointment
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;
