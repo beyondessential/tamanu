@@ -73,10 +73,7 @@ export const defineWebsocketService = (injector) => {
         return;
       }
 
-      const userId = appointment?.clinicianId;
-      if (!userId) {
-        socketServer.emit(`${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:all`, appointment);
-      }
+      const userId = appointment.clinicianId;
       if (!appointment.locationGroupId) {
         socketServer.emit(`${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${userId}`, appointment);
       } else if (!appointment.locationId) {
