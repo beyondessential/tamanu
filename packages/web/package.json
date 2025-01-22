@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -11,8 +11,12 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "clean": "rimraf dist",
+    "clean:deps": "rimraf node_modules",
     "preview": "vite preview",
     "start-dev": "vite",
+    "admin-start-dev": "TAMANU_VITE_TARGET=http://localhost:3000 DISABLE_SINGLE_TAB=true npm run start-dev",
+    "client-start-dev": "TAMANU_VITE_TARGET=http://localhost:4000 DISABLE_SINGLE_TAB=true npm run start-dev",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
     "storybook": "storybook dev",
@@ -33,6 +37,7 @@
     "jsdom": "^24.1.0",
     "prettier": "^1.14.0",
     "react-test-renderer": "^18.3.1",
+    "rimraf": "^6.0.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.20",
     "vitest": "^1.1.0"
