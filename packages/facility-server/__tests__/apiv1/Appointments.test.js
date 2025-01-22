@@ -656,4 +656,84 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
   });
+  describe('delete with schedule', () => {
+    const scheduleData = {
+      untilDate: '2024-10-23',
+      interval: 1,
+      frequency: REPEAT_FREQUENCY.WEEKLY,
+      daysOfWeek: ['WE'],
+      occurrenceCount: null,
+      nthWeekday: null,
+    };
+    const generateSchedule = async () => {
+      const schedule = await models.AppointmentSchedule.create(scheduleData);
+      const appointments = await models.Appointment.bulkCreate(
+        [
+          '2024-10-02 12:00:00',
+          '2024-10-09 12:00:00',
+          '2024-10-16 12:00:00',
+          '2024-10-23 12:00:00',
+        ].map((startTime) => ({
+          patientId: patient.id,
+          startTime,
+          clinicianId: userApp.user.dataValues.id,
+          appointmentTypeId: 'appointmentType-standard',
+          scheduleId: schedule.id,
+        })),
+      );
+      return [schedule, appointments];
+    };
+    it('should delete this and all future appointments if "this and future appointments on"', async () => {
+      const [schedule, appointments] = await generateSchedule();
+      const thirdAppointment = appointments[2];
+
+      await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: scheduleData,
+        status: APPOINTMENT_STATUSES.CANCELLED,
+        facilityId,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+      });
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+      });
+
+      // 3rd and 4th appointments should be cancelled
+      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+        APPOINTMENT_STATUSES.CONFIRMED,
+        APPOINTMENT_STATUSES.CONFIRMED,
+        APPOINTMENT_STATUSES.CANCELLED,
+        APPOINTMENT_STATUSES.CANCELLED,
+      ]);
+
+      const updatedSchedule = await models.AppointmentSchedule.findOne({
+        where: {
+          id: schedule.id,
+        },
+      });
+
+      expect(updatedSchedule.untilDate).toEqual('2024-10-09');
+    });
+    it('should delete just the selected appointment if "this appointment" selected', async () => {
+      const [schedule, appointments] = await generateSchedule();
+      const thirdAppointment = appointments[2];
+
+      await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
+        schedule: scheduleData,
+        status: APPOINTMENT_STATUSES.CANCELLED,
+        facilityId,
+        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+      });
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+      });
+
+      // 3rd appointment should be cancelled
+      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+        APPOINTMENT_STATUSES.CONFIRMED,
+        APPOINTMENT_STATUSES.CONFIRMED,
+        APPOINTMENT_STATUSES.CANCELLED,
+        APPOINTMENT_STATUSES.CONFIRMED,
+      ]);
+    });
+  });
 });
