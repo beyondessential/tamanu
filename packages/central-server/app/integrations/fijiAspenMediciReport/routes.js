@@ -82,7 +82,7 @@ ORDER BY last_updated DESC
 LIMIT $limit OFFSET $offset;
 `;
 
-const parseDateParam = date => {
+const parseDateParam = (date) => {
   const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
   return parsedDate || null;
 };
@@ -111,12 +111,21 @@ routes.get(
     }
 
     if (!fromDate || !toDate) {
-      throw new InvalidOperationError('Both period.start and period.end are required query parameters');
+      throw new InvalidOperationError(
+        'Both period.start and period.end are required query parameters',
+      );
     }
 
     if (!checkTimePeriod(fromDate, toDate)) {
       throw new InvalidOperationError('The time period must be within 1 hour');
     }
+
+    console.log('Running report with parameters:', {
+      fromDate,
+      parsedFromDate: fromDate ? parseDateParam(fromDate, COUNTRY_TIMEZONE) : null,
+      toDate,
+      parsedToDate: toDate ? parseDateParam(toDate, COUNTRY_TIMEZONE) : null,
+    });
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
@@ -131,12 +140,12 @@ routes.get(
       },
     });
 
-    const mapNotes = notes =>
-      notes?.map(note => ({
+    const mapNotes = (notes) =>
+      notes?.map((note) => ({
         ...note,
         noteDate: formatDate(note.noteDate),
       }));
-    const mappedData = data.map(encounterData => {
+    const mappedData = data.map((encounterData) => {
       const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
       return {
         ...encounter,
@@ -145,28 +154,28 @@ routes.get(
         encounterEndDate: new Date(encounter.encounterEndDate).toISOString(),
         dischargeDate: new Date(encounter.dischargeDate).toISOString(),
         sex: upperFirst(encounter.sex),
-        departments: encounter.departments?.map(department => ({
+        departments: encounter.departments?.map((department) => ({
           ...department,
           assignedTime: formatDate(department.assignedTime),
         })),
-        locations: encounter.locations?.map(location => ({
+        locations: encounter.locations?.map((location) => ({
           ...location,
           assignedTime: formatDate(location.assignedTime),
         })),
-        imagingRequests: encounter.imagingRequests?.map(ir => ({
+        imagingRequests: encounter.imagingRequests?.map((ir) => ({
           ...ir,
           notes: mapNotes(ir.notes),
         })),
-        labRequests: encounter.labRequests?.map(lr => ({
+        labRequests: encounter.labRequests?.map((lr) => ({
           ...lr,
           notes: mapNotes(lr.notes),
         })),
-        procedures: encounter.procedures?.map(procedure => ({
+        procedures: encounter.procedures?.map((procedure) => ({
           ...procedure,
           date: formatDate(procedure.date),
         })),
         notes: mapNotes(encounter.notes),
-        encounterType: encounter.encounterType?.map(encounterType => ({
+        encounterType: encounter.encounterType?.map((encounterType) => ({
           ...encounterType,
           startDate: formatDate(encounterType.startDate),
         })),
