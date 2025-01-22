@@ -156,10 +156,11 @@ export class Appointment extends Model {
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
       const appointments = await schedule.generateRepeatingAppointment(settings, appointmentData);
-      return { appointment: appointments[0], schedule };
+      return { firstAppointment: appointments[0], schedule };
     });
   }
 
+  /** Convert the appointment to a data object that can be used to create a new appointment. */
   toCreateData() {
     return omit(this.get({ plain: true }), [
       'id',

@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { isMatch, omit, set } from 'lodash';
+import { omit, set } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import {
-  DAYS_OF_WEEK,
-  REPEAT_FREQUENCY,
-  MODIFY_REPEATING_APPOINTMENT_MODE,
-} from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -55,12 +51,6 @@ const formStyles = {
   overflowY: 'auto',
   minWidth: 'fit-content',
 };
-
-const isScheduleUnchanged = (values, initialValues) =>
-  values.modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS &&
-  isMatch(values.schedule, initialValues.schedule) &&
-  values.startTime === initialValues.startTime &&
-  values.endTime === initialValues.endTime;
 
 const getDescription = (isEdit, isLockedPatient) => {
   if (isEdit) {
@@ -460,15 +450,14 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={SwitchField}
           />
-          {values.isRepeatingAppointment &&
-            values.modifyRepeatingMode !== MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT && (
-              <RepeatingAppointmentFields
-                values={values}
-                setFieldValue={setFieldValue}
-                setFieldError={setFieldError}
-                handleResetRepeatUntilDate={handleResetRepeatUntilDate}
-              />
-            )}
+          {values.isRepeatingAppointment && !isEdit && (
+            <RepeatingAppointmentFields
+              values={values}
+              setFieldValue={setFieldValue}
+              setFieldError={setFieldError}
+              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+            />
+          )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>
@@ -492,11 +481,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    if (isScheduleUnchanged(values, initialValues)) {
-      // Don't attempt to update schedule if it hasn't changed
-      delete values.schedule;
-    }
-
     await handleSubmit(values);
     resetForm();
   };

@@ -17,14 +17,14 @@ export const appointmentToInterval = appointment => {
 export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
 
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
-  if (referenceArr.length === 0) return false;
+  if (testArr.length !== referenceArr.length - 1) return false;
 
   const withoutHead = referenceArr.slice(1);
   return isEqual(testArr, withoutHead);
 };
 
 export const isSameArrayMinusTail = (testArr, referenceArr) => {
-  if (referenceArr.length === 0) return false;
+  if (testArr.length !== referenceArr.length - 1) return false;
 
   const withoutTail = referenceArr.slice(0, -1);
   return isEqual(testArr, withoutTail);

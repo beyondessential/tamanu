@@ -77,7 +77,7 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
 appointments.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Appointment');
+    req.checkPermission('create', 'Appointment');
     const {
       models,
       db,
@@ -93,7 +93,7 @@ appointments.post(
               appointmentData,
               scheduleData,
             })
-          ).appointment
+          ).firstAppointment
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;
@@ -114,7 +114,7 @@ appointments.post(
 appointments.post(
   '/emailReminder',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Appointment');
+    req.checkPermission('create', 'Appointment');
     const {
       models,
       body: { facilityId, appointmentId, email },
@@ -152,8 +152,11 @@ appointments.put(
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
         if (scheduleData) {
+          // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
+          // To do this we cancel this and all future appointments and mark existing schedule as ended
           await existingSchedule.endAtAppointment(appointment);
           if (appointmentData.status !== APPOINTMENT_STATUSES.CANCELLED) {
+            // Then if not cancelling the repeating appointments we generate a new schedule starting with the updated appointment
             const { schedule } = await Appointment.createWithSchedule({
               settings: settings[facilityId],
               appointmentData: omit(appointmentData, 'id'),
@@ -162,8 +165,11 @@ appointments.put(
             return { schedule };
           }
         } else {
+          // No scheduleData provided, so this is a simple change that doesn't require deleting and regenerating future appointments
           await existingSchedule.modifyFromAppointment(
             appointment,
+            // When modifying all future appointments we strip startTime, and endTime
+            // in order to preserve the incremental time difference between appointments
             omit(appointmentData, 'id', 'startTime', 'endTime'),
           );
         }
@@ -238,7 +244,8 @@ const buildPatientNameOrIdQuery = (patientNameOrId) => {
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Appointment');
+    req.checkListOrReadPermission('Appointment');
+
     const {
       models: { Appointment },
       query: {
@@ -262,14 +269,23 @@ appointments.get(
 
     const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
 
-    const cancelledStatusQuery = includeCancelled
+    const cancelledStatusWhereClause = includeCancelled
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
     const facilityIdField = isStringOrArray(queries.locationGroupId)
       ? '$locationGroup.facility_id$'
       : '$location.facility_id$';
-    const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
+    const facilityIdWhereClause = facilityId ? { [facilityIdField]: facilityId } : null;
+
+    const isBeforeScheduleUntilDateWhereClause = {
+      [Op.or]: [
+        { scheduleId: null },
+        literal(`
+        ("schedule"."until_date" IS NULL OR "schedule"."until_date"::timestamp + interval '1 day' - interval '1 second' >= start_time::timestamp)
+      `),
+      ],
+    };
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
@@ -299,9 +315,10 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         [Op.and]: [
-          facilityIdQuery,
+          facilityIdWhereClause,
           timeQueryWhereClause,
-          cancelledStatusQuery,
+          cancelledStatusWhereClause,
+          isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
           ...filters,
         ],
@@ -317,67 +334,25 @@ appointments.get(
   }),
 );
 
-appointments.post('/locationBooking', async (req, res) => {
-  req.checkPermission('create', 'Appointment');
+appointments.post(
+  '/locationBooking',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Appointment');
 
-  const { models, body } = req;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
+    const { models, body } = req;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
 
-  try {
-    const result = await Appointment.sequelize.transaction(async (transaction) => {
-      const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-      const conflictCount = await Appointment.count({
-        where: {
-          [Op.and]: [
-            { locationId },
-            {
-              status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-            },
-            timeQueryWhereClause,
-          ],
-        },
-        bind: timeQueryBindParams,
-        transaction,
-      });
-
-      if (conflictCount > 0) throw new ResourceConflictError();
-
-      return await Appointment.create(body, { transaction });
-    });
-
-    res.status(201).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
-
-appointments.put('/locationBooking/:id', async (req, res) => {
-  req.checkPermission('create', 'Appointment');
-
-  const { models, body, params, query } = req;
-  const { id } = params;
-  const { skipConflictCheck = false } = query;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
-
-  try {
-    const result = await Appointment.sequelize.transaction(async (transaction) => {
-      const existingBooking = await Appointment.findByPk(id, { transaction });
-
-      if (!existingBooking) {
-        throw new NotFoundError();
-      }
-
-      if (!skipConflictCheck) {
+    try {
+      const result = await Appointment.sequelize.transaction(async (transaction) => {
         const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
-        const bookingTimeAlreadyTaken = await Appointment.findOne({
+        const conflictCount = await Appointment.count({
           where: {
             [Op.and]: [
-              {
-                id: { [Op.ne]: id },
-              },
               { locationId },
+              {
+                status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+              },
               timeQueryWhereClause,
             ],
           },
@@ -385,17 +360,65 @@ appointments.put('/locationBooking/:id', async (req, res) => {
           transaction,
         });
 
-        if (bookingTimeAlreadyTaken) {
-          throw new ResourceConflictError();
+        if (conflictCount > 0) throw new ResourceConflictError();
+
+        return await Appointment.create(body, { transaction });
+      });
+
+      res.status(201).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);
+
+appointments.put(
+  '/locationBooking/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+
+    const { models, body, params, query } = req;
+    const { id } = params;
+    const { skipConflictCheck = false } = query;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
+
+    try {
+      const result = await Appointment.sequelize.transaction(async (transaction) => {
+        const existingBooking = await Appointment.findByPk(id, { transaction });
+
+        if (!existingBooking) {
+          throw new NotFoundError();
         }
-      }
 
-      const updatedRecord = await existingBooking.update(body, { transaction });
-      return updatedRecord;
-    });
+        if (!skipConflictCheck) {
+          const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
+          const bookingTimeAlreadyTaken = await Appointment.findOne({
+            where: {
+              [Op.and]: [
+                {
+                  id: { [Op.ne]: id },
+                },
+                { locationId },
+                timeQueryWhereClause,
+              ],
+            },
+            bind: timeQueryBindParams,
+            transaction,
+          });
 
-    res.status(200).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
+          if (bookingTimeAlreadyTaken) {
+            throw new ResourceConflictError();
+          }
+        }
+
+        const updatedRecord = await existingBooking.update(body, { transaction });
+        return updatedRecord;
+      });
+
+      res.status(200).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);

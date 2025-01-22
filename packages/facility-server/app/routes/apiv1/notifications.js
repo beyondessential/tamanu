@@ -61,7 +61,7 @@ notifications.get(
       ],
     });
 
-    res.json({ readNotifications, unreadNotifications });
+    res.json({ readNotifications, unreadNotifications, recentNotificationsTimeFrame });
   }),
 );
 

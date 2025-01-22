@@ -2,13 +2,17 @@ import config from 'config';
 import { add } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { createDummyPatient } from '@tamanu/database/demoData/patients';
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import {
   APPOINTMENT_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+  SETTINGS_SCOPES,
   REPEAT_FREQUENCY,
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
+import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
@@ -33,7 +37,9 @@ describe('Appointments', () => {
     userApp = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
   });
+
   afterAll(() => ctx.close());
+
   it('should create a new appointment', async () => {
     const result = await userApp.post('/api/appointments').send({
       patientId: patient.id,
@@ -41,13 +47,14 @@ describe('Appointments', () => {
       clinicianId: userApp.user.dataValues.id,
       appointmentTypeId: 'appointmentType-standard',
     });
-    appointment = result.body;
     expect(result).toHaveSucceeded();
+    appointment = result.body;
     expect(result.body.appointmentTypeId).toEqual('appointmentType-standard');
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
   });
+
   it('should list appointments', async () => {
     const result = await userApp.get('/api/appointments');
     expect(result).toHaveSucceeded();
@@ -55,6 +62,7 @@ describe('Appointments', () => {
     // verify that the appointment returned is the one created above
     expect(result.body.data[0].id).toEqual(appointment.id);
   });
+
   it('should cancel an appointment', async () => {
     const result = await userApp.put(`/api/appointments/${appointment.id}`).send({
       status: APPOINTMENT_STATUSES.CANCELLED,
@@ -64,6 +72,111 @@ describe('Appointments', () => {
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
+  });
+
+  it('should return appropriate full/partial matches to displayId or name when passed filter string', async () => {
+    appointment = await models.Appointment.create({
+      ...fake(models.Appointment),
+      patientId: patient.id,
+    });
+
+    const searchPatientNameOrId = (query) =>
+      userApp.get(`/api/appointments?patientNameOrId=${query}`);
+
+    // Valid searches
+    const searchById = await searchPatientNameOrId(patient.displayId);
+    const searchByPartialId = await searchPatientNameOrId(patient.displayId.slice(0, 3));
+    const searchByFirstName = await searchPatientNameOrId(patient.firstName);
+    const searchByPartialFirstName = await searchPatientNameOrId(patient.firstName.slice(0, 3));
+    const searchByLastName = await searchPatientNameOrId(patient.lastName);
+    const searchByPartialLastName = await searchPatientNameOrId(patient.lastName.slice(0, 3));
+    expect(searchById.body.count).toBe(1);
+    expect(searchByPartialId.body.count).toBe(1);
+    expect(searchByFirstName.body.count).toBe(1);
+    expect(searchByPartialFirstName.body.count).toBe(1);
+    expect(searchByLastName.body.count).toBe(1);
+    expect(searchByPartialLastName.body.count).toBe(1);
+
+    // Invalid searches
+    const searchByInvalidString = await searchPatientNameOrId('invalid');
+    expect(searchByInvalidString.body.count).toBe(0);
+  });
+
+  describe('outpatient appointments', () => {
+    describe('reminder emails', () => {
+      const TEST_EMAIL = 'test@email.com';
+      beforeAll(async () => {
+        appointment = await models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: patient.id,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
+        });
+      });
+      afterEach(async () => {
+        await models.PatientCommunication.truncate({ cascade: true, force: true });
+      });
+
+      it('should create patient communication record when created with email in request body', async () => {
+        const appointmentWithEmail = await userApp.post('/api/appointments').send({
+          patientId: patient.id,
+          startTime: add(new Date(), { days: 1 }),
+          clinicianId: userApp.user.dataValues.id,
+          appointmentTypeId: 'appointmentType-standard',
+          email: TEST_EMAIL,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
+          facilityId,
+        });
+        expect(appointmentWithEmail).toHaveSucceeded();
+
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should create patient communication record when hitting email endpoint', async () => {
+        const result1 = await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+        expect(result1).toHaveSucceeded();
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should use template from settings for email subject and body', async () => {
+        const TEST_SUBJECT = 'test subject';
+        const TEST_CONTENT = 'test body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation',
+          {
+            subject: TEST_SUBJECT,
+            body: TEST_CONTENT,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
+        expect(patientCommunication.content).toBe(TEST_CONTENT);
+      });
+    });
   });
 
   describe('location bookings', () => {
@@ -98,26 +211,32 @@ describe('Appointments', () => {
         const result = await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
         expect(result.status).toBe(409);
       });
+
       it('should reject if start overlaps', async () => {
         const result = await makeBooking('2024-10-02 12:15:00', '2024-10-02 12:45:00');
         expect(result.status).toBe(409);
       });
+
       it('should reject if end overlaps', async () => {
         const result = await makeBooking('2024-10-02 11:45:00', '2024-10-02 12:15:00');
         expect(result.status).toBe(409);
       });
+
       it('should reject if it would contain an existing booking within it', async () => {
         const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 13:00:00');
         expect(result.status).toBe(409);
       });
+
       it('should reject if it would be contained within an existing booking', async () => {
         const result = await makeBooking('2024-10-02 12:10:00', '2024-10-02 12:20:00');
         expect(result.status).toBe(409);
       });
+
       it('should allow booking if start time equals end time of another', async () => {
         const result = await makeBooking('2024-10-02 12:30:00', '2024-10-02 13:00:00');
         expect(result).toHaveSucceeded();
       });
+
       it('should allow booking if end time equals start time of another', async () => {
         const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 12:00:00');
         expect(result).toHaveSucceeded();
@@ -137,6 +256,7 @@ describe('Appointments', () => {
         'Validation error: AppointmentSchedule must have either untilDate or occurrenceCount',
       );
     });
+
     it('should reject an appointment without exactly one weekday', async () => {
       await expect(
         models.AppointmentSchedule.create({
@@ -147,6 +267,7 @@ describe('Appointments', () => {
         }),
       ).rejects.toThrow('Validation error: AppointmentSchedule must have exactly one weekday');
     });
+
     it('should reject an appointment without nthWeekday for MONTHLY frequency', async () => {
       await expect(
         models.AppointmentSchedule.create({
@@ -179,6 +300,7 @@ describe('Appointments', () => {
       if (!expected) return appointmentsInSchedule;
       expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual(expected);
     };
+
     it('should generate repeating weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
         untilDate: '2024-12-04',
@@ -199,6 +321,7 @@ describe('Appointments', () => {
         '2024-12-04 12:00:00',
       ]);
     });
+
     it('should generate repeating weekly appointments on Friday to occurrence count', async () => {
       const appointmentSchedule = {
         occurrenceCount: 5,
@@ -214,6 +337,7 @@ describe('Appointments', () => {
         '2024-11-01 12:00:00',
       ]);
     });
+
     it('should generate repeating bi-weekly appointments on Wednesday', async () => {
       const appointmentSchedule = {
         untilDate: '2023-12-02',
@@ -230,6 +354,7 @@ describe('Appointments', () => {
         '2023-12-02 12:00:00',
       ]);
     });
+
     it('should generate repeating monthly appointments on first Tuesday', async () => {
       const appointmentSchedule = {
         untilDate: '2024-11-05',
@@ -247,6 +372,7 @@ describe('Appointments', () => {
         '2024-11-05 12:00:00',
       ]);
     });
+
     it('should generate repeating monthly appointments on second Wednesday to occurrence count', async () => {
       const appointmentSchedule = {
         occurrenceCount: 3,
@@ -261,6 +387,7 @@ describe('Appointments', () => {
         '2024-08-14 12:00:00',
       ]);
     });
+
     it('should generate repeating monthly appointments on last friday', async () => {
       const appointmentSchedule = {
         startDate: '2024-06-28 12:00:00',
@@ -277,6 +404,7 @@ describe('Appointments', () => {
         '2024-09-27 12:00:00',
       ]);
     });
+
     it('should generate repeating bi-monthly appointments on first tuesday', async () => {
       const appointmentSchedule = {
         untilDate: '2024-10-01',
@@ -291,6 +419,7 @@ describe('Appointments', () => {
         '2024-10-01 12:00:00',
       ]);
     });
+
     it('should only generate the maximum number of weekly appointments', async () => {
       const appointmentSchedule = {
         occurrenceCount: maxRepeatingAppointmentsPerGeneration + 10,
@@ -301,6 +430,7 @@ describe('Appointments', () => {
       const result = await testRepeatingAppointment(appointmentSchedule, '2024-06-04 12:00:00');
       expect(result).toHaveLength(maxRepeatingAppointmentsPerGeneration);
     });
+
     it('should only generate the maximum number of monthly appointments', async () => {
       const appointmentSchedule = {
         occurrenceCount: maxRepeatingAppointmentsPerGeneration + 10,
@@ -313,9 +443,10 @@ describe('Appointments', () => {
       expect(result).toHaveLength(maxRepeatingAppointmentsPerGeneration);
     });
   });
+
   describe('modify with schedule', () => {
     const scheduleCreateData = {
-      untilDate: '2024-10-23',
+      untilDate: '2024-10-30',
       interval: 1,
       frequency: REPEAT_FREQUENCY.WEEKLY,
       daysOfWeek: ['WE'],
@@ -330,6 +461,7 @@ describe('Appointments', () => {
           '2024-10-09 12:00:00',
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
+          '2024-10-30 12:00:00',
         ].map((startTime) => ({
           patientId: patient.id,
           startTime,
@@ -338,11 +470,11 @@ describe('Appointments', () => {
           scheduleId: schedule.id,
         })),
       );
-      return [schedule, appointments];
+      return { schedule, appointments };
     };
 
     it('should update all future appointments if schedule is unchanged and updating a mid schedule appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
@@ -361,10 +493,12 @@ describe('Appointments', () => {
         'appointmentType-standard',
         'appointmentType-specialist',
         'appointmentType-specialist',
+        'appointmentType-specialist',
       ]);
     });
+
     it('should update all appointments if schedule is unchanged and updating first appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
       await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
@@ -382,13 +516,14 @@ describe('Appointments', () => {
         appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
-    it('should create a new schedule and close existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+
+    it('should create a new schedule and close the existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
+      const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
       const result = await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
         schedule: {
-          untilDate: '2024-10-30',
+          untilDate: '2024-11-06',
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
           daysOfWeek: ['WE'],
@@ -449,14 +584,15 @@ describe('Appointments', () => {
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
+        '2024-11-06 12:00:00',
       ]);
       expect(
         newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
-      const [schedule, appointments] = await generateSchedule();
+    it('should create a new schedule and close the existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
+      const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
       const result = await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
