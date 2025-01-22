@@ -275,6 +275,15 @@ appointments.get(
       : '$location.facility_id$';
     const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
 
+    const isBeforeScheduleUntilDateQuery = {
+      [Op.or]: [
+        { scheduleId: null },
+        literal(`
+        ("schedule"."until_date" IS NULL OR "schedule"."until_date"::timestamp + interval '1 day' - interval '1 second' >= start_time::timestamp)
+      `),
+      ],
+    };
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
@@ -306,6 +315,7 @@ appointments.get(
           facilityIdQuery,
           timeQueryWhereClause,
           cancelledStatusQuery,
+          isBeforeScheduleUntilDateQuery,
           buildPatientNameOrIdQuery(patientNameOrId),
           ...filters,
         ],
