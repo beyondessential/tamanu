@@ -160,6 +160,7 @@ export class Appointment extends Model {
     });
   }
 
+  /** Convert the appointment to a data object that can be used to create a new appointment. */
   toCreateData() {
     return omit(this.get({ plain: true }), [
       'id',
