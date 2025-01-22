@@ -440,7 +440,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
           <Field
             name="isRepeatingAppointment"
-            value={values.isRepeatingAppointment || values.schedule}
             onChange={handleChangeIsRepeatingAppointment}
             disabled={!values.startTime || isEdit}
             label={
@@ -451,7 +450,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={SwitchField}
           />
-          {values.isRepeatingAppointment && (
+          {values.isRepeatingAppointment && !isEdit && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
