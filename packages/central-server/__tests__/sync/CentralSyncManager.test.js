@@ -1259,7 +1259,7 @@ describe('CentralSyncManager', () => {
       });
     });
 
-    describe.only('resolves duplicated display IDs', () => {
+    describe('resolves duplicated display IDs', () => {
       it("appends 'duplicate' to existing patient and to-be-synced patient when the display IDs are duplicated", async () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '6';
