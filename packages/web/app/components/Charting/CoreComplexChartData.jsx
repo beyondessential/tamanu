@@ -101,7 +101,7 @@ export const CoreComplexChartData = ({
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        { data.length ? <MenuButton actions={actions} /> : null}
+        { data.length === 0 ? <MenuButton actions={actions} /> : null}
       </CoreComplexChartDataRow>
     </>
   );
