@@ -9,7 +9,6 @@ import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constan
 import { useAppointmentMutation } from '../../../api/mutations';
 import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
-import { useAuth } from '../../../contexts/Auth';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
   status => status !== APPOINTMENT_STATUSES.CANCELLED,
@@ -33,8 +32,6 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
-  const { ability } = useAuth();
-
   const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () =>
       toast.success(
