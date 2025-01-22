@@ -45,7 +45,7 @@ export const NoPermissionScreen = () => {
       <Message>
         <Heading>
           <TranslatedText
-            stringId="general.permission.permissionRequired"
+            stringId="general.permission.permissionRequired.title"
             fallback="Permission required"
           />
         </Heading>
