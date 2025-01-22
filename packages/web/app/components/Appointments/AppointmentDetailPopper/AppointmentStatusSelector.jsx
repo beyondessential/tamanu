@@ -61,8 +61,6 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
 
   const handleChange = (_event, newStatus) => updateAppointmentStatus(newStatus);
 
-  const canWriteAppointment = ability.can('write', 'Appointment');
-
   return (
     <ChipGroup
       aria-label="Appointment status"
@@ -77,7 +75,7 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
         return (
           <AppointmentStatusChip
             appointmentStatus={status}
-            disabled={disabled || isSelected || !canWriteAppointment}
+            disabled={disabled || isSelected}
             key={status}
             selected={isSelected}
             value={status}

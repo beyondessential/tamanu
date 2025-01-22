@@ -118,7 +118,10 @@ export const AppointmentDetailPopper = ({
             />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <Footer>
-              <AppointmentStatusSelector appointment={appointment} />
+              <AppointmentStatusSelector
+                appointment={appointment}
+                disabled={!canWriteAppointment}
+              />
               {canWriteAppointment && canCreateEncounter && (
                 <CheckInButton appointment={appointment} />
               )}
