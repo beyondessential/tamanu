@@ -124,16 +124,17 @@ user.post(
 );
 
 user.get(
-  '/userPreferences',
+  '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {
     const {
       models: { UserPreference },
       user: currentUser,
+      params: { facilityId },
     } = req;
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.getAllPreferences(currentUser.id);
+    const userPreferences = await UserPreference.getAllPreferences(currentUser.id, facilityId);
 
     // Return {} as default if no user preferences exist
     res.send(userPreferences || {});
@@ -146,16 +147,16 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body,
+      body: { facilityId = null, key, value },
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const { key, value } = body;
     const [userPreferences] = await UserPreference.upsert({
       key,
       value,
       userId: currentUser.id,
+      facilityId,
       deletedAt: null,
     });
 
