@@ -569,7 +569,13 @@ describe('Appointments', () => {
         APPOINTMENT_STATUSES.CANCELLED,
       ]);
 
-      // TODO: Resolve the schedule
+      const updatedSchedule = await models.AppointmentSchedule.findOne({
+        where: {
+          id: schedule.id,
+        },
+      });
+
+      expect(updatedSchedule.untilDate).toEqual('2024-10-09');
     });
     it('should delete just the selected appointment if "this appointment" selected', async () => {
       const [schedule, appointments] = await generateSchedule();
