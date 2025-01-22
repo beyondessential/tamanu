@@ -335,8 +335,6 @@ async function generateData(models) {
     }),
   );
 
-  // Remove this stub
-
   await ImagingResult.create(
     fake(ImagingResult, {
       imagingRequestId: imagingRequest.id,
