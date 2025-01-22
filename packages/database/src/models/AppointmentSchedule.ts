@@ -164,6 +164,13 @@ export class AppointmentSchedule extends Model {
     };
   }
 
+  /**
+   * End the schedule at the given appointment.
+   * This will cancel all appointments starting from the given appointment.
+   * The schedule will then be marked as fully generated and the untilDate will be set to the
+   * startTime of the latest non-cancelled appointment.
+   * @param appointment All appointments starting from this appointment will be cancelled
+   */
   async endAtAppointment(appointment: Appointment) {
     const { models } = this.sequelize;
     if (!this.sequelize.isInsideTransaction()) {
@@ -195,6 +202,11 @@ export class AppointmentSchedule extends Model {
     });
   }
 
+  /**
+   * Modify all appointments starting from the given appointment.
+   * @param appointment The appointment to start modifying from
+   * @param appointmentData The data to update the appointments with
+   */
   async modifyFromAppointment(appointment: Appointment, appointmentData: AppointmentCreateData) {
     const { models } = this.sequelize;
     return models.Appointment.update(appointmentData, {
@@ -211,7 +223,7 @@ export class AppointmentSchedule extends Model {
    * Generate repeating appointments based on the schedule parameters and the initial appointment data.
    * When the generation is complete, the schedule is marked as fully generated.
    * Otherwise the schedule continues to generate via the scheduled task GenerateRepeatingAppointments
-   * @param settings
+   * @param settings Settings reader
    * @param initialAppointmentData Optional initial appointment data to start the generation
    */
   async generateRepeatingAppointment(
