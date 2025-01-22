@@ -542,12 +542,12 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/charts$',
+  '/:id/initialChart$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
     const { models, params } = req;
     const { id: encounterId } = params;
-    const rows = await models.SurveyResponse.findAll({
+    const chartSurvey = await models.SurveyResponse.findOne({
       attributes: ['survey.*'],
       where: { encounterId },
       include: [
@@ -561,11 +561,10 @@ encounterRelations.get(
       ],
       order: [['survey', 'name', 'ASC']],
       group: [['survey.id']],
-      limit: 1,
     });
 
     res.send({
-      data: rows,
+      data: chartSurvey,
     });
   }),
 );

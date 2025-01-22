@@ -243,9 +243,9 @@ describe('EncounterCharting', () => {
         facilityId,
       });
 
-      const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts`);
+      const result = await app.get(`/api/encounter/${chartsEncounter.id}/initialChart`);
       expect(result).toHaveSucceeded();
-      expect(result.body.data[0].survey.name).toBe('Survey B');
+      expect(result.body.data.survey.name).toBe('Survey B');
     });
   });
 });

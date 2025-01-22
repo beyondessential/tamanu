@@ -24,11 +24,10 @@ export const ChartDataProvider = ({ children }) => {
 
   useEffect(() => {
     if (!isLoading && !isInitiated) {
-      const chartResponseId = chartWithResponse?.[0]?.id;
       // Only set initial type if encounter has chart responses
-      if (chartResponseId) {
+      if (chartWithResponse) {
         // Prioritize user preference, chart with response is only a fallback
-        const initialChart = userPreferences?.selectedChartTypeId ?? chartResponseId;
+        const initialChart = userPreferences?.selectedChartTypeId ?? chartWithResponse.id;
         setSelectedChartTypeId(initialChart);
       }
       setIsInitiated(true);

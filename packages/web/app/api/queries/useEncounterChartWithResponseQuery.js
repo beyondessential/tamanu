@@ -5,10 +5,9 @@ import { isErrorUnknownAllow404s, useApi } from '../index';
 export const useEncounterChartWithResponseQuery = encounterId => {
   const api = useApi();
 
-  return useQuery(['encounterChartsList', encounterId], () =>
+  return useQuery(['encounterInitialChart', encounterId], () =>
     api.get(
-      `encounter/${encounterId}/charts`,
-      { rowsPerPage: 50 },
+      `encounter/${encounterId}/initialChart`,
       { isErrorUnknown: isErrorUnknownAllow404s },
       { enabled: Boolean(encounterId) },
     ),
