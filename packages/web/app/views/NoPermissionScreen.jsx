@@ -51,7 +51,7 @@ export const NoPermissionScreen = () => {
         </Heading>
         <Description>
           <TranslatedText
-            stringId="general.permission.permissionRequiredMessage"
+            stringId="general.permission.permissionRequired.message"
             fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
           />
         </Description>
