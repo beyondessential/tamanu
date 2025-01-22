@@ -1,9 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { omit } from 'lodash';
 
-import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
@@ -146,11 +149,6 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
   );
 };
 
-const CANCEL_REPEATING_APPOINTMENT_MODE = {
-  THIS_APPOINTMENT: 'thisAppointment',
-  THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
-};
-
 const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
   return (
     <OptionsContainer>
@@ -172,7 +170,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
                 fallback="This appointment"
               />
             ),
-            value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+            value: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
           },
           {
             label: (
@@ -181,7 +179,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
                 fallback="This and future appointments"
               />
             ),
-            value: CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+            value: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
           },
         ]}
       />
@@ -204,17 +202,17 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
   const queryClient = useQueryClient();
 
   const [deletionType, setDeletionType] = useState(
-    CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+    MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
   );
 
   const handleCloseModal = () => {
-    setDeletionType(CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
+    setDeletionType(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
     onClose();
   };
 
   const { mutateAsync: mutateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () => {
-      if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
+      if (deletionType === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
         toast.success(
           <TranslatedText
             stringId="appointment.success.cancelAppointment"
@@ -222,7 +220,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
           />,
         );
       }
-      if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+      if (deletionType === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
         toast.success(
           <TranslatedText
             stringId="appointment.success.cancelRepeatingAppointment"
@@ -250,15 +248,11 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
       bottomRowContent={
         <BottomModalContent
           cancelBooking={() => {
-            if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT) {
-              mutateAppointment({
-                ...omit(appointment, 'schedule', 'scheduleId'),
-                status: APPOINTMENT_STATUSES.CANCELLED,
-              });
-            }
-            if (deletionType === CANCEL_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
-              mutateAppointment({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED });
-            }
+            mutateAppointment({
+              ...appointment,
+              status: APPOINTMENT_STATUSES.CANCELLED,
+              modifyRepeatingMode: deletionType,
+            });
           }}
           onClose={handleCloseModal}
         />

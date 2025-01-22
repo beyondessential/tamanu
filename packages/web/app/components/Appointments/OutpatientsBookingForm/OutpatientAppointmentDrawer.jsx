@@ -13,7 +13,6 @@ import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { useAuth } from '../../../contexts/Auth';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -193,7 +192,6 @@ const EmailFields = ({ patientId }) => {
 };
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
-  const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -246,7 +244,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           getTranslation('validation.rule.emailsMatch', 'Emails must match'),
         ),
     }),
-    appointmentSchedule: yup.object().when('isRepeatingAppointment', {
+    schedule: yup.object().when('isRepeatingAppointment', {
       is: true,
       then: yup.object().shape({
         interval: yup.number().required(requiredMessage),
@@ -293,7 +291,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     const handleResetRepeatUntilDate = startTimeDate => {
       setFieldValue(
-        'appointmentSchedule.untilDate',
+        'schedule.untilDate',
         add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
       );
     };
@@ -306,27 +304,25 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
     const handleChangeIsRepeatingAppointment = async e => {
       if (e.target.checked) {
-        setValues(set(values, 'appointmentSchedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
+        setValues(set(values, 'schedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
         handleUpdateScheduleToStartTime(parseISO(values.startTime));
       } else {
-        setFieldError('appointmentSchedule', undefined);
-        setFieldTouched('appointmentSchedule', false);
-        setValues(omit(values, ['appointmentSchedule']));
+        setFieldError('schedule', undefined);
+        setFieldTouched('schedule', false);
+        setValues(omit(values, ['schedule']));
       }
     };
 
     const handleUpdateScheduleToStartTime = startTimeDate => {
-      if (!values.appointmentSchedule) return;
-      const { frequency } = values.appointmentSchedule;
+      if (!values.schedule) return;
+      const { frequency } = values.schedule;
       // Update the ordinal positioning of the new date
       setFieldValue(
-        'appointmentSchedule.nthWeekday',
+        'schedule.nthWeekday',
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('appointmentSchedule.daysOfWeek', [
-        format(startTimeDate, 'iiiiii').toUpperCase(),
-      ]);
+      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
 
       handleResetRepeatUntilDate(startTimeDate);
     };
@@ -442,21 +438,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-          {!isEdit && (
-            <Field
-              name="isRepeatingAppointment"
-              onChange={handleChangeIsRepeatingAppointment}
-              disabled={!values.startTime}
-              label={
-                <TranslatedText
-                  stringId="appointment.isRepeatingAppointment.label"
-                  fallback="Repeating appointment"
-                />
-              }
-              component={SwitchField}
-            />
-          )}
-          {values.isRepeatingAppointment && (
+          <Field
+            name="isRepeatingAppointment"
+            onChange={handleChangeIsRepeatingAppointment}
+            disabled={!values.startTime || isEdit}
+            label={
+              <TranslatedText
+                stringId="appointment.isRepeatingAppointment.label"
+                fallback="Repeating appointment"
+              />
+            }
+            component={SwitchField}
+          />
+          {values.isRepeatingAppointment && !isEdit && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
@@ -485,13 +479,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
     },
   });
+
+  const handleSubmitForm = async (values, { resetForm }) => {
+    await handleSubmit(values);
+    resetForm();
+  };
+
   return (
     <>
       <Form
-        onSubmit={async (values, { resetForm }) => {
-          await handleSubmit({ ...values, facilityId });
-          resetForm();
-        }}
+        onSubmit={handleSubmitForm}
         style={formStyles}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

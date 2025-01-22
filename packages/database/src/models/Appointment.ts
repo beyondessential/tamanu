@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, type BelongsToGetAssociationMixin } from 'sequelize';
 import { omit } from 'lodash';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -6,12 +6,12 @@ import type { ReadSettings } from '@tamanu/settings';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { type AppointmentScheduleCreateData } from './AppointmentSchedule';
+import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 interface CreateWithScheduleParams {
-  settings: ReadSettings;
   appointmentData: AppointmentCreateData;
+  settings: ReadSettings;
   scheduleData: AppointmentScheduleCreateData;
 }
 
@@ -32,6 +32,8 @@ export class Appointment extends Model {
   declare appointmentTypeId?: string;
   declare encounterId?: string;
   declare scheduleId?: string;
+
+  declare getSchedule: BelongsToGetAssociationMixin<AppointmentSchedule>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -153,10 +155,12 @@ export class Appointment extends Model {
   }: CreateWithScheduleParams) {
     return this.sequelize.transaction(async () => {
       const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
-      return schedule.generateRepeatingAppointment(settings, appointmentData);
+      const appointments = await schedule.generateRepeatingAppointment(settings, appointmentData);
+      return { firstAppointment: appointments[0], schedule };
     });
   }
 
+  /** Convert the appointment to a data object that can be used to create a new appointment. */
   toCreateData() {
     return omit(this.get({ plain: true }), [
       'id',

@@ -23,7 +23,7 @@ import type { InitOptions, Models } from '../types/model';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
-  'id' | 'createdAt' | 'deletedAt'
+  'id' | 'createdAt' | 'deletedAt' | 'updatedAtSyncTick'
 >;
 
 export type WeeklySchedule = AppointmentSchedule & {
@@ -164,6 +164,13 @@ export class AppointmentSchedule extends Model {
     };
   }
 
+  /**
+   * End the schedule at the given appointment.
+   * This will cancel all appointments starting from the given appointment.
+   * The schedule will then be marked as fully generated and the untilDate will be set to the
+   * startTime of the latest non-cancelled appointment.
+   * @param appointment All appointments starting from this appointment will be cancelled
+   */
   async endAtAppointment(appointment: Appointment) {
     const { models } = this.sequelize;
     if (!this.sequelize.isInsideTransaction()) {
@@ -176,7 +183,6 @@ export class AppointmentSchedule extends Model {
       {
         where: {
           startTime: { [Op.gte]: appointment.startTime },
-          scheduleId: this.id,
         },
       },
     );
@@ -197,16 +203,34 @@ export class AppointmentSchedule extends Model {
   }
 
   /**
+   * Modify all appointments starting from the given appointment.
+   * @param appointment The appointment to start modifying from
+   * @param appointmentData The data to update the appointments with
+   */
+  async modifyFromAppointment(appointment: Appointment, appointmentData: AppointmentCreateData) {
+    const { models } = this.sequelize;
+    return models.Appointment.update(appointmentData, {
+      where: {
+        startTime: {
+          [Op.gte]: appointment.startTime, // current and future appointments
+        },
+        scheduleId: this.id,
+      },
+    });
+  }
+
+  /**
    * Generate repeating appointments based on the schedule parameters and the initial appointment data.
    * When the generation is complete, the schedule is marked as fully generated.
    * Otherwise the schedule continues to generate via the scheduled task GenerateRepeatingAppointments
-   * @param settings
+   * @param settings Settings reader
    * @param initialAppointmentData Optional initial appointment data to start the generation
    */
   async generateRepeatingAppointment(
     settings: ReadSettings,
     initialAppointmentData?: AppointmentCreateData,
   ) {
+    const { models } = this.sequelize;
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
         'AppointmentSchedule.generateRepeatingAppointment must always run inside a transaction',
@@ -215,9 +239,13 @@ export class AppointmentSchedule extends Model {
     const maxRepeatingAppointmentsPerGeneration = await settings.get<number>(
       'appointments.maxRepeatingAppointmentsPerGeneration',
     );
-    const { Appointment } = this.sequelize.models;
     const existingAppointments = await this.getAppointments({
       order: [['startTime', 'DESC']],
+      where: {
+        status: {
+          [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
+        },
+      },
     });
     const latestExistingAppointment = existingAppointments[0];
 
@@ -232,12 +260,12 @@ export class AppointmentSchedule extends Model {
       | MonthlySchedule;
     const parsedUntilDate = untilDate && endOfDay(parseISO(untilDate));
 
-    const appointments: AppointmentCreateData[] = [];
+    const appointmentsToCreate: AppointmentCreateData[] = [];
 
     if (initialAppointmentData) {
       // Add the initial appointment data to the list of appointments to generate and to act
       // as a reference for incremented appointments
-      appointments.push({ ...initialAppointmentData, scheduleId: this.id });
+      appointmentsToCreate.push({ ...initialAppointmentData, scheduleId: this.id });
     }
 
     const adjustDateForFrequency = (date: Date) => {
@@ -259,11 +287,12 @@ export class AppointmentSchedule extends Model {
 
     const pushNextAppointment = () => {
       // Get the most recent appointment or start off where the last generation left off
-      const lastAppointment = appointments.at(-1) || latestExistingAppointment!.toCreateData();
-      appointments.push({
-        ...lastAppointment,
-        startTime: incrementDateString(lastAppointment.startTime),
-        endTime: lastAppointment.endTime && incrementDateString(lastAppointment.endTime),
+      const referenceAppointment =
+        appointmentsToCreate.at(-1) || latestExistingAppointment!.toCreateData();
+      appointmentsToCreate.push({
+        ...referenceAppointment,
+        startTime: incrementDateString(referenceAppointment.startTime),
+        endTime: referenceAppointment.endTime && incrementDateString(referenceAppointment.endTime),
       });
     };
 
@@ -271,16 +300,20 @@ export class AppointmentSchedule extends Model {
       // Generation is considered complete if the next appointments startTime falls after the untilDate
       const nextAppointmentAfterUntilDate =
         parsedUntilDate &&
-        isAfter(parseISO(incrementDateString(appointments.at(-1)!.startTime)), parsedUntilDate);
+        isAfter(
+          parseISO(incrementDateString(appointmentsToCreate.at(-1)!.startTime)),
+          parsedUntilDate,
+        );
       // Or if the occurrenceCount is reached
       const hasReachedOccurrenceCount =
-        occurrenceCount && appointments.length + existingAppointments.length === occurrenceCount;
+        occurrenceCount &&
+        appointmentsToCreate.length + existingAppointments.length === occurrenceCount;
       return nextAppointmentAfterUntilDate || hasReachedOccurrenceCount;
     };
 
     let isFullyGenerated = false;
     // If initial appointment data has been preloaded in appointment array start generating from i = 1
-    for (let i = appointments.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
+    for (let i = appointmentsToCreate.length; i < maxRepeatingAppointmentsPerGeneration; i++) {
       pushNextAppointment();
       if (checkFullyGenerated()) {
         isFullyGenerated = true;
@@ -288,10 +321,10 @@ export class AppointmentSchedule extends Model {
       }
     }
 
-    const appointmentData = await Appointment.bulkCreate(appointments);
+    const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
     if (isFullyGenerated) {
       await this.update({ isFullyGenerated });
     }
-    return appointmentData;
+    return appointments;
   }
 }

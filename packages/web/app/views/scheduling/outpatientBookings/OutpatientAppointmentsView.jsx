@@ -102,18 +102,21 @@ export const OutpatientAppointmentsView = () => {
   const handleCloseDrawer = () => setDrawerOpen(false);
 
   const handleOpenDrawer = appointment => {
-    setSelectedAppointment(
-      pick(appointment, [
-        'id',
-        'locationGroupId',
-        'appointmentTypeId',
-        'startTime',
-        'endTime',
-        'patientId',
-        'clinicianId',
-        'isHighPriority',
-      ]),
-    );
+    const appointmentFormValues = pick(appointment, [
+      'id',
+      'locationGroupId',
+      'appointmentTypeId',
+      'startTime',
+      'endTime',
+      'patientId',
+      'clinicianId',
+      'isHighPriority',
+      'schedule',
+    ]);
+    setSelectedAppointment({
+      ...appointmentFormValues,
+      isRepeatingAppointment: !!appointmentFormValues.schedule,
+    });
     setDrawerOpen(true);
   };
 
