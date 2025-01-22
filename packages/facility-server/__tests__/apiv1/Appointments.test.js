@@ -338,11 +338,11 @@ describe('Appointments', () => {
           scheduleId: schedule.id,
         })),
       );
-      return [schedule, appointments];
+      return { schedule, appointments };
     };
 
     it('should update all future appointments if schedule is unchanged and updating a mid schedule appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
@@ -364,7 +364,7 @@ describe('Appointments', () => {
       ]);
     });
     it('should update all appointments if schedule is unchanged and updating first appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
       await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
@@ -383,7 +383,7 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
     it('should create a new schedule and close existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
       const result = await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
@@ -456,7 +456,7 @@ describe('Appointments', () => {
     });
 
     it('should create a new schedule and close existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
-      const [schedule, appointments] = await generateSchedule();
+      const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
       const result = await userApp.put(`/api/appointments/${firstAppointment.id}`).send({

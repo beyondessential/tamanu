@@ -212,7 +212,7 @@ export class AppointmentSchedule extends Model {
     return models.Appointment.update(appointmentData, {
       where: {
         startTime: {
-          [Op.gte]: appointment.startTime,
+          [Op.gte]: appointment.startTime, // current and future appointments
         },
         scheduleId: this.id,
       },
@@ -287,12 +287,12 @@ export class AppointmentSchedule extends Model {
 
     const pushNextAppointment = () => {
       // Get the most recent appointment or start off where the last generation left off
-      const lastAppointment =
+      const referenceAppointment =
         appointmentsToCreate.at(-1) || latestExistingAppointment!.toCreateData();
       appointmentsToCreate.push({
-        ...lastAppointment,
-        startTime: incrementDateString(lastAppointment.startTime),
-        endTime: lastAppointment.endTime && incrementDateString(lastAppointment.endTime),
+        ...referenceAppointment,
+        startTime: incrementDateString(referenceAppointment.startTime),
+        endTime: referenceAppointment.endTime && incrementDateString(referenceAppointment.endTime),
       });
     };
 

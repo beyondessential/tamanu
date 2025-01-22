@@ -164,6 +164,7 @@ appointments.put(
             return { schedule };
           }
         } else {
+          // No scheduleData provided, so this is a simple change that doesn't require deleting and regenerating future appointments
           await existingSchedule.modifyFromAppointment(
             appointment,
             // When modifying all future appointments we strip startTime, and endTime
@@ -266,16 +267,16 @@ appointments.get(
 
     const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
 
-    const cancelledStatusQuery = includeCancelled
+    const cancelledStatusWhereClause = includeCancelled
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
     const facilityIdField = isStringOrArray(queries.locationGroupId)
       ? '$locationGroup.facility_id$'
       : '$location.facility_id$';
-    const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
+    const facilityIdWhereClause = facilityId ? { [facilityIdField]: facilityId } : null;
 
-    const isBeforeScheduleUntilDateQuery = {
+    const isBeforeScheduleUntilDateWhereClause = {
       [Op.or]: [
         { scheduleId: null },
         literal(`
@@ -312,10 +313,10 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         [Op.and]: [
-          facilityIdQuery,
+          facilityIdWhereClause,
           timeQueryWhereClause,
-          cancelledStatusQuery,
-          isBeforeScheduleUntilDateQuery,
+          cancelledStatusWhereClause,
+          isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
           ...filters,
         ],
