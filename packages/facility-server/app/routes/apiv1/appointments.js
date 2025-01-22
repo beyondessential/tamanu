@@ -140,11 +140,12 @@ appointments.put(
 
     const { id } = params;
     const { Appointment } = models;
+    const appointment = await Appointment.findByPk(id);
+    if (!appointment) {
+      throw new NotFoundError();
+    }
+
     const result = await req.db.transaction(async () => {
-      const appointment = await Appointment.findByPk(id);
-      if (!appointment) {
-        throw new NotFoundError();
-      }
       if (modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
