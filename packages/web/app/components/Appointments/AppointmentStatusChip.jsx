@@ -33,6 +33,10 @@ const Toggle = styled(ToggleButton)`
           }
         `}
     }
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: initial;
+    }
   }
 `;
 
@@ -42,7 +46,6 @@ const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
   </Toggle>
 );
 
-// TODO: correct disabled styling (conflicts with timeslot picker)
 export const AppointmentStatusChip = ({
   appointmentStatus,
   disabled = false,
