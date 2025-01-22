@@ -1,5 +1,6 @@
 import { TranslatedString } from './TranslatedString';
 import { ReferenceData } from './ReferenceData';
+import { ReferenceDrug } from './ReferenceDrug';
 import { ReferenceDataRelation } from './ReferenceDataRelation';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
@@ -50,6 +51,7 @@ import { PatientOngoingPrescription } from './PatientOngoingPrescription';
 
 export const MODELS_MAP = {
   ReferenceData,
+  ReferenceDrug,
   TranslatedString,
   Patient,
   PatientAdditionalData,

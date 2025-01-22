@@ -59,6 +59,7 @@ import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-u
 import { removeLabTestStatus1734072605000 } from './1734072605000-removeLabTestStatus';
 import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './1734080053767-standardiseCaseAndPluralityOfAllTables';
 import { changeMedicationsDBSchema1736398276000 } from './1736398276000-changeMedicationsDBSchema';
+import { addReferenceDrugsTable1736614067055 } from './1736614067055-addReferenceDrugsTable.ts';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -121,4 +122,5 @@ export const migrationList = [
   removeLabTestStatus1734072605000,
   standardiseCaseAndPluralityOfAllTables1734080053767,
   changeMedicationsDBSchema1736398276000,
+  addReferenceDrugsTable1736614067055
 ];

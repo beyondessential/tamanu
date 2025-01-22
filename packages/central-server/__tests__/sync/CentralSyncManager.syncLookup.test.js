@@ -154,6 +154,7 @@ describe('Sync Lookup data', () => {
       TaskTemplate,
       TaskTemplateDesignation,
       UserDesignation,
+      Notification,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -587,6 +588,13 @@ describe('Sync Lookup data', () => {
       fake(UserDesignation, {
         userId: examiner.id,
         designationId: referenceData.id,
+      }),
+    );
+
+    await Notification.create(
+      fake(Notification, {
+        userId: examiner.id,
+        patientId: patient.id,
       }),
     );
   };

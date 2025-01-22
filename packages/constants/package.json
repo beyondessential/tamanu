@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/constants",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "private": true,
   "description": "Shared constants",
   "main": "dist/cjs/index.js",
@@ -30,6 +30,7 @@
     "build:types": "npm run build:types:esm && npm run build:types:cjs",
     "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
     "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
+    "build-watch": "npm run build:dev:watch",
     "remove-build-artifacts": "rimraf dist"
   },
   "devDependencies": {
