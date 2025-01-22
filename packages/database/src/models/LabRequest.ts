@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import {
@@ -54,7 +54,7 @@ export class LabRequest extends Model {
   declare notes: Note[];
   declare labTestPanelRequest?: LabTestPanelRequest;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
@@ -99,7 +99,41 @@ export class LabRequest extends Model {
           allowNull: true,
         }),
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterUpdate: async (labRequest: LabRequest) => {
+            const shouldPushNotification = [
+              LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+              LAB_REQUEST_STATUSES.PUBLISHED,
+              LAB_REQUEST_STATUSES.INVALIDATED,
+            ].includes(labRequest.status);
+
+            if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
+              await models.Notification.pushNotification(
+                NOTIFICATION_TYPES.LAB_REQUEST,
+                labRequest.dataValues,
+              );
+            }
+
+            const shouldDeleteNotification = [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+            ].includes(labRequest.status);
+
+            if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
+              await models.Notification.destroy({
+                where: {
+                  metadata: {
+                    id: labRequest.id,
+                  },
+                },
+              });
+            }
+          },
+        },
+      },
     );
   }
 

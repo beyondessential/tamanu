@@ -1,9 +1,16 @@
 import config from 'config';
 import { add } from 'date-fns';
 
+import {
+  APPOINTMENT_STATUSES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
+  SETTINGS_SCOPES,
+  REPEAT_FREQUENCY,
+} from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
-import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
@@ -36,8 +43,8 @@ describe('Appointments', () => {
       clinicianId: userApp.user.dataValues.id,
       appointmentTypeId: 'appointmentType-standard',
     });
-    appointment = result.body;
     expect(result).toHaveSucceeded();
+    appointment = result.body;
     expect(result.body.appointmentTypeId).toEqual('appointmentType-standard');
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
@@ -60,6 +67,111 @@ describe('Appointments', () => {
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
+  });
+
+  it('should return appropriate full/partial matches to displayId or name when passed filter string', async () => {
+    appointment = await models.Appointment.create({
+      ...fake(models.Appointment),
+      patientId: patient.id,
+    });
+
+    const searchPatientNameOrId = (query) =>
+      userApp.get(`/api/appointments?patientNameOrId=${query}`);
+
+    // Valid searches
+    const searchById = await searchPatientNameOrId(patient.displayId);
+    const searchByPartialId = await searchPatientNameOrId(patient.displayId.slice(0, 3));
+    const searchByFirstName = await searchPatientNameOrId(patient.firstName);
+    const searchByPartialFirstName = await searchPatientNameOrId(patient.firstName.slice(0, 3));
+    const searchByLastName = await searchPatientNameOrId(patient.lastName);
+    const searchByPartialLastName = await searchPatientNameOrId(patient.lastName.slice(0, 3));
+    expect(searchById.body.count).toBe(1);
+    expect(searchByPartialId.body.count).toBe(1);
+    expect(searchByFirstName.body.count).toBe(1);
+    expect(searchByPartialFirstName.body.count).toBe(1);
+    expect(searchByLastName.body.count).toBe(1);
+    expect(searchByPartialLastName.body.count).toBe(1);
+
+    // Invalid searches
+    const searchByInvalidString = await searchPatientNameOrId('invalid');
+    expect(searchByInvalidString.body.count).toBe(0);
+  });
+
+  describe('outpatient appointments', () => {
+    describe('reminder emails', () => {
+      const TEST_EMAIL = 'test@email.com';
+      beforeAll(async () => {
+        appointment = await models.Appointment.create({
+          ...fake(models.Appointment),
+          patientId: patient.id,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
+        });
+      });
+      afterEach(async () => {
+        await models.PatientCommunication.truncate({ cascade: true, force: true });
+      });
+
+      it('should create patient communication record when created with email in request body', async () => {
+        const appointmentWithEmail = await userApp.post('/api/appointments').send({
+          patientId: patient.id,
+          startTime: add(new Date(), { days: 1 }),
+          clinicianId: userApp.user.dataValues.id,
+          appointmentTypeId: 'appointmentType-standard',
+          email: TEST_EMAIL,
+          locationGroupId: await randomRecordId(models, 'LocationGroup'),
+          facilityId,
+        });
+        expect(appointmentWithEmail).toHaveSucceeded();
+
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should create patient communication record when hitting email endpoint', async () => {
+        const result1 = await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+        expect(result1).toHaveSucceeded();
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should use template from settings for email subject and body', async () => {
+        const TEST_SUBJECT = 'test subject';
+        const TEST_CONTENT = 'test body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation',
+          {
+            subject: TEST_SUBJECT,
+            body: TEST_CONTENT,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
+        expect(patientCommunication.content).toBe(TEST_CONTENT);
+      });
+    });
   });
 
   describe('location bookings', () => {

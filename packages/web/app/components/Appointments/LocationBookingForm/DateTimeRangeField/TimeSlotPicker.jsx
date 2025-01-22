@@ -1,6 +1,6 @@
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import { areIntervalsOverlapping, isSameDay, max, min, parseISO, startOfToday } from 'date-fns';
+import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
@@ -97,7 +97,7 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart ?? startOfToday());
+  } = useBookingSlots(dayStart);
 
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
@@ -108,19 +108,11 @@ export const TimeSlotPicker = ({
    * Array of integers representing the selected toggle buttons. Each time slot is represented by
    * the integer form of its start time.
    */
-  const [selectedToggles, setSelectedToggles] = useState(() => {
-    if (!initialInterval) return [];
-
-    // When modifying a non-overnight booking, don’t prepopulate the overnight variants of this
-    // component (and vice versa)
-    const isModifyingOvernightBooking = !isSameDay(initialInterval.start, initialInterval.end);
-    const isOvernightVariant = variant !== TIME_SLOT_PICKER_VARIANTS.RANGE;
-    if (isModifyingOvernightBooking !== isOvernightVariant) return [];
-
-    return timeSlots
-      .filter(slot => areIntervalsOverlapping(slot, initialInterval))
-      .map(idOfTimeSlot);
-  });
+  const [selectedToggles, setSelectedToggles] = useState(
+    initialInterval
+      ? timeSlots?.filter(slot => areIntervalsOverlapping(slot, initialInterval)).map(idOfTimeSlot)
+      : [],
+  );
   const [hoverRange, setHoverRange] = useState(null);
 
   const {
@@ -300,26 +292,48 @@ export const TimeSlotPicker = ({
    * Treating the `startTime` and `endTime` string values from the Formik context as the source of
    * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
    * currently selected start and end times.
+   *
+   * - If the user switches from an overnight booking to non-, preserve only the earliest time
+   *   slot.
+   * - If the user switches from a non-overnight booking to overnight, attempt to preserve the
+   *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
+   *   conflicts with another appointment, clear the start and/or end times as needed to maintain
+   *   legal state.
+   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
+   *   simply discarded when toggling the `overnight` checkbox.
    */
   useEffect(() => {
-    if (hasNoLegalSelection) {
-      setSelectedToggles([]);
-      updateInterval({ end: null });
-      return;
-    }
-
     // Not a destructure to convince linter we don’t need `values` object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
 
-    const start = startTime && parseISO(startTime);
-    const end = endTime && parseISO(endTime);
-    const isOvernight = startTime && endTime ? !isSameDay(start, end) : null;
+    const start = parseISO(startTime);
+    const end = parseISO(endTime);
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
-      if (!startTime || !endTime || isOvernight) {
-        setSelectedToggles([]);
-        updateInterval({ start: null, end: null });
+      if (!startTime) {
+        /*
+         * The RANGE must have both start and end times, or neither. If the user has switched from
+         * an overnight booking with only an end time selected, we must discard it.
+         */
+        if (endTime) {
+          // Retriggers this useEffect hook, but will fall to the `else` branch
+          updateInterval({ end: null });
+        } else {
+          setSelectedToggles([]);
+        }
+        return;
+      }
+
+      /*
+       * It’s only possible to have a start time but no end time if the user has just switched from
+       * an overnight booking. Preserve the first time slot from that selection.
+       */
+      if (!endTime) {
+        const start = parseISO(startTime);
+        const slot = slotContaining(start);
+
+        updateInterval(slot); // Retriggers this useEffect hook, but will fall to the next branch
         return;
       }
 
@@ -327,36 +341,57 @@ export const TimeSlotPicker = ({
       setSelectedToggles(
         timeSlots?.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
       );
-      updateInterval(interval);
       return;
     }
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
-      if (!startTime || isOvernight === false) {
+      if (!startTime) {
         setSelectedToggles([]);
+        return;
+      }
+
+      const hasConflict = bookedIntervals.some(interval =>
+        areIntervalsOverlapping({ start, end: dayEnd }, interval),
+      );
+      if (hasConflict) {
+        // Retriggers this useEffect hook, but will take previous branch
         updateInterval({ start: null });
         return;
       }
 
       const startValue = start.valueOf();
       setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
-      updateInterval({ start });
       return;
     }
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.END) {
-      if (!endTime || isOvernight === false) {
+      if (!endTime) {
         setSelectedToggles([]);
+        return;
+      }
+
+      if (hasNoLegalSelection || !isSameDay(end, dayStart)) {
+        // Retriggers this useEffect hook, but will take previous branch
         updateInterval({ end: null });
         return;
       }
 
       const endValue = end.valueOf();
       setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
-      updateInterval({ end });
       return;
     }
-  }, [hasNoLegalSelection, timeSlots, updateInterval, values.endTime, values.startTime, variant]);
+  }, [
+    bookedIntervals,
+    dayEnd,
+    dayStart,
+    hasNoLegalSelection,
+    slotContaining,
+    timeSlots,
+    updateInterval,
+    values.endTime,
+    values.startTime,
+    variant,
+  ]);
 
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   useEffect(() => {
@@ -388,31 +423,34 @@ export const TimeSlotPicker = ({
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
 
-              switch (variant) {
-                case TIME_SLOT_PICKER_VARIANTS.RANGE:
-                  if (!values.startTime || !values.endTime) {
-                    setHoverRange(timeSlot);
-                    return;
-                  }
+              if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
+                if (!values.startTime || !values.endTime) {
+                  setHoverRange(timeSlot);
+                  return;
+                }
 
-                  setHoverRange({
-                    start: min([timeSlot.start, parseISO(values.startTime)]),
-                    end: max([timeSlot.end, parseISO(values.endTime)]),
-                  });
-                  return;
-                case TIME_SLOT_PICKER_VARIANTS.START:
-                  setHoverRange({
-                    start: timeSlot.start,
-                    end: dayEnd,
-                  });
-                  return;
-                case TIME_SLOT_PICKER_VARIANTS.END:
-                  setHoverRange({
-                    start: dayStart,
-                    end: timeSlot.end,
-                  });
-                  return;
+                setHoverRange({
+                  start: min([timeSlot.start, parseISO(values.startTime)]),
+                  end: max([timeSlot.end, parseISO(values.endTime)]),
+                });
+                return;
               }
+
+              if (selectedToggles.length > 0) return;
+
+              if (variant === TIME_SLOT_PICKER_VARIANTS.START) {
+                setHoverRange({
+                  start: timeSlot.start,
+                  end: dayEnd,
+                });
+                return;
+              }
+
+              // END variant
+              setHoverRange({
+                start: dayStart,
+                end: timeSlot.end,
+              });
             };
 
             return (
