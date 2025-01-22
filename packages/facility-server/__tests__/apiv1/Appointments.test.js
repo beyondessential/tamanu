@@ -315,7 +315,7 @@ describe('Appointments', () => {
   });
   describe('modify with schedule', () => {
     const scheduleCreateData = {
-      untilDate: '2024-10-23',
+      untilDate: '2024-10-30',
       interval: 1,
       frequency: REPEAT_FREQUENCY.WEEKLY,
       daysOfWeek: ['WE'],
@@ -330,6 +330,7 @@ describe('Appointments', () => {
           '2024-10-09 12:00:00',
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
+          '2024-10-30 12:00:00',
         ].map((startTime) => ({
           patientId: patient.id,
           startTime,
@@ -361,6 +362,7 @@ describe('Appointments', () => {
         'appointmentType-standard',
         'appointmentType-specialist',
         'appointmentType-specialist',
+        'appointmentType-specialist',
       ]);
     });
     it('should update all appointments if schedule is unchanged and updating first appointment', async () => {
@@ -388,7 +390,7 @@ describe('Appointments', () => {
 
       const result = await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
         schedule: {
-          untilDate: '2024-10-30',
+          untilDate: '2024-11-06',
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
           daysOfWeek: ['WE'],
@@ -449,6 +451,7 @@ describe('Appointments', () => {
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
+        '2024-11-06 12:00:00',
       ]);
       expect(
         newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
