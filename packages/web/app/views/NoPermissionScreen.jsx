@@ -23,8 +23,7 @@ const Container = styled.div`
 const Message = styled.div`
   width: 50%;
   text-align: center;
-  position: absolute;
-  top: 254px;
+  margin-top: 33vh;
 `;
 
 const Heading = styled.h1`
