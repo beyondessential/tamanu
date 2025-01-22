@@ -18,9 +18,6 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
-import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
-import { useSettings } from '../../../contexts/Settings';
-import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -72,10 +69,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
-  const { getSetting } = useSettings();
-  const isModifyRepeatingAppointmentsEnabled = getSetting('features.modifyRepeatingAppointments');
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isModifyRepeatingModalOpen, setIsModifyRepeatingModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -118,31 +112,7 @@ export const OutpatientAppointmentsView = () => {
         'schedule',
       ]),
     );
-    if (isModifyRepeatingAppointmentsEnabled && appointment?.scheduleId) {
-      setIsModifyRepeatingModalOpen(true);
-    } else {
-      setDrawerOpen(true);
-    }
-  };
-
-  const handleConfirmModifyRepeatingModal = modifyRepeatingMode => {
-    const { schedule } = selectedAppointment;
-    setIsModifyRepeatingModalOpen(false);
-    setSelectedAppointment({
-      ...selectedAppointment,
-      modifyRepeatingMode,
-      isRepeatingAppointment: true,
-      schedule: {
-        ...schedule,
-        endsMode: schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER,
-      },
-    });
     setDrawerOpen(true);
-  };
-
-  const handleCloseModifyRepeatingModal = () => {
-    setIsModifyRepeatingModalOpen(false);
-    setSelectedAppointment({});
   };
 
   return (
@@ -152,11 +122,6 @@ export const OutpatientAppointmentsView = () => {
           appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
-        />
-        <ModifyRepeatingAppointmentModal
-          open={isModifyRepeatingModalOpen}
-          onClose={handleCloseModifyRepeatingModal}
-          onConfirm={handleConfirmModifyRepeatingModal}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
