@@ -21,6 +21,11 @@ const Toggle = styled(ToggleButton)`
       background-color: ${Colors.veryLightBlue};
     }
 
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: initial;
+    }
+
     &.${toggleButtonClasses.selected} {
       border-color: transparent;
 
@@ -32,10 +37,6 @@ const Toggle = styled(ToggleButton)`
             background-color: ${$color}1a; // Works only with six-digit hex colour
           }
         `}
-    }
-    &:disabled,
-    &.${toggleButtonClasses.disabled} {
-      background-color: initial;
     }
   }
 `;
