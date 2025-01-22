@@ -208,6 +208,16 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
   const handleCloseModal = () => setModalOpen(false);
 
+  const reloadChartInstances = useCallback(() => {
+    () => {
+      queryClient.invalidateQueries([
+        'encounterComplexChartInstances',
+        encounter.id,
+        coreComplexChartSurveyId,
+      ]);
+    };
+  }, [queryClient, encounter.id, coreComplexChartSurveyId]);
+
   const handleSubmitChart = async ({ survey, ...data }) => {
     const submittedTime = getCurrentDateTimeString();
     const responseData = {
@@ -224,6 +234,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       responseData.metadata = {
         chartInstanceResponseId: currentComplexChartInstance.chartInstanceId,
       };
+    } else if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
+      reloadChartInstances();
     }
 
     await api.post('surveyResponse', responseData);
@@ -240,12 +252,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       handleCloseModal();
       setCurrentComplexChartTab(null);
 
-      // reload the chart instance tabs
-      queryClient.invalidateQueries([
-        'encounterComplexChartInstances',
-        encounter.id,
-        coreComplexChartSurveyId,
-      ]);
+      reloadChartInstances();
       await loadEncounter(encounter.id);
     } catch (e) {
       toast.error(`Failed to remove chart with error: ${e.message}`);
@@ -254,8 +261,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     api,
     encounter.id,
     currentComplexChartInstance?.chartInstanceId,
-    queryClient,
-    coreComplexChartSurveyId,
+    reloadChartInstances,
     loadEncounter,
   ]);
 
