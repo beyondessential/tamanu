@@ -38,7 +38,6 @@ const Description = styled.h4`
   color: ${Colors.darkText};
 `;
 
-// To be rendered in place of content when user has no permission for an entire view
 export const NoPermissionScreen = () => {
   return (
     <Container>
