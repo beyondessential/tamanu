@@ -171,12 +171,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [fullChartSurvey?.components],
   );
 
+  const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
   const {
     data: { data: complexChartInstances = [] } = {},
+    isLoading: isLoadingInstances,
   } = useEncounterComplexChartInstancesQuery({
     encounterId: encounter.id,
     chartSurveyId: coreComplexChartSurveyId,
-    enabled: !!coreComplexChartSurveyId, // only run when coreComplexChartSurveyId is available
+    enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
   });
 
   // Create tabs for each chart instance
@@ -273,6 +275,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const recordButtonEnabled =
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
   const hasNoCharts = chartTypes.length === 0;
+  const isWaitingForInstances = isInstancesQueryEnabled && isLoadingInstances;
 
   const baseChartModalProps = {
     open: modalOpen,
@@ -282,11 +285,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     onSubmit: handleSubmitChart,
   };
 
-  if (isLoadingChartData || isLoadingChartSurveys || hasNoCharts) {
+  if (isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
     return (
       <TabPane>
         <EmptyChartsTable
-          isLoading={isLoadingChartData || isLoadingChartSurveys}
+          isLoading={isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances}
           noDataMessage={
             <TranslatedText
               stringId="chart.table.noSelectableCharts"
