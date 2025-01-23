@@ -2,7 +2,7 @@ import { Sequelize, Transaction, type TransactionOptions } from 'sequelize';
 
 const wrapTransaction = async <T>(
   sequelize: Sequelize,
-  options: TransactionOptions,
+  options: TransactionOptions = {},
   // eslint-disable-next-line no-unused-vars
   executeWithinTransaction: (transaction: Transaction) => Promise<T>,
 ): Promise<T> => {
@@ -30,7 +30,7 @@ export const readOnlyTransaction = async <T>(
   // eslint-disable-next-line no-unused-vars
   executeWithinTransaction: (transaction: Transaction) => Promise<T>,
 ): Promise<T> => {
-  return wrapTransaction(sequelize, { readOnly: true }, async (transaction) => {
+  return wrapTransaction(sequelize, {}, async (transaction) => {
     // Set the transaction to read-only mode
     await sequelize.query('SET TRANSACTION READ ONLY;', { transaction });
     return executeWithinTransaction(transaction);
