@@ -22,46 +22,50 @@ const TabContainer = styled.div`
 `;
 
 export const ImportExportView = memo(
-  ({ title, endpoint, dataTypes, dataTypesSelectable, disableExport }) => {
+  ({ title, endpoint, dataTypes, dataTypesSelectable, buildTabs }) => {
     const [currentTab, setCurrentTab] = useState('import');
     const [isLoading, setIsLoading] = useState(false);
 
-    const tabs = useMemo(
-      () => [
-        {
-          label: <TranslatedText stringId="admin.import.title" fallback="Import" />,
-          key: 'import',
-          icon: 'fa fa-file-import',
-          render: () => (
-            <TabContainer>
-              <ImporterView
-                endpoint={endpoint}
-                dataTypes={dataTypes}
-                dataTypesSelectable={dataTypesSelectable}
-                setIsLoading={setIsLoading}
-              />
-            </TabContainer>
-          ),
-        },
-        !disableExport && {
-          label: <TranslatedText stringId="admin.export.title" fallback="Export" />,
-          key: 'export',
-          icon: 'fa fa-file-export',
-          render: () => (
-            <TabContainer>
-              <ExporterView
-                title={title}
-                endpoint={endpoint}
-                dataTypes={dataTypes}
-                dataTypesSelectable={dataTypesSelectable}
-                setIsLoading={setIsLoading}
-              />
-            </TabContainer>
-          ),
-        },
-      ],
-      [title, endpoint, dataTypes, dataTypesSelectable, disableExport],
+    const importTab = useMemo(
+      () => ({
+        label: <TranslatedText stringId="admin.import.title" fallback="Import" />,
+        key: 'import',
+        icon: 'fa fa-file-import',
+        render: () => (
+          <TabContainer>
+            <ImporterView
+              endpoint={endpoint}
+              dataTypes={dataTypes}
+              dataTypesSelectable={dataTypesSelectable}
+              setIsLoading={setIsLoading}
+            />
+          </TabContainer>
+        ),
+      }),
+      [endpoint, dataTypes, dataTypesSelectable],
     );
+
+    const exportTab = useMemo(
+      () => ({
+        label: <TranslatedText stringId="admin.export.title" fallback="Export" />,
+        key: 'export',
+        icon: 'fa fa-file-export',
+        render: () => (
+          <TabContainer>
+            <ExporterView
+              title={title}
+              endpoint={endpoint}
+              dataTypes={dataTypes}
+              dataTypesSelectable={dataTypesSelectable}
+              setIsLoading={setIsLoading}
+            />
+          </TabContainer>
+        ),
+      }),
+      [title, endpoint, dataTypes, dataTypesSelectable],
+    );
+
+    const tabs = buildTabs ? buildTabs(importTab, exportTab) : [importTab, exportTab];
 
     return (
       <AdminViewContainer title={title} showLoadingIndicator={isLoading}>

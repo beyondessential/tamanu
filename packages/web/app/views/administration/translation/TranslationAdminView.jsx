@@ -1,17 +1,32 @@
 import React from 'react';
-import { ContentPane, PageContainer, TopBar } from '../../../components';
+import { ContentPane, PageContainer } from '../../../components';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ImportExportView } from '../components/ImportExportView';
+
+const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
+
+const TranslationEditView = () => (
+  <PageContainer>
+    <ContentPane>
+      <TranslationForm />
+    </ContentPane>
+  </PageContainer>
+);
 
 export const TranslationAdminView = () => {
+  const editTab = {
+    label: <TranslatedText stringId="admin.translation.edit" fallback="Edit" />,
+    key: 'edit',
+    icon: 'fa fa-edit',
+    render: () => <TranslationEditView />,
+  };
   return (
-    <PageContainer>
-      <TopBar
-        title={<TranslatedText stringId="admin.translation.title" fallback="Translation" />}
-      />
-      <ContentPane>
-        <TranslationForm />
-      </ContentPane>
-    </PageContainer>
+    <ImportExportView
+      title={<TranslatedText stringId="admin.translation.title" fallback="Translation" />}
+      endpoint="referenceData"
+      dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
+      buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+    />
   );
 };
