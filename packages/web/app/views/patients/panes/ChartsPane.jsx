@@ -210,15 +210,15 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
   const handleCloseModal = () => setModalOpen(false);
 
-  const reloadChartInstances = useCallback(() => {
-    () => {
+  const reloadChartInstances = useCallback(
+    () =>
       queryClient.invalidateQueries([
         'encounterComplexChartInstances',
         encounter.id,
         coreComplexChartSurveyId,
-      ]);
-    };
-  }, [queryClient, encounter.id, coreComplexChartSurveyId]);
+      ]),
+    [queryClient, encounter.id, coreComplexChartSurveyId],
+  );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
     const submittedTime = getCurrentDateTimeString();
