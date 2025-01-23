@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { useUserPreferencesMutation } from '../../../api/mutations';
-import { useUserPreferencesQuery } from '../../../api/queries';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
 import {
@@ -54,24 +53,21 @@ export const OutpatientAppointmentsFilter = props => {
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 
-  const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
-
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateUserPreferences = debounce(
     values =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_FILTERS,
-        value: { [facilityId]: omit(values, ['patientNameOrId']) },
+        value: omit(values, ['patientNameOrId']),
       }),
     200,
   );
 
   const renderForm = ({ setValues }) => {
     return (
-      <Fieldset disabled={isUserPreferencesLoading}>
+      <Fieldset>
         <Field
           component={SearchField}
-          disabled={isUserPreferencesLoading}
           name="patientNameOrId"
           placeholder={getTranslation(
             'scheduling.filter.placeholder.patientNameOrId',
@@ -93,7 +89,6 @@ export const OutpatientAppointmentsFilter = props => {
           onChange={e => updateUserPreferences({ ...filters, appointmentTypeId: e.target.value })}
         />
         <ResetButton
-          disabled={isUserPreferencesLoading}
           onClick={() => {
             setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
             setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
@@ -111,7 +106,7 @@ export const OutpatientAppointmentsFilter = props => {
   return (
     <Form
       enableReinitialize
-      initialValues={userPreferences?.outpatientAppointmentFilters?.[facilityId]}
+      initialValues={filters}
       onSubmit={async () => {}}
       render={renderForm}
       {...props}

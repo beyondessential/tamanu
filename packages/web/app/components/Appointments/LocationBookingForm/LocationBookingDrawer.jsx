@@ -253,12 +253,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           isEdit ? (
             <TranslatedText
               stringId="locationBooking.form.edit.description"
-              fallback="Modify the selected booking below"
+              fallback="Modify the selected booking below."
             />
           ) : (
             <TranslatedText
               stringId="locationBooking.form.new.description"
-              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
             />
           )
         }
