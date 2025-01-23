@@ -17,6 +17,7 @@ const config = require('config');
 async function generateData(models) {
   const {
     Appointment,
+    AppointmentSchedule,
     Department,
     Discharge,
     Encounter,
@@ -344,11 +345,17 @@ async function generateData(models) {
     }),
   );
 
+  const appointmentSchedule = await AppointmentSchedule.create(
+    fake(AppointmentSchedule, {
+      locationGroupId: locationGroup.id,
+    }),
+  );
   await Appointment.create(
     fake(Appointment, {
       patientId: patient.id,
       clinicianId: examiner.id,
       locationGroupId: locationGroup.id,
+      scheduleId: appointmentSchedule.id,
     }),
   );
 

@@ -8,6 +8,7 @@ const TranslatedSelectInput = ({
   field,
   enumValues,
   transformOptions,
+  TranslatedTextProps,
   value,
   name,
   component,
@@ -25,6 +26,7 @@ const TranslatedSelectInput = ({
       label,
     })),
     prefix,
+    TranslatedTextProps,
   );
 
   const filteredOptions = transformOptions
