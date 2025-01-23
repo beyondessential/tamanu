@@ -7,14 +7,15 @@ import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { useApi } from '../../../api';
 import {
-  ButtonRow,
   Form,
   OutlinedButton,
   SearchInput,
   TableFormFields,
   TextField,
+  SwitchInput,
 } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
@@ -45,8 +46,24 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
+const SearchArea = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+`;
+
 const StyledSearchInput = styled(SearchInput)`
   width: 340px;
+`;
+
+const SwitchInputContainer = styled.div`
+  margin: 0.6875rem 1.25rem;
+`;
+
+const StyledSwitchInput = styled(SwitchInput)`
+  .MuiFormControlLabel-label {
+    font-size: 0.875rem;
+  }
 `;
 
 /**
@@ -143,6 +160,7 @@ const TranslationField = ({ stringId, code }) => (
 
 export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty }) => {
   const [searchValue, setSearchValue] = useState('');
+  const [includeReferenceData, setIncludeReferenceData] = useState(false);
 
   const handleSave = event => {
     // Reset search so any validation errors are visible
@@ -191,14 +209,19 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
     [data, languageNames],
   );
 
-  const tableRows = useMemo(
-    () =>
-      data.filter(row =>
+  const tableRows = useMemo(() => {
+    const filteredData = includeReferenceData
+      ? data
+      : data.filter(row => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
+
+    if (searchValue) {
+      return data.filter(row =>
         // Search from start of stringId or after a . delimiter
         row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
-      ),
-    [data, searchValue],
-  );
+      );
+    }
+    return filteredData;
+  }, [data, includeReferenceData, searchValue]);
 
   if (data.length === 0)
     return (
@@ -210,19 +233,29 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
   return (
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
-        <Box mr={2} width="250px">
+        <SearchArea>
           <StyledSearchInput
             label={<TranslatedText stringId="general.action.search" fallback="Search" />}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
           />
-        </Box>
-        <ButtonRow>
-          <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
-            <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
-          </OutlinedButton>
-        </ButtonRow>
+          <SwitchInputContainer>
+            <StyledSwitchInput
+              label={
+                <TranslatedText
+                  stringId="admin.translation.showReferenceData"
+                  fallback="Show reference data"
+                />
+              }
+              value={includeReferenceData}
+              onChange={() => setIncludeReferenceData(!includeReferenceData)}
+            />
+          </SwitchInputContainer>
+        </SearchArea>
+        <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
+          <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
+        </OutlinedButton>
       </Box>
       <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
     </>
