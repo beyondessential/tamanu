@@ -169,6 +169,18 @@ const StyledTable = styled(Table)`
       background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        .MuiTableCell-body {
+          border-bottom: none;
+          &:before {
+            height: 0;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const ViewPastBookingsButton = styled(Box)`
@@ -294,6 +306,14 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
+  const allAppointments = useOutpatientAppointmentsQuery(
+    {
+      all: true,
+      patientId: patient?.id,
+      after: '1970-01-01 00:00',
+    },
+  ).data?.data ?? [];
+
   const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
@@ -368,6 +388,10 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       ),
     },
   ];
+
+  if (!allAppointments.length) {
+    return null;
+  }
 
   if (!appointments.length && !isLoading) {
     return (
