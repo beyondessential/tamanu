@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
@@ -71,7 +71,7 @@ const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
 };
 
 const ImportButton = ({ onSubmit, ...props }) => {
-  const [preImportModalOpen, setPreImportModalOpen] = React.useState(false);
+  const [preImportModalOpen, setPreImportModalOpen] = useState(false);
   const onConfirm = (e, extraValues) => {
     setPreImportModalOpen(false);
     onSubmit(e, extraValues);
