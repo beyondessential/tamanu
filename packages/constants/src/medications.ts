@@ -132,3 +132,52 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     },
   },
 };
+
+export const DOSE_UNITS = [
+  "%",
+  "Capsule",
+  "Disc",
+  "Douche",
+  "Drop",
+  "FFU",
+  "g",
+  "IU",
+  "L",
+  "Lozenge",
+  "mg",
+  "mcg",
+  "mL",
+  "mmol",
+  "mol",
+  "Patch",
+  "Pellet",
+  "Pouch",
+  "Puff",
+  "Ring",
+  "Smear",
+  "Spray",
+  "Stick",
+  "Strip",
+  "Suppository",
+  "Swab",
+  "Tablet",
+  "tbsp",
+  "tsp",
+  "U",
+  "Vial",
+  "Wafer"
+];
+
+const DURATION_UNITS = {
+  HOUR: 'hour',
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+};
+
+export const DURATION_UNITS_LABELS = {
+  [DURATION_UNITS.HOUR]: 'Hour',
+  [DURATION_UNITS.DAY]: 'Day',
+  [DURATION_UNITS.WEEK]: 'Week',
+  [DURATION_UNITS.MONTH]: 'Month',
+};
