@@ -20,6 +20,7 @@ import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
+import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -177,9 +178,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;
@@ -233,7 +234,7 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
   </TableTitleContainer>
 );
 
-const getFormattedTime = (time) => {
+const getFormattedTime = time => {
   return formatTime(time).replace(' ', '');
 };
 
@@ -274,6 +275,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 };
 
 export const LocationBookingsTable = ({ patient }) => {
+  const { ability } = useAuth();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
@@ -308,6 +310,8 @@ export const LocationBookingsTable = ({ patient }) => {
     history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   const COLUMNS = [
     {
       key: 'startTime',
@@ -340,17 +344,24 @@ export const LocationBookingsTable = ({ patient }) => {
       accessor: ({ bookingType }) => bookingType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
     },
-    {
-      key: '',
-      title: '',
-      dontCallRowInput: true,
-      sortable: false,
-      CellComponent: ({ data }) => (
-        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} />
-        </MenuContainer>
-      ),
-    },
+    ...(canWriteAppointment
+      ? [
+          {
+            key: '',
+            title: '',
+            dontCallRowInput: true,
+            sortable: false,
+            CellComponent: ({ data }) => (
+              <MenuContainer
+                className="menu-container"
+                onMouseEnter={() => setSelectedAppointment(data)}
+              >
+                <StyledMenuButton actions={actions} />
+              </MenuContainer>
+            ),
+          },
+        ]
+      : []),
   ];
 
   if (!appointments.length && !isLoading) {
