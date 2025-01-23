@@ -115,6 +115,7 @@ describe('Sync Lookup data', () => {
       LabTestPanelLabTestTypes,
       Location,
       Appointment,
+      AppointmentSchedule,
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
@@ -234,8 +235,13 @@ describe('Sync Lookup data', () => {
       fake(PatientSecondaryId, { patientId: patient.id, typeId: referenceData.id }),
     );
     await Permission.create(fake(Permission, { roleId: role.id }));
+    const schedule = await AppointmentSchedule.create(fake(AppointmentSchedule));
     await Appointment.create(
-      fake(Appointment, { patientId: patient.id, locationGroupId: locationGroup.id }),
+      fake(Appointment, {
+        patientId: patient.id,
+        locationGroupId: locationGroup.id,
+        scheduleId: schedule.id,
+      }),
     );
     encounter1 = await Encounter.create(
       fake(Encounter, {
@@ -665,8 +671,10 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      // except for appointments, patient linked models should not spit out facilityId;
-      const expectedFacility = model.tableName === 'appointments' ? facility.id : null;
+      // except for appointments and appointment_schedules, patient linked models should not spit out facilityId;
+      const expectedFacility = ['appointments', 'appointment_schedules'].includes(model.tableName)
+        ? facility.id
+        : null;
 
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({

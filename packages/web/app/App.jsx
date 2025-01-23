@@ -40,7 +40,8 @@ export function App({ sidebar, children }) {
   const currentRoute = useSelector(getCurrentRoute);
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
-  const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
+  const disableSingleTab =
+    localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
   const browser = Bowser.getParser(window.navigator.userAgent);
   const isChrome = browser.satisfies({

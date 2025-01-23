@@ -32,25 +32,22 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
-  const { mutateAsync: updateAppointment } = useAppointmentMutation(
-    appointment.id,
-    {
-      onSuccess: () =>
-        toast.success(
-          <TranslatedText
-            stringId="scheduling.action.changeStatus.success"
-            fallback="Appointment status updated"
-          />,
-        ),
-      onError: () =>
-        toast.error(
-          <TranslatedText
-            stringId="scheduling.action.changeStatus.error"
-            fallback="Couldn’t update appointment status"
-          />,
-        ),
-    },
-  );
+  const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
+    onSuccess: () =>
+      toast.success(
+        <TranslatedText
+          stringId="scheduling.action.changeStatus.success"
+          fallback="Appointment status updated"
+        />,
+      ),
+    onError: () =>
+      toast.error(
+        <TranslatedText
+          stringId="scheduling.action.changeStatus.error"
+          fallback="Couldn’t update appointment status"
+        />,
+      ),
+  });
 
   if (!appointment.status) return <PlaceholderStatusSelector />;
 
