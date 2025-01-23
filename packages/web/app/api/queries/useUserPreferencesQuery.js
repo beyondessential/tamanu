@@ -2,9 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 
-export const useUserPreferencesQuery = (queryOptions) => {
+export const useUserPreferencesQuery = queryOptions => {
   const api = useApi();
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
 
-  return useQuery(['userPreferences', currentUser?.id], () => api.get('user/userPreferences'), queryOptions);
+  return useQuery(
+    ['userPreferences', currentUser?.id],
+    () => api.get(`user/userPreferences/${facilityId}`),
+    queryOptions,
+  );
 };

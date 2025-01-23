@@ -18,6 +18,8 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
+import { useAuth } from '../../../contexts/Auth';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -69,12 +71,16 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const { ability } = useAuth();
+  const location = useLocation();
+  const defaultGroupBy =
+    new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
-  const location = useLocation();
+  const [groupBy, setGroupBy] = useState(defaultGroupBy);
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
@@ -99,20 +105,30 @@ export const OutpatientAppointmentsView = () => {
   const handleCloseDrawer = () => setDrawerOpen(false);
 
   const handleOpenDrawer = appointment => {
-    setSelectedAppointment(
-      pick(appointment, [
-        'id',
-        'locationGroupId',
-        'appointmentTypeId',
-        'startTime',
-        'endTime',
-        'patientId',
-        'clinicianId',
-        'isHighPriority',
-      ]),
-    );
+    const appointmentFormValues = pick(appointment, [
+      'id',
+      'locationGroupId',
+      'appointmentTypeId',
+      'startTime',
+      'endTime',
+      'patientId',
+      'clinicianId',
+      'isHighPriority',
+      'schedule',
+    ]);
+    setSelectedAppointment({
+      ...appointmentFormValues,
+      isRepeatingAppointment: !!appointmentFormValues.schedule,
+    });
     setDrawerOpen(true);
   };
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
+
+  if (!canViewAppointments) {
+    return <NoPermissionScreen />;
+  }
 
   return (
     <Container>
@@ -125,9 +141,11 @@ export const OutpatientAppointmentsView = () => {
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
           <OutpatientAppointmentsFilter />
-          <Button onClick={() => handleOpenDrawer({})}>
-            <AddIcon aria-hidden /> Book appointment
-          </Button>
+          {canCreateAppointment && (
+            <Button onClick={() => handleOpenDrawer({})}>
+              <AddIcon aria-hidden /> Book appointment
+            </Button>
+          )}
         </AppointmentTopBar>
         <CalendarWrapper>
           <DateSelector value={selectedDate} onChange={handleChangeDate} />

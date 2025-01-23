@@ -131,10 +131,21 @@ export class Encounter extends Model {
               transaction: opts.transaction,
               individualHooks: true,
             });
+
+            /** clean up all notifications */
+            await models.Notification.destroy({
+              where: {
+                metadata: {
+                  [Op.contains]: { encounterId: encounter.id },
+                },
+              },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
           },
-          afterUpdate: async (encounter: Encounter) => {
+          afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
-              await models.Task.onEncounterDischarged(encounter);
+              await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
             }
           },
         },
@@ -452,8 +463,7 @@ export class Encounter extends Model {
   }
 
   async addTriageScoreNote(
-    triageRecord: { score: any },
-    submittedTime: string,
+    triageRecord: { score: any; triageTime: string },
     user: ModelProperties<User>,
   ) {
     const department = await this.sequelize.models.Department.findOne({
@@ -468,7 +478,7 @@ export class Encounter extends Model {
 
     await this.addSystemNote(
       `${department.name} triage score: ${triageRecord.score}`,
-      submittedTime,
+      triageRecord.triageTime,
       user,
     );
   }

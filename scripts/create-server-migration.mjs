@@ -6,7 +6,7 @@ function toFilestem(str) {
 
   return str
     .toLowerCase()
-    .replace(/([-_\s][a-z0-9])/g, group => group.toUpperCase().replace(/[-_\s]/, ''));
+    .replace(/([-_\s][a-z0-9])/g, (group) => group.toUpperCase().replace(/[-_\s]/, ''));
 }
 
 const migrationName = process.argv.slice(2).join(' ');
@@ -20,7 +20,7 @@ const timestamp = new Date().getTime();
 const templateFile = join('scripts', 'resources', 'serverMigrationTemplate.js');
 const migrationFile = join(
   'packages',
-  'shared',
+  'database',
   'src',
   'migrations',
   `${timestamp}-${toFilestem(migrationName)}.js`,

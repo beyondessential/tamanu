@@ -8,6 +8,8 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { generateIdFromCell, partitionAppointmentsByDate } from './utils';
+import { useAuth } from '../../../contexts/Auth';
+import { TranslatedReferenceData } from '../../../components';
 
 export const BookingsCell = ({
   appointments,
@@ -16,18 +18,21 @@ export const BookingsCell = ({
   openBookingForm,
   openCancelModal,
 }) => {
+  const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
+  const canCreateBooking = ability.can('create', 'Appointment');
 
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
       onClick={e => {
-        if (e.target.closest('.appointment-tile')) return;
+        if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
       }}
       $selected={isSelected}
+      $clickable={canCreateBooking}
     >
       {appointments?.map(a => (
         <AppointmentTile
@@ -50,16 +55,18 @@ export const BookingsRow = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const {
-    name: locationName,
-    locationGroup: { name: locationGroupName },
-  } = location;
+  const { locationGroup } = location;
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
     <CarouselGrid.Row>
       <CarouselGrid.RowHeaderCell>
-        {locationGroupName} {locationName}
+        <TranslatedReferenceData
+          category="locationGroup"
+          value={locationGroup.id}
+          fallback={locationGroup.name}
+        />{' '}
+        <TranslatedReferenceData category="location" value={location.id} fallback={location.name} />
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell

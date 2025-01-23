@@ -23,9 +23,10 @@ export const ConfirmModal = ({
   ConfirmButton = OutlinedButton,
   confirmButtonText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   cancelButtonText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+  className,
   customContent,
 }) => (
-  <Modal width={width} title={title} open={open} onClose={onCancel}>
+  <Modal className={className} width={width} title={title} open={open} onClose={onCancel}>
     {customContent || (
       <Content>
         <h3>{text}</h3>
