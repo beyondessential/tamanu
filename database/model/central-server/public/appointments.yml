@@ -109,3 +109,6 @@ sources:
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('appointments__encounter_id') }}"
+          - name: schedule_id
+            data_type: uuid
+            description: "{{ doc('appointments__schedule_id') }}"

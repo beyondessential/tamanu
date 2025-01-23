@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { IconButton } from '@material-ui/core';
+import { Box, IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -36,6 +36,7 @@ const ReasonForEncounterWrapper = styled.div`
 `;
 
 const StyledTable = styled(DataFetchingTable)`
+  box-shadow: none;
   padding: 0 21px;
   .MuiTableCell-head {
     border-top: 1px solid ${Colors.outline};
@@ -57,7 +58,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
   }
   .MuiTableRow-root {
-    &:hover:not(:has(.menu-container:hover)) {
+    &:not(.statusRow):hover:not(:has(.menu-container:hover)) {
       .MuiTableCell-body {
         &:first-child {
           &:before {
@@ -301,10 +302,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
-          <TranslatedText
-            stringId="patient.history.table.noDataMessage"
-            fallback="No historical records for this patient"
-          />
+          <Box mx="auto" p="40px">
+            <TranslatedText
+              stringId="patient.history.table.noDataMessage"
+              fallback="No encounter records to display"
+            />
+          </Box>
         }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}

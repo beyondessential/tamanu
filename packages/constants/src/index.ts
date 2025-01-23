@@ -1,3 +1,4 @@
+export * from './appointments.js';
 export * from './auth.js';
 export * from './births.js';
 export * from './brands.js';
@@ -42,3 +43,4 @@ export * from './tasks.js';
 export * from './debugLog.js';
 export * from './hook.js';
 export * from './notifications.js';
+export * from './webSocket.js';

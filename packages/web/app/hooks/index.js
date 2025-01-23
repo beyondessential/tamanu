@@ -1,2 +1,2 @@
-export { useSexValues, useSexOptions } from './useSexValues';
+export { useSexOptions, useSexValues } from './useSexValues';
 export { useSuggesterOptions } from './useSuggesterOptions';

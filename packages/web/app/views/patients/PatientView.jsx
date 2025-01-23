@@ -9,7 +9,7 @@ import { PatientAlert } from '../../components/PatientAlert';
 import { useApi } from '../../api';
 import {
   DocumentsPane,
-  HistoryPane,
+  SummaryPane,
   InvoicesPane,
   PatientDetailsPane,
   PatientMedicationPane,
@@ -42,10 +42,10 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: <TranslatedText stringId="patient.tab.history" fallback="History" />,
-    key: PATIENT_TABS.HISTORY,
-    icon: 'fa fa-calendar-day',
-    render: props => <HistoryPane {...props} />,
+    label: <TranslatedText stringId="patient.tab.summary" fallback="Summary" />,
+    key: PATIENT_TABS.SUMMARY,
+    icon: 'fa fa-user',
+    render: props => <SummaryPane {...props} />,
   },
   {
     label: <TranslatedText stringId="patient.tab.details" fallback="Details" />,
@@ -122,8 +122,8 @@ export const PatientView = () => {
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
   const queryTab = query.get('tab');
-  const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.HISTORY);
-  const disabled = !!patient.death;
+  const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.SUMMARY);
+  const disabled = !!patient.dateOfDeath;
   const api = useApi();
   const syncState = useSyncState();
   const isSyncing = syncState.isPatientSyncing(patient.id);

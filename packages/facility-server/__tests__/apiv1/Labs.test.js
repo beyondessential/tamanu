@@ -318,11 +318,15 @@ describe('Labs', () => {
   });
 
   it('should publish a lab request', async () => {
+    const user = await app.get('/api/user/me');
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
     const { id: requestId } = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId }),
+      await randomLabRequest(models, { patientId, requestedById: user.body.id, encounterId: encounter.id }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
-    const user = await app.get('/api/user/me');
     const response = await app
       .put(`/api/labRequest/${requestId}`)
       .send({ status, userId: user.body.id });

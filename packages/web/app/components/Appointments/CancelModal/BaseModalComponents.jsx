@@ -1,5 +1,5 @@
 import React from 'react';
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import styled from '@mui/system/styled';
 import { Colors } from '../../../constants';
 import { ConfirmCancelRow } from '../../ButtonRow';
@@ -37,6 +37,13 @@ const AppointmentDetailsContainer = styled(FlexRow)`
   padding-block: 1.5rem;
 `;
 
+const OptionsContainer = styled(FlexCol)`
+  font-size: 0.875rem;
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  padding: 1.5rem;
+`;
+
 const AppointmentDetailsColumn = styled(FlexCol)`
   padding-inline: 1.5rem;
   gap: 1.25rem;
@@ -70,4 +77,5 @@ export {
   BottomModalContainer,
   StyledConfirmCancelRow,
   BodyContainer,
+  OptionsContainer,
 };
