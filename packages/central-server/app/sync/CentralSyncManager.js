@@ -6,8 +6,8 @@ import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/const
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
-  markForSyncRepullData,
-  alignDataForPersistence,
+  bumpSyncTickForRepull,
+  incomingSyncHook,
   completeSyncSession,
   countSyncSnapshotRecords,
   createSnapshotTable,
@@ -590,7 +590,7 @@ export class CentralSyncManager {
 
         // align the incoming changes 
         // eg: resolving duplicated patient display IDs
-        await alignDataForPersistence(sequelize, modelsToInclude, sessionId);
+        await incomingSyncHook(sequelize, modelsToInclude, sessionId);
 
         await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
@@ -615,7 +615,7 @@ export class CentralSyncManager {
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
       // mark for repull any records that were aligned for persistence before
-      await markForSyncRepullData(sequelize, modelsToInclude, sessionId);
+      await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(

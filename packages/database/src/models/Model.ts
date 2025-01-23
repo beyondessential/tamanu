@@ -34,7 +34,7 @@ export class Model<
     _sessionConfig: SessionConfig,
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
-  declare static alignDataForPersistence?: (changes: SyncSnapshotAttributes[]) => Promise<AlignedChanges | undefined>;
+  declare static incomingSyncHook?: (changes: SyncSnapshotAttributes[]) => Promise<AlignedChanges | undefined>;
 
   static init(
     modelAttributes: ModelAttributes,

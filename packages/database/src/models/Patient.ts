@@ -341,7 +341,7 @@ export class Patient extends Model {
     return null; // syncs everywhere
   }
 
-  static async alignDataForPersistence(
+  static async incomingSyncHook(
     changes: SyncSnapshotAttributes[],
   ): Promise<AlignedChanges | undefined>{
     return resolveDuplicatedPatientDisplayIds(this, changes);
