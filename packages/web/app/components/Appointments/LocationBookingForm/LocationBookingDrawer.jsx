@@ -104,6 +104,22 @@ const SuccessMessage = ({ isEdit = false }) =>
     />
   );
 
+const ErrorMessage = ({ isEdit = false, error }) => {
+  return isEdit ? (
+    <TranslatedText
+      stringId="locationBooking.notification.edit.error"
+      fallback="Failed to edit booking with error: :error"
+      replacements={{ error: error.message }}
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.notification.create.error"
+      fallback="Failed to create booking with error: :error"
+      replacements={{ error: error.message }}
+    />
+  );
+};
+
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationBookingsContext();
@@ -127,19 +143,16 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     {
       onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
-        notifyError(
-          error.message == 409 ? (
+        if (error.message === 409) {
+          notifyError(
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
-            />
-          ) : (
-            <TranslatedText
-              stringId="locationBooking.notification.somethingWentWrong"
-              fallback="Something went wrong"
-            />
-          ),
-        );
+            />,
+          );
+        } else {
+          notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
+        }
       },
     },
   );
@@ -240,12 +253,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           isEdit ? (
             <TranslatedText
               stringId="locationBooking.form.edit.description"
-              fallback="Modify the selected booking below"
+              fallback="Modify the selected booking below."
             />
           ) : (
             <TranslatedText
               stringId="locationBooking.form.new.description"
-              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
             />
           )
         }
@@ -272,7 +285,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               </OvernightStayLabel>
             }
             component={CheckField}
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            onChange={() => resetFields(['endDate', 'endTime'])}
           />
           <DateTimeRangeField required separate={values.overnight} />
           <Field

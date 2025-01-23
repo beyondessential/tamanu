@@ -1,9 +1,10 @@
 {
   "name": "scripts",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "scripts": {
+    "clean:deps": "rimraf node_modules",
     "test": "tape 'tests/**/*.test.*js'",
     "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
     "generate-fake-db": "node src/fake.js",

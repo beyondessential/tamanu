@@ -77,19 +77,6 @@ const CoreInfoCell = ({ label, children, testId }) => (
   </CoreInfoCellContainer>
 );
 
-const DeceasedText = styled.div`
-  opacity: 0.8;
-`;
-
-const DeceasedIndicator = ({ death }) => (
-  <DeceasedText>
-    <span>
-      <TranslatedText stringId="patient.detailsSidebar.deceasedIndicator" fallback="Deceased" />,
-    </span>
-    <DateDisplay date={death.date} />
-  </DeceasedText>
-);
-
 const HealthIdContainer = styled.div`
   padding: 20px 10px 12px;
 `;
@@ -150,7 +137,6 @@ export const CoreInfoDisplay = memo(({ patient }) => {
             <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
           </div>
           <PatientInitialsIcon patient={patient} />
-          {patient.death && <DeceasedIndicator death={patient.death} />}
         </NameContainer>
       </PatientButton>
       <CoreInfoSection>

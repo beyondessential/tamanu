@@ -1,4 +1,10 @@
-const { REPORT_STATUSES, NOTE_RECORD_TYPES, REPORT_DB_SCHEMAS } = require('@tamanu/constants');
+const {
+  REPORT_STATUSES,
+  NOTE_RECORD_TYPES,
+  REPORT_DB_SCHEMAS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TYPES,
+} = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { initDatabase } = require('@tamanu/database/services/database');
 const config = require('config');
@@ -11,6 +17,7 @@ const config = require('config');
 async function generateData(models) {
   const {
     Appointment,
+    AppointmentSchedule,
     Department,
     Discharge,
     Encounter,
@@ -58,6 +65,8 @@ async function generateData(models) {
     InvoiceItemDiscount,
     InvoiceProduct,
     SurveyResponse,
+    ImagingRequest,
+    ImagingResult,
     Task,
     TaskDesignation,
     TaskTemplate,
@@ -308,17 +317,45 @@ async function generateData(models) {
       orderedByUserId: examiner.id,
     }),
   );
+
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
     }),
   );
 
+  const imagingRequest = await ImagingRequest.create(
+    fake(ImagingRequest, {
+      requestedById: examiner.id,
+      encounterId: encounter.id,
+      locationGroupId: locationGroup.id,
+      status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+      priority: 'routine',
+      requestedDate: '2022-03-04 15:30:00',
+      imagingType: IMAGING_TYPES.X_RAY,
+    }),
+  );
+
+  await ImagingResult.create(
+    fake(ImagingResult, {
+      imagingRequestId: imagingRequest.id,
+      completedById: examiner.id,
+      description: 'This is a test result',
+      completedAt: '2022-03-04 15:30:00',
+    }),
+  );
+
+  const appointmentSchedule = await AppointmentSchedule.create(
+    fake(AppointmentSchedule, {
+      locationGroupId: locationGroup.id,
+    }),
+  );
   await Appointment.create(
     fake(Appointment, {
       patientId: patient.id,
       clinicianId: examiner.id,
       locationGroupId: locationGroup.id,
+      scheduleId: appointmentSchedule.id,
     }),
   );
 

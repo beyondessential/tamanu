@@ -11,7 +11,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
 
-export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
+export const SummaryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
@@ -22,13 +22,10 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showOutpatientAppointmentsSetting = getSetting(
     'layouts.patientView.showOutpatientAppointments',
   );
-  const canListAppointment = ability.can('list', 'Appointment');
-  const canReadAppointment = ability.can('read', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
-  const showLocationBookings =
-    showLocationBookingsSetting && canListAppointment && canReadAppointment;
-  const showOutpatientAppointments =
-    showOutpatientAppointmentsSetting && canListAppointment && canReadAppointment;
+  const showLocationBookings = showLocationBookingsSetting && canViewAppointments;
+  const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
   const onViewEncounter = useCallback(
     id => {

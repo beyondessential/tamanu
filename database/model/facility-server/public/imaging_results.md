@@ -21,3 +21,7 @@ TODO
 {% docs imaging_results__completed_at %}
 TODO
 {% enddocs %}
+
+{% docs imaging_results__result_image_url %}
+TODO
+{% enddocs %}

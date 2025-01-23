@@ -85,6 +85,7 @@ export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
+export * from './AppointmentSchedule';
 export * from './DocumentMetadata';
 export * from './Template';
 
