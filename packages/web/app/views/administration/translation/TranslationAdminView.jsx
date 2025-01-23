@@ -105,15 +105,13 @@ export const TranslationAdminView = () => {
   };
 
   return (
-    <>
-      <ImportExportView
-        title={getTranslation('admin.translation.title', 'Translation')}
-        endpoint="referenceData"
-        dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
-        buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
-        defaultTab="edit"
-        ImportButton={ImportButton}
-      />
-    </>
+    <ImportExportView
+      title={getTranslation('admin.translation.title', 'Translation')}
+      endpoint="referenceData"
+      dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
+      buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+      defaultTab="edit"
+      ImportButton={ImportButton}
+    />
   );
 };
