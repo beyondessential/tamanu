@@ -23,6 +23,7 @@ import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+  repeatableReadTransaction,
 } from '@tamanu/database/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
@@ -32,7 +33,6 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
-import { repeatableReadTransaction } from './repeatableReadTransaction';
 
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;

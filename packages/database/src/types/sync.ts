@@ -44,8 +44,8 @@ export type UninsertedSyncSnapshotAttributes = Omit<
 >;
 
 export type AlignedChanges = {
-  changesToInsert: UninsertedSyncSnapshotAttributes[];
-  changesToUpdate: SyncSnapshotAttributes[];
+  inserts: UninsertedSyncSnapshotAttributes[];
+  updates: SyncSnapshotAttributes[];
 };
 
 export type ModelSanitizeArgs<T extends Record<string, any> = { [key: string]: any }> = T;

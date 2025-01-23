@@ -50,8 +50,8 @@ export const resolveDuplicatedPatientDisplayIds = async (
       }));
 
     return {
-      changesToInsert: updatedExistingPatientSnapshotRecords,
-      changesToUpdate: updatedIncomingPatientSnapshotRecords,
+      inserts: updatedExistingPatientSnapshotRecords,
+      updates: updatedIncomingPatientSnapshotRecords,
     };
   }
 };

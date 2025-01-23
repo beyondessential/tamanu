@@ -223,6 +223,8 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     sessionConfig,
     config,
   ) => {
+
+    console.log('deviceIdddd', deviceId);
     let fromId = '';
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);

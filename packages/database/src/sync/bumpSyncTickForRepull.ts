@@ -10,6 +10,9 @@ import type { SyncSnapshotAttributes } from 'types/sync';
 /**
  * Bump the updated_at_sync_tick for all records that require a repull
  * So that they are pulled again in the next sync
+ * Records generally require repull when they are changed by some side effect
+ * of incoming sync, e.g. deduplicating patient display ids in the incomingSyncHook,
+ * or field-wise merge of patient additional data records
  * @param sequelize 
  * @param persistedModels 
  * @param sessionId 

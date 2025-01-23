@@ -1,5 +1,6 @@
 import config from 'config';
 import { Sequelize } from 'sequelize';
+import asyncPool from 'tiny-async-pool';
 
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
@@ -7,7 +8,8 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 
 import type { Models } from '../types/model';
 import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable';
-import asyncPool from 'tiny-async-pool';
+import { readOnlyTransaction } from './transactions';
+import type { AlignedChanges } from 'types/sync';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
@@ -44,14 +46,21 @@ export const incomingSyncHook = async (
       );
       fromId = batchRecords[batchRecords.length - 1]?.id;
 
-      const alignedChanges = await model.incomingSyncHook(batchRecords);
+      const incomingSnapshotChanges = await readOnlyTransaction(
+        sequelize,
+        async (): Promise<AlignedChanges | undefined> => {
+          if (model.incomingSyncHook) {
+            return model.incomingSyncHook(batchRecords);
+          }
+        },
+      );
 
-      if (alignedChanges) {
-        const { changesToInsert = [], changesToUpdate = [] } = alignedChanges;
+      if (incomingSnapshotChanges) {
+        const { inserts = [], updates = [] } = incomingSnapshotChanges;
 
-        if (changesToInsert.length > 0) {
+        if (inserts.length > 0) {
           // Mark new changes as requiring repull
-          const newChangesToInsert = changesToInsert.map((change) => ({
+          const newChangesToInsert = inserts.map((change) => ({
             ...change,
             requiresRepull: true,
           }));
@@ -60,9 +69,9 @@ export const incomingSyncHook = async (
           await insertSnapshotRecords(sequelize, sessionId, newChangesToInsert);
         }
 
-        if (changesToUpdate.length > 0) {
-           // Mark new changes as requiring repull
-           const newChangesToUpdate = changesToUpdate.map((change) => ({
+        if (updates.length > 0) {
+          // Mark new changes as requiring repull
+          const newChangesToUpdate = updates.map((change) => ({
             ...change,
             requiresRepull: true,
           }));

@@ -1262,7 +1262,7 @@ describe('CentralSyncManager', () => {
     describe('resolves duplicated display IDs', () => {
       it("appends 'duplicate' to existing patient and to-be-synced patient when the display IDs are duplicated", async () => {
         // Set up data pre sync
-        const CURRENT_SYNC_TICK = '6';
+        const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
@@ -1292,21 +1292,31 @@ describe('CentralSyncManager', () => {
           },
         ];
 
-        const centralSyncManager = initializeCentralSyncManager();
+        const centralSyncManager = initializeCentralSyncManager({
+          sync: {
+            lookupTable: {
+              enabled: true,
+            },
+            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+          },
+        });
         const { sessionId } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionId);
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, 'facility-a');
+        await centralSyncManager.completePush(sessionId, facility.id);
         await waitForPushCompleted(centralSyncManager, sessionId);
+
+        await centralSyncManager.updateLookupTable();
 
         // Start the snapshot for pull process
         await centralSyncManager.setupSnapshotForPull(
           sessionId,
           {
-            since: CURRENT_SYNC_TICK - 2,
+            since: 1,
             facilityIds: [facility.id],
+            deviceId: facility.id,
           },
           () => true,
         );
@@ -1329,7 +1339,7 @@ describe('CentralSyncManager', () => {
         // Check if inserted patient has displayId appended with _duplicate_2
         expect(persistedSyncedPatient.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
 
-        expect(outgoingChanges).toHaveLength(2);
+        expect(returnedPatients).toHaveLength(2);
 
         // Check if pulled down existing patient also has displayId appended with _duplicate_2
         expect(returnedExistingPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_1`);
