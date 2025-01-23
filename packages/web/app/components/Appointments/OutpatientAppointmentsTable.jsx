@@ -164,9 +164,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {
@@ -301,6 +301,7 @@ const TableHeader = ({ title, patient }) => {
 };
 
 export const OutpatientAppointmentsTable = ({ patient }) => {
+  const { ability } = useAuth();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
@@ -342,6 +343,8 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   const COLUMNS = [
     {
       key: 'startTime',
@@ -376,17 +379,24 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       accessor: ({ appointmentType }) => appointmentType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={155} />,
     },
-    {
-      key: '',
-      title: '',
-      dontCallRowInput: true,
-      sortable: false,
-      CellComponent: ({ data }) => (
-        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} />
-        </MenuContainer>
-      ),
-    },
+    ...(canWriteAppointment
+      ? [
+          {
+            key: '',
+            title: '',
+            dontCallRowInput: true,
+            sortable: false,
+            CellComponent: ({ data }) => (
+              <MenuContainer
+                className="menu-container"
+                onMouseEnter={() => setSelectedAppointment(data)}
+              >
+                <StyledMenuButton actions={actions} />
+              </MenuContainer>
+            ),
+          },
+        ]
+      : []),
   ];
 
   if (!allAppointments.length) {

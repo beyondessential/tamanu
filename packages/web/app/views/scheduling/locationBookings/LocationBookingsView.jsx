@@ -14,6 +14,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -60,7 +61,7 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
 
   const { filters, updateSelectedCell } = useLocationBookingsContext();
 
@@ -102,17 +103,26 @@ export const LocationBookingsView = () => {
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
+  const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
+
+  if (!canViewAppointments) {
+    return <NoPermissionScreen />;
+  }
+
   return (
     <Wrapper>
       <LocationBookingsTopBar>
         <LocationBookingsFilter />
-        <NewBookingButton onClick={handleNewBooking}>
-          <PlusIcon />
-          <TranslatedText
-            stringId="locationBooking.calendar.bookLocation"
-            fallback="Book location"
-          />
-        </NewBookingButton>
+        {canCreateAppointment && (
+          <NewBookingButton onClick={handleNewBooking}>
+            <PlusIcon />
+            <TranslatedText
+              stringId="locationBooking.calendar.bookLocation"
+              fallback="Book location"
+            />
+          </NewBookingButton>
+        )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>

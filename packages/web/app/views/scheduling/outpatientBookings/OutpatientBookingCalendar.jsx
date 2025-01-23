@@ -19,6 +19,7 @@ import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmen
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const ColumnWrapper = styled(Box)`
@@ -147,6 +148,7 @@ export const HeadCell = ({ title, count }) => (
 );
 
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+  const { ability } = useAuth();
   const {
     data: { headData = [], cellData },
     isLoading,
@@ -202,6 +204,9 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       </StatusText>
     );
   }
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
+
   return (
     <Box
       className={APPOINTMENT_CALENDAR_CLASS}
@@ -226,35 +231,40 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           <ColumnWrapper className="column-wrapper" key={cell.id}>
             <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
-              {appointments.map(a => (
-                <AppointmentTile
-                  key={a.id}
-                  appointment={a}
-                  onEdit={() => onOpenDrawer(a)}
-                  onCancel={() => onCancel(a)}
-                  actions={[
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.newAppointment"
-                          fallback="New appointment"
-                        />
-                      ),
-                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.emailAppointment"
-                          fallback="Email appointment"
-                        />
-                      ),
-                      action: () =>
-                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                    },
-                  ]}
-                />
-              ))}
+              {appointments.map(a => {
+                const actions = canCreateAppointment
+                  ? [
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.newAppointment"
+                            fallback="New appointment"
+                          />
+                        ),
+                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                      },
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.emailAppointment"
+                            fallback="Email appointment"
+                          />
+                        ),
+                        action: () =>
+                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                      },
+                    ]
+                  : [];
+                return (
+                  <AppointmentTile
+                    key={a.id}
+                    appointment={a}
+                    onEdit={() => onOpenDrawer(a)}
+                    onCancel={() => onCancel(a)}
+                    actions={actions}
+                  />
+                );
+              })}
             </AppointmentColumnWrapper>
           </ColumnWrapper>
         );

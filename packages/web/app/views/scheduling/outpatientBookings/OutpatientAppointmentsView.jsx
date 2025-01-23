@@ -18,6 +18,8 @@ import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
 import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
+import { useAuth } from '../../../contexts/Auth';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -69,6 +71,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const { ability } = useAuth();
   const location = useLocation();
   const defaultGroupBy =
     new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
@@ -120,6 +123,13 @@ export const OutpatientAppointmentsView = () => {
     setDrawerOpen(true);
   };
 
+  const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
+
+  if (!canViewAppointments) {
+    return <NoPermissionScreen />;
+  }
+
   return (
     <Container>
       <OutpatientAppointmentsContextProvider>
@@ -131,9 +141,11 @@ export const OutpatientAppointmentsView = () => {
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
           <OutpatientAppointmentsFilter />
-          <Button onClick={() => handleOpenDrawer({})}>
-            <AddIcon aria-hidden /> Book appointment
-          </Button>
+          {canCreateAppointment && (
+            <Button onClick={() => handleOpenDrawer({})}>
+              <AddIcon aria-hidden /> Book appointment
+            </Button>
+          )}
         </AppointmentTopBar>
         <CalendarWrapper>
           <DateSelector value={selectedDate} onChange={handleChangeDate} />
