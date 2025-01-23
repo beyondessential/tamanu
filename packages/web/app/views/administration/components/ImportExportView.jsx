@@ -9,7 +9,8 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
-  border-top: 1px solid #dededede;
+  display: grid;
+  grid-template-rows: auto 1fr;
 
   .MuiTabs-root {
     padding: 0px 20px;
@@ -22,8 +23,8 @@ const TabContainer = styled.div`
 `;
 
 export const ImportExportView = memo(
-  ({ title, endpoint, dataTypes, dataTypesSelectable, buildTabs }) => {
-    const [currentTab, setCurrentTab] = useState('import');
+  ({ title, endpoint, dataTypes, dataTypesSelectable, buildTabs, defaultTab }) => {
+    const [currentTab, setCurrentTab] = useState(defaultTab || 'import');
     const [isLoading, setIsLoading] = useState(false);
 
     const importTab = useMemo(
