@@ -229,7 +229,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
         );
       }
       queryClient.invalidateQueries('appointments');
-      onClose();
+      handleCloseModal();
     },
     onError: () => {
       toast.error(
