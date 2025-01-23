@@ -39,7 +39,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
           ORDER BY appointments.start_time DESC
           LIMIT 1
         ) AS latest_appointment ON true
-        WHERE latest_appointment.start_time::date < NOW() - INTERVAL :offsetDays DAY
+        WHERE latest_appointment.start_time::date < NOW() + INTERVAL :offsetDays DAY
         AND appointment_schedules.is_fully_generated = false
       `,
       {
