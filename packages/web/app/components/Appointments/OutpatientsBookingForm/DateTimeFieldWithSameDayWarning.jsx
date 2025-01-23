@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Field, useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
@@ -9,7 +9,7 @@ import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
@@ -28,6 +28,12 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
     isFetched &&
     values.patientId &&
     existingAppointments?.data.some(booking => booking.patientId === values.patientId);
+
+  useEffect(() => {
+    if (!values.startTime) {
+      setFieldValue('endTime', undefined);
+    }
+  }, [setFieldValue, values.startTime]);
 
   return (
     <Field
