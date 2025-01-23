@@ -70,7 +70,7 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
         subject: getTranslation(
           'surveyCompletionNotifier.emailSubject',
           `Notification of :surveyName form submission in Tamanu`,
-          { surveyName: surveyResponse.survey.name },
+          { replacements: { surveyName: surveyResponse.survey.name } },
         ),
         html: getTranslation(
           'surveyCompletionNotifier.emailBody',
@@ -79,9 +79,11 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
             Date/Time: :endTime<br />
             Patient: :patientDisplayId<br />`,
           {
-            surveyName: surveyResponse.survey.name,
-            endTime: surveyResponse.endTime,
-            patientDisplayId: surveyResponse.encounter.patient.displayId,
+            replacements: {
+              surveyName: surveyResponse.survey.name,
+              endTime: surveyResponse.endTime,
+              patientDisplayId: surveyResponse.encounter.patient.displayId,
+            },
           },
         ),
       });

@@ -66,7 +66,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const note = getTranslation(
     'patient.details.addReminderContact.note',
     'By providing their details, the individual consents to receiving automated reminder messages for :patientName.',
-    { patientName },
+    { replacements: { patientName } },
   );
 
   return (

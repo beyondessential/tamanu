@@ -80,14 +80,16 @@ const getDate = ({ date }) => formatShortest(date);
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (
-    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
   ) : (
     `$${patientTotal}`
   );
 };
 const getPaymentStatus = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED) {
-    return <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />;
+    return (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+    );
   }
   return (
     <>
@@ -127,7 +129,9 @@ const getStatus = ({ status }) => <InvoiceStatus status={status} />;
 
 const getRemainingBalance = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED)
-    return <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />;
+    return (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+    );
   const { patientPaymentRemainingBalance } = getInvoiceSummary(row);
   const remainingBalance = formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance));
   return `$${remainingBalance}`;

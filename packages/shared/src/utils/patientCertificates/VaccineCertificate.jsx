@@ -171,8 +171,10 @@ const VaccineCertificateComponent = ({
           style={vaccineCertificateStyles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              currentPage: pageNumber,
-              totalPages,
+              replacements: {
+                currentPage: pageNumber,
+                totalPages,
+              },
             })
           }
         />

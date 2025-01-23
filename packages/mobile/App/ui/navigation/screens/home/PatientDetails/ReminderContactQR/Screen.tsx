@@ -24,9 +24,7 @@ interface IReminderContactQR extends BaseAppProps {
 }
 
 const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
-  const {
-    fetchReminderContactList,
-  } = useReminderContact();
+  const { fetchReminderContactList } = useReminderContact();
   const { getTranslation } = useTranslation();
   const [embedUrl, setEmbedUrl] = useState('');
   const { socket } = useSocket();
@@ -60,7 +58,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const description = getTranslation(
     'patient.details.reminderContactQr.description',
     'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
-    { patientName },
+    { replacements: { patientName } },
   );
 
   return (

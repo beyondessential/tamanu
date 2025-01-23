@@ -51,7 +51,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
             color={theme.colors.TEXT_MID}
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
           >
-            <TranslatedText stringId="report.subHeading.total" fallback="TOTAL" uppercase />
+            <TranslatedText stringId="report.subHeading.total" fallback="TOTAL" casing="upper" />
           </StyledText>
 
           <StyledText

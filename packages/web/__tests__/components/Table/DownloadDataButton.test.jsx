@@ -42,7 +42,7 @@ const chance = new Chance();
 
 const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
 // eslint-disable-next-line no-unused-vars
-const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
+const mockGetTranslation = (stringId, fallback, _translationOptions) =>
   mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
@@ -82,13 +82,10 @@ describe('DownloadDataButton', () => {
 
     const button = screen.getByTestId('download-data-button');
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
-    expect(getTranslationSpy).toHaveBeenCalledWith(
-      'general.action.download',
-      'Download',
-      undefined,
-      undefined,
-      undefined,
-    );
+    expect(getTranslationSpy).toHaveBeenCalledWith('general.action.download', 'Download', {
+      casing: undefined,
+      replacements: undefined,
+    });
     expect(button.textContent).toBe('🌐 Download 🌐');
   });
 
@@ -113,13 +110,10 @@ describe('DownloadDataButton', () => {
 
     const button = screen.getByTestId(testId);
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
-    expect(getTranslationSpy).toHaveBeenCalledWith(
-      stringId,
-      translationFallback,
-      undefined,
-      undefined,
-      undefined,
-    );
+    expect(getTranslationSpy).toHaveBeenCalledWith(stringId, translationFallback, {
+      casing: undefined,
+      replacements: undefined,
+    });
     expect(button.textContent).toBe(translationFallback);
   });
 

@@ -231,7 +231,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
-                lowercase
+                casing="lower"
               />
             ),
           }}

@@ -32,7 +32,7 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
               <TranslatedText
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
-                lowercase
+                casing="lower"
               />
             ),
           }}

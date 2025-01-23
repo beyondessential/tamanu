@@ -229,7 +229,9 @@ const NoteFooter = ({ note }) => {
         note.author?.displayName,
         note.onBehalfOf &&
           getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            changeOnBehalfOfName: note.onBehalfOf.displayName,
+            replacements: {
+              changeOnBehalfOfName: note.onBehalfOf.displayName,
+            },
           }),
         formatShort(note.date),
         getDisplayDate(note.date, 'h:mma'),

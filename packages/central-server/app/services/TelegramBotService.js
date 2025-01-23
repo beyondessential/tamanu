@@ -6,7 +6,7 @@ import TelegramBot from 'node-telegram-bot-api';
  *
  * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
-export const defineTelegramBotService = async injector => {
+export const defineTelegramBotService = async (injector) => {
   //fallback to polling if webhook url is not set
   const bot = !injector.config.telegramBot?.apiToken
     ? null
@@ -26,7 +26,7 @@ export const defineTelegramBotService = async injector => {
    *
    * @param {ReturnType<import('./websocketService.js').defineWebsocketService>} service
    */
-  const registerWebsocketService = service => {
+  const registerWebsocketService = (service) => {
     if (!websocketService) websocketService = service;
   };
 
@@ -34,7 +34,7 @@ export const defineTelegramBotService = async injector => {
    *
    * @param {TelegramBot.Update} update
    */
-  const update = update => {
+  const update = (update) => {
     if (!bot) return;
     bot.processUpdate(update);
   };
@@ -43,11 +43,11 @@ export const defineTelegramBotService = async injector => {
    * @param {{url: string, secret: string}} hook
    * @returns
    */
-  const setWebhook = async hook => {
+  const setWebhook = async (hook) => {
     try {
       await bot
         .setWebHook(hook.url, { secret_token: hook.secret })
-        .then(result => log.info('set telegram webhook successfully', { result }));
+        .then((result) => log.info('set telegram webhook successfully', { result }));
     } catch (e) {
       log.error('set telegram webhook failed', { url: hook.url, error: e.message });
     }
@@ -103,7 +103,6 @@ export const defineTelegramBotService = async injector => {
       const notFoundMessage = getTranslation(
         'telegramRegistration.contactNotFound',
         'Contact not found',
-        {},
       );
       await sendMessage(message.chat.id, notFoundMessage, { parse_mode: 'HTML' });
       return;
@@ -147,7 +146,7 @@ export const defineTelegramBotService = async injector => {
       sendMessage(chatId, message);
     };
 
-    const handleRemoveContact = async contact => {
+    const handleRemoveContact = async (contact) => {
       const botInfo = await getBotInfo();
 
       const contactName = contact.name;
@@ -157,7 +156,7 @@ export const defineTelegramBotService = async injector => {
       const successMessage = getTranslation(
         'telegramDeregistration.successMessage',
         `Dear <strong>:contactName</strong>, you have successfully deregistered from receiving messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.`,
-        { contactName, patientName, botName: botInfo.first_name },
+        { replacements: { contactName, patientName, botName: botInfo.first_name } },
       );
 
       sendMessage(chatId, successMessage, { parse_mode: 'HTML' });
@@ -180,7 +179,7 @@ export const defineTelegramBotService = async injector => {
         return;
       }
 
-      const patientList = contacts.map(contact => [
+      const patientList = contacts.map((contact) => [
         {
           text: [contact.patient.firstName, contact.patient.lastName].join(' ').trim(),
           callback_data: `unsubscribe-contact|${contact.id}`,
@@ -218,7 +217,7 @@ export const defineTelegramBotService = async injector => {
     setCommand('start', subscribeCommandHandler);
     setCommand('unsubscribe', unsubscribeCommandHandler);
 
-    bot.on('callback_query', async query => {
+    bot.on('callback_query', async (query) => {
       try {
         const data = query.data?.split('|') || [];
         if (data[0] === 'unsubscribe-contact') {
@@ -248,7 +247,7 @@ let singletonService = null;
  *
  * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
  */
-export const defineSingletonTelegramBotService = injector => {
+export const defineSingletonTelegramBotService = (injector) => {
   if (!singletonService) singletonService = defineTelegramBotService(injector);
   return singletonService;
 };
