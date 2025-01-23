@@ -588,7 +588,7 @@ export class CentralSyncManager {
         // saving with a unique tick
         const { tock } = await this.tickTockGlobalClock();
 
-        // align the incoming changes 
+        // run any side effects for each model
         // eg: resolving duplicated patient display IDs
         await incomingSyncHook(sequelize, modelsToInclude, sessionId);
 
@@ -614,7 +614,7 @@ export class CentralSyncManager {
       await this.tickTockGlobalClock();
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
-      // mark for repull any records that were aligned for persistence before
+      // mark for repull any records that were modified by an incoming sync hook
       await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
 
       // mark persisted so that client polling "completePush" can stop

@@ -9,7 +9,7 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 import type { Models } from '../types/model';
 import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable';
 import { readOnlyTransaction } from './transactions';
-import type { AlignedChanges } from 'types/sync';
+import type { SyncHookSnapshotChanges } from 'types/sync';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
@@ -31,7 +31,7 @@ export const incomingSyncHook = async (
     );
 
     // Load the persisted record ids in batches to avoid memory issue
-    const batchSize = config.sync.alignDataForPersistenceBatchSize;
+    const batchSize = config.sync.incomingSyncHookBatchSize;
     const batchCount = Math.ceil(modelPersistedRecordsCount / batchSize);
     let fromId;
 
@@ -48,7 +48,7 @@ export const incomingSyncHook = async (
 
       const incomingSnapshotChanges = await readOnlyTransaction(
         sequelize,
-        async (): Promise<AlignedChanges | undefined> => {
+        async (): Promise<SyncHookSnapshotChanges | undefined> => {
           if (model.incomingSyncHook) {
             return model.incomingSyncHook(batchRecords);
           }

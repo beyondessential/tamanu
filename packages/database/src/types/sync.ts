@@ -43,7 +43,7 @@ export type UninsertedSyncSnapshotAttributes = Omit<
   'id' | 'savedAtSyncTick'
 >;
 
-export type AlignedChanges = {
+export type SyncHookSnapshotChanges = {
   inserts: UninsertedSyncSnapshotAttributes[];
   updates: SyncSnapshotAttributes[];
 };

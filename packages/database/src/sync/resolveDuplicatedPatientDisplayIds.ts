@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import type { AlignedChanges, SyncSnapshotAttributes } from 'types/sync';
+import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
 import type { Patient } from 'models';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { sanitizeRecord } from './sanitizeRecord';
@@ -18,7 +18,7 @@ import { sanitizeRecord } from './sanitizeRecord';
 export const resolveDuplicatedPatientDisplayIds = async (
   PatientModel: typeof Patient,
   changes: SyncSnapshotAttributes[],
-): Promise<AlignedChanges | undefined> => {
+): Promise<SyncHookSnapshotChanges | undefined> => {
   const patientDisplayIds = changes.filter((c) => !c.isDeleted).map((c) => c.data.displayId);
   const existingPatientsWithDuplicatedDisplayIds = await PatientModel.findAll({
     where: { displayId: { [Op.in]: patientDisplayIds } },
