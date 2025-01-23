@@ -1,5 +1,5 @@
 import config from 'config';
-import { DataTypes } from 'sequelize';
+import { DataTypes, type Attributes, type WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
 import {
@@ -9,10 +9,12 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
 } from '@tamanu/constants';
+
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Deleted, Invalid } from '@tamanu/shared/utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { FhirResource } from './Resource';
+import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';
 import type { InitOptions, Models } from '../../types/model';
 import type { ImagingRequest } from '../../models/ImagingRequest';
 
@@ -22,6 +24,7 @@ export class FhirImagingStudy extends FhirResource {
   declare started?: string;
   declare status: string;
   declare note?: { text: string }[];
+  declare contained?: FhirEndpointType[];
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -34,6 +37,7 @@ export class FhirImagingStudy extends FhirResource {
           allowNull: false,
         },
         note: DataTypes.JSONB,
+        contained: DataTypes.JSONB,
       },
       options,
     );
@@ -46,11 +50,12 @@ export class FhirImagingStudy extends FhirResource {
 
   static get INTAKE_SCHEMA() {
     return yup.object({
-      identifier: yup.array().of(FhirIdentifier.asYup()),
+      identifier: yup.array().of(FhirIdentifier.asYup()).optional(),
       basedOn: yup.array().of(FhirReference.asYup()),
       started: yup.string().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
+      contained: yup.array().of(FHIR_ENDPOINT_SCHEMA).min(1).max(1).optional(),
     });
   }
 
@@ -182,27 +187,34 @@ export class FhirImagingStudy extends FhirResource {
     const imagingAccessCode = this.identifier?.find(
       (i) => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
     )?.value;
-    if (!imagingAccessCode) {
-      throw new Invalid('Need to have Accession Number identifier', {
+    const resultImageUrl = this.contained?.[0]?.address;
+    if (!imagingAccessCode && !resultImageUrl) {
+      throw new Invalid('Need to have Accession Number identifier or contained Endpoint', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
       });
     }
+
     const { ImagingResult } = this.sequelize.models;
+    const whereClause: WhereOptions<Attributes<ImagingRequest>> = {
+      imagingRequestId: imagingRequest.id,
+    };
+    if (imagingAccessCode) {
+      whereClause.externalCode = imagingAccessCode;
+    }
+
     let result = await ImagingResult.findOne({
-      where: {
-        imagingRequestId: imagingRequest.id,
-        externalCode: imagingAccessCode,
-      },
+      where: whereClause,
     });
     const resultNotes = this.note?.map((n) => n.text).join('\n\n');
     if (result) {
-      result.set({ description: resultNotes });
+      result.set({ description: resultNotes, resultImageUrl });
       await result.save();
     } else {
       result = await ImagingResult.create({
         imagingRequestId: imagingRequest.id,
         description: resultNotes,
         externalCode: imagingAccessCode,
+        resultImageUrl,
         completedAt: this.started ? toDateTimeString(this.started) : getCurrentDateTimeString(),
       });
     }

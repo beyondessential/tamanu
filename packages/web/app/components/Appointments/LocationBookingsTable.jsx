@@ -182,6 +182,18 @@ const StyledTable = styled(Table)`
       background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        .MuiTableCell-body {
+          border-bottom: none;
+          &:before {
+            height: 0;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const DateText = styled.div`
@@ -279,6 +291,14 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
+  const allAppointments = useLocationBookingsQuery(
+    {
+      all: true,
+      patientId: patient?.id,
+      after: '1970-01-01 00:00',
+    },
+  ).data?.data ?? [];
+
   const { data, isLoading } = useLocationBookingsQuery(
     {
       all: true,
@@ -352,6 +372,10 @@ export const LocationBookingsTable = ({ patient }) => {
       ),
     },
   ];
+
+  if (!allAppointments.length) {
+    return null;
+  }
 
   if (!appointments.length && !isLoading) {
     return (

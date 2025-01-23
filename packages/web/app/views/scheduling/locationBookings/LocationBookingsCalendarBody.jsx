@@ -8,6 +8,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { generateIdFromCell, partitionAppointmentsByDate } from './utils';
+import { TranslatedReferenceData } from '../../../components';
 
 export const BookingsCell = ({
   appointments,
@@ -50,16 +51,18 @@ export const BookingsRow = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  const {
-    name: locationName,
-    locationGroup: { name: locationGroupName },
-  } = location;
+  const { locationGroup } = location;
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
     <CarouselGrid.Row>
       <CarouselGrid.RowHeaderCell>
-        {locationGroupName} {locationName}
+        <TranslatedReferenceData
+          category="locationGroup"
+          value={locationGroup.id}
+          fallback={locationGroup.name}
+        />{' '}
+        <TranslatedReferenceData category="location" value={location.id} fallback={location.name} />
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell

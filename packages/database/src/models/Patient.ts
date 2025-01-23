@@ -277,6 +277,7 @@ export class Patient extends Model {
           { mergedIntoId: null },
         ],
       },
+      paranoid: false,
     });
   }
 
@@ -289,6 +290,7 @@ export class Patient extends Model {
           { id: { [Op.ne]: this.id } },
         ],
       },
+      paranoid: false,
     });
   }
 
@@ -301,6 +303,7 @@ export class Patient extends Model {
           { id: { [Op.ne]: this.id } },
         ],
       },
+      paranoid: false,
     });
   }
 

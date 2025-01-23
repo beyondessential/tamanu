@@ -23,7 +23,7 @@ export const DateTimeRangePicker = ({
   const hasSelectedLocation = !!values.locationId;
 
   const dateFieldValue = values[datePickerName];
-  const isValidDate = isValid(parseISO(dateFieldValue));
+  const isValidDate = dateFieldValue && isValid(parseISO(dateFieldValue));
 
   const { id: appointmentId, locationId } = values;
 
