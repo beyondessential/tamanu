@@ -183,6 +183,7 @@ export class AppointmentSchedule extends Model {
       {
         where: {
           startTime: { [Op.gte]: appointment.startTime },
+          scheduleId: appointment.scheduleId,
         },
       },
     );
