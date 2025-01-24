@@ -26,7 +26,7 @@ const StyledConfirmButton = styled(Button)`
   margin-left: 16px;
 `;
 
-const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
+const PreSubmitModal = ({ open, onClose, onConfirm }) => {
   return (
     <Modal
       title={
@@ -85,7 +85,7 @@ const ImportButton = ({ onSubmit, ...props }) => {
         }}
         type="button"
       />
-      <ConfirmPaidModal
+      <PreSubmitModal
         open={preImportModalOpen}
         onClose={() => setPreImportModalOpen(false)}
         onConfirm={onConfirm}
