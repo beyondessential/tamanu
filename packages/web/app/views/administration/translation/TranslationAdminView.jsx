@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
@@ -26,7 +26,7 @@ const StyledConfirmButton = styled(Button)`
   margin-left: 16px;
 `;
 
-const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
+const PreSubmitModal = ({ open, onClose, onConfirm }) => {
   return (
     <Modal
       title={
@@ -71,7 +71,7 @@ const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
 };
 
 const ImportButton = ({ onSubmit, ...props }) => {
-  const [preImportModalOpen, setPreImportModalOpen] = React.useState(false);
+  const [preImportModalOpen, setPreImportModalOpen] = useState(false);
   const onConfirm = (e, extraValues) => {
     setPreImportModalOpen(false);
     onSubmit(e, extraValues);
@@ -85,7 +85,7 @@ const ImportButton = ({ onSubmit, ...props }) => {
         }}
         type="button"
       />
-      <ConfirmPaidModal
+      <PreSubmitModal
         open={preImportModalOpen}
         onClose={() => setPreImportModalOpen(false)}
         onConfirm={onConfirm}
@@ -105,15 +105,13 @@ export const TranslationAdminView = () => {
   };
 
   return (
-    <>
-      <ImportExportView
-        title={getTranslation('admin.translation.title', 'Translation')}
-        endpoint="referenceData"
-        dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
-        buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
-        defaultTab="edit"
-        ImportButton={ImportButton}
-      />
-    </>
+    <ImportExportView
+      title={getTranslation('admin.translation.title', 'Translation')}
+      endpoint="referenceData"
+      dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
+      buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+      defaultTab="edit"
+      ImportButton={ImportButton}
+    />
   );
 };
