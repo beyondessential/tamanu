@@ -81,7 +81,6 @@ export const LocationBookingsFilter = () => {
               onChange={e =>
                 updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
               }
-              highlightOnSelect
             />
             <Field
               name="clinicianId"
@@ -89,7 +88,6 @@ export const LocationBookingsFilter = () => {
               component={FilterField}
               endpoint="practitioner"
               onChange={e => updateUserPreferences({ ...filters, clinicianId: e.target.value })}
-              highlightOnSelect
             />
             <Field
               name="bookingTypeId"
@@ -97,7 +95,6 @@ export const LocationBookingsFilter = () => {
               component={FilterField}
               endpoint="bookingType"
               onChange={e => updateUserPreferences({ ...filters, bookingTypeId: e.target.value })}
-              highlightOnSelect
             />
             <TextButton
               onClick={() => {

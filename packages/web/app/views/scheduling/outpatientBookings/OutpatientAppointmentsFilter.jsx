@@ -80,7 +80,6 @@ export const OutpatientAppointmentsFilter = props => {
           label={getTranslation('general.area.label', 'Area')}
           name="locationGroupId"
           onChange={e => updateUserPreferences({ ...filters, locationGroupId: e.target.value })}
-          highlightOnSelect
         />
         <Field
           component={FilterField}
@@ -88,7 +87,6 @@ export const OutpatientAppointmentsFilter = props => {
           label={getTranslation('general.type.label', 'Type')}
           name="appointmentTypeId"
           onChange={e => updateUserPreferences({ ...filters, appointmentTypeId: e.target.value })}
-          highlightOnSelect
         />
         <ResetButton
           onClick={() => {
