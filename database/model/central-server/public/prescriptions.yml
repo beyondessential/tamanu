@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: prescriptions
-        description: "{{ doc('table__prescriptions') }}"
+        description: '{{ doc("table__prescriptions") }}'
         tags: []
         columns:
           - name: id

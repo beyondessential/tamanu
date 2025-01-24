@@ -1,4 +1,4 @@
-{% docs table__encounter_medications %}
+{% docs table__prescriptions %}
 Records prescriptions for medications.
 {% enddocs %}
 
