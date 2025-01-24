@@ -23,7 +23,7 @@ const TabContainer = styled.div`
 `;
 
 export const ImportExportView = memo(
-  ({ title, endpoint, dataTypes, dataTypesSelectable, buildTabs, defaultTab }) => {
+  ({ title, endpoint, dataTypes, dataTypesSelectable, buildTabs, defaultTab, ImportButton }) => {
     const [currentTab, setCurrentTab] = useState(defaultTab || 'import');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,6 +39,7 @@ export const ImportExportView = memo(
               dataTypes={dataTypes}
               dataTypesSelectable={dataTypesSelectable}
               setIsLoading={setIsLoading}
+              ImportButton={ImportButton}
             />
           </TabContainer>
         ),
