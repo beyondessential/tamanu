@@ -16,7 +16,7 @@ export class FrequencySuggester {
           label.toLowerCase().includes(searchLower) ||
           synonyms.some(syn => syn.toLowerCase().includes(searchLower)),
       )
-      .sort(({ label: aLabel, synonyms: aSyn }, { label: bLabel, synonyms: bSyn }) => {
+      .sort(({ label: aLabel, synonyms: aSynonym }, { label: bLabel, synonyms: bSynonym }) => {
         const aStart = aLabel.toLowerCase().startsWith(searchLower);
         const bStart = bLabel.toLowerCase().startsWith(searchLower);
         if (aStart !== bStart) return bStart - aStart;
@@ -25,9 +25,13 @@ export class FrequencySuggester {
         const bInclude = bLabel.toLowerCase().includes(searchLower);
         if (aInclude !== bInclude) return bInclude - aInclude;
 
-        const aSynInclude = aSyn.some(syn => syn.toLowerCase().includes(searchLower));
-        const bSynInclude = bSyn.some(syn => syn.toLowerCase().includes(searchLower));
-        return bSynInclude - aSynInclude;
+        const aSynonymInclude = aSynonym.some(synonym =>
+          synonym.toLowerCase().includes(searchLower),
+        );
+        const bSynonymInclude = bSynonym.some(synonym =>
+          synonym.toLowerCase().includes(searchLower),
+        );
+        return bSynonymInclude - aSynonymInclude;
       });
   };
 }
