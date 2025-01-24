@@ -5,16 +5,24 @@ import {
   scrollToCell,
   scrollToThisWeek,
 } from '../views/scheduling/locationBookings/utils';
+import { useUserPreferencesQuery } from '../api/queries';
 
 const LocationBookingsContext = createContext(null);
 
 export const LocationBookingsContextProvider = ({ children }) => {
+  const { data: userPreferences } = useUserPreferencesQuery();
   const [filters, setFilters] = useState({
     patientNameOrId: '',
     locationGroupIds: [],
     clinicianId: [],
     bookingTypeId: [],
   });
+
+  useEffect(() => {
+    if (userPreferences?.locationBookingFilters) {
+      setFilters(userPreferences?.locationBookingFilters);
+    }
+  }, [userPreferences]);
 
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,

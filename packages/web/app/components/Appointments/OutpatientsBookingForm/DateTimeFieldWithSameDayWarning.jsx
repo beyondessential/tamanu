@@ -8,7 +8,7 @@ import { TranslatedText } from '../../Translation';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { DateTimeField, Field } from '../../Field';
 
-export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
+export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
   const { values, setFieldValue } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
@@ -37,6 +37,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       saveDateAsString
       required
       onChange={e => {
+        onChange(e);
         if (!e.target.value) setFieldValue('endTime', undefined);
       }}
       save

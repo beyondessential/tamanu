@@ -17,6 +17,7 @@ export * from './TextField';
 export * from './UnsupportedPhotoField';
 export * from './ImagingPriorityField';
 export * from './SearchField';
+export * from './SwitchField';
 
 // fancy fields
 export * from './HierarchyFieldItem';
