@@ -132,3 +132,5 @@ export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
+
+export * from './ReferenceDrug';

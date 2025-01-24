@@ -5,7 +5,7 @@ import type { InitOptions, Models } from '../types/model';
 
 export class TaskTemplate extends Model {
   declare id: string;
-  declare referenceDataId: number;
+  declare referenceDataId: string;
   declare frequencyValue?: number;
   declare frequencyUnit?: string;
   declare highPriority?: boolean;
@@ -15,7 +15,7 @@ export class TaskTemplate extends Model {
       {
         id: primaryKey,
         referenceDataId: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
           allowNull: false,
           unique: true,
           references: {

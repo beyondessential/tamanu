@@ -137,8 +137,4 @@
     "upcomingTasksTimeFrame": 8, // hours,
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },
-  "notification": {
-    "enabled": true,
-    "recentNotificationsTimeFrame": 48, // hours
-  },
 }

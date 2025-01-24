@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 
-import { ApplicationContext } from '../ApplicationContext';
+import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startScheduledTasks } from '../tasks';
 import { CentralSyncManager } from '../sync/CentralSyncManager';
 import pkg from '../../package.json';
@@ -10,7 +10,7 @@ import pkg from '../../package.json';
 export const startTasks = async ({ skipMigrationCheck }) => {
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
-  const context = await new ApplicationContext().init({ appType: 'tasks' });
+  const context = await new ApplicationContext().init({ appType: CENTRAL_SERVER_APP_TYPES.TASKS });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
   context.centralSyncManager = new CentralSyncManager(context);
 

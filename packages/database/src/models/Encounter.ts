@@ -131,10 +131,21 @@ export class Encounter extends Model {
               transaction: opts.transaction,
               individualHooks: true,
             });
+
+            /** clean up all notifications */
+            await models.Notification.destroy({
+              where: {
+                metadata: {
+                  [Op.contains]: { encounterId: encounter.id },
+                },
+              },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
           },
-          afterUpdate: async (encounter: Encounter) => {
+          afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
-              await models.Task.onEncounterDischarged(encounter);
+              await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
             }
           },
         },

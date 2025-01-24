@@ -1,4 +1,4 @@
-import { DataTypes, Op } from 'sequelize';
+import { DataTypes, Op, type Transaction } from 'sequelize';
 import {
   SYNC_DIRECTIONS,
   TASK_STATUSES,
@@ -321,7 +321,7 @@ export class Task extends Model {
     }
   }
 
-  static async onEncounterDischarged(encounter: Encounter) {
+  static async onEncounterDischarged(encounter: Encounter, transaction?: Transaction) {
     const { models } = this.sequelize;
     const encounterId = encounter.id;
     const endTime = encounter.endDate;
@@ -342,6 +342,7 @@ export class Task extends Model {
           frequencyValue: { [Op.not]: null },
           frequencyUnit: { [Op.not]: null },
         },
+        transaction,
       },
     );
 
@@ -359,6 +360,7 @@ export class Task extends Model {
           frequencyValue: { [Op.not]: null },
           frequencyUnit: { [Op.not]: null },
         },
+        transaction,
       },
     );
 
@@ -370,6 +372,7 @@ export class Task extends Model {
         frequencyValue: { [Op.not]: null },
         frequencyUnit: { [Op.not]: null },
       },
+      transaction,
       individualHooks: true,
     });
   }

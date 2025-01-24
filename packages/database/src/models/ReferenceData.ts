@@ -66,7 +66,13 @@ export class ReferenceData extends Model {
 
     this.belongsToMany(models.Task, {
       through: models.TaskDesignation,
-      as: 'designation',
+      as: 'tasks',
+      foreignKey: 'designationId',
+    });
+
+    this.belongsToMany(models.User, {
+      through: models.UserDesignation,
+      as: 'designationUsers',
       foreignKey: 'designationId',
     });
 
@@ -96,6 +102,11 @@ export class ReferenceData extends Model {
 
     this.hasOne(models.TaskTemplate, {
       as: 'taskTemplate',
+      foreignKey: 'referenceDataId',
+    });
+
+    this.hasOne(models.ReferenceDrug, {
+      as: 'referenceDrug',
       foreignKey: 'referenceDataId',
     });
   }

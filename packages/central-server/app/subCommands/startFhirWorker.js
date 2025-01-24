@@ -2,15 +2,16 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 
-import { ApplicationContext } from '../ApplicationContext';
+import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
 export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
 
-  const appType = name ? `fhir-worker(${name})` : 'fhir-worker';
-  const context = await new ApplicationContext().init({ appType });
+  const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;
+  const dbKey = name ? `${appType}(${name})` : appType;
+  const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   if (!topics || topics === 'all') {

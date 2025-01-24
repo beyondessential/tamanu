@@ -1,0 +1,21 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": "5434",
+    "name": "postgres",
+    "username": "postgres",
+    "password": "postgres",
+    "migrateOnStartup": true,
+    "testMode": true,
+    "verbose": false
+  },
+  "log": {
+    "consoleLevel": "none"
+  },
+  "sync": {
+    "persistedCacheBatchSize": 10000,
+    "persistUpdateWorkerPoolSize": 5,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
+  },
+  "countryTimeZone": "Australia/Melbourne"
+}
