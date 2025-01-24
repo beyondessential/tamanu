@@ -22,9 +22,9 @@ export const FrequencySearchInput = ({ ...props }) => {
 
   return (
     <AutocompleteInput
+      {...props}
       label={<TranslatedText stringId="medication.frequency.label" fallback="Frequency" />}
       suggester={frequencySuggester}
-      {...props}
     />
   );
 };
@@ -33,7 +33,6 @@ export const FrequencySearchField = ({ field, ...props }) => {
   return (
     <FrequencySearchInput
       name={field.name}
-      value={field.value || ''}
       onChange={field.onChange}
       {...props}
     />
