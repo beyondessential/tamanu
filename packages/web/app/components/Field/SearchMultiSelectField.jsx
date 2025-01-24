@@ -7,7 +7,8 @@ import ListItemText from '@mui/material/ListItemText';
 import styled from '@mui/system/styled';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
-import Search from '@mui/icons-material/Search'
+import Search from '@mui/icons-material/Search';
+import { css } from 'styled-components';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
@@ -62,6 +63,13 @@ const StyledInputButton = styled(Button)`
   :focus {
     border: 1px solid ${props => props.theme.palette.primary.main};
   }
+  ${({ $highlight }) =>
+    $highlight &&
+    css`
+      background-color: #cfe3f6;
+      border-color: ${Colors.outline};
+      color: ${Colors.darkestText};
+    `}
 `;
 
 const SearchContainer = styled(Box)`
@@ -87,6 +95,7 @@ export const SearchMultiSelectInput = ({
   name,
   label,
   options = [],
+  highlightOnSelect = false,
   ...props
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -112,7 +121,12 @@ export const SearchMultiSelectInput = ({
 
   return (
     <>
-      <StyledInputButton variant="outlined" onClick={handleOpen} {...props}>
+      <StyledInputButton
+        $highlight={highlightOnSelect && value.length > 0}
+        variant="outlined"
+        onClick={handleOpen}
+        {...props}
+      >
         {label} {value.length > 0 ? `(${value.length})` : ''}
       </StyledInputButton>
 
