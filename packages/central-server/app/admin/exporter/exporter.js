@@ -17,8 +17,8 @@ async function buildSheetDataForDataType(context, dataType, options) {
     tabName,
     data: [
       headers,
-      ...data.map(row =>
-        headers.map(header => {
+      ...data.map((row) =>
+        headers.map((header) => {
           const value = row[header];
           return modelExporter.formattedCell(header, value);
         }),
@@ -41,7 +41,7 @@ async function validateFileSize(fileName, maxSizeInMb) {
   }
 }
 
-export async function exporter(context, includedDataTypes = {}, fileName = '', options = {}) {
+export async function exporter(context, includedDataTypes = {}, options = {}, fileName = '') {
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async (dataType) => {
       const { data, tabName } = await buildSheetDataForDataType(context, dataType, options);
