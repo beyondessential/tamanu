@@ -103,17 +103,3 @@ export const preventInvalidNumber = event => {
     event.target.value = '';
   }
 };
-
-export const validateDecimalPlaces = e => {
-  const value = e.target.value;
-  if (/^[−-]/.test(value)) {
-    e.target.value = '';
-    return;
-  }
-  if (value.includes('.')) {
-    const decimalPlaces = value.split('.')[1].length;
-    if (decimalPlaces > 2) {
-      e.target.value = parseFloat(value).toFixed(2);
-    }
-  }
-};
