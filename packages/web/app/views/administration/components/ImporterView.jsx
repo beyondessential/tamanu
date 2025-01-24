@@ -72,7 +72,6 @@ const ImportStatsDisplay = ({ stats }) => (
 
 const ImportForm = ({
   submitForm,
-  setValues,
   dataTypes,
   dataTypesSelectable,
   ImportButton = FormSubmitButton,
