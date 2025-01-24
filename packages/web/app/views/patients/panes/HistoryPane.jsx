@@ -10,7 +10,6 @@ import { LocationBookingsTable } from '../../../components/Appointments/Location
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
-import { FrequencySearchInput } from '../../../components/Medication/FrequencySearchInput';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -72,7 +71,6 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
       />
-      <FrequencySearchInput onChange={() => {}} />
     </>
   );
 });
