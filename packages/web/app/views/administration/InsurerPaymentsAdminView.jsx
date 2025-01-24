@@ -5,6 +5,6 @@ export const InsurerPaymentsAdminView = () => (
   <ImportExportView
     title="Insurer Payments"
     endpoint="insurerPayments"
-    disableExport
+    buildTabs={importTab => [importTab]} // no export required for insurer payments
   />
 );

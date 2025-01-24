@@ -8,12 +8,29 @@ import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
-import { Form, OutlinedButton, SearchInput, TableFormFields, TextField } from '../../../components';
+import {
+  ButtonRow,
+  Form,
+  OutlinedButton,
+  SearchInput,
+  TableFormFields,
+  TextField,
+} from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+
+const Container = styled.div`
+  padding: 30px;
+  min-height: 0;
+  form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+`;
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -26,6 +43,10 @@ const ReservedText = styled.p`
   margin-right: 6px;
   font-weight: 500;
   font-size: 14px;
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  width: 340px;
 `;
 
 /**
@@ -190,18 +211,20 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <SearchInput
+          <StyledSearchInput
             label={<TranslatedText stringId="general.action.search" fallback="Search" />}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
           />
         </Box>
-        <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
-          <TranslatedText stringId="general.action.save" fallback="Save" />
-        </OutlinedButton>
+        <ButtonRow>
+          <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
+            <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
+          </OutlinedButton>
+        </ButtonRow>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} pagination />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
     </>
   );
 };
@@ -243,20 +266,22 @@ export const TranslationForm = () => {
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 
   return (
-    <Form
-      initialValues={initialValues}
-      enableReinitialize
-      showInlineErrorsOnly
-      onSubmit={handleSubmit}
-      validationSchema={validationSchema}
-      render={props => (
-        <FormContents
-          {...props}
-          data={sortedTranslations}
-          languageNames={languageNames}
-          isSaving={isSaving}
-        />
-      )}
-    />
+    <Container>
+      <Form
+        initialValues={initialValues}
+        enableReinitialize
+        showInlineErrorsOnly
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        render={props => (
+          <FormContents
+            {...props}
+            data={sortedTranslations}
+            languageNames={languageNames}
+            isSaving={isSaving}
+          />
+        )}
+      />
+    </Container>
   );
 };

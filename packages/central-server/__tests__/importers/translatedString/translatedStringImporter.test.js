@@ -11,6 +11,10 @@ describe('Translated String import', () => {
   });
   afterAll(() => ctx.close());
 
+  beforeEach(async () => {
+    await models.TranslatedString.destroy({ where: {}, force: true });
+  });
+
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
@@ -62,5 +66,56 @@ describe('Translated String import', () => {
         },
       });
     });
+  });
+
+  it('should not overwrite if skipExisting is true', async () => {
+    const { TranslatedString } = models;
+    await TranslatedString.create({
+      stringId: 'test.string.1',
+      language: 'en',
+      text: 'original value',
+    });
+
+    // excel file includes an update to test.string.1, and a new string test.string.2
+    const { errors, stats } = await doImport({
+      file: 'translated-string-skip-existing',
+      skipExisting: true,
+    });
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      TranslatedString: {
+        created: 1,
+        skipped: 1,
+      },
+    });
+    const updatedString = await TranslatedString.findOne({
+      where: { stringId: 'test.string.1', language: 'en' },
+    });
+    expect(updatedString.text).toEqual('original value');
+  });
+
+  it('should overwrite if skipExisting is not provided', async () => {
+    const { TranslatedString } = models;
+    await TranslatedString.create({
+      stringId: 'test.string.1',
+      language: 'en',
+      text: 'original value',
+    });
+
+    // excel file includes an update to test.string.1, and a new string test.string.2
+    const { errors, stats } = await doImport({
+      file: 'translated-string-skip-existing',
+    });
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      TranslatedString: {
+        created: 1,
+        updated: 1,
+      },
+    });
+    const updatedString = await TranslatedString.findOne({
+      where: { stringId: 'test.string.1', language: 'en' },
+    });
+    expect(updatedString.text).toEqual('new value');
   });
 });
