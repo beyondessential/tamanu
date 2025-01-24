@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { Field, useFormikContext } from 'formik';
+import React from 'react';
+import { useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { TranslatedText } from '../../Translation';
-import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
+import { DateTimeField, Field } from '../../Field';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
   const { values, setFieldValue } = useFormikContext();
@@ -29,12 +29,6 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
     values.patientId &&
     existingAppointments?.data.some(booking => booking.patientId === values.patientId);
 
-  useEffect(() => {
-    if (!values.startTime) {
-      setFieldValue('endTime', undefined);
-    }
-  }, [setFieldValue, values.startTime]);
-
   return (
     <Field
       name="startTime"
@@ -42,6 +36,9 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
       component={DateTimeField}
       saveDateAsString
       required
+      onChange={e => {
+        if (!e.target.value) setFieldValue('endTime', undefined);
+      }}
       save
       helperText={
         showSameDayWarning && (
