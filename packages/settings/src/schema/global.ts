@@ -1360,8 +1360,8 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
-            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE]: {
-              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRE,
+            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED]: {
+              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED,
               type: yup.boolean(),
               defaultValue: true,
             },
