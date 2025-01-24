@@ -90,7 +90,11 @@ encounter.put(
           const { isDischarge, quantity, repeats } = medicationValues;
           if (isDischarge) {
             const medication = await models.Prescription.findByPk(medicationId);
-            await medication.update({ isDischarge, quantity, repeats });
+            await medication.update({ quantity, repeats });
+            await models.EncounterPrescription.update(
+              { isDischarge },
+              { where: { encounterId: id, prescriptionId: medication.id } },
+            );
           }
         }
       }
@@ -204,7 +208,7 @@ encounterRelations.get(
 
     const data = objects.map((x) => x.forResponse());
 
-    res.send({count, data });
+    res.send({ count, data });
   }),
 );
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));

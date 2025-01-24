@@ -967,10 +967,20 @@ describe('Encounter', () => {
         // Reload medications and make sure only the first one got edited
         await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
 
+        const medicationOneObject = await models.Prescription.findByPk(medicationOne.id, {
+          include: 'encounters',
+        });
+
         // Only compare explicitly set values
-        expect(medicationOne.dataValues).toMatchObject({
+        expect(medicationOneObject.dataValues).toMatchObject({
           id: medicationOne.id,
-          isDischarge: true,
+          encounters: expect.arrayContaining([
+            expect.objectContaining({
+              EncounterPrescription: expect.objectContaining({
+                isDischarge: true,
+              }),
+            }),
+          ]),
           quantity: 3,
           repeats: 0,
         });
