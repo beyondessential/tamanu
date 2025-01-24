@@ -15,7 +15,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { ReferenceDataSwitch } from './ReferenceDataSwitch';
+import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
 
 const Container = styled.div`
   padding: 30px;
@@ -224,7 +224,7 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
           />
-          <ReferenceDataSwitch
+          <ReferenceDataSwitchInput
             value={includeReferenceData}
             onChange={() => setIncludeReferenceData(!includeReferenceData)}
             label={

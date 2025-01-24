@@ -52,10 +52,10 @@ export const ExporterView = memo(
     const { getTranslation } = useTranslation();
 
     const onSubmit = useCallback(
-      async ({ includedDataTypes }) => {
+      async queryParameters => {
         await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
-          getData: async () => api.download(`admin/export/${endpoint}`, { includedDataTypes }),
+          getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
           extension: 'xlsx',
         });
         notifySuccess(

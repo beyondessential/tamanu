@@ -12,8 +12,17 @@ const StyledSwitchInput = styled(SwitchInput)`
   }
 `;
 
-export const ReferenceDataSwitch = ({ value, onChange, label }) => (
+export const ReferenceDataSwitchInput = props => (
   <SwitchInputContainer>
-    <StyledSwitchInput label={label} value={value} onChange={onChange} />
+    <StyledSwitchInput {...props} />
   </SwitchInputContainer>
+);
+
+export const ReferenceDataSwitchField = ({ field, ...props }) => (
+  <ReferenceDataSwitchInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+  />
 );

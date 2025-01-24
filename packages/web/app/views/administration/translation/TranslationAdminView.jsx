@@ -6,7 +6,8 @@ import { ImportExportView } from '../components/ImportExportView';
 import { useTranslation } from '../../../contexts/Translation';
 import { Button, FormSubmitButton, OutlinedButton } from '../../../components/Button';
 import { Modal, ModalButtonActionRow } from '../../../components';
-import { ReferenceDataSwitch } from './ReferenceDataSwitch';
+import { Field } from '../../../components/Field';
+import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
@@ -99,25 +100,26 @@ const ImportButton = ({ onSubmit, ...props }) => {
   );
 };
 
-const ExportButton = ({ includeReferenceData, setIncludeReferenceData, ...props }) => (
-  <ExportButtonRow>
-    <FormSubmitButton {...props} />
-    <ReferenceDataSwitch
-      value={includeReferenceData}
-      onChange={() => setIncludeReferenceData(!includeReferenceData)}
-      label={
-        <TranslatedText
-          stringId="admin.translation.includeReferenceData"
-          fallback="Include reference data"
-        />
-      }
-    />
-  </ExportButtonRow>
-);
+const ExportButton = props => {
+  return (
+    <ExportButtonRow>
+      <FormSubmitButton {...props} />
+      <Field
+        name="includeReferenceData"
+        label={
+          <TranslatedText
+            stringId="admin.translation.includeReferenceData"
+            fallback="Include reference data"
+          />
+        }
+        component={ReferenceDataSwitchField}
+      />
+    </ExportButtonRow>
+  );
+};
 
 export const TranslationAdminView = () => {
   const { getTranslation } = useTranslation();
-  const [includeReferenceData, setIncludeReferenceData] = useState(false);
 
   const editTab = {
     label: <TranslatedText stringId="admin.translation.edit" fallback="Edit" />,
@@ -134,13 +136,7 @@ export const TranslationAdminView = () => {
       buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
       defaultTab="edit"
       ImportButton={ImportButton}
-      ExportButton={props => (
-        <ExportButton
-          {...props}
-          includeReferenceData={includeReferenceData}
-          setIncludeReferenceData={setIncludeReferenceData}
-        />
-      )}
+      ExportButton={ExportButton}
     />
   );
 };
