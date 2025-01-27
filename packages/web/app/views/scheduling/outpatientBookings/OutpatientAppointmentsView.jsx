@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -86,6 +86,14 @@ export const OutpatientAppointmentsView = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [modifyMode, setModifyMode] = useState('');
+
+  const initialDrawerValues = useMemo(
+    () => ({
+      ...selectedAppointment,
+      isRepeatingAppointment: !!selectedAppointment.schedule,
+    }),
+    [selectedAppointment],
+  );
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
