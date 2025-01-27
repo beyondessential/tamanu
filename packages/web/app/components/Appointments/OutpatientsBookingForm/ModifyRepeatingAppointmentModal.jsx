@@ -26,14 +26,18 @@ const ContentWrapper = styled.div`
   padding: 2rem 5rem;
 `;
 
-export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) => {
-  const [mode, setMode] = useState(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
-
+export const ModifyRepeatingAppointmentModal = ({
+  open,
+  onClose,
+  onConfirm,
+  onChangeModifyMode,
+  modifyMode,
+}) => {
   return (
     <StyledConfirmModal
       open={open}
       onCancel={onClose}
-      onConfirm={() => onConfirm(mode)}
+      onConfirm={onConfirm}
       title={
         <TranslatedText
           stringId="outpatientAppointment.modal.modifyRepeatingAppointment.title"
@@ -49,7 +53,10 @@ export const ModifyRepeatingAppointmentModal = ({ open, onClose, onConfirm }) =>
             />
           </BodyText>
           <RadioGroupWrapper>
-            <ModifyModeRadioGroup onChange={event => setMode(event.target.value)} value={mode} />
+            <ModifyModeRadioGroup
+              onChange={event => onChangeModifyMode(event.target.value)}
+              value={modifyMode}
+            />
           </RadioGroupWrapper>
         </ContentWrapper>
       }

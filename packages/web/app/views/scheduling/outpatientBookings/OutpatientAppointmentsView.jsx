@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -85,14 +85,7 @@ export const OutpatientAppointmentsView = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(defaultGroupBy);
-
-  const initialDrawerValues = useMemo(
-    () => ({
-      ...selectedAppointment,
-      isRepeatingAppointment: !!selectedAppointment.schedule,
-    }),
-    [selectedAppointment],
-  );
+  const [modifyMode, setModifyMode] = useState('');
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
@@ -114,9 +107,6 @@ export const OutpatientAppointmentsView = () => {
     setIsCancelModalOpen(true);
   };
 
-  const handleCloseDrawer = () => setDrawerOpen(false);
-
-  // TODO cud be better
   const handleOpenDrawer = appointment => {
     const appointmentFormValues = pick(appointment, [
       'id',
@@ -138,8 +128,7 @@ export const OutpatientAppointmentsView = () => {
     }
   };
 
-  const handleConfirmModifyModel = modifyMode => {
-    console.log('modifyMode', modifyMode);
+  const handleConfirmModifyModel = () => {
     setIsModifyModalOpen(false);
     setDrawerOpen(true);
   };
@@ -158,6 +147,8 @@ export const OutpatientAppointmentsView = () => {
         />
         <ModifyRepeatingAppointmentModal
           open={isModifyModalOpen}
+          modifyMode={modifyMode}
+          onChangeModifyMode={setModifyMode}
           onClose={() => setIsModifyModalOpen(false)}
           onConfirm={handleConfirmModifyModel}
         />
@@ -184,9 +175,10 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={initialDrawerValues}
+              initialValues={selectedAppointment}
+              modifyMode={modifyMode}
               key={selectedAppointment.id}
-              onClose={handleCloseDrawer}
+              onClose={() => setDrawerOpen(false)}
               open={drawerOpen}
             />
           </CalendarInnerWrapper>
