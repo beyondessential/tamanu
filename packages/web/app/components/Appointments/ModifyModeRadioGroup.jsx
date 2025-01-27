@@ -27,7 +27,7 @@ const StyledRadio = styled(Radio)`
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   &.${formControlLabelClasses.root} {
-    margin-left: -0.5rem;
+    margin-left: -0.375rem;
     & .${typographyClasses.root} {
       font-size: 14px;
       margin-left: 0.375rem;
