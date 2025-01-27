@@ -81,7 +81,7 @@ export const OutpatientAppointmentsView = () => {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
-  const [initialValues, setInitialValues] = useState({});
+  const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(defaultGroupBy);
@@ -89,7 +89,7 @@ export const OutpatientAppointmentsView = () => {
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
     if (patientId) {
-      setInitialValues({ patientId });
+      setSelectedAppointment({ patientId });
       setDrawerOpen(true);
     }
     if (date) {
@@ -102,7 +102,7 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleOpenCancelModal = appointment => {
-    setInitialValues(appointment);
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
@@ -121,7 +121,7 @@ export const OutpatientAppointmentsView = () => {
       'schedule',
     ]);
     const isRepeatingAppointment = !!appointmentFormValues.schedule;
-    setInitialValues({
+    setSelectedAppointment({
       ...appointmentFormValues,
       isRepeatingAppointment,
     });
@@ -134,7 +134,7 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleConfirmModifyMode = modifyMode => {
-    setInitialValues({ ...initialValues, modifyMode });
+    setSelectedAppointment({ ...selectedAppointment, modifyMode });
     setDrawerOpen(true);
   };
 
@@ -146,7 +146,7 @@ export const OutpatientAppointmentsView = () => {
     <Container>
       <OutpatientAppointmentsContextProvider>
         <CancelAppointmentModal
-          appointment={initialValues}
+          appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
         />
@@ -178,8 +178,8 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={initialValues}
-              key={initialValues.id}
+              initialValues={selectedAppointment}
+              key={selectedAppointment.id}
               onClose={handleCloseDrawer}
               open={drawerOpen}
             />
