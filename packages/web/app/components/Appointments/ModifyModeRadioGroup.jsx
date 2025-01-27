@@ -10,6 +10,10 @@ import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 
+const StyledRadioGroup = styled(RadioGroup)`
+  gap: 0.75rem;
+`;
+
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
     color: ${Colors.primary};
@@ -26,18 +30,13 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     margin-left: -0.5rem;
     & .${typographyClasses.root} {
       font-size: 14px;
-      margin-left: 0.5rem;
+      margin-left: 0.375rem;
       color: ${Colors.darkestText};
     }
   }
 `;
 
-const StyledRadioGroup = styled(RadioGroup)`
-  gap: 0.75rem;
-`;
-
 export const ModifyModeRadioGroup = ({ onChange, value }) => (
-  // <Wrapper>
   <StyledRadioGroup value={value} onChange={onChange} name="mode">
     <StyledFormControlLabel
       control={<StyledRadio value={MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT} />}
@@ -60,5 +59,4 @@ export const ModifyModeRadioGroup = ({ onChange, value }) => (
       }
     />
   </StyledRadioGroup>
-  // </Wrapper>
 );
