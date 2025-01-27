@@ -121,9 +121,8 @@ export const OutpatientAppointmentsView = () => {
       'schedule',
     ]);
     setSelectedAppointment(appointmentFormValues);
-    const isRepeatingAppointment = !!appointmentFormValues.schedule;
 
-    if (isRepeatingAppointment) {
+    if (appointmentFormValues.schedule) {
       setIsModifyModalOpen(true);
     } else {
       setDrawerOpen(true);
