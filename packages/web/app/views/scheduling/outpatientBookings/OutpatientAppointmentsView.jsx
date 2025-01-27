@@ -138,6 +138,12 @@ export const OutpatientAppointmentsView = () => {
     }
   };
 
+  const handleConfirmModifyModel = modifyMode => {
+    console.log('modifyMode', modifyMode);
+    setIsModifyModalOpen(false);
+    setDrawerOpen(true);
+  };
+
   if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
@@ -153,7 +159,7 @@ export const OutpatientAppointmentsView = () => {
         <ModifyRepeatingAppointmentModal
           open={isModifyModalOpen}
           onClose={() => setIsModifyModalOpen(false)}
-          onConfirm={() => setDrawerOpen(true)}
+          onConfirm={handleConfirmModifyModel}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
