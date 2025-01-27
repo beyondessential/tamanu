@@ -7,8 +7,8 @@ import RadioGroup from '@mui/material/RadioGroup';
 
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
-import { TranslatedText } from '../../Translation';
-import { Colors } from '../../../constants';
+import { TranslatedText } from '../Translation';
+import { Colors } from '../../constants';
 
 const Wrapper = styled.div`
   background-color: ${Colors.white};
