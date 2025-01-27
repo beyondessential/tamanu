@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -180,8 +180,7 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(false);
   };
 
-  const handleConfirmModifyModel = modifyMode => {
-    console.log('modifyMode', modifyMode);
+  const handleConfirmModifyModel = () => {
     setIsModifyModalOpen(false);
     setDrawerOpen(true);
   };
