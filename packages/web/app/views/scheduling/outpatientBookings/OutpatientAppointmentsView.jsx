@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -180,11 +180,6 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(false);
   };
 
-  const handleConfirmModifyModel = () => {
-    setIsModifyModalOpen(false);
-    setDrawerOpen(true);
-  };
-
   if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
@@ -233,7 +228,7 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={selectedAppointment}
+              initialValues={initialDrawerValues}
               modifyMode={modifyMode}
               key={selectedAppointment.id}
               onClose={() => setDrawerOpen(false)}
