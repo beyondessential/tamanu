@@ -180,6 +180,12 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(false);
   };
 
+  const handleConfirmModifyModel = modifyMode => {
+    console.log('modifyMode', modifyMode);
+    setIsModifyModalOpen(false);
+    setDrawerOpen(true);
+  };
+
   if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
