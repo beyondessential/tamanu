@@ -10,7 +10,6 @@ import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 
-
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
     color: ${Colors.primary};
@@ -24,8 +23,7 @@ const StyledRadio = styled(Radio)`
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   &.${formControlLabelClasses.root} {
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: -0.5rem;
     & .${typographyClasses.root} {
       font-size: 14px;
       margin-left: 0.5rem;
