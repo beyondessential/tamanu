@@ -241,7 +241,8 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
                             fallback="New appointment"
                           />
                         ),
-                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                        action: () =>
+                          onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule'])),
                       },
                       {
                         label: (
