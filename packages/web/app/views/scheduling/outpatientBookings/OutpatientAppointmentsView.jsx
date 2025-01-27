@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -86,6 +86,14 @@ export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(defaultGroupBy);
 
+  const initialDrawerValues = useMemo(
+    () => ({
+      ...selectedAppointment,
+      isRepeatingAppointment: !!selectedAppointment.schedule,
+    }),
+    [selectedAppointment],
+  );
+
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
     if (patientId) {
@@ -108,6 +116,7 @@ export const OutpatientAppointmentsView = () => {
 
   const handleCloseDrawer = () => setDrawerOpen(false);
 
+  // TODO cud be better
   const handleOpenDrawer = appointment => {
     const appointmentFormValues = pick(appointment, [
       'id',
@@ -129,11 +138,6 @@ export const OutpatientAppointmentsView = () => {
     }
   };
 
-  const handleConfirmModifyMode = modifyMode => {
-    setSelectedAppointment({ ...selectedAppointment, modifyMode });
-    setDrawerOpen(true);
-  };
-
   if (!canViewAppointments) {
     return <NoPermissionScreen />;
   }
@@ -149,7 +153,7 @@ export const OutpatientAppointmentsView = () => {
         <ModifyRepeatingAppointmentModal
           open={isModifyModalOpen}
           onClose={() => setIsModifyModalOpen(false)}
-          onConfirm={handleConfirmModifyMode}
+          onConfirm={() => setDrawerOpen(true)}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
@@ -174,10 +178,7 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={{
-                ...selectedAppointment,
-                isRepeatingAppointment: !!selectedAppointment.schedule,
-              }}
+              initialValues={initialDrawerValues}
               key={selectedAppointment.id}
               onClose={handleCloseDrawer}
               open={drawerOpen}
