@@ -90,7 +90,7 @@ export const OutpatientAppointmentsView = () => {
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
     if (patientId) {
-      setInitialValues({ patientId });
+      setSelectedAppointment({ patientId });
       setDrawerOpen(true);
     }
     if (date) {
@@ -103,7 +103,7 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleOpenCancelModal = appointment => {
-    setInitialValues(appointment);
+    setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
@@ -186,7 +186,7 @@ export const OutpatientAppointmentsView = () => {
         />
 
         <CancelAppointmentModal
-          appointment={initialValues}
+          appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
         />
