@@ -120,11 +120,8 @@ export const OutpatientAppointmentsView = () => {
       'isHighPriority',
       'schedule',
     ]);
+    setSelectedAppointment(appointmentFormValues);
     const isRepeatingAppointment = !!appointmentFormValues.schedule;
-    setSelectedAppointment({
-      ...appointmentFormValues,
-      isRepeatingAppointment,
-    });
 
     if (isRepeatingAppointment) {
       setIsModifyModalOpen(true);
@@ -178,7 +175,10 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={selectedAppointment}
+              initialValues={{
+                ...selectedAppointment,
+                isRepeatingAppointment: !!selectedAppointment.schedule,
+              }}
               key={selectedAppointment.id}
               onClose={handleCloseDrawer}
               open={drawerOpen}
