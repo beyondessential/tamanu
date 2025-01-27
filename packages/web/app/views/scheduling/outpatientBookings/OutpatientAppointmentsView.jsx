@@ -122,10 +122,13 @@ export const OutpatientAppointmentsView = () => {
     setSelectedAppointment(appointmentFormValues);
 
     if (appointmentFormValues.schedule) {
+      // Prompt for the modification mode  before opening drawer
+      // if part of a repeating appointment
       setIsModifyModalOpen(true);
-    } else {
-      setDrawerOpen(true);
+      return;
     }
+
+    setDrawerOpen(true);
   };
 
   const handleConfirmModifyModel = () => {
