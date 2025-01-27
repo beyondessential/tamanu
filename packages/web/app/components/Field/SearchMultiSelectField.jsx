@@ -8,7 +8,6 @@ import styled from '@mui/system/styled';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
 import Search from '@mui/icons-material/Search';
-import { css } from 'styled-components';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
@@ -102,7 +101,6 @@ export const SearchMultiSelectInput = ({
   name,
   label,
   options = [],
-  highlightOnSelect = false,
   ...props
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -129,7 +127,7 @@ export const SearchMultiSelectInput = ({
   return (
     <>
       <StyledInputButton
-        $highlight={highlightOnSelect && value.length > 0}
+        $highlight={value.length > 0}
         $open={Boolean(anchorEl)}
         variant="outlined"
         onClick={handleOpen}
