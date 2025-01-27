@@ -57,18 +57,25 @@ const StyledInputButton = styled(Button)`
   text-transform: none;
   border: 1px solid ${Colors.outline};
   :hover {
-    border: 1px solid ${props => props.theme.palette.grey['400']};
-    background-color: ${Colors.white};
+    background-color: ${Colors.veryLightBlue};
+    border-color: ${Colors.outline};
   }
-  :focus {
-    border: 1px solid ${props => props.theme.palette.primary.main};
-  }
-  ${({ $highlight }) =>
-    $highlight &&
-    css`
-      background-color: #cfe3f6;
-      border-color: ${Colors.outline};
-      color: ${Colors.darkestText};
+
+  ${({ $highlight }) => {
+    return (
+      $highlight &&
+      `
+        background-color: #cfe3f6;
+        border-color: ${Colors.outline};
+        color: ${Colors.darkestText};
+      `
+    );
+  }}
+
+  ${({ $open }) =>
+    $open &&
+    `
+      border-color: ${Colors.primary};
     `}
 `;
 
@@ -123,6 +130,7 @@ export const SearchMultiSelectInput = ({
     <>
       <StyledInputButton
         $highlight={highlightOnSelect && value.length > 0}
+        $open={Boolean(anchorEl)}
         variant="outlined"
         onClick={handleOpen}
         {...props}
