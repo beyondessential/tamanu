@@ -49,13 +49,14 @@ const FormListener = () => {
   useEffect(() => setFilters(values), [values, setFilters]);
 };
 
-export const OutpatientAppointmentsFilter = props => {
-  const { filters, setFilters, groupBy } = useOutpatientAppointmentsContext();
+const FormFields = () => {
   const { getTranslation } = useTranslation();
+  const { filters, setFilters, groupBy } = useOutpatientAppointmentsContext();
   const { facilityId } = useAuth();
+  const { setValues, setFieldValue } = useFormikContext();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-  const updateUserPreferences = debounce(
+  const updateFilterUserPreferences = debounce(
     values =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_FILTERS,
@@ -64,64 +65,74 @@ export const OutpatientAppointmentsFilter = props => {
     200,
   );
 
-  const renderForm = ({ setValues }) => {
-    return (
-      <Fieldset>
-        <Field
-          component={SearchField}
-          name="patientNameOrId"
-          placeholder={getTranslation(
-            'scheduling.filter.placeholder.patientNameOrId',
-            'Search patient name or ID',
-          )}
-        />
-        {/* TODO: Reset the hidden filter when toggling */}
-        {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
-          <Field
-            component={FilterField}
-            endpoint="facilityLocationGroup"
-            label={getTranslation('general.area.label', 'Area')}
-            name="locationGroupId"
-            onChange={e => updateUserPreferences({ ...filters, locationGroupId: e.target.value })}
-          />
+  // TODO: this is not working properly when defaulting to clinician
+  useEffect(() => {
+    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) setFieldValue('clinicianId', undefined);
+    if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) setFieldValue('locationGroupId', undefined);
+  }, [groupBy, setFieldValue]);
+
+  return (
+    <Fieldset>
+      <Field
+        component={SearchField}
+        name="patientNameOrId"
+        placeholder={getTranslation(
+          'scheduling.filter.placeholder.patientNameOrId',
+          'Search patient name or ID',
         )}
-        {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
-          <Field
-            component={FilterField}
-            endpoint="practitioner"
-            label={getTranslation('general.area.clinician', 'Clinician')}
-            name="clinicianId"
-            onChange={e => updateUserPreferences({ ...filters, clinician: e.target.value })}
-          />
-        )}
+      />
+      {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
         <Field
           component={FilterField}
-          endpoint="appointmentType"
-          label={getTranslation('general.type.label', 'Type')}
-          name="appointmentTypeId"
-          onChange={e => updateUserPreferences({ ...filters, appointmentTypeId: e.target.value })}
+          endpoint="facilityLocationGroup"
+          label={getTranslation('general.area.label', 'Area')}
+          name="locationGroupId"
+          onChange={e =>
+            updateFilterUserPreferences({ ...filters, locationGroupId: e.target.value })
+          }
         />
-        <ResetButton
-          onClick={() => {
-            setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
-            setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
-            updateUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
-          }}
-          type="reset"
-        >
-          <TranslatedText stringId="general.action.clear" fallback="Clear" />
-        </ResetButton>
-        <FormListener />
-      </Fieldset>
-    );
-  };
+      )}
+      {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
+        <Field
+          component={FilterField}
+          endpoint="practitioner"
+          label={getTranslation('general.area.clinician', 'Clinician')}
+          name="clinicianId"
+          onChange={e => updateFilterUserPreferences({ ...filters, clinician: e.target.value })}
+        />
+      )}
+      <Field
+        component={FilterField}
+        endpoint="appointmentType"
+        label={getTranslation('general.type.label', 'Type')}
+        name="appointmentTypeId"
+        onChange={e =>
+          updateFilterUserPreferences({ ...filters, appointmentTypeId: e.target.value })
+        }
+      />
+      <ResetButton
+        onClick={() => {
+          setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+          setFilters(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+          updateFilterUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
+        }}
+        type="reset"
+      >
+        <TranslatedText stringId="general.action.clear" fallback="Clear" />
+      </ResetButton>
+      <FormListener />
+    </Fieldset>
+  );
+};
 
+export const OutpatientAppointmentsFilter = props => {
+  const { filters } = useOutpatientAppointmentsContext();
   return (
     <Form
       enableReinitialize
       initialValues={filters}
       onSubmit={async () => {}}
-      render={renderForm}
+      render={() => <FormFields />}
       {...props}
     />
   );
