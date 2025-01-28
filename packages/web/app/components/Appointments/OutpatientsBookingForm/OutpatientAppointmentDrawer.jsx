@@ -205,7 +205,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
   const showModifySchedule =
-    !isEdit || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT;
+    !isEdit || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
