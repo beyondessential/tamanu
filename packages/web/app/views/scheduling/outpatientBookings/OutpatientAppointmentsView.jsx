@@ -23,6 +23,7 @@ import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { useAuth } from '../../../contexts/Auth';
 import { CreateFromExistingConfirmModal } from './CreateFromExistingConfirmModal';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
+import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
