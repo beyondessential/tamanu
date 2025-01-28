@@ -258,14 +258,14 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         frequency: yup.string().required(requiredMessage),
         occurrenceCount: yup
           .number()
-          .test('required-when-untilDate-null', '', function(value) {
+          .test('required-when-untilDate-undefined', '', function(value) {
             return !!this.parent.untilDate || !!value;
           })
           .min(2, getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }))
           .nullable(),
         untilDate: yup
           .string()
-          .test('required-when-occurrenceCount-null', requiredMessage, function(value) {
+          .test('required-when-occurrenceCount-isNotNumber', requiredMessage, function(value) {
             return isNumber(this.parent.occurrenceCount) || !!value;
           })
           .nullable(),
