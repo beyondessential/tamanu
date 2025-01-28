@@ -151,7 +151,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   const { ability } = useAuth();
   const {
     data: { headData = [], cellData },
-    isLoading,
     error,
   } = useOutpatientAppointmentsCalendarData({
     groupBy,
@@ -178,10 +177,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
         ),
     },
   );
-
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
 
   if (error) {
     return (
