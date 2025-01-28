@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { omit, set } from 'lodash';
+import { isNumber, omit, set } from 'lodash';
 import { format, isAfter, parseISO, add } from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
@@ -255,16 +255,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       then: yup.object().shape({
         interval: yup.number().required(requiredMessage),
         frequency: yup.string().required(requiredMessage),
-        occurrenceCount: yup.mixed().when('endsMode', {
-          is: ENDS_MODES.AFTER,
-          then: yup.number().required(requiredMessage),
-          otherwise: yup.number().nullable(),
-        }),
-        untilDate: yup.string().when('endsMode', {
-          is: ENDS_MODES.ON,
-          then: yup.string().required(requiredMessage),
-          otherwise: yup.string().nullable(),
-        }),
+        occurrenceCount: yup
+          .number()
+          .test('required-when-untilDate-null', '', function(value) {
+            return !!this.parent.untilDate || !!value;
+          })
+          .min(2, getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }))
+          .nullable(),
+        untilDate: yup
+          .string()
+          .test('required-when-occurrenceCount-null', requiredMessage, function(value) {
+            return isNumber(this.parent.occurrenceCount) || !!value;
+          })
+          .nullable(),
         daysOfWeek: yup
           .array()
           .of(yup.string().oneOf(DAYS_OF_WEEK))
