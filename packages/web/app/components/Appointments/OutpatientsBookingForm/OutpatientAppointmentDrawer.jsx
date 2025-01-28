@@ -6,7 +6,11 @@ import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
+  REPEAT_FREQUENCY,
+} from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -450,14 +454,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={SwitchField}
           />
-          {values.isRepeatingAppointment && !isEdit && (
-            <RepeatingAppointmentFields
-              values={values}
-              setFieldValue={setFieldValue}
-              setFieldError={setFieldError}
-              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
-            />
-          )}
+          {values.isRepeatingAppointment &&
+            (!isEdit ||
+              initialValues.modifyMode ===
+                MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) && (
+              <RepeatingAppointmentFields
+                values={values}
+                setFieldValue={setFieldValue}
+                setFieldError={setFieldError}
+                handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+              />
+            )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>

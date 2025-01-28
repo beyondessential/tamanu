@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
 import { pick } from 'lodash';
 import queryString from 'query-string';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -21,6 +21,7 @@ import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { useAuth } from '../../../contexts/Auth';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
+import { ENDS_MODES } from '../../../components/Appointments/OutpatientsBookingForm/RepeatingAppointmentFields';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -86,6 +87,22 @@ export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(defaultGroupBy);
   const [modifyMode, setModifyMode] = useState('');
+
+  const initialFormValues = useMemo(() => {
+    const { schedule, ...initialValues } = selectedAppointment;
+    if (!schedule) return initialValues;
+    // If the appointment is part of a repeating appointment, we want to
+    // show the repeating appointment details in the form
+    return {
+      ...initialValues,
+      modifyMode,
+      isRepeatingAppointment: true,
+      schedule: {
+        ...schedule,
+        endsMode: selectedAppointment.schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER,
+      },
+    };
+  }, [selectedAppointment, modifyMode]);
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
@@ -178,8 +195,7 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={selectedAppointment}
-              modifyMode={modifyMode}
+              initialValues={initialFormValues}
               key={selectedAppointment.id}
               onClose={() => setDrawerOpen(false)}
               open={drawerOpen}

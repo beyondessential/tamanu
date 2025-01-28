@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-
-import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 import { ConfirmModal } from '../../ConfirmModal';
 import { TranslatedText } from '../../Translation';
