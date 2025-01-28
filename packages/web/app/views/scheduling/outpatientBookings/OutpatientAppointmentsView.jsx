@@ -21,6 +21,7 @@ import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { useAuth } from '../../../contexts/Auth';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
+import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -108,6 +109,7 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleOpenDrawer = appointment => {
+    setModifyMode(null);
     const appointmentFormValues = pick(appointment, [
       'id',
       'locationGroupId',
@@ -124,6 +126,7 @@ export const OutpatientAppointmentsView = () => {
     if (appointmentFormValues.schedule) {
       // Prompt for the modification mode  before opening drawer
       // if part of a repeating appointment
+      setModifyMode(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
       setIsModifyModalOpen(true);
       return;
     }
