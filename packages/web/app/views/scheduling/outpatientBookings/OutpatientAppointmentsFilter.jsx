@@ -14,6 +14,7 @@ import {
 } from '../../../contexts/OutpatientAppointments';
 import { useTranslation } from '../../../contexts/Translation';
 import { useAuth } from '../../../contexts/Auth';
+import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 const Fieldset = styled.fieldset`
   // Reset
@@ -48,7 +49,7 @@ const FormListener = () => {
   useEffect(() => setFilters(values), [values, setFilters]);
 };
 
-export const OutpatientAppointmentsFilter = props => {
+export const OutpatientAppointmentsFilter = ({ groupBy, ...props }) => {
   const { filters, setFilters } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
@@ -74,13 +75,24 @@ export const OutpatientAppointmentsFilter = props => {
             'Search patient name or ID',
           )}
         />
-        <Field
-          component={FilterField}
-          endpoint="facilityLocationGroup"
-          label={getTranslation('general.area.label', 'Area')}
-          name="locationGroupId"
-          onChange={e => updateUserPreferences({ ...filters, locationGroupId: e.target.value })}
-        />
+        {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
+          <Field
+            component={FilterField}
+            endpoint="facilityLocationGroup"
+            label={getTranslation('general.area.label', 'Area')}
+            name="locationGroupId"
+            onChange={e => updateUserPreferences({ ...filters, locationGroupId: e.target.value })}
+          />
+        )}
+        {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
+          <Field
+            component={FilterField}
+            endpoint="practitioner"
+            label={getTranslation('general.area.clinician', 'Clinician')}
+            name="clinicianId"
+            onChange={e => updateUserPreferences({ ...filters, clinician: e.target.value })}
+          />
+        )}
         <Field
           component={FilterField}
           endpoint="appointmentType"

@@ -140,7 +140,7 @@ export const OutpatientAppointmentsView = () => {
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />
-          <OutpatientAppointmentsFilter />
+          <OutpatientAppointmentsFilter groupBy={groupBy} />
           {canCreateAppointment && (
             <Button onClick={() => handleOpenDrawer({})}>
               <AddIcon aria-hidden /> Book appointment
