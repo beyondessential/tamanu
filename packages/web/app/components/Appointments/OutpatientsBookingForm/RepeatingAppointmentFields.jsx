@@ -222,7 +222,7 @@ export const RepeatingAppointmentFields = ({
         <StyledRadioGroup
           aria-labelledby="ends-radio"
           onChange={handleChangeEndsMode}
-          value={values.schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER}
+          value={endsMode}
         >
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
