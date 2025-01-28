@@ -195,7 +195,7 @@ const EmailFields = ({ patientId }) => {
   );
 };
 
-export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
+export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -446,6 +446,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             name="isRepeatingAppointment"
             onChange={handleChangeIsRepeatingAppointment}
             disabled={!values.startTime || isEdit}
+            value={!!values.schedule}
             label={
               <TranslatedText
                 stringId="appointment.isRepeatingAppointment.label"
@@ -454,10 +455,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             }
             component={SwitchField}
           />
-          {values.isRepeatingAppointment &&
+          {values.schedule &&
             (!isEdit ||
-              initialValues.modifyMode ===
-                MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) && (
+              modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) && (
               <RepeatingAppointmentFields
                 values={values}
                 setFieldValue={setFieldValue}

@@ -88,22 +88,6 @@ export const OutpatientAppointmentsView = () => {
   const [groupBy, setGroupBy] = useState(defaultGroupBy);
   const [modifyMode, setModifyMode] = useState('');
 
-  const initialFormValues = useMemo(() => {
-    const { schedule, ...initialValues } = selectedAppointment;
-    if (!schedule) return initialValues;
-    // If the appointment is part of a repeating appointment, we want to
-    // show the repeating appointment details in the form
-    return {
-      ...initialValues,
-      modifyMode,
-      isRepeatingAppointment: true,
-      schedule: {
-        ...schedule,
-        endsMode: selectedAppointment.schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER,
-      },
-    };
-  }, [selectedAppointment, modifyMode]);
-
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
     if (patientId) {
@@ -195,7 +179,8 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={initialFormValues}
+              initialValues={selectedAppointment}
+              modifyMode={modifyMode}
               key={selectedAppointment.id}
               onClose={() => setDrawerOpen(false)}
               open={drawerOpen}
