@@ -109,7 +109,6 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleOpenDrawer = appointment => {
-    setModifyMode(null);
     const appointmentFormValues = pick(appointment, [
       'id',
       'locationGroupId',
@@ -122,15 +121,14 @@ export const OutpatientAppointmentsView = () => {
       'schedule',
     ]);
     setSelectedAppointment(appointmentFormValues);
-
     if (appointmentFormValues.schedule) {
-      // Prompt for the modification mode  before opening drawer
+      // Prompt for the modification mode before opening drawer
       // if part of a repeating appointment
       setModifyMode(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
       setIsModifyModalOpen(true);
       return;
     }
-
+    setModifyMode(null);
     setDrawerOpen(true);
   };
 
