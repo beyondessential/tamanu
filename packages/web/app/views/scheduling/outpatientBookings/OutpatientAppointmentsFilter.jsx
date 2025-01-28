@@ -49,8 +49,8 @@ const FormListener = () => {
   useEffect(() => setFilters(values), [values, setFilters]);
 };
 
-export const OutpatientAppointmentsFilter = ({ groupBy, ...props }) => {
-  const { filters, setFilters } = useOutpatientAppointmentsContext();
+export const OutpatientAppointmentsFilter = props => {
+  const { filters, setFilters, groupBy } = useOutpatientAppointmentsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 

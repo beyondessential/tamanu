@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 import { TranslatedText } from '../../../components';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 const Wrapper = styled(Box)`
   cursor: pointer;
@@ -51,24 +52,25 @@ const AnimatedBackground = styled('div')`
 `;
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
-export const GroupByAppointmentToggle = ({ value, onChange, ...props }) => {
+export const GroupByAppointmentToggle = props => {
+  const { groupBy, setGroupBy } = useOutpatientAppointmentsContext();
   const history = useHistory();
   const handleChange = () => {
     const newValue =
-      value === APPOINTMENT_GROUP_BY.LOCATION_GROUP
+      groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP
         ? APPOINTMENT_GROUP_BY.CLINICIAN
         : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
-    onChange(newValue);
+    setGroupBy(newValue);
     history.push(`?groupBy=${newValue}`);
   };
 
   return (
     <Wrapper onClick={handleChange} role="radiogroup" {...props}>
-      <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
+      <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
+      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
         <TranslatedText stringId="outpatientAppointments.groupByToggle.area" fallback="Area" />
       </ToggleButton>
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.CLINICIAN}>
+      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}>
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.clinicians"
           fallback="Clinicians"

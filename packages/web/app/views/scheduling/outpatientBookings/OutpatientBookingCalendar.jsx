@@ -21,6 +21,7 @@ import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -147,8 +148,9 @@ export const HeadCell = ({ title, count }) => (
   </>
 );
 
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel }) => {
   const { ability } = useAuth();
+  const { groupBy } = useOutpatientAppointmentsContext();
   const {
     data: { headData = [], cellData },
     isLoading,
