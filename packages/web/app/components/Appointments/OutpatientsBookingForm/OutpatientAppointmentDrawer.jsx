@@ -204,6 +204,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
+  const showModifySchedule =
+    !isEdit || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -455,16 +457,14 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             }
             component={SwitchField}
           />
-          {values.schedule &&
-            (!isEdit ||
-              modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) && (
-              <RepeatingAppointmentFields
-                values={values}
-                setFieldValue={setFieldValue}
-                setFieldError={setFieldError}
-                handleResetRepeatUntilDate={handleResetRepeatUntilDate}
-              />
-            )}
+          {values.schedule && showModifySchedule && (
+            <RepeatingAppointmentFields
+              values={values}
+              setFieldValue={setFieldValue}
+              setFieldError={setFieldError}
+              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+            />
+          )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
       </Drawer>
