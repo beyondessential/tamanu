@@ -75,6 +75,7 @@ export const OutpatientAppointmentsFilter = ({ groupBy, ...props }) => {
             'Search patient name or ID',
           )}
         />
+        {/* TODO: Reset the hidden filter when toggling */}
         {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
           <Field
             component={FilterField}
