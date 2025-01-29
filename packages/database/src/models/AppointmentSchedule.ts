@@ -168,7 +168,7 @@ export class AppointmentSchedule extends Model {
     const schedule = AppointmentSchedule.build(scheduleData);
     const toComparable = (schedule: AppointmentSchedule) =>
       omit(schedule.get({ plain: true }), ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
-    return isMatch(toComparable(this), toComparable(schedule));
+    return !isMatch(toComparable(this), toComparable(schedule));
   }
 
   /**
