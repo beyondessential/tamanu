@@ -88,12 +88,12 @@ appointments.post(
     await db.transaction(async () => {
       const result = scheduleData
         ? (
-            await Appointment.createWithSchedule({
-              settings: settings[facilityId],
-              appointmentData,
-              scheduleData,
-            })
-          ).firstAppointment
+          await Appointment.createWithSchedule({
+            settings: settings[facilityId],
+            appointmentData,
+            scheduleData,
+          })
+        ).firstAppointment
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;
@@ -151,7 +151,11 @@ appointments.put(
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
-        if (scheduleData) {
+        if (
+          existingSchedule.isDifferentFromSchedule(scheduleData) ||
+          appointmentData.startTime !== appointment.startTime ||
+          appointmentData.endTime !== appointment.endTime
+        ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
           await existingSchedule.endAtAppointment(appointment);
