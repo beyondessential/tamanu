@@ -257,26 +257,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         {
           interval: yup.number().required(requiredMessage),
           frequency: yup.string().required(requiredMessage),
-          occurrenceCount: yup
-            .number()
-            .when('untilDate', {
-              is: val => !val,
-              then: yup
-                .number()
-                .required(requiredMessage)
-                .min(
-                  2,
-                  getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }),
-                ),
-            })
-            .nullable(),
-          untilDate: yup
-            .date()
-            .when('occurrenceCount', {
-              is: val => !isNumber(val),
-              then: yup.date().required(requiredMessage),
-            })
-            .nullable(),
+          occurrenceCount: yup.mixed().when('untilDate', {
+            is: val => !val,
+            then: yup
+              .number()
+              .required(requiredMessage)
+              .min(2, getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 })),
+            otherwise: yup.number().nullable(),
+          }),
+          untilDate: yup.mixed().when('occurrenceCount', {
+            is: val => !isNumber(val),
+            then: yup.string().required(requiredMessage),
+            otherwise: yup.string().nullable(),
+          }),
           daysOfWeek: yup
             .array()
             .of(yup.string().oneOf(DAYS_OF_WEEK))
