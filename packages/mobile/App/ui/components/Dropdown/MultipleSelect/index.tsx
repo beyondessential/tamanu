@@ -438,23 +438,28 @@ export class MultiSelect extends Component {
     }
   };
 
-  _filterItemsPartial = searchTerm => {
+  _filterItemsPartial = (searchTerm) => {
     const { items, displayKey } = this.props;
     const filteredItems = [];
-    items.forEach(item => {
-      const parts = searchTerm.trim().split(/[ \-:]+/);
-      const regex = new RegExp(`(${parts.join('|')})`, 'ig');
-      if (regex.test(get(item, displayKey))) {
+    const parts = searchTerm.trim().split(/[ \-:]+/);
+
+    items.forEach((item) => {
+      const displayValue = get(item, displayKey);
+      const isMatch = parts.every((part) =>
+        displayValue.toLowerCase().includes(part.toLowerCase())
+      );
+      if (isMatch) {
         filteredItems.push(item);
       }
     });
+
     return filteredItems;
   };
 
-  _filterItemsFull = searchTerm => {
+  _filterItemsFull = (searchTerm) => {
     const { items, displayKey } = this.props;
     const filteredItems = [];
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item[displayKey].toLowerCase().indexOf(searchTerm.trim().toLowerCase()) >= 0) {
         filteredItems.push(item);
       }
