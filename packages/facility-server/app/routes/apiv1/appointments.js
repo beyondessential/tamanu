@@ -156,7 +156,7 @@ appointments.put(
         if (
           existingSchedule.isDifferentFromSchedule(scheduleData) ||
           appointmentData.startTime !== appointment.startTime ||
-          appointmentData.endTime !== appointment.endTime
+          (appointmentData.endTime ?? null) !== appointment.endTime
         ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
