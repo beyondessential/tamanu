@@ -105,18 +105,6 @@ const ErrorText = styled(StatusText)`
   color: ${Colors.alert};
 `;
 
-const LoadingSkeleton = styled(Skeleton).attrs({
-  animation: 'wave',
-  variant: 'rectangular',
-  width: '100%',
-  height: '100%',
-  sx: { bgcolor: Colors.white },
-})`
-  ::after {
-    animation-duration: 1s !important;
-  }
-`;
-
 export const HeadCell = ({ title, count }) => (
   <>
     <HeadCellWrapper>
