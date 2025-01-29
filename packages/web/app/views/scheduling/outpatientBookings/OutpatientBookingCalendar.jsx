@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import { omit } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -20,6 +21,7 @@ import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -104,6 +106,18 @@ const ErrorText = styled(StatusText)`
   color: ${Colors.alert};
 `;
 
+const LoadingSkeleton = styled(Skeleton).attrs({
+  animation: 'wave',
+  variant: 'rectangular',
+  width: '100%',
+  height: '100%',
+  sx: { bgcolor: Colors.white },
+})`
+  ::after {
+    animation-duration: 1s !important;
+  }
+`;
+
 export const HeadCell = ({ title, count }) => (
   <>
     <HeadCellWrapper>
@@ -138,6 +152,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
   const { ability } = useAuth();
   const {
     data: { headData = [], cellData },
+    isLoading,
     error,
   } = useOutpatientAppointmentsCalendarData({
     groupBy,
@@ -164,6 +179,10 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
         ),
     },
   );
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   if (error) {
     return (
