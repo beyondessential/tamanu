@@ -15,6 +15,20 @@ import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
 
+import { getConnection } from 'typeorm';
+import RNFS from 'react-native-fs';
+
+async function saveFile(content, fileName) {
+  const path = `${RNFS.ExternalDirectoryPath}/${fileName}`;
+  console.log('try nibba', path);
+  RNFS.writeFile(path, content, 'utf8').then((success) => {
+    console.log('FILE WRITTEN!');
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+}
+
 export const ProgramViewHistoryScreen = ({
   route,
   navigation,
@@ -52,6 +66,25 @@ export const ProgramViewHistoryScreen = ({
       );
     },
     [navigation.isFocused, latestResponseId],
+  );
+
+  const [test] = useBackendEffect(
+    async ({ models }) => {
+      console.log('here!');
+      const connection = getConnection();
+      const modelSummary = {};
+      Object.entries(models).forEach(([modelName, model]) => {
+        const metadata = connection.getMetadata(model);
+        const fields = [];
+        metadata.columns.forEach(col => {
+          fields.push({ [col.propertyName]: col.type });
+        });
+        modelSummary[modelName] = fields;
+      });
+      await saveFile(JSON.stringify(modelSummary), 'models.txt');
+      return null;
+    },
+    [],
   );
 
   if (error) {
