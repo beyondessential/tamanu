@@ -88,12 +88,12 @@ appointments.post(
     const result = await db.transaction(async () => {
       const appointment = scheduleData
         ? (
-            await Appointment.createWithSchedule({
-              settings: settings[facilityId],
-              appointmentData,
-              scheduleData,
-            })
-          ).firstAppointment
+          await Appointment.createWithSchedule({
+            settings: settings[facilityId],
+            appointmentData,
+            scheduleData,
+          })
+        ).firstAppointment
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;
