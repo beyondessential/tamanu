@@ -219,7 +219,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
             mutateAppointment({
               ...appointment,
               status: APPOINTMENT_STATUSES.CANCELLED,
-              modifyRepeatingMode: deletionType,
+              modifyMode: deletionType,
             });
           }}
           onClose={handleCloseModal}

@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isMatch, isNumber, omit } from 'lodash';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -162,6 +162,13 @@ export class AppointmentSchedule extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  isDifferentFromSchedule(scheduleData: AppointmentScheduleCreateData) {
+    const schedule = AppointmentSchedule.build(scheduleData);
+    const toComparable = (schedule: AppointmentSchedule) =>
+      omit(schedule.get({ plain: true }), ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
+    return isMatch(toComparable(this), toComparable(schedule));
   }
 
   /**

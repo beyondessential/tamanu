@@ -481,7 +481,7 @@ describe('Appointments', () => {
         startTime: '2024-10-16 12:00:00',
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -505,7 +505,7 @@ describe('Appointments', () => {
         startTime: '2024-10-02 12:00:00',
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -534,7 +534,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: thirdAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -608,7 +608,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: firstAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -691,7 +691,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -721,7 +721,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],

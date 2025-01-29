@@ -136,7 +136,7 @@ appointments.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Appointment');
     const { models, body, params, settings } = req;
-    const { schedule: scheduleData, facilityId, modifyRepeatingMode, ...appointmentData } = body;
+    const { schedule: scheduleData, facilityId, modifyMode, ...appointmentData } = body;
 
     const { id } = params;
     const { Appointment } = models;
@@ -146,7 +146,7 @@ appointments.put(
     }
 
     const result = await req.db.transaction(async () => {
-      if (modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+      if (modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');

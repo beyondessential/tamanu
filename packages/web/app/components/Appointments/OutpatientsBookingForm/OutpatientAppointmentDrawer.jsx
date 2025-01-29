@@ -494,7 +494,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    await handleSubmit(values);
+    await handleSubmit({ ...values, modifyMode });
     resetForm();
   };
 
