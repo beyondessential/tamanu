@@ -1,9 +1,10 @@
 import React from 'react';
-import { Field, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
+import { Field } from '../../Field';
 import { TranslatedText } from '../../Translation';
 import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
