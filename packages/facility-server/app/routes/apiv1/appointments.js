@@ -154,7 +154,7 @@ appointments.put(
         if (
           existingSchedule.isDifferentFromSchedule(scheduleData) ||
           appointmentData.startTime !== appointment.startTime ||
-          appointmentData.endTime !== appointment.endTime
+          (appointmentData.endTime ?? null) !== appointment.endTime
         ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
@@ -169,7 +169,7 @@ appointments.put(
             return { schedule };
           }
         } else {
-          // No scheduleData provided, so this is a simple change that doesn't require deleting and regenerating future appointments
+          // No scheduleData or appointment time change, so this is a simple change that doesn't require deleting and regenerating future appointments
           await existingSchedule.modifyFromAppointment(
             appointment,
             // When modifying all future appointments we strip startTime, and endTime
