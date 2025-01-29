@@ -397,9 +397,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           <DateTimeFieldWithSameDayWarning
             isEdit={isEdit}
             onChange={e => {
-              const newValue = e.target.value;
-              setFieldValue('startTime', newValue);
-              handleUpdateScheduleToStartTime(parseISO(newValue));
+              handleUpdateScheduleToStartTime(parseISO(e.target.value));
             }}
           />
           <Field
@@ -495,6 +493,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         validationSchema={validationSchema}
         initialValues={initialValues}
         enableReinitialize
+        validateOnChange
         render={renderForm}
       />
       <WarningModal
