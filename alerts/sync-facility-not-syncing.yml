@@ -22,6 +22,8 @@ send:
       - Server: {{ hostname }}
       - Alert: {{ filename }}
 
+      **Report this immediately to support.**
+
       From the facilities that synced in the last two days...
       there hasn't been a completed sync session for the following
       facilit{% if rows | length > 1 %}ies{% else %}y{% endif %}
@@ -30,6 +32,3 @@ send:
       {% for row in rows %}
       - **{{ row.facility_id }}**
       {% endfor %}
-      </ul>
-
-      **Report this immediately to support.**
