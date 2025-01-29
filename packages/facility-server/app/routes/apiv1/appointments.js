@@ -153,10 +153,11 @@ appointments.put(
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
+        const newAppointment = Appointment.build(appointmentData);
         if (
           existingSchedule.isDifferentFromSchedule(scheduleData) ||
-          appointmentData.startTime !== appointment.startTime ||
-          (appointmentData.endTime ?? null) !== appointment.endTime
+          newAppointment.startTime !== appointment.startTime ||
+          newAppointment.endTime !== appointment.endTime
         ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
