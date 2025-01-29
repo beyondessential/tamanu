@@ -253,33 +253,43 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     }),
     schedule: yup.object().when('isRepeatingAppointment', {
       is: true,
-      then: yup.object().shape({
-        interval: yup.number().required(requiredMessage),
-        frequency: yup.string().required(requiredMessage),
-        occurrenceCount: yup
-          .number()
-          .test('required-when-untilDate-undefined', '', function(value) {
-            return !!this.parent.untilDate || !!value;
-          })
-          .min(2, getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }))
-          .nullable(),
-        untilDate: yup
-          .string()
-          .test('required-when-occurrenceCount-isNotNumber', requiredMessage, function(value) {
-            return isNumber(this.parent.occurrenceCount) || !!value;
-          })
-          .nullable(),
-        daysOfWeek: yup
-          .array()
-          .of(yup.string().oneOf(DAYS_OF_WEEK))
-          // Note: currently supports a single day of the week
-          .length(1),
-        nthWeekday: yup
-          .number()
-          .nullable()
-          .min(-1)
-          .max(4),
-      }),
+      then: yup.object().shape(
+        {
+          interval: yup.number().required(requiredMessage),
+          frequency: yup.string().required(requiredMessage),
+          occurrenceCount: yup
+            .number()
+            .when('untilDate', {
+              is: val => !val,
+              then: yup
+                .number()
+                .required(requiredMessage)
+                .min(
+                  2,
+                  getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }),
+                ),
+            })
+            .nullable(),
+          untilDate: yup
+            .date()
+            .when('occurrenceCount', {
+              is: val => !isNumber(val),
+              then: yup.date().required(requiredMessage),
+            })
+            .nullable(),
+          daysOfWeek: yup
+            .array()
+            .of(yup.string().oneOf(DAYS_OF_WEEK))
+            // Note: currently supports a single day of the week
+            .length(1),
+          nthWeekday: yup
+            .number()
+            .nullable()
+            .min(-1)
+            .max(4),
+        },
+        ['untilDate', 'occurrenceCount'],
+      ),
     }),
   });
 
