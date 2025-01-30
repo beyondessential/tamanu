@@ -25,7 +25,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { get, isUndefined } from 'lodash';
+import { get } from 'lodash';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
 const preventInputCallback = e => {
@@ -389,7 +389,7 @@ class TableComponent extends React.Component {
           {title || key}
         </TableSortLabel>
       ) : (
-        <span>{isUndefined(displayTitle) ? key : displayTitle}</span>
+        <span>{displayTitle ?? key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
