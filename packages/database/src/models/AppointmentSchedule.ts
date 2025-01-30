@@ -165,10 +165,9 @@ export class AppointmentSchedule extends Model {
   }
 
   isDifferentFromSchedule(scheduleData: AppointmentScheduleCreateData) {
-    const schedule = AppointmentSchedule.build(scheduleData);
-    const toComparable = (schedule: AppointmentSchedule) =>
-      omit(schedule.get({ plain: true }), ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
-    return !isMatch(toComparable(this), toComparable(schedule));
+    const toComparable = (schedule: AppointmentScheduleCreateData) =>
+      omit(schedule, ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
+    return !isMatch(toComparable(this.get({ plain: true })), toComparable(scheduleData));
   }
 
   /**
