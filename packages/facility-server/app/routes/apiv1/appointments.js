@@ -88,12 +88,12 @@ appointments.post(
     const result = await db.transaction(async () => {
       const appointment = scheduleData
         ? (
-          await Appointment.createWithSchedule({
-            settings: settings[facilityId],
-            appointmentData,
-            scheduleData,
-          })
-        ).firstAppointment
+            await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData,
+              scheduleData,
+            })
+          ).firstAppointment
         : await Appointment.create(appointmentData);
 
       const { email } = appointmentData;
@@ -156,7 +156,7 @@ appointments.put(
         if (
           existingSchedule.isDifferentFromSchedule(scheduleData) ||
           appointmentData.startTime !== appointment.startTime ||
-          (appointmentData.endTime ?? null) !== appointment.endTime
+          appointmentData.endTime !== appointment.endTime
         ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
