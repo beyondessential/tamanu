@@ -479,6 +479,7 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
         startTime: '2024-10-16 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
@@ -503,6 +504,7 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
         startTime: '2024-10-02 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
