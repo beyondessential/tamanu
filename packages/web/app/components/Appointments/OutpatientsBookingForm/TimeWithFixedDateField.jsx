@@ -17,7 +17,7 @@ export const TimeWithFixedDateField = ({ field, date, ...props }) => {
             month: getMonth(date),
           }),
         )
-      : undefined;
+      : null;
     field.onChange({ target: { value: newValue, name: field.name } });
   };
   return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;
