@@ -174,9 +174,6 @@ appointments.put(
           );
         }
       } else {
-        if (!appointmentData.endTime) {
-          appointmentData.endTime = null;
-        }
         await appointment.update(appointmentData);
       }
       return { ok: 'ok' };
