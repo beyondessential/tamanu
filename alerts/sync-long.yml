@@ -1,11 +1,11 @@
 sql: |
   select
     id, errors::text,
-    debug_info->>'facilityId' AS facility_id,
+    json_array_elements_text(debug_info->'facilityIds') AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
   from sync_sessions
-  where created_at > $1
+  where (current_timestamp - created_at) < '60 minutes'::interval
   and completed_at IS NULL
   and (pull_until is null or pull_since is null or pull_until - pull_since < 1000)
   and (updated_at - created_at) > '20 minutes'::interval;
