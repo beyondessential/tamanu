@@ -104,7 +104,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, min, max, saveDateAsString, type],
+    [onChange, format, name, saveDateAsString, type],
   );
 
   const onArrowChange = addDaysAmount => {
