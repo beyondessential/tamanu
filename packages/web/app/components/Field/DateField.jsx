@@ -68,6 +68,16 @@ export const DateInput = ({
 
   const onValueChange = useCallback(
     event => {
+      if (event.target.validity.valid === false) {
+        // if the user starts editing the field by typing e.g. a '0' in the month field, until they
+        // type another digit the resulting string is an invalid date
+        // in this case we don't want to save the value to the form, as it would clear the whole
+        // field and interrupt their edit
+        // instead, simply return early, which will mean the last valid date will be kept
+        // (conveniently, this is also what the html date input will display)
+        return;
+      }
+
       const formattedValue = event.target.value;
       if (!formattedValue) {
         onChange({ target: { value: '', name } });
