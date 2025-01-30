@@ -4,6 +4,7 @@ import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
+import { Field } from '../../Field';
 import { TranslatedText } from '../../Translation';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { DateTimeField, Field } from '../../Field';
