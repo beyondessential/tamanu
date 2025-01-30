@@ -25,7 +25,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { get } from 'lodash';
+import { get, isUndefined } from 'lodash';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
 const preventInputCallback = e => {
@@ -192,7 +192,15 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
+const getTableRow = ({
+  children,
+  lazyLoading,
+  rowStyle,
+  onClick,
+  className,
+  onMouseEnter,
+  onMouseLeave,
+}) => (
   <StyledTableRow
     className={className}
     onClick={onClick}
@@ -381,7 +389,7 @@ class TableComponent extends React.Component {
           {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || key}</span>
+        <span>{isUndefined(displayTitle) ? key : displayTitle}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
@@ -490,7 +498,16 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } = this.props;
+    const {
+      page,
+      lazyLoading,
+      exportName,
+      columns,
+      data,
+      allowExport,
+      count,
+      ExportButton,
+    } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
@@ -502,7 +519,12 @@ class TableComponent extends React.Component {
         <StyledTableRow $lazyLoading={lazyLoading}>
           {allowExport ? (
             <TableCell colSpan={page !== null ? 2 : columns.length}>
-              <DownloadDataButton exportName={exportName} columns={columns} data={data} ExportButton={ExportButton} />
+              <DownloadDataButton
+                exportName={exportName}
+                columns={columns}
+                data={data}
+                ExportButton={ExportButton}
+              />
             </TableCell>
           ) : null}
           {page !== null && !lazyLoading && this.renderPaginator()}
