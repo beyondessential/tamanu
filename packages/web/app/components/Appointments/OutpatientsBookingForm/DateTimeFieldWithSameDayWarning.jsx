@@ -6,11 +6,11 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Field } from '../../Field';
 import { TranslatedText } from '../../Translation';
-import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
+import { DateTimeField, Field } from '../../Field';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
@@ -35,9 +35,12 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
       name="startTime"
       label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
       component={DateTimeField}
-      onChange={onChange}
       saveDateAsString
       required
+      onChange={e => {
+        onChange(e);
+        if (!e.target.value) setFieldValue('endTime', undefined);
+      }}
       save
       helperText={
         showSameDayWarning && (

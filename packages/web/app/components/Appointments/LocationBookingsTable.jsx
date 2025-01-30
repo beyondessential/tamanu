@@ -124,9 +124,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 6px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 11px 6px;
     &:first-child {
       position: relative;
       padding-left: 10px;
@@ -154,6 +152,8 @@ const StyledTable = styled(Table)`
       }
       position: relative;
       border-bottom: none;
+      padding-top: 0;
+      padding-bottom: 0;
       &:before {
         content: '';
         position: absolute;
@@ -293,13 +293,12 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const allAppointments = useLocationBookingsQuery(
-    {
+  const allAppointments =
+    useLocationBookingsQuery({
       all: true,
       patientId: patient?.id,
       after: '1970-01-01 00:00',
-    },
-  ).data?.data ?? [];
+    }).data?.data ?? [];
 
   const { data, isLoading } = useLocationBookingsQuery(
     {
