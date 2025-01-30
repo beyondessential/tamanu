@@ -132,7 +132,7 @@ export const OutpatientAppointmentsView = () => {
     setDrawerOpen(true);
   };
 
-  const handleConfirmModifyModel = () => {
+  const handleConfirmModifyMode = () => {
     setIsModifyModalOpen(false);
     setDrawerOpen(true);
   };
@@ -154,7 +154,7 @@ export const OutpatientAppointmentsView = () => {
           modifyMode={modifyMode}
           onChangeModifyMode={setModifyMode}
           onClose={() => setIsModifyModalOpen(false)}
-          onConfirm={handleConfirmModifyModel}
+          onConfirm={handleConfirmModifyMode}
         />
         <AppointmentTopBar>
           <GroupByToggle value={groupBy} onChange={setGroupBy} />

@@ -203,9 +203,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const isEdit = !!initialValues.id;
+  const isCreate = !isEdit;
   const isLockedPatient = !!initialValues.patientId;
-  const showModifySchedule =
-    !isEdit || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
+  const showScheduleFields =
+    isCreate || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -463,7 +464,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             }
             component={SwitchField}
           />
-          {values.schedule && showModifySchedule && (
+          {values.schedule && showScheduleFields && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
