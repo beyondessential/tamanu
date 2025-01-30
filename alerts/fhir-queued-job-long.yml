@@ -1,11 +1,13 @@
 sql: |
   SELECT
     id,
+    topic,
     payload->>'resource' AS resource,
     ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60)::text AS duration_minutes
   FROM fhir.jobs
   WHERE status = 'Queued'
-    AND NOW() - created_at > INTERVAL '15 minutes';
+    AND NOW() - created_at > INTERVAL '15 minutes'
+    AND topic != 'fhir.resolver'
 
 send:
   - target: external
@@ -17,7 +19,7 @@ send:
       <h1>Long queued FHIR jobs detected</h1>
       <ul>
         {% for row in rows | slice(end=5) %}
-        <li><b>{{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
+        <li><b>{{ row.topic }} {{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
         {% endfor %}
         {% if rows | length > 5 %}
         <li>... and {{ rows | length - 5 }} more</li>

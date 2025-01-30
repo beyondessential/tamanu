@@ -243,7 +243,8 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                             fallback="New appointment"
                           />
                         ),
-                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                        action: () =>
+                          onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule'])),
                       },
                       {
                         label: (
