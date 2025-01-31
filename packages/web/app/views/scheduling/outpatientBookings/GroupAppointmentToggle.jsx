@@ -83,6 +83,8 @@ export const GroupByAppointmentToggle = props => {
     updateGroupByUserPreferences(newValue);
   };
 
+  if (!groupBy) return null;
+
   return (
     <Wrapper onClick={handleChange} role="radiogroup" {...props}>
       <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
