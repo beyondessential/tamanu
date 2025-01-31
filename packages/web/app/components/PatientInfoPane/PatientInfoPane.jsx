@@ -214,7 +214,7 @@ export const PatientInfoPane = () => {
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
-    () => api.get(`patient/${patient.id}/death`, { isErrorUnknown: isErrorUnknownAllow404s }),
+    () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
     { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 
