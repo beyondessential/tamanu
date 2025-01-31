@@ -344,15 +344,21 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     const handleUpdateScheduleToStartTime = startTimeDate => {
       if (!values.schedule) return;
       const { frequency } = values.schedule;
-      // Update the ordinal positioning of the new date
-      setFieldValue(
-        'schedule.nthWeekday',
-        frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
-      );
-      // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
 
-      handleResetRepeatUntilDate(startTimeDate);
+      setValues({
+        ...values,
+        schedule: {
+          ...values.schedule,
+          daysOfWeek: [format(startTimeDate, 'iiiiii').toUpperCase()],
+          nthWeekday:
+            frequency === REPEAT_FREQUENCY.MONTHLY
+              ? getWeekdayOrdinalPosition(startTimeDate)
+              : null,
+          startDate: toDateString(
+            add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+          ),
+        },
+      });
     };
 
     return (
@@ -482,9 +488,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           {values.schedule && showScheduleFields && (
             <RepeatingAppointmentFields
               values={values}
+              setValues={setValues}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
-              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
             />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />

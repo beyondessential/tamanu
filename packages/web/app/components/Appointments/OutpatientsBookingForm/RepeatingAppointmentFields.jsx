@@ -22,6 +22,7 @@ import { DateField, Field, NumberField, TranslatedSelectField } from '../../Fiel
 import { TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
 import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 const Container = styled('div')`
   width: 100%;
@@ -116,12 +117,7 @@ export const ENDS_MODES = {
   AFTER: 'after',
 };
 
-export const RepeatingAppointmentFields = ({
-  values,
-  setFieldValue,
-  setFieldError,
-  handleResetRepeatUntilDate,
-}) => {
+export const RepeatingAppointmentFields = ({ values, setValues, setFieldValue }) => {
   const { startTime, schedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
@@ -130,13 +126,23 @@ export const RepeatingAppointmentFields = ({
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
     if (newModeValue === ENDS_MODES.ON) {
-      handleResetRepeatUntilDate(startTimeDate);
-      setFieldValue('schedule.occurrenceCount', null);
-      setFieldError('schedule.occurrenceCount', null);
+      setValues({
+        ...values,
+        schedule: {
+          ...schedule,
+          occurrenceCount: null,
+          untilDate: toDateString(add(startTimeDate, { months: 6 })),
+        },
+      });
     } else if (newModeValue === ENDS_MODES.AFTER) {
-      setFieldValue('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
-      setFieldValue('schedule.untilDate', null);
-      setFieldError('schedule.untilDate', null);
+      setValues({
+        ...values,
+        schedule: {
+          ...schedule,
+          occurrenceCount: DEFAULT_OCCURRENCE_COUNT,
+          untilDate: null,
+        },
+      });
     }
     setEndsMode(newModeValue);
   };
