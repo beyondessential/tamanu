@@ -18,7 +18,7 @@ import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegi
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { isErrorUnknownAllow404s, useApi } from '../../api';
+import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
