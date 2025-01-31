@@ -12,6 +12,7 @@ import {
   REPEAT_FREQUENCY,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -212,82 +213,90 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const [resolveFn, setResolveFn] = useState(null);
 
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
-  const validationSchema = yup.object().shape({
-    locationGroupId: yup.string().required(requiredMessage),
-    appointmentTypeId: yup.string().required(requiredMessage),
-    startTime: yup.string().required(requiredMessage),
-    endTime: yup
-      .string()
-      .nullable()
-      .test(
-        'isAfter',
-        getTranslation(
-          'outpatientAppointments.endTime.validation.isAfterStartTime',
-          'End time must be after start time',
-        ),
-        (value, { parent }) => {
-          if (!value) return true;
-          const startTime = parseISO(parent.startTime);
-          const endTime = parseISO(value);
-          return isAfter(endTime, startTime);
-        },
-      ),
-    patientId: yup.string().required(requiredMessage),
-    shouldEmailAppointment: yup.boolean(),
-    email: yup.string().when('shouldEmailAppointment', {
-      is: true,
-      then: yup
+  const validationSchema = yup.object().shape(
+    {
+      locationGroupId: yup.string().required(requiredMessage),
+      appointmentTypeId: yup.string().required(requiredMessage),
+      startTime: yup.string().required(requiredMessage),
+      endTime: yup
         .string()
-        .required(requiredMessage)
-        .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
-    }),
-    confirmEmail: yup.string().when('shouldEmailAppointment', {
-      is: true,
-      then: yup
-        .string()
-        .required(requiredMessage)
-        .oneOf(
-          [yup.ref('email')],
-          getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+        .nullable()
+        .test(
+          'isAfter',
+          getTranslation(
+            'outpatientAppointments.endTime.validation.isAfterStartTime',
+            'End time must be after start time',
+          ),
+          (value, { parent }) => {
+            if (!value) return true;
+            const startTime = parseISO(parent.startTime);
+            const endTime = parseISO(value);
+            return isAfter(endTime, startTime);
+          },
         ),
-    }),
-    schedule: yup.object().when('isRepeatingAppointment', {
-      is: true,
-      then: yup.object().shape(
-        {
-          interval: yup.number().required(requiredMessage),
-          frequency: yup.string().required(requiredMessage),
-          occurrenceCount: yup.mixed().when('untilDate', {
-            is: val => !val,
-            then: yup
+      patientId: yup.string().required(requiredMessage),
+      shouldEmailAppointment: yup.boolean(),
+      email: yup.string().when('shouldEmailAppointment', {
+        is: true,
+        then: yup
+          .string()
+          .required(requiredMessage)
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
+      }),
+      confirmEmail: yup.string().when('shouldEmailAppointment', {
+        is: true,
+        then: yup
+          .string()
+          .required(requiredMessage)
+          .oneOf(
+            [yup.ref('email')],
+            getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+          ),
+      }),
+      schedule: yup.object().when('isRepeatingAppointment', {
+        is: true,
+        then: yup.object().shape(
+          {
+            interval: yup.number().required(requiredMessage),
+            frequency: yup.string().required(requiredMessage),
+            occurrenceCount: yup.mixed().when('untilDate', {
+              is: val => !val,
+              then: yup
+                .number()
+                .required(requiredMessage)
+                .min(
+                  2,
+                  getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 }),
+                ),
+              otherwise: yup.number().nullable(),
+            }),
+            untilDate: yup.mixed().when('occurrenceCount', {
+              is: val => !isNumber(val),
+              then: yup.string().required(requiredMessage),
+              otherwise: yup.string().nullable(),
+            }),
+            daysOfWeek: yup
+              .array()
+              .of(yup.string().oneOf(DAYS_OF_WEEK))
+              // Note: currently supports a single day of the week
+              .length(1),
+            nthWeekday: yup
               .number()
-              .required(requiredMessage)
-              .min(2, getTranslation('validation.rule.atLeastN', 'Must be at least :n', { n: 2 })),
-            otherwise: yup.number().nullable(),
-          }),
-          untilDate: yup.mixed().when('occurrenceCount', {
-            is: val => !isNumber(val),
-            then: yup.string().required(requiredMessage),
-            otherwise: yup.string().nullable(),
-          }),
-          daysOfWeek: yup
-            .array()
-            .of(yup.string().oneOf(DAYS_OF_WEEK))
-            // Note: currently supports a single day of the week
-            .length(1),
-          nthWeekday: yup
-            .number()
-            .nullable()
-            .min(-1)
-            .max(4),
-        },
-        ['untilDate', 'occurrenceCount'],
-      ),
-    }),
-  });
+              .nullable()
+              .min(-1)
+              .max(4),
+          },
+          ['untilDate', 'occurrenceCount'],
+        ),
+      }),
+    },
+    ['isRepeatingAppointment', 'schedule.untilDate', 'schedule.occurrenceCount'],
+  );
 
   const renderForm = ({
     values,
+    errors,
+    touched,
     resetForm,
     dirty,
     setFieldValue,
@@ -305,7 +314,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     const handleResetRepeatUntilDate = startTimeDate => {
       setFieldValue(
         'schedule.untilDate',
-        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+        toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
       );
     };
 
@@ -317,8 +326,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
     const handleChangeIsRepeatingAppointment = async e => {
       if (e.target.checked) {
-        setValues(set(values, 'schedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
-        handleUpdateScheduleToStartTime(parseISO(values.startTime));
+        const startTimeDate = parseISO(values.startTime);
+        setValues(
+          set(values, 'schedule', {
+            ...APPOINTMENT_SCHEDULE_INITIAL_VALUES,
+            untilDate: toDateString(
+              add(parseISO(values.startTime), { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+            ),
+            daysOfWeek: [format(startTimeDate, 'iiiiii').toUpperCase()],
+          }),
+        );
       } else {
         setFieldError('schedule', undefined);
         setFieldTouched('schedule', false);
@@ -509,6 +526,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         validationSchema={validationSchema}
         initialValues={initialValues}
         enableReinitialize
+        validateOnChange
         render={renderForm}
       />
       <WarningModal
