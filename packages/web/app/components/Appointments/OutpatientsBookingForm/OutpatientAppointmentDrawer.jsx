@@ -89,7 +89,7 @@ const getDescription = (isEdit, isLockedPatient) => {
   );
 };
 
-const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -97,30 +97,16 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   return (
     <ConfirmModal
       title={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.edit.title"
-            fallback="Cancel appointment modification"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.create.title"
-            fallback="Cancel new appointment"
-          />
-        )
+        <TranslatedText
+          stringId="outpatientAppointments.cancelWarningModal.title"
+          fallback="Cancel appointment modification"
+        />
       }
       subText={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
-            fallback="Are you sure you would like to cancel modifying the appointment?"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
-            fallback="Are you sure you would like to cancel the new appointment?"
-          />
-        )
+        <TranslatedText
+          stringId="outpatientAppointments.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel modifying the appointment?"
+        />
       }
       open={open}
       onConfirm={() => {
@@ -299,7 +285,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     setValues,
   }) => {
     const warnAndResetForm = async () => {
-      const confirmed = !dirty || (await handleShowWarningModal());
+      const requiresWarning = dirty && isEdit;
+      const confirmed = !requiresWarning || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
@@ -527,7 +514,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-        isEdit={isEdit}
       />
     </>
   );

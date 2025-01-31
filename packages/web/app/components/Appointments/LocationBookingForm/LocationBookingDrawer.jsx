@@ -41,7 +41,7 @@ const OvernightStayLabel = styled.span`
   gap: 0.25rem;
 `;
 
-const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -49,30 +49,16 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   return (
     <ConfirmModal
       title={
-        isEdit ? (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.edit.title"
-            fallback="Cancel booking modification"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.create.title"
-            fallback="Cancel new booking"
-          />
-        )
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.title"
+          fallback="Cancel booking modification"
+        />
       }
       subText={
-        isEdit ? (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.edit.subtext"
-            fallback="Are you sure you would like to cancel modifying the booking?"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.create.subtext"
-            fallback="Are you sure you would like to cancel the new booking?"
-          />
-        )
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel modifying the booking?"
+        />
       }
       open={open}
       onConfirm={() => {
@@ -86,7 +72,7 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
       }
       confirmButtonText={
         <TranslatedText
-          stringId="appointments.action.cancelModification"
+          stringId="locationBooking.cancelWarningModal.cancelModification"
           fallback="Cancel modification"
         />
       }
@@ -230,7 +216,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
-      const confirmed = !dirty || (await handleShowWarningModal());
+      const requiresWarning = dirty && isEdit;
+      const confirmed = !requiresWarning || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
@@ -343,7 +330,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-        isEdit={isEdit}
       />
     </>
   );
