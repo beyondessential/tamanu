@@ -553,6 +553,7 @@ describe('Appointments', () => {
                 [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
               },
             },
+            order: [['startTime', 'ASC']],
           },
         ],
       });
@@ -576,6 +577,7 @@ describe('Appointments', () => {
           {
             model: models.Appointment,
             as: 'appointments',
+            order: [['startTime', 'ASC']],
           },
         ],
       });
