@@ -295,8 +295,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const renderForm = ({
     values,
-    errors,
-    touched,
     resetForm,
     dirty,
     setFieldValue,
