@@ -56,7 +56,7 @@ export const incomingSyncHook = async (
       );
 
       if (incomingSnapshotChanges) {
-        const { inserts = [], updates = [] } = incomingSnapshotChanges;
+        const { inserts = [], updates = [], deletes = [] } = incomingSnapshotChanges;
 
         if (inserts.length > 0) {
           // Mark new changes as requiring repull
@@ -78,6 +78,20 @@ export const incomingSyncHook = async (
 
           // Update existing changes in sync_snapshot table
           await asyncPool(persistUpdateWorkerPoolSize, newChangesToUpdate, async (change) =>
+            updateSnapshotRecords(sequelize, sessionId, change, {
+              id: change.id,
+            }),
+          );
+        }
+
+        if (deletes.length > 0) {
+          // iterate over the deletes and mark them as requiring repull
+          const newChangesToDelete = deletes.map((change) => ({
+            ...change,
+            isDeleted: true,
+            requiresRepull: true,
+          }));
+          await asyncPool(persistUpdateWorkerPoolSize, newChangesToDelete, async (change) =>
             updateSnapshotRecords(sequelize, sessionId, change, {
               id: change.id,
             }),
