@@ -28,7 +28,7 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const VitalsLimitedLinesCell = ({ value }) => (
-  <LimitedLinesCell value={value} maxWidth="75px" maxLines={1} />
+  <LimitedLinesCell value={value} maxWidth="75px" maxLines={2} />
 );
 
 const MeasureCell = React.memo(({ value, data }) => {

@@ -1,9 +1,17 @@
 sql: |
-  select facility_id from patient_facilities group by facility_id
+  with sync_sessions_with_facility_id as (
+    select
+        created_at,
+        completed_at,
+        json_array_elements_text(debug_info->'facilityIds') as facility_id
+    from sync_sessions
+  )
+  select distinct facility_id from sync_sessions_with_facility_id
+  where created_at > current_timestamp - '48 hours'::interval
   except
-  select debug_info->>'facilityId' as facility_id from sync_sessions
-  where completed_at > now() - '30 minutes'::interval
-  group by debug_info->>'facilityId';
+  select facility_id from sync_sessions_with_facility_id
+  where completed_at > current_timestamp - '30 minutes'::interval
+  group by facility_id;
 
 send:
   - target: external
@@ -12,7 +20,12 @@ send:
     template: |
       <p>Server: {{ hostname }}</p>
       <p>Alert: {{ filename }}</p>
-      <h1>There hasn't been a completed sync session for the following facilit{% if rows | length > 1 %}ies{% else %}y{% endif %} in the past 30 minutes:</h1>
+      <p>
+        From the facilities that synced in the last two days...
+        there hasn't been a completed sync session for the following
+        facilit{% if rows | length > 1 %}ies{% else %}y{% endif %}
+        in the past 30 minutes:
+      </p>
       <ul>
         {% for row in rows %}
         <li><b>{{ row.facility_id }}</b></li>
