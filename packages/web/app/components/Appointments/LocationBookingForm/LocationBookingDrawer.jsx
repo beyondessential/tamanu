@@ -84,6 +84,12 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
           fallback="Back to editing"
         />
       }
+      confirmButtonText={
+        <TranslatedText
+          stringId="appointments.action.cancelModification"
+          fallback="Cancel modification"
+        />
+      }
       onCancel={() => {
         handleClose(false);
       }}

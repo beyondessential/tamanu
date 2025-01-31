@@ -90,7 +90,7 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
         isEdit ? (
           <TranslatedText
             stringId="outpatientAppointments.cancelWarningModal.edit.title"
-            fallback="Cancel modifying appointment"
+            fallback="Cancel appointment modification"
           />
         ) : (
           <TranslatedText
@@ -118,6 +118,12 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
       }}
       cancelButtonText={
         <TranslatedText stringId="appointments.action.backToEditing" fallback="Back to editing" />
+      }
+      confirmButtonText={
+        <TranslatedText
+          stringId="appointments.action.cancelModification"
+          fallback="Cancel modification"
+        />
       }
       onCancel={() => {
         handleClose(false);
