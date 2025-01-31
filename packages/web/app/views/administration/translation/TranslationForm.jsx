@@ -9,19 +9,13 @@ import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import {
-  Form,
-  OutlinedButton,
-  SearchInput,
-  TableFormFields,
-  TextField,
-  SwitchInput,
-} from '../../../components';
+import { Form, OutlinedButton, SearchInput, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
 
 const Container = styled.div`
   padding: 30px;
@@ -54,16 +48,6 @@ const SearchArea = styled.div`
 
 const StyledSearchInput = styled(SearchInput)`
   width: 340px;
-`;
-
-const SwitchInputContainer = styled.div`
-  margin: 0.6875rem 1.25rem;
-`;
-
-const StyledSwitchInput = styled(SwitchInput)`
-  .MuiFormControlLabel-label {
-    font-size: 0.875rem;
-  }
 `;
 
 /**
@@ -240,18 +224,16 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
           />
-          <SwitchInputContainer>
-            <StyledSwitchInput
-              label={
-                <TranslatedText
-                  stringId="admin.translation.showReferenceData"
-                  fallback="Show reference data"
-                />
-              }
-              value={includeReferenceData}
-              onChange={() => setIncludeReferenceData(!includeReferenceData)}
-            />
-          </SwitchInputContainer>
+          <ReferenceDataSwitchInput
+            value={includeReferenceData}
+            onChange={() => setIncludeReferenceData(!includeReferenceData)}
+            label={
+              <TranslatedText
+                stringId="admin.translation.showReferenceData"
+                fallback="Show reference data"
+              />
+            }
+          />
         </SearchArea>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
           <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
