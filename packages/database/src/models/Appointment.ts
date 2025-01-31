@@ -6,8 +6,10 @@ import type { ReadSettings } from '@tamanu/settings';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules';
 import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
 
 interface CreateWithScheduleParams {
   appointmentData: AppointmentCreateData;
@@ -146,6 +148,12 @@ export class Appointment extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  static async incomingSyncHook(
+    changes: SyncSnapshotAttributes[],
+  ): Promise<SyncHookSnapshotChanges | undefined> {
+    return resolveAppointmentSchedules(this, changes);
   }
 
   static async createWithSchedule({
