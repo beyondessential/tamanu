@@ -79,7 +79,6 @@ export const GroupByAppointmentToggle = props => {
         : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
     setGroupBy(newValue);
     history.push(`?groupBy=${newValue}`);
-    console.log('sending', newValue);
     updateGroupByUserPreferences(newValue);
   };
 
