@@ -1,9 +1,10 @@
 import crypto from 'crypto';
-import { addWeeks, endOfDay, parseISO, sub } from 'date-fns';
+import { endOfDay, parseISO, sub } from 'date-fns';
 
 import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
+  sanitizeRecord,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
@@ -20,6 +21,7 @@ import {
   REPEAT_FREQUENCY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
@@ -1434,14 +1436,13 @@ describe('CentralSyncManager', () => {
     it('deletes appointments syncing into schedule that is cancelled', async () => {
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '10';
+      await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
+      settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
-
-      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
-
-      const user = await models.User.create(fakeUser());
-      const patient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
+      // const user = await models.User.create(fakeUser());
+      // const patient = await models.Patient.create({
+      //   ...fake(models.Patient),
+      // });
       const locationGroup = await models.LocationGroup.create({
         ...fake(models.LocationGroup),
         facilityId: facility.id,
@@ -1452,49 +1453,69 @@ describe('CentralSyncManager', () => {
         code: 'standard',
         name: 'Standard',
       });
-
-      console.log(maxRepeatingAppointmentsPerGeneration);
-      // Existing schedule
       const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
         settings,
         appointmentData: {
           status: APPOINTMENT_STATUSES.CONFIRMED,
           startTime: '1990-10-02 12:00:00',
           endTime: '1990-10-02 13:00:00',
+          locationGroupId: locationGroup.id,
         },
         scheduleData: {
-          occurrenceCount: maxRepeatingAppointmentsPerGeneration,
+          // 4 weeks later from the first appointment
+          untilDate: '1990-10-30',
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
           daysOfWeek: ['WE'],
         },
       });
 
-      const updatedSchedule = await sequelize.transaction(() => {
-        return schedule.endAtAppointment(firstAppointment);
+      const createDataAppointment = firstAppointment.toCreateData();
+
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
       });
+
+      // Appoints created by task
+      await models.Appointment.bulkCreate([
+        {
+          ...createDataAppointment,
+          startTime: '1990-10-23 12:00:00',
+          endTime: '1990-10-09 13:00:00',
+        },
+        {
+          ...createDataAppointment,
+          startTime: '1990-10-30 12:00:00',
+          endTime: '1990-10-30 13:00:00',
+        },
+      ]);
+      // create appointments
+
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+      console.log(maxRepeatingAppointmentsPerGeneration);
+      // Existing schedule
+
       // Patient data for pushing (not inserted yet)
       const toBeSyncedAppointmentData1 = {
-        id: crypto.randomUUID(),
-        patientId: patient.id,
-        startTime: toDateTimeString(addWeeks(parseISO(updatedSchedule.untilDate), 1)),
-        clinicianId: user.id,
-        status: APPOINTMENT_STATUSES.CONFIRMED,
-        appointmentTypeId: 'appointmentType-standard',
-        scheduleId: schedule.id,
-        locationGroupId: locationGroup.id,
+        ...appointmentsInSchedule[0].get({ plain: true }),
+        status: APPOINTMENT_STATUSES.CANCELLED,
       };
       const toBeSyncedAppointmentData2 = {
-        id: crypto.randomUUID(),
-        patientId: patient.id,
-        startTime: toDateTimeString(addWeeks(parseISO(updatedSchedule.untilDate), 2)),
-        clinicianId: user.id,
-        status: APPOINTMENT_STATUSES.CONFIRMED,
-        appointmentTypeId: 'appointmentType-standard',
-        scheduleId: schedule.id,
-        locationGroupId: locationGroup.id,
+        ...appointmentsInSchedule[1].get({ plain: true }),
+        status: APPOINTMENT_STATUSES.CANCELLED,
       };
 
+      const toBeSyncedAppointmentScheduleData = {
+        ...schedule.get({ plain: true }),
+        untilDate: '1990-10-02',
+        isFullyGenerated: true,
+      };
+
+      console.log({
+        toBeSyncedAppointmentData1,
+        toBeSyncedAppointmentData2,
+        schedule,
+      });
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1509,6 +1530,13 @@ describe('CentralSyncManager', () => {
           recordType: 'appointments',
           recordId: toBeSyncedAppointmentData2.id,
           data: toBeSyncedAppointmentData2,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointment_schedules',
+          recordId: schedule.id,
+          data: toBeSyncedAppointmentScheduleData,
         },
       ];
 
@@ -1543,7 +1571,7 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
-      console.log('returnedAppointments', returnedAppointments);
+      console.log('returnedAppointments', outgoingChanges);
       // const returnedExistingAppoin = returnedPatients.find(
       //   (p) => p.data.id === existingPatient.id,
       // );
