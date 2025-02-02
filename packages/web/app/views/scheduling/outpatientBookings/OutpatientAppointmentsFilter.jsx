@@ -53,7 +53,7 @@ const FormFields = () => {
   const { getTranslation } = useTranslation();
   const { filters, setFilters, groupBy } = useOutpatientAppointmentsContext();
   const { facilityId } = useAuth();
-  const { setValues } = useFormikContext();
+  const { setValues, setFieldValue } = useFormikContext();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateFilterUserPreferences = debounce(
@@ -64,6 +64,14 @@ const FormFields = () => {
       }),
     200,
   );
+
+  useEffect(() => {
+    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) setFieldValue('clinicianId', undefined);
+    if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) setFieldValue('locationGroupId', undefined);
+  }, [groupBy, setFieldValue]);
+
+  console.log(filters);
+
   return (
     <Fieldset>
       <Field
