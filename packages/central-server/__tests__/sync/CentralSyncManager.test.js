@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { endOfDay, parseISO, sub } from 'date-fns';
+import { add, endOfDay, parseISO, sub } from 'date-fns';
 
 import {
   CURRENT_SYNC_TIME_KEY,
@@ -16,8 +16,10 @@ import {
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
+  APPOINTMENT_STATUSES,
+  REPEAT_FREQUENCY,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
@@ -1347,6 +1349,137 @@ describe('CentralSyncManager', () => {
         // Check if pulled down synced patient also has displayId appended with _duplicate_2
         expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
       });
+    });
+  });
+
+  describe('removes appointments in cancelled schedule', () => {
+    let settings;
+    let maxRepeatingAppointmentsPerGeneration;
+    beforeAll(async () => {
+      settings = ctx.settings;
+      maxRepeatingAppointmentsPerGeneration = await settings.get(
+        'appointments.maxRepeatingAppointmentsPerGeneration',
+      );
+    });
+    it('deletes appointments syncing into schedule that is cancelled', async () => {
+      // Set up data pre sync
+      const CURRENT_SYNC_TICK = '10';
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+
+      const user = await models.User.create(fakeUser());
+      const patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+
+      // Existing schedule
+      const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
+        settings,
+        appointmentData: {
+          status: APPOINTMENT_STATUSES.CONFIRMED,
+          startTime: '1990-10-02 12:00:00',
+          endTime: '1990-10-02 13:00:00',
+        },
+        scheduleData: {
+          occurrenceCount: maxRepeatingAppointmentsPerGeneration,
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+        },
+      });
+
+      const updatedSchedule = await schedule.endAtAppointment(firstAppointment);
+
+      // Patient data for pushing (not inserted yet)
+      const toBeSyncedAppointmentData1 = {
+        patientId: patient.id,
+        startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 1 })),
+        clinicianId: user.id,
+        status: APPOINTMENT_STATUSES.CONFIRMED,
+        appointmentTypeId: 'appointmentType-standard',
+        scheduleId: schedule.id,
+      };
+      const toBeSyncedAppointmentData2 = {
+        patientId: patient.id,
+        startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 2 })),
+        clinicianId: user.id,
+        status: APPOINTMENT_STATUSES.CONFIRMED,
+        appointmentTypeId: 'appointmentType-standard',
+        scheduleId: schedule.id,
+      };
+
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointments',
+          recordId: toBeSyncedAppointmentData1.id,
+          data: toBeSyncedAppointmentData1,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointments',
+          recordId: toBeSyncedAppointmentData2.id,
+          data: toBeSyncedAppointmentData2,
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      // Push the encounter
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      await centralSyncManager.updateLookupTable();
+
+      // Start the snapshot for pull process
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          deviceId: facility.id,
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'appointments');
+      // const returnedExistingAppoin = returnedPatients.find(
+      //   (p) => p.data.id === existingPatient.id,
+      // );
+      // const returnedSyncedPatient = returnedPatients.find(
+      //   (p) => p.data.id === toBeSyncedPatientData.id,
+      // );
+
+      // const persistedSyncedPatient = await models.Patient.findByPk(toBeSyncedPatientData.id);
+      // const updatedExistingPatient = await models.Patient.findByPk(existingPatient.id);
+
+      // // Check if existing patient has displayId appended with _duplicate_1
+      // expect(updatedExistingPatient.displayId).toBe(`${duplicatedDisplayId}_duplicate_1`);
+
+      // // Check if inserted patient has displayId appended with _duplicate_2
+      // expect(persistedSyncedPatient.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
+
+      // expect(returnedPatients).toHaveLength(2);
+
+      // // Check if pulled down existing patient also has displayId appended with _duplicate_2
+      // expect(returnedExistingPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_1`);
+
+      // // Check if pulled down synced patient also has displayId appended with _duplicate_2
+      // expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
     });
   });
 

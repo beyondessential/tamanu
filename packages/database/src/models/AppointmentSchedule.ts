@@ -202,11 +202,12 @@ export class AppointmentSchedule extends Model {
         },
       },
     });
-    await this.update({
+    const updatedSchedule = await this.update({
       isFullyGenerated: true,
       untilDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
       occurrenceCount: null,
     });
+    return updatedSchedule;
   }
 
   /**
