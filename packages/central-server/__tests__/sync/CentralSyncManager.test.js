@@ -1372,6 +1372,10 @@ describe('CentralSyncManager', () => {
       const patient = await models.Patient.create({
         ...fake(models.Patient),
       });
+      const locationGroup = await models.LocationGroup.create({
+        ...fake(models.LocationGroup),
+        facilityId: facility.id,
+      });
 
       // Existing schedule
       const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
@@ -1399,6 +1403,7 @@ describe('CentralSyncManager', () => {
         status: APPOINTMENT_STATUSES.CONFIRMED,
         appointmentTypeId: 'appointmentType-standard',
         scheduleId: schedule.id,
+        locationGroupId: locationGroup.id,
       };
       const toBeSyncedAppointmentData2 = {
         patientId: patient.id,
@@ -1407,6 +1412,7 @@ describe('CentralSyncManager', () => {
         status: APPOINTMENT_STATUSES.CONFIRMED,
         appointmentTypeId: 'appointmentType-standard',
         scheduleId: schedule.id,
+        locationGroupId: locationGroup.id,
       };
 
       const changes = [
