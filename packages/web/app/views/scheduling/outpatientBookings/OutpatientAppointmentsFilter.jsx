@@ -98,7 +98,7 @@ const FormFields = () => {
           endpoint="practitioner"
           label={getTranslation('general.area.clinician', 'Clinician')}
           name="clinicianId"
-          onChange={e => updateFilterUserPreferences({ ...filters, clinician: e.target.value })}
+          onChange={e => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
         />
       )}
       <Field

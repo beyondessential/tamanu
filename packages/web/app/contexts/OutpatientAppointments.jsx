@@ -9,11 +9,12 @@ const OutpatientAppointmentsContext = createContext(null);
 export const OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE = {
   appointmentTypeId: [],
   locationGroupId: [],
+  clinicianId: [],
   patientNameOrId: null,
 };
 
 export const OutpatientAppointmentsContextProvider = ({ children }) => {
-  const { data: userPreferences, isLoading } = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
   const location = useLocation();
   const defaultGroupBy =
     new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
@@ -21,7 +22,8 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
   const [groupBy, setGroupBy] = useState(null);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (userPreferences) {
+      console.log(userPreferences);
       if (userPreferences?.outpatientAppointmentGroupBy) {
         setGroupBy(userPreferences.outpatientAppointmentGroupBy);
       } else {
@@ -31,7 +33,7 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
         setFilters(userPreferences.outpatientAppointmentFilters);
       }
     }
-  }, [userPreferences, setGroupBy, defaultGroupBy, isLoading]);
+  }, [userPreferences, setGroupBy, defaultGroupBy]);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters, groupBy, setGroupBy }}>
