@@ -72,15 +72,12 @@ export const resolveAppointmentSchedules = async (
     (c) => !c.isDeleted && c.data.untilDate && c.data.isFullyGenerated,
   );
 
-  console.log('appointmentScheduleIds', relevantChanges);
   if (relevantChanges.length === 0) {
     return;
   }
 
-  console.log('relevantChanges', relevantChanges);
   const keyedByScheduleId = mapValues(keyBy(relevantChanges, 'data.id'), 'data.untilDate');
 
-  console.log('keyedByScheduleId', keyedByScheduleId);
   const existingAppointmentsWithSchedules = await AppointmentScheduleModel.sequelize.query(
     `
     WITH schedule_end_dates AS (
@@ -94,7 +91,7 @@ export const resolveAppointmentSchedules = async (
       schedule_id IN (:scheduleIds)
       AND status <> :canceledStatus
     AND
-      start_time > (SELECT date FROM schedule_end_dates WHERE id = schedule_id)
+      start_time > (SELECT date::date_string FROM schedule_end_dates WHERE id::uuid = schedule_id)
     `,
     {
       type: QueryTypes.SELECT,
