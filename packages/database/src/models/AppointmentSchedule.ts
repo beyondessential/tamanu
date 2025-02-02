@@ -20,6 +20,8 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { Appointment, AppointmentCreateData } from './Appointment';
 import { dateType } from './../types/model';
 import type { InitOptions, Models } from '../types/model';
+import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
+import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
@@ -162,6 +164,12 @@ export class AppointmentSchedule extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  static async incomingSyncHook(
+    changes: SyncSnapshotAttributes[],
+  ): Promise<SyncHookSnapshotChanges | undefined> {
+    return resolveAppointmentSchedules(this, changes);
   }
 
   isDifferentFromSchedule(scheduleData: AppointmentScheduleCreateData) {
