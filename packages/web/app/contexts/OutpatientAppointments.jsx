@@ -22,8 +22,7 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
   const [groupBy, setGroupBy] = useState(null);
 
   useEffect(() => {
-    if (userPreferences) {
-      console.log(userPreferences);
+    if (userPreferences && !groupBy) {
       if (userPreferences?.outpatientAppointmentGroupBy) {
         setGroupBy(userPreferences.outpatientAppointmentGroupBy);
       } else {
@@ -33,7 +32,7 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
         setFilters(userPreferences.outpatientAppointmentFilters);
       }
     }
-  }, [userPreferences, setGroupBy, defaultGroupBy]);
+  }, [userPreferences, setGroupBy, defaultGroupBy, groupBy]);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters, groupBy, setGroupBy }}>

@@ -53,7 +53,7 @@ const FormFields = () => {
   const { getTranslation } = useTranslation();
   const { filters, setFilters, groupBy } = useOutpatientAppointmentsContext();
   const { facilityId } = useAuth();
-  const { setValues, setFieldValue } = useFormikContext();
+  const { setValues } = useFormikContext();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateFilterUserPreferences = debounce(
@@ -64,13 +64,6 @@ const FormFields = () => {
       }),
     200,
   );
-
-  // TODO: this is not working properly when defaulting to clinician
-  useEffect(() => {
-    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) setFieldValue('clinicianId', undefined);
-    if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) setFieldValue('locationGroupId', undefined);
-  }, [groupBy, setFieldValue]);
-
   return (
     <Fieldset>
       <Field
