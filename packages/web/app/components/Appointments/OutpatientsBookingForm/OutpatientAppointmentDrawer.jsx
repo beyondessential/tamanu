@@ -203,10 +203,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const isEdit = !!initialValues.id;
-  const isCreate = !isEdit;
   const isLockedPatient = !!initialValues.patientId;
-  const showScheduleFields =
-    isCreate || modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -464,12 +461,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             }
             component={SwitchField}
           />
-          {values.schedule && showScheduleFields && (
+          {values.schedule && (
             <RepeatingAppointmentFields
               values={values}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+              readonly={modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT}
             />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
