@@ -1422,7 +1422,7 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe('removes appointments in cancelled schedule', () => {
+  describe.only('removes appointments in cancelled schedule', () => {
     let settings;
     let maxRepeatingAppointmentsPerGeneration;
     beforeAll(async () => {
@@ -1446,6 +1446,12 @@ describe('CentralSyncManager', () => {
         ...fake(models.LocationGroup),
         facilityId: facility.id,
       });
+      await models.ReferenceData.create({
+        id: 'appointmentType-standard',
+        type: 'appointmentType',
+        code: 'standard',
+        name: 'Standard',
+      });
 
       // Existing schedule
       const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
@@ -1463,10 +1469,12 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      const updatedSchedule = await schedule.endAtAppointment(firstAppointment);
-
+      const updatedSchedule = await sequelize.transaction(() => {
+        return schedule.endAtAppointment(firstAppointment);
+      });
       // Patient data for pushing (not inserted yet)
       const toBeSyncedAppointmentData1 = {
+        id: crypto.randomUUID(),
         patientId: patient.id,
         startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 1 })),
         clinicianId: user.id,
@@ -1476,6 +1484,7 @@ describe('CentralSyncManager', () => {
         locationGroupId: locationGroup.id,
       };
       const toBeSyncedAppointmentData2 = {
+        id: crypto.randomUUID(),
         patientId: patient.id,
         startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 2 })),
         clinicianId: user.id,
@@ -1532,7 +1541,8 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'appointments');
+      const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
+      console.log('returnedAppointments', returnedAppointments);
       // const returnedExistingAppoin = returnedPatients.find(
       //   (p) => p.data.id === existingPatient.id,
       // );
