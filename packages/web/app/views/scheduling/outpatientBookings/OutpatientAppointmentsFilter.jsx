@@ -70,8 +70,6 @@ const FormFields = () => {
     if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) setFieldValue('locationGroupId', undefined);
   }, [groupBy, setFieldValue]);
 
-  console.log(filters);
-
   return (
     <Fieldset>
       <Field
