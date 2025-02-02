@@ -1370,9 +1370,14 @@ describe('CentralSyncManager', () => {
       settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
       // const user = await models.User.create(fakeUser());
-      // const patient = await models.Patient.create({
-      //   ...fake(models.Patient),
-      // });
+      const patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
       const locationGroup = await models.LocationGroup.create({
         ...fake(models.LocationGroup),
         facilityId: facility.id,
@@ -1390,9 +1395,10 @@ describe('CentralSyncManager', () => {
           startTime: '1990-10-02 12:00:00',
           endTime: '1990-10-02 13:00:00',
           locationGroupId: locationGroup.id,
+          patientId: patient.id,
         },
         scheduleData: {
-          // 4 weeks later from the first appointment
+          // Until date covers 4 appointments, 2 of which will be initially created
           untilDate: '1990-10-30',
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
@@ -1406,7 +1412,7 @@ describe('CentralSyncManager', () => {
         order: [['startTime', 'ASC']],
       });
 
-      // Appoints created by task
+      // The remaining 2 appointments are created by scheduled task
       await models.Appointment.bulkCreate([
         {
           ...createDataAppointment,
@@ -1419,13 +1425,11 @@ describe('CentralSyncManager', () => {
           endTime: '1990-10-30 13:00:00',
         },
       ]);
-      // create appointments
 
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
       console.log(maxRepeatingAppointmentsPerGeneration);
-      // Existing schedule
 
-      // Patient data for pushing (not inserted yet)
+      // Schedule is cancelled before the generated appointments had synced down.
       const toBeSyncedAppointmentData1 = {
         ...appointmentsInSchedule[0].get({ plain: true }),
         status: APPOINTMENT_STATUSES.CANCELLED,
@@ -1441,11 +1445,6 @@ describe('CentralSyncManager', () => {
         isFullyGenerated: true,
       };
 
-      console.log({
-        toBeSyncedAppointmentData1,
-        toBeSyncedAppointmentData2,
-        schedule,
-      });
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,

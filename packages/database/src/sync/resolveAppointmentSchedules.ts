@@ -4,8 +4,10 @@ import { keyBy, mapValues } from 'lodash';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
-import type { AppointmentSchedule } from 'models';
+import type { Appointment, AppointmentSchedule } from 'models';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
+import { SYNC_SESSION_DIRECTION } from './constants';
+import { sanitizeRecord } from './sanitizeRecord';
 
 // /**
 //  * The new changes will be persisted in the sync_snapshot table
@@ -76,15 +78,16 @@ export const resolveAppointmentSchedules = async (
     return;
   }
 
-  const keyedByScheduleId = mapValues(keyBy(relevantChanges, 'data.id'), 'data.untilDate');
+  const scheduleUntilDates = mapValues(keyBy(relevantChanges, 'data.id'), 'data.untilDate');
 
-  const existingAppointmentsWithSchedules = await AppointmentScheduleModel.sequelize.query(
+  const outOfBoundAppointments = (await AppointmentScheduleModel.sequelize.query(
     `
     WITH schedule_end_dates AS (
-     select value as date, key as id from json_each(:keyedByScheduleId)
+     select value as date, key as id from json_each(:scheduleUntilDates)
     )
     SELECT
-      *
+      appointments.*,
+
     FROM
       appointments
     WHERE
@@ -97,31 +100,27 @@ export const resolveAppointmentSchedules = async (
       type: QueryTypes.SELECT,
       replacements: {
         canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
-        scheduleIds: Object.keys(keyedByScheduleId),
-        keyedByScheduleId: JSON.stringify(keyedByScheduleId),
+        scheduleIds: Object.keys(scheduleUntilDates),
+        scheduleUntilDates: JSON.stringify(scheduleUntilDates),
       },
     },
-  );
+  )) as Appointment[];
 
-  if (existingAppointmentsWithSchedules.length === 0) {
+  if (outOfBoundAppointments.length === 0) {
     return;
   }
-  console.log('existingAppointmentsWithSchedules', existingAppointmentsWithSchedules);
-  return;
-  // const keyedSchedules = keyBy(existingAppointmentsWithSchedules, 'id');
 
-  // const appointmentsToDelete = relevantChanges.filter((c) =>
-  //   isAfter(
-  //     parseISO(c.data.startTime),
-  //     parseISO(keyedSchedules[c.data.scheduleId]!.untilDate as string),
-  //   ),
-  // );
+  const deletes = outOfBoundAppointments.map((a) => ({
+    direction: SYNC_SESSION_DIRECTION.INCOMING,
+    recordType: 'appointments',
+    recordId: a.id,
+    isDeleted: true,
+    data: sanitizeRecord(a),
+  }));
 
-  // return {
-  //   inserts: changes.filter(
-  //     (c) => !c.isDeleted && !appointmentsToDelete.some((d) => d.data.id === c.data.id),
-  //   ),
-  //   updates: [],
-  //   deletes: appointmentsToDelete,
-  // };
+  return {
+    inserts: [],
+    updates: [],
+    deletes: [],
+  };
 };
