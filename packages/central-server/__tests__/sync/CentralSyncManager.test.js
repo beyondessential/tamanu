@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { add, endOfDay, parseISO, sub } from 'date-fns';
+import { addWeeks, endOfDay, parseISO, sub } from 'date-fns';
 
 import {
   CURRENT_SYNC_TIME_KEY,
@@ -19,7 +19,7 @@ import {
   APPOINTMENT_STATUSES,
   REPEAT_FREQUENCY,
 } from '@tamanu/constants';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
@@ -1453,6 +1453,7 @@ describe('CentralSyncManager', () => {
         name: 'Standard',
       });
 
+      console.log(maxRepeatingAppointmentsPerGeneration);
       // Existing schedule
       const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
         settings,
@@ -1476,7 +1477,7 @@ describe('CentralSyncManager', () => {
       const toBeSyncedAppointmentData1 = {
         id: crypto.randomUUID(),
         patientId: patient.id,
-        startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 1 })),
+        startTime: toDateTimeString(addWeeks(parseISO(updatedSchedule.untilDate), 1)),
         clinicianId: user.id,
         status: APPOINTMENT_STATUSES.CONFIRMED,
         appointmentTypeId: 'appointmentType-standard',
@@ -1486,7 +1487,7 @@ describe('CentralSyncManager', () => {
       const toBeSyncedAppointmentData2 = {
         id: crypto.randomUUID(),
         patientId: patient.id,
-        startTime: toDateString(add(parseISO(updatedSchedule.untilDate), { weeks: 2 })),
+        startTime: toDateTimeString(addWeeks(parseISO(updatedSchedule.untilDate), 2)),
         clinicianId: user.id,
         status: APPOINTMENT_STATUSES.CONFIRMED,
         appointmentTypeId: 'appointmentType-standard',
