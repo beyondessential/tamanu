@@ -16,16 +16,19 @@ export const resolveAppointmentSchedules = async (
   AppointmentModel: typeof Appointment,
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
-  const appointmentScheduleIds = new Set(
-    ...changes
-      .filter(
-        (c) =>
-          !c.isDeleted && c.data.scheduleId && c.data.status !== APPOINTMENT_STATUSES.CANCELLED,
-      )
-      .map((c) => c.data.scheduleId),
-  );
+  const appointmentScheduleIds = [
+    ...new Set(
+      changes
+        .filter(
+          (c) =>
+            !c.isDeleted && c.data.scheduleId && c.data.status !== APPOINTMENT_STATUSES.CANCELLED,
+        )
+        .map((c) => c.data.scheduleId),
+    ),
+  ];
 
-  if (appointmentScheduleIds.size === 0) {
+  console.log('appointmentScheduleIds', appointmentScheduleIds);
+  if (appointmentScheduleIds.length === 0) {
     return;
   }
 
