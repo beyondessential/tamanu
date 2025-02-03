@@ -10,6 +10,7 @@ export const findSyncSnapshotRecords = async (
   fromId = 0,
   limit = Number.MAX_SAFE_INTEGER,
   recordType: RecordType,
+  additionalWhere?: string,
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
@@ -19,6 +20,7 @@ export const findSyncSnapshotRecords = async (
       WHERE id > :fromId
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
+      ${additionalWhere ? `AND ${additionalWhere}` : ''}
       ORDER BY id ASC
       LIMIT :limit;
     `,

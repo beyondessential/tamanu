@@ -64,6 +64,7 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
+    "incomingSyncHookBatchSize": 20000,
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
