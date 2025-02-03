@@ -140,7 +140,7 @@ export class changeMedicationsDBSchema1736398276000 implements MigrationInterfac
     await queryRunner.createTable(Prescriptions, true);
     await queryRunner.query(
       `INSERT INTO prescriptions 
-      SELECT id, date, endDate, prescription, note, indication, route, quantity, medicationId, createdAt, updatedAt, updatedAtSyncTick, deletedAt 
+      SELECT id, date, endDate, note, indication, route, quantity, medicationId, createdAt, updatedAt, updatedAtSyncTick, deletedAt 
       FROM encounter_medications;`,
     );
 
