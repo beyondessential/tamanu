@@ -46,6 +46,9 @@ const StyledSwitch = styled(Switch)`
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   margin-left: 0;
+  .MuiFormControlLabel-label.Mui-disabled {
+    color: ${Colors.darkestText};
+  }
 `;
 
 export const SwitchInput = ({ label, disabled, value, ...props }) => {

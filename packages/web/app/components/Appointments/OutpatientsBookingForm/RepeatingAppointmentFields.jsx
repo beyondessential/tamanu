@@ -125,15 +125,17 @@ export const ENDS_MODES = {
 
 export const RepeatingAppointmentFields = ({
   values,
+  initialValues,
   setFieldValue,
   setFieldError,
   handleResetRepeatUntilDate,
   readonly,
 }) => {
+  const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
   const { startTime, schedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
-  const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
+  const startTimeDate = useMemo(() => startTime && parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
@@ -142,7 +144,7 @@ export const RepeatingAppointmentFields = ({
       setFieldValue('schedule.occurrenceCount', null);
       setFieldError('schedule.occurrenceCount', null);
     } else if (newModeValue === ENDS_MODES.AFTER) {
-      setFieldValue('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
+      setFieldValue('schedule.occurrenceCount', initialOccurrenceCount || DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('schedule.untilDate', null);
       setFieldError('schedule.untilDate', null);
     }

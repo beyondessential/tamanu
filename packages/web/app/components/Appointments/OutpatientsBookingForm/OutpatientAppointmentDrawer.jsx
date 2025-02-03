@@ -12,6 +12,7 @@ import {
   REPEAT_FREQUENCY,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -204,6 +205,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
+  const hideIsReapeatingToggle = isEdit && !initialValues.schedule;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -300,9 +302,11 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     };
 
     const handleResetRepeatUntilDate = startTimeDate => {
+      const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+        initialUntilDate ||
+          toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
       );
     };
 
@@ -448,21 +452,24 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-          <Field
-            name="isRepeatingAppointment"
-            onChange={handleChangeIsRepeatingAppointment}
-            disabled={!values.startTime || isEdit}
-            value={!!values.schedule}
-            label={
-              <TranslatedText
-                stringId="appointment.isRepeatingAppointment.label"
-                fallback="Repeating appointment"
-              />
-            }
-            component={SwitchField}
-          />
+          {!hideIsReapeatingToggle && (
+            <Field
+              name="isRepeatingAppointment"
+              onChange={handleChangeIsRepeatingAppointment}
+              disabled={!values.startTime || isEdit}
+              value={!!values.schedule}
+              label={
+                <TranslatedText
+                  stringId="appointment.isRepeatingAppointment.label"
+                  fallback="Repeating appointment"
+                />
+              }
+              component={SwitchField}
+            />
+          )}
           {values.schedule && (
             <RepeatingAppointmentFields
+              initialValues={initialValues}
               values={values}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
