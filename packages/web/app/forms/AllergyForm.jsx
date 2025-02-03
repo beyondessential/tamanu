@@ -27,7 +27,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
-  const canCreateReferenceData = ability.can('create', 'ReferenceData');
+  const canCreateReferenceData = ability.can ? ability.can('create', 'ReferenceData') : false;
 
   const { getTranslation } = useTranslation();
   return (
