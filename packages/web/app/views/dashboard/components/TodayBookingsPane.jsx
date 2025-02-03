@@ -207,7 +207,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -223,14 +223,26 @@ export const TodayBookingsPane = ({ showTasks }) => {
     ).data?.data ?? [];
   const history = useHistory();
 
-  const onViewAll = () => {
-    history.push(`/appointments/locations?clinicianId=${currentUser?.id}`);
+  const onViewAll = async () => {
+    await mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+      value: {
+        locationGroupIds: [],
+        clinicianId: [currentUser?.id],
+        bookingTypeId: [],
+      },
+    });
+    history.push(`/appointments/locations`);
   };
 
   const onLocationBookingsClick = async () => {
     await mutateUserPreferences({
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-      value: { [facilityId]: {} },
+      value: {
+        locationGroupIds: [],
+        clinicianId: [],
+        bookingTypeId: [],
+      },
     });
     history.push(`/appointments/locations`);
   };
