@@ -205,7 +205,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
-  const hideIsReapeatingToggle = isEdit && !initialValues.schedule;
+  const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -452,7 +452,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-          {!hideIsReapeatingToggle && (
+          {!hideIsRepeatingToggle && (
             <Field
               name="isRepeatingAppointment"
               onChange={handleChangeIsRepeatingAppointment}
