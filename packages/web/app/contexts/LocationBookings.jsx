@@ -1,5 +1,6 @@
 import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
+
 import {
   scrollToBeginning,
   scrollToCell,

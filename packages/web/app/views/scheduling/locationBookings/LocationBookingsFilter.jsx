@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
+import { debounce, omit } from 'lodash';
+import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
+
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
-import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-import { debounce, omit } from 'lodash';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
 import {
