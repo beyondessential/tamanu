@@ -6,23 +6,34 @@ import {
   scrollToThisWeek,
 } from '../views/scheduling/locationBookings/utils';
 import { useUserPreferencesQuery } from '../api/queries';
+import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 
 const LocationBookingsContext = createContext(null);
 
+export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
+  locationGroupIds: [],
+  clinicianId: [],
+  bookingTypeId: [],
+  patientNameOrId: '',
+};
+
 export const LocationBookingsContextProvider = ({ children }) => {
+  const queryParams = useUrlSearchParams();
+  const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();
   const [filters, setFilters] = useState({
-    patientNameOrId: '',
-    locationGroupIds: [],
-    clinicianId: [],
-    bookingTypeId: [],
+    LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
   });
 
   useEffect(() => {
-    if (userPreferences?.locationBookingFilters) {
-      setFilters(userPreferences?.locationBookingFilters);
-    }
+    if (!userPreferences?.locationBookingFilters) return;
+    setFilters(userPreferences?.locationBookingFilters);
   }, [userPreferences]);
+
+  useEffect(() => {
+    if (!clinicianId) return;
+    setFilters(filters => ({ ...filters, clinicianId: [clinicianId] }));
+  }, [clinicianId]);
 
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,

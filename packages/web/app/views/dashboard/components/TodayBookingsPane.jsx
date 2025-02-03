@@ -223,16 +223,8 @@ export const TodayBookingsPane = ({ showTasks }) => {
     ).data?.data ?? [];
   const history = useHistory();
 
-  const onViewAll = async () => {
-    await mutateUserPreferences({
-      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-      value: {
-        locationGroupIds: [],
-        clinicianId: [currentUser?.id],
-        bookingTypeId: [],
-      },
-    });
-    history.push(`/appointments/locations`);
+  const onViewAll = () => {
+    history.push(`/appointments/locations?clinicianId=${currentUser?.id}`);
   };
 
   const onLocationBookingsClick = async () => {

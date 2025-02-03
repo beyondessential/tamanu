@@ -9,7 +9,10 @@ import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { debounce, omit } from 'lodash';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import {
+  LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
+  useLocationBookingsContext,
+} from '../../../contexts/LocationBookings';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -20,13 +23,6 @@ const FormListener = () => {
   const { values } = useFormikContext();
   const { setFilters } = useLocationBookingsContext();
   useEffect(() => setFilters(values), [values, setFilters]);
-};
-
-const emptyValues = {
-  locationGroupIds: [],
-  clinicianId: [],
-  bookingTypeId: [],
-  patientNameOrId: '',
 };
 
 export const LocationBookingsFilter = () => {
@@ -86,9 +82,9 @@ export const LocationBookingsFilter = () => {
             />
             <TextButton
               onClick={() => {
-                setValues(emptyValues);
-                setFilters(emptyValues);
-                updateUserPreferences(emptyValues);
+                setValues(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                setFilters(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                updateUserPreferences(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
             >
