@@ -45,18 +45,17 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => (
-          <div onMouseEnter={() => setSelectedResponse(data)}>
-            <MenuButton
-              actions={[
-                {
-                  label: <TranslatedText stringId="general.action.print" fallback="Print" />,
-                  action: () => {
-                    setPrintModalOpen(true);
-                  },
+          <MenuButton
+            actions={[
+              {
+                label: <TranslatedText stringId="general.action.print" fallback="Print" />,
+                action: () => {
+                  setSelectedResponse(data);
+                  setPrintModalOpen(true);
                 },
-              ]}
-            />
-          </div>
+              },
+            ]}
+          />
         ),
         required: false,
       },
