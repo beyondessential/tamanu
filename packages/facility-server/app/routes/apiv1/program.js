@@ -35,10 +35,10 @@ program.get(
     });
 
     // Don't include programs that don't have any permitted survey to submit
-    const canSubmit = (survey) => ability.can('submit', survey);
-    const hasAnySurveys = (programRecord) => programRecord.surveys.some(canSubmit);
+    const canSubmit = survey => ability.can('submit', survey);
+    const hasAnySurveys = programRecord => programRecord.surveys.some(canSubmit);
     const filteredRecords = records.filter(hasAnySurveys);
-    const data = filteredRecords.map((x) => x.forResponse());
+    const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
       count: data.length,
@@ -60,7 +60,7 @@ programRelations.get(
       },
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
-    const data = filteredRecords.map((x) => x.forResponse());
+    const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
       count: data.length,
