@@ -13,7 +13,7 @@ import {
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import type { ReadSettings } from '@tamanu/settings';
+import type { ReadSettings } from '@tamanu/settings/reader';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -330,7 +330,15 @@ export class AppointmentSchedule extends Model {
 
     const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
     if (isFullyGenerated) {
-      await this.update({ isFullyGenerated });
+      await this.update({
+        isFullyGenerated,
+        // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
+        // and clear the occurrenceCount
+        ...(this.occurrenceCount && {
+          untilDate: appointments.at(-1)!.startTime,
+          occurrenceCount: null,
+        }),
+      });
     }
     return appointments;
   }

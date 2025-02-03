@@ -338,7 +338,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       // Note: currently supports a single day of the week
       setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
 
-      handleResetRepeatUntilDate(startTimeDate);
+      // Don't update the until date if occurence count is set
+      if (!values.schedule.occurrenceCount) {
+        handleResetRepeatUntilDate(startTimeDate);
+      }
     };
 
     return (
