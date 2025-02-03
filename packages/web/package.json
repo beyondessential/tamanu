@@ -109,7 +109,7 @@
     "react-scripts": "5.0.1",
     "react-select": "^4.2.1",
     "react-toastify": "8.2.0",
-    "recharts": "^2.15.1",
+    "recharts": "^2.6.2",
     "redux": "^4.0.2",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
