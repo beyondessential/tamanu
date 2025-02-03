@@ -5,6 +5,7 @@ sql: |
         completed_at,
         json_array_elements_text(debug_info->'facilityIds') as facility_id
     from sync_sessions
+    where debug_info->>'isMobile' <> 'true'
   )
   select distinct facility_id from sync_sessions_with_facility_id
   where created_at > current_timestamp - '48 hours'::interval
