@@ -23,7 +23,7 @@ const Loader = styled.div`
   .MuiTypography-root {
     margin-top: 40px;
     font-size: 16px;
-    color: ${props => props.theme.palette.text.secondary};
+    color: ${(props) => props.theme.palette.text.secondary};
   }
 `;
 
@@ -62,7 +62,7 @@ const PDFViewer = React.memo(({ id, children }) => {
   return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={id} />;
 });
 
-export const printPDF = elementId => {
+export const printPDF = (elementId) => {
   const iframe = document.getElementById(elementId);
   iframe.contentWindow.print();
 };

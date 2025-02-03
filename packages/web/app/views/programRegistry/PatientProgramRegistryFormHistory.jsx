@@ -5,11 +5,11 @@ import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetai
 import { SurveyResultBadge } from '../../components/SurveyResultBadge';
 import { SurveyResponsesPrintModal } from '../../components/PatientPrinting/modals/SurveyResponsesPrintModal';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
+import { printPDF } from '../../components/PatientPrinting/PDFLoader';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [selectedResponse, setSelectedResponse] = useState(null);
-  const [printModalOpen, setPrintModalOpen] = useState(false);
 
   const { data: patient } = usePatientDataQuery(patientProgramRegistration.patientId);
 
@@ -45,13 +45,18 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => (
-          <div onMouseEnter={() => setSelectedResponse(data)}>
+          <div>
             <MenuButton
               actions={[
                 {
                   label: <TranslatedText stringId="general.action.print" fallback="Print" />,
                   action: () => {
-                    setPrintModalOpen(true);
+                    setSelectedResponse(data);
+                    try {
+                      printPDF('survey-responses-printout');
+                    } catch (e) {
+                      // Do nothing and let the iframe on load handler initiate the print
+                    }
                   },
                 },
               ]}
@@ -74,12 +79,10 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       <SurveyResponseDetailsModal
         surveyResponseId={selectedResponseId}
         onClose={() => setSelectedResponseId(null)}
-        onPrint={() => setPrintModalOpen(true)}
       />
       {patient && selectedResponse && (
         <SurveyResponsesPrintModal
-          open={printModalOpen}
-          onClose={() => setPrintModalOpen(false)}
+          key={selectedResponse.id}
           patient={patient}
           surveyResponseId={selectedResponse.id}
           submittedBy={selectedResponse.submittedBy}

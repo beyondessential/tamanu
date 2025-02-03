@@ -3,10 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
-
-import { Modal, TranslatedText } from '../..';
-import { Colors } from '../../../constants';
-import { PDFLoader, printPDF } from '../PDFLoader';
+import { PDFPrinter } from '../PDFPrinter';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -14,7 +11,7 @@ import { useSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQu
 import { useAuth } from '../../../contexts/Auth';
 
 export const SurveyResponsesPrintModal = React.memo(
-  ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
+  ({ patient, surveyResponseId, title, isReferral, submittedBy, onPrint }) => {
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const api = useApi();
@@ -29,10 +26,8 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const {
-      data: additionalData,
-      isLoading: isAdditionalDataLoading,
-    } = usePatientAdditionalDataQuery(patient.id);
+    const { data: additionalData, isLoading: isAdditionalDataLoading } =
+      usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
@@ -42,7 +37,8 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(surveyResponseId);
+    const { data: surveyResponse, isLoading: surveyResponseLoading } =
+      useSurveyResponseQuery(surveyResponseId);
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', surveyResponse?.userId],
@@ -61,34 +57,22 @@ export const SurveyResponsesPrintModal = React.memo(
       (isFacilityLoading && facilityId);
 
     return (
-      <Modal
-        title={
-          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
-        }
-        open={open}
-        onClose={onClose}
-        width="md"
-        color={Colors.white}
-        printable
-        onPrint={() => printPDF('survey-responses-printout')}
-      >
-        <PDFLoader isLoading={isLoading} id="survey-responses-printout">
-          <SurveyResponsesPrintout
-            patientData={{ ...patient, additionalData, village }}
-            surveyResponse={{
-              ...surveyResponse,
-              title,
-              submittedBy: submittedBy || user?.displayName,
-            }}
-            certificateData={certificateData}
-            getLocalisation={getLocalisation}
-            getTranslation={getTranslation}
-            isReferral={isReferral}
-            currentUser={currentUser}
-            facility={facility}
-          />
-        </PDFLoader>
-      </Modal>
+      <PDFPrinter isLoading={isLoading} id="survey-responses-printout" onPrint={onPrint}>
+        <SurveyResponsesPrintout
+          patientData={{ ...patient, additionalData, village }}
+          surveyResponse={{
+            ...surveyResponse,
+            title,
+            submittedBy: submittedBy || user?.displayName,
+          }}
+          certificateData={certificateData}
+          getLocalisation={getLocalisation}
+          getTranslation={getTranslation}
+          isReferral={isReferral}
+          currentUser={currentUser}
+          facility={facility}
+        />
+      </PDFPrinter>
     );
   },
 );
