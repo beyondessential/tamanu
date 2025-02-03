@@ -107,6 +107,13 @@ export const DateInput = ({
     [onChange, format, name, saveDateAsString, type],
   );
 
+  const onKeyDown = event => {
+    if (event.key === 'Backspace') {
+      setCurrentText('');
+      setIsPlaceholder(true);
+    }
+  };
+
   const onArrowChange = addDaysAmount => {
     const date = parse(currentText, format, new Date());
     const newDate = formatDate(addDays(date, addDaysAmount), format);
@@ -151,6 +158,7 @@ export const DateInput = ({
       type={type}
       value={currentText}
       onChange={onValueChange}
+      onKeyDown={onKeyDown}
       onBlur={handleBlur}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
