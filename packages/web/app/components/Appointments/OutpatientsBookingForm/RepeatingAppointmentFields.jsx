@@ -70,9 +70,17 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
 
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
-    color: ${Colors.primary};
+    color: ${Colors.outline};
     padding: 2px;
   }
+
+  &.${radioClasses.checked} {
+    color: ${Colors.primary};
+    &.${radioClasses.disabled} {
+      opacity: 30%;
+    }
+  }
+
   & svg {
     width: 1.2rem;
     height: 1.2rem;
