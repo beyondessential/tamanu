@@ -38,7 +38,7 @@ const StyledSwitch = styled(Switch)`
     background-color: ${Colors.primary};
     opacity: 1;
   }
-  .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track {
+  .MuiSwitch-switchBase.Mui-disabled.Mui-checked + .MuiSwitch-track {
     background-color: #c2d2e1;
     opacity: 1;
   }
