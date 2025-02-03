@@ -232,30 +232,31 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
             <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => {
-                const actions = canCreateAppointment
-                  ? [
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.newAppointment"
-                            fallback="New appointment"
-                          />
-                        ),
-                        action: () =>
-                          onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule'])),
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.emailAppointment"
-                            fallback="Email appointment"
-                          />
-                        ),
-                        action: () =>
-                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                      },
-                    ]
-                  : [];
+                const actions = [];
+                if (canCreateAppointment) {
+                  // Only show the new appointment action if not a repeating appointment
+                  if (!a.schedule) {
+                    actions.push({
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.newAppointment"
+                          fallback="New appointment"
+                        />
+                      ),
+                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                    });
+                  }
+                  actions.push({
+                    label: (
+                      <TranslatedText
+                        stringId="appointments.action.emailAppointment"
+                        fallback="Email appointment"
+                      />
+                    ),
+                    action: () =>
+                      setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                  });
+                }
                 return (
                   <AppointmentTile
                     key={a.id}
