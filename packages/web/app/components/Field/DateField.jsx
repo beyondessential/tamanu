@@ -75,6 +75,7 @@ export const DateInput = ({
         // field and interrupt their edit
         // instead, simply return early, which will mean the last valid date will be kept
         // (conveniently, this is also what the html date input will display)
+        // however, we -do- still want to change the text colour from the placeholder colour
         return;
       }
 
@@ -111,6 +112,10 @@ export const DateInput = ({
     if (event.key === 'Backspace') {
       setCurrentText('');
       setIsPlaceholder(true);
+    }
+    // if the user has started typing a date, turn off placeholder styling
+    if (event.key.length === 1) {
+      setIsPlaceholder(false);
     }
   };
 
