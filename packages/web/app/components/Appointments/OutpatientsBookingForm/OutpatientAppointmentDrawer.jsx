@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
-import { format, isAfter, parseISO, add } from 'date-fns';
+import {
+  format,
+  isAfter,
+  parseISO,
+  add,
+  set as dateFnsSet,
+  getYear,
+  getDate,
+  getMonth,
+} from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -12,7 +21,7 @@ import {
   REPEAT_FREQUENCY,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -344,6 +353,23 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       }
     };
 
+    const handleUpdateStartTime = event => {
+      const startTimeDate = parseISO(event.target.value);
+      handleUpdateScheduleToStartTime(startTimeDate);
+      if (!values.endTime) return;
+      // Update the end time to match the new start time date
+      setFieldValue(
+        'endTime',
+        toDateTimeString(
+          dateFnsSet(parseISO(values.endTime), {
+            year: getYear(startTimeDate),
+            date: getDate(startTimeDate),
+            month: getMonth(startTimeDate),
+          }),
+        ),
+      );
+    };
+
     return (
       <Drawer
         open={open}
@@ -411,14 +437,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning
-            isEdit={isEdit}
-            onChange={e => {
-              const newValue = e.target.value;
-              setFieldValue('startTime', newValue);
-              handleUpdateScheduleToStartTime(parseISO(newValue));
-            }}
-          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} onChange={handleUpdateStartTime} />
           <Field
             name="endTime"
             disabled={!values.startTime}
