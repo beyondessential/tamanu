@@ -202,15 +202,21 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Name</LeftCell>
-        <Cell style={{ width: 150 }}>{getFullName(data)}</Cell>
+        <FlexCell>{getFullName(data)}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Ethnicity</LeftCell>
+        <Cell style={{ width: 150 }}>{getEthnicity(data)}</Cell>
         <Cell style={{ width: 90 }} bold>
           Nationality
         </Cell>
         <FlexCell>{data?.additionalData?.nationality?.name}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Ethnicity</LeftCell>
-        <Cell style={{ width: 150 }}>{getEthnicity(data)}</Cell>
+        <LeftCell>Date of birth</LeftCell>
+        <Cell style={{ width: 150 }}>
+          {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
+        </Cell>
         <Cell style={{ width: 90 }} bold>
           Marital status
         </Cell>
@@ -219,38 +225,36 @@ const ParentSection = ({ parentType, data = {} }) => {
         </FlexCell>
       </Row>
       <Row>
-        <LeftCell>Date of birth</LeftCell>
-        <Cell style={{ width: 150 }}>
-          {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
-        </Cell>
+        <LeftCell>Occupation</LeftCell>
+        <Cell style={{ width: 150 }}>{data?.occupation?.name}</Cell>
         <Cell style={{ width: 90 }} bold>
           Age
         </Cell>
         <FlexCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Occupation</LeftCell>
-        <Cell style={{ width: 150 }}>{data?.occupation?.name}</Cell>
+        <LeftCell>Address</LeftCell>
+        <Cell style={{ width: 150 }}>{data?.additionalData?.streetVillage}</Cell>
+        <Cell style={{ width: 90 }} bold>
+          Village
+        </Cell>
+        <FlexCell>{data?.village?.name}</FlexCell>
+      </Row>
+      <Row>
+        <LeftCell>Mother&apos;s name</LeftCell>
+        <Cell style={{ width: 150 }}>{getFullName(data?.father)}</Cell>
         <Cell style={{ width: 90 }} bold>
           Patient ID
         </Cell>
         <FlexCell>{data?.displayId}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Address</LeftCell>
-        <Cell style={{ width: 150 }}>{data?.additionalData?.streetVillage}</Cell>
+        <LeftCell>Father&apos;s name</LeftCell>
+        <Cell style={{ width: 150 }}>{getFullName(data?.father)}</Cell>
         <Cell style={{ width: 90 }} bold>
           Phone number
         </Cell>
         <FlexCell>{data?.additionalData?.primaryContactNumber}</FlexCell>
-      </Row>
-      <Row>
-        <LeftCell>Mother&apos;s name</LeftCell>
-        <FlexCell>{getFullName(data?.mother)}</FlexCell>
-      </Row>
-      <Row>
-        <LeftCell>Father&apos;s name</LeftCell>
-        <FlexCell>{getFullName(data?.father)}</FlexCell>
       </Row>
     </Table>
   );
