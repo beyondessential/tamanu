@@ -65,6 +65,7 @@ export const DateInput = ({
 
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
+  const [isRemounting, setIsRemounting] = useState(false);
 
   const onValueChange = useCallback(
     event => {
@@ -126,7 +127,14 @@ export const DateInput = ({
     onValueChange({ target: { value: newDate } });
   };
 
-  const handleBlur = () => {
+  const handleBlur = e => {
+    // if the final input is invalid, clear the component value
+    if (!e.target.value) {
+      onChange({ target: { value: '', name } });
+      setCurrentText('');
+      return;
+    }
+
     const date = parse(currentText, format, new Date());
 
     if (max && !keepIncorrectValue) {
@@ -157,6 +165,20 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
   }, [value, format]);
+
+  // If the value is cleared, we need to remount the component to reset the input field
+  // because the html date input doesn't know the difference between an empty string and an invalid
+  // date, so if the value is cleared while the user has partially typed a date, the input will
+  // still show the partially typed date
+  useEffect(() => {
+    if (value === '') {
+      setIsRemounting(true);
+      setTimeout(() => setIsRemounting(false), 0);
+    }
+  }, [value]);
+  if (isRemounting) {
+    return;
+  }
 
   const defaultDateField = (
     <CustomIconTextInput
