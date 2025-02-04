@@ -119,6 +119,6 @@ export const migrationList = [
   removeSettingsValueNotNullConstraint1724900789000,
   updateReferenceDataRelationIndex1714605577000,
   removeLabTestStatus1734072605000,
-  standardiseCaseAndPluralityOfAllTables1734080053767
+  standardiseCaseAndPluralityOfAllTables1734080053767,
   addIsSensitiveColumnToLabTestTypes1738620786000,
 ];
