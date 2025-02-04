@@ -78,7 +78,7 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
 
       const where = {
         [Op.or]: [
