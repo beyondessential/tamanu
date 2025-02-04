@@ -72,12 +72,12 @@ export const DateInput = ({
   // date, so if the value is cleared while the user has partially typed a date, the input will
   // still show the partially typed date
   const [isRemounting, setIsRemounting] = useState(false);
-  const clearValue = () => {
+  const clearValue = useCallback(() => {
     onChange({ target: { value: '', name } });
     setIsRemounting(true);
     setTimeout(() => setIsRemounting(false), 0);
     setIsPlaceholder(true);
-  };
+  }, [onChange, name]);
 
   const onValueChange = useCallback(
     event => {
@@ -118,7 +118,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type],
+    [onChange, format, name, saveDateAsString, type, clearValue],
   );
 
   const onKeyDown = event => {
@@ -177,7 +177,9 @@ export const DateInput = ({
     };
   }, [value, format]);
 
-  const defaultDateField = (
+  // We create two copies of the DateField component, so that we can have a temporary one visible
+  // during remount (for more on that, see the remounting description at the top of this component)
+  const normalDateField = (
     <CustomIconTextInput
       type={type}
       value={currentText}
@@ -193,6 +195,20 @@ export const DateInput = ({
     />
   );
 
+  const remountingDateField = (
+    <CustomIconTextInput
+      key={'remounting'}
+      type={type}
+      InputProps={{
+        inputProps,
+      }}
+      style={{ color: Colors.softText }}
+      {...props}
+    />
+  );
+
+  const activeDateField = isRemounting ? remountingDateField : normalDateField;
+
   const ContainerWithArrows = ({ children }) => (
     <Box display="flex" alignContent="center">
       <DefaultIconButton onClick={() => onArrowChange(-1)}>
@@ -205,12 +221,7 @@ export const DateInput = ({
     </Box>
   );
 
-  // see top of the component for why we need remounting
-  if (isRemounting) {
-    return;
-  }
-
-  return arrows ? <ContainerWithArrows>{defaultDateField}</ContainerWithArrows> : defaultDateField;
+  return arrows ? <ContainerWithArrows>{activeDateField}</ContainerWithArrows> : activeDateField;
 };
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
