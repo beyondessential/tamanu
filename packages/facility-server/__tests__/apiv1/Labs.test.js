@@ -611,6 +611,42 @@ describe('Labs', () => {
         expect(hasOtherFacility).toBe(true);
       });
     });
+
+    describe('Permissions', () => {
+      let sensitiveLabRequestId;
+
+      beforeAll(async () => {
+        await models.LabRequest.truncate({ cascade: true, force: true });
+
+        for (let i = 0; i < 3; i++) {
+          await models.LabRequest.createWithTests(
+            await randomLabRequest(models, { patientId }),
+          );
+        }
+
+        const labRequestData = await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+        const labTestType = await models.LabTestType.create(
+          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+        );
+        labRequestData.labTestTypeIds.push(labTestType.id);
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        sensitiveLabRequestId = sensitiveLabRequest.id;
+      });
+
+      it('should exclude sensitive lab requests', async () => {
+        const result = await app.get('/api/labRequest?allFacilities=true');
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(3);
+        expect(result.body.data.length).toBe(3);
+        const labIds = result.body.data.map(lab => lab.id);
+        const hasSensitiveRequest = labIds.includes(sensitiveLabRequestId);
+        expect(hasSensitiveRequest).toBe(false);
+      });
+    });
   });
 });
 async function createTestTypesForPanel(models, labTestPanel) {
