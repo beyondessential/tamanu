@@ -594,6 +594,7 @@ describe('Labs', () => {
       it('should omit external requests when allFacilities is false', async () => {
         const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
         expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(3);
         result.body.data.forEach((lr) => {
           expect(lr.facilityId).toBe(facilityId);
         });
@@ -602,7 +603,7 @@ describe('Labs', () => {
       it('should include all requests when allFacilities is true', async () => {
         const result = await app.get(`/api/labRequest?allFacilities=true`);
         expect(result).toHaveSucceeded();
-  
+        expect(result.body.count).toBe(6);
         const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
         expect(hasConfigFacility).toBe(true);
   
