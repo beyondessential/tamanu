@@ -4,7 +4,7 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
+  createDummyPrescription,
   createDummyPatient,
 } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
@@ -860,13 +860,19 @@ describe('Encounter', () => {
         });
 
         // Create two encounter medications with specific quantities to compare
-        const medicationOne = await models.EncounterMedication.create({
-          ...(await createDummyEncounterMedication(models, { quantity: 1 })),
-          encounterId: encounter.id,
+        const medicationOne = await models.Prescription.create({
+          ...(await createDummyPrescription(models, { quantity: 1 })),
         });
-        const medicationTwo = await models.EncounterMedication.create({
-          ...(await createDummyEncounterMedication(models, { quantity: 2 })),
+        await models.EncounterPrescription.create({
           encounterId: encounter.id,
+          prescriptionId: medicationOne.id,
+        });
+        const medicationTwo = await models.Prescription.create({
+          ...(await createDummyPrescription(models, { quantity: 2 })),
+        });
+        await models.EncounterPrescription.create({
+          encounterId: encounter.id,
+          prescriptionId: medicationTwo.id,
         });
 
         // Mark only one medication for discharge
@@ -894,10 +900,20 @@ describe('Encounter', () => {
         // Reload medications and make sure only the first one got edited
         await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
 
+        const medicationOneObject = await models.Prescription.findByPk(medicationOne.id, {
+          include: 'encounters',
+        });
+
         // Only compare explicitly set values
-        expect(medicationOne.dataValues).toMatchObject({
+        expect(medicationOneObject.dataValues).toMatchObject({
           id: medicationOne.id,
-          isDischarge: true,
+          encounters: expect.arrayContaining([
+            expect.objectContaining({
+              EncounterPrescription: expect.objectContaining({
+                isDischarge: true,
+              }),
+            }),
+          ]),
           quantity: 3,
           repeats: 0,
         });
