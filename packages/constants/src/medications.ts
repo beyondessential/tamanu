@@ -1,5 +1,3 @@
-import { ENGLISH_LANGUAGE_CODE } from './translations';
-
 export const DRUG_ROUTES = {
   dermal: 'dermal',
   ear: 'ear',
