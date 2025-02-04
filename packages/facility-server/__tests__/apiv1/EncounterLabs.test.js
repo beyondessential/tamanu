@@ -2,10 +2,11 @@ import { isEqual } from 'lodash';
 import {
   createDummyEncounter,
   createDummyPatient,
+  randomReferenceId,
 } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 async function createLabRequest(models, overrides) {
@@ -197,6 +198,44 @@ describe('Encounter labs', () => {
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
       expect(result.body.data[0].notes[0].content).toEqual(note.content);
+    });
+
+    it('should only return non-sensitive lab requests (all lab tests are non-sensitive)', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      });
+
+      // Create a lab request that includes 2 non-sensitive tests and 1 sensitive
+      const labRequestData = await randomLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      });
+      const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+      const labTestType = await models.LabTestType.create(
+        fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+      );
+      labRequestData.labTestTypeIds.push(labTestType.id);
+      await models.LabRequest.createWithTests(labRequestData);
+
+      const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 2,
+        data: expect.any(Array),
+      });
+
+      // The count will match number of lab requests without accounting for sensitive ones
+      // so that's why we ensure there is only one lab request included
+      expect(result.body.data.length).toBe(1);
+      expect(result.body.data[0].id).toBe(labRequest1.id);
     });
   });
 });
