@@ -126,7 +126,7 @@ export const DateInput = ({
       clearValue();
     }
     // if the user has started typing a date, turn off placeholder styling
-    if (event.key.length === 1) {
+    if (event.key.length === 1 && isPlaceholder) {
       setIsPlaceholder(false);
     }
   };
@@ -197,7 +197,7 @@ export const DateInput = ({
 
   const remountingDateField = (
     <CustomIconTextInput
-      key={'remounting'}
+      key="remounting"
       type={type}
       InputProps={{
         inputProps,
