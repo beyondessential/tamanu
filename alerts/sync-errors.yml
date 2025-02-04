@@ -2,7 +2,7 @@ sql: |
   SELECT
     id,
     errors::text,
-    debug_info->>'facilityId' AS facility_id,
+    json_array_elements_text(debug_info->'facilityIds') AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
   FROM sync_sessions

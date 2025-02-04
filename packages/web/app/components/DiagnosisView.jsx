@@ -44,7 +44,7 @@ const AddDiagnosisButton = styled(Button)`
   height: fit-content;
 `;
 
-export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
+export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
   const { diagnoses, id } = encounter;
   const [diagnosis, editDiagnosis] = React.useState(null);
   const { ability } = useAuth();
@@ -55,7 +55,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
   const DiagnosesDisplay = canListDiagnoses ? (
     <>
       <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} />
-      <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
+      <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readOnly && editDiagnosis} />
     </>
   ) : (
     <>
@@ -86,7 +86,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
           onClick={() => editDiagnosis({})}
           variant="outlined"
           color="primary"
-          disabled={readonly}
+          disabled={readOnly}
         >
           <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
         </AddDiagnosisButton>

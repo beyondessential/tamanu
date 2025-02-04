@@ -1,14 +1,12 @@
 import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import json5Plugin from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 /** @see https://vitejs.dev/config */
-export default async ({ mode }) => {
-  Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
-
+export default async () => {
   let revision;
   try {
     revision = execSync('git log --format="%h" -n1', { timeout: 100, encoding: 'utf-8' }).trim();
@@ -69,7 +67,7 @@ export default async ({ mode }) => {
       proxy: {
         '/api': {
           target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.internal.tamanu.io',
-          // specify other servers to use as backend by setting the variable in a .env file, e.g.
+          // specify other servers to use as backend by setting the environment variable, e.g.
           // TAMANU_VITE_TARGET=http://localhost:3000
           // TAMANU_VITE_TARGET=http://localhost:4000
           // TAMANU_VITE_TARGET=https://central.main.internal.tamanu.io

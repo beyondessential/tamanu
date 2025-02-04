@@ -1,4 +1,5 @@
 import React from 'react';
+import { omit } from 'lodash';
 import styled from 'styled-components';
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';
@@ -6,7 +7,7 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
-import { WS_EVENTS } from '@tamanu/constants';
+import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
 import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -23,6 +24,7 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
+import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
@@ -207,7 +209,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -228,7 +230,10 @@ export const TodayBookingsPane = ({ showTasks }) => {
   };
 
   const onLocationBookingsClick = async () => {
-    await mutateUserPreferences({ locationBookingFilters: {} });
+    await mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+      value: omit(LOCATION_BOOKINGS_EMPTY_FILTER_STATE, ['patientNameOrId']),
+    });
     history.push(`/appointments/locations`);
   };
 
@@ -238,7 +243,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         <Heading4 margin={0}>
           <TranslatedText
             stringId="dashboard.bookings.todayBookings.title"
-            fallback="Today's Bookings"
+            fallback="Today's bookings"
           />
         </Heading4>
         {!!appointments.length && (

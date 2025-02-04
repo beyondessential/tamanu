@@ -6,10 +6,6 @@ TODO
 TODO
 {% enddocs %}
 
-{% docs user_preferences__selected_graphed_vitals_on_filter %}
-TODO
-{% enddocs %}
-
 {% docs user_preferences__key %}
 TODO
 {% enddocs %}
@@ -18,6 +14,6 @@ TODO
 TODO
 {% enddocs %}
 
-{% docs user_preferences__clinician_dashboard_tasking_table_filter %}
-In the Clinician dashboard, tasking tables can be filtered. This is remembered per user.
+{% docs user_preferences__facility_id %}
+TODO
 {% enddocs %}

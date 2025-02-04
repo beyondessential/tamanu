@@ -23,12 +23,17 @@ export const DateTimeRangePicker = ({
   const hasSelectedLocation = !!values.locationId;
 
   const dateFieldValue = values[datePickerName];
-  const isValidDate = isValid(parseISO(dateFieldValue));
+  const isValidDate = dateFieldValue && isValid(parseISO(dateFieldValue));
 
   const { id: appointmentId, locationId } = values;
 
   /** Keep synchronised with start date field for overnight bookings */
   const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
+
+  const clearStartEndTimes = () => {
+    setFieldValue('startTime', undefined);
+    setFieldValue('endTime', undefined);
+  };
 
   return (
     <>
@@ -41,6 +46,7 @@ export const DateTimeRangePicker = ({
         onChange={e => {
           updateSelectedCell({ date: parseISO(e.target.value) });
           flushChangeToStartDateField(e);
+          clearStartEndTimes();
         }}
         required={required}
         saveDateAsString

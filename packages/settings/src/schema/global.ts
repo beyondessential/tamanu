@@ -52,6 +52,16 @@ export const globalSettings = {
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
+    appointments: {
+      description: 'Appointment settings',
+      properties: {
+        maxRepeatingAppointmentsPerGeneration: {
+          description: 'The maximum number of appointments that can be generated at once',
+          type: yup.number().min(1),
+          defaultValue: 50,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -989,7 +999,7 @@ export const globalSettings = {
         patientTabs: {
           description: 'The tabs on patient view',
           properties: {
-            history: {
+            summary: {
               description: '_',
               properties: unhideableLayoutModuleProperties,
             },

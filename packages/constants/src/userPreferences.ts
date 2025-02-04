@@ -1,4 +1,5 @@
 export const USER_PREFERENCES_KEYS = {
+  CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER: 'clinicianDashboardTaskingTableFilter',
   ENCOUNTER_TAB_ORDERS: 'encounterTabOrders',
   SELECTED_GRAPHED_VITALS_ON_FILTER: 'selectedGraphedVitalsOnFilter',
   SELECTED_GRAPHED_CHARTS_ON_FILTER: 'selectedGraphedChartsOnFilter',

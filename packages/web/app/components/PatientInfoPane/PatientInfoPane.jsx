@@ -18,7 +18,7 @@ import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegi
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { isErrorUnknownAllow404s, useApi } from '../../api';
+import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
@@ -212,14 +212,14 @@ export const PatientInfoPane = () => {
   const patient = useSelector(state => state.patient);
   const api = useApi();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
-  const { data: deathData, isLoading } = useQuery(
+  const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
-    () => api.get(`patient/${patient.id}/death`, { isErrorUnknown: isErrorUnknownAllow404s }),
-    { enabled: patientDeathsEnabled },
+    () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
+    { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 
-  const readonly = !!patient.death;
-  const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
+  const readonly = !!patient.dateOfDeath;
+  const showRecordDeathActions = !isFetching && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   return (
