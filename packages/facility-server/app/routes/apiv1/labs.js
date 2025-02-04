@@ -241,7 +241,7 @@ labRequest.get(
 
     const queryCte = `
       WITH sensitive_labs AS (
-        SELECT lab_requests.id as id, true as is_sensitive
+        SELECT lab_requests.id as id, TRUE as is_sensitive
         FROM lab_requests
         INNER JOIN lab_tests
           ON (lab_requests.id = lab_tests.lab_request_id)
