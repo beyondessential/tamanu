@@ -111,7 +111,7 @@ export const DateInput = ({
 
   const onKeyDown = event => {
     if (event.key === 'Backspace') {
-      setCurrentText('');
+      onChange({ target: { value: '', name } });
       setIsPlaceholder(true);
     }
     // if the user has started typing a date, turn off placeholder styling
