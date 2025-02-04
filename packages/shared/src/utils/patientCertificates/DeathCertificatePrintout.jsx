@@ -11,6 +11,7 @@ import {
   getNationality,
   getEthnicity,
   getClinician,
+  getVillage,
 } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -214,6 +215,7 @@ const PATIENT_DETAIL_FIELDS = {
     { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'dateOfBirth', label: 'DOB', accessor: getDob },
     { key: 'ethnicity', label: 'Ethnicity', accessor: getEthnicity },
+    { key: 'village', label: 'Village', accessor: getVillage },
   ],
 };
 
