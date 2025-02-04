@@ -95,7 +95,7 @@ const FormFields = () => {
         <Field
           component={FilterField}
           endpoint="practitioner"
-          label={getTranslation('general.area.clinician', 'Clinician')}
+          label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
           name="clinicianId"
           onChange={e => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
         />
