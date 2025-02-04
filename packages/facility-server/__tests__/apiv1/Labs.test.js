@@ -495,6 +495,29 @@ describe('Labs', () => {
         });
         expect(response).toHaveRequestError(404);
       });
+
+      it('should fail with forbidden if trying to update sensitive lab test', async () => {
+        const labRequestData = await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+        const labTestType = await models.LabTestType.create(
+          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+        );
+        labRequestData.labTestTypeIds.push(labTestType.id);
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [,, sensitiveTest] = await sensitiveLabRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const response = await app.put(`/api/labRequest/${sensitiveLabRequest.id}/tests`).send({
+          [sensitiveTest.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+        });
+        expect(response).toBeForbidden();
+      });
     });
   });
 
