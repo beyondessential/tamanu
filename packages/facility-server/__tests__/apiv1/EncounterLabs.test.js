@@ -8,6 +8,14 @@ import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 import { fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
+async function createLabRequest(models, overrides) {
+  const labRequest = await models.LabRequest.createWithTests(
+    await randomLabRequest(models, { ...overrides }),
+  );
+
+  return labRequest;
+}
+
 describe('Encounter labs', () => {
   let patient = null;
   let user = null;
@@ -33,19 +41,16 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      const labRequest1 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+      const labRequest1 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
-      const labRequest2 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+
+      const labRequest2 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
@@ -65,48 +70,22 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
+      const statuses = [
+        LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        LAB_REQUEST_STATUSES.CANCELLED,
+        LAB_REQUEST_STATUSES.INVALIDATED,
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+      ];
+
+      await Promise.all(statuses.map(status =>
+        createLabRequest(models, {
           patientId: patient.id,
           encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
-      });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
-      });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.CANCELLED,
-        })),
-      });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.INVALIDATED,
-        })),
-      });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.DELETED,
-        })),
-      });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-        })),
-      });
+          status,
+        }),
+      ));
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
@@ -120,31 +99,15 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      const labRequest1 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+      await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
-      });
-
-      // Ensure that the count of results is correct even if Lab Lab Requests have many LabTests
-      // to ensure that count is not flattening the count results
-      await models.LabTest.create({
-        labRequestId: labRequest1.id,
-      });
-      await models.LabTest.create({
-        labRequestId: labRequest1.id,
-      });
-      await models.LabTest.create({
-        labRequestId: labRequest1.id,
+      await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
@@ -159,19 +122,15 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      const labRequest1 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+      const labRequest1 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
-      await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
-        })),
+      await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
       });
 
       const result = await app.get(
@@ -191,14 +150,11 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      const labRequest1 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+      const labRequest1 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
-
       await labRequest1.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
         content: 'Testing lab request note',
@@ -221,12 +177,10 @@ describe('Encounter labs', () => {
         patientId: patient.id,
       });
 
-      const labRequest1 = await models.LabRequest.create({
-        ...(await randomLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        })),
+      const labRequest1 = await createLabRequest(models, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
 
       const note = await labRequest1.createNote({
