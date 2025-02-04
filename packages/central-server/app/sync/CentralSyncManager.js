@@ -605,7 +605,7 @@ export class CentralSyncManager {
         return tock;
       });
 
-      await models.SyncDeviceTick.create({
+      await models.SyncDevice.create({
         deviceId,
         persistedAtSyncTick,
       });
