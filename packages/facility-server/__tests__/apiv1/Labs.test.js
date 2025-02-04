@@ -546,67 +546,69 @@ describe('Labs', () => {
     });
   });
 
-  describe('Filtering by allFacilities', () => {
-    // These are the only statuses returned by the listing endpoint
-    // when no specific argument is included.
-    const VALID_LISTING_LAB_REQUEST_STATUSES = [
-      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-      LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-      LAB_REQUEST_STATUSES.RESULTS_PENDING,
-      LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-      LAB_REQUEST_STATUSES.VERIFIED,
-      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    ];
-    const [facilityId] = selectFacilityIds(config);
-    const otherFacilityId = 'kerang';
-    const makeRequestAtFacility = async (facilityId) => {
-      const location = await models.Location.create({
-        ...fake(models.Location),
-        facilityId,
+  describe('Lab request table endpoint', () => {
+    describe('Filtering by allFacilities', () => {
+      // These are the only statuses returned by the listing endpoint
+      // when no specific argument is included.
+      const VALID_LISTING_LAB_REQUEST_STATUSES = [
+        LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+        LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+        LAB_REQUEST_STATUSES.VERIFIED,
+        LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+      ];
+      const [facilityId] = selectFacilityIds(config);
+      const otherFacilityId = 'kerang';
+      const makeRequestAtFacility = async (facilityId) => {
+        const location = await models.Location.create({
+          ...fake(models.Location),
+          facilityId,
+        });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId,
+        });
+        await models.LabRequest.create({
+          ...fake(models.LabRequest),
+          encounterId: encounter.id,
+          requestedById: app.user.id,
+          status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
+        });
+      };
+  
+      beforeAll(async () => {
+        // Because of the high number of lab requests
+        // the endpoint pagination doesn't return the expected results.
+        await models.LabRequest.truncate({ cascade: true, force: true });
+  
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(otherFacilityId);
+        await makeRequestAtFacility(otherFacilityId);
+        await makeRequestAtFacility(otherFacilityId);
       });
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        locationId: location.id,
-        patientId,
+  
+      it('should omit external requests when allFacilities is false', async () => {
+        const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+        result.body.data.forEach((lr) => {
+          expect(lr.facilityId).toBe(facilityId);
+        });
       });
-      await models.LabRequest.create({
-        ...fake(models.LabRequest),
-        encounterId: encounter.id,
-        requestedById: app.user.id,
-        status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
+  
+      it('should include all requests when allFacilities is true', async () => {
+        const result = await app.get(`/api/labRequest?allFacilities=true`);
+        expect(result).toHaveSucceeded();
+  
+        const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
+        expect(hasConfigFacility).toBe(true);
+  
+        const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
+        expect(hasOtherFacility).toBe(true);
       });
-    };
-
-    beforeAll(async () => {
-      // Because of the high number of lab requests
-      // the endpoint pagination doesn't return the expected results.
-      await models.LabRequest.truncate({ cascade: true, force: true });
-
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(otherFacilityId);
-      await makeRequestAtFacility(otherFacilityId);
-      await makeRequestAtFacility(otherFacilityId);
-    });
-
-    it('should omit external requests when allFacilities is false', async () => {
-      const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
-      expect(result).toHaveSucceeded();
-      result.body.data.forEach((lr) => {
-        expect(lr.facilityId).toBe(facilityId);
-      });
-    });
-
-    it('should include all requests when allFacilities is true', async () => {
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
-      expect(result).toHaveSucceeded();
-
-      const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
-      expect(hasConfigFacility).toBe(true);
-
-      const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
-      expect(hasOtherFacility).toBe(true);
     });
   });
 });
