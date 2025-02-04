@@ -136,7 +136,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       const { dateOfBirth, ...otherValues } = values;
       const newPatient = await Patient.createAndSaveOne<Patient>({
         ...otherValues,
-        dateOfBirth: formatISO9075(dateOfBirth),
+        dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
         displayId: generateId(),
       });
 
