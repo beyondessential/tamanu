@@ -4,7 +4,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { makeDeletedAtIsNullFilter, makeFilter } from './query';
 
-export const createPatientFilters = (filterParams) => {
+export const createPatientFilters = filterParams => {
   const filters = [
     makeFilter(
       filterParams.displayId,
@@ -83,7 +83,7 @@ export const createPatientFilters = (filterParams) => {
     ),
     makeDeletedAtIsNullFilter('encounters'),
     makeDeletedAtIsNullFilter('patients'),
-  ].filter((f) => f);
+  ].filter(f => f);
 
   return filters;
 };
