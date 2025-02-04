@@ -564,19 +564,16 @@ createSuggester(
 createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
-  (search, query) => {
+  (search, query, req) => {
     const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
 
-    return {
-      ...baseWhere,
-      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      id: {
-        [Op.in]: Sequelize.literal(
-          `(
+    const idBaseFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
           SELECT DISTINCT(lab_test_category_id)
           FROM lab_requests
           INNER JOIN
@@ -586,8 +583,33 @@ createSuggester(
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
+      ),
+    };
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const idSensitiveFilter = {
+      [Op.and]: {
+        ...idBaseFilter,
+        [Op.notIn]: Sequelize.literal(
+          `(
+            SELECT DISTINCT(lab_test_types.lab_test_category_id)
+            FROM lab_requests
+            INNER JOIN encounters
+              ON (encounters.id = lab_requests.encounter_id)
+            INNER JOIN lab_tests
+              ON (lab_requests.id = lab_tests.lab_request_id)
+            INNER JOIN lab_test_types
+              ON (lab_test_types.id = lab_tests.lab_test_type_id)
+            WHERE lab_test_types.is_sensitive IS TRUE
+              AND encounters.patient_id = :patient_id
+          )`,
         ),
       },
+    };
+
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: canListSensitive ? idBaseFilter : idSensitiveFilter,
     };
   },
   {
