@@ -8,6 +8,7 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomLabRequest,
+  randomReferenceId,
 } from '@tamanu/database/demoData';
 import { chance, fake } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/database/demoData/labRequests';
@@ -391,6 +392,37 @@ describe('Labs', () => {
       labRequest = await models.LabRequest.createWithTests(
         await randomLabRequest(models, { patientId }),
       );
+    });
+
+    describe('GET', () => {
+      it('should get a list of tests included from lab request', async () => {
+        const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
+        expect(response).toHaveSucceeded();
+        expect(response.body).toMatchObject({
+          count: 2,
+          data: expect.any(Array),
+        });
+      });
+
+      it('should exclude sensitive tests', async () => {
+        const labRequestData = await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+        const labTestType = await models.LabTestType.create(
+          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+        );
+        labRequestData.labTestTypeIds.push(labTestType.id);
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+
+        const response = await app.get(`/api/labRequest/${sensitiveLabRequest.id}/tests`);
+        expect(response).toHaveSucceeded();
+        expect(response.body).toMatchObject({
+          count: 2,
+          data: expect.any(Array),
+        });
+      });
     });
 
     describe('PUT', () => {
