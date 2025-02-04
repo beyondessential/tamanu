@@ -65,7 +65,19 @@ export const DateInput = ({
 
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
+
+  // Weird thing alert:
+  // If the value is cleared, we need to remount the component to reset the input field
+  // because the html date input doesn't know the difference between an empty string and an invalid
+  // date, so if the value is cleared while the user has partially typed a date, the input will
+  // still show the partially typed date
   const [isRemounting, setIsRemounting] = useState(false);
+  const clearValue = () => {
+    onChange({ target: { value: '', name } });
+    setIsRemounting(true);
+    setTimeout(() => setIsRemounting(false), 0);
+    setIsPlaceholder(true);
+  };
 
   const onValueChange = useCallback(
     event => {
@@ -82,7 +94,7 @@ export const DateInput = ({
 
       const formattedValue = event.target.value;
       if (!formattedValue) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
       const date = parse(formattedValue, format, new Date());
@@ -100,7 +112,7 @@ export const DateInput = ({
       setIsPlaceholder(false);
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
 
@@ -111,8 +123,7 @@ export const DateInput = ({
 
   const onKeyDown = event => {
     if (event.key === 'Backspace') {
-      onChange({ target: { value: '', name } });
-      setIsPlaceholder(true);
+      clearValue();
     }
     // if the user has started typing a date, turn off placeholder styling
     if (event.key.length === 1) {
@@ -130,7 +141,7 @@ export const DateInput = ({
   const handleBlur = e => {
     // if the final input is invalid, clear the component value
     if (!e.target.value) {
-      onChange({ target: { value: '', name } });
+      clearValue();
       setCurrentText('');
       return;
     }
@@ -140,7 +151,7 @@ export const DateInput = ({
     if (max && !keepIncorrectValue) {
       const maxDate = parse(max, format, new Date());
       if (isAfter(date, maxDate)) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
     }
@@ -148,7 +159,7 @@ export const DateInput = ({
     if (min && !keepIncorrectValue) {
       const minDate = parse(min, format, new Date());
       if (isBefore(date, minDate)) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
     }
@@ -165,20 +176,6 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
   }, [value, format]);
-
-  // If the value is cleared, we need to remount the component to reset the input field
-  // because the html date input doesn't know the difference between an empty string and an invalid
-  // date, so if the value is cleared while the user has partially typed a date, the input will
-  // still show the partially typed date
-  useEffect(() => {
-    if (value === '') {
-      setIsRemounting(true);
-      setTimeout(() => setIsRemounting(false), 0);
-    }
-  }, [value]);
-  if (isRemounting) {
-    return;
-  }
 
   const defaultDateField = (
     <CustomIconTextInput
@@ -207,6 +204,11 @@ export const DateInput = ({
       </DefaultIconButton>
     </Box>
   );
+
+  // see top of the component for why we need remounting
+  if (isRemounting) {
+    return;
+  }
 
   return arrows ? <ContainerWithArrows>{defaultDateField}</ContainerWithArrows> : defaultDateField;
 };
