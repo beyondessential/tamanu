@@ -479,9 +479,10 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
         startTime: '2024-10-16 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -503,9 +504,10 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
         startTime: '2024-10-02 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -517,7 +519,7 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close the existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
+    it('should create a new schedule and close the existing one if schedule data has changed when updating a mid schedule appointment', async () => {
       const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
@@ -534,7 +536,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: thirdAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -577,7 +579,7 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close the existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
+    it('should create a new schedule and close the existing one if schedule data has changed when updating the first appointment in schedule', async () => {
       const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
@@ -594,7 +596,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: firstAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -669,7 +671,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -699,7 +701,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
