@@ -19,6 +19,7 @@ async function generateData(models: Models) {
     Department,
     Discharge,
     Encounter,
+    EncounterPrescription,
     Facility,
     Location,
     LocationGroup,
@@ -37,6 +38,8 @@ async function generateData(models: Models) {
     LabRequestLog,
     LabRequest,
     UserPreference,
+    PatientOngoingPrescription,
+    Prescription,
     ProgramDataElement,
     Program,
     ProgramRegistry,
@@ -175,6 +178,24 @@ async function generateData(models: Models) {
   await UserPreference.create(
     fake(UserPreference, {
       userId: examiner.id,
+    }),
+  );
+
+  const prescription = await Prescription.create(
+    fake(Prescription, {
+      medicationId: referenceData.id,
+    }),
+  );
+  await EncounterPrescription.create(
+    fake(EncounterPrescription, {
+      encounterId: encounter.id,
+      prescriptionId: prescription.id,
+    }),
+  );
+  await PatientOngoingPrescription.create(
+    fake(PatientOngoingPrescription, {
+      patientId: patient.id,
+      prescriptionId: prescription.id,
     }),
   );
   await ProgramDataElement.create(fake(ProgramDataElement));
