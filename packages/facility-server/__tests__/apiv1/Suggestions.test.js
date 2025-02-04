@@ -246,6 +246,7 @@ describe('Suggestions', () => {
   // Labs has functionality for only returning categories that have results for a particular patient
   describe('patientLabTestCategories', () => {
     let patientId;
+    let encounterId;
 
     beforeAll(async () => {
       await models.ReferenceData.destroy({ where: { type: 'labTestCategory' } });
@@ -271,9 +272,10 @@ describe('Suggestions', () => {
       });
       patientId = (await models.Patient.create(await createDummyPatient(models))).id;
 
-      const { id: encounterId } = await models.Encounter.create(
+      const encounter = await models.Encounter.create(
         await createDummyEncounter(models, { patientId }),
       );
+      encounterId = encounter.id;
 
       await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
@@ -316,6 +318,33 @@ describe('Suggestions', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result?.body?.length).toEqual(0);
+    });
+
+    it('should filter lab test categories if lab test types are sensitive', async () => {
+      const { id: sensitiveCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'CC-sensitive',
+        type: 'labTestCategory',
+      });
+      const labRequestData = await randomLabRequest(models, {
+        patientId,
+        labTestCategoryId: sensitiveCategoryId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        encounterId,
+      });
+      // Only 1 of the three tests is sensitive, however, all should be excluded
+      const labTestType = await models.LabTestType.create(
+        fake(models.LabTestType, { labTestCategoryId: sensitiveCategoryId, isSensitive: true }),
+      );
+      labRequestData.labTestTypeIds.push(labTestType.id);
+      await models.LabRequest.createWithTests(labRequestData);
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        patientId,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toEqual(1);
+      expect(result.body[0].name).toEqual('AA-used');
     });
   });
 
