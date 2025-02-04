@@ -542,54 +542,40 @@ describe('Appointments', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.schedule).toBeTruthy();
 
-      const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
+      const updatedExistingSchedule = await models.AppointmentSchedule.findByPk(schedule.id);
+      const updatedExistingScheduleAppointments = await updatedExistingSchedule.getAppointments({
         where: {
-          id: schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-            where: {
-              status: {
-                [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
-              },
-            },
+          status: {
+            [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
           },
-        ],
+        },
+        order: [['startTime', 'ASC']],
       });
 
       expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
-      expect(updatedExistingSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
       ]);
       expect(
-        updatedExistingSchedule.appointments.every(
+        updatedExistingScheduleAppointments.every(
           (a) => a.appointmentTypeId === 'appointmentType-standard',
         ),
       ).toBeTruthy();
 
-      const newSchedule = await models.AppointmentSchedule.findOne({
-        where: {
-          id: result.body.schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-          },
-        ],
+      const newScheduleAppointments = await models.Appointment.findAll({
+        where: { scheduleId: result.body.schedule.id },
+        order: [['startTime', 'ASC']],
       });
 
-      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
         '2024-11-06 12:00:00',
       ]);
       expect(
-        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -637,24 +623,16 @@ describe('Appointments', () => {
       expect(updatedExistingSchedule.untilDate).toEqual('2024-10-02');
       expect(updatedExistingSchedule.appointments).toHaveLength(0);
 
-      const newSchedule = await models.AppointmentSchedule.findOne({
-        where: {
-          id: result.body.schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-          },
-        ],
+      const newScheduleAppointments = await models.Appointment.findAll({
+        where: { scheduleId: result.body.schedule.id },
+        order: [['startTime', 'ASC']],
       });
-
-      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
       expect(
-        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
   });
