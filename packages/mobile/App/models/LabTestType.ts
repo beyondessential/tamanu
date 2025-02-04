@@ -57,5 +57,5 @@ export class LabTestType extends BaseModel implements ILabTestType {
   isSensitive: boolean;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;  
+  visibilityStatus: string;
 }
