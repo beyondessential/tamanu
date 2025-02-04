@@ -61,6 +61,9 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
         headData: locationGroupData?.filter(group => !!cellData[group.id]),
       };
     }
+    if (!groupBy) {
+      return {};
+    }
   }, [appointmentsData?.data, groupBy, usersData, locationGroupData]);
 
   return combinedQuery;
