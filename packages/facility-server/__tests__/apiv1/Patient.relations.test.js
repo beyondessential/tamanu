@@ -815,6 +815,30 @@ describe('Patient relations', () => {
       });
     });
 
+    it('excludes sensitive lab test results', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const labRequestData = await randomLabRequest(models, {
+        patientId: labTestsPatient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        sampleTime: randomDate(),
+      });
+      const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+      const labTestType = await models.LabTestType.create(
+        fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+      );
+      labRequestData.labTestTypeIds.push(labTestType.id);
+      await models.LabRequest.createWithTests(labRequestData);
+
+      const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(12);
+      expect(response.body.data.length).toEqual(12);
+    });
+
     test.todo('Allows filtering lab tests by panel');
   });
 });
