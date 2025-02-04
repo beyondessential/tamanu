@@ -394,7 +394,32 @@ describe('Labs', () => {
       );
     });
 
-    describe('GET', () => {
+    describe('GET individual', () => {
+      it('should get a lab test', async () => {
+        const [labTest] = await labRequest.getTests();
+        const response = await app.get(`/api/labTest/${labTest.id}`);
+        expect(response).toHaveSucceeded();
+        expect(response.body.labRequestId).toBe(labRequest.id);
+      });
+
+      it('should error if lab test is sensitive', async () => {
+        const labRequestData = await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
+        const labTestType = await models.LabTestType.create(
+          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
+        );
+        labRequestData.labTestTypeIds.push(labTestType.id);
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [,, sensitiveTest] = await sensitiveLabRequest.getTests();
+        const response = await app.get(`/api/labTest/${sensitiveTest.id}`);
+        expect(response).toBeForbidden();
+      });
+    });
+
+    describe('GET list', () => {
       it('should get a list of tests included from lab request', async () => {
         const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
         expect(response).toHaveSucceeded();
