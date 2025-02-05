@@ -1260,10 +1260,6 @@ describe('CentralSyncManager', () => {
     });
 
     describe('resolves duplicated display IDs', () => {
-      // beforeEach(async () => {
-      //   await models.Patient.truncate({force: true});
-      // });
-
       it("appends 'duplicate' to existing patient and to-be-synced patient when the display IDs are duplicated", async () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '10';
