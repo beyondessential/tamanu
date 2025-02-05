@@ -82,6 +82,10 @@ export class LocalSystemFact extends Model {
    * @returns The public key of the new keypair
    */
   static async initialiseKeypair(): Promise<Uint8Array> {
+    if (await this.get('sync.secretKey')) {
+      throw new Error('Keypair already exists');
+    }
+
     const secretKey = ed25519.utils.randomPrivateKey();
     await this.set('sync.secretKey', Buffer.from(secretKey).toString('hex'));
     return ed25519.getPublicKey(secretKey);
