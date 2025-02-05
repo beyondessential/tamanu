@@ -119,7 +119,10 @@ export class FacilitySyncManager {
     const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 
-    log.info('FacilitySyncManager.attemptStart', { reason: JSON.stringify(this.reason), startTime });
+    log.info('FacilitySyncManager.attemptStart', {
+      reason: JSON.stringify(this.reason),
+      startTime,
+    });
 
     const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
@@ -131,6 +134,7 @@ export class FacilitySyncManager {
     } = await this.centralServer.startSyncSession({
       urgent: this.reason?.urgent,
       lastSyncedTick: pullSince,
+      models: this.models,
     });
 
     if (!sessionId) {

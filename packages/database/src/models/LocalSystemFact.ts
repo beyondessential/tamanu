@@ -91,15 +91,27 @@ export class LocalSystemFact extends Model {
     return ed25519.getPublicKey(secretKey);
   }
 
+  /** The device's ID is its public key in hex */
+  static async deviceId(): Promise<string> {
+    const secretKey = await this.get('sync.secretKey');
+    if (!secretKey) {
+      await this.initialiseKeypair();
+      return this.deviceId();
+    }
+
+    const publicKey = ed25519.getPublicKey(Buffer.from(secretKey, 'hex'));
+    return Buffer.from(publicKey).toString('hex');
+  }
+
   /** Sign a message using the device's private key. */
   static async sign(message: Uint8Array): Promise<Uint8Array> {
-    const privateKey = await this.get('sync.secretKey');
-    if (!privateKey) {
+    const secretKey = await this.get('sync.secretKey');
+    if (!secretKey) {
       await this.initialiseKeypair();
       return this.sign(message);
     }
 
-    return ed25519.sign(message, Buffer.from(privateKey, 'hex'));
+    return ed25519.sign(message, Buffer.from(secretKey, 'hex'));
   }
 
   /** Verify a signature using the device's public key. */

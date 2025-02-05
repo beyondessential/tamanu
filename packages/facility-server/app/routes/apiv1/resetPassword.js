@@ -7,11 +7,10 @@ export const resetPassword = express.Router();
 resetPassword.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { deviceId } = req;
     // no permission needed
     req.flagPermissionChecked();
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection(req);
     const response = await centralServer.forwardRequest(req, 'resetPassword');
 
     res.send(response);

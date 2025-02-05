@@ -8,7 +8,7 @@ export const patientProfilePicture = express.Router();
 patientProfilePicture.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    const { params, deviceId } = req;
+    const { params } = req;
 
     // what we want is:
     // - the answer body
@@ -33,7 +33,7 @@ patientProfilePicture.get(
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
             AND encounters.deleted_at is null
-          ORDER BY 
+          ORDER BY
             survey_responses.created_at DESC
         LIMIT 1
       `,
@@ -55,7 +55,7 @@ patientProfilePicture.get(
     const attachmentId = result[0].body;
 
     // load the attachment from the central server
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection(req);
     const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });

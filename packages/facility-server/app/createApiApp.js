@@ -19,13 +19,7 @@ import { addFacilityMiddleware } from './addFacilityMiddleware';
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
-export async function createApiApp({
-  sequelize,
-  reportSchemaStores,
-  models,
-  syncConnection,
-  deviceId,
-}) {
+export async function createApiApp({ sequelize, reportSchemaStores, models, syncConnection }) {
   const express = defineExpress();
   const server = createServer(express);
 
@@ -49,7 +43,6 @@ export async function createApiApp({
     req.db = sequelize;
     req.reportSchemaStores = reportSchemaStores;
     req.syncConnection = syncConnection;
-    req.deviceId = deviceId;
     req.language = req.headers['language'];
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;

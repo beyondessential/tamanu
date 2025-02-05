@@ -16,6 +16,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
+import { signChallenge } from './deviceChallenge';
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -31,10 +32,10 @@ const getVersionIncompatibleMessage = (error, response) => {
   return null;
 };
 
-const objectToQueryString = obj =>
+const objectToQueryString = (obj) =>
   Object.entries(obj)
     .filter(([k, v]) => k !== undefined && v !== undefined)
-    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
+    .map((kv) => kv.map((str) => encodeURIComponent(str)).join('='))
     .join('&');
 
 export class CentralServerConnection {
@@ -43,11 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor({ deviceId }) {
+  constructor({ models }) {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = deviceId;
+    this.models = models;
   }
 
   async fetch(endpoint, params = {}) {
@@ -186,7 +187,7 @@ export class CentralServerConnection {
           email,
           password,
           facilityIds,
-          deviceId: this.deviceId,
+          deviceId: await this.models.LocalSystemFact.deviceId(),
         },
         awaitConnection: false,
         retryAuth: false,
@@ -213,13 +214,18 @@ export class CentralServerConnection {
     }
   }
 
-  async startSyncSession({ urgent, lastSyncedTick }) {
+  async startSyncSession({ urgent, lastSyncedTick, models }) {
     const facilityIds = selectFacilityIds(config);
+
+    const { challenge } = await this.fetch('sync/challenge');
+    const signedChallenge = await signChallenge({ models, challenge });
+
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
         facilityIds,
-        deviceId: this.deviceId,
+        deviceId: await this.models.LocalSystemFact.deviceId(),
+        challenge: signedChallenge,
         urgent,
         lastSyncedTick,
       },
@@ -249,8 +255,14 @@ export class CentralServerConnection {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
     const facilityIds = selectFacilityIds(config);
-    const body = { since, facilityIds, deviceId: this.deviceId };
-    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
+    await this.fetch(`sync/${sessionId}/pull/initiate`, {
+      method: 'POST',
+      body: {
+        since,
+        facilityIds,
+        deviceId: await this.models.LocalSystemFact.deviceId(),
+      },
+    });
 
     // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
@@ -278,7 +290,9 @@ export class CentralServerConnection {
     // first off, mark the push as complete on central
     await this.fetch(`sync/${sessionId}/push/complete`, {
       method: 'POST',
-      body: { deviceId: this.deviceId },
+      body: {
+        deviceId: await this.models.LocalSystemFact.deviceId(),
+      },
     });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
