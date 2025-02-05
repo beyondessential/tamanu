@@ -43,7 +43,7 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = props => (
+const TableContainer = (props) => (
   <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />
 );
 
@@ -129,9 +129,9 @@ const signStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
 
-const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
 
 const UnderlinedText = ({ text, style, props }) => (
   <View style={{ ...infoBoxStyles.infoText, ...infoBoxStyles.underlinedText, ...style }} {...props}>
@@ -156,34 +156,48 @@ const CauseField = ({ cause, label, helperText, ...props }) => {
     </View>
   );
 };
-const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
 
-const AuthorisedAndSignSection = () => (
-  <View style={signStyles.container}>
-    <View style={signStyles.row}>
-      <P style={signStyles.text}>Authorised by (print name):</P>
-      <View style={signStyles.line} />
-    </View>
-    <View style={signStyles.row}>
-      <View style={signStyles.leftCol}>
-        <Text style={signStyles.text}>Signed: </Text>
+const AuthorisedAndSignSection = () => {
+  const { getTranslation } = useLanguageContext();
+
+  return (
+    <View style={signStyles.container}>
+      <View style={signStyles.row}>
+        <P style={signStyles.text}>
+          {getTranslation(
+            'pdf.deathCertificate.signature.authorisedBy',
+            'Authorised by (print name)',
+          )}
+          :
+        </P>
         <View style={signStyles.line} />
       </View>
-      <View style={signStyles.rightCol}>
-        <Text style={signStyles.text}>Date:</Text>
-        <View style={signStyles.line} />
+      <View style={signStyles.row}>
+        <View style={signStyles.leftCol}>
+          <Text style={signStyles.text}>
+            {getTranslation('pdf.deathCertificate.signature.signed', 'Signed')}:{' '}
+          </Text>
+          <View style={signStyles.line} />
+        </View>
+        <View style={signStyles.rightCol}>
+          <Text style={signStyles.text}>
+            {getTranslation('pdf.deathCertificate.signature.date', 'Date')}:
+          </Text>
+          <View style={signStyles.line} />
+        </View>
       </View>
     </View>
-  </View>
-);
+  );
+};
 
 const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
 };
 
-const getCauseName = cause => cause?.condition?.name;
+const getCauseName = (cause) => cause?.condition?.name;
 
-const getCauseInfo = cause => {
+const getCauseInfo = (cause) => {
   const name = cause?.condition?.name;
   const timeAfterOnset = cause?.timeAfterOnset;
   return { name, timeAfterOnset };
@@ -194,8 +208,10 @@ const causeOfDeathAccessor = ({ causes }) => {
 };
 
 // Death certificate has a slightly different DOB format to other certificates so needs its own accessor
-const getDob = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
+const getDob = ({ dateOfBirth }, getLocalisation, getTranslation) =>
+  dateOfBirth
+    ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation)
+    : getTranslation('general.fallback.unknown', 'Unknown');
 
 const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
   return `${getDateOfDeath(patientData, {
@@ -230,7 +246,7 @@ const PATIENT_DEATH_DETAILS = {
   ],
 };
 
-const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
+const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
@@ -246,7 +262,10 @@ const DeathCertificatePrintoutComponent = React.memo(
       <Document>
         <Page size="A4" style={{ ...styles.page, paddingBottom: 25 }}>
           <MultiPageHeader
-            documentName="Cause of death certificate"
+            documentName={getTranslation(
+              'pdf.deathCertificate.title',
+              'Cause of death certificate',
+            )}
             patientName={getName(patientData)}
             patientId={patientData.displayId}
           />
@@ -254,10 +273,19 @@ const DeathCertificatePrintoutComponent = React.memo(
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Cause of death certificate"
+              certificateTitle={getTranslation(
+                'pdf.deathCertificate.title',
+                'Cause of death certificate',
+              )}
             />
             <SectionContainer>
-              <DataSection title="Patient details" hideBottomRule>
+              <DataSection
+                title={getTranslation(
+                  'pdf.deathCertificate.section.patientDetails',
+                  'Patient details',
+                )}
+                hideBottomRule
+              >
                 <Col>
                   {renderDataItems(
                     PATIENT_DETAIL_FIELDS.leftCol,
@@ -303,37 +331,50 @@ const DeathCertificatePrintoutComponent = React.memo(
             <InfoBoxRow>
               <InfoBoxLabelCol>
                 <Text style={infoBoxStyles.boldText}>
-                  I {'\n'}
-                  Disease or condition directly {'\n'}
-                  leading to death*
+                  {getTranslation(
+                    'pdf.deathCertificate.causeOfDeath.primary.label',
+                    `I\nDisease or condition directly\nleading to death*`,
+                  )}
                 </Text>
                 <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
-                  Antecedent Causes
+                  {getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.label',
+                    'Antecedent Causes',
+                  )}
                 </Text>
                 <Text style={infoBoxStyles.infoText}>
-                  Morbid conditions, if any,{'\n'}
-                  giving rise to the above cause,{'\n'}
-                  stating the underlying{'\n'}
-                  condition last
+                  {getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.description',
+                    `Morbid conditions, if any,\ngiving rise to the above cause,\nstating the underlying\ncondition last`,
+                  )}
                 </Text>
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
                 <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="a"
-                  helperText="due to (or as a consequence of)"
+                  helperText={getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.dueTo',
+                    'due to (or as a consequence of)',
+                  )}
                   cause={causeOfDeath}
                 />
                 <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="b"
-                  helperText="due to (or as a consequence of)"
+                  helperText={getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.dueTo',
+                    'due to (or as a consequence of)',
+                  )}
                   cause={antecedentCause1}
                 />
                 <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="c"
-                  helperText="due to (or as a consequence of)"
+                  helperText={getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.dueTo',
+                    'due to (or as a consequence of)',
+                  )}
                   cause={antecedentCause2}
                 />
                 <CauseField
@@ -346,11 +387,10 @@ const DeathCertificatePrintoutComponent = React.memo(
             <InfoBoxRow>
               <InfoBoxLabelCol>
                 <Text style={infoBoxStyles.boldText}>
-                  II {'\n'}
-                  Other significant conditions {'\n'}
-                  contributing to the death but{'\n'}
-                  not related to the disease or{'\n'}
-                  condition causing it.{'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.contributingCauses.label',
+                    `II\nOther significant conditions\ncontributing to the death but\nnot related to the disease or\ncondition causing it.\n`,
+                  )}
                 </Text>
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
@@ -370,8 +410,10 @@ const DeathCertificatePrintoutComponent = React.memo(
           </TableContainer>
           <View style={generalStyles.container}>
             <Text style={infoBoxStyles.italicText}>
-              * This does not mean the mode of dying, e.g heart failure, respiratory failure. It
-              means the disease, injury, or complication that caused death.
+              {getTranslation(
+                'pdf.deathCertificate.causeOfDeath.note',
+                '* This does not mean the mode of dying, e.g heart failure, respiratory failure. It means the disease, injury, or complication that caused death.',
+              )}
             </Text>
           </View>
           {deathCertFooterImg ? (

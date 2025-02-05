@@ -6,10 +6,12 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
+import { useTranslation } from '../../../contexts/Translation';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { getLocalisation } = useLocalisation();
+  const { storedLanguage, translations } = useTranslation();
 
   const {
     data: additionalData,
@@ -40,6 +42,8 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             patientData={patientData}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
+            language={storedLanguage}
+            translations={translations}
           />
         </PDFLoader>
       </Modal>
