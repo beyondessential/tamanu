@@ -85,12 +85,11 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession(debugInfo = {}) {
+  async startSession(sessionId, debugInfo = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
 
-    const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
@@ -116,8 +115,6 @@ export class CentralSyncManager {
       sessionId: syncSession.id,
       ...debugInfo,
     });
-
-    return { sessionId: syncSession.id };
   }
 
   async prepareSession(syncSession) {
@@ -565,7 +562,7 @@ export class CentralSyncManager {
     );
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+  async #persistIncomingChanges(sessionId, device, tablesToInclude) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -605,10 +602,8 @@ export class CentralSyncManager {
         return tock;
       });
 
-      await models.SyncDevice.create({
-        deviceId,
-        persistedAtSyncTick,
-      });
+      await device.update({ persistedAtSyncTick });
+
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
       await this.tickTockGlobalClock();
@@ -652,10 +647,12 @@ export class CentralSyncManager {
   async completePush(sessionId, deviceId, tablesToInclude) {
     await this.connectToSession(sessionId);
 
+    const device = await this.store.models.Device.findByPk(deviceId);
+
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
+    this.#persistIncomingChanges(sessionId, device, tablesToInclude).finally(
       unmarkSessionAsProcessing,
     );
   }
