@@ -1352,7 +1352,7 @@ describe('Sync Lookup data', () => {
       await models.SyncDevice.create({
         id: deviceId,
         registeredById: SYSTEM_USER_UUID,
-        persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
+        lastPersistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
       const actualConfig = jest.requireActual('config');
