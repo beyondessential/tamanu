@@ -94,11 +94,14 @@ export const LocationBookingsView = () => {
     openBookingForm({});
   };
 
-  const locationsQuery = useLocationsQuery({
-    facilityId,
-    bookableOnly: true,
-    locationGroupIds: filters.locationGroupIds,
-  });
+  const locationsQuery = useLocationsQuery(
+    {
+      facilityId,
+      bookableOnly: true,
+      locationGroupIds: filters.locationGroupIds,
+    },
+    { keepPreviousData: true },
+  );
 
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
