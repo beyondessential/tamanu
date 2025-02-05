@@ -20,8 +20,11 @@ export const resolveDuplicatedPatientDisplayIds = async (
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
   const patientDisplayIds = changes.filter((c) => !c.isDeleted).map((c) => c.data.displayId);
+  const patientIds = changes.filter((c) => !c.isDeleted).map((c) => c.data.id);
+
+  // Find existing patients that have the same displayIDs and are not the same with the incoming patients
   const existingPatientsWithDuplicatedDisplayIds = await PatientModel.findAll({
-    where: { displayId: { [Op.in]: patientDisplayIds } },
+    where: { displayId: { [Op.in]: patientDisplayIds }, id: { [Op.notIn]: patientIds } },
     raw: true, // Return plain objects instead of Sequelize models
   });
   const existingDisplayIds = existingPatientsWithDuplicatedDisplayIds.map((p) => p.displayId);
