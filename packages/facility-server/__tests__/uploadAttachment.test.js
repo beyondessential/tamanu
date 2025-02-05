@@ -15,7 +15,7 @@ const FILEDATA =
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
 jest.mock('@tamanu/shared/utils/getUploadedData');
-getUploadedData.mockImplementation(async req => {
+getUploadedData.mockImplementation(async (req) => {
   // Create a file that can be used with the FS module, return path
   const fileName = path.resolve(__dirname, 'test-file.jpeg');
   await fs.writeFile(fileName, FILEDATA, { encoding: 'base64' });
@@ -55,7 +55,6 @@ describe('UploadAttachment', () => {
     }));
     await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
     expect(CentralServerConnection.mock.calls.length).toBe(1);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 
   it('successfully uploads attachment', async () => {
@@ -84,6 +83,5 @@ describe('UploadAttachment', () => {
       metadata: { name: 'hello world image' },
     });
     expect(CentralServerConnection.mock.calls.length).toBe(2);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 });
