@@ -274,7 +274,7 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>
-          {getTranslation('pdf.birthNotification.motherName.label', 'Mother&apos;s name')}
+          {getTranslation('pdf.birthNotification.motherName.label', "Mother's name")}
         </LeftCell>
         <Cell style={{ width: 150 }}>{getFullName(data?.mother)}</Cell>
         <Cell style={{ width: 90 }} bold>
@@ -284,7 +284,7 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>
-          {getTranslation('pdf.birthNotification.fatherName.label', 'Father&apos;s name')}
+          {getTranslation('pdf.birthNotification.fatherName.label', "Father's name")}
         </LeftCell>
         <Cell style={{ width: 150 }}>{getFullName(data?.father)}</Cell>
         <Cell style={{ width: 90 }} bold>
