@@ -231,6 +231,17 @@ export const globalSettings = {
             },
           },
         },
+        discharge: {
+          description:
+            'Encounter discharge configuration',
+          properties: {
+            dischargeNoteMandatory: {
+              type: yup.boolean(),
+              defaultValue: false,
+              unit: 'seconds',
+            },
+          },
+        },
       },
     },
     customisations: {
