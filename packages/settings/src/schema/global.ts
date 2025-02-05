@@ -26,6 +26,23 @@ import {
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import {
+  medicationFrequencyDefault,
+  medicationFrequencySchema,
+} from './definitions/medicationFrequencySchema';
+
+const generateFrequencyProperties = (frequencies) => {
+  return Object.fromEntries(
+    frequencies.map((frequency) => [
+      frequency,
+      {
+        description: frequency,
+        type: medicationFrequencySchema(frequency),
+        defaultValue: medicationFrequencyDefault[frequency],
+      },
+    ]),
+  );
+};
 
 export const globalSettings = {
   title: 'Global settings',
@@ -1271,8 +1288,10 @@ export const globalSettings = {
       defaultValue: vitalEditReasonsDefault,
     },
     medications: {
+      description: 'Medication settings',
       properties: {
-        frequencies: {
+        frequenciesEnabled: {
+          description: 'Enable medication frequencies',
           properties: {
             [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
               description: ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING,
@@ -1350,6 +1369,10 @@ export const globalSettings = {
               defaultValue: true,
             },
           },
+        },
+        frequenciesAdministrationTimes: {
+          description: '-',
+          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES)),
         },
       },
     },
