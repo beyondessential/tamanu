@@ -384,6 +384,7 @@ const BirthNotificationCertificateComponent = ({
   certificateData,
 }) => {
   const { logo, watermark } = certificateData;
+  const { getTranslation } = useLanguageContext();
 
   return (
     <Document>
@@ -392,13 +393,19 @@ const BirthNotificationCertificateComponent = ({
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle="Birth Notification"
+            certificateTitle={getTranslation('pdf.birthNotification.title', 'Birth Notification')}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <TopSection facilityName={facility?.name} childDisplayId={childData?.displayId} />
-        <ParentSection parentType="Mother" data={motherData} />
-        <ParentSection parentType="Father" data={fatherData} />
+        <ParentSection
+          parentType={getTranslation('general.localisedField.motherId.label', 'Mother')}
+          data={motherData}
+        />
+        <ParentSection
+          parentType={getTranslation('general.localisedField.fatherId.label', 'Father')}
+          data={fatherData}
+        />
         <ChildSection data={childData} />
         <SignatureSection />
         <Footer />
