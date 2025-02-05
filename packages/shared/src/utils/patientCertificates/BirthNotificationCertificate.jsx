@@ -14,7 +14,7 @@ import {
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
 import { getEthnicity } from '../patientAccessors';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -90,8 +90,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={tableStyles.row} {...props} />;
+const Table = (props) => <View style={tableStyles.table} {...props} />;
+const Row = (props) => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, bold, children }) => (
   <Text bold={bold} style={[tableStyles.p, style]}>
     {children}
@@ -117,48 +117,57 @@ const LeftCell = ({ children }) => (
 );
 
 const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find(e => e.value === v);
+  const entry = mapping.find((e) => e.value === v);
   return entry ? entry.label : '';
 };
 
-const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
+const getFullName = (patient) => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
 
 const ChildSection = ({ data }) => {
-  const causeOfDeath = data?.deathData?.causes?.primary?.condition?.name ?? 'N/A';
+  const { getTranslation } = useLanguageContext();
+  const causeOfDeath =
+    data?.deathData?.causes?.primary?.condition?.name ??
+    getTranslation('general.fallback.notApplicable', 'N/A');
   return (
     <Table>
       <Row>
-        <FlexCell bold>Child</FlexCell>
+        <FlexCell bold>{getTranslation('pdf.birthNotification.child.label', 'Child')}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Name (if known)</LeftCell>
+        <LeftCell>
+          {getTranslation('pdf.birthNotification.nameIfKnown.label', 'Name (if known)')}
+        </LeftCell>
         <FlexCell>{getFullName(data)}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Gestation (weeks)</LeftCell>
+        <LeftCell>
+          {getTranslation('pdf.birthNotification.gestationWeeks.label', 'Gestation (weeks)')}
+        </LeftCell>
         <Cell style={{ width: 50 }}>{data?.birthData?.gestationalAgeEstimate}</Cell>
         <Cell style={{ width: 80 }} bold>
-          Delivery type
+          {getTranslation('general.localisedField.birthDeliveryType.label', 'Delivery type')}
         </Cell>
         <Cell style={{ width: 70 }}>
           {getLabelFromValue(BIRTH_DELIVERY_TYPE_OPTIONS, data?.birthData?.birthDeliveryType)}
         </Cell>
         <Cell style={{ width: 100 }} bold>
-          Single/plural births
+          {getTranslation('pdf.birthNotification.singlePluralBirths.label', 'Single/plural births')}
         </Cell>
         <FlexCell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Birth Weight (kg)</LeftCell>
+        <LeftCell>
+          {getTranslation('pdf.birthNotification.birthWeightKg.label', 'Birth Weight (kg)')}
+        </LeftCell>
         <Cell style={{ width: 50 }}>{data?.birthData?.birthWeight}</Cell>
         <Cell style={{ width: 80 }} bold>
-          Birth date
+          {getTranslation('pdf.birthNotification.birthDate.label', 'Birth date')}
         </Cell>
         <Cell style={{ width: 70 }}>
           {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
         </Cell>
         <Cell style={{ width: 100 }} bold>
-          Birth time
+          {getTranslation('pdf.birthNotification.birthTime.label', 'Birth time')}
         </Cell>
         <FlexCell>
           {data?.birthData?.timeOfBirth
@@ -167,27 +176,43 @@ const ChildSection = ({ data }) => {
         </FlexCell>
       </Row>
       <Row>
-        <LeftCell>Place of birth</LeftCell>
+        <LeftCell>
+          {getTranslation('general.localisedField.registeredBirthPlace.label', 'Place of birth')}
+        </LeftCell>
         <FlexCell>
           {getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, data?.birthData?.registeredBirthPlace)}
         </FlexCell>
       </Row>
       <Row>
-        <LeftCell>Sex</LeftCell>
+        <LeftCell>{getTranslation('general.localisedField.sex.label', 'Sex')}</LeftCell>
         <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
-        <FlexCell bold>Ethnicity</FlexCell>
+        <FlexCell bold>
+          {getTranslation('general.localisedField.ethnicityId.label', 'Ethnicity')}
+        </FlexCell>
         <FlexCell>{getEthnicity(data)}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Attendant at birth</LeftCell>
+        <LeftCell>
+          {getTranslation('general.localisedField.attendantAtBirth.label', 'Attendant at birth')}
+        </LeftCell>
         <Cell style={{ width: 130 }}>
           {getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, data?.birthData?.attendantAtBirth)}
         </Cell>
-        <FlexCell bold>Name of attendant</FlexCell>
+        <FlexCell bold>
+          {getTranslation(
+            'general.localisedField.nameOfAttendantAtBirth.label',
+            'Name of attendant',
+          )}
+        </FlexCell>
         <FlexCell>{data?.birthData?.nameOfAttendantAtBirth}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Cause of foetal death</LeftCell>
+        <LeftCell>
+          {getTranslation(
+            'pdf.birthNotification.causeOfFoetalDeath.label',
+            'Cause of foetal death',
+          )}
+        </LeftCell>
         <FlexCell>{causeOfDeath}</FlexCell>
       </Row>
     </Table>
@@ -195,64 +220,75 @@ const ChildSection = ({ data }) => {
 };
 
 const ParentSection = ({ parentType, data = {} }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <Table>
       <Row>
         <FlexCell bold>{parentType}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Name</LeftCell>
+        <LeftCell>{getTranslation('general.name.label', 'Name')}</LeftCell>
         <FlexCell>{getFullName(data)}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Ethnicity</LeftCell>
+        <LeftCell>
+          {getTranslation('general.localisedField.ethnicityId.label', 'Ethnicity')}
+        </LeftCell>
         <Cell style={{ width: 150 }}>{getEthnicity(data)}</Cell>
         <Cell style={{ width: 90 }} bold>
-          Nationality
+          {getTranslation('general.localisedField.nationalityId.label', 'Nationality')}
         </Cell>
         <FlexCell>{data?.additionalData?.nationality?.name}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Date of birth</LeftCell>
+        <LeftCell>
+          {getTranslation('general.localisedField.dateOfBirth.label', 'Date of birth')}
+        </LeftCell>
         <Cell style={{ width: 150 }}>
           {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
         </Cell>
         <Cell style={{ width: 90 }} bold>
-          Marital status
+          {getTranslation('general.localisedField.maritalStatus.label', 'Marital status')}
         </Cell>
         <FlexCell>
           {getLabelFromValue(MARITAL_STATUS_OPTIONS, data?.additionalData?.maritalStatus)}
         </FlexCell>
       </Row>
       <Row>
-        <LeftCell>Occupation</LeftCell>
+        <LeftCell>
+          {getTranslation('general.localisedField.occupationId.label', 'Occupation')}
+        </LeftCell>
         <Cell style={{ width: 150 }}>{data?.occupation?.name}</Cell>
         <Cell style={{ width: 90 }} bold>
-          Age
+          {getTranslation('pdf.birthNotification.age.label', 'Age')}
         </Cell>
         <FlexCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Address</LeftCell>
+        <LeftCell>{getTranslation('pdf.birthNotification.address.label', 'Address')}</LeftCell>
         <Cell style={{ width: 150 }}>{data?.additionalData?.streetVillage}</Cell>
         <Cell style={{ width: 90 }} bold>
-          Village
+          {getTranslation('general.localisedField.villageId.label', 'Village')}
         </Cell>
         <FlexCell>{data?.village?.name}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Mother&apos;s name</LeftCell>
-        <Cell style={{ width: 150 }}>{getFullName(data?.father)}</Cell>
+        <LeftCell>
+          {getTranslation('pdf.birthNotification.motherName.label', 'Mother&apos;s name')}
+        </LeftCell>
+        <Cell style={{ width: 150 }}>{getFullName(data?.mother)}</Cell>
         <Cell style={{ width: 90 }} bold>
-          Patient ID
+          {getTranslation('general.patientId.label', 'Patient ID')}
         </Cell>
         <FlexCell>{data?.displayId}</FlexCell>
       </Row>
       <Row>
-        <LeftCell>Father&apos;s name</LeftCell>
+        <LeftCell>
+          {getTranslation('pdf.birthNotification.fatherName.label', 'Father&apos;s name')}
+        </LeftCell>
         <Cell style={{ width: 150 }}>{getFullName(data?.father)}</Cell>
         <Cell style={{ width: 90 }} bold>
-          Phone number
+          {getTranslation('pdf.birthNotification.phoneNumber.label', 'Phone number')}
         </Cell>
         <FlexCell>{data?.additionalData?.primaryContactNumber}</FlexCell>
       </Row>
@@ -292,25 +328,47 @@ const signatureStyles = StyleSheet.create({
 });
 
 const SignatureSection = () => {
+  const { getTranslation } = useLanguageContext();
   return (
     <View style={signatureStyles.container}>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>Certified correct by:</P>
+          <P style={signatureStyles.leftText}>
+            {getTranslation(
+              'pdf.birthNotification.signature.certifiedCorrectBy',
+              'Certified correct by',
+            )}
+            :
+          </P>
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>Circle applicable:</P>
-          <P bold>Doctor/midwife/nurse</P>
+          <P style={signatureStyles.leftText}>
+            {getTranslation(
+              'pdf.birthNotification.signature.circleApplicable',
+              'Circle applicable',
+            )}
+            :
+          </P>
+          <P bold>
+            {getTranslation(
+              'pdf.birthNotification.signature.doctorMidwifeNurse',
+              'Doctor/midwife/nurse',
+            )}
+          </P>
         </View>
       </View>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>Signed:</P>
+          <P style={signatureStyles.rightText}>
+            {getTranslation('pdf.birthNotification.signature.signed', 'Signed')}:
+          </P>
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>Date:</P>
+          <P style={signatureStyles.rightText}>
+            {getTranslation('pdf.birthNotification.signature.date', 'Date')}:
+          </P>
           <View style={signatureStyles.line} />
         </View>
       </View>
