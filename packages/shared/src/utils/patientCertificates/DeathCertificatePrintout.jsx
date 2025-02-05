@@ -412,22 +412,22 @@ const DeathCertificatePrintoutComponent = React.memo(
                   {getTranslation('pdf.deathCertificate.contributingCauses.label.1', 'II')}
                   {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'pdf.deathCertificate.contributingCauses.label.2',
                     'Other significant conditions',
                   )}
                   {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'pdf.deathCertificate.contributingCauses.label.3',
                     'contributing to the death but',
                   )}
                   {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'pdf.deathCertificate.contributingCauses.label.4',
                     'not related to the disease or',
                   )}
                   {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'pdf.deathCertificate.contributingCauses.label.5',
                     'condition causing it.',
                   )}
                   {'\n'}
