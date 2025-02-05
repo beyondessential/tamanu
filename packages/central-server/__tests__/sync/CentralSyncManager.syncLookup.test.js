@@ -8,6 +8,7 @@ import {
   REPORT_DB_SCHEMAS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
@@ -1339,7 +1340,7 @@ describe('Sync Lookup data', () => {
 
   describe('avoidRepull', () => {
     const snapshotOutgoingRecordsForFacility = async (avoidRepull) => {
-      const deviceId = 'facility-a';
+      const deviceId = models.SyncDevice.createDeviceId();
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
@@ -1349,7 +1350,8 @@ describe('Sync Lookup data', () => {
       const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
 
       await models.SyncDevice.create({
-        deviceId,
+        id: deviceId,
+        registeredById: SYSTEM_USER_UUID,
         persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
@@ -1378,7 +1380,6 @@ describe('Sync Lookup data', () => {
         facility.id,
         10,
       );
-
       const sessionConfig = {
         syncAllLabRequests: true,
         isMobile: false,

@@ -3,6 +3,9 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
+import { ed25519 } from '@noble/curves/ed25519';
+import * as uuid from 'uuid';
+import type { Hex } from '@noble/curves/abstract/utils';
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
@@ -72,5 +75,48 @@ export class LocalSystemFact extends Model {
     }
     const fact = rowsAffected[0] as LocalSystemFact;
     return fact.value;
+  }
+
+  /**
+   * Generate and store a new keypair for this device.
+   * @returns The public key of the new keypair
+   */
+  static async initialiseKeypair(): Promise<Uint8Array> {
+    const secretKey = ed25519.utils.randomPrivateKey();
+    await this.set('sync.secretKey', Buffer.from(secretKey).toString('hex'));
+    return ed25519.getPublicKey(secretKey);
+  }
+
+  /** Sign a message using the device's private key. */
+  static async sign(message: Uint8Array): Promise<Uint8Array> {
+    const privateKey = await this.get('sync.secretKey');
+    if (!privateKey) {
+      await this.initialiseKeypair();
+      return this.sign(message);
+    }
+
+    return ed25519.sign(message, Buffer.from(privateKey, 'hex'));
+  }
+
+  /** Verify a signature using the device's public key. */
+  static async verifySignature(message: Uint8Array, signature: Uint8Array): Promise<boolean> {
+    const secretKey = await this.get('sync.secretKey');
+    if (!secretKey) {
+      return false;
+    }
+
+    const publicKey = ed25519.getPublicKey(Buffer.from(secretKey, 'hex'));
+    return ed25519.verify(signature, message, publicKey);
+  }
+
+  static async newSessionId(nonce: Hex): Promise<string> {
+    let namespace = await this.get('sync.sessionIdNamespace');
+    if (!namespace) {
+      namespace = uuid.v4();
+      await this.set('sync.sessionIdNamespace', namespace);
+    }
+
+    const nonceString = nonce instanceof Uint8Array ? Buffer.from(nonce).toString('hex') : nonce;
+    return uuid.v5(nonceString, namespace);
   }
 }

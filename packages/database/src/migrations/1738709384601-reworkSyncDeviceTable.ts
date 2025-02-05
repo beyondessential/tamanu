@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  // make sure all devices have a device_id
+  // make sure all rows have a device_id
   await query.sequelize.query(
     'UPDATE sync_device_ticks SET device_id = id::text WHERE device_id IS NULL',
   );
@@ -18,13 +18,13 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // generate a new ID column from the device_id field
   await query.addColumn('sync_devices', 'new_id', {
-    type: DataTypes.BLOB,
+    type: DataTypes.TEXT,
     allowNull: true,
   });
-  await query.sequelize.query('UPDATE sync_devices SET new_id = device_id::bytea');
+  await query.sequelize.query('UPDATE sync_devices SET new_id = device_id');
   await query.removeColumn('sync_devices', 'id');
   await query.changeColumn('sync_devices', 'new_id', {
-    type: DataTypes.BLOB,
+    type: DataTypes.TEXT,
     allowNull: false,
     primaryKey: true,
   });
@@ -32,9 +32,10 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.removeColumn('sync_devices', 'device_id');
   await query.sequelize.query('ALTER TABLE sync_devices ADD PRIMARY KEY (id)');
 
-  // clean up name of sync tick index
+  // clean up name of sync tick column/index
   await query.removeIndex('sync_devices', 'sync_device_ticks_persisted_at_sync_tick');
-  await query.addIndex('sync_devices', ['persisted_at_sync_tick']);
+  await query.renameColumn('sync_devices', 'persisted_at_sync_tick', 'last_persisted_at_sync_tick');
+  await query.addIndex('sync_devices', ['last_persisted_at_sync_tick']);
 
   // set existing entries registered by the system user
   await query.sequelize.query(
@@ -56,7 +57,7 @@ export async function down(query: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: true,
   });
-  await query.sequelize.query(`UPDATE sync_devices SET device_id = convert_from(id, 'utf-8')`);
+  await query.sequelize.query(`UPDATE sync_devices SET device_id = id`);
 
   // restore the old ID column
   await query.addColumn('sync_devices', 'new_id', {
@@ -71,7 +72,8 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.removeColumn('sync_devices', 'registered_by_id');
   await query.renameTable('sync_devices', 'sync_device_ticks');
 
-  // restore name of sync tick index
-  await query.removeIndex('sync_device_ticks', 'sync_devices_persisted_at_sync_tick');
+  // restore name of sync tick column/index
+  await query.removeIndex('sync_device_ticks', 'sync_devices_last_persisted_at_sync_tick');
+  await query.renameColumn('sync_devices', 'last_persisted_at_sync_tick', 'persisted_at_sync_tick');
   await query.addIndex('sync_device_ticks', ['persisted_at_sync_tick']);
 }
