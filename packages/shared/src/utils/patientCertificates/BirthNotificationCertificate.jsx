@@ -361,7 +361,7 @@ const SignatureSection = () => {
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.rightCell}>
           <P style={signatureStyles.rightText}>
-            {getTranslation('pdf.birthNotification.signature.signed', 'Signed')}:
+            {getTranslation('pdf.birthNotification.signature.signed', 'Signed') + ':'}
           </P>
           <View style={signatureStyles.line} />
         </View>
