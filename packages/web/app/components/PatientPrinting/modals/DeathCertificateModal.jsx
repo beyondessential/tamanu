@@ -7,6 +7,7 @@ import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificat
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
+import { TranslatedText } from '../../Translation';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
@@ -30,7 +31,12 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   return (
     <>
       <Modal
-        title="Cause of death certificate"
+        title={
+          <TranslatedText
+            stringId="death.modal.deathCertificate.title"
+            fallback="Cause of death certificate"
+          />
+        }
         open={isOpen}
         onClose={() => setIsOpen(false)}
         width="md"
@@ -48,7 +54,10 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         </PDFLoader>
       </Modal>
       <Button variant="contained" color="primary" onClick={() => setIsOpen(true)}>
-        View death certificate
+        <TranslatedText
+          stringId="death.action.viewDeathCertificate"
+          fallback="View death certificate"
+        />
       </Button>
     </>
   );

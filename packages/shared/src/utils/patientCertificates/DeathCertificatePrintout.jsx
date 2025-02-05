@@ -224,14 +224,14 @@ const PATIENT_DETAIL_FIELDS = {
   leftCol: [
     { key: 'firstName', label: 'First name' },
     { key: 'lastName', label: 'Last name' },
-    { key: 'nationality', label: 'Nationality', accessor: getNationality },
+    { key: 'nationalityId', label: 'Nationality', accessor: getNationality },
     { key: 'address', label: 'Address', accessor: getAddress },
   ],
   rightCol: [
     { key: 'sex', label: 'Sex', accessor: getSex },
     { key: 'dateOfBirth', label: 'DOB', accessor: getDob },
-    { key: 'ethnicity', label: 'Ethnicity', accessor: getEthnicity },
-    { key: 'village', label: 'Village', accessor: getVillage },
+    { key: 'ethnicityId', label: 'Ethnicity', accessor: getEthnicity },
+    { key: 'villageId', label: 'Village', accessor: getVillage },
   ],
 };
 
@@ -242,7 +242,7 @@ const PATIENT_DEATH_DETAILS = {
   ],
   rightCol: [
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
-    { key: 'clinician', label: 'Attending clinician', accessor: getClinician },
+    { key: 'attendingClinician', label: 'Attending clinician', accessor: getClinician },
   ],
 };
 
