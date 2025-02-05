@@ -23,11 +23,6 @@ export async function up(query: QueryInterface): Promise<void> {
   });
   await query.sequelize.query('UPDATE sync_devices SET new_id = device_id');
   await query.removeColumn('sync_devices', 'id');
-  await query.changeColumn('sync_devices', 'new_id', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    primaryKey: true,
-  });
   await query.renameColumn('sync_devices', 'new_id', 'id');
   await query.removeColumn('sync_devices', 'device_id');
   await query.sequelize.query('ALTER TABLE sync_devices ADD PRIMARY KEY (id)');
