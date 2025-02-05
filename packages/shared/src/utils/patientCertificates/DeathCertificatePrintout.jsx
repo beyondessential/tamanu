@@ -331,9 +331,16 @@ const DeathCertificatePrintoutComponent = React.memo(
             <InfoBoxRow>
               <InfoBoxLabelCol>
                 <Text style={infoBoxStyles.boldText}>
+                  {getTranslation('pdf.deathCertificate.causeOfDeath.primary.label.1', 'I')}
+                  {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.causeOfDeath.primary.label',
-                    `I\nDisease or condition directly\nleading to death*`,
+                    'pdf.deathCertificate.causeOfDeath.primary.label.2',
+                    'Disease or condition directly',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.causeOfDeath.primary.label.3',
+                    'leading to death*',
                   )}
                 </Text>
                 <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
@@ -344,8 +351,23 @@ const DeathCertificatePrintoutComponent = React.memo(
                 </Text>
                 <Text style={infoBoxStyles.infoText}>
                   {getTranslation(
-                    'pdf.deathCertificate.antecedentCauses.description',
-                    `Morbid conditions, if any,\ngiving rise to the above cause,\nstating the underlying\ncondition last`,
+                    'pdf.deathCertificate.antecedentCauses.description.1',
+                    'Morbid conditions, if any,',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.description.2',
+                    'giving rise to the above cause,',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.description.3',
+                    'stating the underlying',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.antecedentCauses.description.4',
+                    'condition last',
                   )}
                 </Text>
               </InfoBoxLabelCol>
@@ -387,10 +409,28 @@ const DeathCertificatePrintoutComponent = React.memo(
             <InfoBoxRow>
               <InfoBoxLabelCol>
                 <Text style={infoBoxStyles.boldText}>
+                  {getTranslation('pdf.deathCertificate.contributingCauses.label.1', 'II')}
+                  {'\n'}
                   {getTranslation(
-                    'pdf.deathCertificate.contributingCauses.label',
-                    `II\nOther significant conditions\ncontributing to the death but\nnot related to the disease or\ncondition causing it.\n`,
+                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'Other significant conditions',
                   )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'contributing to the death but',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'not related to the disease or',
+                  )}
+                  {'\n'}
+                  {getTranslation(
+                    'pdf.deathCertificate.contributingCauses.label.1',
+                    'condition causing it.',
+                  )}
+                  {'\n'}
                 </Text>
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
