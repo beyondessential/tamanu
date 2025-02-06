@@ -339,11 +339,17 @@ labRequest.post(
     const { models, body, params } = req;
     const { id } = params;
     req.checkPermission('write', 'LabRequest');
-    const lab = await models.LabRequest.findByPk(id);
+    const lab = await models.LabRequest.findByPk(id, {
+      include: [{ association: 'tests', include: ['labTestType'] }],
+    });
     if (!lab) {
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
+    const hasSensitiveTests = lab.tests.some(test => test.labTestType.isSensitive);
+    if (hasSensitiveTests) {
+      req.checkPermission('write', 'SensitiveLabRequest');
+    }
     const note = await lab.createNote(body);
     res.send(note);
   }),
