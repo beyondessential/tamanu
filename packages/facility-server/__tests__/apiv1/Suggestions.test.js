@@ -280,14 +280,14 @@ describe('Suggestions', () => {
 
       await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
-          labTestCategoryId: unpublishedCategoryId,
+          categoryId: unpublishedCategoryId,
           status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
           encounterId,
         }),
       );
       await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
-          labTestCategoryId: usedCategoryId,
+          categoryId: usedCategoryId,
           status: LAB_REQUEST_STATUSES.PUBLISHED,
           encounterId,
         }),
