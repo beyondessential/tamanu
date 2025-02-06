@@ -458,6 +458,7 @@ labTestType.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('list', 'LabTestType');
+    const canCreateSensitive = req.ability.can('create', 'SensitiveLabRequest');
     const labTests = await models.LabTestType.findAll({
       include: [
         {
@@ -473,6 +474,7 @@ labTestType.get(
             LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
           ],
         },
+        ...(!canCreateSensitive && { isSensitive: false }),
       },
     });
     res.send(labTests);

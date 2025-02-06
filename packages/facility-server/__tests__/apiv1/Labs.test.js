@@ -372,6 +372,35 @@ describe('Labs', () => {
     });
   });
 
+  it('should not fetch sensitive lab test types without permission', async () => {
+    await models.LabTestType.truncate({ cascade: true });
+    const { id: nonSensitiveCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: 'Non Sensitive Test Laboratory',
+      code: 'NONSENSITIVETESTLABORATORY',
+    });
+    await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: nonSensitiveCategoryId,
+    });
+
+    const { id: sensitiveCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: 'Sensitive Test Laboratory',
+      code: 'SENSITIVETESTLABORATORY',
+    });
+    await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: sensitiveCategoryId,
+      isSensitive: true,
+    });
+
+    const result = await app.get('/api/labTestType');
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toBe(1);
+    expect(result.body[0].isSensitive).toBe(false);
+  });
+
   it('should only retrieve panels with a visibilityStatus status of current', async () => {
     await models.LabTestPanel.create({
       name: 'Historical test panel',
