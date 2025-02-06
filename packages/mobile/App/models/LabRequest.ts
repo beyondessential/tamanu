@@ -113,7 +113,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
     if (!canListSensitive) {
       query.innerJoin('labRequest.tests', 'tests')
         .innerJoin('tests.labTestType', 'labTestType')
-        .where('labTestType.isSensitive IS FALSE')
+        .where('labTestType.isSensitive = 0')
     }
 
     return query.getMany();
