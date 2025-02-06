@@ -1,12 +1,8 @@
 import { isEqual } from 'lodash';
-import {
-  createDummyEncounter,
-  createDummyPatient,
-  randomReferenceId,
-} from '@tamanu/database/demoData/patients';
-import { randomLabRequest } from '@tamanu/database/demoData';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 async function createLabRequest(models, overrides) {
@@ -212,25 +208,16 @@ describe('Encounter labs', () => {
         status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
 
-      // Create a lab request that includes 2 non-sensitive tests and 1 sensitive
-      const labRequestData = await randomLabRequest(models, {
+      const labRequestData = await randomSensitiveLabRequest(models, {
         patientId: patient.id,
         encounterId: encounter.id,
         status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
-      const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
-      const labTestType = await models.LabTestType.create(
-        fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
-      );
-      labRequestData.labTestTypeIds.push(labTestType.id);
       await models.LabRequest.createWithTests(labRequestData);
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        count: 2,
-        data: expect.any(Array),
-      });
+      expect(result.body.count).toBe(2);
 
       // The count will match number of lab requests without accounting for sensitive ones
       // so that's why we ensure there is only one lab request included

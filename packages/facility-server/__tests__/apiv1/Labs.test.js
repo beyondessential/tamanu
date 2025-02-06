@@ -8,10 +8,9 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomLabRequest,
-  randomReferenceId,
 } from '@tamanu/database/demoData';
 import { chance, fake } from '@tamanu/shared/test-helpers';
-import { createLabTestTypes } from '@tamanu/database/demoData/labRequests';
+import { createLabTestTypes, randomSensitiveLabRequest } from '@tamanu/database/demoData/labRequests';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
@@ -432,17 +431,12 @@ describe('Labs', () => {
       });
 
       it('should error if lab test is sensitive', async () => {
-        const labRequestData = await randomLabRequest(models, {
+        const labRequestData = await randomSensitiveLabRequest(models, {
           patientId,
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         });
-        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
-        const labTestType = await models.LabTestType.create(
-          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
-        );
-        labRequestData.labTestTypeIds.push(labTestType.id);
         const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
-        const [,, sensitiveTest] = await sensitiveLabRequest.getTests();
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
         const response = await app.get(`/api/labTest/${sensitiveTest.id}`);
         expect(response).toBeForbidden();
       });
@@ -459,21 +453,16 @@ describe('Labs', () => {
       });
 
       it('should exclude sensitive tests', async () => {
-        const labRequestData = await randomLabRequest(models, {
+        const labRequestData = await randomSensitiveLabRequest(models, {
           patientId,
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         });
-        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
-        const labTestType = await models.LabTestType.create(
-          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
-        );
-        labRequestData.labTestTypeIds.push(labTestType.id);
         const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
 
         const response = await app.get(`/api/labRequest/${sensitiveLabRequest.id}/tests`);
         expect(response).toHaveSucceeded();
         expect(response.body).toMatchObject({
-          count: 2,
+          count: 0,
           data: expect.any(Array),
         });
       });
@@ -551,17 +540,12 @@ describe('Labs', () => {
       });
 
       it('should fail with forbidden if trying to update sensitive lab test', async () => {
-        const labRequestData = await randomLabRequest(models, {
+        const labRequestData = await randomSensitiveLabRequest(models, {
           patientId,
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         });
-        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
-        const labTestType = await models.LabTestType.create(
-          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
-        );
-        labRequestData.labTestTypeIds.push(labTestType.id);
         const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
-        const [,, sensitiveTest] = await sensitiveLabRequest.getTests();
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
         const response = await app.put(`/api/labRequest/${sensitiveLabRequest.id}/tests`).send({
@@ -653,15 +637,10 @@ describe('Labs', () => {
           );
         }
 
-        const labRequestData = await randomLabRequest(models, {
+        const labRequestData = await randomSensitiveLabRequest(models, {
           patientId,
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         });
-        const labTestCategoryId = await randomReferenceId(models, 'labTestCategory');
-        const labTestType = await models.LabTestType.create(
-          fake(models.LabTestType, { labTestCategoryId, isSensitive: true }),
-        );
-        labRequestData.labTestTypeIds.push(labTestType.id);
         const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
         sensitiveLabRequestId = sensitiveLabRequest.id;
       });

@@ -12,6 +12,7 @@ import {
   randomRecords,
   randomLabRequest,
   splitIds,
+  randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
 import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
@@ -321,22 +322,11 @@ describe('Suggestions', () => {
     });
 
     it('should filter lab test categories if lab test types are sensitive', async () => {
-      const { id: sensitiveCategoryId } = await models.ReferenceData.create({
-        ...fake(models.ReferenceData),
-        name: 'CC-sensitive',
-        type: 'labTestCategory',
-      });
-      const labRequestData = await randomLabRequest(models, {
+      const labRequestData = await randomSensitiveLabRequest(models, {
         patientId,
-        labTestCategoryId: sensitiveCategoryId,
         status: LAB_REQUEST_STATUSES.PUBLISHED,
         encounterId,
       });
-      // Only 1 of the three tests is sensitive, however, all should be excluded
-      const labTestType = await models.LabTestType.create(
-        fake(models.LabTestType, { labTestCategoryId: sensitiveCategoryId, isSensitive: true }),
-      );
-      labRequestData.labTestTypeIds.push(labTestType.id);
       await models.LabRequest.createWithTests(labRequestData);
 
       const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
