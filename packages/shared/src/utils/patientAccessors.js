@@ -58,3 +58,5 @@ export const getPatientWeight = ({ patientWeight }, { getTranslation }) =>
 export const getEthnicity = ({ additionalData }) => additionalData?.ethnicity?.name;
 
 export const getClinician = ({ clinician }) => clinician?.displayName;
+
+export const getVillage = ({ village }) => village?.name;
