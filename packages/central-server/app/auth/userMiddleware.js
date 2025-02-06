@@ -4,6 +4,7 @@ import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging/log';
 import { findUserById, stripUser, verifyToken } from './utils';
 
 export const userMiddleware = ({ secret }) =>
@@ -31,7 +32,8 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token (hG7c)');
+      log.info('Invalid token (hG7c)');
+      // TODO: what happens here?
     }
 
     const { userId, deviceId } = contents;
