@@ -343,7 +343,7 @@ createSuggester(
       if (!types?.length) return;
 
       const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`) // TODO: Does this need to change
         .join(' ');
 
       return [
@@ -672,7 +672,7 @@ createSuggester(
           WHERE
             ppr.patient_id = :patient_id
           AND
-            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'  // TODO: Does this need to change
         )`,
         ),
       },
@@ -703,31 +703,40 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.patientId) {
-    return baseWhere;
-  }
+createNameSuggester(
+  'programRegistry',
+  'ProgramRegistry',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    // Only suggest program registries this patient isn't already part of
-    id: {
-      [Op.notIn]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = '${query.patientId}'
+            ppr.patient_id = :patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'  // TODO: Does this need to change
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: (query) => ({
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
