@@ -40,7 +40,6 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
         onChange(e);
         if (!e.target.value) setFieldValue('endTime', undefined);
       }}
-      save
       helperText={
         showSameDayWarning && (
           <TranslatedText

@@ -33,6 +33,7 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
+import { useSettings } from '../contexts/Settings';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -346,9 +347,11 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
+  const { getSetting } = useSettings();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
+  const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -394,11 +397,17 @@ export const DischargeForm = ({
           .object()
           .shape({
             dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
-          })
-          .shape({
             dispositionId: getLocalisedSchema({
               name: 'dischargeDisposition',
             }),
+            note: dischargeNoteMandatory
+              ? foreignKey().translatedLabel(
+                  <TranslatedText
+                    stringId="discharge.notes.label"
+                    fallback="Discharge treatment plan and follow-up notes"
+                  />,
+                )
+              : yup.string().optional(),
           })
           .required()
           .translatedLabel(
@@ -482,6 +491,7 @@ export const DischargeForm = ({
           multiline
           minRows={4}
           style={{ gridColumn: '1 / -1' }}
+          required={dischargeNoteMandatory}
         />
       </FormGrid>
     </PaginatedForm>
