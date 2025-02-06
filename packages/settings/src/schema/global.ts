@@ -231,6 +231,11 @@ export const globalSettings = {
             },
           },
         },
+        disableInputPasting: {
+          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         discharge: {
           description:
             'Encounter discharge configuration',
