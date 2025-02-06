@@ -27,7 +27,7 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
     );
 
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
-    const filteredLabRequests = labRequests.filter(labRequest => {
+    const permittedLabRequests = canListSensitive  ? labRequests : labRequests.filter(labRequest => {
       if (canListSensitive) return true;
       return labRequest.tests.every(test => test.labTestType.isSensitive === false);
     });
@@ -55,11 +55,11 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
      *  */
 
     if (!includeNotes) {
-      res.send({ count, data: filteredLabRequests });
+      res.send({ count, data: permittedLabRequests });
       return;
     }
 
-    for (const labRequest of filteredLabRequests) {
+    for (const labRequest of permittedLabRequests) {
       const notes = await models.Note.findAll({
         where: {
           recordId: labRequest.id,
@@ -71,5 +71,5 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       labRequest.notes = notes;
     }
 
-    res.send({ count, data: filteredLabRequests });
+    res.send({ count, data: permittedLabRequests });
   });
