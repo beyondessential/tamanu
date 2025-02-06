@@ -40,7 +40,7 @@
     "rimraf": "^6.0.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.20",
-    "vitest": "^1.1.0"
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "@bugsnag/js": "^8.0.0",
