@@ -383,8 +383,8 @@ labRelations.put(
     });
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const hasSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
-    if (hasSensitiveTests) {
+    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
 
