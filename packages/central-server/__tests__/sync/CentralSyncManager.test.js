@@ -1365,7 +1365,6 @@ describe('CentralSyncManager', () => {
         const updatedPatientData = {
           ...existingPatient.dataValues,
           firstName: 'Changed',
-          displayId: 'KEKE',
         };
 
         const changes = [
