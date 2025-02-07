@@ -198,6 +198,12 @@ export class User extends Model {
       foreignKey: 'userId',
       as: 'designationData',
     });
+
+    this.belongsToMany(models.SyncDevice, {
+      through: models.UserDesignation,
+      foreignKey: 'registeredById',
+      as: 'registeredDevices',
+    });
   }
 
   static buildSyncFilter() {
