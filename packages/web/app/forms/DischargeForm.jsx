@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { REPEATS_LABELS } from '@tamanu/constants';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Divider as BaseDivider } from '@material-ui/core';
+import { Divider as BaseDivider, Box } from '@material-ui/core';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -28,12 +28,19 @@ import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormConfirmCancelBackRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+import {
+  BodyText,
+  FormSubmitButton,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  SmallBodyText,
+} from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
+import { ConditionalTooltip } from '../components/Tooltip';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -229,10 +236,11 @@ const medicationColumns = [
 ];
 
 const EncounterOverview = ({
-  encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
+  encounter: { procedures, startDate, examiner, reasonForEncounter },
+  currentDiagnoses,
 }) => {
-  // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
-  const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
+  const { getSetting } = useSettings();
+  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
 
   return (
     <>
@@ -277,7 +285,16 @@ const EncounterOverview = ({
         label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
         style={{ gridColumn: '1 / -1' }}
       >
-        <DiagnosisList diagnoses={currentDiagnoses} />
+        {!currentDiagnoses.length && dischargeDiagnosisMandatory ? (
+          <BodyText color={Colors.alert}>
+            <TranslatedText
+              stringId="discharge.diagnosis.empty"
+              fallback="No diagnosis recorded. A diagnosis must be recorded in order to finalise a discharge."
+            />
+          </BodyText>
+        ) : (
+          <DiagnosisList diagnoses={currentDiagnoses} />
+        )}
       </OuterLabelFieldWrapper>
       <OuterLabelFieldWrapper
         label={<TranslatedText stringId="discharge.procedures.label" fallback="Procedures" />}
@@ -290,12 +307,15 @@ const EncounterOverview = ({
 };
 
 const DischargeFormScreen = props => {
-  const { validateForm, onStepForward, setStatus, status, onCancel } = props;
+  const { validateForm, onStepForward, setStatus, status, onCancel, currentDiagnoses } = props;
+  const { getSetting } = useSettings();
+  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
+  const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   return (
     <DefaultFormScreen
       customBottomRow={
-        <FormSubmitCancelRow
+        <FormConfirmCancelBackRow
           onCancel={onCancel}
           onConfirm={async () => {
             const formErrors = await validateForm();
@@ -310,8 +330,34 @@ const DischargeFormScreen = props => {
               onStepForward();
             }
           }}
-          confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
+          CustomConfirmButton={props => (
+            <ConditionalTooltip
+              visible={isDiagnosisEmpty}
+              title={
+                <SmallBodyText fontWeight={400}>
+                  <TranslatedText
+                    stringId="discharge.diagnosisMustBeRecord.tooltip"
+                    fallback="Diagnosis must be recorded to finalise discharge"
+                  />
+                </SmallBodyText>
+              }
+            >
+              <FormSubmitButton {...props}>
+                <Box whiteSpace="nowrap">
+                  <TranslatedText
+                    stringId="general.action.finaliseDischarge"
+                    fallback="Finalise discharge"
+                  />
+                </Box>
+              </FormSubmitButton>
+            </ConditionalTooltip>
+          )}
+          confirmDisabled={isDiagnosisEmpty}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          onBack={() => {}}
+          backButtonText={
+            <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
+          }
         />
       }
       {...props}
@@ -352,6 +398,10 @@ export const DischargeForm = ({
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
+  // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
+  const currentDiagnoses = encounter.diagnoses.filter(
+    d => !['error', 'disproven'].includes(d.certainty),
+  );
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -383,7 +433,7 @@ export const DischargeForm = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
-      FormScreen={DischargeFormScreen}
+      FormScreen={props => <DischargeFormScreen {...props} currentDiagnoses={currentDiagnoses} />}
       formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
@@ -420,7 +470,7 @@ export const DischargeForm = ({
       formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
     >
       <FormGrid>
-        <EncounterOverview encounter={encounter} />
+        <EncounterOverview encounter={encounter} currentDiagnoses={currentDiagnoses} />
         <Field
           name="endDate"
           label={
