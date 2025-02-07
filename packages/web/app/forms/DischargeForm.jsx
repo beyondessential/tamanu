@@ -307,29 +307,40 @@ const EncounterOverview = ({
 };
 
 const DischargeFormScreen = props => {
-  const { validateForm, onStepForward, setStatus, status, onCancel, currentDiagnoses } = props;
+  const {
+    validateForm,
+    onStepForward,
+    setStatus,
+    status,
+    onCancel,
+    currentDiagnoses,
+    setIsSavedForm,
+  } = props;
   const { getSetting } = useSettings();
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
+
+  const handleStepForward = async isSavedForm => {
+    const formErrors = await validateForm();
+    delete formErrors.isCanceled;
+
+    if (Object.keys(formErrors).length > 0) {
+      // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
+      // without hitting submit button, it works with one page only. Ideally we should
+      // have Pagination form component to handle this.
+      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+    } else {
+      setIsSavedForm(isSavedForm);
+      onStepForward();
+    }
+  };
 
   return (
     <DefaultFormScreen
       customBottomRow={
         <FormConfirmCancelBackRow
           onCancel={onCancel}
-          onConfirm={async () => {
-            const formErrors = await validateForm();
-            delete formErrors.isCanceled;
-
-            if (Object.keys(formErrors).length > 0) {
-              // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
-              // without hitting submit button, it works with one page only. Ideally we should
-              // have Pagination form component to handle this.
-              setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
-            } else {
-              onStepForward();
-            }
-          }}
+          onConfirm={() => handleStepForward(false)}
           CustomConfirmButton={props => (
             <ConditionalTooltip
               visible={isDiagnosisEmpty}
@@ -354,7 +365,7 @@ const DischargeFormScreen = props => {
           )}
           confirmDisabled={isDiagnosisEmpty}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          onBack={() => {}}
+          onBack={() => handleStepForward(true)}
           backButtonText={
             <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
           }
@@ -395,6 +406,7 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [isSavedForm, setIsSavedForm] = useState(false);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -415,10 +427,16 @@ export const DischargeForm = ({
         const medication = medications[id];
         if (medication.isDischarge) filteredMedications[id] = medication;
       });
-
-      await onSubmit({ ...data, medications: filteredMedications });
+      await onSubmit({
+        ...data,
+        discharge: {
+          ...data.discharge,
+          isDischarged: !isSavedForm,
+        },
+        medications: filteredMedications,
+      });
     },
-    [onSubmit],
+    [onSubmit, isSavedForm],
   );
 
   useEffect(() => {
@@ -433,7 +451,14 @@ export const DischargeForm = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
-      FormScreen={props => <DischargeFormScreen {...props} currentDiagnoses={currentDiagnoses} />}
+      FormScreen={props => (
+        <DischargeFormScreen
+          {...props}
+          currentDiagnoses={currentDiagnoses}
+          isSavedForm={isSavedForm}
+          setIsSavedForm={setIsSavedForm}
+        />
+      )}
       formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({

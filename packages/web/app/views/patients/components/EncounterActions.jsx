@@ -73,7 +73,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
   const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
-  if (encounter.endDate) {
+  if (encounter?.discharge?.isDischarged) {
     return (
       <ActionsContainer>
         <StyledButton size="small" variant="outlined" onClick={onViewEncounterRecord}>

@@ -157,6 +157,7 @@ export class Encounter extends Model {
   static getFullReferenceAssociations() {
     return [
       'department',
+      'discharge',
       'examiner',
       {
         association: 'location',
