@@ -68,7 +68,7 @@ async function connectToDatabase(dbOptions) {
   let { name } = dbOptions;
 
   // configure one test db per jest worker
-  const workerId = process.env.JEST_WORKER_ID;
+  const workerId = process.env.JEST_WORKER_ID || process.env.VITEST_WORKER_ID;
   if (testMode && workerId) {
     name = `${name}-${workerId}`;
     if (alwaysCreateConnection) {

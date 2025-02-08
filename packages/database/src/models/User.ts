@@ -199,8 +199,7 @@ export class User extends Model {
       as: 'designationData',
     });
 
-    this.belongsToMany(models.SyncDevice, {
-      through: models.UserDesignation,
+    this.hasMany(models.SyncDevice, {
       foreignKey: 'registeredById',
       as: 'registeredDevices',
     });
