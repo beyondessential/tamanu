@@ -39,7 +39,7 @@ export class SyncDevice extends Model {
   }
 
   static initRelations(models: Models) {
-    this.hasMany(models.User, {
+    this.belongsTo(models.User, {
       foreignKey: 'registeredById',
       as: 'registeredBy',
     });
