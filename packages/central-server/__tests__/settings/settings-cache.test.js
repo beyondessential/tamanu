@@ -8,7 +8,7 @@ jest.mock('@tamanu/settings/reader', () => {
   const originalModule = jest.requireActual('@tamanu/settings/reader');
   return {
     ...originalModule,
-    buildSettings: vi.fn(() => ({ timezone: 'gmt-3' })),
+    buildSettings: jest.fn(() => ({ timezone: 'gmt-3' })),
   };
 });
 
@@ -53,7 +53,7 @@ describe('Read Settings - Cache', () => {
     expect(value).toEqual('gmt-3');
 
     const mockTimestamp = Date.now() + settingsCache.ttl + 1; // Simulate an expired cache
-    Date.now = vi.fn(() => mockTimestamp);
+    Date.now = jest.fn(() => mockTimestamp);
 
     // Calling it again should not call build settings method
     await settings.get('timezone');

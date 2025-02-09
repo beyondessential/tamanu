@@ -29,7 +29,7 @@ jest.mock('../../dist/utils/excelUtils', () => {
   return {
     __esModule: true,
     ...originalModule,
-    writeExcelFile: vi.fn((_sheets, filename) => filename),
+    writeExcelFile: jest.fn((_sheets, filename) => filename),
   };
 });
 

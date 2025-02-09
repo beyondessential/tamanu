@@ -30,17 +30,17 @@ const baseVersionData = {
 
 jest.mock('@tamanu/shared/services/logging', () => ({
   log: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
   },
 }));
 
-const mockPush = vi.fn();
-const mockToString = vi.fn();
+const mockPush = jest.fn();
+const mockToString = jest.fn();
 
 jest.mock('cli-table3', () =>
-  vi.fn().mockImplementation(() => ({
+  jest.fn().mockImplementation(() => ({
     push: mockPush,
     toString: mockToString,
   })),
@@ -57,22 +57,22 @@ const mockVersions = [
 ];
 
 jest.mock('../../../dist/database', () => ({
-  initDatabase: vi.fn().mockResolvedValue({
+  initDatabase: jest.fn().mockResolvedValue({
     models: {
       User: {
-        findOne: vi.fn().mockResolvedValue({
+        findOne: jest.fn().mockResolvedValue({
           id: 'test-user-id',
         }),
       },
       ReportDefinitionVersion: {
-        upsert: vi.fn().mockResolvedValue([{ versionNumber: 3, status: 'draft' }]),
+        upsert: jest.fn().mockResolvedValue([{ versionNumber: 3, status: 'draft' }]),
       },
       LocalSystemFact: {
-        get: vi.fn().mockResolvedValue('dummyFact'),
+        get: jest.fn().mockResolvedValue('dummyFact'),
       },
     },
     sequelize: {
-      query: vi.fn().mockResolvedValue([]),
+      query: jest.fn().mockResolvedValue([]),
     },
   }),
 }));

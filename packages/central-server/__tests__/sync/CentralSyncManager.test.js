@@ -1477,7 +1477,7 @@ describe('CentralSyncManager', () => {
 
       vi.doMock('@tamanu/database/sync', async () => ({
         ...(await vi.importActual('@tamanu/database/sync')).default,
-        insertSnapshotRecords: vi.fn(),
+        insertSnapshotRecords: jest.fn(),
       }));
 
       const centralSyncManager = initializeCentralSyncManager();
@@ -1943,7 +1943,7 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      centralSyncManager.tickTockGlobalClock = vi.fn().mockImplementation(() => {
+      centralSyncManager.tickTockGlobalClock = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 
