@@ -36,7 +36,7 @@ const extractDataId = ({ stringId }) => stringId.split('.').pop();
 
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => ({
+  return data.map((item) => ({
     ...item,
     name: translationsByDataId[item.id]?.text ?? item.name,
   }));
@@ -73,7 +73,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
     if (!value) return undefined;
     try {
-      const data = await this.model.getRepository().findOne(value);
+      const data = await this.model.getRepository().findOne({ where: { id: value } });
 
       return this.formatter(data);
     } catch (e) {
@@ -98,7 +98,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .getRepository()
         .createQueryBuilder('entity')
         .where(
-          new Brackets(qb => {
+          new Brackets((qb) => {
             if (search) {
               qb.where(`${column} LIKE :search`, {
                 search: `%${search}%`,
@@ -107,7 +107,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           }),
         )
         .andWhere(
-          new Brackets(qb => {
+          new Brackets((qb) => {
             Object.entries(where).forEach(([key, value]) => {
               qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
             });
@@ -117,7 +117,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .limit(25);
 
       if (relations) {
-        relations.forEach(relation => {
+        relations.forEach((relation) => {
           query = query.leftJoinAndSelect(`entity.${relation}`, relation);
         });
       }
