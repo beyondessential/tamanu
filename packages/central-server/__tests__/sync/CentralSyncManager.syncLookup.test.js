@@ -18,7 +18,7 @@ import {
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
   CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY,
+  LOOKUP_UP_TO_TICK_KEY
 } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
@@ -1042,9 +1042,7 @@ describe('Sync Lookup data', () => {
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
 
-    expect(
-      outgoingSnapshotRecords.find(r => r.recordId === patientFacility.id),
-    ).not.toBeDefined();
+    expect(outgoingSnapshotRecords.find(r => r.recordId === patientFacility.id)).not.toBeDefined();
   });
 
   describe('syncAllLabRequest', () => {
@@ -1380,6 +1378,7 @@ describe('Sync Lookup data', () => {
         facility.id,
         10,
       );
+
       const sessionConfig = {
         syncAllLabRequests: true,
         isMobile: false,
