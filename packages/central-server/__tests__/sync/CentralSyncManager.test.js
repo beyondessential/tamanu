@@ -219,7 +219,7 @@ describe('CentralSyncManager', () => {
         throw new Error(errorMessage);
       };
 
-      const spyMarkAsStartedAt = vi
+      const spyMarkAsStartedAt = jest
         .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
         .mockImplementation(fakeMarkAsStartedAt);
 
@@ -237,7 +237,7 @@ describe('CentralSyncManager', () => {
         // Do nothing and ensure we error out when the client starts polling
       };
 
-      const spyMarkAsStartedAt = vi
+      const spyMarkAsStartedAt = jest
         .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
         .mockImplementation(fakeMarkAsStartedAt);
 
