@@ -663,7 +663,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const syncLookupRecord = syncLookupData.find(
-        (d) => d.dataValues.recordType === model.tableName,
+        d => d.dataValues.recordType === model.tableName,
       );
 
       if (!syncLookupRecord) {
@@ -1159,7 +1159,7 @@ describe('Sync Lookup data', () => {
 
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          (d) => d.dataValues.recordType === model.tableName,
+          d => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
@@ -1245,7 +1245,7 @@ describe('Sync Lookup data', () => {
       const syncLookupData = await models.SyncLookup.findAll({});
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          (d) => d.dataValues.recordType === model.tableName,
+          d => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
