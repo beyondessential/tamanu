@@ -15,7 +15,7 @@ const FILEDATA =
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
 jest.mock('@tamanu/shared/utils/getUploadedData');
-getUploadedData.mockImplementation(async (req) => {
+getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
   const fileName = path.resolve(__dirname, 'test-file.jpeg');
   await fs.writeFile(fileName, FILEDATA, { encoding: 'base64' });

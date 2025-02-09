@@ -15,15 +15,15 @@ const fakeResponse = (response, body, headers) => {
     ...response,
     json: () => Promise.resolve(validBody),
     headers: {
-      get: (key) => headers[key],
+      get: key => headers[key],
     },
   });
 };
-const fakeSuccess = (body) => fakeResponse({ status: 200, ok: true }, body);
+const fakeSuccess = body => fakeResponse({ status: 200, ok: true }, body);
 const fakeFailure = (status, body = {}, headers = {}) =>
   fakeResponse({ status, ok: false }, body, headers);
 
-const fakeTimeout = (message) => (url, opts) =>
+const fakeTimeout = message => (url, opts) =>
   new Promise((resolve, reject) => {
     // TODO: import AbortError from node-fetch once we're on v3.0
     class AbortError extends Error {}
