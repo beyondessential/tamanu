@@ -1285,6 +1285,16 @@ export const globalSettings = {
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: '_',
+          type: yup.number(),
+          defaultValue: 48,
+        }
+      }
+    },
   },
 };
 
