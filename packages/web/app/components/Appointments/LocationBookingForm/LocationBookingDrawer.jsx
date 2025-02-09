@@ -41,7 +41,7 @@ const OvernightStayLabel = styled.span`
   gap: 0.25rem;
 `;
 
-const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -49,30 +49,16 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   return (
     <ConfirmModal
       title={
-        isEdit ? (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.edit.title"
-            fallback="Cancel booking modification"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.create.title"
-            fallback="Cancel new booking"
-          />
-        )
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.title"
+          fallback="Cancel booking modification"
+        />
       }
       subText={
-        isEdit ? (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.edit.subtext"
-            fallback="Are you sure you would like to cancel modifying the booking?"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.cancelWarningModal.create.subtext"
-            fallback="Are you sure you would like to cancel the new booking?"
-          />
-        )
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel modifying the booking?"
+        />
       }
       open={open}
       onConfirm={() => {
@@ -82,6 +68,12 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
         <TranslatedText
           stringId="locationBooking.cancelWarningModal.cancelButton"
           fallback="Back to editing"
+        />
+      }
+      confirmButtonText={
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.cancelModification"
+          fallback="Cancel modification"
         />
       }
       onCancel={() => {
@@ -103,6 +95,22 @@ const SuccessMessage = ({ isEdit = false }) =>
       fallback="Booking successfully created"
     />
   );
+
+const ErrorMessage = ({ isEdit = false, error }) => {
+  return isEdit ? (
+    <TranslatedText
+      stringId="locationBooking.notification.edit.error"
+      fallback="Failed to edit booking with error: :error"
+      replacements={{ error: error.message }}
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.notification.create.error"
+      fallback="Failed to create booking with error: :error"
+      replacements={{ error: error.message }}
+    />
+  );
+};
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
@@ -127,19 +135,16 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     {
       onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
       onError: error => {
-        notifyError(
-          error.message == 409 ? (
+        if (error.message === 409) {
+          notifyError(
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
-            />
-          ) : (
-            <TranslatedText
-              stringId="locationBooking.notification.somethingWentWrong"
-              fallback="Something went wrong"
-            />
-          ),
-        );
+            />,
+          );
+        } else {
+          notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
+        }
       },
     },
   );
@@ -211,7 +216,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
-      const confirmed = !dirty || (await handleShowWarningModal());
+      const requiresWarning = dirty && isEdit;
+      const confirmed = !requiresWarning || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
@@ -240,12 +246,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           isEdit ? (
             <TranslatedText
               stringId="locationBooking.form.edit.description"
-              fallback="Modify the selected booking below"
+              fallback="Modify the selected booking below."
             />
           ) : (
             <TranslatedText
               stringId="locationBooking.form.new.description"
-              fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+              fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
             />
           )
         }
@@ -272,7 +278,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
               </OvernightStayLabel>
             }
             component={CheckField}
-            onChange={() => resetFields(['startTime', 'endDate', 'endTime'])}
+            onChange={() => resetFields(['endDate', 'endTime'])}
           />
           <DateTimeRangeField required separate={values.overnight} />
           <Field
@@ -324,7 +330,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-        isEdit={isEdit}
       />
     </>
   );

@@ -7,8 +7,6 @@ import Box from '@mui/material/Box';
 import {
   addDays,
   addMonths,
-  eachDayOfInterval,
-  endOfMonth,
   format,
   isSameDay,
   isSameMonth,
@@ -19,6 +17,8 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
+
+import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -129,12 +129,6 @@ const StepperWrapper = styled(Box)`
   inline-size: 100%;
 `;
 
-const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
-
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
   return (
@@ -150,14 +144,14 @@ const DayButton = ({ date, selected, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
-  const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
+  const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {
-    setViewedDays(getMonthInterval(value));
+    setViewedDays(eachDayInMonth(value));
   }, [value]);
 
-  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
-  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
+  const handleIncrement = () => setViewedDays(eachDayInMonth(addMonths(viewedDays[0], 1)));
+  const handleDecrement = () => setViewedDays(eachDayInMonth(subMonths(viewedDays[0], 1)));
 
   const handleChange = day => {
     onChange({
@@ -167,7 +161,7 @@ export const DateSelector = ({ value, onChange }) => {
     });
 
     if (isSameMonth(day, viewedDays[0])) return;
-    setViewedDays(getMonthInterval(day));
+    setViewedDays(eachDayInMonth(day));
   };
 
   const handleChangeToday = () => handleChange(new Date());

@@ -10,5 +10,7 @@ export const useProgramRegistryQuery = (programRegistryId, fetchOptions) => {
 
 export const useListOfProgramRegistryQuery = () => {
   const api = useApi();
-  return useQuery(['ProgramRegistries'], () => api.get('programRegistry', {}));
+  return useQuery(['ProgramRegistries'], () =>
+    api.get('programRegistry', { orderBy: 'name', order: 'ASC' }),
+  );
 };

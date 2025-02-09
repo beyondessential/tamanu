@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.23.2",
+  "version": "2.24.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -9,8 +9,8 @@
   "type": "module",
   "scripts": {
     "prepare": "patch-package",
-    "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
-    "clean:deps": "rimraf node_modules packages/*/node_modules",
+    "clean": "npm run clean --workspaces --if-present",
+    "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "node scripts/build-all.mjs",
@@ -19,7 +19,8 @@
     "test-coverage": "npm run test -- --coverage",
     "lint-all": "eslint .",
     "lint-fix": "npm run lint-all -- --fix",
-    "web-start-dev": "npm run start-dev --workspace @tamanu/web-frontend",
+    "admin-panel-start-dev": "npm run admin-start-dev --workspace @tamanu/web-frontend",
+    "web-start-dev": "npm run client-start-dev --workspace @tamanu/web-frontend",
     "storybook": "npm run watch-shared-and @tamanu/web-frontend storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "web-unit-test": "npm run build-shared && npm run --workspace @tamanu/web-frontend test",
@@ -76,6 +77,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^13.24.0",
     "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
     "yaml": "^2.2.1"
   },
   "dependencies": {
