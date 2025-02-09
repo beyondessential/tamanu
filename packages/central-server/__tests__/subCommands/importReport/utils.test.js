@@ -15,7 +15,7 @@ describe('importReport utils', () => {
       const mockStore = {
         models: {
           ReportDefinition: {
-            findOrCreate: jest.fn().mockResolvedValue([mockDefinition, true]),
+            findOrCreate: vi.fn().mockResolvedValue([mockDefinition, true]),
           },
         },
       };

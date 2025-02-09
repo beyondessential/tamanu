@@ -2,11 +2,11 @@ import { COLUMNS_TO_DATA_ELEMENT_ID, migrateVitals } from '../../dist/subCommand
 import { initDatabase } from '../../dist/database';
 
 jest.mock('../../dist/database', () => ({
-  initDatabase: jest.fn().mockResolvedValue({
+  initDatabase: vi.fn().mockResolvedValue({
     models: {
       Vitals: {
-        count: jest.fn().mockResolvedValue(1),
-        findAll: jest.fn().mockResolvedValue([
+        count: vi.fn().mockResolvedValue(1),
+        findAll: vi.fn().mockResolvedValue([
           {
             dataValues: {
               id: 'test-vital',
@@ -22,18 +22,18 @@ jest.mock('../../dist/database', () => ({
         ]),
       },
       Survey: {
-        findOne: jest.fn().mockResolvedValue({ dataValues: { id: 'vitals-survey' } }),
+        findOne: vi.fn().mockResolvedValue({ dataValues: { id: 'vitals-survey' } }),
       },
       SurveyResponse: {
-        bulkCreate: jest.fn(),
+        bulkCreate: vi.fn(),
       },
       SurveyResponseAnswer: {
-        bulkCreate: jest.fn(),
+        bulkCreate: vi.fn(),
       },
     },
     sequelize: {
-      query: jest.fn(),
-      transaction: jest.fn().mockImplementation(async (options, callback) => {
+      query: vi.fn(),
+      transaction: vi.fn().mockImplementation(async (options, callback) => {
         await callback();
       }),
     },

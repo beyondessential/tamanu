@@ -1,5 +1,6 @@
-import crypto from 'crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
+import { cloneDeep } from 'lodash';
+import { vi } from 'vitest';
 
 import {
   CURRENT_SYNC_TIME_KEY,
@@ -9,6 +10,7 @@ import {
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
@@ -22,7 +24,6 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
-import { cloneDeep } from 'lodash';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -160,21 +161,33 @@ describe('CentralSyncManager', () => {
     await models.User.truncate({ cascade: true, force: true });
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    console.time('HOOK: close context');
+    await ctx.close();
+    console.timeEnd('HOOK: close context');
+  });
 
   describe('startSession', () => {
     it('creates a new session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
       expect(syncSession).not.toBeUndefined();
     });
 
+    it('should open and close the test context', async () => {
+      // this is a dummy test to make sure the before and after hooks work
+      // it's useful for debugging test setup/teardown issues
+      expect(true).toBe(true);
+    });
+
     it('tick-tocks the global clock', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
 
       await waitForSession(centralSyncManager, sessionId);
 
@@ -186,8 +199,10 @@ describe('CentralSyncManager', () => {
 
     it('allows concurrent sync sessions', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId: sessionId1 } = await centralSyncManager.startSession();
-      const { sessionId: sessionId2 } = await centralSyncManager.startSession();
+      const sessionId1 = fakeUUID();
+      const sessionId2 = fakeUUID();
+      await centralSyncManager.startSession(sessionId1);
+      await centralSyncManager.startSession(sessionId2);
 
       await waitForSession(centralSyncManager, sessionId1);
       await waitForSession(centralSyncManager, sessionId2);
@@ -205,12 +220,13 @@ describe('CentralSyncManager', () => {
         throw new Error(errorMessage);
       };
 
-      const spyMarkAsStartedAt = jest
+      const spyMarkAsStartedAt = vi
         .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
         .mockImplementation(fakeMarkAsStartedAt);
 
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
 
       await expect(waitForSession(centralSyncManager, sessionId))
         .rejects.toThrow(`Sync session '${sessionId}' encountered an error: ${errorMessage}`)
@@ -222,12 +238,13 @@ describe('CentralSyncManager', () => {
         // Do nothing and ensure we error out when the client starts polling
       };
 
-      const spyMarkAsStartedAt = jest
+      const spyMarkAsStartedAt = vi
         .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
         .mockImplementation(fakeMarkAsStartedAt);
 
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
 
       await expect(waitForSession(centralSyncManager, sessionId))
         .rejects.toThrow(
@@ -254,15 +271,16 @@ describe('CentralSyncManager', () => {
           dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
           return result;
         };
-        jest.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
+        vi.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
         return originalPrepareSession(session);
       };
 
-      jest
-        .spyOn(centralSyncManager, 'prepareSession')
-        .mockImplementation(fakeCentralSyncManagerPrepareSession);
+      vi.spyOn(centralSyncManager, 'prepareSession').mockImplementation(
+        fakeCentralSyncManagerPrepareSession,
+      );
 
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
 
       await waitForSession(centralSyncManager, sessionId);
       const latestValues = (await models.SyncSession.findOne({ where: { id: sessionId } }))
@@ -275,7 +293,8 @@ describe('CentralSyncManager', () => {
   describe('connectToSession', () => {
     it('allows connecting to an existing session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       const syncSession = await centralSyncManager.connectToSession(sessionId);
@@ -284,7 +303,8 @@ describe('CentralSyncManager', () => {
 
     it('throws an error if connecting to a session that has errored out', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       const session = await models.SyncSession.findByPk(sessionId);
@@ -307,7 +327,8 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await sleepAsync(500);
@@ -328,7 +349,8 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await sleepAsync(500);
@@ -343,7 +365,8 @@ describe('CentralSyncManager', () => {
 
     it('append error if sync session already encounters an error before', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       const session = await models.SyncSession.findByPk(sessionId);
@@ -357,7 +380,8 @@ describe('CentralSyncManager', () => {
   describe('endSession', () => {
     it('set completedAt when ending an existing session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.endSession(sessionId);
@@ -367,7 +391,8 @@ describe('CentralSyncManager', () => {
 
     it('throws an error when connecting to a session that already ended', async () => {
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.endSession(sessionId);
@@ -377,13 +402,14 @@ describe('CentralSyncManager', () => {
 
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it('returns all the outgoing changes', async () => {
       const facility = await models.Facility.create(fake(models.Facility));
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.setupSnapshotForPull(
@@ -405,7 +431,8 @@ describe('CentralSyncManager', () => {
       const facility2 = await models.Facility.create(fake(models.Facility));
       const facility3 = await models.Facility.create(fake(models.Facility));
       const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.setupSnapshotForPull(
@@ -484,7 +511,8 @@ describe('CentralSyncManager', () => {
         });
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         await centralSyncManager.setupSnapshotForPull(
@@ -571,7 +599,8 @@ describe('CentralSyncManager', () => {
         });
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         await centralSyncManager.setupSnapshotForPull(
@@ -630,7 +659,8 @@ describe('CentralSyncManager', () => {
         });
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         await centralSyncManager.setupSnapshotForPull(
@@ -674,7 +704,8 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -743,7 +774,8 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -795,7 +827,8 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
+        const sessionIdOne = fakeUUID();
+        await centralSyncManager.startSession(sessionIdOne);
         await waitForSession(centralSyncManager, sessionIdOne);
 
         // Start the snapshot process
@@ -847,7 +880,8 @@ describe('CentralSyncManager', () => {
           },
         ];
 
-        const { sessionId: sessionIdTwo } = await centralSyncManager.startSession();
+        const sessionIdTwo = fakeUUID();
+        await centralSyncManager.startSession(sessionIdTwo);
         await waitForSession(centralSyncManager, sessionIdTwo);
 
         await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
@@ -1022,7 +1056,8 @@ describe('CentralSyncManager', () => {
 
           const centralSyncManager = initializeCentralSyncManager();
 
-          const { sessionId } = await centralSyncManager.startSession();
+          const sessionId = fakeUUID();
+          await centralSyncManager.startSession(sessionId);
           await waitForSession(centralSyncManager, sessionId);
 
           await centralSyncManager.setupSnapshotForPull(
@@ -1068,7 +1103,8 @@ describe('CentralSyncManager', () => {
 
           const centralSyncManager = initializeCentralSyncManager();
 
-          const { sessionId } = await centralSyncManager.startSession();
+          const sessionId = fakeUUID();
+          await centralSyncManager.startSession(sessionId);
           await waitForSession(centralSyncManager, sessionId);
 
           await centralSyncManager.setupSnapshotForPull(
@@ -1113,7 +1149,8 @@ describe('CentralSyncManager', () => {
         });
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         // Insert PATIENT 1 using an old sync tick and don't commit the transaction yet
@@ -1202,7 +1239,7 @@ describe('CentralSyncManager', () => {
         // Encounter data for pushing (not inserted yet)
         const encounterData = {
           ...(await createDummyEncounter(models)),
-          id: crypto.randomUUID(),
+          id: fakeUUID(),
           patientId: patient.id,
           encounterType: 'clinic',
           startDate: toDateTimeString(sub(new Date(), { days: 1 })),
@@ -1220,7 +1257,8 @@ describe('CentralSyncManager', () => {
         ];
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         // Push the encounter
@@ -1278,7 +1316,7 @@ describe('CentralSyncManager', () => {
         // Patient data for pushing (not inserted yet)
         const toBeSyncedPatientData = {
           ...(await createDummyPatient(models)),
-          id: crypto.randomUUID(),
+          id: fakeUUID(),
           displayId: duplicatedDisplayId,
         };
 
@@ -1300,7 +1338,8 @@ describe('CentralSyncManager', () => {
             maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
           },
         });
-        const { sessionId } = await centralSyncManager.startSession();
+        const sessionId = fakeUUID();
+        await centralSyncManager.startSession(sessionId);
         await waitForSession(centralSyncManager, sessionId);
 
         // Push the encounter
@@ -1422,7 +1461,7 @@ describe('CentralSyncManager', () => {
 
   describe('addIncomingChanges', () => {
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it('inserts incoming changes into snapshots', async () => {
@@ -1436,15 +1475,16 @@ describe('CentralSyncManager', () => {
         data: r.dataValues,
       }));
 
-      jest.doMock('@tamanu/database/sync', () => ({
-        ...jest.requireActual('@tamanu/database/sync'),
-        insertSnapshotRecords: jest.fn(),
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')).default,
+        insertSnapshotRecords: vi.fn(),
       }));
 
       const centralSyncManager = initializeCentralSyncManager();
 
       const { insertSnapshotRecords } = require('@tamanu/database/sync');
-      const { sessionId } = await centralSyncManager.startSession();
+      const sessionId = fakeUUID();
+      await centralSyncManager.startSession(sessionId);
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.addIncomingChanges(sessionId, changes);
@@ -1465,7 +1505,7 @@ describe('CentralSyncManager', () => {
 
   describe('updateLookupTable', () => {
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       await models.SyncLookup.truncate({ force: true });
       await models.DebugLog.truncate({ force: true });
       await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
@@ -1844,7 +1884,8 @@ describe('CentralSyncManager', () => {
         },
       ];
 
-      const { sessionId: sessionIdTwo } = await centralSyncManager.startSession();
+      const sessionIdTwo = fakeUUID();
+      await centralSyncManager.startSession(sessionIdTwo);
       await waitForSession(centralSyncManager, sessionIdTwo);
 
       await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
@@ -1902,7 +1943,7 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      centralSyncManager.tickTockGlobalClock = jest.fn().mockImplementation(() => {
+      centralSyncManager.tickTockGlobalClock = vi.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 

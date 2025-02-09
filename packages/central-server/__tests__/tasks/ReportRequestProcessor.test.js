@@ -7,8 +7,8 @@ import { fake } from '@tamanu/shared/test-helpers';
 jest.mock('@tamanu/shared/reports', () => {
   return {
     __esModule: true,
-    getReportModule: jest.fn().mockReturnValue({
-      dataGenerator: jest.fn().mockReturnValue('report data'),
+    getReportModule: vi.fn().mockReturnValue({
+      dataGenerator: vi.fn().mockReturnValue('report data'),
     }),
   };
 });
@@ -47,11 +47,11 @@ describe('ReportRequestProcessor', () => {
 
     const childProcessId = fakeUUID();
     const mockChildProcess = {
-      kill: jest.fn(),
+      kill: vi.fn(),
       killed: false,
       pid: childProcessId,
     };
-    processor.spawnReportProcess = jest.fn().mockImplementationOnce(() => {
+    processor.spawnReportProcess = vi.fn().mockImplementationOnce(() => {
       processor.childProcesses.set(childProcessId, mockChildProcess);
     });
     await ReportRequest.create({
