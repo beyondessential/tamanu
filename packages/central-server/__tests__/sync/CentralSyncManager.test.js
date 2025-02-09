@@ -160,11 +160,7 @@ describe('CentralSyncManager', () => {
     await models.User.truncate({ cascade: true, force: true });
   });
 
-  afterAll(async () => {
-    console.time('HOOK: close context');
-    await ctx.close();
-    console.timeEnd('HOOK: close context');
-  });
+  afterAll(async () => ctx.close());
 
   describe('startSession', () => {
     it('creates a new session', async () => {
@@ -175,12 +171,6 @@ describe('CentralSyncManager', () => {
 
       const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
       expect(syncSession).not.toBeUndefined();
-    });
-
-    it('should open and close the test context', async () => {
-      // this is a dummy test to make sure the before and after hooks work
-      // it's useful for debugging test setup/teardown issues
-      expect(true).toBe(true);
     });
 
     it('tick-tocks the global clock', async () => {
@@ -1474,7 +1464,7 @@ describe('CentralSyncManager', () => {
         data: r.dataValues,
       }));
 
-      jest.doMock('@tamanu/database/sync', async () => ({
+      jest.doMock('@tamanu/database/sync', () => ({
         ...jest.requireActual('@tamanu/database/sync'),
         insertSnapshotRecords: jest.fn(),
       }));
