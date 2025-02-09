@@ -57,7 +57,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     ({ models }) =>
       models.PatientAdditionalData.getRepository().findOne({
         where: {
-          patient: selectedPatient.id,
+          patient: { id: selectedPatient.id },
         },
       }),
     [selectedPatient.id],

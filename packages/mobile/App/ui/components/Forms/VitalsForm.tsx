@@ -33,10 +33,12 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
     ({ models: m }) =>
       m.PatientAdditionalData.getRepository().findOne({
-        where: { patient: selectedPatient.id },
+        where: { patient: { id: selectedPatient.id } },
       }),
     [selectedPatient.id],
   );
+
+  console.log('error', padError);
 
   const error = vitalsError || padError;
   const isLoading = isVitalsLoading || isPadLoading;
