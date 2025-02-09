@@ -696,7 +696,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        (r) => r.recordType === model.tableName,
+        r => r.recordType === model.tableName,
       );
 
       if (!outgoingSnapshotRecord) {
@@ -756,7 +756,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(nonPatientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        (r) => r.recordType === model.tableName,
+        r => r.recordType === model.tableName,
       );
 
       if (outgoingSnapshotRecord) {
@@ -1183,22 +1183,22 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'encounters')
+        .filter(r => r.recordType === 'encounters')
         .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_requests')
+        .filter(r => r.recordType === 'lab_requests')
         .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_attachments')
+        .filter(r => r.recordType === 'lab_request_attachments')
         .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_logs')
+        .filter(r => r.recordType === 'lab_request_logs')
         .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_tests')
+        .filter(r => r.recordType === 'lab_tests')
         .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_test_panel_requests')
+        .filter(r => r.recordType === 'lab_test_panel_requests')
         .map(r => r.recordId);
 
       expect(labEncounterIds.sort()).toEqual([encounter1.id, encounter2.id].sort());
@@ -1269,22 +1269,22 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'encounters')
+        .filter(r => r.recordType === 'encounters')
         .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_requests')
+        .filter(r => r.recordType === 'lab_requests')
         .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_attachments')
+        .filter(r => r.recordType === 'lab_request_attachments')
         .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_logs')
+        .filter(r => r.recordType === 'lab_request_logs')
         .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_tests')
+        .filter(r => r.recordType === 'lab_tests')
         .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_test_panel_requests')
+        .filter(r => r.recordType === 'lab_test_panel_requests')
         .map(r => r.recordId);
 
       expect(labEncounterIds).toEqual([encounter1.id]);
