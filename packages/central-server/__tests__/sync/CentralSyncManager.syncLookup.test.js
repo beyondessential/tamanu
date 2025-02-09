@@ -885,7 +885,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
       });
 
       it('Does not snapshot settings linked to a facility other than the current facility', async () => {
@@ -934,7 +934,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).not.toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).not.toBeDefined();
       });
 
       it('Snapshots settings with global scope', async () => {
@@ -982,7 +982,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
       });
     });
   });
@@ -1043,7 +1043,7 @@ describe('Sync Lookup data', () => {
     );
 
     expect(
-      outgoingSnapshotRecords.find((r) => r.recordId === patientFacility.id),
+      outgoingSnapshotRecords.find(r => r.recordId === patientFacility.id),
     ).not.toBeDefined();
   });
 
@@ -1184,22 +1184,22 @@ describe('Sync Lookup data', () => {
 
       const labEncounterIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'encounters')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_requests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_request_attachments')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_request_logs')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_tests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_test_panel_requests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
 
       expect(labEncounterIds.sort()).toEqual([encounter1.id, encounter2.id].sort());
       expect(labRequestIds.sort()).toEqual([labRequest1.id, labRequest2.id].sort());
@@ -1270,22 +1270,22 @@ describe('Sync Lookup data', () => {
 
       const labEncounterIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'encounters')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_requests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_request_attachments')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_request_logs')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_tests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
         .filter((r) => r.recordType === 'lab_test_panel_requests')
-        .map((r) => r.recordId);
+        .map(r => r.recordId);
 
       expect(labEncounterIds).toEqual([encounter1.id]);
       expect(labRequestIds).toEqual([labRequest1.id]);
@@ -1355,7 +1355,7 @@ describe('Sync Lookup data', () => {
         lastPersistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
-      const { default: actualConfig } = await jest.importActual('config');
+      const actualConfig = jest.requireActual('config');
       const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
       const config = {
         ...actualConfig,
@@ -1418,10 +1418,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(true);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === patientFromAnotherFacility.id,
+        r => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).not.toBeDefined();
@@ -1435,10 +1435,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(false);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === patientFromAnotherFacility.id,
+        r => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
