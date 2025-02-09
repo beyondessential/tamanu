@@ -59,9 +59,9 @@ export async function verifyChallenge(
   const device = await SyncDevice.findOrRegister(deviceId, user);
 
   // because the session ID is derived from the challenge, and we subsequently
-  // insert sessions into the sync_sessions table, we guarantee that challenges
-  // can't be reused without keeping track of challenges directly
-  const sessionId = LocalSystemFact.newSessionId(nonce);
+  // insert sessions into the sync_sessions table, we guarantee, without keeping
+  // track of challenges directly, that they can't be reused
+  const sessionId = await LocalSystemFact.newSessionId(nonce);
 
   return { device, sessionId };
 }
