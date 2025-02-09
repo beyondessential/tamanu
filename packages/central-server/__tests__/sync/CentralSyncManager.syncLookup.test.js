@@ -1,5 +1,4 @@
 import waitForExpect from 'wait-for-expect';
-import { vi } from 'vitest';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {

@@ -1,6 +1,5 @@
 import { endOfDay, parseISO, sub } from 'date-fns';
 import { cloneDeep } from 'lodash';
-import { vi } from 'vitest';
 
 import {
   CURRENT_SYNC_TIME_KEY,
