@@ -107,7 +107,10 @@ export const OutpatientAppointmentsView = () => {
     setIsCancelModalOpen(true);
   };
 
-  const handleOpenDrawer = appointment => {
+  const handleOpenDrawer = (
+    appointment,
+    { showCreateFromNewWarning = false, showModifyModeModal = false },
+  ) => {
     const appointmentFormValues = pick(appointment, [
       'id',
       'locationGroupId',
@@ -120,7 +123,11 @@ export const OutpatientAppointmentsView = () => {
       'schedule',
     ]);
     setSelectedAppointment(appointmentFormValues);
-    if (appointmentFormValues.schedule) {
+    if (showCreateFromNewWarning) {
+      setIsCreateFromNewWarningModalOpen(true);
+      return;
+    }
+    if (showModifyModeModal) {
       // Prompt for the modification mode before opening drawer
       // if part of a repeating appointment
       setModifyMode(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);

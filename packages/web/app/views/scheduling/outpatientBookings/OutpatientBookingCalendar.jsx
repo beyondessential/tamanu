@@ -243,7 +243,12 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                             fallback="New appointment"
                           />
                         ),
-                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                        action: () =>
+                          onOpenDrawer(
+                            omit(a, ['id', 'startTime', 'endTime'], {
+                              showCreatedFromNewConfirmModal: !!a.schedule,
+                            }),
+                          ),
                       },
                       {
                         label: (
@@ -262,7 +267,11 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                   <AppointmentTile
                     key={a.id}
                     appointment={a}
-                    onEdit={() => onOpenDrawer(a)}
+                    onEdit={() =>
+                      onOpenDrawer(a, {
+                        showModifyModeModal: !!a.schedule,
+                      })
+                    }
                     onCancel={() => onCancel(a)}
                     actions={actions}
                   />
