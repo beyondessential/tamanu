@@ -160,7 +160,7 @@ describe('CentralSyncManager', () => {
     await models.User.truncate({ cascade: true, force: true });
   });
 
-  afterAll(async () => ctx.close());
+  afterAll(() => ctx.close());
 
   describe('startSession', () => {
     it('creates a new session', async () => {
