@@ -9,13 +9,27 @@ export async function constructChallenge({ models: { LocalSystemFact } }) {
   return Buffer.concat([nonce, signature]).toString('base64');
 }
 
-export async function verifyChallenge(
+export async function verifyChallenge(challenge, deviceId, ctx) {
+  try {
+    return await verifyChallengeImpl(challenge, deviceId, ctx);
+  } catch (err) {
+    throw new ChallengeError(err);
+  }
+}
+
+export class ChallengeError extends Error {
+  constructor(err) {
+    super(err.message);
+  }
+}
+
+async function verifyChallengeImpl(
   challenge,
   deviceId,
   {
     user,
     store: {
-      models: { LocalSystemFact, SyncDevice },
+      models: { LocalSystemFact, SyncDevice, SyncSession },
     },
   },
 ) {
@@ -58,8 +72,11 @@ export async function verifyChallenge(
 
   // because the session ID is derived from the challenge, and we subsequently
   // insert sessions into the sync_sessions table, we guarantee, without keeping
-  // track of challenges directly, that they can't be reused
+  // track of challenges directly, that they can't be reused.
   const sessionId = await LocalSystemFact.newSessionId(nonce);
+  if ((await SyncSession.findByPk(sessionId)) !== null) {
+    throw new Error('Reused challenge');
+  }
 
   return { device, sessionId };
 }
