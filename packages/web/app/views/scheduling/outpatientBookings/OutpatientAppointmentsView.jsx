@@ -81,7 +81,7 @@ export const OutpatientAppointmentsView = () => {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
-  const [isCreateFromNewWarningModalOpen, setIsCreateFromNewWarningModalOpen] = useState(false);
+  const [isCreateFromNewWarningOpen, setIsCreateFromNewWarningOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -109,7 +109,7 @@ export const OutpatientAppointmentsView = () => {
 
   const handleOpenDrawer = (
     appointment,
-    { showCreateFromNewWarning = false, showModifyModeModal = false },
+    { showCreateFromNewWarning = false, showModifyModeModal = false } = {},
   ) => {
     const appointmentFormValues = pick(appointment, [
       'id',
@@ -124,7 +124,7 @@ export const OutpatientAppointmentsView = () => {
     ]);
     setSelectedAppointment(appointmentFormValues);
     if (showCreateFromNewWarning) {
-      setIsCreateFromNewWarningModalOpen(true);
+      setIsCreateFromNewWarningOpen(true);
       return;
     }
     if (showModifyModeModal) {
@@ -139,7 +139,7 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleConfirmCreateFromNew = () => {
-    setIsCreateFromNewWarningModalOpen(false);
+    setIsCreateFromNewWarningOpen(false);
     setDrawerOpen(true);
   };
 
@@ -156,8 +156,8 @@ export const OutpatientAppointmentsView = () => {
     <Container>
       <OutpatientAppointmentsContextProvider>
         <CreateFromNewConfirmModal
-          open={isCreateFromNewWarningModalOpen}
-          onCancel={() => setIsCreateFromNewWarningModalOpen(false)}
+          open={isCreateFromNewWarningOpen}
+          onCancel={() => setIsCreateFromNewWarningOpen(false)}
           onConfirm={handleConfirmCreateFromNew}
         />
 

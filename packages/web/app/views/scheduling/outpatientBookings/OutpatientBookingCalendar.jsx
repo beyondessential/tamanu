@@ -234,6 +234,7 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
             <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => {
+                console.log(a);
                 const actions = canCreateAppointment
                   ? [
                       {
@@ -244,11 +245,9 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                           />
                         ),
                         action: () =>
-                          onOpenDrawer(
-                            omit(a, ['id', 'startTime', 'endTime'], {
-                              showCreatedFromNewConfirmModal: !!a.schedule,
-                            }),
-                          ),
+                          onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule']), {
+                            showCreateFromNewWarning: !!a.schedule,
+                          }),
                       },
                       {
                         label: (
