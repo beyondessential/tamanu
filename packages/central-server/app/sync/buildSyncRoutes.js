@@ -9,7 +9,7 @@ import { completeSyncSession } from '@tamanu/database/sync';
 import { CentralSyncManager } from './CentralSyncManager';
 import { constructChallenge, verifyChallenge } from './deviceChallenge';
 
-export const buildSyncRoutes = (ctx) => {
+export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
@@ -33,10 +33,10 @@ export const buildSyncRoutes = (ctx) => {
       } = req;
 
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!(await userInstance.canSync(facilityIds, req))) {
+      if (!await userInstance.canSync(facilityIds, req)) {
         throw new ForbiddenError('User cannot sync');
       }
-      if (facilityIds.some((id) => !userInstance.canAccessFacility(id))) {
+      if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
         throw new ForbiddenError('User does not have access to facility');
       }
 
