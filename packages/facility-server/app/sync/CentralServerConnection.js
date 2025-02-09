@@ -32,10 +32,10 @@ const getVersionIncompatibleMessage = (error, response) => {
   return null;
 };
 
-const objectToQueryString = (obj) =>
+const objectToQueryString = obj =>
   Object.entries(obj)
     .filter(([k, v]) => k !== undefined && v !== undefined)
-    .map((kv) => kv.map((str) => encodeURIComponent(str)).join('='))
+    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
     .join('&');
 
 export class CentralServerConnection {
