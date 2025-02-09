@@ -1,9 +1,7 @@
-import type { Device } from '@tamanu/database/models';
-
 const CHALLENGE_NONCE_LENGTH = 64;
 const ED25519_SIGNATURE_LENGTH = 64;
 
-export async function constructChallenge({ models: { LocalSystemFact } }): Promise<string> {
+export async function constructChallenge({ models: { LocalSystemFact } }) {
   const nonce = new Uint8Array(CHALLENGE_NONCE_LENGTH);
   crypto.getRandomValues(nonce);
 
@@ -12,15 +10,15 @@ export async function constructChallenge({ models: { LocalSystemFact } }): Promi
 }
 
 export async function verifyChallenge(
-  challenge: string,
-  deviceId: string,
+  challenge,
+  deviceId,
   {
     user,
     store: {
       models: { LocalSystemFact, SyncDevice },
     },
   },
-): Promise<{ device: Device; sessionId: string }> {
+) {
   const challengeBuffer = Buffer.from(challenge, 'base64');
   const devicePubkey = Buffer.from(deviceId, 'hex');
 
