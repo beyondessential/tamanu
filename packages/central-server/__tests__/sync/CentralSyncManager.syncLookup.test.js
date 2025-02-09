@@ -1,4 +1,5 @@
 import waitForExpect from 'wait-for-expect';
+import { vi } from 'vitest';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
@@ -625,8 +626,8 @@ describe('Sync Lookup data', () => {
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
     await models.SyncDevice.truncate({ force: true });
 
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -1355,7 +1356,7 @@ describe('Sync Lookup data', () => {
         lastPersistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
-      const actualConfig = jest.requireActual('config');
+      const { default: actualConfig } = await vi.importActual('config');
       const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
       const config = {
         ...actualConfig,

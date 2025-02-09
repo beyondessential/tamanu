@@ -103,7 +103,7 @@ describe('Worker Jobs', () => {
     let worker;
 
     beforeEach(async () => {
-      logger = jest.fn();
+      logger = vi.fn();
       worker = new FhirWorker(ctx.store, makeLogger(logger));
       worker.testMode = true;
       await worker.start();
@@ -154,7 +154,7 @@ describe('Worker Jobs', () => {
       withErrorShown(async () => {
         await models.FhirJob.truncate();
 
-        logger = jest.fn();
+        logger = vi.fn();
         worker = new FhirWorker(ctx.store, makeLogger(logger));
         worker.testMode = true;
         worker.config.concurrency = 1;
