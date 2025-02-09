@@ -13,7 +13,14 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
+export const TranslatedText = ({
+  stringId,
+  fallback,
+  replacements,
+  uppercase,
+  lowercase,
+  upperFirst,
+}) => {
   const { getTranslation } = useTranslation();
 
   const translation = useMemo(
@@ -24,8 +31,9 @@ export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lo
         replacements,
         uppercase,
         lowercase,
+        upperFirst,
       ),
-    [getTranslation, stringId, fallback, replacements, uppercase, lowercase],
+    [getTranslation, stringId, fallback, replacements, uppercase, lowercase, upperFirst],
   );
 
   const isDebugMode = safeGetIsDebugMode();

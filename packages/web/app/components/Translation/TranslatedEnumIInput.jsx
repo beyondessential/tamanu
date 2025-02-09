@@ -7,6 +7,7 @@ export const TranslatedEnumField = ({
   field,
   enumValues,
   transformOptions,
+  TranslatedTextProps,
   value,
   name,
   component,
@@ -24,6 +25,7 @@ export const TranslatedEnumField = ({
       label,
     })),
     prefix,
+    TranslatedTextProps,
   );
 
   const filteredOptions = transformOptions

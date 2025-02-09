@@ -1,7 +1,7 @@
 import { TranslatedText } from './TranslatedText';
 import React from 'react';
 
-export const getTranslatedOptions = (options, prefix) => {
+export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) => {
   if (!options) return [];
 
   return options.map(option => {
@@ -14,6 +14,7 @@ export const getTranslatedOptions = (options, prefix) => {
                 .toLowerCase()
                 .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`}
               fallback={label}
+              {...TranslatedTextProps}
             />
           ),
           ...rest,

@@ -30,7 +30,7 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => {
+  return data.map((item) => {
     const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
     return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
   });
@@ -38,11 +38,12 @@ const replaceDataLabelsWithTranslations = ({ data, translations }) => {
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
   ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
-const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
 function createSuggesterRoute(
   endpoint,
@@ -112,7 +113,7 @@ function createSuggesterRoute(
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(r => mapper(r)));
+      const data = await Promise.all(results.map((r) => mapper(r)));
 
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
@@ -194,12 +195,11 @@ function createAllRecordsRoute(
         return;
       }
 
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByDataType(
-        {
+      const translatedStrings =
+        await models.TranslatedString.getReferenceDataTranslationsByDataType({
           language: query.language,
           refDataType: getDataType(endpoint),
-        },
-      );
+        });
 
       const translatedResults = replaceDataLabelsWithTranslations({
         data: mappedResults,
@@ -303,7 +303,7 @@ createSuggester(
     ...VISIBILITY_CRITERIA,
   }),
   {
-    includeBuilder: req => {
+    includeBuilder: (req) => {
       const {
         models: { ReferenceData, TaskTemplate },
         query: { relationType },
@@ -337,9 +337,9 @@ createSuggester(
         },
       ];
     },
-    orderBuilder: req => {
+    orderBuilder: (req) => {
       const { query } = req;
-      const types = query.types
+      const types = query.types;
       if (!types?.length) return;
 
       const caseStatement = query.types
@@ -355,25 +355,25 @@ createSuggester(
       `),
       ];
     },
-    mapper: item => item,
-    creatingBodyBuilder: req =>
+    mapper: (item) => item,
+    creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
   },
   true,
 );
 
-REFERENCE_TYPE_VALUES.forEach(typeName => {
+REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    search => ({
+    (search) => ({
       name: { [Op.iLike]: search },
       type: typeName,
       ...VISIBILITY_CRITERIA,
     }),
     {
-      includeBuilder: req => {
+      includeBuilder: (req) => {
         const {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
@@ -393,7 +393,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
-      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+      creatingBodyBuilder: (req) =>
+        referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
     },
     true,
@@ -404,7 +405,7 @@ createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 });
 
-const DEFAULT_WHERE_BUILDER = search => ({
+const DEFAULT_WHERE_BUILDER = (search) => ({
   name: { [Op.iLike]: search },
   ...VISIBILITY_CRITERIA,
 });
@@ -463,7 +464,7 @@ createSuggester(
     };
   },
   {
-    mapper: async location => {
+    mapper: async (location) => {
       const availability = await location.getAvailability();
       const { name, code, id, maxOccupancy, facilityId } = location;
 
@@ -506,17 +507,17 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 createSuggester(
   'invoiceProducts',
   'InvoiceProduct',
-  search => ({
+  (search) => ({
     name: { [Op.iLike]: search },
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
     ...VISIBILITY_CRITERIA,
   }),
   {
-    mapper: product => {
+    mapper: (product) => {
       product.addVirtualFields();
       return product;
     },
-    includeBuilder: req => {
+    includeBuilder: (req) => {
       return [
         {
           model: req.models.ReferenceData,
@@ -531,7 +532,7 @@ createSuggester(
 createSuggester(
   'practitioner',
   'User',
-  search => ({
+  (search) => ({
     displayName: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
@@ -547,7 +548,7 @@ createSuggester(
 createSuggester(
   'patient',
   'Patient',
-  search => ({
+  (search) => ({
     [Op.or]: [
       Sequelize.where(
         Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
@@ -556,7 +557,7 @@ createSuggester(
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  { mapper: patient => patient, searchColumn: 'first_name' },
+  { mapper: (patient) => patient, searchColumn: 'first_name' },
 );
 
 // Specifically fetches lab test categories that have a lab request against a patient
@@ -590,7 +591,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -633,7 +634,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -678,7 +679,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       patient_id: query.patientId,
     }),
   },
@@ -745,20 +746,20 @@ createNameSuggester('template', 'Template', (search, query) => {
   };
 });
 
-const routerEndpoints = suggestions.stack.map(layer => {
+const routerEndpoints = suggestions.stack.map((layer) => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
   return root;
 });
 const rootElements = [...new Set(routerEndpoints)];
-SUGGESTER_ENDPOINTS.forEach(endpoint => {
+SUGGESTER_ENDPOINTS.forEach((endpoint) => {
   if (!rootElements.includes(endpoint)) {
     throw new Error(
       `Suggester endpoint exists in shared constant but not included in router: ${endpoint}`,
     );
   }
 });
-rootElements.forEach(endpoint => {
+rootElements.forEach((endpoint) => {
   if (!SUGGESTER_ENDPOINTS.includes(endpoint)) {
     throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
   }

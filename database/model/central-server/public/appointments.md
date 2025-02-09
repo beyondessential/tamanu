@@ -34,6 +34,10 @@ Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording tha
 The [location](#!/source/source.tamanu.tamanu.locations) where the appointment will take place.
 {% enddocs %}
 
+{% docs appointments__schedule_id %}
+Reference to the [appointment schedule](#!/source/source.tamanu.tamanu.appointment_schedules) in the case of repeating appointments.
+{% enddocs %}
+
 {% docs appointments__status %}
 The current status of the appointment record.
 

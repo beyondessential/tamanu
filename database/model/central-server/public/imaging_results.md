@@ -27,3 +27,7 @@ External code for this result, used with PACS integration (generally via FHIR).
 {% docs imaging_results__completed_at %}
 When this result was completed.
 {% enddocs %}
+
+{% docs imaging_results__result_image_url %}
+Link to external imaging result viewer.
+{% enddocs %}

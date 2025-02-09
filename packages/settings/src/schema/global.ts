@@ -26,6 +26,23 @@ import {
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import {
+  medicationFrequencyDefault,
+  medicationFrequencySchema,
+} from './definitions/medicationFrequencySchema';
+
+const generateFrequencyProperties = (frequencies) => {
+  return Object.fromEntries(
+    frequencies.map((frequency) => [
+      frequency,
+      {
+        description: frequency,
+        type: medicationFrequencySchema(frequency),
+        defaultValue: medicationFrequencyDefault[frequency],
+      },
+    ]),
+  );
+};
 
 export const globalSettings = {
   title: 'Global settings',
@@ -51,6 +68,16 @@ export const globalSettings = {
       description: 'Defines the unit with which to display patient ages, depending on their age',
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
+    },
+    appointments: {
+      description: 'Appointment settings',
+      properties: {
+        maxRepeatingAppointmentsPerGeneration: {
+          description: 'The maximum number of appointments that can be generated at once',
+          type: yup.number().min(1),
+          defaultValue: 50,
+        },
+      },
     },
     features: {
       description: 'Toggle features on/off',
@@ -218,6 +245,22 @@ export const globalSettings = {
               description: 'Interval in seconds between check for new records.',
               type: yup.number(),
               defaultValue: 300,
+              unit: 'seconds',
+            },
+          },
+        },
+        disableInputPasting: {
+          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        discharge: {
+          description:
+            'Encounter discharge configuration',
+          properties: {
+            dischargeNoteMandatory: {
+              type: yup.boolean(),
+              defaultValue: false,
               unit: 'seconds',
             },
           },
@@ -989,7 +1032,7 @@ export const globalSettings = {
         patientTabs: {
           description: 'The tabs on patient view',
           properties: {
-            history: {
+            summary: {
               description: '_',
               properties: unhideableLayoutModuleProperties,
             },
@@ -1261,8 +1304,10 @@ export const globalSettings = {
       defaultValue: vitalEditReasonsDefault,
     },
     medications: {
+      description: 'Medication settings',
       properties: {
-        frequencies: {
+        frequenciesEnabled: {
+          description: 'Enable medication frequencies',
           properties: {
             [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
               description: ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING,
@@ -1340,6 +1385,10 @@ export const globalSettings = {
               defaultValue: true,
             },
           },
+        },
+        frequenciesAdministrationTimes: {
+          description: '-',
+          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES)),
         },
       },
     },

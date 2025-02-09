@@ -107,13 +107,13 @@ export const AppointmentTile = ({
     if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
         setOpen(true);
-        ref.current.scrollIntoView({ block: 'center', inline: 'start' });
+        ref.current.scrollIntoView({ block: 'center', inline: 'center' });
       });
     }
   }, [appointment.id, hideTime, location.search]);
 
   const startTime = parseISO(startTimeStr);
-  const endTime = parseISO(endTimeStr);
+  const endTime = endTimeStr && parseISO(endTimeStr);
 
   const isLocationBooking = !!appointment.location;
   const isOvernightLocationBooking = isLocationBooking && !isSameDay(startTime, endTime);

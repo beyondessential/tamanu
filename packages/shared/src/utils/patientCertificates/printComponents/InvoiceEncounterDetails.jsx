@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from '@react-pdf/renderer';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
+import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { getLocationName } from '../../patientAccessors';
@@ -14,10 +14,10 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 
-  const filterAndSortDiagnoses = isPrimary =>
+  const filterAndSortDiagnoses = (isPrimary) =>
     diagnoses
-      .filter(diagnosis => diagnosis.isPrimary === isPrimary)
-      .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
+      .filter((diagnosis) => diagnosis.isPrimary === isPrimary)
+      .filter(({ certainty }) => certainty === DIAGNOSIS_CERTAINTY.CONFIRMED)
       .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 
   const primaryDiagnoses = filterAndSortDiagnoses(true);
@@ -61,7 +61,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.primaryDiagnoses.label', 'Primary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {primaryDiagnoses.map(diagnosis => (
+            {primaryDiagnoses.map((diagnosis) => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>
@@ -75,7 +75,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.secondaryDiagnoses.label', 'Secondary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {secondaryDiagnoses.map(diagnosis => (
+            {secondaryDiagnoses.map((diagnosis) => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>

@@ -1,4 +1,10 @@
-const { REPORT_STATUSES, NOTE_RECORD_TYPES, REPORT_DB_SCHEMAS } = require('@tamanu/constants');
+const {
+  REPORT_STATUSES,
+  NOTE_RECORD_TYPES,
+  REPORT_DB_SCHEMAS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TYPES,
+} = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { initDatabase } = require('@tamanu/database/services/database');
 const config = require('config');
@@ -11,9 +17,11 @@ const config = require('config');
 async function generateData(models) {
   const {
     Appointment,
+    AppointmentSchedule,
     Department,
     Discharge,
     Encounter,
+    EncounterPrescription,
     Facility,
     Location,
     LocationGroup,
@@ -31,6 +39,8 @@ async function generateData(models) {
     LabRequestLog,
     LabRequest,
     UserPreference,
+    PatientOngoingPrescription,
+    Prescription,
     ProgramDataElement,
     Program,
     ProgramRegistry,
@@ -58,6 +68,8 @@ async function generateData(models) {
     InvoiceItemDiscount,
     InvoiceProduct,
     SurveyResponse,
+    ImagingRequest,
+    ImagingResult,
     Task,
     TaskDesignation,
     TaskTemplate,
@@ -165,6 +177,25 @@ async function generateData(models) {
       userId: examiner.id,
     }),
   );
+
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
+  const prescription = await Prescription.create(
+    fake(Prescription, {
+      medicationId: referenceData.id,
+    }),
+  );
+  await EncounterPrescription.create(
+    fake(EncounterPrescription, {
+      encounterId: encounter.id,
+      prescriptionId: prescription.id,
+    }),
+  );
+  await PatientOngoingPrescription.create(
+    fake(PatientOngoingPrescription, {
+      patientId: patient.id,
+      prescriptionId: prescription.id,
+    }),
+  );
   await ProgramDataElement.create(fake(ProgramDataElement));
   const program = await Program.create(fake(Program));
   const programRegistry = await ProgramRegistry.create(
@@ -215,7 +246,6 @@ async function generateData(models) {
     }),
   );
 
-  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
@@ -308,17 +338,45 @@ async function generateData(models) {
       orderedByUserId: examiner.id,
     }),
   );
+
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
     }),
   );
 
+  const imagingRequest = await ImagingRequest.create(
+    fake(ImagingRequest, {
+      requestedById: examiner.id,
+      encounterId: encounter.id,
+      locationGroupId: locationGroup.id,
+      status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+      priority: 'routine',
+      requestedDate: '2022-03-04 15:30:00',
+      imagingType: IMAGING_TYPES.X_RAY,
+    }),
+  );
+
+  await ImagingResult.create(
+    fake(ImagingResult, {
+      imagingRequestId: imagingRequest.id,
+      completedById: examiner.id,
+      description: 'This is a test result',
+      completedAt: '2022-03-04 15:30:00',
+    }),
+  );
+
+  const appointmentSchedule = await AppointmentSchedule.create(
+    fake(AppointmentSchedule, {
+      locationGroupId: locationGroup.id,
+    }),
+  );
   await Appointment.create(
     fake(Appointment, {
       patientId: patient.id,
       clinicianId: examiner.id,
       locationGroupId: locationGroup.id,
+      scheduleId: appointmentSchedule.id,
     }),
   );
 

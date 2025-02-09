@@ -231,9 +231,10 @@ export class Encounter extends Model {
       as: 'diagnoses',
     });
 
-    this.hasMany(models.EncounterMedication, {
+    this.belongsToMany(models.Prescription, {
       foreignKey: 'encounterId',
       as: 'medications',
+      through: models.EncounterPrescription,
     });
 
     this.hasMany(models.LabRequest, {
@@ -463,8 +464,7 @@ export class Encounter extends Model {
   }
 
   async addTriageScoreNote(
-    triageRecord: { score: any },
-    submittedTime: string,
+    triageRecord: { score: any; triageTime: string },
     user: ModelProperties<User>,
   ) {
     const department = await this.sequelize.models.Department.findOne({
@@ -479,7 +479,7 @@ export class Encounter extends Model {
 
     await this.addSystemNote(
       `${department.name} triage score: ${triageRecord.score}`,
-      submittedTime,
+      triageRecord.triageTime,
       user,
     );
   }

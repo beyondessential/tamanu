@@ -6,6 +6,7 @@ import { formatISO9075 } from 'date-fns';
 
 import {
   CURRENTLY_AT_TYPES,
+  DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -14,6 +15,8 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   REGISTRATION_STATUSES,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_VALUES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -191,18 +194,13 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix = 'test-') {
+export function fakePrescription(prefix = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    qtyMorning: chance.integer({ min: 0, max: 10 }),
-    qtyLunch: chance.integer({ min: 0, max: 10 }),
-    qtyEvening: chance.integer({ min: 0, max: 10 }),
-    qtyNight: chance.integer({ min: 0, max: 10 }),
-    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+    ...fakeStringFields(`${prefix}prescription${id}_`, [
       'id',
-      'prescription',
       'note',
       'indication',
       'route',
@@ -396,6 +394,18 @@ const MODEL_SPECIFIC_OVERRIDES = {
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
+  AppointmentSchedule: () => {
+    const frequency = chance.pickone(REPEAT_FREQUENCY_VALUES);
+    const endsMode = chance.pickone(['on', 'after']);
+    return {
+      daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
+      nthWeekday:
+        frequency === REPEAT_FREQUENCY.MONTHLY ? chance.integer({ min: -1, max: 4 }) : null,
+      ...(endsMode === 'on'
+        ? { untilDate: fakeDateTimeString() }
+        : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
+    };
+  },
 };
 
 const FHIR_MODELS_HANDLERS = {

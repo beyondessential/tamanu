@@ -117,10 +117,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const queryClient = useQueryClient();
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
-  const { selectedChartTypeId, setSelectedChartTypeId } = useChartData();
+  const {
+    isLoading: isLoadingChartData,
+    selectedChartTypeId,
+    setSelectedChartTypeId,
+  } = useChartData();
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
-    isLoadingChartSurveys,
+    isLoading: isLoadingChartSurveys,
   } = useChartSurveysQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,12 +171,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [fullChartSurvey?.components],
   );
 
+  const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
   const {
     data: { data: complexChartInstances = [] } = {},
+    isLoading: isLoadingInstances,
   } = useEncounterComplexChartInstancesQuery({
     encounterId: encounter.id,
     chartSurveyId: coreComplexChartSurveyId,
-    enabled: !!coreComplexChartSurveyId, // only run when coreComplexChartSurveyId is available
+    enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
   });
 
   // Create tabs for each chart instance
@@ -195,14 +201,24 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [complexChartInstancesById, currentComplexChartTab],
   );
 
-  // Set default current tab if not set
+  // Sets initial instance tab when selecting a complex chart
   useEffect(() => {
-    if (!currentComplexChartTab && complexChartInstanceTabs?.length) {
+    if (complexChartInstanceTabs?.length) {
       setCurrentComplexChartTab(complexChartInstanceTabs[0].key);
     }
-  }, [complexChartInstanceTabs, currentComplexChartTab]);
+  }, [complexChartInstanceTabs, selectedChartTypeId]);
 
   const handleCloseModal = () => setModalOpen(false);
+
+  const reloadChartInstances = useCallback(
+    () =>
+      queryClient.invalidateQueries([
+        'encounterComplexChartInstances',
+        encounter.id,
+        coreComplexChartSurveyId,
+      ]),
+    [queryClient, encounter.id, coreComplexChartSurveyId],
+  );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
     const submittedTime = getCurrentDateTimeString();
@@ -220,6 +236,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       responseData.metadata = {
         chartInstanceResponseId: currentComplexChartInstance.chartInstanceId,
       };
+    } else if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
+      reloadChartInstances();
     }
 
     await api.post('surveyResponse', responseData);
@@ -236,12 +254,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       handleCloseModal();
       setCurrentComplexChartTab(null);
 
-      // reload the chart instance tabs
-      queryClient.invalidateQueries([
-        'encounterComplexChartInstances',
-        encounter.id,
-        coreComplexChartSurveyId,
-      ]);
+      reloadChartInstances();
       await loadEncounter(encounter.id);
     } catch (e) {
       toast.error(`Failed to remove chart with error: ${e.message}`);
@@ -250,8 +263,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     api,
     encounter.id,
     currentComplexChartInstance?.chartInstanceId,
-    queryClient,
-    coreComplexChartSurveyId,
+    reloadChartInstances,
     loadEncounter,
   ]);
 
@@ -262,6 +274,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   }`;
   const recordButtonEnabled =
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
+  const hasNoCharts = chartTypes.length === 0;
+  const isWaitingForInstances = isInstancesQueryEnabled && isLoadingInstances;
 
   const baseChartModalProps = {
     open: modalOpen,
@@ -271,10 +285,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     onSubmit: handleSubmitChart,
   };
 
-  if (!isLoadingChartSurveys && !chartTypes?.length) {
+  if (isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
     return (
       <TabPane>
         <EmptyChartsTable
+          isLoading={isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances}
           noDataMessage={
             <TranslatedText
               stringId="chart.table.noSelectableCharts"
@@ -304,13 +319,11 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         <TableButtonRowWrapper>
           <TableButtonRow variant="small" justifyContent="space-between">
             <StyledButtonGroup>
-              {chartTypes?.length ? (
-                <ChartDropdown
-                  selectedChartTypeId={selectedChartTypeId}
-                  setSelectedChartTypeId={setSelectedChartTypeId}
-                  chartTypes={chartTypes}
-                />
-              ) : null}
+              <ChartDropdown
+                selectedChartTypeId={selectedChartTypeId}
+                setSelectedChartTypeId={setSelectedChartTypeId}
+                chartTypes={chartTypes}
+              />
               {isComplexChart ? (
                 <AddComplexChartButton
                   onClick={() => {

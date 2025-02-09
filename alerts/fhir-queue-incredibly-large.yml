@@ -3,14 +3,14 @@ sql: |
     COUNT(*) AS job_count
   FROM fhir.jobs
   WHERE status = 'Queued'
-  HAVING COUNT(*) > 1000;
+  HAVING COUNT(*) > 1000
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] FHIR job queue abnormally large ({{ hostname }})'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <p>Alert: {{ filename }}</p>
-      <h1>FHIR queued jobs count is abnormally high</h1>
-      <p>Currently queued jobs: {{ rows[0].job_count }}</p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      Currently queued jobs: {{ rows[0].job_count }}
