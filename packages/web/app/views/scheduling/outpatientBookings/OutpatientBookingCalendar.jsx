@@ -255,7 +255,7 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                             ),
                             action: () =>
                               onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule']), {
-                                showCreateFromNewWarning: !!a.schedule,
+                                showNewFromExistingWarning: !!a.schedule,
                               }),
                           },
                           {

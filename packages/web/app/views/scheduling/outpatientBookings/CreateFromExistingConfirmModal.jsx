@@ -11,7 +11,7 @@ const StyledConfirmModal = styled(ConfirmModal)`
   }
 `;
 
-export const CreateFromNewConfirmModal = ({ open, onCancel, onConfirm }) => {
+export const CreateFromExistingConfirmModal = ({ open, onCancel, onConfirm }) => {
   return (
     <StyledConfirmModal
       title={
@@ -23,7 +23,7 @@ export const CreateFromNewConfirmModal = ({ open, onCancel, onConfirm }) => {
       customContent={
         <Box p={7}>
           <TranslatedText
-            stringId="scehduling.modal.appointment.content.createFromNewWarning"
+            stringId="scehduling.modal.appointment.content.createFromExistingWarning"
             fallback="This appointment is repeating and there may be future instances of this appointment already scheduled. Would you like to continue scheduling a new appointment?"
           />
         </Box>
