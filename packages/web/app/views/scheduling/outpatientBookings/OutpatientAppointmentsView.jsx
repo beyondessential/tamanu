@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { parseDate } from '@tamanu/utils/dateTime';
+import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
@@ -20,8 +21,8 @@ import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { useAuth } from '../../../contexts/Auth';
+import { CreateFromNewConfirmModal } from './CreateFromNewConfirmModal';
 import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
-import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -80,6 +81,7 @@ export const OutpatientAppointmentsView = () => {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [isCreateFromNewWarningModalOpen, setIsCreateFromNewWarningModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
@@ -129,6 +131,11 @@ export const OutpatientAppointmentsView = () => {
     setDrawerOpen(true);
   };
 
+  const handleConfirmCreateFromNew = () => {
+    setIsCreateFromNewWarningModalOpen(false);
+    setDrawerOpen(true);
+  };
+
   const handleConfirmModifyMode = () => {
     setIsModifyModalOpen(false);
     setDrawerOpen(true);
@@ -141,6 +148,12 @@ export const OutpatientAppointmentsView = () => {
   return (
     <Container>
       <OutpatientAppointmentsContextProvider>
+        <CreateFromNewConfirmModal
+          open={isCreateFromNewWarningModalOpen}
+          onCancel={() => setIsCreateFromNewWarningModalOpen(false)}
+          onConfirm={handleConfirmCreateFromNew}
+        />
+
         <CancelAppointmentModal
           appointment={selectedAppointment}
           open={isCancelModalOpen}

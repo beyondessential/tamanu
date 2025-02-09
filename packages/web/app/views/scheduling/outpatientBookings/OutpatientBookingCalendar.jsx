@@ -236,9 +236,8 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
               {appointments.map(a => {
                 const actions = [];
                 if (canCreateAppointment) {
-                  // Only show the new appointment action if not a repeating appointment
-                  if (!a.schedule) {
-                    actions.push({
+                  actions.push(
+                    {
                       label: (
                         <TranslatedText
                           stringId="appointments.action.newAppointment"
@@ -246,18 +245,18 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                         />
                       ),
                       action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    });
-                  }
-                  actions.push({
-                    label: (
-                      <TranslatedText
-                        stringId="appointments.action.emailAppointment"
-                        fallback="Email appointment"
-                      />
-                    ),
-                    action: () =>
-                      setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                  });
+                    },
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.emailAppointment"
+                          fallback="Email appointment"
+                        />
+                      ),
+                      action: () =>
+                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                    },
+                  );
                 }
                 return (
                   <AppointmentTile
