@@ -577,7 +577,7 @@ export class CentralSyncManager {
 
     try {
       // commit the changes to the db
-      const lastPersistedAtSyncTick = await sequelize.transaction(async () => {
+      const persistedAtSyncTick = await sequelize.transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -602,7 +602,7 @@ export class CentralSyncManager {
         return tock;
       });
 
-      await device.update({ lastPersistedAtSyncTick });
+      await device.update({ lastPersistedAtSyncTick: persistedAtSyncTick });
 
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
