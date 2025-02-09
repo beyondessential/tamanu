@@ -343,7 +343,7 @@ createSuggester(
       if (!types?.length) return;
 
       const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`) // TODO: Does this need to change
+        .map((value, index) => `WHEN '${Sequelize.escape(value)}' THEN ${index + 1}`)
         .join(' ');
 
       return [
@@ -672,7 +672,7 @@ createSuggester(
           WHERE
             ppr.patient_id = :patient_id
           AND
-            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'  // TODO: Does this need to change
+            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
         ),
       },
@@ -725,7 +725,7 @@ createNameSuggester(
           WHERE
             ppr.patient_id = :patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'  // TODO: Does this need to change
+            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
         ),
       },
