@@ -234,30 +234,30 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
             <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => {
-                const actions = [];
-                if (canCreateAppointment) {
-                  actions.push(
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.newAppointment"
-                          fallback="New appointment"
-                        />
-                      ),
-                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.emailAppointment"
-                          fallback="Email appointment"
-                        />
-                      ),
-                      action: () =>
-                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                    },
-                  );
-                }
+                const actions = canCreateAppointment
+                  ? [
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.newAppointment"
+                            fallback="New appointment"
+                          />
+                        ),
+                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                      },
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="appointments.action.emailAppointment"
+                            fallback="Email appointment"
+                          />
+                        ),
+                        action: () =>
+                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                      },
+                    ]
+                  : [];
+
                 return (
                   <AppointmentTile
                     key={a.id}
