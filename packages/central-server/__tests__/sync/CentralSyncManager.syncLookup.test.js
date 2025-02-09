@@ -626,8 +626,8 @@ describe('Sync Lookup data', () => {
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
     await models.SyncDevice.truncate({ force: true });
 
-    vi.resetModules();
-    vi.clearAllMocks();
+    jest.resetModules();
+    jest.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -1356,7 +1356,7 @@ describe('Sync Lookup data', () => {
         lastPersistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
-      const { default: actualConfig } = await vi.importActual('config');
+      const { default: actualConfig } = await jest.importActual('config');
       const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
       const config = {
         ...actualConfig,

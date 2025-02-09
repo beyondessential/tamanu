@@ -271,13 +271,13 @@ describe('CentralSyncManager', () => {
           dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
           return result;
         };
-        vi.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
+        jest.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
         return originalPrepareSession(session);
       };
 
-      vi.spyOn(centralSyncManager, 'prepareSession').mockImplementation(
-        fakeCentralSyncManagerPrepareSession,
-      );
+      jest
+        .spyOn(centralSyncManager, 'prepareSession')
+        .mockImplementation(fakeCentralSyncManagerPrepareSession);
 
       const sessionId = fakeUUID();
       await centralSyncManager.startSession(sessionId);
@@ -402,7 +402,7 @@ describe('CentralSyncManager', () => {
 
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
-      vi.resetModules();
+      jest.resetModules();
     });
 
     it('returns all the outgoing changes', async () => {
@@ -1461,7 +1461,7 @@ describe('CentralSyncManager', () => {
 
   describe('addIncomingChanges', () => {
     beforeEach(async () => {
-      vi.resetModules();
+      jest.resetModules();
     });
 
     it('inserts incoming changes into snapshots', async () => {
@@ -1475,8 +1475,8 @@ describe('CentralSyncManager', () => {
         data: r.dataValues,
       }));
 
-      vi.doMock('@tamanu/database/sync', async () => ({
-        ...(await vi.importActual('@tamanu/database/sync')).default,
+      jest.doMock('@tamanu/database/sync', async () => ({
+        ...jest.requireActual('@tamanu/database/sync'),
         insertSnapshotRecords: jest.fn(),
       }));
 
@@ -1505,7 +1505,7 @@ describe('CentralSyncManager', () => {
 
   describe('updateLookupTable', () => {
     beforeEach(async () => {
-      vi.resetModules();
+      jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
       await models.DebugLog.truncate({ force: true });
       await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
