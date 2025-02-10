@@ -134,12 +134,11 @@ export const OutpatientAppointmentsView = () => {
   };
 
   const handleCreateFromExistingAppointment = appointment => {
+    handleSelectAppointment(omit(appointment, ['id', 'schedule', 'startTime', 'endTime']));
     if (!appointment.schedule) {
-      handleSelectAppointment(appointment);
       handleOpenDrawer();
       return;
     }
-    handleSelectAppointment(omit(appointment, ['schedule']));
     setIsCreateFromExistingWarningOpen(true);
   };
 

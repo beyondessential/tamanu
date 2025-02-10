@@ -254,8 +254,7 @@ export const OutpatientBookingCalendar = ({
                                 fallback="New appointment"
                               />
                             ),
-                            action: () =>
-                              onCreateFromExisting(omit(a, ['id', 'startTime', 'endTime'])),
+                            action: () => onCreateFromExisting(a),
                           },
                           {
                             label: (
