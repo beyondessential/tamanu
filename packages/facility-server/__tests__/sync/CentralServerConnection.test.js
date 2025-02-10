@@ -33,7 +33,6 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createCentralServerConnection = (models) => {
-  if (!models?.LocalSystemFact) throw Error('wtf');
   const centralServer = new CentralServerConnection({ models });
   centralServer.fetchImplementation = fetch;
   return centralServer;
@@ -149,10 +148,18 @@ describe('CentralServerConnection', () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
       const centralServer = createCentralServerConnection(models);
-      fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
+      fetch
+      .mockImplementationOnce(fakeTimeout('fake timeout'))
+      .mockImplementationOnce(fakeTimeout('fake timeout'));
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
+    });
+
+    it('has a public key as device ID', async () => {
+      const id = await models.LocalSystemFact.deviceId();
+      expect(id.length).toBe(64);
+      expect(id).toMatch(/^[0-9a-f]{64}$/);
     });
   });
 });

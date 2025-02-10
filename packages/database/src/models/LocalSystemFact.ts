@@ -79,17 +79,33 @@ export class LocalSystemFact extends Model {
     return fact.value;
   }
 
+  static #secretKey: Uint8Array;
+
   /**
    * Generate and store a keypair for this device, if it doesn't exist already.
    * @returns The secret key of the keypair
    */
   static async #initialiseKeypair(): Promise<Uint8Array> {
-    const secretKeyString = await this.get(SECRET_KEY_KEY);
-    const secretKey = secretKeyString ? Buffer.from(secretKeyString, 'hex') : ed25519.utils.randomPrivateKey();
-    if (!secretKeyString) {
-      await this.set(SECRET_KEY_KEY, Buffer.from(secretKey).toString('hex'));
+    if (!this.#secretKey) {
+      await this.sequelize.query(
+        `
+          INSERT INTO local_system_facts (key, value)
+          VALUES ($key, encode(gen_random_bytes(32), 'hex'))
+          ON CONFLICT DO NOTHING
+        `,
+        {
+          bind: { key: SECRET_KEY_KEY },
+        },
+      );
+
+      const key = await this.get(SECRET_KEY_KEY);
+      if (!key) {
+        throw new Error('secret key failed to generate');
+      }
+      this.#secretKey = Buffer.from(key, 'hex');
     }
-    return secretKey;
+
+    return this.#secretKey;
   }
 
   /** The device's ID is its public key in hex */
