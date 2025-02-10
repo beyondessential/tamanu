@@ -26,15 +26,19 @@ export async function getValues(upstream, models) {
   throw new Error(`Invalid upstream type for encounter ${upstream.constructor.name}`);
 }
 
-async function getValuesFromEncounter(upstream) {
+async function getValuesFromEncounter(upstream, models) {
+  const subject = await subjectRef(upstream, models);
+  const serviceProvider = await serviceProviderRef(upstream, models);
+
   return {
     lastUpdated: new Date(),
     status: status(upstream),
     class: classification(upstream),
     actualPeriod: period(upstream),
-    subject: subjectRef(upstream),
+    subject,
     location: locationRef(upstream),
-    serviceProvider: await serviceProviderRef(upstream),
+    serviceProvider,
+    resolved: subject.isResolved() && (serviceProvider ? serviceProvider.isResolved() : true),
   };
 }
 
@@ -102,10 +106,8 @@ function period(encounter) {
   });
 }
 
-function subjectRef(encounter) {
-  return new FhirReference({
-    type: 'upstream://patient',
-    reference: encounter.patient.id,
+async function subjectRef(encounter, models) {
+  return FhirReference.to(models.FhirPatient, encounter.patient.id, {
     display: `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   });
 }
@@ -149,15 +151,13 @@ function locationRef(encounter) {
   ];
 }
 
-async function serviceProviderRef(encounter) {
-  const { facility } =  encounter.location;
+async function serviceProviderRef(encounter, models) {
+  const { facility } = encounter.location;
   if (!facility) {
     return null;
   }
 
-  return new FhirReference({
-    type: 'upstream://organization',
-    reference: facility.id,
+  return FhirReference.to(models.FhirOrganization, facility.id, {
     display: facility.name,
   });
 }

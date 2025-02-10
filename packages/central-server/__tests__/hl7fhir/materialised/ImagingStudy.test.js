@@ -1,10 +1,7 @@
 import { Op } from 'sequelize';
 
 import { fake, fakeReferenceData, showError } from '@tamanu/shared/test-helpers';
-import {
-  IMAGING_REQUEST_STATUS_TYPES,
-  FHIR_IMAGING_STUDY_STATUS,
-} from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, FHIR_IMAGING_STUDY_STATUS } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
@@ -287,7 +284,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
         // This was failing intermittently, apparently we have to
         // seize control to let the FhirWriteLog create itself the second time
-        await sleepAsync(1);
+        await sleepAsync(50);
 
         // assert
         expect(response.status).not.toBe(201);
@@ -351,7 +348,6 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
 
-
     it('ImagingStudy can cancel a ImagingRequest', () =>
       showError(async () => {
         // arrange
@@ -381,7 +377,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               type: 'ServiceRequest',
               reference: `ServiceRequest/${mat.id}`,
             },
-          ]
+          ],
         });
 
         // assert
@@ -389,9 +385,11 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(response.status).toBe(201);
         await ir.reload();
         const notes = await ir.getNotes();
-        notes.sort((a,b) => a.createdAt < b.createdAt);
+        notes.sort((a, b) => a.createdAt < b.createdAt);
         expect(ir.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.CANCELLED);
-        expect(notes[0].content).toEqual('Request cancelled. Reason: Cancelled externally via API.');
+        expect(notes[0].content).toEqual(
+          'Request cancelled. Reason: Cancelled externally via API.',
+        );
         expect(ir.reasonForCancellation).toEqual('Cancelled externally via API');
       }));
 

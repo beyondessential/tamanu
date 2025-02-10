@@ -31,17 +31,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   const fhirResources = {
     fhirPractitioner: null,
     fhirEncounter: null,
+    fhirOrganization: null,
   };
 
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
-    const { FhirPractitioner } = ctx.store.models;
+    const { FhirPractitioner, FhirOrganization } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
+    const fhirOrganization = await FhirOrganization.materialiseFromUpstream(resources.facility.id);
+    fhirResources.fhirOrganization = fhirOrganization;
   });
   afterAll(() => ctx.close());
 
@@ -218,11 +221,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const {
-        labTestPanel,
-        labRequest,
-        panelTestTypes,
-      } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
+      const { labTestPanel, labRequest, panelTestTypes } =
+        await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -297,10 +297,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         note: [],
       });
 
-      response.body?.orderDetail.forEach(testType => {
-        const currentTest = panelTestTypes.find(test => test.name === testType.text);
+      response.body?.orderDetail.forEach((testType) => {
+        const currentTest = panelTestTypes.find((test) => test.name === testType.text);
         expect(testType.text).toBe(currentTest.name);
-        testType.coding?.forEach(testTypeCoding => {
+        testType.coding?.forEach((testTypeCoding) => {
           const { system, code } = testTypeCoding;
           expect(testTypeCoding.display).toBe(currentTest.name);
           expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
@@ -340,10 +340,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // assert
       expect(response.body.code).toBeUndefined();
 
-      response.body?.orderDetail.forEach(testType => {
-        const currentTest = testTypes.find(test => test.name === testType.text);
+      response.body?.orderDetail.forEach((testType) => {
+        const currentTest = testTypes.find((test) => test.name === testType.text);
         expect(testType.text).toBe(currentTest.name);
-        testType.coding?.forEach(testTypeCoding => {
+        testType.coding?.forEach((testTypeCoding) => {
           const { system, code } = testTypeCoding;
           expect(testTypeCoding.display).toBe(currentTest.name);
           expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
@@ -703,12 +703,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       let irs;
 
       beforeAll(async () => {
-        const {
-          FhirEncounter,
-          FhirServiceRequest,
-          ImagingRequest,
-          ImagingRequestArea,
-        } = ctx.store.models;
+        const { FhirEncounter, FhirServiceRequest, ImagingRequest, ImagingRequestArea } =
+          ctx.store.models;
         await FhirEncounter.destroy({ where: {} });
         await FhirServiceRequest.destroy({ where: {} });
         await ImagingRequest.destroy({ where: {} });
@@ -771,7 +767,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
 
         expect(response.body.total).toBe(2);
-        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        expect(response.body.entry.map((entry) => entry.resource.identifier[0].value)).toEqual([
           irs[0].id,
           irs[1].id,
         ]);
@@ -784,7 +780,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
 
         expect(response.body.total).toBe(2);
-        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        expect(response.body.entry.map((entry) => entry.resource.identifier[0].value)).toEqual([
           irs[1].id,
           irs[0].id,
         ]);
@@ -797,7 +793,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
 
         expect(response.body.total).toBe(2);
-        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        expect(response.body.entry.map((entry) => entry.resource.identifier[0].value)).toEqual([
           irs[0].id, // active
           irs[1].id, // completed
         ]);
@@ -810,7 +806,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
 
         expect(response.body.total).toBe(2);
-        expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        expect(response.body.entry.map((entry) => entry.resource.identifier[0].value)).toEqual([
           irs[1].id, // normal
           irs[0].id, // urgent
         ]);
@@ -978,13 +974,17 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           await LabRequest.destroy({ where: {} });
         });
 
-        it('correctly includes a ServiceRequest', async () => {
+        it('correctly includes a Specimen', async () => {
           const { models } = ctx.store;
-          const { FhirSpecimen, FhirServiceRequest } = models;
+          const { FhirSpecimen, FhirEncounter, FhirPatient, FhirPractitioner, FhirServiceRequest } =
+            models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
           const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
             labRequest.id,
           );
+          await FhirEncounter.materialiseFromUpstream(labRequest.encounterId);
+          await FhirPatient.materialiseFromUpstream(resources.patient.id);
+          await FhirPractitioner.materialiseFromUpstream(labRequest.requestedById);
           const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
 
           await FhirServiceRequest.resolveUpstreams();
