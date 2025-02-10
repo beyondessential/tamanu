@@ -45,12 +45,12 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     (model): OptionType => ({ label: model.displayName, value: model.id }),
   );
 
-  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
+  const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
     const selectedLabTestTypes = await models.LabTestType.find({
-      where: { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current },
+      where: { labTestCategory: { id: selectedValue }, visibilityStatus: VisibilityStatus.Current },
       order: { name: 'ASC' },
     });
-    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
+    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
       id: labTestType.id,
       text: (
         <TranslatedReferenceData
