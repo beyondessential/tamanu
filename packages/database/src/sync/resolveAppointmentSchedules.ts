@@ -31,7 +31,7 @@ export const resolveAppointmentSchedules = async (
   const outOfBoundAppointments = (await AppointmentScheduleModel.sequelize.query(
     `
     WITH schedule_generated_until_dates AS (
-     SELECT value AS date::date_string, key AS id:uuid from json_each_text(:generatedUntilDates)
+     SELECT value AS date::date_string, key AS id::uuid from json_each_text(:generatedUntilDates)
     )
     SELECT
       *
