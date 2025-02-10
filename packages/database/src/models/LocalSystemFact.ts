@@ -80,50 +80,35 @@ export class LocalSystemFact extends Model {
   }
 
   /**
-   * Generate and store a new keypair for this device.
-   * @returns The public key of the new keypair
+   * Generate and store a keypair for this device, if it doesn't exist already.
+   * @returns The secret key of the keypair
    */
-  static async initialiseKeypair(): Promise<Uint8Array> {
-    if (await this.get(SECRET_KEY_KEY)) {
-      throw new Error('Keypair already exists');
+  static async #initialiseKeypair(): Promise<Uint8Array> {
+    const secretKeyString = await this.get(SECRET_KEY_KEY);
+    const secretKey = secretKeyString ? Buffer.from(secretKeyString, 'hex') : ed25519.utils.randomPrivateKey();
+    if (!secretKeyString) {
+      await this.set(SECRET_KEY_KEY, Buffer.from(secretKey).toString('hex'));
     }
-
-    const secretKey = ed25519.utils.randomPrivateKey();
-    await this.set(SECRET_KEY_KEY, Buffer.from(secretKey).toString('hex'));
-    return ed25519.getPublicKey(secretKey);
+    return secretKey;
   }
 
   /** The device's ID is its public key in hex */
   static async deviceId(): Promise<string> {
-    const secretKey = await this.get(SECRET_KEY_KEY);
-    if (!secretKey) {
-      await this.initialiseKeypair();
-      return this.deviceId();
-    }
-
-    const publicKey = ed25519.getPublicKey(Buffer.from(secretKey, 'hex'));
+    const secretKey = await this.#initialiseKeypair();
+    const publicKey = ed25519.getPublicKey(secretKey);
     return Buffer.from(publicKey).toString('hex');
   }
 
   /** Sign a message using the device's private key. */
   static async sign(message: Uint8Array): Promise<Uint8Array> {
-    const secretKey = await this.get(SECRET_KEY_KEY);
-    if (!secretKey) {
-      await this.initialiseKeypair();
-      return this.sign(message);
-    }
-
-    return ed25519.sign(message, Buffer.from(secretKey, 'hex'));
+    const secretKey = await this.#initialiseKeypair();
+    return ed25519.sign(message, secretKey);
   }
 
   /** Verify a signature using the device's public key. */
   static async verifySignature(message: Uint8Array, signature: Uint8Array): Promise<boolean> {
-    const secretKey = await this.get(SECRET_KEY_KEY);
-    if (!secretKey) {
-      return false;
-    }
-
-    const publicKey = ed25519.getPublicKey(Buffer.from(secretKey, 'hex'));
+    const secretKey = await this.#initialiseKeypair();
+    const publicKey = ed25519.getPublicKey(secretKey);
     return ed25519.verify(signature, message, publicKey);
   }
 
