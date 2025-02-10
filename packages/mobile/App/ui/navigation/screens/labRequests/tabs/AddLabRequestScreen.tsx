@@ -53,7 +53,7 @@ export const DumbAddLabRequestScreen = ({
       index: 0,
       routes: [{ name: Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory }],
     });
-  }, []);
+  }, [navigation]);
 
   const user = useSelector(authUserSelector);
 
@@ -116,7 +116,7 @@ export const DumbAddLabRequestScreen = ({
       specimenType: specimenTypeId,
     });
     navigateToHistory();
-  }, []);
+  }, [models, user.id, selectedPatient.id, navigateToHistory]);
 
   const initialValues = {
     sampleTime: new Date(),
