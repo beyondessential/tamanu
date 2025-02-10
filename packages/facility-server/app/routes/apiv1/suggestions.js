@@ -78,7 +78,7 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
+      const whereQuery = whereBuilder(`%${Sequelize.escape(searchQuery)}%`, query, req);
 
       const where = {
         [Op.or]: [
@@ -343,7 +343,7 @@ createSuggester(
       if (!types?.length) return;
 
       const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+        .map((value, index) => `WHEN '${Sequelize.escape(value)}' THEN ${index + 1}`)
         .join(' ');
 
       return [
