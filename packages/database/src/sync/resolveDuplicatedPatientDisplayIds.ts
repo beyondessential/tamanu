@@ -56,7 +56,6 @@ export const resolveDuplicatedPatientDisplayIds = async (
     return {
       inserts: updatedExistingPatientSnapshotRecords,
       updates: updatedIncomingPatientSnapshotRecords,
-      deletes: [],
     };
   }
 };

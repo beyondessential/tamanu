@@ -46,7 +46,7 @@ export type UninsertedSyncSnapshotAttributes = Omit<
 export type SyncHookSnapshotChanges = {
   inserts: UninsertedSyncSnapshotAttributes[];
   updates: SyncSnapshotAttributes[];
-  deletes: SyncSnapshotAttributes[];
+  deletes?: SyncSnapshotAttributes[];
 };
 
 export type ModelSanitizeArgs<T extends Record<string, any> = { [key: string]: any }> = T;

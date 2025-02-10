@@ -4,7 +4,6 @@ import { endOfDay, parseISO, sub } from 'date-fns';
 import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
-  sanitizeRecord,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
@@ -1496,8 +1495,8 @@ describe('CentralSyncManager', () => {
         },
       ]);
 
+      console.log(await models.AppointmentSchedule.findByPk(schedule.id));
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
-      console.log(maxRepeatingAppointmentsPerGeneration);
 
       // Schedule is cancelled before the generated appointments had synced down.
       const toBeSyncedAppointmentData1 = {
@@ -1570,7 +1569,7 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
-      console.log('returnedAppointments', outgoingChanges);
+      console.log('returnedAppointments', returnedAppointments);
       // const returnedExistingAppoin = returnedPatients.find(
       //   (p) => p.data.id === existingPatient.id,
       // );
