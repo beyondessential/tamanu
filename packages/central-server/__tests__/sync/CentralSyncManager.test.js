@@ -1464,7 +1464,7 @@ describe('CentralSyncManager', () => {
         },
         scheduleData: {
           // Until date covers 4 appointments, 2 of which will be initially created
-          untilDate: '1990-10-30',
+          untilDate: '1990-10-23',
           interval: 1,
           frequency: REPEAT_FREQUENCY.WEEKLY,
           daysOfWeek: ['WE'],
@@ -1478,16 +1478,16 @@ describe('CentralSyncManager', () => {
       });
 
       // The remaining 2 appointments are created by scheduled task
-      await models.Appointment.bulkCreate([
+      const generatedAppointments = await models.Appointment.bulkCreate([
         {
           ...createDataAppointment,
-          startTime: '1990-10-23 12:00:00',
-          endTime: '1990-10-09 13:00:00',
+          startTime: '1990-10-16 12:00:00',
+          endTime: '1990-10-16 13:00:00',
         },
         {
           ...createDataAppointment,
-          startTime: '1990-10-30 12:00:00',
-          endTime: '1990-10-30 13:00:00',
+          startTime: '1990-10-23 12:00:00',
+          endTime: '1990-10-23 13:00:00',
         },
       ]);
 
@@ -1505,6 +1505,8 @@ describe('CentralSyncManager', () => {
 
       const toBeSyncedAppointmentScheduleData = {
         ...schedule.get({ plain: true }),
+        // Facility is only aware that the first two appointments are generated at time of cancelling
+        generatedUntilDate: '1990-10-09',
         cancelledAtDate: '1990-10-02',
         isFullyGenerated: true,
       };
@@ -1564,30 +1566,23 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
-      console.log('returnedAppointments', returnedAppointments);
-      // const returnedExistingAppoin = returnedPatients.find(
-      //   (p) => p.data.id === existingPatient.id,
-      // );
-      // const returnedSyncedPatient = returnedPatients.find(
-      //   (p) => p.data.id === toBeSyncedPatientData.id,
-      // );
 
-      // const persistedSyncedPatient = await models.Patient.findByPk(toBeSyncedPatientData.id);
-      // const updatedExistingPatient = await models.Patient.findByPk(existingPatient.id);
-
-      // // Check if existing patient has displayId appended with _duplicate_1
-      // expect(updatedExistingPatient.displayId).toBe(`${duplicatedDisplayId}_duplicate_1`);
-
-      // // Check if inserted patient has displayId appended with _duplicate_2
-      // expect(persistedSyncedPatient.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
-
-      // expect(returnedPatients).toHaveLength(2);
-
-      // // Check if pulled down existing patient also has displayId appended with _duplicate_2
-      // expect(returnedExistingPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_1`);
-
-      // // Check if pulled down synced patient also has displayId appended with _duplicate_2
-      // expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
+      expect(returnedAppointments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            isDeleted: true,
+            data: expect.objectContaining({
+              id: generatedAppointments[0].id,
+            }),
+          }),
+          expect.objectContaining({
+            isDeleted: true,
+            data: expect.objectContaining({
+              id: generatedAppointments[1].id,
+            }),
+          }),
+        ]),
+      );
     });
   });
 
