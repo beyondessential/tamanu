@@ -53,6 +53,9 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
 
+  @Column({ nullable: false, default: false })
+  isSensitive: boolean;
+
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 }

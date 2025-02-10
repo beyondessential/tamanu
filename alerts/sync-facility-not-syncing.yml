@@ -5,30 +5,31 @@ sql: |
         completed_at,
         json_array_elements_text(debug_info->'facilityIds') as facility_id
     from sync_sessions
+    where debug_info->>'isMobile' <> 'true'
   )
   select distinct facility_id from sync_sessions_with_facility_id
   where created_at > current_timestamp - '48 hours'::interval
   except
   select facility_id from sync_sessions_with_facility_id
   where completed_at > current_timestamp - '30 minutes'::interval
-  group by facility_id;
+  group by facility_id
+  order by facility_id
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] No complete sync for at least one facility in the past 30 minutes'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <p>Alert: {{ filename }}</p>
-      <p>
-        From the facilities that synced in the last two days...
-        there hasn't been a completed sync session for the following
-        facilit{% if rows | length > 1 %}ies{% else %}y{% endif %}
-        in the past 30 minutes:
-      </p>
-      <ul>
-        {% for row in rows %}
-        <li><b>{{ row.facility_id }}</b></li>
-        {% endfor %}
-      </ul>
-      <p><b>Report this immediately to support.</b></p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      From the facilities that synced in the last two days...
+      there hasn't been a completed sync session for the following
+      facilit{% if rows | length > 1 %}ies{% else %}y{% endif %}
+      in the past 30 minutes:
+
+      {% for row in rows %}
+      - **{{ row.facility_id }}**
+      {% endfor %}

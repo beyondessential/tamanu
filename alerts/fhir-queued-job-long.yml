@@ -3,26 +3,24 @@ sql: |
     id,
     topic,
     payload->>'resource' AS resource,
-    ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60)::text AS duration_minutes
+    ROUND(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at)) / 60)::text AS duration_minutes
   FROM fhir.jobs
   WHERE status = 'Queued'
-    AND NOW() - created_at > INTERVAL '15 minutes'
+    AND CURRENT_TIMESTAMP - created_at > INTERVAL '15 minutes'
     AND topic != 'fhir.resolver'
+  ORDER BY created_at ASC
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] Long queued FHIR jobs ({{ hostname }})'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <p>Alert: {{ filename }}</p>
-      <h1>Long queued FHIR jobs detected</h1>
-      <ul>
-        {% for row in rows | slice(end=5) %}
-        <li><b>{{ row.topic }} {{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
-        {% endfor %}
-        {% if rows | length > 5 %}
-        <li>... and {{ rows | length - 5 }} more</li>
-        {% endif %}
-      </ul>
-      <p>For more information, please check the logs.</p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.topic }}** {{row.resource}} ({{ row.id }}) for {{ row.duration_minutes }} minutes
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

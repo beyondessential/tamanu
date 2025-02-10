@@ -1347,6 +1347,76 @@ describe('CentralSyncManager', () => {
         // Check if pulled down synced patient also has displayId appended with _duplicate_2
         expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
       });
+
+      it("does not append 'duplicate' to existing patient that is being updated", async () => {
+        // Set up data pre sync
+        const CURRENT_SYNC_TICK = '12';
+        const facility = await models.Facility.create(fake(models.Facility));
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+
+        // Existing patient
+        const existingPatient = await models.Patient.create({
+          ...fake(models.Patient),
+          displayId: 'DEF',
+        });
+
+        // Patient data for pushing (not inserted yet)
+        const updatedPatientData = {
+          ...existingPatient.dataValues,
+          firstName: 'Changed',
+        };
+
+        const changes = [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'patients',
+            recordId: updatedPatientData.id,
+            data: updatedPatientData,
+          },
+        ];
+
+        const centralSyncManager = initializeCentralSyncManager({
+          sync: {
+            lookupTable: {
+              enabled: true,
+            },
+            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+          },
+        });
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        // Push the encounter
+        await centralSyncManager.addIncomingChanges(sessionId, changes);
+        await centralSyncManager.completePush(sessionId, facility.id);
+        await waitForPushCompleted(centralSyncManager, sessionId);
+
+        await centralSyncManager.updateLookupTable();
+
+        // Start the snapshot for pull process
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [facility.id],
+            deviceId: facility.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'patients');
+
+        // Check if no patient is updated and pulled back to facility
+        expect(returnedPatients).toHaveLength(0);
+
+        const existingPatientData = await models.Patient.findByPk(updatedPatientData.id);
+
+        // Check if existing patient still has the same display ID and did not get duplicate appended
+        expect(existingPatientData.displayId).toBe(updatedPatientData.displayId);
+      });
     });
   });
 
