@@ -1,11 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
 import { ed25519 } from '@noble/curves/ed25519';
 import * as uuid from 'uuid';
 import type { Hex } from '@noble/curves/abstract/utils';
+
+import type { InitOptions } from '../types/model';
+import { SECRET_KEY_KEY, SESSION_ID_NAMESPACE_KEY } from '../sync/constants';
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
@@ -82,18 +84,18 @@ export class LocalSystemFact extends Model {
    * @returns The public key of the new keypair
    */
   static async initialiseKeypair(): Promise<Uint8Array> {
-    if (await this.get('sync.secretKey')) {
+    if (await this.get(SECRET_KEY_KEY)) {
       throw new Error('Keypair already exists');
     }
 
     const secretKey = ed25519.utils.randomPrivateKey();
-    await this.set('sync.secretKey', Buffer.from(secretKey).toString('hex'));
+    await this.set(SECRET_KEY_KEY, Buffer.from(secretKey).toString('hex'));
     return ed25519.getPublicKey(secretKey);
   }
 
   /** The device's ID is its public key in hex */
   static async deviceId(): Promise<string> {
-    const secretKey = await this.get('sync.secretKey');
+    const secretKey = await this.get(SECRET_KEY_KEY);
     if (!secretKey) {
       await this.initialiseKeypair();
       return this.deviceId();
@@ -105,7 +107,7 @@ export class LocalSystemFact extends Model {
 
   /** Sign a message using the device's private key. */
   static async sign(message: Uint8Array): Promise<Uint8Array> {
-    const secretKey = await this.get('sync.secretKey');
+    const secretKey = await this.get(SECRET_KEY_KEY);
     if (!secretKey) {
       await this.initialiseKeypair();
       return this.sign(message);
@@ -116,7 +118,7 @@ export class LocalSystemFact extends Model {
 
   /** Verify a signature using the device's public key. */
   static async verifySignature(message: Uint8Array, signature: Uint8Array): Promise<boolean> {
-    const secretKey = await this.get('sync.secretKey');
+    const secretKey = await this.get(SECRET_KEY_KEY);
     if (!secretKey) {
       return false;
     }
@@ -126,10 +128,10 @@ export class LocalSystemFact extends Model {
   }
 
   static async newSessionId(nonce: Hex): Promise<string> {
-    let namespace = await this.get('sync.sessionIdNamespace');
+    let namespace = await this.get(SESSION_ID_NAMESPACE_KEY);
     if (!namespace) {
       namespace = uuid.v4();
-      await this.set('sync.sessionIdNamespace', namespace);
+      await this.set(SESSION_ID_NAMESPACE_KEY, namespace);
     }
 
     const nonceString = nonce instanceof Uint8Array ? Buffer.from(nonce).toString('hex') : nonce;
