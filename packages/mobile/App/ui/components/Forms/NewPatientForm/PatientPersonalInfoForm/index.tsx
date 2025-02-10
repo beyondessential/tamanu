@@ -151,7 +151,9 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // so it will mark the record for upload).
       const { dateOfBirth, ...otherValues } = values;
       await Patient.updateValues(selectedPatient.id, {
-        dateOfBirth: formatISO9075(dateOfBirth),
+        dateOfBirth: formatISO9075(dateOfBirth, {
+          representation: 'date',
+        }),
         ...otherValues,
       });
 
