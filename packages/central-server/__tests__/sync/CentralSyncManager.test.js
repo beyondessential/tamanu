@@ -1425,12 +1425,8 @@ describe('CentralSyncManager', () => {
 
   describe.only('removes appointments in cancelled schedule', () => {
     let settings;
-    let maxRepeatingAppointmentsPerGeneration;
     beforeAll(async () => {
       settings = ctx.settings;
-      maxRepeatingAppointmentsPerGeneration = await settings.get(
-        'appointments.maxRepeatingAppointmentsPerGeneration',
-      );
     });
     it('deletes appointments syncing into schedule that is cancelled', async () => {
       // Set up data pre sync
@@ -1495,7 +1491,6 @@ describe('CentralSyncManager', () => {
         },
       ]);
 
-      console.log(await models.AppointmentSchedule.findByPk(schedule.id));
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
       // Schedule is cancelled before the generated appointments had synced down.
@@ -1510,7 +1505,7 @@ describe('CentralSyncManager', () => {
 
       const toBeSyncedAppointmentScheduleData = {
         ...schedule.get({ plain: true }),
-        untilDate: '1990-10-02',
+        cancelledAtDate: '1990-10-02',
         isFullyGenerated: true,
       };
 
