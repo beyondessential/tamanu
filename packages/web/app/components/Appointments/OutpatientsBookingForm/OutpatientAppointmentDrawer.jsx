@@ -94,7 +94,7 @@ const getDescription = (isEdit, isLockedPatient) => {
 };
 
 const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = confirmed => {
+  const handleClose = (confirmed) => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
@@ -205,7 +205,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const isEdit = !!initialValues.id;
-  const isCreate = !isEdit;
   const isLockedPatient = !!initialValues.patientId;
   const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
 
@@ -259,7 +258,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           interval: yup.number().required(requiredMessage),
           frequency: yup.string().required(requiredMessage),
           occurrenceCount: yup.mixed().when('untilDate', {
-            is: val => !val,
+            is: (val) => !val,
             then: yup
               .number()
               .required(requiredMessage)
@@ -267,7 +266,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             otherwise: yup.number().nullable(),
           }),
           untilDate: yup.mixed().when('occurrenceCount', {
-            is: val => !isNumber(val),
+            is: (val) => !isNumber(val),
             then: yup.string().required(requiredMessage),
             otherwise: yup.string().nullable(),
           }),
@@ -276,11 +275,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             .of(yup.string().oneOf(DAYS_OF_WEEK))
             // Note: currently supports a single day of the week
             .length(1),
-          nthWeekday: yup
-            .number()
-            .nullable()
-            .min(-1)
-            .max(4),
+          nthWeekday: yup.number().nullable().min(-1).max(4),
         },
         ['untilDate', 'occurrenceCount'],
       ),
@@ -304,7 +299,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       resetForm();
     };
 
-    const handleResetRepeatUntilDate = startTimeDate => {
+    const handleResetRepeatUntilDate = (startTimeDate) => {
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
@@ -313,13 +308,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       );
     };
 
-    const handleResetEmailFields = e => {
+    const handleResetEmailFields = (e) => {
       if (e.target.checked) return;
       setFieldValue('email', '');
       setFieldValue('confirmEmail', '');
     };
 
-    const handleChangeIsRepeatingAppointment = async e => {
+    const handleChangeIsRepeatingAppointment = async (e) => {
       if (e.target.checked) {
         setValues(set(values, 'schedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
         handleUpdateScheduleToStartTime(parseISO(values.startTime));
@@ -330,7 +325,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       }
     };
 
-    const handleUpdateScheduleToStartTime = startTimeDate => {
+    const handleUpdateScheduleToStartTime = (startTimeDate) => {
       if (!values.schedule) return;
       const { frequency } = values.schedule;
       // Update the ordinal positioning of the new date
@@ -347,7 +342,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       }
     };
 
-    const handleUpdateStartTime = event => {
+    const handleUpdateStartTime = (event) => {
       const startTimeDate = parseISO(event.target.value);
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
@@ -500,7 +495,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   };
 
   const handleShowWarningModal = async () =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
@@ -510,7 +505,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       notifySuccess(<SuccessMessage isEdit={isEdit} />);
       onClose();
     },
-    onError: error => {
+    onError: (error) => {
       notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
     },
   });
