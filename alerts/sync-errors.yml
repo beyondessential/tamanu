@@ -10,6 +10,7 @@ sql: |
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
   AND errors <> ARRAY['could not serialize access due to concurrent update']
+  AND debug_info->>'isMobile' <> 'true'
   ORDER BY created_at DESC
 
 send:
