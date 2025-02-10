@@ -38,6 +38,7 @@ const UUID_OSSP_TABLES: TableNameString[] = [
   'public.invoice_payments',
   'public.invoices',
   'public.lab_test_panel_requests',
+  'public.local_system_facts',
   'public.note_items',
   'public.note_pages',
   'public.notes',
