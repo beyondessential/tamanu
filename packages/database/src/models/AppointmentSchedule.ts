@@ -13,7 +13,7 @@ import {
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import type { ReadSettings } from '@tamanu/settings';
+import type { ReadSettings } from '@tamanu/settings/reader';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -46,6 +46,8 @@ export type MonthlySchedule = AppointmentSchedule & {
 export class AppointmentSchedule extends Model {
   declare id: string;
   declare untilDate?: string;
+  declare generatedUntilDate?: string;
+  declare cancelledAtDate?: string;
   declare interval: number;
   declare frequency: keyof typeof REPEAT_FREQUENCY;
   declare daysOfWeek?: [string];
@@ -60,6 +62,8 @@ export class AppointmentSchedule extends Model {
       {
         id: primaryKey,
         untilDate: dateType('untilDate', { allowNull: true }),
+        generatedUntilDate: dateType('generatedUntilDate', { allowNull: true }),
+        cancelledAtDate: dateType('cancelledAtDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
           type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
@@ -212,7 +216,7 @@ export class AppointmentSchedule extends Model {
     });
     const updatedSchedule = await this.update({
       isFullyGenerated: true,
-      untilDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
+      cancelledAtDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
       occurrenceCount: null,
     });
     return updatedSchedule;
@@ -339,7 +343,15 @@ export class AppointmentSchedule extends Model {
 
     const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
     if (isFullyGenerated) {
-      await this.update({ isFullyGenerated });
+      await this.update({
+        isFullyGenerated,
+        // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
+        // and clear the occurrenceCount
+        ...(this.occurrenceCount && {
+          generatedUntilDate: appointments.at(-1)!.startTime,
+          occurrenceCount: null,
+        }),
+      });
     }
     return appointments;
   }

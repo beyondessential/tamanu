@@ -24,6 +24,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     return [
       {
         key: 'registrationStatus',
+        title: '',
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
@@ -137,6 +138,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'actions',
+        title: '',
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;

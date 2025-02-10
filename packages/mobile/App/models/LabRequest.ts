@@ -100,16 +100,23 @@ export class LabRequest extends BaseModel implements ILabRequest {
   )
   tests: LabTest[];
 
-  static async getForPatient(patientId: string): Promise<LabRequest[]> {
-    return this.getRepository()
+  static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
+    const query = this.getRepository()
       .createQueryBuilder('labRequest')
-      .orderBy('labRequest.requestedDate', 'DESC')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
-      .where('encounter.patient = :patientId', { patientId })
-      .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
       .leftJoinAndSelect('labRequest.labSampleSite', 'labSampleSite')
-      .getMany();
+      .where('encounter.patient = :patientId', { patientId })
+      .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
+      .orderBy('labRequest.requestedDate', 'DESC');
+
+    if (!canListSensitive) {
+      query.innerJoin('labRequest.tests', 'tests')
+        .innerJoin('tests.labTestType', 'labTestType')
+        .andWhere('labTestType.isSensitive = 0');
+    }
+
+    return query.getMany();
   }
 
   static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<BaseModel> {

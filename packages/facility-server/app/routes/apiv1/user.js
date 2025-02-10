@@ -56,6 +56,7 @@ user.get(
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,
       })),
+      makeFilter(true, `patients.merged_into_id IS NULL`),
     ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(filters);
@@ -169,28 +170,17 @@ const clinicianTasksQuerySchema = z.object({
     .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
     .optional()
     .default('dueTime'),
-  order: z
-    .enum(['asc', 'desc'])
-    .optional()
-    .default('asc'),
+  order: z.enum(['asc', 'desc']).optional().default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
-    .transform(value => value === 'true')
+    .transform((value) => value === 'true')
     .optional()
     .default('false'),
-  page: z.coerce
-    .number()
-    .optional()
-    .default(0),
-  rowsPerPage: z.coerce
-    .number()
-    .max(50)
-    .min(10)
-    .optional()
-    .default(25),
+  page: z.coerce.number().optional().default(0),
+  rowsPerPage: z.coerce.number().max(50).min(10).optional().default(25),
   facilityId: z.string(),
 });
 user.get(

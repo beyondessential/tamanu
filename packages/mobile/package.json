@@ -19,7 +19,6 @@
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "patch-package",
-    "mockserver": "cd mockserver/functions && npm run serve",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "postinstall": "cd ../.. && npm run prepare",

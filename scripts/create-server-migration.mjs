@@ -17,13 +17,13 @@ if (migrationName.trim().length === 0) {
 
 const timestamp = new Date().getTime();
 
-const templateFile = join('scripts', 'resources', 'serverMigrationTemplate.js');
+const templateFile = join('scripts', 'resources', 'serverMigrationTemplate.ts');
 const migrationFile = join(
   'packages',
   'database',
   'src',
   'migrations',
-  `${timestamp}-${toFilestem(migrationName)}.js`,
+  `${timestamp}-${toFilestem(migrationName)}.ts`,
 );
 
 await fs.copyFile(templateFile, migrationFile);

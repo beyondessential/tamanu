@@ -57,3 +57,7 @@ Reference to the category ([Reference Data](#!/source/source.tamanu.tamanu.refer
 {% docs lab_test_types__external_code %}
 External code for the test (such as for LIMS).
 {% enddocs %}
+
+{% docs lab_test_types__is_sensitive %}
+Used to indicate if the lab test type is sensitive and should be hidden accordingly.
+{% enddocs %}

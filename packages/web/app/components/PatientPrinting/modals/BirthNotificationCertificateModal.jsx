@@ -10,6 +10,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFLoader, printPDF } from '../PDFLoader';
+import { useTranslation } from '../../../contexts/Translation';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: isParentDataLoading } = useQuery(
@@ -84,6 +85,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const api = useApi();
   const { facilityId } = useAuth();
   const { getLocalisation } = useLocalisation();
+  const { storedLanguage, translations } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const {
     data: additionalData,
@@ -144,6 +146,8 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           facility={facility}
           certificateData={certificateData}
           getLocalisation={getLocalisation}
+          language={storedLanguage}
+          translations={translations}
         />
       </PDFLoader>
     </Modal>

@@ -31,8 +31,12 @@ const DateTimePicker = ({
   const dateFieldValue = values[datePickerName];
   const isValidDate = isValid(parseISO(dateFieldValue));
 
-  /** Keep synchronised with date field for non-overnight bookings */
-  const flushChangeToDateField = e => void setFieldValue('date', e.target.value);
+  /** Keep startDate synchronised with date field for non-overnight bookings */
+  const flushChangeToDateField = e => {
+    if (datePickerName === 'startDate') {
+      setFieldValue('date', e.target.value);
+    }
+  };
 
   const startDateTimeString =
     values.startDate && toDateTimeString(endOfDay(parseISO(values.startDate)));

@@ -28,6 +28,7 @@ export class LabTestType extends Model {
   declare rangeText?: string;
   declare resultType: string;
   declare options?: string;
+  declare isSensitive: boolean;
   declare visibilityStatus: string;
   declare externalCode?: string;
   declare labTestCategoryId?: string;
@@ -63,6 +64,11 @@ export class LabTestType extends Model {
         options: {
           type: DataTypes.TEXT,
           allowNull: true,
+        },
+        isSensitive: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
         },
         visibilityStatus: {
           type: DataTypes.TEXT,

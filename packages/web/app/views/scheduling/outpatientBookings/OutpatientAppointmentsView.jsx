@@ -75,8 +75,6 @@ export const APPOINTMENT_GROUP_BY = {
 export const OutpatientAppointmentsView = () => {
   const { ability } = useAuth();
   const location = useLocation();
-  const defaultGroupBy =
-    new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
   const canCreateAppointment = ability.can('create', 'Appointment');
   const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
@@ -85,7 +83,6 @@ export const OutpatientAppointmentsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(defaultGroupBy);
   const [modifyMode, setModifyMode] = useState('');
 
   useEffect(() => {
@@ -157,7 +154,7 @@ export const OutpatientAppointmentsView = () => {
           onConfirm={handleConfirmModifyMode}
         />
         <AppointmentTopBar>
-          <GroupByToggle value={groupBy} onChange={setGroupBy} />
+          <GroupByToggle />
           <OutpatientAppointmentsFilter />
           {canCreateAppointment && (
             <Button onClick={() => handleOpenDrawer({})}>
@@ -175,7 +172,6 @@ export const OutpatientAppointmentsView = () => {
             <OutpatientBookingCalendar
               onCancel={handleOpenCancelModal}
               onOpenDrawer={handleOpenDrawer}
-              groupBy={groupBy}
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer

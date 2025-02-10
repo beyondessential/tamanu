@@ -22,6 +22,7 @@ program.get(
     req.checkPermission('list', 'Program');
     const { models, ability } = req;
     const records = await models.Program.findAll({
+      order: [['name', 'ASC']],
       include: [
         {
           association: 'surveys',

@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { debounce, omit } from 'lodash';
+import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
-import queryString from 'query-string';
-import { useLocation } from 'react-router-dom';
+
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
-import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-import { omit } from 'lodash';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import {
+  LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
+  useLocationBookingsContext,
+} from '../../../contexts/LocationBookings';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -20,40 +22,23 @@ const SearchBar = styled('search')`
 
 const FormListener = () => {
   const { values } = useFormikContext();
-  const { filters, setFilters } = useLocationBookingsContext();
-  const location = useLocation();
-  useEffect(() => {
-    const { clinicianId } = queryString.parse(location.search);
-    if (clinicianId) {
-      setFilters({ ...filters, clinicianId: [clinicianId] });
-      return;
-    }
-  }, [filters, setFilters, location.search]);
+  const { setFilters } = useLocationBookingsContext();
   useEffect(() => setFilters(values), [values, setFilters]);
 };
 
-const emptyValues = {
-  locationGroupIds: [],
-  clinicianId: [],
-  bookingTypeId: [],
-  patientNameOrId: '',
-};
-
 export const LocationBookingsFilter = () => {
+  const { filters, setFilters } = useLocationBookingsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
-  const { filters } = useLocationBookingsContext();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-
-  const updateUserPreferences = useCallback(
-    values => {
+  const updateUserPreferences = debounce(
+    values =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
         value: omit(values, ['patientNameOrId']),
-      });
-    },
-    [mutateUserPreferences],
+      }),
+    200,
   );
 
   return (
@@ -98,8 +83,9 @@ export const LocationBookingsFilter = () => {
             />
             <TextButton
               onClick={() => {
-                setValues(emptyValues);
-                updateUserPreferences(emptyValues);
+                setValues(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                setFilters(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                updateUserPreferences(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
             >

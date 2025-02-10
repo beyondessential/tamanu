@@ -26,6 +26,12 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       newOptions,
     );
 
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const permittedLabRequests = canListSensitive  ? labRequests : labRequests.filter(labRequest => {
+      if (canListSensitive) return true;
+      return labRequest.tests.every(test => test.labTestType.isSensitive === false);
+    });
+
     /**
      * Have to select associated note pages of lab request separately here.
      * This is because Sequelize has a bug that association scope field is not snake cased when underscored = true,
@@ -49,11 +55,11 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
      *  */
 
     if (!includeNotes) {
-      res.send({ count, data: labRequests });
+      res.send({ count, data: permittedLabRequests });
       return;
     }
 
-    for (const labRequest of labRequests) {
+    for (const labRequest of permittedLabRequests) {
       const notes = await models.Note.findAll({
         where: {
           recordId: labRequest.id,
@@ -65,5 +71,5 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       labRequest.notes = notes;
     }
 
-    res.send({ count, data: labRequests });
+    res.send({ count, data: permittedLabRequests });
   });

@@ -40,12 +40,11 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
         onChange(e);
         if (!e.target.value) setFieldValue('endTime', undefined);
       }}
-      save
       helperText={
         showSameDayWarning && (
           <TranslatedText
             stringId="outpatientAppointment.date.warning"
-            fallback="Patient already has an appointment scheduled for this this day"
+            fallback="Patient already has an appointment scheduled for this day"
           />
         )
       }

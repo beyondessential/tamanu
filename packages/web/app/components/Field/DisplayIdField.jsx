@@ -28,6 +28,7 @@ export const DisplayIdField = ({ required }) => {
       component={TextField}
       required={required}
       validate={validateFn}
+      enablePasting
     />
   );
 };
