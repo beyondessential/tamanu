@@ -1,5 +1,4 @@
-sql: |
-  SELECT
+ SELECT
     id,
     errors::text,
     json_array_elements_text(debug_info->'facilityIds') AS facility_id,
@@ -9,7 +8,13 @@ sql: |
   WHERE
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
-  AND errors <> ARRAY['could not serialize access due to concurrent update']
+  AND (
+    (
+      debug_info->>'isMobile' <> 'true'
+      AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
+    )
+    OR errors <> ARRAY['could not serialize access due to concurrent update']
+  )
   ORDER BY created_at DESC
 
 send:
