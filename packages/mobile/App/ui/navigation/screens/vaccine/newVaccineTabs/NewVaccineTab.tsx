@@ -132,10 +132,10 @@ export const NewVaccineTabComponent = ({
       const notGivenReason = await models.ReferenceData.findOne({
         where: { id: notGivenReasonId },
       });
-      const location = await models.Location.findOne(
-        { where: { id: locationId } },
-        { relations: ['locationGroup'] },
-      );
+      const location = await models.Location.findOne({
+        where: { id: locationId },
+        relations: ['locationGroup'],
+      });
       const department = await models.Department.findOne({ where: { id: departmentId } });
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
