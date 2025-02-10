@@ -1,7 +1,4 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
-import { DataTypes, QueryInterface, Sequelize, type TableName } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 type TableNameString = `${string}.${string}`;
 
@@ -149,104 +146,55 @@ const STRING_NO_DEFAULT_TABLES: TableNameString[] = [
   'public.vitals',
 ];
 
-function toTableName(table: TableNameString): TableName {
-  const [schema, tableName] = table.split('.');
-  return { schema, tableName: tableName! };
+// Sequelize always wants us to have the type, and then issues type-change alters
+// but in postgres we can absolutely have default changes without altering type.
+
+function changeDefaultQuery(table: string, column: string, defaultFn: string) {
+  return `ALTER TABLE ${table} ALTER COLUMN ${column} SET DEFAULT ${defaultFn}();`
+}
+
+function removeDefaultQuery(table: string, column: string) {
+  return `ALTER TABLE ${table} ALTER COLUMN ${column} DROP DEFAULT;`
 }
 
 export async function up(query: QueryInterface): Promise<void> {
   for (const table of STRING_OSSP_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
   }
 
   for (const table of STRING_NO_DEFAULT_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
   }
 
   for (const table of UUID_OSSP_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.UUID,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
   }
 
   for (const table of FHIR_TABLES) {
-    await query.changeColumn(toTableName(table), 'version_id', {
-      type: DataTypes.UUID,
-      allowNull: false,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'version_id', 'gen_random_uuid'));
   }
 
-  await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: Sequelize.fn('gen_random_uuid'),
-  });
-
-  await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue: Sequelize.fn('gen_random_uuid'),
-  });
+  await query.sequelize.query(changeDefaultQuery('public.imaging_requests', 'display_id', 'gen_random_uuid'));
+  await query.sequelize.query(changeDefaultQuery('fhir.jobs', 'discriminant', 'gen_random_uuid'));
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   for (const table of STRING_OSSP_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'id', 'uuid_generate_v4'));
   }
 
   for (const table of STRING_NO_DEFAULT_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    });
+    await query.sequelize.query(removeDefaultQuery(table, 'id'));
   }
 
   for (const table of UUID_OSSP_TABLES) {
-    await query.changeColumn(toTableName(table), 'id', {
-      type: DataTypes.UUID,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'id', 'uuid_generate_v4'));
   }
 
   for (const table of FHIR_TABLES) {
-    await query.changeColumn(toTableName(table), 'version_id', {
-      type: DataTypes.UUID,
-      allowNull: false,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-    });
+    await query.sequelize.query(changeDefaultQuery(table, 'version_id', 'uuid_generate_v4'));
   }
 
-  await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: Sequelize.fn('uuid_generate_v4'),
-  });
-
-  await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue: Sequelize.fn('uuid_generate_v4'),
-  });
+  await query.sequelize.query(changeDefaultQuery('public.imaging_requests', 'display_id', 'uuid_generate_v4'));
+  await query.sequelize.query(changeDefaultQuery('fhir.jobs', 'discriminant', 'uuid_generate_v4'));
 }
