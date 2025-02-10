@@ -258,7 +258,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           interval: yup.number().required(requiredMessage),
           frequency: yup.string().required(requiredMessage),
           occurrenceCount: yup.mixed().when('untilDate', {
-            is: val => !val,
+            is: (val) => !val,
             then: yup
               .number()
               .required(requiredMessage)
@@ -266,7 +266,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             otherwise: yup.number().nullable(),
           }),
           untilDate: yup.mixed().when('occurrenceCount', {
-            is: val => !isNumber(val),
+            is: (val) => !isNumber(val),
             then: yup.string().required(requiredMessage),
             otherwise: yup.string().nullable(),
           }),
@@ -275,11 +275,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             .of(yup.string().oneOf(DAYS_OF_WEEK))
             // Note: currently supports a single day of the week
             .length(1),
-          nthWeekday: yup
-            .number()
-            .nullable()
-            .min(-1)
-            .max(4),
+          nthWeekday: yup.number().nullable().min(-1).max(4),
         },
         ['untilDate', 'occurrenceCount'],
       ),
