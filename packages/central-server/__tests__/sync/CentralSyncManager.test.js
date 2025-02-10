@@ -1423,11 +1423,7 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe.only('resolves out of bounds appointments in cancelled schedule', () => {
-    let settings;
-    beforeAll(async () => {
-      settings = ctx.settings;
-    });
+  describe('resolves out of bounds appointments in cancelled schedule', () => {
     it('deletes out of bound appointments generated on central when syncing a schedule that has been cancelled', async () => {
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '10';
@@ -1453,7 +1449,7 @@ describe('CentralSyncManager', () => {
         name: 'Standard',
       });
       const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
-        settings,
+        settings: ctx.settings,
         appointmentData: {
           status: APPOINTMENT_STATUSES.CONFIRMED,
           startTime: '1990-10-02 12:00:00',
