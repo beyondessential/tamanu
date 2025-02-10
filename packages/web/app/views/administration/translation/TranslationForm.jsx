@@ -194,17 +194,17 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
   );
 
   const tableRows = useMemo(() => {
-    const filteredData = includeReferenceData
+    const includedTranslations = includeReferenceData
       ? data
       : data.filter(row => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
 
     if (searchValue) {
-      return data.filter(row =>
+      return includedTranslations.filter(row =>
         // Search from start of stringId or after a . delimiter
         row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
       );
     }
-    return filteredData;
+    return includedTranslations;
   }, [data, includeReferenceData, searchValue]);
 
   if (data.length === 0)

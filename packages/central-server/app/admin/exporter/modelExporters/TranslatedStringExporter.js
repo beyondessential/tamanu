@@ -2,7 +2,7 @@ import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translati
 import { DefaultDataExporter } from './DefaultDataExporter';
 
 export class TranslatedStringExporter extends DefaultDataExporter {
-  async getData({ includeReferenceData }) {
+  async getData({ includeReferenceData = false }) {
     const { sequelize, models } = this;
     return queryTranslatedStringsByLanguage({ sequelize, models, includeReferenceData });
   }

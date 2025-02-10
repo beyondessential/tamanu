@@ -11,7 +11,7 @@ const EXCLUDE_REFERENCE_DATA_CLAUSE = `WHERE string_id NOT LIKE '${REFERENCE_DAT
 export const queryTranslatedStringsByLanguage = async ({
   sequelize,
   models,
-  includeReferenceData,
+  includeReferenceData = true,
 }) => {
   const { TranslatedString } = models;
   const languagesInDb = await TranslatedString.findAll({
