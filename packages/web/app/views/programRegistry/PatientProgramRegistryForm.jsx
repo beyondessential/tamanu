@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import {
   AutocompleteField,
@@ -23,32 +22,20 @@ import {
 } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
+import { useProgramRegistryConditionsQuery, useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
-  const api = useApi();
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
-  const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
-    selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
-  );
-  const { data: { data: conditions } = {} } = useQuery(
-    ['programRegistryConditions', selectedProgramRegistryId],
-    () =>
-      api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
-        orderBy: 'name',
-        order: 'ASC',
-      }),
-    {
-      enabled: !!selectedProgramRegistryId,
-    },
-  );
+  const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
+  const { data: conditions } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
+
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -61,7 +48,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   return (
     <Form
       showInlineErrorsOnly
-      onSubmit={async data => {
+      onSubmit={async (data) => {
         return onSubmit({
           ...data,
           conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
@@ -71,7 +58,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       render={({ submitForm, values, setValues }) => {
         const handleCancel = () => onCancel && onCancel();
-        const getButtonText = isCompleted => {
+        const getButtonText = (isCompleted) => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
           return 'Submit';
@@ -96,7 +83,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
-                  onChange={event => {
+                  onChange={(event) => {
                     if (selectedProgramRegistryId !== event.target.value) {
                       setValues({ ...values, clinicalStatusId: null, conditions: null });
                       setSelectedProgramRegistryId(event.target.value);
@@ -170,7 +157,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={BaseMultiselectField}
-                  options={conditions?.map?.(condition => ({
+                  options={conditions?.map?.((condition) => ({
                     label: (
                       <TranslatedReferenceData
                         fallback={condition.name}
