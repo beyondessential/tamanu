@@ -16,15 +16,15 @@ const endpoints = {
 };
 
 export default {
-  title: 'Forms/HierarchyFields',
+  title: 'Form Fields/HierarchyFields',
   component: HierarchyFields,
   decorators: [
-    Story => (
+    (Story) => (
       <MockedApi endpoints={endpoints}>
         <Container>
           <Form
             onSubmit={async () => {}}
-            render={props => {
+            render={(props) => {
               return <Story {...props} />;
             }}
           />

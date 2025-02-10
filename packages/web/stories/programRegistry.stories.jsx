@@ -51,8 +51,9 @@ export default {
   ],
 };
 
-export const ProgramRegistry = () => {
-  return (
+export const ProgramRegistry = {
+  name: 'Program Registry',
+  render: () => (
     <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
       <InfoPaneList
         patient={patient}
@@ -69,7 +70,7 @@ export const ProgramRegistry = () => {
         CustomEditForm={undefined}
       />
     </div>
-  );
+  ),
 };
 
 export const PatientProgramRegistryFormStory = {
