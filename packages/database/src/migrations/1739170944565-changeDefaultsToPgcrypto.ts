@@ -61,33 +61,56 @@ const FHIR_TABLES = UUID_OSSP_TABLES.filter(
   (table) => table.startsWith('fhir.') && !['fhir.jobs', 'fhir.job_workers'].includes(table),
 );
 
+/*
+select pg_class.relnamespace::regnamespace || '.' || pg_class.relname as t
+from pg_attrdef join pg_class on adrelid = pg_class.oid
+where pg_get_expr(adbin, adrelid) = 'uuid_generate_v4()' and adnum = 1
+order by t;
+*/
+const STRING_OSSP_TABLES: TableNameString[] = [
+  'public.imaging_area_external_codes',
+  'public.imaging_requests',
+  'public.ips_requests',
+  'public.lab_request_attachments',
+  'public.lab_test_panels',
+  'public.patient_contacts',
+  'public.patient_program_registration_conditions',
+  'public.program_registries',
+  'public.program_registry_clinical_statuses',
+  'public.program_registry_conditions',
+  'public.vital_logs',
+];
+
 function toTableName(table: TableNameString): TableName {
   const [schema, tableName] = table.split('.');
   return { schema, tableName: tableName! };
 }
 
-async function changeUuidColumnDefault(
-  query: QueryInterface,
-  table: TableNameString,
-  column: string,
-  defaultFn: string,
-  primaryKey = false,
-) {
-  await query.changeColumn(toTableName(table), column, {
-    type: DataTypes.UUID,
-    allowNull: false,
-    primaryKey,
-    defaultValue: Sequelize.fn(defaultFn),
-  });
-}
-
 export async function up(query: QueryInterface): Promise<void> {
+  for (const table of STRING_OSSP_TABLES) {
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
+    });
+  }
+
   for (const table of UUID_OSSP_TABLES) {
-    await changeUuidColumnDefault(query, table, 'id', 'gen_random_uuid', true);
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
+    });
   }
 
   for (const table of FHIR_TABLES) {
-    await changeUuidColumnDefault(query, table, 'version_id', 'gen_random_uuid');
+    await query.changeColumn(toTableName(table), 'version_id', {
+      type: DataTypes.UUID,
+      allowNull: false,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
+    });
   }
 
   await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
@@ -98,12 +121,30 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  for (const table of STRING_OSSP_TABLES) {
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    });
+  }
+
   for (const table of UUID_OSSP_TABLES) {
-    await changeUuidColumnDefault(query, table, 'id', 'uuid_generate_v4', true);
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    });
   }
 
   for (const table of FHIR_TABLES) {
-    await changeUuidColumnDefault(query, table, 'version_id', 'uuid_generate_v4');
+    await query.changeColumn(toTableName(table), 'version_id', {
+      type: DataTypes.UUID,
+      allowNull: false,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    });
   }
 
   await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
