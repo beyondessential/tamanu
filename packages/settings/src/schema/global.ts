@@ -1289,7 +1289,7 @@ export const globalSettings = {
       description: 'Notification settings',
       properties: {
         recentNotificationsTimeFrame: {
-          description: '_',
+          description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
           defaultValue: 48,
         }
