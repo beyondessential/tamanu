@@ -86,8 +86,7 @@ export const resolveAppointmentSchedules = async (
      select value as date, key as id from json_each(:scheduleUntilDates)
     )
     SELECT
-      appointments.*,
-
+      *
     FROM
       appointments
     WHERE
@@ -110,7 +109,7 @@ export const resolveAppointmentSchedules = async (
     return;
   }
 
-  const deletes = outOfBoundAppointments.map((a) => ({
+  const inserts = outOfBoundAppointments.map((a) => ({
     direction: SYNC_SESSION_DIRECTION.INCOMING,
     recordType: 'appointments',
     recordId: a.id,
@@ -119,7 +118,7 @@ export const resolveAppointmentSchedules = async (
   }));
 
   return {
-    inserts: [],
+    inserts,
     updates: [],
     deletes: [],
   };
