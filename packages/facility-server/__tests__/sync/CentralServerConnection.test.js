@@ -33,7 +33,8 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createCentralServerConnection = (models) => {
-  const centralServer = new CentralServerConnection(models);
+  if (!models?.LocalSystemFact) throw Error('wtf');
+  const centralServer = new CentralServerConnection({ models });
   centralServer.fetchImplementation = fetch;
   return centralServer;
 };
