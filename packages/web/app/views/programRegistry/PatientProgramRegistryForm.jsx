@@ -7,16 +7,16 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
 import {
   AutocompleteField,
-  BaseMultiselectField,
   DateField,
   Field,
+  BaseSelectField,
   FieldWithTooltip,
   Form,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import {
-  ConfirmCancelRow,
   getReferenceDataStringId,
+  ModalFormActionRow,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
@@ -27,6 +27,92 @@ import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 
+const ConditionField = ({ programRegistryId }) => {
+  const { getTranslation } = useTranslation();
+  const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
+  const options = conditions?.map?.((condition) => ({
+    label: (
+      <TranslatedReferenceData
+        fallback={condition.name}
+        value={condition.id}
+        category="condition"
+      />
+    ),
+    value: condition.id,
+    searchString: getTranslation(
+      getReferenceDataStringId(condition.id, 'condition'),
+      condition.name,
+    ),
+  }));
+
+  return (
+    <FieldWithTooltip
+      disabledTooltipText={
+        !conditions
+          ? 'Select a program registry to add related conditions'
+          : 'No conditions have been configured for this program registry'
+      }
+      name="conditionIds"
+      label={
+        <TranslatedText
+          stringId="patientProgramRegistry.relatedConditions.label"
+          fallback="Related conditions"
+        />
+      }
+      placeholder={getTranslation('general.placeholder.select', 'Select')}
+      component={BaseSelectField}
+      options={options}
+      disabled={!conditions || conditions.length === 0}
+    />
+  );
+};
+
+const CategoryField = ({ conditionId }) => {
+  const { getTranslation } = useTranslation();
+  const categoryOptions = [
+    'Suspected',
+    'Under investigation',
+    'Confirmed',
+    'Unknown',
+    'Disproven',
+    'Resolved',
+    'In remission',
+    'Not applicable',
+    'Recorded in error',
+  ].map((category) => ({
+    label: category,
+    value: category,
+  }));
+
+  return (
+    <FieldWithTooltip
+      disabledTooltipText={!conditionId ? 'Select a condition to add related categories' : ''}
+      name="categoryId"
+      label={
+        <TranslatedText
+          stringId="patientProgramRegistry.relatedConditions.label"
+          fallback="Category"
+        />
+      }
+      placeholder={getTranslation('general.placeholder.select', 'Select')}
+      component={BaseSelectField}
+      options={categoryOptions}
+      disabled={!conditionId}
+    />
+  );
+};
+
+const RelatedConditionFields = ({ programRegistryId, formValues }) => {
+  const conditionId = formValues['conditionIds'];
+  return (
+    <>
+      <ConditionField programRegistryId={programRegistryId} />
+      <CategoryField conditionId={conditionId} />
+      <div style={{ marginBottom: '20px' }} />
+    </>
+  );
+};
+
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
@@ -34,7 +120,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
-  const { data: conditions } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -61,15 +146,15 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         const getButtonText = (isCompleted) => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
-          return 'Submit';
+          return 'Confirm';
         };
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
 
         return (
-          <div>
-            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
+          <>
+            <FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
@@ -90,7 +175,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
@@ -142,53 +226,23 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
-                <FieldWithTooltip
-                  disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
-                  }
-                  name="conditionIds"
-                  label={
-                    <TranslatedText
-                      stringId="patientProgramRegistry.relatedConditions.label"
-                      fallback="Related conditions"
-                    />
-                  }
-                  placeholder={getTranslation('general.placeholder.select', 'Select')}
-                  component={BaseMultiselectField}
-                  options={conditions?.map?.((condition) => ({
-                    label: (
-                      <TranslatedReferenceData
-                        fallback={condition.name}
-                        value={condition.id}
-                        category="condition"
-                      />
-                    ),
-                    value: condition.id,
-                    searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'condition'),
-                      condition.name,
-                    ),
-                  }))}
-                  disabled={!conditions || conditions.length === 0}
-                />
               </FormGrid>
+              <Divider
+                style={{
+                  gridColumn: '1 / -1',
+                }}
+              />
+              <RelatedConditionFields
+                programRegistryId={selectedProgramRegistryId}
+                formValues={values}
+              />
             </FormGrid>
-            <Divider
-              style={{
-                gridColumn: '1 / -1',
-                marginTop: '30px',
-                marginBottom: '30px',
-              }}
-            />
-            <ConfirmCancelRow
-              style={{ paddingLeft: '32px', paddingRight: '32px' }}
-              onCancel={handleCancel}
-              onConfirm={submitForm}
+            <ModalFormActionRow
               confirmText={buttonText}
+              onConfirm={submitForm}
+              onCancel={handleCancel}
             />
-          </div>
+          </>
         );
       }}
       initialValues={{
