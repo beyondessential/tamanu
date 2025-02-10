@@ -113,6 +113,24 @@ export async function up(query: QueryInterface): Promise<void> {
     });
   }
 
+  await query.changeColumn(toTableName('public.user_localisation_caches'), 'id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue: Sequelize.fn('gen_random_uuid'),
+  });
+
+  await query.changeColumn(toTableName('public.one_time_logins'), 'id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue: Sequelize.fn('gen_random_uuid'),
+  });
+
+  await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue: Sequelize.fn('gen_random_uuid'),
+  });
+
   await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -146,6 +164,22 @@ export async function down(query: QueryInterface): Promise<void> {
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     });
   }
+
+  await query.changeColumn(toTableName('public.user_localisation_caches'), 'id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  });
+
+  await query.changeColumn(toTableName('public.one_time_logins'), 'id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  });
+
+  await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
+  });
 
   await query.changeColumn(toTableName('fhir.jobs'), 'discriminant', {
     type: DataTypes.TEXT,
