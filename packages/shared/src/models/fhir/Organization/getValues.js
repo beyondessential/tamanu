@@ -1,7 +1,5 @@
 import { FhirIdentifier } from '../../../services/fhirTypes';
-import {
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export async function getValues(upstream, models) {
   const { Facility } = models;
@@ -19,7 +17,8 @@ async function getValuesFromFacility(upstream) {
       }),
     ],
     name: upstream.name,
-    active: getActive(upstream)
+    active: getActive(upstream),
+    resolved: true,
   };
 }
 
