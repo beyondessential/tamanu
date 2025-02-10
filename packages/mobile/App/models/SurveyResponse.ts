@@ -142,18 +142,17 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @OneToMany(() => SurveyResponseAnswer, (answer) => answer.response)
   answers: SurveyResponseAnswer[];
 
-  static async getFullResponse(surveyId: string) {
+  static async getFullResponse(surveyResponseId: string) {
     const repo = this.getRepository();
-    const response = await repo.findOne(
-      { where: { id: surveyId } },
-      {
-        relations: ['survey', 'encounter', 'encounter.patient'],
-      },
-    );
+    const response = await repo.findOne({
+      where: { id: surveyResponseId },
+      relations: ['survey', 'encounter', 'encounter.patient'],
+    });
+    console.log(response);
     const questions = await response.survey.getComponents({ includeAllVitals: true });
     const answers = await SurveyResponseAnswer.getRepository().find({
       where: {
-        response: response.id,
+        response: { id: response.id },
       },
       relations: ['dataElement'],
     });
