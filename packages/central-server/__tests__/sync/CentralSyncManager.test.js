@@ -1541,7 +1541,7 @@ describe('CentralSyncManager', () => {
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
-      // Push the encounter
+      // Push the cancelled schedule
       await centralSyncManager.addIncomingChanges(sessionId, changes);
       await centralSyncManager.completePush(sessionId, facility.id);
       await waitForPushCompleted(centralSyncManager, sessionId);
@@ -1562,6 +1562,7 @@ describe('CentralSyncManager', () => {
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
 
+      // Check if the out of bounds appointments are deleted
       expect(returnedAppointments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
