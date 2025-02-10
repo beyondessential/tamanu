@@ -359,23 +359,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       );
     };
 
-    const handleUpdateStartTime = (event) => {
-      const startTimeDate = parseISO(event.target.value);
-      handleUpdateScheduleToStartTime(startTimeDate);
-      if (!values.endTime) return;
-      // Update the end time to match the new start time date
-      setFieldValue(
-        'endTime',
-        toDateTimeString(
-          dateFnsSet(parseISO(values.endTime), {
-            year: getYear(startTimeDate),
-            date: getDate(startTimeDate),
-            month: getMonth(startTimeDate),
-          }),
-        ),
-      );
-    };
-
     return (
       <Drawer
         open={open}
