@@ -44,6 +44,8 @@ export type MonthlySchedule = AppointmentSchedule & {
 export class AppointmentSchedule extends Model {
   declare id: string;
   declare untilDate?: string;
+  declare generatedUntilDate?: string;
+  declare cancelledAtDate?: string;
   declare interval: number;
   declare frequency: keyof typeof REPEAT_FREQUENCY;
   declare daysOfWeek?: [string];
@@ -58,6 +60,8 @@ export class AppointmentSchedule extends Model {
       {
         id: primaryKey,
         untilDate: dateType('untilDate', { allowNull: true }),
+        generatedUntilDate: dateType('generatedUntilDate', { allowNull: true }),
+        cancelledAtDate: dateType('cancelledAtDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
           type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
@@ -204,7 +208,7 @@ export class AppointmentSchedule extends Model {
     });
     await this.update({
       isFullyGenerated: true,
-      untilDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
+      cancelledAtDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
       occurrenceCount: null,
     });
   }
@@ -335,7 +339,7 @@ export class AppointmentSchedule extends Model {
         // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
         // and clear the occurrenceCount
         ...(this.occurrenceCount && {
-          untilDate: appointments.at(-1)!.startTime,
+          generatedUntilDate: appointments.at(-1)!.startTime,
           occurrenceCount: null,
         }),
       });
