@@ -23,6 +23,7 @@ export const resolveAppointmentSchedules = async (
     return;
   }
 
+  // Map of incoming generatedUntilDates for each schedule
   const generatedUntilDates = mapValues(
     keyBy(relevantChanges, 'data.id'),
     'data.generatedUntilDate',
