@@ -38,7 +38,6 @@ const UUID_OSSP_TABLES: TableNameString[] = [
   'public.invoice_payments',
   'public.invoices',
   'public.lab_test_panel_requests',
-  'public.local_system_facts',
   'public.note_items',
   'public.note_pages',
   'public.notes',
@@ -82,6 +81,74 @@ const STRING_OSSP_TABLES: TableNameString[] = [
   'public.vital_logs',
 ];
 
+/*
+select pg_class.relnamespace::regnamespace || '.' || pg_class.relname as t
+from pg_attribute join pg_class on attrelid = pg_class.oid
+where attname = 'id' and atttypid = 'character varying'::regtype::oid and reltype != 0
+order by t;
+-- and then deduplicated with STRING_OSSP_TABLES
+*/
+const STRING_NO_DEFAULT_TABLES: TableNameString[] = [
+  'public.administered_vaccines',
+  'public.appointments',
+  'public.assets',
+  'public.attachments',
+  'public.certifiable_vaccines',
+  'public.certificate_notifications',
+  'public.contributing_death_causes',
+  'public.departments',
+  'public.discharges',
+  'public.document_metadata',
+  'public.encounter_diagnoses',
+  'public.encounter_medications',
+  'public.encounters',
+  'public.facilities',
+  'public.imaging_request_areas',
+  'public.invoice_products',
+  'public.lab_request_logs',
+  'public.lab_requests',
+  'public.lab_test_types',
+  'public.lab_tests',
+  'public.local_system_facts',
+  'public.location_groups',
+  'public.locations',
+  'public.notes_legacy',
+  'public.one_time_logins',
+  'public.patient_allergies',
+  'public.patient_care_plans',
+  'public.patient_communications',
+  'public.patient_conditions',
+  'public.patient_death_data',
+  'public.patient_family_histories',
+  'public.patient_field_definition_categories',
+  'public.patient_field_definitions',
+  'public.patient_issues',
+  'public.patient_secondary_ids',
+  'public.patient_vrs_data',
+  'public.patients',
+  'public.permissions',
+  'public.procedures',
+  'public.program_data_elements',
+  'public.programs',
+  'public.reference_data',
+  'public.referrals',
+  'public.report_definition_versions',
+  'public.report_definitions',
+  'public.report_requests',
+  'public.roles',
+  'public.scheduled_vaccines',
+  'public.signers',
+  'public.survey_response_answers',
+  'public.survey_responses',
+  'public.survey_screen_components',
+  'public.surveys',
+  'public.triages',
+  'public.user_facilities',
+  'public.user_localisation_caches',
+  'public.users',
+  'public.vitals',
+];
+
 function toTableName(table: TableNameString): TableName {
   const [schema, tableName] = table.split('.');
   return { schema, tableName: tableName! };
@@ -89,6 +156,15 @@ function toTableName(table: TableNameString): TableName {
 
 export async function up(query: QueryInterface): Promise<void> {
   for (const table of STRING_OSSP_TABLES) {
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
+    });
+  }
+
+  for (const table of STRING_NO_DEFAULT_TABLES) {
     await query.changeColumn(toTableName(table), 'id', {
       type: DataTypes.STRING,
       allowNull: false,
@@ -114,20 +190,8 @@ export async function up(query: QueryInterface): Promise<void> {
     });
   }
 
-  await query.changeColumn(toTableName('public.user_localisation_caches'), 'id', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue: Sequelize.fn('gen_random_uuid'),
-  });
-
-  await query.changeColumn(toTableName('public.one_time_logins'), 'id', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue: Sequelize.fn('gen_random_uuid'),
-  });
-
   await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: Sequelize.fn('gen_random_uuid'),
   });
@@ -149,6 +213,14 @@ export async function down(query: QueryInterface): Promise<void> {
     });
   }
 
+  for (const table of STRING_NO_DEFAULT_TABLES) {
+    await query.changeColumn(toTableName(table), 'id', {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    });
+  }
+
   for (const table of UUID_OSSP_TABLES) {
     await query.changeColumn(toTableName(table), 'id', {
       type: DataTypes.UUID,
@@ -166,18 +238,8 @@ export async function down(query: QueryInterface): Promise<void> {
     });
   }
 
-  await query.changeColumn(toTableName('public.user_localisation_caches'), 'id', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  });
-
-  await query.changeColumn(toTableName('public.one_time_logins'), 'id', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  });
-
   await query.changeColumn(toTableName('public.imaging_requests'), 'display_id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: Sequelize.fn('uuid_generate_v4'),
   });
