@@ -148,7 +148,12 @@ export const HeadCell = ({ title, count }) => (
   </>
 );
 
-export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel }) => {
+export const OutpatientBookingCalendar = ({
+  selectedDate,
+  onCreateFromExisting,
+  onModify,
+  onCancel,
+}) => {
   const { ability } = useAuth();
   const { groupBy } = useOutpatientAppointmentsContext();
   const {
@@ -237,11 +242,7 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                 <AppointmentTile
                   key={a.id}
                   appointment={a}
-                  onEdit={() =>
-                    onOpenDrawer(a, {
-                      showModifyModeModal: !!a.schedule,
-                    })
-                  }
+                  onEdit={() => onModify(a)}
                   onCancel={() => onCancel(a)}
                   actions={
                     canCreateAppointment
@@ -254,9 +255,7 @@ export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel
                               />
                             ),
                             action: () =>
-                              onOpenDrawer(omit(a, ['id', 'startTime', 'endTime', 'schedule']), {
-                                showNewFromExistingWarning: !!a.schedule,
-                              }),
+                              onCreateFromExisting(omit(a, ['id', 'startTime', 'endTime'])),
                           },
                           {
                             label: (
