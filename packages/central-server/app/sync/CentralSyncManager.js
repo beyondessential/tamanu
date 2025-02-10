@@ -6,6 +6,8 @@ import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/const
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
+  bumpSyncTickForRepull,
+  incomingSyncHook,
   completeSyncSession,
   countSyncSnapshotRecords,
   createSnapshotTable,
@@ -21,6 +23,7 @@ import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+  repeatableReadTransaction,
 } from '@tamanu/database/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
@@ -30,9 +33,8 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
-import { repeatableReadTransaction } from './repeatableReadTransaction';
 
-const errorMessageFromSession = session =>
+const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
@@ -257,7 +259,7 @@ export class CentralSyncManager {
 
       const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
 
-      await repeatableReadTransaction(store.sequelize, async transaction => {
+      await repeatableReadTransaction(store.sequelize, async (transaction) => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
         if (!isInitialBuildOfLookupTable) {
@@ -314,13 +316,13 @@ export class CentralSyncManager {
   async waitForPendingEdits(tick) {
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
-      t => t < tick,
+      (t) => t < tick,
     );
 
     // wait for any in-flight transactions of pending edits
     // that we don't miss any changes that are in progress
     await Promise.all(
-      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+      pendingSyncTicks.map((t) => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
     );
   }
 
@@ -585,6 +587,11 @@ export class CentralSyncManager {
         // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
         // saving with a unique tick
         const { tock } = await this.tickTockGlobalClock();
+
+        // run any side effects for each model
+        // eg: resolving duplicated patient display IDs
+        await incomingSyncHook(sequelize, modelsToInclude, sessionId);
+
         await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
@@ -607,6 +614,9 @@ export class CentralSyncManager {
       await this.tickTockGlobalClock();
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
+      // mark for repull any records that were modified by an incoming sync hook
+      await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(
         { persistCompletedAt: new Date() },
@@ -624,7 +634,7 @@ export class CentralSyncManager {
   async addIncomingChanges(sessionId, changes) {
     const { sequelize } = this.store;
     await this.connectToSession(sessionId);
-    const incomingSnapshotRecords = changes.map(c => ({
+    const incomingSnapshotRecords = changes.map((c) => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       updatedAtByFieldSum: c.data.updatedAtByField
