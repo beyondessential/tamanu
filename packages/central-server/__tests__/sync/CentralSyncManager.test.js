@@ -1423,18 +1423,17 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe.only('removes appointments in cancelled schedule', () => {
+  describe.only('resolves out of bounds appointments in cancelled schedule', () => {
     let settings;
     beforeAll(async () => {
       settings = ctx.settings;
     });
-    it('deletes appointments syncing into schedule that is cancelled', async () => {
+    it('deletes out of bound appointments generated on central when syncing a schedule that has been cancelled', async () => {
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '10';
       await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
       settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
-      // const user = await models.User.create(fakeUser());
       const patient = await models.Patient.create({
         ...fake(models.Patient),
       });
