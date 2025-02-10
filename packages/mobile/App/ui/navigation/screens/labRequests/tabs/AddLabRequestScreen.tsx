@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -20,6 +20,11 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const ALPHABET_FOR_ID =
   'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+
+const ALPHABET_GENERATOR = customAlphabet(ALPHABET_FOR_ID, 7);
+const generateDisplayId = () => {
+  return ALPHABET_GENERATOR();
+};
 
 interface LabRequestFormData {
   displayId: ID;
@@ -46,7 +51,7 @@ export const DumbAddLabRequestScreen = ({
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
   const { getTranslation } = useTranslation();
-  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [selectedPatient]);
+  const displayId = generateDisplayId();
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
