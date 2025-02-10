@@ -13,9 +13,12 @@ notifications.get(
   '/',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const { models, user } = req;
+    const { models, user, settings } = req;
+    const { serverFacilityId } = config;
 
-    const recentNotificationsTimeFrame = config.notification?.recentNotificationsTimeFrame || 48;
+    const recentNotificationsTimeFrame =
+      (await settings[serverFacilityId].get('notifications.recentNotificationsTimeFrame')) || 48;
+
     const readNotifications = await models.Notification.findAll({
       where: {
         userId: user.id,
