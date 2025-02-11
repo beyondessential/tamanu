@@ -770,7 +770,7 @@ export const dummyApi = {
 
       case 'programRegistry/1/conditions':
       case 'programRegistry/programRegistry-HepatitisBProgramRegistry/conditions':
-        return programRegistryConditions;
+        return { count: programRegistryConditions.length, data: programRegistryConditions };
 
       case 'patient/patient_id/additionalData':
       case 'patient/test-patient/additionalData':
@@ -790,7 +790,7 @@ export const dummyApi = {
       case `patient/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/conditions`:
         return [
           ...programRegistryConditions,
-          ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
+          ...programRegistryConditions.map((x) => ({ ...x, id: x.id + 1 })),
         ];
 
       case 'program/program-samoancdscreening/surveys':
@@ -809,11 +809,14 @@ export const dummyApi = {
         return practitioners;
 
       case 'suggestions/programRegistry':
-        return programRegistries.data;
+        return [programRegistry1, programRegistry2, programRegistry3];
 
       case 'suggestions/survey':
         // this needs to be done in the backend
-        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+        return programRegistryFormHistory.map((x) => ({
+          id: x.id.toString(),
+          name: x.survey.name,
+        }));
 
       // TEMP: below there are undefined parameters because this api sometimes depends
       // on browser query params, this is temporary for testing purpose

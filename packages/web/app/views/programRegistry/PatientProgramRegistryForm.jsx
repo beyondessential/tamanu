@@ -7,25 +7,55 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
 import {
   AutocompleteField,
-  BaseMultiselectField,
   DateField,
   Field,
   FieldWithTooltip,
   Form,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import {
-  ConfirmCancelRow,
-  getReferenceDataStringId,
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components';
+import { ModalFormActionRow, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
-import { useProgramRegistryConditionsQuery, useProgramRegistryQuery } from '../../api/queries';
+import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { RelatedConditionFields } from './RelatedConditionFields';
+
+const validationSchema = yup.object().shape({
+  conditions: yup.array().of(
+    yup.object().shape({
+      conditionId: yup.string().nullable(),
+      category: yup
+        .string()
+        .nullable()
+        .when('conditionId', {
+          is: (value) => Boolean(value),
+          then: yup.string().required('Category is required when a Related condition is set'),
+        }),
+    }),
+  ),
+  programRegistryId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.programRegistry.label"
+      fallback="Program registry"
+    />,
+  ),
+  clinicalStatusId: optionalForeignKey().nullable(),
+  date: yup.date(),
+  clinicianId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.registeredBy.label"
+      fallback="Registered by"
+    />,
+  ),
+  registeringFacilityId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.registeringFacility.label"
+      fallback="Registering facility"
+    />,
+  ),
+});
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
@@ -34,7 +64,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
-  const { data: conditions } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -51,7 +80,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       onSubmit={async (data) => {
         return onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
+          conditions: data.conditions ? data.conditions : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -61,15 +90,15 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         const getButtonText = (isCompleted) => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
-          return 'Submit';
+          return 'Confirm';
         };
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
 
         return (
-          <div>
-            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
+          <>
+            <FormGrid style={{ paddingBottom: 30 }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
@@ -90,7 +119,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
@@ -142,53 +170,23 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
-                <FieldWithTooltip
-                  disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
-                  }
-                  name="conditionIds"
-                  label={
-                    <TranslatedText
-                      stringId="patientProgramRegistry.relatedConditions.label"
-                      fallback="Related conditions"
-                    />
-                  }
-                  placeholder={getTranslation('general.placeholder.select', 'Select')}
-                  component={BaseMultiselectField}
-                  options={conditions?.map?.((condition) => ({
-                    label: (
-                      <TranslatedReferenceData
-                        fallback={condition.name}
-                        value={condition.id}
-                        category="condition"
-                      />
-                    ),
-                    value: condition.id,
-                    searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'condition'),
-                      condition.name,
-                    ),
-                  }))}
-                  disabled={!conditions || conditions.length === 0}
-                />
               </FormGrid>
+              <Divider
+                style={{
+                  gridColumn: '1 / -1',
+                }}
+              />
+              <RelatedConditionFields
+                programRegistryId={selectedProgramRegistryId}
+                formValues={values}
+              />
             </FormGrid>
-            <Divider
-              style={{
-                gridColumn: '1 / -1',
-                marginTop: '30px',
-                marginBottom: '30px',
-              }}
-            />
-            <ConfirmCancelRow
-              style={{ paddingLeft: '32px', paddingRight: '32px' }}
-              onCancel={handleCancel}
-              onConfirm={submitForm}
+            <ModalFormActionRow
               confirmText={buttonText}
+              onConfirm={submitForm}
+              onCancel={handleCancel}
             />
-          </div>
+          </>
         );
       }}
       initialValues={{
@@ -198,28 +196,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ...editedObject,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-      validationSchema={yup.object().shape({
-        programRegistryId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
-            fallback="Program registry"
-          />,
-        ),
-        clinicalStatusId: optionalForeignKey().nullable(),
-        date: yup.date(),
-        clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
-        ),
-        registeringFacilityId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
-            fallback="Registering facility"
-          />,
-        ),
-      })}
+      validationSchema={validationSchema}
     />
   );
 };

@@ -78,7 +78,10 @@ export const PatientProgramRegistryFormStory = {
   render: () => (
     <Modal width="md" title="Add program registry" open>
       <PatientProgramRegistryForm
-        onSubmit={action('submit')}
+        onSubmit={(data) => {
+          action('submit');
+          console.log('Submitted data:', data);
+        }}
         onCancel={action('cancel')}
         patient={patient}
       />
