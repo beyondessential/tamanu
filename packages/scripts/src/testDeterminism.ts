@@ -277,7 +277,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   try {
     console.log(`=== Preparation ===`);
 
-    console.log('Switch repo to before migrations to test');
+    console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--detach', commitBeforeMigration]);
 
     const initDb = dbConfig('init');
@@ -297,7 +297,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       await sequelize.close();
     }
 
-    console.log('Switch repo to after migrations to test');
+    console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--detach', HEAD]);
 
     let previousHashes: DbHashes | undefined;
