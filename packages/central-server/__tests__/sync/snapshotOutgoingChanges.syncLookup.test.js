@@ -1,12 +1,11 @@
 import { beforeAll, describe } from '@jest/globals';
 
 import {
-  getModelsForDirection,
+  getModelsForPull,
   createSnapshotTable,
   findSyncSnapshotRecords,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -40,7 +39,7 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    outgoingModels = getModelsForPull(models);
   });
 
   afterAll(() => ctx.close());

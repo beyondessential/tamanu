@@ -1,11 +1,11 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForDirection,
+  getModelsForPush,
+  getModelsForPull,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   CURRENT_SYNC_TIME_KEY,
@@ -119,7 +119,10 @@ export class FacilitySyncManager {
     const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 
-    log.info('FacilitySyncManager.attemptStart', { reason: JSON.stringify(this.reason), startTime });
+    log.info('FacilitySyncManager.attemptStart', {
+      reason: JSON.stringify(this.reason),
+      startTime,
+    });
 
     const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
@@ -187,7 +190,7 @@ export class FacilitySyncManager {
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
+      getModelsForPush(this.models),
       pushSince,
     );
     if (outgoingChanges.length > 0) {
@@ -222,7 +225,7 @@ export class FacilitySyncManager {
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
-        Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+        Object.values(getModelsForPull(this.models)),
         sessionId,
       );
     }
@@ -230,11 +233,7 @@ export class FacilitySyncManager {
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
-        await saveIncomingChanges(
-          this.sequelize,
-          getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          sessionId,
-        );
+        await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
       }
 
       // update the last successful sync in the same save transaction - if updating the cursor fails,
