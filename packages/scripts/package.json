@@ -1,14 +1,17 @@
 {
   "name": "scripts",
   "version": "2.26.0",
-  "main": "index.js",
   "license": "GPL-3.0-or-later",
+  "type": "module",
   "scripts": {
+    "build": "npm run clean && npm run build:esm && npm run build:types",
+    "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
+    "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
-    "test": "tape 'tests/**/*.test.*js'",
-    "download-translations": "node src/downloadTranslations.js ../web/resources/strings",
-    "generate-fake-db": "node src/fake.js",
-    "test-determinism": "node src/testDeterminism.js"
+    "test": "npm run build:esm && tape 'tests/**/*.test.*js'",
+    "download-translations": "npm run build && node dist/downloadTranslations.js ../web/resources/strings",
+    "test-determinism": "npm run build && node dist/testDeterminism.js"
   },
   "dependencies": {
     "commander": "^9.0.0",
@@ -24,6 +27,7 @@
     "@tamanu/database": "*"
   },
   "devDependencies": {
+    "@types/node": "^20.9.0",
     "tape": "^5.7.5"
   }
 }
