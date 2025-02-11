@@ -154,7 +154,7 @@ patientRoute.get(
   '/:id/currentEncounter',
   asyncHandler(async (req, res) => {
     const {
-      models: { Encounter, Discharge },
+      models: { Encounter },
       params,
     } = req;
 
@@ -164,18 +164,13 @@ patientRoute.get(
     const currentEncounter = await Encounter.findOne({
       where: {
         patientId: params.id,
+        [Op.or]: [
+          { '$discharge.id$': null },
+          { '$discharge.is_discharged$': false },
+        ],
       },
-      include: [
-        {
-          model: Discharge,
-          as: 'discharge',
-          required: true,
-          where: {
-            [Op.or]: [{ id: { [Op.is]: null } }, { isDischarged: false }],
-          },
-        },
-        ...Encounter.getFullReferenceAssociations(),
-      ],
+      include: Encounter.getFullReferenceAssociations(),
+      subQuery: false,
     });
 
     // explicitly send as json (as it might be null)

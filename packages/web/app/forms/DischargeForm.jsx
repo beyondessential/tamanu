@@ -74,12 +74,12 @@ const dischargingClinicianLabel = (
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
-  const isSavedForm = !encounter?.discharge?.isDischarged;
+  const isDischarged = encounter?.discharge?.isDischarged;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (!isSavedForm) {
+    if (isDischarged) {
       if (isFuture(encounterStartDate)) {
         // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         return toDateTimeString(
@@ -102,7 +102,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: encounter?.discharge?.dischargerId,
       dispositionId: encounter?.discharge?.dispositionId,
-      note: !isSavedForm
+      note: isDischarged
         ? dischargeNotes.map(n => n.content).join('\n\n')
         : encounter?.discharge?.note,
     },
@@ -330,8 +330,8 @@ const DischargeFormScreen = props => {
     status,
     onCancel,
     currentDiagnoses,
-    submitForm,
     values,
+    handleSubmit,
   } = props;
   const { ability } = useAuth();
   const canWriteDischarge = ability.can('write', 'Discharge');
@@ -340,20 +340,21 @@ const DischargeFormScreen = props => {
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
-  const handleStepForward = async (e, isSavedForm) => {
+  const handleStepForward = async (isSavedForm) => {
+    if (isSavedForm) {
+      await handleSubmit({ ...values, isDischarged: false });
+      return;
+    }
     const formErrors = await validateForm();
     delete formErrors.isCanceled;
 
-    if (Object.keys(formErrors).length > 0) {
+    if (Object.keys(formErrors).length > 0) { 
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
       setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
     } else {
-      if (isSavedForm) {
-        await submitForm(e, { ...values, isDischarged: false });
-      }
-      else onStepForward();
+      onStepForward();
     }
   };
 
@@ -362,7 +363,7 @@ const DischargeFormScreen = props => {
       customBottomRow={
         <FormConfirmCancelBackRow
           onCancel={onCancel}
-          onConfirm={e => handleStepForward(e, false)}
+          onConfirm={() => handleStepForward(false)}
           CustomConfirmButton={props => (
             <ConditionalTooltip
               visible={isDiagnosisEmpty}
@@ -387,7 +388,7 @@ const DischargeFormScreen = props => {
           )}
           confirmDisabled={isDiagnosisEmpty}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          {...(canWriteDischarge && { onBack: e => handleStepForward(e, true) })}
+          {...(canWriteDischarge && { onBack: () => handleStepForward(true) })}
           backButtonText={
             <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
           }
@@ -469,6 +470,7 @@ export const DischargeForm = ({
         <DischargeFormScreen
           {...props}
           currentDiagnoses={currentDiagnoses}
+          handleSubmit={handleSubmit}
         />
       )}
       formType={FORM_TYPES.CREATE_FORM}
