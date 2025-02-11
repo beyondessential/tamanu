@@ -1,12 +1,13 @@
 import {
-  REPORT_STATUSES,
-  NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
+  NOTE_RECORD_TYPES,
+  REPORT_DB_SCHEMAS,
+  REPORT_STATUSES,
 } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
-import { type Models, type Sequelize } from '@tamanu/database';
+import type { Models, Sequelize } from '@tamanu/database';
+
+const { fake } = require('@tamanu/shared/test-helpers/fake');
 
 async function generateData(models: Models) {
   const {

@@ -3,16 +3,17 @@ import { createHash } from 'node:crypto';
 
 import config from 'config';
 import { program } from 'commander';
-import { type Umzug } from 'umzug';
 
-import { createMigrationInterface } from '@tamanu/database/services/migrations';
-import { type Sequelize as TamanuSequelize } from '@tamanu/database';
-import { initDatabase } from '@tamanu/database/services/database';
+import type { Umzug } from 'umzug';
+import type { Sequelize } from '@tamanu/database';
+import type { Model } from '@tamanu/database/models/Model';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { log } from '@tamanu/shared/services/logging';
-import { QueryTypes, Sequelize } from 'sequelize';
-import { Model } from '@tamanu/database/models/Model';
-import { generateFake } from './fake';
+import { QueryTypes } from 'sequelize';
+import { generateFake } from './fake.js';
+
+const { initDatabase } = require('@tamanu/database/services/database');
+const { createMigrationInterface } = require('@tamanu/database/services/migrations');
 
 type TableHashes = Map<string, string>;
 
@@ -117,7 +118,7 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes> {
-  const umzug = createMigrationInterface(log, sequelize);
+  const umzug = createMigrationInterface(() => {}, sequelize);
 
   const perMigration: MigrationHashes[] = [];
   for await (const migration of pendingMigrationIter(umzug)) {
@@ -191,7 +192,9 @@ function runCommand(prog: string, args: string[]): Promise<string> {
   });
 }
 
-const gitCommand = (args: string[]) => runCommand('git', args);
+async function gitCommand(args: string[]): Promise<string> {
+  return runCommand('git', args);
+}
 
 async function isRepoClean(): Promise<boolean> {
   const stdout = await gitCommand(['status', '--porcelain', 'v2']);
@@ -283,7 +286,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 
       console.log('Migrate database from blank');
       const db = await initDatabase(initDb);
-      const sequelize = db.sequelize as TamanuSequelize;
+      const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
 
       console.log('Fill database with fake data');
@@ -308,7 +311,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 
       console.log('Migrate and hash the database');
       const db = await initDatabase(dbConfig);
-      const sequelize = db.sequelize as TamanuSequelize;
+      const sequelize = db.sequelize as Sequelize;
       const hashes = await migrateAndHash(copyDb.name, sequelize);
       await sequelize.close();
 
