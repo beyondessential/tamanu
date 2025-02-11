@@ -17,14 +17,16 @@ import { formatFhirDate } from '../../../utils/fhir';
 export async function getValues(upstream, models) {
   const { Patient } = models;
 
-  if (upstream instanceof Patient) return getValuesFromPatient(upstream);
+  if (upstream instanceof Patient) return getValuesFromPatient(upstream, models);
   throw new Error(`Invalid upstream type for patient ${upstream.constructor.name}`);
 }
 
-async function getValuesFromPatient(upstream) {
+async function getValuesFromPatient(upstream, models) {
   const [first] = upstream.additionalData || [];
   // eslint-disable-next-line no-param-reassign
   upstream.additionalData = first;
+
+  const links = await mergeLinks(upstream, models);
 
   return {
     extension: extension(upstream),
@@ -36,8 +38,9 @@ async function getValuesFromPatient(upstream) {
     birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
     deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
     address: addresses(upstream),
-    link: await mergeLinks(upstream),
+    link: links,
     lastUpdated: new Date(),
+    resolved: links.every(({ other }) => other.isResolved()),
   };
 }
 
@@ -121,7 +124,7 @@ function addresses(patient) {
   ];
 }
 
-async function mergeLinks(patient) {
+async function mergeLinks(patient, models) {
   const links = [];
 
   // Populates "upstream" links, which must be resolved to FHIR resource links
@@ -133,9 +136,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'replaced-by',
-          other: new FhirReference({
-            reference: mergeTarget.id,
-            type: 'upstream://patient',
+          other: await FhirReference.to(models.FhirPatient, mergeTarget.id, {
             display: mergeTarget.displayId,
           }),
         }),
@@ -150,9 +151,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'replaces',
-          other: new FhirReference({
-            reference: mergedPatient.id,
-            type: 'upstream://patient',
+          other: await FhirReference.to(models.FhirPatient, mergedPatient.id, {
             display: mergedPatient.displayId,
           }),
         }),
@@ -161,9 +160,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'seealso',
-          other: new FhirReference({
-            reference: mergedPatient.id,
-            type: 'upstream://patient',
+          other: await FhirReference.to(models.FhirPatient, mergedPatient.id, {
             display: mergedPatient.displayId,
           }),
         }),
