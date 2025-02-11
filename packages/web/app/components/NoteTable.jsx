@@ -52,9 +52,7 @@ const EllipsisHideShowSpan = styled.span`
 `;
 
 const ReadMoreSpan = styled(EllipsisHideShowSpan)`
-  position: absolute;
-  bottom: 0;
-  ${props => (props.$bottom > 0 ? `right: 0` : '')};
+  align-self: start;
 `;
 
 const ShowLessSpan = styled(EllipsisHideShowSpan)``;
@@ -71,6 +69,11 @@ const NoteHeaderText = styled.span`
 const NoteBodyContainer = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+const NoteExpandControlContainer = styled.div`
+  display: flex;
+  align-self: flex-start;
 `;
 
 const NoteFooterContainer = styled.div`
@@ -147,7 +150,6 @@ const NoteContent = ({
   const { currentUser, ability } = useAuth();
   const hasIndividualNotePermission = getIndividualNotePermissionCheck(ability, currentUser, note);
   const noteContentContainerRef = useRef();
-  const contentLineClipping = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [contentIsExpanded, setContentIsExpanded] = useState(false);
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
@@ -179,37 +181,12 @@ const NoteContent = ({
       )}
       <NoteBodyContainer>
         <NoteContentContainer $expanded={contentIsExpanded} ref={noteContentContainerRef}>
-          {note?.content?.split('\n').map((line, i, { length }) => {
-            const elementRef = contentLineClipping?.current?.[i];
-            const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;
-            const isVisible = contentOffsetHeight > elementRef?.offsetTop;
-            const hiddenHeight =
-              elementRef?.offsetTop + elementRef?.offsetHeight - contentOffsetHeight;
+          {note?.content?.split('\n').map((line, i) => {
             return (
-              <React.Fragment key={line}>
-                <span
-                  ref={el => {
-                    const tempLineClipping = [...(contentLineClipping?.current || [])];
-                    tempLineClipping[i] = el;
-                    contentLineClipping.current = tempLineClipping;
-                  }}
-                >
-                  {line}
-                  {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
-                    <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
-                      ...
-                      <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
-                    </ReadMoreSpan>
-                  )}
-                  {'\n'}
-                </span>
-                {contentIsExpanded && i === length - 1 && (
-                  <ShowLessSpan onClick={handleReadLess}>
-                    {' '}
-                    <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
-                  </ShowLessSpan>
-                )}
-              </React.Fragment>
+              <span key={i}>
+                {line}
+                {'\n'}
+              </span>
             );
           })}
         </NoteContentContainer>
@@ -219,6 +196,20 @@ const NoteContent = ({
             <StyledEditIcon onClick={() => handleEditNote(note)} />
           )}
       </NoteBodyContainer>
+      <NoteExpandControlContainer>
+        {contentIsClipped && !contentIsExpanded && (
+          <ReadMoreSpan onClick={handleReadMore}>
+            ...
+            <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
+          </ReadMoreSpan>
+        )}
+        {contentIsExpanded && (
+          <ShowLessSpan onClick={handleReadLess}>
+            {' '}
+            <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
+          </ShowLessSpan>
+        )}
+      </NoteExpandControlContainer>
       <NoteFooterContainer>
         {showNoteMetaPrefix && (
           <NoteFooterTextElement>
