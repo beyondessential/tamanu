@@ -92,7 +92,7 @@ encounter.put(
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { isDischarge, quantity, repeats } = medicationValues;
           const medication = await models.EncounterMedication.findByPk(medicationId);
-          await medication.update({ isDischarge, quantity, repeats });
+          await medication.update(isDischarge ? { isDischarge, quantity, repeats } : { isDischarge });
         }
       }
 

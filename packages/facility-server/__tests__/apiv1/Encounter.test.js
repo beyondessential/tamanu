@@ -829,6 +829,7 @@ describe('Encounter', () => {
           discharge: {
             encounterId: v.id,
             dischargerId: app.user.id,
+            isDischarged: true,
           },
         });
         expect(result).toHaveSucceeded();
@@ -875,6 +876,7 @@ describe('Encounter', () => {
           discharge: {
             encounterId: encounter.id,
             dischargerId: app.user.id,
+            isDischarged: true,
           },
           medications: {
             [medicationOne.id]: {
