@@ -197,12 +197,12 @@ async function gitCommand(args: string[]): Promise<string> {
 }
 
 async function isRepoClean(): Promise<boolean> {
-  const stdout = await gitCommand(['status', '--porcelain', 'v2']);
+  const stdout = await gitCommand(['status', '--porcelain=v2']);
   return stdout.length === 0;
 }
 
 async function listCommitsSince(limitCommitRef: string): Promise<string[]> {
-  const stdout = await gitCommand(['log', '--format', '%H', `${limitCommitRef}^..HEAD`]);
+  const stdout = await gitCommand(['log', '--format=%H', `${limitCommitRef}^..HEAD`]);
   return stdout.split(/\s+/) ?? [];
 }
 
