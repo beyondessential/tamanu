@@ -1,6 +1,7 @@
 export const SYNC_DIRECTIONS = {
   DO_NOT_SYNC: 'do_not_sync', // Important! Non-syncing tables should also be added to shared/src/services/migrations/constants.js
   PUSH_TO_CENTRAL: 'push_to_central',
+  PUSH_TO_CENTRAL_THEN_DELETE: 'push_to_central_then_delete', // No local copy required after sync
   PULL_FROM_CENTRAL: 'pull_from_central',
   BIDIRECTIONAL: 'bidirectional',
 };

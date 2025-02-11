@@ -20,5 +20,6 @@ export const getModelsForPull = (models: Record<string, typeof Model>) =>
 export const getModelsForPush = (models: Record<string, typeof Model>) =>
   getModelsForDirections(models, [
     SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+    SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
     SYNC_DIRECTIONS.BIDIRECTIONAL,
   ]);

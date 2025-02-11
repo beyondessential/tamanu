@@ -65,6 +65,8 @@ describe('getModelsForPull', () => {
 
         expect(syncDirections).not.toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
 
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE);
+
         expect(syncDirections).not.toContain(SYNC_DIRECTIONS.DO_NOT_SYNC);
       }),
     );
@@ -86,6 +88,13 @@ describe('getModelsForPush', () => {
           modelDirections.includes(SYNC_DIRECTIONS.PUSH_TO_CENTRAL)
         ) {
           expect(filteredDirections).toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+        }
+
+        if (
+          filteredDirections.length &&
+          modelDirections.includes(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE)
+        ) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE);
         }
 
         if (filteredDirections.length && modelDirections.includes(SYNC_DIRECTIONS.BIDIRECTIONAL)) {
