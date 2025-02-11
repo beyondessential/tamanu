@@ -9,7 +9,12 @@ declare module 'sequelize' {
     export const TIMESTAMP: AbstractDataTypeConstructor;
   }
   export interface Sequelize extends sequelize.Sequelize {
+    models: typeof import('./models'),
     isInsideTransaction(): boolean;
+    migrate: (
+      // eslint-disable-next-line no-unused-vars
+      direction: 'up' | 'down' | 'downToLastReversibleMigration' | 'redoLatest',
+    ) => Promise<void>;
   }
 
   export interface DestroyOptions extends sequelize.DestroyOptions {
