@@ -59,14 +59,10 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
   const hashes: TableHashes = new Map();
   for (const table of tables) {
-    await sequelize.query('CREATE TEMPORARY TABLE determinism_check_table AS TABLE $table', {
-      bind: { table },
-    });
+    await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE "${table}"`);
     for (const column of UNHASHED_COLUMNS) {
       try {
-        await sequelize.query('ALTER TABLE determinism_check_table DROP $column', {
-          bind: { column },
-        });
+        await sequelize.query(`ALTER TABLE determinism_check_table DROP "${column}"`);
       } catch (_err) {
         /* ignore non-existent unhashed columns */
       }
@@ -74,9 +70,11 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
     const rows = await sequelize.query(
       `
-        SELECT determinism_hash_agg() AS hash
-        WITHIN GROUP (ORDER BY determinism_check_table)
+        SELECT determinism_hash_agg()
+          WITHIN GROUP (ORDER BY determinism_check_table)
+          AS hash
         FROM determinism_check_table
+        -- ${table}
       `,
       {
         type: QueryTypes.SELECT,
@@ -110,7 +108,7 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes> {
-  const umzug = createMigrationInterface(() => {}, sequelize);
+  const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
 
   if (!pending.length) {
@@ -119,7 +117,7 @@ async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbH
 
   const perMigration: MigrationHashes[] = [];
   for await (const migration of pending) {
-    await umzug.up({ migrations: [migration] });
+    await umzug.up({ migrations: [migration.file] });
     const tables = await listTables(sequelize);
     const perTable = await hashTables(sequelize, tables);
     const summary = summarise(perTable);
@@ -307,15 +305,15 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
 
-      console.log('Switch repo to after migrations to test', HEAD);
-      await gitCommand(['switch', '--detach', HEAD]);
-      await runCommand('npm', ['run', '--workspace', '@tamanu/database', 'build']);
-
       console.log('Fill database with fake data', dataRounds, 'rounds');
       await generateFake(sequelize, dataRounds);
 
       await sequelize.close();
     }
+
+    console.log('Switch repo to after migrations to test', HEAD);
+    await gitCommand(['switch', '--detach', HEAD]);
+    await runCommand('npm', ['run', '--workspace', '@tamanu/database', 'build']);
 
     let previousHashes: DbHashes | undefined;
     for (const [n] of Array(testRounds + 1)
