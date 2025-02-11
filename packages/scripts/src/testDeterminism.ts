@@ -312,7 +312,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       await runCommand('createdb', ['-O', copyDb.user, '-T', initDb.name, copyDb.name]);
 
       console.log('Migrate and hash the database');
-      const db = await initDatabase(dbConfig);
+      const db = await initDatabase(copyDb);
       const sequelize = db.sequelize as Sequelize;
       const hashes = await migrateAndHash(copyDb.name, sequelize);
       await sequelize.close();
