@@ -139,3 +139,8 @@ sources:
             description: "{{ doc('fhir__generic__is_live') }} in non_fhir_medici_report."
             data_tests:
               - not_null
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in non_fhir_medici_report."
+            data_tests:
+              - not_null
