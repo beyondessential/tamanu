@@ -169,9 +169,9 @@ patientRoute.get(
         {
           model: Discharge,
           as: 'discharge',
-          required: false,
+          required: true,
           where: {
-            isDischarged: { [Op.not]: true },
+            [Op.or]: [{ id: { [Op.is]: null } }, { isDischarged: false }],
           },
         },
         ...Encounter.getFullReferenceAssociations(),

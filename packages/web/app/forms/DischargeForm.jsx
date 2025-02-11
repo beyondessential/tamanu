@@ -41,6 +41,7 @@ import {
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
+import { useAuth } from '../contexts/Auth';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -73,21 +74,37 @@ const dischargingClinicianLabel = (
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
+  const isSavedForm = !encounter?.discharge?.isDischarged;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
-  return {
-    endDate: isFuture(encounterStartDate)
-      ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        toDateTimeString(
+
+  const getInitialEndDate = () => {
+    if (!isSavedForm) {
+      if (isFuture(encounterStartDate)) {
+        // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
+        return toDateTimeString(
           set(encounterStartDate, {
             hours: today.getHours(),
             minutes: today.getMinutes(),
             seconds: today.getSeconds(),
           }),
-        )
-      : getCurrentDateTimeString(),
+        );
+      } else {
+        return getCurrentDateTimeString();
+      }
+    } else {
+      return encounter?.endDate;
+    }
+  };
+
+  return {
+    endDate: getInitialEndDate(),
     discharge: {
-      note: dischargeNotes.map(n => n.content).join('\n\n'),
+      dischargerId: encounter?.discharge?.dischargerId,
+      dispositionId: encounter?.discharge?.dispositionId,
+      note: !isSavedForm
+        ? dischargeNotes.map(n => n.content).join('\n\n')
+        : encounter?.discharge?.note,
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -99,18 +116,17 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
 Creates an object to add initialValues to Formik that matches
 the table-like form fields.
 */
-const getMedicationsInitialValues = medications => {
+const getMedicationsInitialValues = (medications, encounter) => {
   const medicationsInitialValues = {};
 
   medications.forEach(medication => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      isDischarge: true,
+      isDischarge: encounter.discharge ? medication.isDischarge : true,
       quantity: medication.quantity || 0,
-      repeats: 0,
+      repeats: medication.repeats.toString() || '0',
     };
   });
-
   return medicationsInitialValues;
 };
 
@@ -314,13 +330,17 @@ const DischargeFormScreen = props => {
     status,
     onCancel,
     currentDiagnoses,
-    setIsSavedForm,
+    submitForm,
+    values,
   } = props;
+  const { ability } = useAuth();
+  const canWriteDischarge = ability.can('write', 'Discharge');
   const { getSetting } = useSettings();
+
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
-  const handleStepForward = async isSavedForm => {
+  const handleStepForward = async (e, isSavedForm) => {
     const formErrors = await validateForm();
     delete formErrors.isCanceled;
 
@@ -330,8 +350,10 @@ const DischargeFormScreen = props => {
       // have Pagination form component to handle this.
       setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
     } else {
-      setIsSavedForm(isSavedForm);
-      onStepForward();
+      if (isSavedForm) {
+        await submitForm(e, { ...values, isDischarged: false });
+      }
+      else onStepForward();
     }
   };
 
@@ -340,7 +362,7 @@ const DischargeFormScreen = props => {
       customBottomRow={
         <FormConfirmCancelBackRow
           onCancel={onCancel}
-          onConfirm={() => handleStepForward(false)}
+          onConfirm={e => handleStepForward(e, false)}
           CustomConfirmButton={props => (
             <ConditionalTooltip
               visible={isDiagnosisEmpty}
@@ -365,7 +387,7 @@ const DischargeFormScreen = props => {
           )}
           confirmDisabled={isDiagnosisEmpty}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          onBack={() => handleStepForward(true)}
+          {...(canWriteDischarge && { onBack: e => handleStepForward(e, true) })}
           backButtonText={
             <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
           }
@@ -406,7 +428,6 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const [dischargeNotes, setDischargeNotes] = useState([]);
-  const [isSavedForm, setIsSavedForm] = useState(false);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -418,25 +439,18 @@ export const DischargeForm = ({
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
-  const medicationInitialValues = getMedicationsInitialValues(activeMedications);
+  const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
   const handleSubmit = useCallback(
-    async ({ medications, ...data }) => {
-      // Filter out medications that weren't marked
-      const filteredMedications = {};
-      Object.keys(medications).forEach(id => {
-        const medication = medications[id];
-        if (medication.isDischarge) filteredMedications[id] = medication;
-      });
+    async ({ isDischarged = true, ...data }) => {
       await onSubmit({
         ...data,
         discharge: {
           ...data.discharge,
-          isDischarged: !isSavedForm,
+          isDischarged,
         },
-        medications: filteredMedications,
       });
     },
-    [onSubmit, isSavedForm],
+    [onSubmit],
   );
 
   useEffect(() => {
@@ -455,8 +469,6 @@ export const DischargeForm = ({
         <DischargeFormScreen
           {...props}
           currentDiagnoses={currentDiagnoses}
-          isSavedForm={isSavedForm}
-          setIsSavedForm={setIsSavedForm}
         />
       )}
       formType={FORM_TYPES.CREATE_FORM}
