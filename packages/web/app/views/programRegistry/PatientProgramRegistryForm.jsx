@@ -9,109 +9,18 @@ import {
   AutocompleteField,
   DateField,
   Field,
-  BaseSelectField,
   FieldWithTooltip,
   Form,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import {
-  getReferenceDataStringId,
-  ModalFormActionRow,
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components';
+import { ModalFormActionRow, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
-import { useProgramRegistryConditionsQuery, useProgramRegistryQuery } from '../../api/queries';
+import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-
-const ConditionField = ({ programRegistryId }) => {
-  const { getTranslation } = useTranslation();
-  const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
-  const options = conditions?.map?.((condition) => ({
-    label: (
-      <TranslatedReferenceData
-        fallback={condition.name}
-        value={condition.id}
-        category="condition"
-      />
-    ),
-    value: condition.id,
-    searchString: getTranslation(
-      getReferenceDataStringId(condition.id, 'condition'),
-      condition.name,
-    ),
-  }));
-
-  return (
-    <FieldWithTooltip
-      disabledTooltipText={
-        !conditions
-          ? 'Select a program registry to add related conditions'
-          : 'No conditions have been configured for this program registry'
-      }
-      name="conditionIds"
-      label={
-        <TranslatedText
-          stringId="patientProgramRegistry.relatedConditions.label"
-          fallback="Related conditions"
-        />
-      }
-      placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={BaseSelectField}
-      options={options}
-      disabled={!conditions || conditions.length === 0}
-    />
-  );
-};
-
-const CategoryField = ({ conditionId }) => {
-  const { getTranslation } = useTranslation();
-  const categoryOptions = [
-    'Suspected',
-    'Under investigation',
-    'Confirmed',
-    'Unknown',
-    'Disproven',
-    'Resolved',
-    'In remission',
-    'Not applicable',
-    'Recorded in error',
-  ].map((category) => ({
-    label: category,
-    value: category,
-  }));
-
-  return (
-    <FieldWithTooltip
-      disabledTooltipText={!conditionId ? 'Select a condition to add related categories' : ''}
-      name="categoryId"
-      label={
-        <TranslatedText
-          stringId="patientProgramRegistry.relatedConditions.label"
-          fallback="Category"
-        />
-      }
-      placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={BaseSelectField}
-      options={categoryOptions}
-      disabled={!conditionId}
-    />
-  );
-};
-
-const RelatedConditionFields = ({ programRegistryId, formValues }) => {
-  const conditionId = formValues['conditionIds'];
-  return (
-    <>
-      <ConditionField programRegistryId={programRegistryId} />
-      <CategoryField conditionId={conditionId} />
-      <div style={{ marginBottom: '20px' }} />
-    </>
-  );
-};
+import { RelatedConditionFields } from './RelatedConditionFields';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
@@ -136,7 +45,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       onSubmit={async (data) => {
         return onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
+          conditions: data.conditions ? data.conditions : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -154,7 +63,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
         return (
           <>
-            <FormGrid>
+            <FormGrid style={{ paddingBottom: 30 }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
