@@ -16,15 +16,16 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
   const [isOpen, setIsOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const facilityId = readConfig('facilityId', '');
-  const [patientFacility, , isLoading] = useBackendEffect(({ models: m }) =>
-    m.PatientFacility.findOne({
-      where: { patient: selectedPatient.id, facility: facilityId },
-    }),
+  const [patientFacility, , isLoading] = useBackendEffect(
+    ({ models: m }) =>
+      m.PatientFacility.findOne({
+        where: { patient: { id: selectedPatient.id }, facility: { id: facilityId } },
+      }),
     [refreshCount],
   );
 
   if (isLoading) {
-    return (<StyledView flex={1} />);
+    return <StyledView flex={1} />;
   }
 
   const isMarkedForSync = Boolean(patientFacility);

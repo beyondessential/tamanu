@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
@@ -21,23 +21,19 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @OneToMany(
-    () => RefDataRelation,
-    entity => entity.referenceDataParent,
-  )
+  @OneToMany(() => RefDataRelation, (entity) => entity.referenceDataParent)
   public children: RefDataRelation[];
-  @OneToMany(
-    () => RefDataRelation,
-    entity => entity.referenceData,
-  )
+  @OneToMany(() => RefDataRelation, (entity) => entity.referenceData)
   public parents: RefDataRelation[];
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
     const repo = this.getRepository();
 
     return repo.findOne({
-      type: referenceDataType,
-      visibilityStatus: VisibilityStatus.Current,
+      where: {
+        type: referenceDataType,
+        visibilityStatus: VisibilityStatus.Current,
+      },
     });
   }
 
@@ -70,7 +66,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     const repo = this.getRepository();
 
     let recordWithParents = await repo.findOne({
-      where: qb => {
+      where: (qb) => {
         qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
           .where('parents_type = :relationType', {
             relationType,
@@ -85,7 +81,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       // the other option would be to write the query in raw sql but then it wouldn't be possible
       // to use an object for the where parameter
       recordWithParents = await repo.findOne({
-        where: qb => {
+        where: (qb) => {
           qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
             .where({ visibilityStatus: VisibilityStatus.Current })
             .andWhere(where);
@@ -135,7 +131,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       },
     });
 
-    return results.map(r => ({ label: r.name, value: r.id }));
+    return results.map((r) => ({ label: r.name, value: r.id }));
   }
 }
 

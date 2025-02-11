@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -20,10 +20,7 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
   @IdRelation()
   typeId: string;
 
-  @ManyToOne(
-    () => Patient,
-    patient => patient.secondaryIds,
-  )
+  @ManyToOne(() => Patient, (patient) => patient.secondaryIds)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;

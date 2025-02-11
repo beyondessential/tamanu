@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
@@ -37,10 +37,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @Column({ nullable: true, type: 'text' })
   options?: string;
 
-  @ManyToOne(
-    () => Survey,
-    survey => survey.components,
-  )
+  @ManyToOne(() => Survey, (survey) => survey.components)
   survey: Survey;
 
   @RelationId(({ survey }) => survey)

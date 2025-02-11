@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -18,25 +18,19 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @Column({ nullable: true })
   body?: string;
 
-  @ManyToOne(
-    () => SurveyResponse,
-    surveyResponse => surveyResponse.answers,
-  )
+  @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
   response: SurveyResponse;
 
   @RelationId(({ response }) => response)
   responseId: string;
 
-  @ManyToOne(
-    () => ProgramDataElement,
-    dataElement => dataElement.answers,
-  )
+  @ManyToOne(() => ProgramDataElement, (dataElement) => dataElement.answers)
   dataElement: ProgramDataElement;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  @OneToMany(() => VitalLog, vitalLog => vitalLog.answer)
+  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.answer)
   vitalLogs: VitalLog[];
 
   static async getLatestAnswerForPatient(

@@ -45,7 +45,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const [showModal, setShowModal] = useState(false);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
-    models.Survey.getRepository().findOne(surveyId),
+    models.Survey.getRepository().findOne({ where: { id: surveyId } }),
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
@@ -56,7 +56,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
     ({ models }) =>
       models.PatientAdditionalData.getRepository().findOne({
-        patient: selectedPatient.id,
+        where: {
+          patient: { id: selectedPatient.id },
+        },
       }),
     [selectedPatient.id],
   );
