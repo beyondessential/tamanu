@@ -5,7 +5,6 @@ import { userInfo } from 'node:os';
 import config from 'config';
 import { program } from 'commander';
 
-import type { Umzug } from 'umzug';
 import type { Sequelize } from '@tamanu/database';
 import type { Model } from '@tamanu/database/models/Model';
 
@@ -27,14 +26,6 @@ interface MigrationHashes {
 interface DbHashes extends Omit<MigrationHashes, 'migration'> {
   dbName: string;
   perMigration: MigrationHashes[];
-}
-
-async function* pendingMigrationIter(umzug: Umzug) {
-  while (true) {
-    const next = (await umzug.pending())?.[0]?.file;
-    if (!next) break;
-    yield next;
-  }
 }
 
 async function listTables(sequelize: Sequelize): Promise<string[]> {
@@ -93,7 +84,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
     );
     await sequelize.query('DROP TABLE IF EXISTS determinism_check_table');
 
-    const hash = (rows[0] as any).hash as string|null;
+    const hash = (rows[0] as any).hash as string | null;
     if (hash?.length) hashes.set(table, hash);
   }
 
@@ -120,9 +111,14 @@ function summarise(hashes: TableHashes): string {
 
 async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes> {
   const umzug = createMigrationInterface(() => {}, sequelize);
+  const pending = await umzug.pending();
+
+  if (!pending.length) {
+    throw new Error('no migrations found');
+  }
 
   const perMigration: MigrationHashes[] = [];
-  for await (const migration of pendingMigrationIter(umzug)) {
+  for await (const migration of pending) {
     await umzug.up({ migrations: [migration] });
     const tables = await listTables(sequelize);
     const perTable = await hashTables(sequelize, tables);
@@ -133,8 +129,8 @@ async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbH
   const last = perMigration[perMigration.length - 1];
   return {
     dbName,
-    summary: last!.summary,
-    perTable: last!.perTable,
+    summary: last?.summary!,
+    perTable: last?.perTable!,
     perMigration,
   };
 }
@@ -183,6 +179,7 @@ function printDiff(a: DbHashes, b: DbHashes) {
 
 function runCommand(prog: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
+    console.log('$', prog, ...args);
     execFile(prog, args, (error, stdout) => {
       if (error) {
         reject(error);
@@ -208,10 +205,8 @@ async function listCommitsSince(limitCommitRef: string): Promise<string[]> {
 }
 
 async function listCommitFiles(commitRef: string): Promise<string[]> {
-  const stdout = await gitCommand(['show', '--stat', commitRef]);
-  return (stdout.split(/\s+/) ?? [])
-    .filter((line) => line.includes(' | '))
-    .map((line) => line.split(' | ')[0]!.trim())
+  const stdout = await gitCommand(['diff-tree', '--no-commit-id', '--name-only', '-r', commitRef]);
+  return (stdout.split(/\s+/) ?? []).map((line) => line.trim());
 }
 
 async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
@@ -238,6 +233,14 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     .parse()
     .opts();
 
+  if (dataRounds < 1) {
+    throw new Error('--data-rounds must be at least 1');
+  }
+
+  if (testRounds < 1) {
+    throw new Error('--test-rounds must be at least 1');
+  }
+
   const commits = await listCommitsSince(sinceRef);
   if (commits.length < 2) {
     throw new Error('we need at least two commits to proceed');
@@ -247,12 +250,21 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 
   // find the first migration-touching commit
   let commitBeforeMigration: string | undefined;
+  let firstMigrationCommit: string | undefined;
   for (const commit of commits) {
-    if (await commitTouchesMigrations(commit)) break;
+    if (await commitTouchesMigrations(commit)) {
+      firstMigrationCommit = commit;
+      break;
+    }
     commitBeforeMigration = commit;
   }
 
   if (!commitBeforeMigration) {
+    console.log('Bug (this is to appease typescript)');
+    return;
+  }
+
+  if (!firstMigrationCommit) {
     console.log('There is nothing touching migrations here, so there is nothing to check!');
     return;
   }
@@ -291,7 +303,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
 
-      console.log('Fill database with fake data');
+      console.log('Fill database with fake data', dataRounds, 'rounds');
       await generateFake(sequelize, dataRounds);
 
       await sequelize.close();
