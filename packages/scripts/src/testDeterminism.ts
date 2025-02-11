@@ -100,6 +100,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
     const hash = (rows[0] as any).hash as string | null;
     if (hash?.length) hashes.set(table, hash);
+    else console.log(`⚠️ found empty table ${table}`);
   }
 
   await sequelize.query(`
