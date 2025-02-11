@@ -49,7 +49,7 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      - run: npm run --workspace scripts test-determinism -- --since-ref ${{ github.base_ref }}
+      - run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref }}
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
