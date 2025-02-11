@@ -17,6 +17,7 @@ import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -188,11 +189,8 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the central server
     const pushSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PUSH_KEY)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
-    const outgoingChanges = await snapshotOutgoingChanges(
-      this.sequelize,
-      getModelsForPush(this.models),
-      pushSince,
-    );
+    const modelsForPush = getModelsForPush(this.models);
+    const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
     if (outgoingChanges.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
         totalPushing: outgoingChanges.length,
@@ -201,6 +199,7 @@ export class FacilitySyncManager {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
+      await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
     await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, currentSyncClockTime);

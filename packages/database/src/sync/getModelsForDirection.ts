@@ -2,7 +2,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { SyncSessionDirectionValues } from '../types/sync';
 import type { Model } from 'models/Model';
 
-const getModelsForDirections = (
+export const getModelsForDirections = (
   models: Record<string, typeof Model>,
   directions: Array<SyncSessionDirectionValues>,
 ) => {
