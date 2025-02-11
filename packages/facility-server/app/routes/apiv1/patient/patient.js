@@ -214,6 +214,8 @@ patientRoute.get(
         {
           association: 'encounter',
           include: [{ association: 'location', include: ['facility'] }],
+          where: { isDischarged: true },
+          required: true,
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
