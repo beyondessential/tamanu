@@ -1,4 +1,5 @@
- SELECT
+sql: |
+  SELECT
     id,
     errors::text,
     json_array_elements_text(debug_info->'facilityIds') AS facility_id,
