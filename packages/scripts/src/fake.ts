@@ -6,9 +6,7 @@ import {
   IMAGING_TYPES,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { initDatabase } from '@tamanu/database/services/database';
 import { type Models, type Sequelize } from '@tamanu/database';
-import config from 'config';
 
 async function generateData(models: Models) {
   const {
@@ -391,13 +389,7 @@ async function generateData(models: Models) {
 }
 
 /** Generate fake data to exercise the whole database */
-export async function generateFake(rounds: number = 1) {
-  const dbConfig = (config as any).db;
-  const store = await initDatabase({ testMode: false, ...dbConfig });
-  const sequelize = store.sequelize as Sequelize;
-
-  if (dbConfig.migrateOnStartup) await sequelize.migrate('up');
-
+export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
   // eslint-disable-next-line no-unused-vars
   for (const _ in Array(rounds).fill(0)) {
     await generateData(sequelize.models);
