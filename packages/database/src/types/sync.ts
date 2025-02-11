@@ -3,7 +3,6 @@ import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
 
-
 export interface SessionConfig {
   syncAllLabRequests: boolean;
   isMobile: boolean;
@@ -21,18 +20,32 @@ export interface Store {
 
 export type RecordType = any;
 
+export interface SyncSnapshotData {
+  id: number;
+  [key: string]: any;
+}
+
 export interface SyncSnapshotAttributes {
   id: number;
   direction: string;
   recordType: string;
   recordId: string;
   isDeleted: boolean;
-  data: {
-    id: number;
-  };
+  data: SyncSnapshotData;
   savedAtSyncTick: number;
-  updatedAtByFieldSum: number;
-  syncLookupId: number;
+  updatedAtByFieldSum?: number; // only for merged records
+  syncLookupId?: number; // no syncLookupId if it is an incoming record
+  requiresRepull?: boolean;
 }
+
+export type UninsertedSyncSnapshotAttributes = Omit<
+  SyncSnapshotAttributes,
+  'id' | 'savedAtSyncTick'
+>;
+
+export type SyncHookSnapshotChanges = {
+  inserts: UninsertedSyncSnapshotAttributes[];
+  updates: SyncSnapshotAttributes[];
+};
 
 export type ModelSanitizeArgs<T extends Record<string, any> = { [key: string]: any }> = T;

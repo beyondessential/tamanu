@@ -21,6 +21,7 @@ import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -147,8 +148,9 @@ export const HeadCell = ({ title, count }) => (
   </>
 );
 
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+export const OutpatientBookingCalendar = ({ selectedDate, onOpenDrawer, onCancel }) => {
   const { ability } = useAuth();
+  const { groupBy } = useOutpatientAppointmentsContext();
   const {
     data: { headData = [], cellData },
     isLoading,
@@ -232,29 +234,31 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
             <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => {
-                const actions = canCreateAppointment
-                  ? [
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.newAppointment"
-                            fallback="New appointment"
-                          />
-                        ),
-                        action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="appointments.action.emailAppointment"
-                            fallback="Email appointment"
-                          />
-                        ),
-                        action: () =>
-                          setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                      },
-                    ]
-                  : [];
+                const actions = [];
+                if (canCreateAppointment) {
+                  // Only show the new appointment action if not a repeating appointment
+                  if (!a.schedule) {
+                    actions.push({
+                      label: (
+                        <TranslatedText
+                          stringId="appointments.action.newAppointment"
+                          fallback="New appointment"
+                        />
+                      ),
+                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
+                    });
+                  }
+                  actions.push({
+                    label: (
+                      <TranslatedText
+                        stringId="appointments.action.emailAppointment"
+                        fallback="Email appointment"
+                      />
+                    ),
+                    action: () =>
+                      setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                  });
+                }
                 return (
                   <AppointmentTile
                     key={a.id}

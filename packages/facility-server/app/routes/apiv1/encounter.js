@@ -13,6 +13,7 @@ import {
   CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -536,6 +537,34 @@ encounterRelations.get(
     res.send({
       count: data.length,
       data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/initialChart$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Survey');
+    const { models, params } = req;
+    const { id: encounterId } = params;
+    const chartSurvey = await models.SurveyResponse.findOne({
+      attributes: ['survey.*'],
+      where: { encounterId },
+      include: [
+        {
+          attributes: ['id', 'name'],
+          required: true,
+          model: models.Survey,
+          as: 'survey',
+          where: { surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] },
+        },
+      ],
+      order: [['survey', 'name', 'ASC']],
+      group: [['survey.id']],
+    });
+
+    res.send({
+      data: chartSurvey,
     });
   }),
 );
