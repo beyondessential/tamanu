@@ -31,17 +31,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   const fhirResources = {
     fhirPractitioner: null,
     fhirEncounter: null,
+    fhirOrganization: null,
   };
 
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
-    const { FhirPractitioner } = ctx.store.models;
+    const { FhirPractitioner, FhirOrganization } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
+    const fhirOrganization = await FhirOrganization.materialiseFromUpstream(resources.facility.id);
+    fhirResources.fhirOrganization = fhirOrganization;
   });
   afterAll(() => ctx.close());
 
@@ -957,13 +960,22 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           await LabRequest.destroy({ where: {} });
         });
 
-        it('correctly includes a ServiceRequest', async () => {
+        it('correctly includes a Specimen', async () => {
           const { models } = ctx.store;
-          const { FhirSpecimen, FhirServiceRequest } = models;
+          const {
+            FhirSpecimen,
+            FhirEncounter,
+            FhirPatient,
+            FhirPractitioner,
+            FhirServiceRequest,
+          } = models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
           const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
             labRequest.id,
           );
+          await FhirEncounter.materialiseFromUpstream(labRequest.encounterId);
+          await FhirPatient.materialiseFromUpstream(resources.patient.id);
+          await FhirPractitioner.materialiseFromUpstream(labRequest.requestedById);
           const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
 
           await FhirServiceRequest.resolveUpstreams();
@@ -984,7 +996,14 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         it('correctly maps LabRequest statuses to ServiceRequest statuses', async () => {
           const { models } = ctx.store;
-          const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+          const {
+            FhirSpecimen,
+            FhirEncounter,
+            FhirPractitioner,
+            FhirPatient,
+            FhirServiceRequest,
+            LabRequest,
+          } = models;
 
           for (const status of Object.values(LAB_REQUEST_STATUSES)) {
             let expectedServiceRequestStatus;
@@ -1022,6 +1041,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
             const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources, { status });
             await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+            await FhirEncounter.materialiseFromUpstream(labRequest.encounterId);
+            await FhirPatient.materialiseFromUpstream(resources.patient.id);
+            await FhirPractitioner.materialiseFromUpstream(labRequest.requestedById);
+            await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+
+            await FhirServiceRequest.resolveUpstreams();
+            await FhirSpecimen.resolveUpstreams();
 
             const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`;
             const response = await app.get(path);

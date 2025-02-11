@@ -23,7 +23,7 @@ export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
 
   if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
@@ -42,6 +42,14 @@ async function getValuesFromImagingRequest(upstream, models) {
       { code: ext.code, description: ext.description, updatedAt: ext.updatedAt },
     ]),
   );
+
+  const subject = await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
+    display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
+  });
+  const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id, {
+    display: upstream.requestedBy.displayName,
+  });
 
   return {
     lastUpdated: new Date(),
@@ -84,26 +92,26 @@ async function getValuesFromImagingRequest(upstream, models) {
           ]
         : [],
     ),
-    subject: new FhirReference({
-      type: 'upstream://patient',
-      reference: upstream.encounter.patient.id,
-      display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
-    }),
-    encounter: new FhirReference({
-      type: 'upstream://encounter',
-      reference: upstream.encounter.id,
-    }),
+    subject,
+    encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: new FhirReference({
-      type: 'upstream://practitioner',
-      reference: upstream.requestedBy.id,
-    }),
+    requester,
     locationCode: locationCode(upstream),
     note: imagingAnnotations(upstream),
+    resolved: subject.isResolved() && encounter.isResolved() && requester.isResolved(),
   };
 }
 
-async function getValuesFromLabRequest(upstream) {
+async function getValuesFromLabRequest(upstream, models) {
+  const subject = await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
+    display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
+  });
+  const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id, {
+    display: upstream.requestedBy.displayName,
+  });
+  const specimen = await resolveSpecimen(upstream, models);
+
   return {
     lastUpdated: new Date(),
     identifier: [
@@ -131,33 +139,25 @@ async function getValuesFromLabRequest(upstream) {
     priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
     orderDetail: await labOrderDetails(upstream),
-    subject: new FhirReference({
-      type: 'upstream://patient',
-      reference: upstream.encounter.patient.id,
-      display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
-    }),
-    encounter: new FhirReference({
-      type: 'upstream://encounter',
-      reference: upstream.encounter.id,
-    }),
+    subject,
+    encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: new FhirReference({
-      type: 'upstream://practitioner',
-      reference: upstream.requestedBy.id,
-    }),
+    requester,
     note: labAnnotations(upstream),
-    specimen: resolveSpecimen(upstream),
+    specimen: specimen ? [specimen] : null,
+    resolved:
+      subject.isResolved() &&
+      encounter.isResolved() &&
+      requester.isResolved() &&
+      (specimen ? specimen.isResolved() : true),
   };
 }
 
-function resolveSpecimen(upstream) {
+async function resolveSpecimen(upstream, models) {
   if (!upstream.specimenAttached) {
     return null;
   }
-  return new FhirReference({
-    type: 'upstream://specimen',
-    reference: upstream.id,
-  });
+  return FhirReference.to(models.FhirSpecimen, upstream.id);
 }
 
 function imagingCode(upstream) {
