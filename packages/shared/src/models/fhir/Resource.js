@@ -45,11 +45,6 @@ export class FhirResource extends Model {
             return this.lastUpdated;
           },
         },
-        resolved: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
         ...attributes,
       },
       {
@@ -157,15 +152,7 @@ export class FhirResource extends Model {
   }
 
   static async resolveUpstreams() {
-    const unresolvedResources = await this.findAll({
-      where: {
-        resolved: false,
-      },
-    });
-
-    for (const unresolvedResource of unresolvedResources) {
-      await this.materialiseFromUpstream(unresolvedResource.upstreamId);
-    }
+    await this.sequelize.query('CALL fhir.resolve_upstreams()');
   }
 
   // take a FhirResource and save it into Tamanu
@@ -206,7 +193,7 @@ export class FhirResource extends Model {
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'resolved'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
       fields[name] = this.get(name);
     }
 

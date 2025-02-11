@@ -25,49 +25,41 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       await Patient.destroy({ where: {} });
       await PatientAdditionalData.destroy({ where: {} });
 
-      const patientA = await Patient.create(
+      const primaryA = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
       );
 
-      const patientB = await Patient.create(
+      const mergedB = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: primaryA.id,
         }),
       );
 
-      const patientC = await Patient.create(
+      const mergedC = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: mergedB.id,
         }),
       );
 
-      const patientD = await Patient.create(
+      const mergedD = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: mergedB.id,
         }),
       );
 
       const [a, b, c, d] = (
         await Promise.all(
-          [patientA, patientB, patientC, patientD].map(({ id }) =>
+          [primaryA, mergedB, mergedC, mergedD].map(({ id }) =>
             FhirPatient.materialiseFromUpstream(id),
           ),
         )
       ).map(row => row.id);
 
-      await FhirPatient.resolveUpstreams();
-
-      await patientB.update({ mergedIntoId: patientA.id });
-      await patientC.update({ mergedIntoId: patientB.id });
-      await patientD.update({ mergedIntoId: patientB.id });
-
-      await Promise.all(
-        [patientA, patientB, patientC, patientD].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
-        ),
-      );
       await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };

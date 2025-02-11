@@ -11,50 +11,44 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream, models) {
-  const collector = await collectorRef(upstream, models);
-  const request = await requestRef(upstream, models);
   return {
     lastUpdated: new Date(),
     collection: createCollection(
       formatFhirDate(upstream.sampleTime),
-      collector,
-      await resolveBodySite(upstream, models),
+      collectorRef(upstream),
+      await resolveBodySite(upstream, models)
     ),
     type: await resolveSpecimenType(upstream, models),
-    request: [request],
-    resolved: request.isResolved() && (collector ? collector.isResolved() : true),
+    request: [requestRef(upstream)],
   };
 }
 
 function createCollection(collectedDateTime, collector, bodySite) {
-  return collectedDateTime === null && collector === null && bodySite === null
-    ? null
+  return (
+    collectedDateTime === null &&
+    collector === null &&
+    bodySite === null
+  ) ?
+    null
     : {
-        collectedDateTime,
-        collector,
-        bodySite,
-      };
+      collectedDateTime,
+      collector,
+      bodySite
+    };
 }
 
-async function requestRef(labRequest, models) {
-  const serviceRequest = await models.FhirServiceRequest.findOne({
-    where: { upstreamId: labRequest.id },
+function requestRef(labRequest) {
+  return new FhirReference({
+    type: 'upstream://service_request',
+    reference: labRequest.id,
   });
-
-  // We mark specimens as resolved if their request is materialised, since there is a circular dependency between FhirSpecimen and FhirServiceRequest
-  // If we didn't do this then neither resource would ever be marked as resolved
-  if (serviceRequest) {
-    return FhirReference.resolved(models.FhirServiceRequest, serviceRequest.id);
-  }
-
-  return FhirReference.unresolved(models.FhirServiceRequest, labRequest.id);
 }
 
-async function collectorRef(labRequest, models) {
+function collectorRef(labRequest) {
   if (!labRequest.collectedById) return null;
-  const collectedByUser = await models.User.findOne({ where: { id: labRequest.collectedById } });
-  return FhirReference.to(models.FhirPractitioner, labRequest.collectedById, {
-    display: collectedByUser.displayName,
+  return new FhirReference({
+    type: 'upstream://practitioner',
+    reference: labRequest.collectedById,
   });
 }
 
@@ -65,7 +59,7 @@ async function resolveBodySite(upstream, models) {
   const bodySite = await ReferenceData.findOne({
     where: {
       id: labSampleSiteId,
-    },
+    }
   });
   if (!bodySite) return null;
   return new FhirCodeableConcept({
@@ -86,7 +80,7 @@ async function resolveSpecimenType(upstream, models) {
   const specimenType = await ReferenceData.findOne({
     where: {
       id: specimenTypeId,
-    },
+    }
   });
   if (!specimenType) return null;
   return new FhirCodeableConcept({

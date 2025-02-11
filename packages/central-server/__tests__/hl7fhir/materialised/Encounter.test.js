@@ -49,7 +49,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
       ),
       FhirPatient.materialiseFromUpstream(patient.id),
-      FhirOrganization.materialiseFromUpstream(facility.id),
+      FhirOrganization.materialiseFromUpstream(facility.id)
     ]);
 
     const department = await Department.create(
@@ -68,7 +68,7 @@ describe(`Materialised FHIR - Encounter`, () => {
   });
   afterAll(() => ctx.close());
 
-  async function makeEncounter(overrides = {}, beforeMaterialising = () => {}) {
+  async function makeEncounter(overrides = {}, beforeMaterialising = () => { }) {
     const { Encounter, FhirEncounter } = ctx.store.models;
 
     const startDate = new Date(chance.integer({ min: 0, max: Date.now() }));
@@ -97,7 +97,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     return [encounter, mat];
   }
 
-  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => {}) {
+  function makeDischargedEncounter(overrides = {}, beforeMaterialising = () => { }) {
     return makeEncounter(overrides, async (encounter, endDate) => {
       const { Discharge } = ctx.store.models;
       encounter.set('endDate', endDate);
@@ -332,14 +332,14 @@ describe(`Materialised FHIR - Encounter`, () => {
         const { Department, FhirOrganization } = ctx.store.models;
         const department = await Department.findOne({
           where: {
-            id: resources.department.id,
-          },
+            id: resources.department.id
+          }
         });
         const facilityId = department.facilityId;
         const organization = await FhirOrganization.findOne({
           where: {
-            upstreamId: facilityId,
-          },
+            upstreamId: facilityId
+          }
         });
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_include=Organization:serviceProvider`,
@@ -347,9 +347,7 @@ describe(`Materialised FHIR - Encounter`, () => {
 
         expect(response.body.total).toBe(12);
         expect(response.body.entry.length).toBe(13);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
-          12,
-        );
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(12);
         response.body.entry
           .filter(({ search: { mode } }) => mode === 'include')
           .forEach(entry => {
@@ -382,19 +380,14 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(6);
-        expect(response.body.entry.map(ent => ent.resource.id).sort()).toStrictEqual(
-          encounters
-            .slice(6)
-            .map(([, mat]) => mat.id)
-            .sort(),
+        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
+          encounters.slice(6).map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
       });
 
       it('by class', async () => {
-        const response = await app.get(
-          `/api/integration/${INTEGRATION_ROUTE}/Encounter?class=|IMP`,
-        );
+        const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/Encounter?class=|IMP`);
 
         expect(response.body.total).toBe(6);
         expect(response.body.entry).toHaveLength(6);
