@@ -79,7 +79,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       };
       await writeAndViewEncounter(encounter.id, data);
       await dispatch(reloadPatient(patient.id));
-      if (data.discharge.isDischarged) {
+      if (data.isDischarged) {
         navigateToPatient(patient.id);
       }
       onClose();

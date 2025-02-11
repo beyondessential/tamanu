@@ -41,6 +41,7 @@ export class Encounter extends Model {
   declare location?: Location;
   declare patient?: Patient;
   declare discharge?: Discharge;
+  declare isDischarged: boolean;
 
   static initModel(
     { primaryKey, hackToSkipEncounterValidation, ...options }: InitOptions,
@@ -87,6 +88,12 @@ export class Encounter extends Model {
         reasonForEncounter: DataTypes.TEXT,
         deviceId: DataTypes.TEXT,
         plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
+        isDischarged: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        
       },
       {
         ...options,
@@ -144,9 +151,7 @@ export class Encounter extends Model {
             });
           },
           afterUpdate: async (encounter: Encounter, opts) => {
-            const discharge = await models.Discharge.findOne({ where: { encounterId: encounter.id } });
-            const isEncounterDischarged = discharge && discharge.isDischarged;
-            if (isEncounterDischarged) {
+            if (encounter.isDischarged && !encounter.previous('isDischarged')) {
               await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
             }
           },

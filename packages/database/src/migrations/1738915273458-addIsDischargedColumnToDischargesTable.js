@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  await query.addColumn('discharges', 'is_discharged', {
+  await query.addColumn('encounters', 'is_discharged', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
@@ -9,5 +9,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('discharges', 'is_discharged');
+  await query.removeColumn('encounters', 'is_discharged');
 }

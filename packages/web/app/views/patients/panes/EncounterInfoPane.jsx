@@ -166,7 +166,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
         value={
           <>
             <DateDisplay date={encounter.startDate} />
-            {encounter?.discharge?.isDischarged && (
+            {encounter?.isDischarged && (
               <>
                 <CardLabel>
                   {' – '}

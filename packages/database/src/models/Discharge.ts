@@ -37,11 +37,6 @@ export class Discharge extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        isDischarged: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: true,
-        },
       },
       {
         ...options,

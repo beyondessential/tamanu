@@ -164,13 +164,9 @@ patientRoute.get(
     const currentEncounter = await Encounter.findOne({
       where: {
         patientId: params.id,
-        [Op.or]: [
-          { '$discharge.id$': null },
-          { '$discharge.is_discharged$': false },
-        ],
+        isDischarged: false,
       },
       include: Encounter.getFullReferenceAssociations(),
-      subQuery: false,
     });
 
     // explicitly send as json (as it might be null)

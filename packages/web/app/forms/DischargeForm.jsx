@@ -74,7 +74,6 @@ const dischargingClinicianLabel = (
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
-  const isDischarged = encounter?.discharge?.isDischarged;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
@@ -101,7 +100,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: encounter?.discharge?.dischargerId,
       dispositionId: encounter?.discharge?.dispositionId,
-      note: isDischarged
+      note: encounter?.isDischarged
         ? dischargeNotes.map(n => n.content).join('\n\n')
         : encounter?.discharge?.note,
     },
@@ -121,9 +120,9 @@ const getMedicationsInitialValues = (medications, encounter) => {
   medications.forEach(medication => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      isDischarge: encounter.discharge ? medication.isDischarge : true,
+      isDischarge: encounter.discharge ? medication.isDischarge : false,
       quantity: medication.quantity || 0,
-      repeats: medication.repeats.toString() || '0',
+      repeats: medication.repeats?.toString() || '0',
     };
   });
   return medicationsInitialValues;
@@ -444,9 +443,9 @@ export const DischargeForm = ({
     async ({ isDischarged = true, ...data }) => {
       await onSubmit({
         ...data,
+        isDischarged,
         discharge: {
           ...data.discharge,
-          isDischarged,
         },
       });
     },
