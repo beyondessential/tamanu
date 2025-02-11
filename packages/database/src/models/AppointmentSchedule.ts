@@ -345,12 +345,7 @@ export class AppointmentSchedule extends Model {
     if (isFullyGenerated) {
       await this.update({
         isFullyGenerated,
-        // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
-        // and clear the occurrenceCount
-        ...(this.occurrenceCount && {
-          generatedUntilDate: appointments.at(-1)!.startTime,
-          occurrenceCount: null,
-        }),
+        generatedUntilDate: appointments.at(-1)!.startTime,
       });
     }
     return appointments;
