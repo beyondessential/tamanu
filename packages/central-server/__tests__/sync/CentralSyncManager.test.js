@@ -1426,7 +1426,7 @@ describe('CentralSyncManager', () => {
   describe('resolves out of bounds appointments in cancelled schedule', () => {
     it('deletes out of bound appointments generated on central when syncing a schedule that has been cancelled', async () => {
       // Set up data pre sync
-      const CURRENT_SYNC_TICK = '10';
+      const CURRENT_SYNC_TICK = '15';
       await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
       settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
