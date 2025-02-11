@@ -6,7 +6,6 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { checkConfig } from '../checkConfig';
-import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { startScheduledTasks } from '../tasks';
@@ -31,7 +30,6 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
-  await initDeviceId(context);
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 

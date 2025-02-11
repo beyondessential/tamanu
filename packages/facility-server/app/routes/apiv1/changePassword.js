@@ -12,9 +12,9 @@ changePassword.post(
     // no permission needed
     req.flagPermissionChecked();
 
-    const { models, deviceId } = req;
+    const { models } = req;
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection(req);
     const response = await centralServer.forwardRequest(req, 'changePassword');
 
     // If central server successful, update password on facility server too
@@ -29,9 +29,7 @@ changePassword.post(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
 
-    const { deviceId } = req;
-
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection(req);
     const response = await centralServer.forwardRequest(req, 'changePassword/validate-reset-code');
 
     res.send(response);

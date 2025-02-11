@@ -7,10 +7,19 @@ import { ForbiddenError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from './CentralSyncManager';
+import { constructChallenge, verifyChallenge } from './deviceChallenge';
 
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
+
+  syncRoutes.get(
+    '/challenge',
+    asyncHandler(async (req, res) => {
+      const challenge = await constructChallenge(req);
+      res.json({ challenge });
+    }),
+  );
 
   // create new sync session or join/update the queue for one
   syncRoutes.post(
@@ -19,7 +28,7 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        body: { facilityIds, deviceId },
+        body: { facilityIds, deviceId, challenge },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
@@ -31,12 +40,14 @@ export const buildSyncRoutes = ctx => {
         throw new ForbiddenError('User does not have access to facility');
       }
 
+      const { device, sessionId } = await verifyChallenge(challenge, deviceId, req);
+
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
         where: {
           completedAt: { [Op.is]: null },
           debugInfo: {
-            deviceId,
+            deviceId: device.id,
           },
         },
       });
@@ -92,12 +103,12 @@ export const buildSyncRoutes = ctx => {
       // lastSyncedTick)
       queueRecord.destroy();
 
-      const { sessionId, tick } = await syncManager.startSession({
+      await syncManager.startSession(sessionId, {
         userId: user.id,
         deviceId,
         facilityIds,
       });
-      res.json({ sessionId, tick });
+      res.json({ sessionId });
     }),
   );
 

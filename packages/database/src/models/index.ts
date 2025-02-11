@@ -128,4 +128,4 @@ export * from './TaskTemplateDesignation';
 export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
-export * from './SyncDeviceTick';
+export * from './SyncDevice';
