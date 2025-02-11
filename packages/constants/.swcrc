@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json.schemastore.org/swcrc",
+  "$schema": "https://swc.rs/schema.json",
   "exclude": "node_modules/",
   "module": {
-    "type": "es6"
+    "type": "commonjs"
   },
   "jsc": {
     "parser": {
@@ -10,7 +10,7 @@
       "tsx": true,
       "dts": true
     },
-    "target": "esnext",
+    "target": "es2022",
     "keepClassNames": true
   }
 }
