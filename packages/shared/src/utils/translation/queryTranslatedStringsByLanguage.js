@@ -1,11 +1,18 @@
 import { QueryTypes } from 'sequelize';
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+
+const EXCLUDE_REFERENCE_DATA_CLAUSE = `WHERE string_id NOT LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.%'`;
 
 /**
  * Queries translated_string table and returns all translated strings grouped by stringId with a column
  * for each language code.
  * @example [{ stringId: 'login.email', en: 'Email', km: 'អ៊ីមែល' }]
  */
-export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) => {
+export const queryTranslatedStringsByLanguage = async ({
+  sequelize,
+  models,
+  includeReferenceData = true,
+}) => {
   const { TranslatedString } = models;
   const languagesInDb = await TranslatedString.findAll({
     attributes: ['language'],
@@ -25,6 +32,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
             .join(',')}
       FROM
           translated_strings
+      ${includeReferenceData ? '' : EXCLUDE_REFERENCE_DATA_CLAUSE}
       GROUP BY
           string_id
       ORDER BY

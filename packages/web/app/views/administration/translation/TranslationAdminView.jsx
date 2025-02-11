@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { TranslationForm } from './TranslationForm';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
 import { useTranslation } from '../../../contexts/Translation';
 import { Button, FormSubmitButton, OutlinedButton } from '../../../components/Button';
 import { Modal, ModalButtonActionRow } from '../../../components';
-import styled from 'styled-components';
+import { Field } from '../../../components/Field';
+import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
@@ -24,6 +26,10 @@ const ButtonActionContainer = styled.div`
 
 const StyledConfirmButton = styled(Button)`
   margin-left: 16px;
+`;
+
+const ExportButtonRow = styled.div`
+  display: flex;
 `;
 
 const PreSubmitModal = ({ open, onClose, onConfirm }) => {
@@ -94,6 +100,24 @@ const ImportButton = ({ onSubmit, ...props }) => {
   );
 };
 
+const ExportButton = props => {
+  return (
+    <ExportButtonRow>
+      <FormSubmitButton {...props} />
+      <Field
+        name="includeReferenceData"
+        label={
+          <TranslatedText
+            stringId="admin.translation.includeReferenceData"
+            fallback="Include reference data"
+          />
+        }
+        component={ReferenceDataSwitchField}
+      />
+    </ExportButtonRow>
+  );
+};
+
 export const TranslationAdminView = () => {
   const { getTranslation } = useTranslation();
 
@@ -112,6 +136,7 @@ export const TranslationAdminView = () => {
       buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
       defaultTab="edit"
       ImportButton={ImportButton}
+      ExportButton={ExportButton}
     />
   );
 };
