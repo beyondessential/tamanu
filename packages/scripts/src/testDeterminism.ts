@@ -78,7 +78,8 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
         atttypid = 'json'::regtype::oid AND
         reltype != 0
       `,
-    { type: QueryTypes.SELECT });
+      { type: QueryTypes.SELECT },
+    );
     for (const { col } of jsonColumns as any[]) {
       await sequelize.query(`ALTER TABLE determinism_check_table ALTER COLUMN "${col}" TYPE jsonb`);
     }
@@ -182,7 +183,7 @@ function printDiff(a: DbHashes, b: DbHashes) {
 
   for (const [i, migrationB] of b.perMigration.entries()) {
     const migrationA = a.perMigration[i]!;
-    console.log(`--- ${migrationA.migration} ---`);
+    console.log(`--- ${migrationB.migration} ---`);
     console.log(`${migrationA.summary} -> ${migrationB.summary}`);
     if (migrationA.summary !== migrationB.summary) {
       printStepDiff(migrationA.perTable, migrationB.perTable);
@@ -357,18 +358,20 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       if (previousHashes && hashes.summary !== previousHashes.summary) {
         console.log('!!! Found non-determinism !!!');
         printDiff(previousHashes, hashes);
-        throw new Error(
-          'failed determinism check. ' +
-            'See this slab page for potential solutions:' +
+        console.log(
+          '❌ See this slab page for potential solutions:' +
             'https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf',
         );
+        throw new Error('failed determinism check');
       }
 
       previousHashes = hashes;
     }
   } finally {
+    console.log();
     console.log('Resetting repo to', currentBranch);
     await gitCommand(['switch', currentBranch]);
+    console.log();
   }
 
   console.log('🎉 Determinism check passed!');
