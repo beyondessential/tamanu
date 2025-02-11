@@ -30,9 +30,7 @@ export function generateWhereClause(query, parameters, FhirResource) {
       andWhere.push({ [Op.or]: alternates });
     }
   }
-
-  // Filter to ensure all returned resources have been fully resolved
-  return { resolved: true, [Op.and]: andWhere };
+  return { [Op.and]: andWhere };
 }
 
 const INVERSE_OPS = new Map([
