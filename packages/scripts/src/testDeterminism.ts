@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { userInfo } from 'node:os';
 
 import config from 'config';
 import { program } from 'commander';
@@ -267,6 +268,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   // run all the migrations, hash the tables (2), and finally compare 1 & 2
 
   const dbConfig = (name: string) => ({
+    user: userInfo().username,
     ...(config as any).db,
     testMode: true,
     name: `determinism-test-${name}`,
