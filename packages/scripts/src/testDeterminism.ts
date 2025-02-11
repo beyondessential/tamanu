@@ -1,17 +1,18 @@
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+
 import config from 'config';
 import { program } from 'commander';
-import Umzug from 'umzug';
+import { type Umzug } from 'umzug';
 
 import { createMigrationInterface } from '@tamanu/database/services/migrations';
-import { Sequelize as TamanuSequelize } from '@tamanu/database';
+import { type Sequelize as TamanuSequelize } from '@tamanu/database';
 import { initDatabase } from '@tamanu/database/services/database';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { Model } from '@tamanu/database/models/Model';
 import { generateFake } from './fake';
-import { createHash } from 'node:crypto';
 
 type TableHashes = Map<string, string>;
 
@@ -78,7 +79,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
       }
     }
 
-    const rows = sequelize.query(
+    const rows = await sequelize.query(
       `
         SELECT determinism_hash_agg() AS hash
         WITHIN GROUP (ORDER BY determinism_check_table)
@@ -90,7 +91,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
     );
     await sequelize.query('DROP TABLE IF EXISTS determinism_check_table');
 
-    const hash = (rows?.[0] as any).hash as string|null;
+    const hash = (rows[0] as any).hash as string|null;
     if (hash?.length) hashes.set(table, hash);
   }
 
@@ -168,7 +169,7 @@ function printDiff(a: DbHashes, b: DbHashes) {
   }
 
   for (const [i, migrationB] of b.perMigration.entries()) {
-    const migrationA = a.perMigration[i];
+    const migrationA = a.perMigration[i]!;
     console.log(`--- ${migrationA.migration} ---`);
     console.log(`${migrationA.summary} -> ${migrationB.summary}`);
     if (migrationA.summary !== migrationB.summary) {
@@ -206,7 +207,7 @@ async function listCommitFiles(commitRef: string): Promise<string[]> {
   const stdout = await gitCommand(['show', '--stat', commitRef]);
   return (stdout.split(/\s+/) ?? [])
     .filter((line) => line.includes(' | '))
-    .map((line) => line.split(' | ')[0].trim());
+    .map((line) => line.split(' | ')[0]!.trim())
 }
 
 async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
@@ -238,7 +239,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     throw new Error('we need at least two commits to proceed');
   }
 
-  const HEAD = commits[0];
+  const HEAD = commits[0]!;
 
   // find the first migration-touching commit
   let commitBeforeMigration: string | undefined;
