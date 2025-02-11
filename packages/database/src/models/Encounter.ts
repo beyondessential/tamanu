@@ -144,7 +144,9 @@ export class Encounter extends Model {
             });
           },
           afterUpdate: async (encounter: Encounter, opts) => {
-            if (encounter.endDate && !encounter.previous('endDate')) {
+            const discharge = await models.Discharge.findOne({ where: { encounterId: encounter.id } });
+            const isEncounterDischarged = discharge && discharge.isDischarged;
+            if (isEncounterDischarged) {
               await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
             }
           },

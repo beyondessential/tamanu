@@ -79,7 +79,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (isDischarged) {
+    if (!encounter?.endDate) {
       if (isFuture(encounterStartDate)) {
         // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         return toDateTimeString(
@@ -92,9 +92,8 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
       } else {
         return getCurrentDateTimeString();
       }
-    } else {
-      return encounter?.endDate;
-    }
+    } 
+    return encounter?.endDate;
   };
 
   return {
