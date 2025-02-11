@@ -1,22 +1,21 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "./src",
     "declaration": true,
     "declarationMap": true,
     "incremental": true,
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "./dist",
     "removeComments": false,
     "resolveJsonModule": true,
+    "rootDir": "./src",
     "strict": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "verbatimModuleSyntax": true,
-    "lib": ["es2022"]
+    "verbatimModuleSyntax": false
   },
   "extends": "../../common.tsconfig.json",
-  "include": ["src/**/*.ts", "__test__/**/*.test.ts"],
-  "exclude": ["**/*.test.ts"]
+  "include": ["src/**/*.ts", "src/**/*.js"]
 }

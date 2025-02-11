@@ -2,16 +2,13 @@
   "name": "scripts",
   "version": "2.26.0",
   "license": "GPL-3.0-or-later",
-  "type": "module",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:types",
-    "build:esm": "swc --out-dir dist --copy-files --source-maps true src",
-    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist",
+    "build": "swc --out-dir dist --copy-files --source-maps true src",
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
-    "test": "npm run build:esm && tape 'tests/**/*.test.*js'",
+    "test": "npm run build && tape 'tests/**/*.test.*js'",
     "download-translations": "npm run build && node dist/downloadTranslations.js ../web/resources/strings",
-    "test-determinism": "npm run build && node dist/testDeterminism.js"
+    "test-determinism": "npm run build && NODE_CONFIG_DIR=../facility-server/config node dist/testDeterminism.js"
   },
   "dependencies": {
     "@tamanu/database": "*",
@@ -20,7 +17,6 @@
     "google-spreadsheet": "^2.0.7",
     "inflection": "^1.13.4",
     "lodash": "^4.17.5",
-    "object-hash": "^3.0.0",
     "pg": "^8.5.1",
     "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",
