@@ -68,6 +68,21 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
       }
     }
 
+    // json columns aren't orderable, but jsonb are
+    const jsonColumns = await sequelize.query(
+      `
+      SELECT pg_attribute.attname AS col
+      FROM pg_attribute JOIN pg_class ON attrelid = pg_class.oid
+      WHERE
+        pg_class.relname = 'determinism_check_table' AND
+        atttypid = 'json'::regtype::oid AND
+        reltype != 0
+      `,
+    { type: QueryTypes.SELECT });
+    for (const { col } of jsonColumns as any[]) {
+      await sequelize.query(`ALTER TABLE determinism_check_table ALTER COLUMN "${col}" TYPE jsonb`);
+    }
+
     const rows = await sequelize.query(
       `
         SELECT determinism_hash_agg()
@@ -107,12 +122,13 @@ function summarise(hashes: TableHashes): string {
   return hash.digest().toString('base64');
 }
 
-async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes> {
+async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes | false> {
   const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
 
   if (!pending.length) {
-    throw new Error('no migrations found');
+    console.log('❎ Found some migration commits, but no actual migrations in the end state.');
+    return false;
   }
 
   const perMigration: MigrationHashes[] = [];
@@ -315,6 +331,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     await gitCommand(['switch', '--detach', HEAD]);
     await runCommand('npm', ['run', '--workspace', '@tamanu/database', 'build']);
 
+    console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;
     for (const [n] of Array(testRounds + 1)
       .fill(0)
@@ -331,6 +348,8 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const sequelize = db.sequelize as Sequelize;
       const hashes = await migrateAndHash(copyDb.name, sequelize);
       await sequelize.close();
+
+      if (hashes === false) break; // no migrations
 
       console.log('Post-migrations overall hash:', hashes.summary);
       if (previousHashes && hashes.summary !== previousHashes.summary) {
@@ -349,4 +368,6 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     console.log('Resetting repo to', currentBranch);
     await gitCommand(['switch', currentBranch]);
   }
+
+  console.log('🎉 Determinism check passed!');
 })();
