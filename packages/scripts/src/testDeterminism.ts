@@ -242,22 +242,24 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     throw new Error('must be on a branch! abort');
   }
 
-  const { dataRounds, sinceRef, testRounds } = program
+  const opts = program
     .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
     .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
     .option('--data-rounds <number>', 'How much data to fill database with', '10')
     .parse()
     .opts();
 
+  const dataRounds = parseInt(opts.dataRounds, 10);
   if (dataRounds < 1) {
     throw new Error('--data-rounds must be at least 1');
   }
 
+  const testRounds = parseInt(opts.testRounds, 10);
   if (testRounds < 1) {
     throw new Error('--test-rounds must be at least 1');
   }
 
-  const commits = await listCommitsSince(sinceRef);
+  const commits = await listCommitsSince(opts.sinceRef);
   if (commits.length < 2) {
     throw new Error('we need at least two commits to proceed');
   }
