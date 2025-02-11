@@ -1,4 +1,4 @@
-import { Column, Generated, PrimaryColumn } from 'typeorm/browser';
+import { Column, Generated, PrimaryColumn } from 'typeorm';
 import { BaseModelWithoutId } from './BaseModelWithoutId';
 
 export type ModelPojo = {

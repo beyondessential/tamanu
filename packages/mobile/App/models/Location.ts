@@ -1,5 +1,5 @@
 import { Column, OneToMany, RelationId } from 'typeorm';
-import { Entity, ManyToOne } from 'typeorm/browser';
+import { Entity, ManyToOne } from 'typeorm';
 import { ILocation } from '../types';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
@@ -28,16 +28,10 @@ export class Location extends BaseModel implements ILocation {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(
-    () => Encounter,
-    ({ location }) => location,
-  )
+  @OneToMany(() => Encounter, ({ location }) => location)
   encounters: Location[];
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    administeredVaccine => administeredVaccine.location,
-  )
+  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.location)
   administeredVaccines: AdministeredVaccine[];
 
   @ManyToOne(() => LocationGroup)

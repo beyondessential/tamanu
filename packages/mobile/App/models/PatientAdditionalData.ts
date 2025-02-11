@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryColumn,
   RelationId,
-} from 'typeorm/browser';
+} from 'typeorm';
 import { isEmpty, snakeCase } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';

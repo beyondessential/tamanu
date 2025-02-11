@@ -1,5 +1,5 @@
 import { keyBy } from 'lodash';
-import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm/browser';
+import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 import { BaseModel } from '~/models/BaseModel';
 import { TranslatedString } from '~/models/TranslatedString';
 

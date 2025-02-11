@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, Like } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
