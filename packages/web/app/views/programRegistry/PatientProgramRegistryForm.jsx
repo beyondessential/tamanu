@@ -22,6 +22,41 @@ import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { RelatedConditionFields } from './RelatedConditionFields';
 
+const validationSchema = yup.object().shape({
+  conditions: yup.array().of(
+    yup.object().shape({
+      conditionId: yup.string().nullable(),
+      category: yup
+        .string()
+        .nullable()
+        .when('conditionId', {
+          is: (value) => Boolean(value),
+          then: yup.string().required('Category is required when a Related condition is set'),
+        }),
+    }),
+  ),
+  programRegistryId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.programRegistry.label"
+      fallback="Program registry"
+    />,
+  ),
+  clinicalStatusId: optionalForeignKey().nullable(),
+  date: yup.date(),
+  clinicianId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.registeredBy.label"
+      fallback="Registered by"
+    />,
+  ),
+  registeringFacilityId: foreignKey().translatedLabel(
+    <TranslatedText
+      stringId="patientProgramRegistry.registeringFacility.label"
+      fallback="Registering facility"
+    />,
+  ),
+});
+
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
@@ -161,28 +196,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ...editedObject,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-      validationSchema={yup.object().shape({
-        programRegistryId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
-            fallback="Program registry"
-          />,
-        ),
-        clinicalStatusId: optionalForeignKey().nullable(),
-        date: yup.date(),
-        clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
-        ),
-        registeringFacilityId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
-            fallback="Registering facility"
-          />,
-        ),
-      })}
+      validationSchema={validationSchema}
     />
   );
 };

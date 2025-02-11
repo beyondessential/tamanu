@@ -41,7 +41,7 @@ const ConditionField = ({ name, programRegistryId }) => {
       label={
         <TranslatedText
           stringId="patientProgramRegistry.relatedConditions.label"
-          fallback="Related conditions"
+          fallback="Related condition"
         />
       }
       placeholder={getTranslation('general.placeholder.select', 'Select')}
@@ -83,7 +83,7 @@ const CategoryField = ({ name, conditionId }) => {
       component={BaseSelectField}
       options={categoryOptions}
       disabled={!conditionId}
-      required
+      required={conditionId}
     />
   );
 };

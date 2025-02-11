@@ -77,6 +77,7 @@ patientProgramRegistration.post(
               clinicianId: registrationData.clinicianId,
               date: registrationData.date,
               programRegistryConditionId: condition.conditionId,
+              conditionCategory: condition.category,
             })),
         ),
         // as a side effect, mark for sync in the current facility
