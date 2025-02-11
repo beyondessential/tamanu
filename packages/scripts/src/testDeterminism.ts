@@ -180,8 +180,10 @@ function printDiff(a: DbHashes, b: DbHashes) {
 function runCommand(prog: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     console.log('$', prog, ...args);
-    execFile(prog, args, (error, stdout) => {
+    execFile(prog, args, (error, stdout, stderr) => {
       if (error) {
+        console.log(stdout);
+        console.error(stderr);
         reject(error);
       } else {
         resolve(stdout.trim());
@@ -201,7 +203,7 @@ async function isRepoClean(): Promise<boolean> {
 
 async function listCommitsSince(limitCommitRef: string): Promise<string[]> {
   const stdout = await gitCommand(['log', '--format=%H', `${limitCommitRef}^..HEAD`]);
-  return stdout.split(/\s+/) ?? [];
+  return (stdout.split(/\s+/) ?? []).reverse();
 }
 
 async function listCommitFiles(commitRef: string): Promise<string[]> {
@@ -246,7 +248,8 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     throw new Error('we need at least two commits to proceed');
   }
 
-  const HEAD = commits[0]!;
+  // commit list is from oldest to newest, so HEAD is at the bottom
+  const HEAD = commits[commits.length - 1]!;
 
   // find the first migration-touching commit
   let commitBeforeMigration: string | undefined;
@@ -291,6 +294,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--detach', commitBeforeMigration]);
+    await runCommand('npm', ['run', '--workspace', '@tamanu/database', 'build']);
 
     const initDb = dbConfig('init');
     {
@@ -303,14 +307,15 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
 
+      console.log('Switch repo to after migrations to test', HEAD);
+      await gitCommand(['switch', '--detach', HEAD]);
+      await runCommand('npm', ['run', '--workspace', '@tamanu/database', 'build']);
+
       console.log('Fill database with fake data', dataRounds, 'rounds');
       await generateFake(sequelize, dataRounds);
 
       await sequelize.close();
     }
-
-    console.log('Switch repo to after migrations to test', HEAD);
-    await gitCommand(['switch', '--detach', HEAD]);
 
     let previousHashes: DbHashes | undefined;
     for (const [n] of Array(testRounds + 1)
