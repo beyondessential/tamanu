@@ -342,12 +342,11 @@ export class AppointmentSchedule extends Model {
     }
 
     const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
-    if (isFullyGenerated) {
-      await this.update({
-        isFullyGenerated,
-        generatedUntilDate: appointments.at(-1)!.startTime,
-      });
-    }
+    await this.update({
+      isFullyGenerated,
+      generatedUntilDate: appointments.at(-1)!.startTime,
+    });
+
     return appointments;
   }
 }
