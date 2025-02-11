@@ -32,6 +32,48 @@ export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.vaginal]: 'Vaginal',
 };
 
+export const DRUG_UNITS = {
+  percentage: '%',
+  capsule: 'Capsule',
+  disc: 'Disc',
+  douche: 'Douche',
+  drop: 'Drop',
+  ffu: 'FFU',
+  g: 'g',
+  iu: 'IU',
+  l: 'L',
+  lozenge: 'Lozenge',
+  mg: 'mg',
+  mcg: 'mcg',
+  ml: 'mL',
+  mmol: 'mmol',
+  mol: 'mol',
+  patch: 'Patch',
+  pellet: 'Pellet',
+  pouch: 'Pouch',
+  puff: 'Puff',
+  ring: 'Ring',
+  smear: 'Smear',
+  spray: 'Spray',
+  stick: 'Stick',
+  strip: 'Strip',
+  suppository: 'Suppository',
+  swab: 'Swab',
+  tablet: 'Tablet',
+  tbsp: 'tbsp',
+  tsp: 'tsp',
+  u: 'U',
+  vial: 'Vial',
+  wafer: 'Wafer',
+};
+
+export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
+
+export const DRUG_UNIT_LABELS = Object.entries(DRUG_UNITS).reduce((prev, curr) => {
+  prev[curr[1]] = curr[1];
+  return prev;
+}, {} as any);
+
 const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
@@ -147,51 +189,16 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 };
 
-export const DOSE_UNITS = [
-  "%",
-  "Capsule",
-  "Disc",
-  "Douche",
-  "Drop",
-  "FFU",
-  "g",
-  "IU",
-  "L",
-  "Lozenge",
-  "mg",
-  "mcg",
-  "mL",
-  "mmol",
-  "mol",
-  "Patch",
-  "Pellet",
-  "Pouch",
-  "Puff",
-  "Ring",
-  "Smear",
-  "Spray",
-  "Stick",
-  "Strip",
-  "Suppository",
-  "Swab",
-  "Tablet",
-  "tbsp",
-  "tsp",
-  "U",
-  "Vial",
-  "Wafer"
-];
-
-const DURATION_UNITS = {
+const MEDICATION_DURATION_UNITS = {
   HOUR: 'hour',
   DAY: 'day',
   WEEK: 'week',
   MONTH: 'month',
 };
 
-export const DURATION_UNITS_LABELS = {
-  [DURATION_UNITS.HOUR]: 'Hour',
-  [DURATION_UNITS.DAY]: 'Day',
-  [DURATION_UNITS.WEEK]: 'Week',
-  [DURATION_UNITS.MONTH]: 'Month',
+export const MEDICATION_DURATION_UNITS_LABELS = {
+  [MEDICATION_DURATION_UNITS.HOUR]: 'Hour',
+  [MEDICATION_DURATION_UNITS.DAY]: 'Day',
+  [MEDICATION_DURATION_UNITS.WEEK]: 'Week',
+  [MEDICATION_DURATION_UNITS.MONTH]: 'Month',
 };

@@ -198,7 +198,6 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
 
 storiesOf('Forms', module).add('MedicationForm', () => (
   <MedicationForm
-    onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     drugSuggester={drugSuggester}
