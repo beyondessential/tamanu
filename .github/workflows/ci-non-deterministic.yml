@@ -21,10 +21,10 @@ jobs:
       fail-fast: false
       matrix:
         postgres:
-          # - "12"
-          # - "14"
-          # - "15"
-          # - "16"
+          - "12"
+          - "14"
+          - "15"
+          - "16"
           - "17"
     name: on pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
