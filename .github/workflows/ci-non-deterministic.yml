@@ -36,6 +36,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.base_ref }}
       - run: git switch ${{ github.event.pull_request.head.ref || github.ref }}
+
+      - name: Find base
+        id: base
+        run: |
+          realbase=$(git merge-base ${{ github.base_ref || 'HEAD~10' }})
+          echo "realbase=$realbase" | tee -a "$GITHUB_OUTPUT"
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
@@ -52,7 +59,7 @@ jobs:
         id: precheck
         run: |
           set +e
-          npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref || 'HEAD~10' }} --check-precondition --skip-db-check
+          npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }} --check-precondition --skip-db-check
           code=$?
           echo "code=$code" | tee -a "$GITHUB_OUTPUT"
           [[ "$code" = "1" ]] && exit 1
@@ -66,7 +73,7 @@ jobs:
 
       # test from the base of the PR or 10 commits back if on main
       - if: steps.precheck.outputs.code != '2'
-        run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref || 'HEAD~10' }}
+        run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }}
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
