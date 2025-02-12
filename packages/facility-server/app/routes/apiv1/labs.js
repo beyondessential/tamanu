@@ -19,6 +19,7 @@ import {
   simpleGet,
   simpleGetList,
   findRouteObject,
+  getResourceList,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
   getWhereClausesAndReplacementsFromFilters,
@@ -35,6 +36,10 @@ labRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const labRequestRecord = await findRouteObject(req, 'LabRequest');
+    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    if (hasSensitiveTests) {
+      req.checkPermission('read', 'SensitiveLabRequest');
+    }
     const latestAttachment = await labRequestRecord.getLatestAttachment();
     res.send({
       ...labRequestRecord.forResponse(),
@@ -49,12 +54,19 @@ labRequest.put(
     const { models, params, db } = req;
     const { userId, ...labRequestData } = req.body;
     req.checkPermission('read', 'LabRequest');
-    const labRequestRecord = await models.LabRequest.findByPk(params.id);
+    const labRequestRecord = await models.LabRequest.findByPk(
+      params.id, { include: [{ association: 'tests', include: ['labTestType'] }] },
+    );
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
 
     if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
       req.checkPermission('write', 'LabRequestStatus');
+    }
+
+    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    if (hasSensitiveTests) {
+      req.checkPermission('write', 'SensitiveLabRequest');
     }
 
     await db.transaction(async () => {
@@ -81,11 +93,18 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { panelIds, labTestTypeIds, note } = body;
+    const { panelIds, labTestTypeIds = [], note } = body;
     req.checkPermission('create', 'LabRequest');
 
     if (!panelIds?.length && !labTestTypeIds?.length) {
       throw new InvalidOperationError('A lab request must have at least one test or panel');
+    }
+
+    const hasSensitiveTestType = await models.LabTestType.findOne({
+      where: { id: labTestTypeIds, isSensitive: true },
+    });
+    if (hasSensitiveTestType) {
+      req.checkPermission('create', 'SensitiveLabRequest');
     }
 
     const response = panelIds?.length
@@ -104,6 +123,7 @@ labRequest.get(
       query,
     } = req;
     req.checkPermission('list', 'LabRequest');
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
     const {
       order = 'ASC',
@@ -182,6 +202,7 @@ labRequest.get(
         },
       ),
       makeDeletedAtIsNullFilter('encounter'),
+      makeFilter(!canListSensitive, 'sensitive_labs.is_sensitive IS NULL', () => {}),
     ].filter((f) => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
@@ -213,13 +234,30 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
+        LEFT JOIN sensitive_labs
+          ON (sensitive_labs.id = lab_requests.id)
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
-      replacements: filterReplacements,
-      type: QueryTypes.SELECT,
-    });
+    const queryCte = `
+      WITH sensitive_labs AS (
+        SELECT lab_requests.id as id, TRUE as is_sensitive
+        FROM lab_requests
+        INNER JOIN lab_tests
+          ON (lab_requests.id = lab_tests.lab_request_id)
+        INNER JOIN lab_test_types
+          ON (lab_test_types.id = lab_tests.lab_test_type_id)
+        WHERE lab_test_types.is_sensitive IS TRUE
+        GROUP BY lab_requests.id
+      )
+    `;
+
+    const countResult = await req.db.query(`
+      ${queryCte}
+      SELECT COUNT(1) AS count ${from}
+      `,
+      { replacements: filterReplacements, type: QueryTypes.SELECT },
+    );
 
     const count = parseInt(countResult[0].count, 10);
 
@@ -248,6 +286,7 @@ labRequest.get(
 
     const result = await req.db.query(
       `
+        ${queryCte}
         SELECT
           lab_requests.*,
           patient.display_id AS patient_display_id,
@@ -300,11 +339,17 @@ labRequest.post(
     const { models, body, params } = req;
     const { id } = params;
     req.checkPermission('write', 'LabRequest');
-    const lab = await models.LabRequest.findByPk(id);
+    const lab = await models.LabRequest.findByPk(id, {
+      include: [{ association: 'tests', include: ['labTestType'] }],
+    });
     if (!lab) {
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
+    const hasSensitiveTests = lab.tests.some(test => test.labTestType.isSensitive);
+    if (hasSensitiveTests) {
+      req.checkPermission('write', 'SensitiveLabRequest');
+    }
     const note = await lab.createNote(body);
     res.send(note);
   }),
@@ -312,8 +357,19 @@ labRequest.post(
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 
-labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRelations.get('/:id/notes', notesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
+labRelations.get(
+  '/:id/tests',
+  asyncHandler(async (req, res) => {
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const options = canListSensitive
+      ? {}
+      : { additionalFilters: { '$labTestType.is_sensitive$': false } };
+    const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
+
+    res.send(response);
+  }),
+);
 
 labRelations.put(
   '/:id/tests',
@@ -329,7 +385,14 @@ labRelations.put(
         labRequestId: id,
         id: testIds,
       },
+      include: ['labTestType'],
     });
+
+    // Reject all updates if it includes sensitive tests and user lacks permission
+    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    if (areSensitiveTests) {
+      req.checkPermission('write', 'SensitiveLabRequest');
+    }
 
     // If any of the tests have a different result, check for LabTestResult permission
     const labTestObj = keyBy(labTests, 'id');
@@ -386,6 +449,10 @@ labTest.get(
       ],
     });
 
+    if (response.labTestType.isSensitive === true) {
+      req.checkPermission('read', 'SensitiveLabRequest');
+    }
+
     res.send(response);
   }),
 );
@@ -397,6 +464,7 @@ labTestType.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('list', 'LabTestType');
+    const canCreateSensitive = req.ability.can('create', 'SensitiveLabRequest');
     const labTests = await models.LabTestType.findAll({
       include: [
         {
@@ -412,6 +480,7 @@ labTestType.get(
             LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
           ],
         },
+        ...(!canCreateSensitive && { isSensitive: false }),
       },
     });
     res.send(labTests);
