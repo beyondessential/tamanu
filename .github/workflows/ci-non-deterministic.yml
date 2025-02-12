@@ -55,7 +55,7 @@ jobs:
           npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref || 'HEAD~10' }} --check-precondition --skip-db-check
           code=$?
           echo "code=$code" | tee -a "$GITHUB_OUTPUT"
-          [[ $code -eq 1 ]] && exit 1
+          [[ "$code" = "1" ]] && exit 1
 
       - name: Install and start postgres ${{ matrix.postgres }}
         if: steps.precheck.outputs.code != '2'
