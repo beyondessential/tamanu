@@ -1,5 +1,4 @@
-import { Brackets, Column, RelationId } from 'typeorm';
-import { Entity, ManyToOne } from 'typeorm';
+import { Brackets, Column, RelationId, Entity, ManyToOne } from 'typeorm';
 import { get as getAtPath, merge, set as setAtPath } from 'lodash';
 
 import { BaseModel } from './BaseModel';

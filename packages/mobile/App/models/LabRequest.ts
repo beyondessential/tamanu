@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
-import { OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
 import { SYNC_DIRECTIONS } from './types';

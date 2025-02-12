@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
 import { IUser } from '~/types';
@@ -9,7 +9,6 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
-import { PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 @Entity('users')
 export class User extends BaseModel implements IUser {
