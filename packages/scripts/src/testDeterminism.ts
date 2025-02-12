@@ -295,15 +295,15 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     commitBeforeMigration = commit;
   }
 
-  if (!commitBeforeMigration) {
-    console.log('Bug (this is to appease typescript)');
-    return;
-  }
-
   if (!firstMigrationCommit) {
     console.log('There is nothing touching migrations here, so there is nothing to check!');
     if (opts.checkPrecondition) process.exit(2);
     return;
+  }
+
+  if (!commitBeforeMigration) {
+    console.log('looking back further to find the commit before migration');
+    commitBeforeMigration = await gitCommand(['log', '--format=%H', '-n1', firstMigrationCommit]);
   }
 
   console.log('Starting migration testing from commit', commitBeforeMigration);
