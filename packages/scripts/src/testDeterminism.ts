@@ -139,7 +139,7 @@ async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbH
     const tables = await listTables(sequelize);
     const perTable = await hashTables(sequelize, tables);
     const summary = summarise(perTable);
-    perMigration.push({ migration, summary, perTable });
+    perMigration.push({ migration: migration.file, summary, perTable });
   }
 
   const last = perMigration[perMigration.length - 1];
@@ -237,8 +237,14 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 (async () => {
   const opts = program
     .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
-    .option('--check-precondition', 'Only check whether we can run (codes: 0=go, 1=error, 2=unneeded')
-    .option('--skip-db-check', 'During a precondition check, skip checking the database (useful if the database is not ready yet)')
+    .option(
+      '--check-precondition',
+      'Only check whether we can run (codes: 0=go, 1=error, 2=unneeded)',
+    )
+    .option(
+      '--skip-db-check',
+      'During a precondition check, skip checking the database (useful if the database is not ready yet)',
+    )
     .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
     .option('--data-rounds <number>', 'How much data to fill database with', '1')
     .parse()
@@ -377,8 +383,8 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
         console.log('!!! Found non-determinism !!!');
         printDiff(previousHashes, hashes);
         console.log(
-          '❌ See this slab page for potential solutions:' +
-            'https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf',
+          '❌ See this slab page for potential solutions:',
+          'https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf',
         );
         throw new Error('failed determinism check');
       }
