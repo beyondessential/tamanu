@@ -7,7 +7,7 @@ sql: |
     (completed_at - created_at)::text AS duration
   FROM sync_sessions
   WHERE
-    updated_at > now() - interval '1 minute' -- Lookback window
+    updated_at > now() - interval '2 minutes' -- Lookback window
   AND errors IS NOT NULL
   AND (
     (
