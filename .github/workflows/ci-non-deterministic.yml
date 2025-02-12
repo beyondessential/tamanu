@@ -40,7 +40,7 @@ jobs:
       - name: Find base
         id: base
         run: |
-          realbase=$(git merge-base ${{ github.base_ref || 'HEAD~10' }})
+          realbase=$(git merge-base ${{ github.base_ref || 'HEAD~10' }} HEAD)
           echo "realbase=$realbase" | tee -a "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
