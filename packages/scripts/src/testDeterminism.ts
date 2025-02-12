@@ -238,6 +238,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   const opts = program
     .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
     .option('--check-precondition', 'Only check whether we can run (codes: 0=go, 1=error, 2=unneeded')
+    .option('--skip-db-check', 'During a precondition check, skip checking the database (useful if the database is not ready yet)')
     .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
     .option('--data-rounds <number>', 'How much data to fill database with', '10')
     .parse()
@@ -310,15 +311,17 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   });
 
   if (opts.checkPrecondition) {
+    if (!opts.skipDbCheck) {
       const initDb = dbConfig('init');
       console.log('Create new database', initDb.name);
       await runCommand('dropdb', ['--if-exists', initDb.name]);
       await runCommand('createdb', ['-O', initDb.user, initDb.name]);
       const db = await initDatabase(initDb);
       await db.sequelize.close();
+    }
 
-      console.log('✔ Good to go!');
-      return;
+    console.log('✔ Good to go!');
+    return;
   }
 
   try {
