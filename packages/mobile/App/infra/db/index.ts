@@ -4,8 +4,6 @@ import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
 
-// TODO: use datasource instead of conncetion
-
 const LOG_LEVELS = __DEV__
   ? [
       'error' as const,
