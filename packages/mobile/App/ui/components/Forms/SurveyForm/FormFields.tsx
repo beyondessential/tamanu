@@ -175,7 +175,6 @@ export const FormFields = ({
 
   const onSubmit = async (): Promise<void> => {
     await submitScreen(async () => {
-      console.log('subitting');
       await submitForm();
       resetForm();
     });

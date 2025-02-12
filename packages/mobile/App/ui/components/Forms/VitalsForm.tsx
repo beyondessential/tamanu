@@ -38,8 +38,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     [selectedPatient.id],
   );
 
-  console.log('error', padError);
-
   const error = vitalsError || padError;
   const isLoading = isVitalsLoading || isPadLoading;
   if (error) {
