@@ -1,4 +1,5 @@
 import { QueryInterface } from 'sequelize';
+import config from 'config';
 
 type TableNameString = `${string}.${string}`;
 
@@ -43,7 +44,6 @@ const UUID_OSSP_TABLES: TableNameString[] = [
   'public.reference_data_relations',
   'public.refresh_tokens',
   'public.settings',
-  'public.socket_io_attachments',
   'public.sync_sessions',
   'public.task_designations',
   'public.task_template_designations',
@@ -150,12 +150,14 @@ const STRING_NO_DEFAULT_TABLES: TableNameString[] = [
 // but in postgres we can absolutely have default changes without altering type.
 
 function changeDefaultQuery(table: string, column: string, defaultFn: string) {
-  return `ALTER TABLE ${table} ALTER COLUMN ${column} SET DEFAULT ${defaultFn}();`
+  return `ALTER TABLE ${table} ALTER COLUMN ${column} SET DEFAULT ${defaultFn}();`;
 }
 
 function removeDefaultQuery(table: string, column: string) {
-  return `ALTER TABLE ${table} ALTER COLUMN ${column} DROP DEFAULT;`
+  return `ALTER TABLE ${table} ALTER COLUMN ${column} DROP DEFAULT;`;
 }
+
+const isFacility = config.serverFacilityId || config.serverFacilityIds;
 
 export async function up(query: QueryInterface): Promise<void> {
   for (const table of STRING_OSSP_TABLES.concat(STRING_NO_DEFAULT_TABLES, UUID_OSSP_TABLES)) {
@@ -166,12 +168,20 @@ export async function up(query: QueryInterface): Promise<void> {
     await query.sequelize.query(changeDefaultQuery(table, 'version_id', 'gen_random_uuid'));
   }
 
-  await query.sequelize.query(changeDefaultQuery('public.imaging_requests', 'display_id', 'gen_random_uuid'));
   await query.sequelize.query(changeDefaultQuery('fhir.jobs', 'discriminant', 'gen_random_uuid'));
+  await query.sequelize.query(
+    changeDefaultQuery('public.imaging_requests', 'display_id', 'gen_random_uuid'),
+  );
+
+  if (!isFacility) {
+    await query.sequelize.query(
+      changeDefaultQuery('public.socket_io_attachments', 'id', 'gen_random_uuid'),
+    );
+  }
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  for (const table of STRING_OSSP_TABLES.concat(STRING_NO_DEFAULT_TABLES, UUID_OSSP_TABLES)) {
+  for (const table of STRING_OSSP_TABLES.concat(UUID_OSSP_TABLES)) {
     await query.sequelize.query(changeDefaultQuery(table, 'id', 'uuid_generate_v4'));
   }
 
@@ -183,6 +193,14 @@ export async function down(query: QueryInterface): Promise<void> {
     await query.sequelize.query(changeDefaultQuery(table, 'version_id', 'uuid_generate_v4'));
   }
 
-  await query.sequelize.query(changeDefaultQuery('public.imaging_requests', 'display_id', 'uuid_generate_v4'));
   await query.sequelize.query(changeDefaultQuery('fhir.jobs', 'discriminant', 'uuid_generate_v4'));
+  await query.sequelize.query(
+    changeDefaultQuery('public.imaging_requests', 'display_id', 'uuid_generate_v4'),
+  );
+
+  if (!isFacility) {
+    await query.sequelize.query(
+      changeDefaultQuery('public.socket_io_attachments', 'id', 'uuid_generate_v4'),
+    );
+  }
 }
