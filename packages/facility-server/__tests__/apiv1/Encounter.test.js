@@ -905,7 +905,8 @@ describe('Encounter', () => {
         });
         expect(medicationTwo.dataValues).toMatchObject({
           id: medicationTwo.id,
-          quantity: 2,
+          isDischarge: false,
+          quantity: 0,
         });
       });
 
