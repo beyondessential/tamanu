@@ -158,15 +158,7 @@ function removeDefaultQuery(table: string, column: string) {
 }
 
 export async function up(query: QueryInterface): Promise<void> {
-  for (const table of STRING_OSSP_TABLES) {
-    await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
-  }
-
-  for (const table of STRING_NO_DEFAULT_TABLES) {
-    await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
-  }
-
-  for (const table of UUID_OSSP_TABLES) {
+  for (const table of STRING_OSSP_TABLES.concat(STRING_NO_DEFAULT_TABLES, UUID_OSSP_TABLES)) {
     await query.sequelize.query(changeDefaultQuery(table, 'id', 'gen_random_uuid'));
   }
 
@@ -179,16 +171,12 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  for (const table of STRING_OSSP_TABLES) {
+  for (const table of STRING_OSSP_TABLES.concat(STRING_NO_DEFAULT_TABLES, UUID_OSSP_TABLES)) {
     await query.sequelize.query(changeDefaultQuery(table, 'id', 'uuid_generate_v4'));
   }
 
   for (const table of STRING_NO_DEFAULT_TABLES) {
     await query.sequelize.query(removeDefaultQuery(table, 'id'));
-  }
-
-  for (const table of UUID_OSSP_TABLES) {
-    await query.sequelize.query(changeDefaultQuery(table, 'id', 'uuid_generate_v4'));
   }
 
   for (const table of FHIR_TABLES) {
