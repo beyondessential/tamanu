@@ -15,6 +15,13 @@ import { generateFake } from './fake.js';
 const { initDatabase } = require('@tamanu/database/services/database');
 const { createMigrationInterface } = require('@tamanu/database/services/migrations');
 
+function warn(message: string) {
+  console.warn(`⚠️ ${message}`);
+  if (process.env.CI) {
+    console.log(`::warning ::${message}`);
+  }
+}
+
 type TableHashes = Map<string, string>;
 
 interface MigrationHashes {
@@ -100,7 +107,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
     const hash = (rows[0] as any).hash as string | null;
     if (hash?.length) hashes.set(table, hash);
-    else console.log(`⚠️ found empty table ${table}`);
+    else warn(`found empty table ${table}`);
   }
 
   await sequelize.query(`
