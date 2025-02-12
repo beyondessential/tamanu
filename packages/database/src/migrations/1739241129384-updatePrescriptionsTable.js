@@ -64,6 +64,7 @@ export async function down(query) {
 
   await query.removeColumn('prescriptions', 'is_ongoing');
   await query.removeColumn('prescriptions', 'is_prn');
+  await query.removeColumn('prescriptions', 'is_variable_dose');
   await query.removeColumn('prescriptions', 'dose_amount');
   await query.removeColumn('prescriptions', 'units');
   await query.removeColumn('prescriptions', 'frequency');
