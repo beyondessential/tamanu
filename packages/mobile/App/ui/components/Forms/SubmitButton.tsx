@@ -18,7 +18,6 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
       if (typeof onSubmit === 'function') {
         await onSubmit();
       } else if (typeof submitForm === 'function') {
-        console.log('submitting!');
         await submitForm();
       }
     } finally {
