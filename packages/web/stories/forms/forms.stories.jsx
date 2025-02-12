@@ -1,6 +1,5 @@
 import React from 'react';
 import shortid from 'shortid';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import {
