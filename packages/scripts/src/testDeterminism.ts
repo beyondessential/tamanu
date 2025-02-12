@@ -309,6 +309,18 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     name: `determinism-test-${name}`,
   });
 
+  if (opts.checkPrecondition) {
+      const initDb = dbConfig('init');
+      console.log('Create new database', initDb.name);
+      await runCommand('dropdb', ['--if-exists', initDb.name]);
+      await runCommand('createdb', ['-O', initDb.user, initDb.name]);
+      const db = await initDatabase(initDb);
+      await db.sequelize.close();
+
+      console.log('✔ Good to go!');
+      return;
+  }
+
   try {
     console.log(`=== Preparation ===`);
 
