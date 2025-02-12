@@ -5,7 +5,7 @@ import { runPostMigration } from './runPostMigration';
 import { wrap, chain } from 'lodash';
 
 // before this, we just cut our losses and accept irreversible migrations
-const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
+const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 const NO_SYNC_MIGRATION_TIMESTAMP = '1692710205000';
 
 export function createMigrationInterface(log, sequelize) {
