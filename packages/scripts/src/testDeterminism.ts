@@ -235,6 +235,14 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 (async () => {
+  const opts = program
+    .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
+    .option('--check-precondition', 'Only check whether we can run (codes: 0=go, 1=error, 2=unneeded')
+    .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
+    .option('--data-rounds <number>', 'How much data to fill database with', '10')
+    .parse()
+    .opts();
+
   if (!(await isRepoClean())) {
     throw new Error('repo is not clean! abort');
   }
@@ -243,13 +251,6 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   if (!currentBranch) {
     throw new Error('must be on a branch! abort');
   }
-
-  const opts = program
-    .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
-    .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
-    .option('--data-rounds <number>', 'How much data to fill database with', '10')
-    .parse()
-    .opts();
 
   const dataRounds = parseInt(opts.dataRounds, 10);
   if (dataRounds < 1) {
@@ -287,6 +288,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 
   if (!firstMigrationCommit) {
     console.log('There is nothing touching migrations here, so there is nothing to check!');
+    if (opts.checkPrecondition) process.exit(2);
     return;
   }
 
