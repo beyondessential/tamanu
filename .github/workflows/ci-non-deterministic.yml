@@ -32,6 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 4000
+          ref: ${{ github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
@@ -49,7 +50,8 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      - run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref }}
+      # test from the base of the PR or 10 commits back if on main
+      - run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref || 'HEAD~10' }}
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
