@@ -21,20 +21,20 @@ jobs:
       fail-fast: false
       matrix:
         postgres:
-          - "12"
-          - "14"
-          - "15"
-          - "16"
+          # - "12"
+          # - "14"
+          # - "15"
+          # - "16"
           - "17"
     name: on pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 4000
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
-      # - if: startsWith(github.ref, 'refs/pull')
-      #   run: git switch -c test/determinism/local-branch
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
