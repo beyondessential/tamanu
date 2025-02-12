@@ -53,7 +53,7 @@ jobs:
         run: |
           set +e
           npm run --silent --workspace scripts test-determinism -- --since-ref ${{ github.base_ref || 'HEAD~10' }} --check-precondition --skip-db-check
-          echo "code=$?" >> "$GITHUB_OUTPUT"
+          echo "code=$?" | tee -a "$GITHUB_OUTPUT"
           [[ $code -eq 1 ]] && exit 1
 
       - name: Install and start postgres ${{ matrix.postgres }}
