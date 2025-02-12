@@ -13,7 +13,7 @@ export class FhirJobWorker extends Model {
         id: {
           ...primaryKey,
           type: DataTypes.UUID,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
         },
         metadata: {
           type: DataTypes.JSONB,
