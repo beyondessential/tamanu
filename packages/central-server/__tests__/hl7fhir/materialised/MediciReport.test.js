@@ -193,15 +193,10 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const {
-      encounter,
-      encounterDiagnosis,
-      encounterMedication,
-      procedureType,
-      labTestType,
-    } = await makeEncounter({
-      encounterType: 'emergency',
-    });
+    const { encounter, encounterDiagnosis, encounterMedication, procedureType, labTestType } =
+      await makeEncounter({
+        encounterType: 'emergency',
+      });
 
     const { MediciReport } = ctx.store.models;
 
