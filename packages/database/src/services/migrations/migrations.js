@@ -9,7 +9,7 @@ const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
 const NO_SYNC_MIGRATION_TIMESTAMP = '1692710205000';
 
 export function createMigrationInterface(log, sequelize) {
-  // ie, shared/src/migrations
+  // ie, database/dist/cjs/migrations
   const migrationsDir = path.join(__dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues

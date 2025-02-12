@@ -1,20 +1,16 @@
-const {
-  REPORT_STATUSES,
-  NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
+import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
-} = require('@tamanu/constants');
-const { fake } = require('@tamanu/shared/test-helpers/fake');
-const { initDatabase } = require('@tamanu/database/services/database');
-const config = require('config');
+  NOTE_RECORD_TYPES,
+  REPEAT_FREQUENCY,
+  REPORT_DB_SCHEMAS,
+  REPORT_STATUSES,
+} from '@tamanu/constants';
+import type { Models, Sequelize } from '@tamanu/database';
 
-// generate fake data enough to test recent migrations
-/**
- *
- * @param {import('@tamanu/database/models')} models
- */
-async function generateData(models) {
+const { fake } = require('@tamanu/shared/test-helpers/fake');
+
+async function generateData(models: Models) {
   const {
     Appointment,
     AppointmentSchedule,
@@ -347,6 +343,7 @@ async function generateData(models) {
 
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
+      frequency: REPEAT_FREQUENCY.WEEKLY,
       locationGroupId: locationGroup.id,
     }),
   );
@@ -394,11 +391,16 @@ async function generateData(models) {
   );
 }
 
-async function generateFake() {
-  const store = await initDatabase({ testMode: false, ...config.db });
-  if (config.db.migrateOnStartup) await store.sequelize.migrate('up');
-  await generateData(store.sequelize.models);
-  await store.sequelize.close();
-}
+/** Generate fake data to exercise the whole database */
+export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
+  console.log('Fill database with fake data', rounds, 'rounds');
 
-generateFake();
+  // eslint-disable-next-line no-unused-vars
+  for (const _ in Array(rounds).fill(0)) {
+    await generateData(sequelize.models);
+    process.stdout.write('.');
+  }
+
+  console.log();
+  await sequelize.close();
+}
