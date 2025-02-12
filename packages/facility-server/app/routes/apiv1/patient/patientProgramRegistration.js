@@ -152,16 +152,16 @@ patientProgramRegistration.get(
     });
 
     const registrationRecords = getRegistrationRecords(history)
-      .map(({ date, clinician }) => ({ date, clinician }))
-      .reverse();
+    .map(({ date, clinician }) => ({ date, clinician }))
+    .reverse();
 
     const recentRegistrationRecord = registrationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
     );
 
     const deactivationRecords = getDeactivationRecords(history)
-      .map(({ date, clinician }) => ({ date, clinician }))
-      .reverse();
+    .map(({ date, clinician }) => ({ date, clinician }))
+    .reverse();
 
     const recentDeactivationRecord = deactivationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
@@ -169,9 +169,9 @@ patientProgramRegistration.get(
     const deactivationData =
       registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
         ? {
-            dateRemoved: recentDeactivationRecord.date,
-            removedBy: recentDeactivationRecord.clinician,
-          }
+          dateRemoved: recentDeactivationRecord.date,
+          removedBy: recentDeactivationRecord.clinician,
+        }
         : {};
 
     res.send({
@@ -210,8 +210,8 @@ patientProgramRegistration.get(
     // Be sure to use the whole history to find the registration dates, not just the status
     // change records.
     const registrationDates = getRegistrationRecords(fullHistory)
-      .map(({ date }) => date)
-      .reverse();
+    .map(({ date }) => date)
+    .reverse();
 
     const statusChangeRecords = getStatusChangeRecords(fullHistory);
     const historyWithRegistrationDate = statusChangeRecords.map(data => ({

@@ -3,14 +3,16 @@ import { useApi } from '../useApi';
 
 export const useProgramRegistryQuery = (programRegistryId, fetchOptions) => {
   const api = useApi();
-  return useQuery(['ProgramRegistry', programRegistryId], () =>
-    api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
+  return useQuery(
+    ['programRegistry', programRegistryId, fetchOptions],
+    () => api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
+    { enabled: !!programRegistryId },
   );
 };
 
 export const useListOfProgramRegistryQuery = () => {
   const api = useApi();
-  return useQuery(['ProgramRegistries'], () =>
+  return useQuery(['programRegistry'], () =>
     api.get('programRegistry', { orderBy: 'name', order: 'ASC' }),
   );
 };

@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column } from 'typeorm/browser';
 
 import {
   DateTimeString,
@@ -18,8 +18,10 @@ import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 
 @Entity('patient_program_registration_conditions')
-export class PatientProgramRegistrationCondition extends BaseModel
-  implements IPatientProgramRegistrationCondition {
+export class PatientProgramRegistrationCondition
+  extends BaseModel
+  implements IPatientProgramRegistrationCondition
+{
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   id: ID;
@@ -28,6 +30,9 @@ export class PatientProgramRegistrationCondition extends BaseModel
 
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
+
+  @Column({ nullable: false, default: 'Unknown' })
+  conditionCategory: string;
 
   // Relations
   @ManyToOne(() => ProgramRegistry)

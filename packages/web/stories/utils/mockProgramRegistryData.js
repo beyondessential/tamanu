@@ -10,11 +10,11 @@ const getSortedData = (
   const sortedData =
     options.order && options.orderBy
       ? list.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
-          if (typeof a === 'string') {
-            return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-          }
-          return options.order === 'asc' ? a - b : b - a;
-        })
+        if (typeof a === 'string') {
+          return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+        }
+        return options.order === 'asc' ? a - b : b - a;
+      })
       : list;
   const startIndex = options.page * options.rowsPerPage || 0;
   const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
