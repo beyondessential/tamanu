@@ -22,3 +22,7 @@ Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) recording tha
 {% docs patient_program_registration_conditions__deletion_clinician_id %}
 Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) that removed the condition.
 {% enddocs %}
+
+{% docs patient_program_registration_conditions__condition_category %}
+TODO
+{% enddocs %}
