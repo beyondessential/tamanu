@@ -393,10 +393,14 @@ async function generateData(models: Models) {
 
 /** Generate fake data to exercise the whole database */
 export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
+  console.log('Fill database with fake data', rounds, 'rounds');
+
   // eslint-disable-next-line no-unused-vars
   for (const _ in Array(rounds).fill(0)) {
     await generateData(sequelize.models);
+    process.stdout.write('.');
   }
 
+  console.log();
   await sequelize.close();
 }

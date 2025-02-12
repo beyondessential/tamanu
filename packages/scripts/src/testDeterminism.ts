@@ -355,7 +355,6 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
 
-      console.log('Fill database with fake data', dataRounds, 'rounds');
       await generateFake(sequelize, dataRounds);
 
       await sequelize.close();
