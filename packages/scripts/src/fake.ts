@@ -2,6 +2,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
   NOTE_RECORD_TYPES,
+  REPEAT_FREQUENCY,
   REPORT_DB_SCHEMAS,
   REPORT_STATUSES,
 } from '@tamanu/constants';
@@ -342,6 +343,7 @@ async function generateData(models: Models) {
 
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
+      frequency: REPEAT_FREQUENCY.WEEKLY,
       locationGroupId: locationGroup.id,
     }),
   );

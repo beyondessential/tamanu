@@ -246,7 +246,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       'During a precondition check, skip checking the database (useful if the database is not ready yet)',
     )
     .option('--test-rounds <number>', 'How many times to apply migrations during test', '3')
-    .option('--data-rounds <number>', 'How much data to fill database with', '1')
+    .option('--data-rounds <number>', 'How much data to fill database with', '10')
     .parse()
     .opts();
 
