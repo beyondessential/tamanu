@@ -12,6 +12,7 @@ import { normaliseSheetName } from './importerEndpoint';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
+import { validateTableRows } from './validateTableRows';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -204,6 +205,12 @@ export async function importRows(
     log.debug('Nothing left, skipping');
     return stats;
   }
+
+  // Check values across the whole spreadsheet
+  const pushErrorFn = (sheetRow, message) => errors.push(
+    new ValidationError(sheetName, sheetRow, message),
+  );
+  await validateTableRows(models, validRows, pushErrorFn);
 
   log.debug('Upserting database rows', { rows: validRows.length });
   const translationRecordsForSheet = [];
