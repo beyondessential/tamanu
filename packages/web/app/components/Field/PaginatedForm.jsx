@@ -210,6 +210,7 @@ export const PaginatedForm = ({
 
         return (
           <SummaryScreen
+            values={values}
             onStepBack={onStepBack}
             submitForm={submitVisibleValues}
             onCancel={onCancel}

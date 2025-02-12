@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { REPEATS_LABELS } from '@tamanu/constants';
+import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Divider as BaseDivider, Box } from '@material-ui/core';
+import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
+import { useFormikContext } from 'formik';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -47,6 +49,12 @@ const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
+const IconButton = styled(BaseIconButton)`
+  position: absolute;
+  top: 14px;
+  right: 14px;
+`;
+
 const ConfirmContent = styled.div`
   text-align: left;
   padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px ${80 - MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -59,6 +67,20 @@ const ConfirmContent = styled.div`
     font-size: 14px;
     font-weight: 400;
   }
+`;
+
+const UnsavedContent = styled.div`
+  height: 210px;
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin: 0 -32px 10px -32px;
 `;
 
 const dischargingClinicianLabel = (
@@ -91,7 +113,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
       } else {
         return getCurrentDateTimeString();
       }
-    } 
+    }
     return encounter?.endDate;
   };
 
@@ -329,8 +351,10 @@ const DischargeFormScreen = props => {
     onCancel,
     currentDiagnoses,
     values,
-    handleSubmit,
+    onSubmit,
+    setShowWarningScreen,
   } = props;
+  const { dirty } = useFormikContext();
   const { ability } = useAuth();
   const canWriteDischarge = ability.can('write', 'Discharge');
   const { getSetting } = useSettings();
@@ -338,15 +362,15 @@ const DischargeFormScreen = props => {
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
-  const handleStepForward = async (isSavedForm) => {
+  const handleStepForward = async isSavedForm => {
     if (isSavedForm) {
-      await handleSubmit({ ...values, isDischarged: false });
+      await onSubmit({ ...values, isDischarged: false });
       return;
     }
     const formErrors = await validateForm();
     delete formErrors.isCanceled;
 
-    if (Object.keys(formErrors).length > 0) { 
+    if (Object.keys(formErrors).length > 0) {
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
@@ -356,44 +380,58 @@ const DischargeFormScreen = props => {
     }
   };
 
+  const handleCancelAttempt = () => {
+    if (dirty) {
+      onStepForward();
+      setShowWarningScreen(true);
+    } else {
+      onCancel();
+    }
+  };
+
   return (
-    <DefaultFormScreen
-      customBottomRow={
-        <FormConfirmCancelBackRow
-          onCancel={onCancel}
-          onConfirm={() => handleStepForward(false)}
-          CustomConfirmButton={props => (
-            <ConditionalTooltip
-              visible={isDiagnosisEmpty}
-              title={
-                <SmallBodyText fontWeight={400}>
-                  <TranslatedText
-                    stringId="discharge.diagnosisMustBeRecord.tooltip"
-                    fallback="Diagnosis must be recorded to finalise discharge"
-                  />
-                </SmallBodyText>
-              }
-            >
-              <FormSubmitButton {...props}>
-                <Box whiteSpace="nowrap">
-                  <TranslatedText
-                    stringId="general.action.finaliseDischarge"
-                    fallback="Finalise discharge"
-                  />
-                </Box>
-              </FormSubmitButton>
-            </ConditionalTooltip>
-          )}
-          confirmDisabled={isDiagnosisEmpty}
-          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          {...(canWriteDischarge && { onBack: () => handleStepForward(true) })}
-          backButtonText={
-            <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
-          }
-        />
-      }
-      {...props}
-    />
+    <>
+      <IconButton onClick={handleCancelAttempt}>
+        <CloseIcon />
+      </IconButton>
+      <DefaultFormScreen
+        customBottomRow={
+          <FormConfirmCancelBackRow
+            onCancel={handleCancelAttempt}
+            onConfirm={() => handleStepForward(false)}
+            CustomConfirmButton={props => (
+              <ConditionalTooltip
+                visible={isDiagnosisEmpty}
+                title={
+                  <SmallBodyText fontWeight={400}>
+                    <TranslatedText
+                      stringId="discharge.diagnosisMustBeRecord.tooltip"
+                      fallback="Diagnosis must be recorded to finalise discharge"
+                    />
+                  </SmallBodyText>
+                }
+              >
+                <FormSubmitButton {...props}>
+                  <Box whiteSpace="nowrap">
+                    <TranslatedText
+                      stringId="general.action.finaliseDischarge"
+                      fallback="Finalise discharge"
+                    />
+                  </Box>
+                </FormSubmitButton>
+              </ConditionalTooltip>
+            )}
+            confirmDisabled={isDiagnosisEmpty}
+            cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+            {...(canWriteDischarge && { onBack: () => handleStepForward(true) })}
+            backButtonText={
+              <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
+            }
+          />
+        }
+        {...props}
+      />
+    </>
   );
 };
 
@@ -418,15 +456,54 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
   </div>
 );
 
+const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
+  const { ability } = useAuth();
+  const canWriteDischarge = ability.can('write', 'Discharge');
+
+  const onSave = async () => {
+    await onSubmit({ ...values, isDischarged: false });
+  };
+  return (
+    <div>
+      <IconButton onClick={onStepBack}>
+        <CloseIcon />
+      </IconButton>
+      <UnsavedContent>
+        <TranslatedText
+          stringId="discharge.modal.unsavedChanges.message"
+          fallback="You have unsaved changes. Are you sure you would like to discard these changes or would you like to 'Save & exit'?"
+        />
+      </UnsavedContent>
+      <StyledDivider />
+      <FormConfirmCancelBackRow
+        onConfirm={onCancel}
+        confirmText={
+          <Box whiteSpace="nowrap">
+            <TranslatedText stringId="general.action.discardChanges" fallback="Discard changes" />
+          </Box>
+        }
+        onCancel={onStepBack}
+        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        {...(canWriteDischarge && { onBack: onSave })}
+        backButtonText={
+          <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
+        }
+      />
+    </div>
+  );
+};
+
 export const DischargeForm = ({
   dispositionSuggester,
   practitionerSuggester,
   onCancel,
   onSubmit,
+  onTitleChange,
 }) => {
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [showWarningScreen, setShowWarningScreen] = useState(false);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -459,6 +536,19 @@ export const DischargeForm = ({
     })();
   }, [api, encounter.id]);
 
+  useEffect(() => {
+    if (showWarningScreen) {
+      onTitleChange(
+        <TranslatedText
+          stringId="discharge.modal.unsavedChanges.title"
+          fallback="Unsaved Changes"
+        />,
+      );
+      return;
+    }
+    onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
+  }, [showWarningScreen, onTitleChange]);
+
   return (
     <PaginatedForm
       onSubmit={handleSubmit}
@@ -468,11 +558,22 @@ export const DischargeForm = ({
         <DischargeFormScreen
           {...props}
           currentDiagnoses={currentDiagnoses}
-          handleSubmit={handleSubmit}
+          onSubmit={handleSubmit}
+          setShowWarningScreen={setShowWarningScreen}
         />
       )}
       formType={FORM_TYPES.CREATE_FORM}
-      SummaryScreen={DischargeSummaryScreen}
+      SummaryScreen={
+        !showWarningScreen
+          ? DischargeSummaryScreen
+          : props => (
+              <UnsavedChangesScreen
+                {...props}
+                showWarningScreen={showWarningScreen}
+                onSubmit={onSubmit}
+              />
+            )
+      }
       validationSchema={yup.object().shape({
         endDate: yup
           .date()
@@ -504,7 +605,11 @@ export const DischargeForm = ({
             />,
           ),
       })}
-      formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
+      formProps={{
+        enableReinitialize: false,
+        showInlineErrorsOnly: true,
+        validateOnChange: true,
+      }}
     >
       <FormGrid>
         <EncounterOverview encounter={encounter} currentDiagnoses={currentDiagnoses} />
