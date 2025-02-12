@@ -10,11 +10,11 @@ const getSortedData = (
   const sortedData =
     options.order && options.orderBy
       ? list.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
-        if (typeof a === 'string') {
-          return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-        }
-        return options.order === 'asc' ? a - b : b - a;
-      })
+          if (typeof a === 'string') {
+            return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+          }
+          return options.order === 'asc' ? a - b : b - a;
+        })
       : list;
   const startIndex = options.page * options.rowsPerPage || 0;
   const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
@@ -790,7 +790,7 @@ export const dummyApi = {
       case `patient/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/conditions`:
         return [
           ...programRegistryConditions,
-          ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
+          ...programRegistryConditions.map((x) => ({ ...x, id: x.id + 1 })),
         ];
 
       case 'program/program-samoancdscreening/surveys':
@@ -813,7 +813,10 @@ export const dummyApi = {
 
       case 'suggestions/survey':
         // this needs to be done in the backend
-        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+        return programRegistryFormHistory.map((x) => ({
+          id: x.id.toString(),
+          name: x.survey.name,
+        }));
 
       // TEMP: below there are undefined parameters because this api sometimes depends
       // on browser query params, this is temporary for testing purpose

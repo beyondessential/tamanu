@@ -16,11 +16,12 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-      params.patientId,
-    );
+    const registrationData =
+      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+        params.patientId,
+      );
 
-    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
+    const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
   }),
 );
@@ -68,7 +69,7 @@ patientProgramRegistration.post(
           ...registrationData,
         }),
         models.PatientProgramRegistrationCondition.bulkCreate(
-          conditionIds.map(conditionId => ({
+          conditionIds.map((conditionId) => ({
             patientId,
             programRegistryId,
             clinicianId: registrationData.clinicianId,
@@ -104,15 +105,15 @@ const getChangingFieldRecords = (allRecords, field) =>
     return currentValue !== prevValue;
   });
 
-const getRegistrationRecords = allRecords =>
+const getRegistrationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.ACTIVE,
   );
-const getDeactivationRecords = allRecords =>
+const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = allRecords =>
+const getStatusChangeRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
@@ -152,16 +153,16 @@ patientProgramRegistration.get(
     });
 
     const registrationRecords = getRegistrationRecords(history)
-    .map(({ date, clinician }) => ({ date, clinician }))
-    .reverse();
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
 
     const recentRegistrationRecord = registrationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
     );
 
     const deactivationRecords = getDeactivationRecords(history)
-    .map(({ date, clinician }) => ({ date, clinician }))
-    .reverse();
+      .map(({ date, clinician }) => ({ date, clinician }))
+      .reverse();
 
     const recentDeactivationRecord = deactivationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
@@ -169,9 +170,9 @@ patientProgramRegistration.get(
     const deactivationData =
       registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
         ? {
-          dateRemoved: recentDeactivationRecord.date,
-          removedBy: recentDeactivationRecord.clinician,
-        }
+            dateRemoved: recentDeactivationRecord.date,
+            removedBy: recentDeactivationRecord.clinician,
+          }
         : {};
 
     res.send({
@@ -210,15 +211,15 @@ patientProgramRegistration.get(
     // Be sure to use the whole history to find the registration dates, not just the status
     // change records.
     const registrationDates = getRegistrationRecords(fullHistory)
-    .map(({ date }) => date)
-    .reverse();
+      .map(({ date }) => date)
+      .reverse();
 
     const statusChangeRecords = getStatusChangeRecords(fullHistory);
-    const historyWithRegistrationDate = statusChangeRecords.map(data => ({
+    const historyWithRegistrationDate = statusChangeRecords.map((data) => ({
       ...data,
       // Find the latest registrationDate that is not after the date of interest
       registrationDate: registrationDates.find(
-        registrationDate => !isAfter(new Date(registrationDate), new Date(data.date)),
+        (registrationDate) => !isAfter(new Date(registrationDate), new Date(data.date)),
       ),
     }));
 
