@@ -518,11 +518,19 @@ export const DischargeForm = ({
   const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
+      Object.values(data.medications).forEach(medication => {
+        if (!medication.quantity) {
+          medication.quantity = 0;
+        }
+      });
       await onSubmit({
         ...data,
+        endDate: data.endDate || null,
         isDischarged,
         discharge: {
           ...data.discharge,
+          dischargerId: data.discharge.dischargerId || null,
+          dispositionId: data.discharge.dispositionId || null,
         },
       });
     },
