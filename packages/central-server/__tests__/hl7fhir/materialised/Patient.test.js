@@ -5,7 +5,10 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import {
+  mergePatient,
+} from '../../../dist/admin/patientMerge/mergePatient';
+
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
@@ -1036,6 +1039,7 @@ describe(`Materialised FHIR - Patient`, () => {
         total: 1,
       });
     });
+
   });
 
   describe('including', () => {
@@ -1062,9 +1066,6 @@ describe(`Materialised FHIR - Patient`, () => {
       const { models } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
-      await FhirPatient.materialiseFromUpstream(keep.id);
-      await FhirPatient.materialiseFromUpstream(merge.id);
-
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
@@ -1076,9 +1077,13 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_include=Patient:link&active=true`;
       const response = await app.get(path);
       const { entry } = response.body;
-      const includedEntry = entry.find(({ search: { mode } }) => mode === 'match');
+      const includedEntry = entry.find(
+        ({ search: { mode } }) => mode === 'match',
+      );
 
-      const mergedEntry = entry.find(({ search: { mode } }) => mode === 'include');
+      const mergedEntry = entry.find(
+        ({ search: { mode } }) => mode === 'include',
+      );
       expect(response).toHaveSucceeded();
       expect(includedEntry.resource.id).toBe(keepMaterialised.id);
       expect(mergedEntry.resource.id).toBe(mergeMaterialised.id);
