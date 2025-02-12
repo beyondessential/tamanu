@@ -24,5 +24,5 @@ Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) that removed 
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__condition_category %}
-TODO
+Used to store the category of the condition.
 {% enddocs %}
