@@ -1,0 +1,14 @@
+sql: |
+  SELECT now() as current_time_demo;
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Certificate notification error ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      {% for row in rows | slice(end=5) %}
+      - Current time is: **{{ row.current_time_demo }}**
+      {% endfor %}
