@@ -158,6 +158,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
 export async function createDummyPrescription(models, overrides = {}) {
   return {
     date: getCurrentDateTimeString(),
+    startDate: getCurrentDateTimeString(),
     endDate: toDateTimeString(addHours(new Date(), 1)),
     note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     indication: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
@@ -167,6 +168,9 @@ export async function createDummyPrescription(models, overrides = {}) {
     isDischarge: false,
     prescriberId: await randomUser(models),
     medicationId: await randomReferenceId(models, 'drug'),
+    doseAmount: 1,
+    units: chance.word(),
+    frequency: chance.word(),
     ...overrides,
   };
 }

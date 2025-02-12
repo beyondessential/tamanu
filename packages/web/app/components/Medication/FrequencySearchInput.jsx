@@ -13,7 +13,7 @@ const getFrequencySuggestions = synonyms => {
   }));
 };
 
-export const FrequencySearchInput = ({ onChange }) => {
+export const FrequencySearchInput = ({ ...props }) => {
   const { getTranslation } = useTranslation();
   const translatedFrequencySynonyms = getTranslatedFrequencySynonyms(getTranslation);
 
@@ -22,9 +22,19 @@ export const FrequencySearchInput = ({ onChange }) => {
 
   return (
     <AutocompleteInput
-      onChange={onChange}
+      {...props}
       label={<TranslatedText stringId="medication.frequency.label" fallback="Frequency" />}
       suggester={frequencySuggester}
+    />
+  );
+};
+
+export const FrequencySearchField = ({ field, ...props }) => {
+  return (
+    <FrequencySearchInput
+      name={field.name}
+      onChange={field.onChange}
+      {...props}
     />
   );
 };
