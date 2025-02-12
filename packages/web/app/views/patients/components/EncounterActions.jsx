@@ -73,7 +73,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
   const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
-  if (encounter.endDate) {
+  if (encounter?.isDischarged) {
     return (
       <ActionsContainer>
         <StyledButton size="small" variant="outlined" onClick={onViewEncounterRecord}>
@@ -138,8 +138,8 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="patient.encounter.action.dischargeWithoutBeingSeen"
-          fallback="Discharge without being seen"
+          stringId="patient.encounter.action.prepareDischargeWithoutBeingSeen"
+          fallback="Prepare discharge without being seen"
         />
       ),
       onClick: onDischargeOpen,
@@ -166,7 +166,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="patient.encounter.action.discharge" fallback="Discharge" />,
+      label: <TranslatedText stringId="patient.encounter.action.prepareDischarge" fallback="Prepare discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },

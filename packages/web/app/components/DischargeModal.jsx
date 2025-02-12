@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -8,7 +8,6 @@ import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadPatient } from '../store/patient';
-import { TranslatedText } from './Translation/TranslatedText';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
 import { useSettings } from '../contexts/Settings';
@@ -26,6 +25,9 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
   const { facility } = encounter.location;
+
+  const [title, setTitle] = useState('');
+  const handleTitleChange = useCallback(title => setTitle(title), []);
 
   const dischargeDispositionFilterer = dischargeDisposition => {
     switch (getPatientStatus(encounter.encounterType)) {
@@ -79,7 +81,9 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       };
       await writeAndViewEncounter(encounter.id, data);
       await dispatch(reloadPatient(patient.id));
-      navigateToPatient(patient.id);
+      if (data.isDischarged) {
+        navigateToPatient(patient.id);
+      }
       onClose();
     },
     [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, navigateToPatient],
@@ -87,13 +91,15 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   return (
     <FormModal
-      title={<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />}
+      title={title}
       open={open}
       onClose={onClose}
+      cornerExitButton={false}
     >
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
+        onTitleChange={handleTitleChange}
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         dispositionSuggester={dispositionSuggester}

@@ -603,6 +603,7 @@ describe('Encounter', () => {
 
         const result = await app.put(`/api/encounter/${v.id}`).send({
           endDate,
+          isDischarged: true,
           discharge: {
             encounterId: v.id,
             dischargerId: app.user.id,
@@ -649,6 +650,7 @@ describe('Encounter', () => {
         // Mark only one medication for discharge
         const result = await app.put(`/api/encounter/${encounter.id}`).send({
           endDate: new Date(),
+          isDischarged: true,
           discharge: {
             encounterId: encounter.id,
             dischargerId: app.user.id,
@@ -680,7 +682,8 @@ describe('Encounter', () => {
         });
         expect(medicationTwo.dataValues).toMatchObject({
           id: medicationTwo.id,
-          quantity: 2,
+          isDischarge: false,
+          quantity: 0,
         });
       });
 
