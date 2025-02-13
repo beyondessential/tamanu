@@ -10,7 +10,7 @@
       "tsx": true,
       "dts": true
     },
-    "target": "es2020",
+    "target": "es2023",
     "keepClassNames": true
   }
 }

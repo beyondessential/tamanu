@@ -58,7 +58,7 @@ export default async () => {
     build: {
       rollupOptions: {
         output: {
-          generatedCode: 'es2015',
+          generatedCode: 'es2023',
         },
       },
     },
