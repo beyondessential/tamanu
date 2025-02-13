@@ -9,7 +9,7 @@ import {
   TranslatedText,
 } from '../../components';
 
-export const ProgramRegistryConditionField = ({ name, programRegistryId }) => {
+export const ProgramRegistryConditionField = ({ name, programRegistryId, onClear }) => {
   const { getTranslation } = useTranslation();
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
   const options = conditions?.map?.((condition) => ({
@@ -27,8 +27,16 @@ export const ProgramRegistryConditionField = ({ name, programRegistryId }) => {
     ),
   }));
 
+  const onChange = (event) => {
+    const userClickedClear = !event.target.value;
+    if (userClickedClear) {
+      onClear();
+    }
+  };
+
   return (
     <FieldWithTooltip
+      onChange={onChange}
       disabledTooltipText={
         !conditions
           ? 'Select a program registry to add related conditions'

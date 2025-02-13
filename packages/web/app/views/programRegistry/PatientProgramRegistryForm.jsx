@@ -100,7 +100,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       onSubmit={async (data) => {
         return onSubmit({
           ...data,
-          conditions: data.conditions ? data.conditions : [],
+          conditions: data.conditions
+            ? // Filter out empty conditions
+              data.conditions.filter((condition) => condition.conditionId)
+            : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -199,20 +202,30 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               <Field
                 name="conditions"
                 component={ArrayField}
-                renderField={(index, DeleteButton) => {
+                renderField={(index) => {
                   const fieldName = `conditions[${index}]`;
                   const conditionValue = values?.conditions ? values?.conditions[index] : null;
+                  const onClear = () => {
+                    setValues({
+                      ...values,
+                      // Clear the condition and category fields. Set to an empty object rather than
+                      // removing from the array keep the order of the conditions consistent with the fields
+                      conditions: values.conditions.map((condition, i) =>
+                        i === index ? {} : condition,
+                      ),
+                    });
+                  };
                   return (
                     <RelatedConditionFieldsContainer>
                       <ProgramRegistryConditionField
                         name={fieldName}
                         programRegistryId={selectedProgramRegistryId}
+                        onClear={onClear}
                       />
                       <ProgramRegistryConditionCategoryField
                         name={fieldName}
                         conditionId={conditionValue?.conditionId}
                       />
-                      {index > 0 && DeleteButton}
                     </RelatedConditionFieldsContainer>
                   );
                 }}
