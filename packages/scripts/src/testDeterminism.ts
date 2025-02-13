@@ -1,6 +1,7 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { userInfo } from 'node:os';
+import { join } from 'node:path';
 
 import config from 'config';
 import { program } from 'commander';
@@ -10,7 +11,6 @@ import type { Model } from '@tamanu/database/models/Model';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
-import { generateFake } from './fake.js';
 
 const { initDatabase } = require('@tamanu/database/services/database');
 const { createMigrationInterface } = require('@tamanu/database/services/migrations');
@@ -203,7 +203,7 @@ function printDiff(a: DbHashes, b: DbHashes) {
 function runCommand(prog: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     console.log('$', prog, ...args);
-    execFile(prog, args, (error, stdout, stderr) => {
+    execFile(prog, args, { encoding: 'utf-8' }, (error, stdout, stderr) => {
       if (error) {
         console.log(stdout);
         console.error(stderr);
@@ -241,6 +241,23 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   );
 }
 
+async function generateFake(database: string, rounds: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const script = join(__dirname, 'fake.js');
+    const args = ['--database', database, '--rounds', rounds.toString()];
+    console.log('>', script, ...args);
+    const child = spawn(
+      'node',
+      ['-e', `require("${script}").main().catch(console.error)`, '--', ...args],
+      {
+        stdio: 'inherit',
+      },
+    );
+    child.on('error', reject);
+    child.on('exit', resolve);
+  });
+}
+
 (async () => {
   const opts = program
     .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
@@ -256,6 +273,10 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
     .option('--data-rounds <number>', 'How much data to fill database with', '100')
     .parse()
     .opts();
+
+  if (!process.env.NODE_CONFIG_DIR) {
+    throw new Error('NODE_CONFIG_DIR must be set, to select the target server');
+  }
 
   if (!(await isRepoClean())) {
     throw new Error('repo is not clean! abort');
@@ -354,10 +375,9 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
       const db = await initDatabase(initDb);
       const sequelize = db.sequelize as Sequelize;
       await sequelize.migrate('up');
-
-      await generateFake(sequelize, dataRounds);
-
       await sequelize.close();
+
+      await generateFake(initDb.name, dataRounds);
     }
 
     console.log('Switch repo to after migrations to test', HEAD);

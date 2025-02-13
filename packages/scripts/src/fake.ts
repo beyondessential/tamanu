@@ -404,3 +404,31 @@ export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
   console.log();
   await sequelize.close();
 }
+
+/** Run this file as a program. You should set the env var NODE_CONFIG_DIR to the appropriate place. */
+export async function main() {
+  const { program } = await import('commander');
+  const { default: config } = await import('config');
+  const { initDatabase } = require('@tamanu/database/services/database');
+
+  const opts = program
+    .option('--rounds <number>', 'How much data to fill database with', '100')
+    .option('--database <string>', 'Override the database name to connect to')
+    .parse()
+    .opts();
+
+  const rounds = Math.max(1, parseInt(opts.rounds));
+
+  const db = await initDatabase({
+    ...(config as any).db,
+    name: opts.database ?? (config as any).db.name,
+  });
+
+  try {
+    console.time('done');
+    await generateFake(db.sequelize, rounds);
+    console.timeEnd('done');
+  } finally {
+    await db.sequelize.close();
+  }
+}
