@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
@@ -11,7 +11,7 @@ import { useApi } from '../../../api';
 import {
   ButtonRow,
   Form,
-  OutlinedButton,
+  Button,
   SearchInput,
   TableFormFields,
   TextField,
@@ -141,8 +141,25 @@ const TranslationField = ({ stringId, code }) => (
   <AccessorField id={`['${stringId}']`} name={code} component={TextField} multiline />
 );
 
-export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty }) => {
+// Saving doesn't track `isSubmitting` correctly because there is a custom mutation handling
+// the submit, so we need to track it manually
+// When the form starts saving, isSubmitting will be set to true, but it will be set to false
+// before the formik form is actually reset
+// Detect when the formik form is reset by checking if it is no longer dirty
+const useIsSaving = (isSubmitting, dirty) => {
+  const [isSaving, setIsSaving] = useState(false);
+  useEffect(() => {
+    if (isSubmitting) setIsSaving(true);
+  }, [isSubmitting]);
+  useEffect(() => {
+    if (isSaving && !dirty) setIsSaving(false);
+  }, [isSaving, dirty]);
+  return [isSaving];
+};
+
+export const FormContents = ({ data, languageNames, isSubmitting, submitForm, dirty }) => {
   const [searchValue, setSearchValue] = useState('');
+  const [isSaving] = useIsSaving(isSubmitting, dirty);
 
   const handleSave = event => {
     // Reset search so any validation errors are visible
@@ -219,9 +236,9 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
           />
         </Box>
         <ButtonRow>
-          <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
+          <Button disabled={isSaving || !dirty} onClick={handleSave}>
             <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
-          </OutlinedButton>
+          </Button>
         </ButtonRow>
       </Box>
       <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
@@ -232,7 +249,7 @@ export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty 
 export const TranslationForm = () => {
   const { data = {}, error, isLoading } = useTranslationQuery();
   const { translations = [], languageNames = {} } = data;
-  const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
+  const { mutate: saveTranslations } = useTranslationMutation();
 
   const initialValues = useMemo(() => {
     const values = {};
@@ -274,12 +291,7 @@ export const TranslationForm = () => {
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         render={props => (
-          <FormContents
-            {...props}
-            data={sortedTranslations}
-            languageNames={languageNames}
-            isSaving={isSaving}
-          />
+          <FormContents {...props} data={sortedTranslations} languageNames={languageNames} />
         )}
       />
     </Container>
