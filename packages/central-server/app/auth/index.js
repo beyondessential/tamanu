@@ -5,11 +5,11 @@ import asyncHandler from 'express-async-handler';
 
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import { userInfo, userMiddleware } from '@tamanu/auth/middleware';
+import { login } from '@tamanu/auth/login';
+import { convertFromDbRecord } from '@tamanu/auth/utils';
 
-import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
-import { login } from './login';
 import { refresh } from './refresh';
 
 export const DEFAULT_JWT_SECRET = config.auth.secret || crypto.randomUUID();

@@ -13,6 +13,14 @@
     "./middleware": {
       "import": "./dist/mjs/middleware/index.js",
       "require": "./dist/cjs/middleware/index.js"
+    },
+    "./login": {
+      "import": "./dist/mjs/login/index.js",
+      "require": "./dist/cjs/login/index.js"
+    },
+    "./utils": {
+      "import": "./dist/mjs/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
