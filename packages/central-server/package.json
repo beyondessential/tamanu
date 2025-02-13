@@ -53,6 +53,7 @@
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
+    "@tamanu/auth": "*",
     "asn1js": "^2.2.0",
     "base45-js": "^1.0.2",
     "basic-auth": "^2.0.1",
