@@ -35,6 +35,15 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   </Row>
 ));
 
+export const LeftAlignedButtonRow = styled(ButtonRow)`
+  justify-content: flex-start;
+
+  > button,
+  > div {
+    margin-left: 0px;
+  }
+`;
+
 export const FormSubmitCancelRow = React.memo(
   ({
     onCancel,

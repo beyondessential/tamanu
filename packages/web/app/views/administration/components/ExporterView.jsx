@@ -9,7 +9,7 @@ import { useApi } from '../../../api';
 import { Field, Form } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow, TranslatedText } from '../../../components';
+import { LeftAlignedButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
@@ -18,14 +18,6 @@ import { notifySuccess } from '../../../utils';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-left: 10px;
-`;
-
-const ExportButtonRow = styled(ButtonRow)`
-  justify-content: flex-start;
-
-  > button {
-    margin-left: 0;
-  }
 `;
 
 const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
@@ -43,9 +35,9 @@ const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
-    <ExportButtonRow>
+    <LeftAlignedButtonRow>
       <FormSubmitButton text={buttonLabel} />
-    </ExportButtonRow>
+    </LeftAlignedButtonRow>
   </StyledFormGrid>
 );
 

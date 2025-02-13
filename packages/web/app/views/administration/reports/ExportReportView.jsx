@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import {
-  ButtonRow,
+  LeftAlignedButtonRow,
   Field,
   Form,
   FormGrid,
@@ -18,14 +18,6 @@ import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { useTranslation } from '../../../contexts/Translation';
-
-const ExportButtonRow = styled(ButtonRow)`
-  justify-content: flex-start;
-
-  > button {
-    margin-left: 0;
-  }
-`;
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -144,11 +136,11 @@ export const ExportReportView = () => {
               />
             )}
           </FormGrid>
-          <ExportButtonRow>
+          <LeftAlignedButtonRow>
             <FormSubmitButton
               text={<TranslatedText stringId="general.action.export" fallback="Export" />}
             />
-          </ExportButtonRow>
+          </LeftAlignedButtonRow>
         </InnerContainer>
       )}
     />
