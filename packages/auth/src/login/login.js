@@ -6,14 +6,14 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { getLocalisation } from '../localisation';
-import { convertFromDbRecord } from '../convertDbRecord';
+import { getLocalisation } from '@tamanu/central-server/app/localisation';
 import {
   getRandomBase64String,
   getRandomU32,
   buildToken,
   isInternalClient,
   stripUser,
+  convertFromDbRecord,
 } from '../utils';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
