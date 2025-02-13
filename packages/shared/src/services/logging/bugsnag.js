@@ -8,9 +8,9 @@ export async function initBugsnag(options) {
     plugins: [BugsnagPluginExpress],
     onError: function (event) {
       const status = event.originalError?.status;
-      if (status && status < 500) {
-        event.severity = 'info';
-      }
+      if (status && status >= 500) return
+      // Reclassify 4xx errors as info level
+      event.severity = 'info';
     },
     logger: log,
     redactedKeys: options.redactedKeys ? options.redactedKeys.map(redact => {
