@@ -3,9 +3,6 @@ import { createHash } from 'node:crypto';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
 
-import config from 'config';
-import { program } from 'commander';
-
 import type { Sequelize } from '@tamanu/database';
 import type { Model } from '@tamanu/database/models/Model';
 
@@ -259,6 +256,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
 }
 
 (async () => {
+  const { program } = await import('commander');
   const opts = program
     .requiredOption('--since-ref <string>', "Don't look further back than this commit/ref")
     .option(
@@ -337,6 +335,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   // point, fill it with data, hash the tables (1), then move back to HEAD,
   // run all the migrations, hash the tables (2), and finally compare 1 & 2
 
+  const { default: config } = await import('config');
   const dbConfig = (name: string) => ({
     user: userInfo().username,
     ...(config as any).db,
