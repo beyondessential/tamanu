@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm/browser';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
@@ -37,15 +37,9 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @OneToMany(
-    () => Location,
-    ({ facility }) => facility,
-  )
+  @OneToMany(() => Location, ({ facility }) => facility)
   locations: Location[];
 
-  @OneToMany(
-    () => Department,
-    ({ facility }) => facility,
-  )
+  @OneToMany(() => Department, ({ facility }) => facility)
   departments: Department[];
 }
