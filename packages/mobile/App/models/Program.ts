@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm/browser';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { ProgramRegistry } from './ProgramRegistry';
@@ -11,10 +11,7 @@ export class Program extends BaseModel {
   @Column({ nullable: true })
   name?: string;
 
-  @OneToMany(
-    () => Survey,
-    ({ program }) => program,
-  )
+  @OneToMany(() => Survey, ({ program }) => program)
   surveys: Survey[];
 
   @OneToOne(() => ProgramRegistry, ({ program }) => program)
