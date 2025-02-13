@@ -19,8 +19,8 @@ const Row = styled.div`
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
-  > button,
-  > div {
+  > button:not(:first-child),
+  > div:not(:first-child) {
     margin-left: 20px;
   }
 `;
@@ -37,11 +37,6 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
 
 export const LeftAlignedButtonRow = styled(ButtonRow)`
   justify-content: flex-start;
-
-  > button,
-  > div {
-    margin-left: 0px;
-  }
 `;
 
 export const FormSubmitCancelRow = React.memo(
