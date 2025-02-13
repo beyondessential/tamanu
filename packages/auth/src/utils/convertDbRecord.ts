@@ -1,4 +1,23 @@
-const mapRelations = (data, f) => {
+type DbRecord = {
+  id: string;
+  deletedAt: string | null;
+  updatedAt: string;
+  createdAt: string;
+  updatedAtSyncTick: string;
+  password: string;
+  [key: string]: any;
+};
+
+type ConvertedDbRecord = {
+  data: {
+    id: string;
+    [key: string]: any; // to allow other properties
+  };
+  isDeleted?: boolean;
+};
+
+// TODO: type function
+const mapRelations = (data: { [key: string]: any }, f) => {
   const relations = {};
   Object.entries(data).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -8,15 +27,7 @@ const mapRelations = (data, f) => {
   return { ...data, ...relations };
 };
 
-export const convertToDbRecord = syncRecord => {
-  const { data, ...metadata } = syncRecord;
-  return {
-    ...metadata,
-    ...mapRelations(data, convertToDbRecord),
-  };
-};
-
-export const convertFromDbRecord = dbRecord => {
+export const convertFromDbRecord = (dbRecord: DbRecord): ConvertedDbRecord => {
   const { id, deletedAt, ...data } = dbRecord;
   delete data.updatedAt;
   delete data.createdAt;

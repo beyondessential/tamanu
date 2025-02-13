@@ -9,7 +9,7 @@ const verify = promisify(verifyCallback);
 
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
-export const stripUser = user => {
+export const stripUser = (user) => {
   const userData = { ...user };
   delete userData.password;
   return userData;
@@ -17,7 +17,9 @@ export const stripUser = user => {
 
 export const buildToken = async (data, secret, options) => sign(data, secret, options);
 
-export const getRandomBase64String = async (length, encoding = 'base64') => {
+// TODO: export model types from database package
+
+export const getRandomBase64String = async (length: number, encoding = 'base64') => {
   return new Promise((resolve, reject) => {
     randomBytes(length, (err, buf) => {
       if (err) reject(err);
@@ -26,13 +28,13 @@ export const getRandomBase64String = async (length, encoding = 'base64') => {
   });
 };
 
-export const getRandomU32 = () => {
+export const getRandomU32 = (): number => {
   return randomInt(0, MAX_U32_VALUE);
 };
 
 export const verifyToken = async (token, secret, options) => verify(token, secret, options);
 
-export const findUserById = async (models, id) => {
+export const findUserById = async (models, id: string) => {
   const user = await models.User.findByPk(id);
   if (!user) {
     return null;
@@ -40,4 +42,5 @@ export const findUserById = async (models, id) => {
   return user.get({ plain: true });
 };
 
-export const isInternalClient = client => Object.values(SERVER_TYPES).includes(client);
+export const isInternalClient = (client: string): boolean =>
+  Object.values(SERVER_TYPES).includes(client);
