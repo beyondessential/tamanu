@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
@@ -11,7 +12,12 @@ import {
   Field,
   FieldWithTooltip,
   Form,
+  ArrayField,
 } from '../../components/Field';
+import {
+  ProgramRegistryConditionField,
+  ProgramRegistryConditionCategoryField,
+} from '../../features/ProgramRegistry';
 import { FormGrid } from '../../components/FormGrid';
 import { ModalFormActionRow, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
@@ -20,7 +26,6 @@ import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-import { RelatedConditionFields } from './RelatedConditionFields';
 
 const validationSchema = yup.object().shape({
   conditions: yup.array().of(
@@ -56,6 +61,21 @@ const validationSchema = yup.object().shape({
     />,
   ),
 });
+
+const RelatedConditionFieldsContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  grid-column: 1 / -1;
+
+  > div {
+    flex: 1;
+
+    &:first-child {
+      min-width: 50%;
+    }
+  }
+`;
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
@@ -176,9 +196,26 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   gridColumn: '1 / -1',
                 }}
               />
-              <RelatedConditionFields
-                programRegistryId={selectedProgramRegistryId}
-                formValues={values}
+              <Field
+                name="conditions"
+                component={ArrayField}
+                renderField={(index, DeleteButton) => {
+                  const fieldName = `conditions[${index}]`;
+                  const conditionValue = values?.conditions ? values?.conditions[index] : null;
+                  return (
+                    <RelatedConditionFieldsContainer>
+                      <ProgramRegistryConditionField
+                        name={fieldName}
+                        programRegistryId={selectedProgramRegistryId}
+                      />
+                      <ProgramRegistryConditionCategoryField
+                        name={fieldName}
+                        conditionId={conditionValue?.conditionId}
+                      />
+                      {index > 0 && DeleteButton}
+                    </RelatedConditionFieldsContainer>
+                  );
+                }}
               />
             </FormGrid>
             <ModalFormActionRow
