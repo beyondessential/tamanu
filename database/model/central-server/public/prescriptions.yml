@@ -64,6 +64,9 @@ sources:
           - name: discontinuing_reason
             data_type: character varying(255)
             description: "{{ doc('prescriptions__discontinuing_reason') }}"
+          - name: repeats
+            data_type: integer
+            description: "{{ doc('prescriptions__repeats') }}"
           - name: discontinued_date
             data_type: character varying(255)
             description: "{{ doc('prescriptions__discontinued_date') }}"

@@ -1,8 +1,6 @@
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  await query.removeColumn('prescriptions', 'repeats');
-
   await query.addColumn('prescriptions', 'is_ongoing', {
     type: DataTypes.BOOLEAN,
     allowNull: true,
@@ -57,11 +55,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.addColumn('prescriptions', 'repeats', {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  });
-
   await query.removeColumn('prescriptions', 'is_ongoing');
   await query.removeColumn('prescriptions', 'is_prn');
   await query.removeColumn('prescriptions', 'is_variable_dose');

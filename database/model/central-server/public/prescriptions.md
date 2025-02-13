@@ -42,6 +42,10 @@ If the prescription was discontinued, who did it.
 If the prescription was discontinued, why that happened.
 {% enddocs %}
 
+{% docs prescriptions__repeats %}
+How many times this prescription can be repeatedly dispensed without a new prescription.
+{% enddocs %}
+
 {% docs prescriptions__discontinued_date %}
 If the prescription was discontinued, when that happened.
 {% enddocs %}

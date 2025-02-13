@@ -25,7 +25,7 @@ export class Prescription extends Model {
   declare discontinued?: boolean;
   declare discontinuedDate?: string;
   declare discontinuingReason?: string;
-
+  declare repeats?: number;
   declare prescriberId?: string;
   declare discontinuingClinicianId?: string;
   declare medicationId?: string;
@@ -71,6 +71,7 @@ export class Prescription extends Model {
         discontinued: DataTypes.BOOLEAN,
         discontinuedDate: DataTypes.STRING,
         discontinuingReason: DataTypes.STRING,
+        repeats: DataTypes.INTEGER,
       },
       {
         ...options,
