@@ -7,6 +7,7 @@ import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import { userInfo, userMiddleware } from '@tamanu/auth/middleware';
 import { login, refresh } from '@tamanu/auth/login';
 import { convertFromDbRecord } from '@tamanu/auth/utils';
+import { getLocalisation } from '../localisation';
 
 import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
@@ -20,7 +21,7 @@ authModule.use('/resetPassword', resetPassword);
 authModule.use('/changePassword', changePassword);
 authModule.post(
   '/login',
-  login({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET }),
+  login({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET, getLocalisation }),
 );
 authModule.post(
   '/refresh',

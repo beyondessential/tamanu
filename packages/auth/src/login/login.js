@@ -6,8 +6,6 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-// TODO: error here. how do we get localisation in this package
-import { getLocalisation } from '@tamanu/central-server/app/localisation';
 import {
   getRandomBase64String,
   getRandomU32,
@@ -64,7 +62,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   return refreshToken;
 };
 
-export const login = ({ secret, refreshSecret }) =>
+export const login = ({ secret, refreshSecret, getLocalisation }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
