@@ -16,12 +16,20 @@ import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifySuccess } from '../../../utils';
 
+const StyledFormGrid = styled(FormGrid)`
+  margin-left: 10px;
+`;
+
 const ExportButtonRow = styled(ButtonRow)`
   justify-content: flex-start;
+
+  > button {
+    margin-left: 0;
+  }
 `;
 
 const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
-  <FormGrid columns={1}>
+  <StyledFormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
@@ -38,7 +46,7 @@ const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
     <ExportButtonRow>
       <FormSubmitButton text={buttonLabel} />
     </ExportButtonRow>
-  </FormGrid>
+  </StyledFormGrid>
 );
 
 export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
