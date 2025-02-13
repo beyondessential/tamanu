@@ -31,4 +31,5 @@ Used to store the category of the condition.
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__condition %}
+
 {% enddocs %}
