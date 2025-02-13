@@ -4,7 +4,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
-import { userInfo, userMiddleware } from '@tamanu/auth/userMiddleware';
+import { userInfo, userMiddleware } from '@tamanu/auth/middleware';
 
 import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';

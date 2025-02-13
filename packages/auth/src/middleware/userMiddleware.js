@@ -4,7 +4,7 @@ import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
-import { findUserById, stripUser, verifyToken } from './utils';
+import { findUserById, stripUser, verifyToken } from '../utils/utils';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import config from 'config';
-import { userMiddleware } from '@tamanu/auth/userMiddleware';
+import { userMiddleware } from '@tamanu/auth/middleware';
 
 export const publicRoutes = Router();
 
