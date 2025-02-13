@@ -80,7 +80,6 @@ export const PatientProgramRegistryFormStory = {
       <PatientProgramRegistryForm
         onSubmit={(data) => {
           action('submit');
-          console.log('Submitted data:', data);
         }}
         onCancel={action('cancel')}
         patient={patient}

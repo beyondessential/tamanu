@@ -179,8 +179,6 @@ describe('PatientProgramRegistration', () => {
         date: '2023-09-02 08:00:00',
       });
 
-      console.log('result.body', result.body);
-
       const createdRegistrationCondition =
         await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
 
