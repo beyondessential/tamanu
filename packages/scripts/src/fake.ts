@@ -395,10 +395,18 @@ async function generateData(models: Models) {
 export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
   console.log('Fill database with fake data', rounds, 'rounds');
 
-  // eslint-disable-next-line no-unused-vars
-  for (const _ in Array(rounds).fill(0)) {
-    await generateData(sequelize.models);
-    process.stdout.write('.');
+  let done = 0;
+  let errs = 0;
+  while (done < rounds && errs < Math.max(10, rounds / 10)) {
+    try {
+      await generateData(sequelize.models);
+      process.stdout.write('.');
+      done += 1;
+    } catch(err) {
+      console.error(err);
+      process.stdout.write('!');
+      errs += 1;
+    }
   }
 
   console.log();
