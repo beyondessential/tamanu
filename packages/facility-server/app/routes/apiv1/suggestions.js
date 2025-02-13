@@ -101,12 +101,13 @@ function createSuggesterRoute(
         where,
         include,
         order: [
-          ...(order ? [order] : []),
+          ...(order ? [order.sql] : []),
           positionQuery,
           [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
         ],
         replacements: {
           positionMatch: searchQuery,
+          ...(order ? order.replacements : {}),
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
@@ -342,18 +343,26 @@ createSuggester(
       const types = query.types;
       if (!types?.length) return;
 
-      const caseStatement = query.types
-        .map((value, index) => `WHEN '${Sequelize.escape(value)}' THEN ${index + 1}`)
+      const caseStatement = types
+        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
         .join(' ');
 
-      return [
-        Sequelize.literal(`
-        CASE "ReferenceData"."type"
-          ${caseStatement}
-          ELSE ${query.types.length + 1}
-        END
-      `),
-      ];
+      const replacements = types.reduce((acc, value, index) => {
+        acc[`type${index}`] = value;
+        return acc;
+      }, {});
+
+      return {
+        sql: [
+          Sequelize.literal(`
+            CASE "ReferenceData"."type"
+              ${caseStatement}
+              ELSE ${types.length + 1}
+            END
+          `),
+        ],
+        replacements,
+      };
     },
     mapper: (item) => item,
     creatingBodyBuilder: (req) =>
