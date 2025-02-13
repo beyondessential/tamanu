@@ -8,7 +8,7 @@ export async function initBugsnag(options) {
     plugins: [BugsnagPluginExpress],
     onError: function (event) {
       const status = event.originalError?.status;
-      if (status && status >= 500) return
+      if (!status || status >= 500) return
       // Reclassify 4xx errors as info level
       event.severity = 'info';
     },
