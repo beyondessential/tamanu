@@ -76,3 +76,7 @@ The billing type ([Reference Data](#!/source/source.tamanu.tamanu.reference_data
 {% docs encounters__referral_source_id %}
 The referral source ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of the patient.
 {% enddocs %}
+
+{% docs encounters__is_discharged %}
+Whether the encounter is discharged
+{% enddocs %}

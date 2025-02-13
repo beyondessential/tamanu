@@ -122,3 +122,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in encounters."
             data_tests:
               - not_null
+          - name: is_discharged
+            data_type: boolean
+            description: "{{ doc('encounters__is_discharged') }}"
+            data_tests:
+              - not_null
