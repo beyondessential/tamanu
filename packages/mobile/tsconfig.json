@@ -16,7 +16,7 @@
       "/interfaces/*": ["App/ui/interfaces/*"],
       "/helpers/*": ["App/ui/helpers/*"],
       "/types/*": ["App/types/*"],
-      "/navigation/*": ["App/ui/navigation/*"],      
+      "/navigation/*": ["App/ui/navigation/*"],
       "/containers/*":["App/ui/containers/*"],
       "/contexts/*":["App/ui/contexts/*"],
       "/store/*": ["App/ui/store/*"],
@@ -31,11 +31,11 @@
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "jsx": "react",
-    "lib": ["es2019"],
+    "lib": ["ES2023"],
     "skipLibCheck": true,
     "strict": false,
     "noImplicitThis": false,
-    "target": "es2019"
+    "target": "ES2023"
   },
   "exclude": [
     "node_modules",

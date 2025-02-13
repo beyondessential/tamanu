@@ -83,7 +83,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@swc/jest": "^0.2.24",
+    "@swc/jest": "^0.2.37",
     "@tamanu/build-tooling": "*",
     "jest": "^29.3.1",
     "rimraf": "^6.0.1",

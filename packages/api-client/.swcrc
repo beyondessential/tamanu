@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json.schemastore.org/swcrc",
+  "$schema": "https://swc.rs/schema.json",
   "exclude": "node_modules/",
   "module": {
     "type": "es6"
@@ -9,7 +9,7 @@
       "syntax": "ecmascript",
       "jsx": true
     },
-    "target": "esnext",
+    "target": "es2023",
     "keepClassNames": true
   }
 }

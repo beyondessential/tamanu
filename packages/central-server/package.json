@@ -30,7 +30,7 @@
     "test-watch": "npm run test -- --watch"
   },
   "devDependencies": {
-    "@swc/jest": "^0.2.26",
+    "@swc/jest": "^0.2.37",
     "@tamanu/build-tooling": "*",
     "@types/node-telegram-bot-api": "^0.64.6",
     "ajv": "^8.6.3",

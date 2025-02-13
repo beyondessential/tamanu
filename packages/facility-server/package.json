@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
-    "@swc/jest": "^0.2.26",
+    "@swc/jest": "^0.2.37",
     "@tamanu/build-tooling": "*",
     "chai": "^4.1.2",
     "fast-check": "^3.3.0",
