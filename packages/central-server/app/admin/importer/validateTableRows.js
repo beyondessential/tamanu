@@ -19,7 +19,6 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
     const otherLabTestTypes = await models.LabTestType.findAll({
       where: { labTestCategoryId },
     });
-    console.log(otherLabTestTypes.map(x => x.dataValues));
 
     if (otherLabTestTypes.length !== 0) {
       const areAllSensitive = otherLabTestTypes.every(type => type.isSensitive);
