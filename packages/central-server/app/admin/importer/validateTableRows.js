@@ -37,8 +37,24 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
   }
 }
 
+async function validateLabTestPanels(models, rows, pushErrorFn) {
+  for (const { model, values} of rows) {
+    if (model !== 'LabTestPanelLabTestTypes') {
+      continue;
+    }
+
+    // This works because LabTestType is always upserted before panels
+    const { labTestTypeId } = values;
+    const labTestType = await models.LabTestType.findOne({ where: { id: labTestTypeId }});
+    if (labTestType?.isSensitive) {
+      pushErrorFn(-3, 'Lab test panels cannot contain sensitive lab test types');
+    }
+  }
+}
+
 const MODEL_VALIDATION = {
   'LabTestType': validateLabTestTypes,
+  'LabTestPanel': validateLabTestPanels,
 };
 
 export async function validateTableRows(models, rows, pushErrorFn) {
