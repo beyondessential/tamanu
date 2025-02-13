@@ -78,7 +78,7 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const whereQuery = whereBuilder(`%${Sequelize.escape(searchQuery)}%`, query, req);
+      const whereQuery = whereBuilder(`%:searchQuery%`, query, req);
 
       const where = {
         [Op.or]: [
@@ -107,6 +107,7 @@ function createSuggesterRoute(
         ],
         replacements: {
           positionMatch: searchQuery,
+          searchQuery,
           ...(order ? order.replacements : {}),
           ...extraReplacementsBuilder(query),
         },
