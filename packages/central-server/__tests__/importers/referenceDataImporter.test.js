@@ -450,6 +450,62 @@ describe('Data definition import', () => {
       "Cannot add sensitive lab test type to non sensitive category 'labTestCategory-NonSensitiveCategory'",
     );
   });
+
+  it('should import a lab test panel', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'valid-lab-test-panel', dryRun: true });
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'ReferenceData/labTestCategory': { created: 1, updated: 0, errored: 0 },
+      LabTestType: { created: 5, updated: 0, errored: 0 },
+      LabTestPanel: { created: 1, updated: 0, errored: 0 },
+    });
+  });
+
+  it('should not import a lab test panel with a sensitive test', async () => {
+    const { didntSendReason, errors } = await doImport({ file: 'invalid-lab-test-panel-complete', dryRun: true });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestPanel',
+      -1,
+      'Lab test panels cannot contain sensitive lab test types',
+    );
+  });
+
+  it('should not import a lab test panel referencing a sensitive test', async () => {
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-SensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Sensitive category 1',
+      code: 'SENSITIVECATEGORY1',
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestOne',
+      name: 'STONE',
+      code: 'SensitiveTestOne',
+      isSensitive: true,
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestTwo',
+      name: 'STTWO',
+      code: 'SensitiveTestTwo',
+      isSensitive: true,
+    });
+
+    const { didntSendReason, errors } = await doImport({ file: 'invalid-lab-test-panel-partial', dryRun: true });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestPanel',
+      -1,
+      'Lab test panels cannot contain sensitive lab test types',
+    );
+  });
 });
 
 describe('Permissions import', () => {
