@@ -36,7 +36,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('prescriptions__notes') }}"
           - name: end_date
-            data_type: date
+            data_type: character(19)
             description: "{{ doc('prescriptions__end_date') }}"
           - name: indication
             data_type: character varying(255)
