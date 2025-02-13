@@ -6,6 +6,12 @@ export async function initBugsnag(options) {
   Bugsnag.start({
     ...options,
     plugins: [BugsnagPluginExpress],
+    onError: function (event) {
+      const status = event.originalError?.status;
+      if (status && status < 500) {
+        event.severity = 'info';
+      }
+    },
     logger: log,
     redactedKeys: options.redactedKeys ? options.redactedKeys.map(redact => {
       if (redact.startsWith('/') && redact.endsWith('/i')) {
