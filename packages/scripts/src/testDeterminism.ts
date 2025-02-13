@@ -9,9 +9,6 @@ import type { Model } from '@tamanu/database/models/Model';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 
-const { initDatabase } = require('@tamanu/database/services/database');
-const { createMigrationInterface } = require('@tamanu/database/services/migrations');
-
 function warn(message: string) {
   console.warn(`⚠️ ${message}`);
   if (process.env.CI) {
@@ -129,6 +126,7 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes | false> {
+  const { createMigrationInterface } = require('@tamanu/database/services/migrations');
   const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
 
@@ -336,6 +334,8 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   // run all the migrations, hash the tables (2), and finally compare 1 & 2
 
   const { default: config } = await import('config');
+  const { initDatabase } = require('@tamanu/database/services/database');
+
   const dbConfig = (name: string) => ({
     user: userInfo().username,
     ...(config as any).db,
