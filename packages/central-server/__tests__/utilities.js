@@ -5,8 +5,9 @@ import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/c
 import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake, asNewRole } from '@tamanu/shared/test-helpers';
+import { buildToken } from '@tamanu/auth/utils';
+
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
-import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase, initReporting } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';

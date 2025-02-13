@@ -12,7 +12,7 @@ import {
   buildToken,
   isInternalClient,
   verifyToken,
-} from './utils';
+} from '../utils';
 
 export const refresh = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {

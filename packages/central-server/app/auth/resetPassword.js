@@ -6,15 +6,12 @@ import { addMinutes } from 'date-fns';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getRandomBase64String } from './utils';
+import { getRandomBase64String } from '@tamanu/auth/utils';
 
 export const resetPassword = express.Router();
 
 const schema = yup.object({
-  email: yup
-    .string()
-    .email('Must enter a valid email')
-    .required(),
+  email: yup.string().email('Must enter a valid email').required(),
 });
 
 resetPassword.post(
