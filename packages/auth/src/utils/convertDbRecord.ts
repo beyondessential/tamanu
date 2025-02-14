@@ -16,9 +16,9 @@ type ConvertedDbRecord = {
   isDeleted?: boolean;
 };
 
-// TODO: type function
 const mapRelations = (
   data: object,
+  // eslint-disable-next-line no-unused-vars
   f: (value: DbRecord, index: number, array: DbRecord[]) => any,
 ): object => {
   const relations = {};
