@@ -35,7 +35,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.base_ref }}
-      - run: git switch ${{ github.event.pull_request.head.ref || github.ref }}
+      - run: git switch ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       # Deal with the case where base_ref diverges from this branch
       # (e.g. main has gone beyond the point where this branch forked)
