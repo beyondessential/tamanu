@@ -142,7 +142,7 @@ async function migrate(dbConfig: any): Promise<Sequelize | false> {
     return false;
   }
 
-  await umzug.up();
+  await sequelize.migrate('up');
   return sequelize;
 }
 
