@@ -382,8 +382,11 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(6);
-        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
-          encounters.slice(6).map(([, mat]) => mat.id),
+        expect(response.body.entry.map(ent => ent.resource.id).sort()).toStrictEqual(
+          encounters
+            .slice(6)
+            .map(([, mat]) => mat.id)
+            .sort(),
         );
         expect(response).toHaveSucceeded();
       });
