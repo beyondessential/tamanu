@@ -1,4 +1,4 @@
-import { context, propagation, trace } from '@opentelemetry/api';
+import { Attributes, BaggageEntry, context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
@@ -6,11 +6,13 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from '../utils/utils';
 
-export const userMiddleware = ({ secret }) =>
-  asyncHandler(async (req, res, next) => {
+// TODO: another look at types for this file
+
+export const userMiddleware = ({ secret }: { secret: string }) =>
+  asyncHandler(async (req: any, _, next) => {
     const { store, headers } = req;
 
-    const { canonicalHostName } = config;
+    const { canonicalHostName } = config as any;
 
     // get token
     const { authorization } = headers;
@@ -48,7 +50,7 @@ export const userMiddleware = ({ secret }) =>
     req.deviceId = deviceId;
     /* eslint-enable require-atomic-updates */
 
-    const spanAttributes = user
+    const spanAttributes: Attributes = user
       ? {
           'app.user.id': user.id,
           'app.user.role': user.role,
@@ -58,12 +60,16 @@ export const userMiddleware = ({ secret }) =>
     // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes(spanAttributes);
     context.with(
-      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      propagation.setBaggage(
+        context.active(),
+        // TODO: weird and probably incorrect
+        propagation.createBaggage(spanAttributes as unknown as Record<string, BaggageEntry>),
+      ),
       () => next(),
     );
   });
 
-export const userInfo = asyncHandler(async (req, res) => {
+export const userInfo = asyncHandler(async (req: any, res) => {
   if (!req.user) {
     throw new ForbiddenError();
   }
