@@ -391,7 +391,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log(`=== Preparation ===`);
 
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
-    await gitCommand(['switch', '--detach', commitBeforeMigration]);
+    await gitCommand(['switch', '--discard-changes', '--detach', commitBeforeMigration]);
     await runCommand('npm', ['install']);
     await runCommand('npm', ['run', 'build-shared']);
     await runCommand('npm', ['run', '--workspace', 'scripts', 'build']);
@@ -412,7 +412,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     }
 
     console.log('Switch repo to after migrations to test', HEAD);
-    await gitCommand(['switch', '--detach', HEAD]);
+    await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
     await runCommand('npm', ['run', 'build-shared']);
 
