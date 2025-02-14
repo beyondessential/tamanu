@@ -450,7 +450,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
         printDiff(previousHashes, hashes);
         console.log(
           '❌ See this slab page for potential solutions:',
-          'https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf',
+          'https://beyond-essential.slab.com/posts/migration-determinism-testing-nwksh8cf',
         );
         throw new Error('failed determinism check');
       }
