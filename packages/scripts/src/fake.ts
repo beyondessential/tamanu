@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
@@ -443,4 +445,11 @@ export async function main() {
   } finally {
     await db.sequelize.close();
   }
+}
+
+if (process.env.NODE_CONFIG_DIR) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }

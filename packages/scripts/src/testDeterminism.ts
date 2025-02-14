@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { execFile, ExecFileOptions, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { userInfo } from 'node:os';
@@ -263,14 +265,10 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     const script = join(__dirname, 'fake.js');
     const args = ['--database', database, '--rounds', rounds.toString()];
     console.log('>', script, ...args);
-    const child = spawn(
-      'node',
-      ['-e', `require("${script}").main().catch(err=>{console.error(err);process.exit(1)})`, '--', ...args],
-      {
-        cwd: repoRoot,
-        stdio: 'inherit',
-      },
-    );
+    const child = spawn('node', [script, ...args], {
+      cwd: repoRoot,
+      stdio: 'inherit',
+    });
     child.on('error', (err) => reject(err));
     child.on('exit', (code) => {
       if (code !== 0) reject(new Error(`fake.js exited with code ${code}`));
