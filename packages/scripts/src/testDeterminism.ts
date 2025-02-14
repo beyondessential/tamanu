@@ -21,15 +21,10 @@ function warn(message: string) {
 
 type TableHashes = Map<string, string>;
 
-interface MigrationHashes {
-  migration: string;
+interface DbHashes {
+  dbName: string;
   summary: string;
   perTable: TableHashes;
-}
-
-interface DbHashes extends Omit<MigrationHashes, 'migration'> {
-  dbName: string;
-  perMigration: MigrationHashes[];
 }
 
 async function listTables(sequelize: Sequelize): Promise<string[]> {
@@ -138,21 +133,16 @@ async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbH
     return false;
   }
 
-  const perMigration: MigrationHashes[] = [];
-  for await (const migration of pending) {
-    await umzug.up({ migrations: [migration.file] });
-    const tables = await listTables(sequelize);
-    const perTable = await hashTables(sequelize, tables);
-    const summary = summarise(perTable);
-    perMigration.push({ migration: migration.file, summary, perTable });
-  }
+  await umzug.up();
 
-  const last = perMigration[perMigration.length - 1];
+  const tables = await listTables(sequelize);
+  const perTable = await hashTables(sequelize, tables);
+  const summary = summarise(perTable);
+
   return {
     dbName,
-    summary: last?.summary!,
-    perTable: last?.perTable!,
-    perMigration,
+    summary,
+    perTable,
   };
 }
 
@@ -175,26 +165,11 @@ function printStepDiff(a: TableHashes, b: TableHashes) {
 
 function printDiff(a: DbHashes, b: DbHashes) {
   console.log(`${a.dbName} -> ${b.dbName}`);
+  console.log(`${a.summary} -> ${b.summary}`);
   console.log();
-
-  const orderA = a.perMigration.map((m) => m.migration).join(', ');
-  const orderB = b.perMigration.map((m) => m.migration).join(', ');
-  if (orderA !== orderB) {
-    console.log('migrations did not apply in the same order!');
-    console.log(`${a.dbName}: ${orderA}`);
-    console.log(`${b.dbName}: ${orderB}`);
+  if (a.summary !== b.summary) {
+    printStepDiff(a.perTable, b.perTable);
     console.log();
-    return;
-  }
-
-  for (const [i, migrationB] of b.perMigration.entries()) {
-    const migrationA = a.perMigration[i]!;
-    console.log(`--- ${migrationB.migration} ---`);
-    console.log(`${migrationA.summary} -> ${migrationB.summary}`);
-    if (migrationA.summary !== migrationB.summary) {
-      printStepDiff(migrationA.perTable, migrationB.perTable);
-      console.log();
-    }
   }
 }
 
