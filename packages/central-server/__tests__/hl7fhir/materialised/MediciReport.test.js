@@ -193,15 +193,10 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const {
-      encounter,
-      encounterDiagnosis,
-      encounterMedication,
-      procedureType,
-      labTestType,
-    } = await makeEncounter({
-      encounterType: 'emergency',
-    });
+    const { encounter, encounterDiagnosis, encounterMedication, procedureType, labTestType } =
+      await makeEncounter({
+        encounterType: 'emergency',
+      });
 
     const { MediciReport } = ctx.store.models;
 
@@ -219,7 +214,7 @@ describe(`Materialised - MediciReport`, () => {
       patientBillingId: null,
       patientBillingType: null,
       encounterId: encounter.id,
-      age: 31,
+      age: expect.any(Number), // age will change every year
       weight: null,
       visitType: 'Emergency short stay',
       episodeEndStatus: null,
