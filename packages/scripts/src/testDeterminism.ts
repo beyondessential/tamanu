@@ -10,9 +10,10 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 
 function warn(message: string) {
-  console.warn(`⚠️ ${message}`);
   if (process.env.CI) {
     console.log(`::warning ::${message}`);
+  } else {
+    console.warn(`⚠️ ${message}`);
   }
 }
 
