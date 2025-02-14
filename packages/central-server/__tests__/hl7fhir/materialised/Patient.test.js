@@ -1062,6 +1062,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const { models } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
+      await FhirPatient.materialiseFromUpstream(keep.id);
+      await FhirPatient.materialiseFromUpstream(merge.id);
+
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
