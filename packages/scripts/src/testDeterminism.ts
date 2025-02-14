@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process';
+import { execFile, ExecFileOptions, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
@@ -195,10 +195,10 @@ function printDiff(a: DbHashes, b: DbHashes) {
   }
 }
 
-function runCommand(prog: string, args: string[]): Promise<string> {
+function runCommandImpl(prog: string, args: string[], opts: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
     console.log('$', prog, ...args);
-    execFile(prog, args, { encoding: 'utf-8' }, (error, stdout, stderr) => {
+    execFile(prog, args, { encoding: 'utf-8', ...opts }, (error, stdout, stderr) => {
       if (error) {
         console.log(stdout);
         console.error(stderr);
@@ -208,6 +208,11 @@ function runCommand(prog: string, args: string[]): Promise<string> {
       }
     });
   });
+}
+
+async function runCommand(prog: string, args: string[]): Promise<string> {
+  const repoRoot = await runCommandImpl('npm', ['root'], {});
+  return runCommandImpl(prog, args, { cwd: repoRoot });
 }
 
 async function gitCommand(args: string[]): Promise<string> {
@@ -237,7 +242,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  await runCommand('npm', ['run', '--workspace', 'scripts', 'build']);
+  const repoRoot = await runCommandImpl('npm', ['root'], {});
   return new Promise((resolve, reject) => {
     const script = join(__dirname, 'fake.js');
     const args = ['--database', database, '--rounds', rounds.toString()];
@@ -246,6 +251,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
       'node',
       ['-e', `require("${script}").main().catch(console.error)`, '--', ...args],
       {
+        cwd: repoRoot,
         stdio: 'inherit',
       },
     );
