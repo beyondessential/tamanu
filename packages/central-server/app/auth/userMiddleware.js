@@ -3,8 +3,9 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
+import {log} from '@tamanu/shared/services/logging';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -15,13 +16,15 @@ export const userMiddleware = ({ secret }) =>
     // get token
     const { authorization } = headers;
     if (!authorization) {
-      throw new ForbiddenError();
+      log.debug(`Auth error: No Authorization header`);
+      return res.status(403).json()
     }
 
     // verify token
     const [bearer, token] = authorization.split(/\s/);
     if (bearer.toLowerCase() !== 'bearer') {
-      throw new BadAuthenticationError('Only Bearer token is supported');
+      log.debug(`Auth error: Only Bearer token is supported`);
+      return res.status(401).json();
     }
 
     let contents = null;
@@ -31,14 +34,17 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token (hG7c)');
+      log.debug(`Auth error: Failed to verify token`, { error: e.message });
+      return res.status(401).json();
     }
+
 
     const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
     if (!user) {
-      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
+      log.debug(`Auth error: User not found`, { userId });
+      return res.status(401).json();
     }
 
     /* eslint-disable require-atomic-updates */
