@@ -336,9 +336,18 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     return;
   }
 
+  console.log('The first commit to touch a migration is', firstMigrationCommit);
+
   if (!commitBeforeMigration) {
-    console.log('looking back further to find the commit before migration');
-    commitBeforeMigration = await gitCommand(['log', '--format=%H', '-n1', firstMigrationCommit]);
+    if (commits.length == 2) {
+      // special case for single-commit PRs, where the commit before migration is outside the range
+      console.log('looking back further to find the commit before migration');
+      commitBeforeMigration = await gitCommand(['log', '--format=%H', '-n1', firstMigrationCommit]);
+    } else {
+      console.log('There is nothing to check!');
+      if (opts.checkPrecondition) process.exit(2);
+      return;
+    }
   }
 
   console.log('Starting migration testing from commit', commitBeforeMigration);
