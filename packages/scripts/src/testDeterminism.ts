@@ -452,7 +452,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   } finally {
     console.log();
     console.log('Resetting repo to', currentBranch);
-    await gitCommand(['switch', currentBranch]);
+    await gitCommand(['switch', '--discard-changes', currentBranch]);
     console.log();
   }
 
