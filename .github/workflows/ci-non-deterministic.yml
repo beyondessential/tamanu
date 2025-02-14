@@ -39,6 +39,8 @@ jobs:
 
       # Deal with the case where base_ref diverges from this branch
       # (e.g. main has gone beyond the point where this branch forked)
+      #
+      # Test from the base of the PR or 10 commits back if on main/release.
       - name: Find base
         id: base
         run: |
@@ -73,8 +75,16 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
-      # test from the base of the PR or 10 commits back if on main
-      - if: steps.precheck.outputs.code != '2'
+      - name: Test central migrations
+        if: steps.precheck.outputs.code != '2'
+        env:
+          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
+        run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }}
+
+      - name: Test facility migrations
+        if: steps.precheck.outputs.code != '2'
+        env:
+          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/facility-server/config
         run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }}
 
   # Dummy job to have a stable name for PR requirements
