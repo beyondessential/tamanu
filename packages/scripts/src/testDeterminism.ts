@@ -123,10 +123,7 @@ function summarise(hashes: TableHashes): string {
   return hash.digest().toString('base64');
 }
 
-async function migrate(dbConfig: any): Promise<Sequelize | false> {
-  // kill the require cache so that we reload the entire database
-  // handling code at the current repo state
-  require.cache = {};
+async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const { initDatabase } = require('@tamanu/database/services/database');
   const { createMigrationInterface } = require('@tamanu/database/services/migrations');
 
@@ -135,20 +132,34 @@ async function migrate(dbConfig: any): Promise<Sequelize | false> {
 
   const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
+  await sequelize.close();
 
-  if (!pending.length) {
-    console.log('❎ Found some migration commits, but no actual migrations in the end state.');
-    await sequelize.close();
-    return false;
-  }
-
-  await sequelize.migrate('up');
-  return sequelize;
+  return !!pending.length;
 }
 
-async function migrateAndHash(dbConfig: any): Promise<DbHashes | false> {
-  const sequelize = await migrate(dbConfig);
-  if (sequelize === false) return false;
+async function migrate(dbConfig: any): Promise<void> {
+  const script = `
+    (async() {
+      const { initDatabase } = require('@tamanu/database/services/database');
+      const db = await initDatabase(${JSON.stringify(dbConfig)});
+      const sequelize = db.sequelize as Sequelize;
+
+      await sequelize.migrate('up');
+      await sequelize.close();
+    })().catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
+  `;
+  await spawnCommand('node', ['-e', script]);
+}
+
+async function migrateAndHash(dbConfig: any): Promise<DbHashes> {
+  await migrate(dbConfig);
+
+  const { initDatabase } = require('@tamanu/database/services/database');
+  const db = await initDatabase(dbConfig);
+  const sequelize = db.sequelize as Sequelize;
 
   const tables = await listTables(sequelize);
   const perTable = await hashTables(sequelize, tables);
@@ -251,22 +262,25 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   );
 }
 
-async function generateFake(database: string, rounds: number): Promise<void> {
+async function spawnCommand(prog: string, args: string[]): Promise<void> {
   const repoRoot = await findRepoRoot();
   return new Promise((resolve, reject) => {
-    const script = join(__dirname, 'fake.js');
-    const args = ['--database', database, '--rounds', rounds.toString()];
-    console.log('>', script, ...args);
-    const child = spawn('node', [script, ...args], {
+    console.log('$', prog, ...args);
+    const child = spawn(prog, args, {
       cwd: repoRoot,
       stdio: 'inherit',
     });
     child.on('error', (err) => reject(err));
     child.on('exit', (code) => {
-      if (code !== 0) reject(new Error(`fake.js exited with code ${code}`));
+      if (code !== 0) reject(new Error(`exited with code ${code}`));
       else resolve();
     });
   });
+}
+
+async function generateFake(database: string, rounds: number): Promise<void> {
+  const script = join(__dirname, 'fake.js');
+  return spawnCommand('node', [script, '--database', database, '--rounds', rounds.toString()]);
 }
 
 (async () => {
@@ -425,10 +439,13 @@ async function generateFake(database: string, rounds: number): Promise<void> {
       await runCommand('dropdb', ['--if-exists', copyDb.name]);
       await runCommand('createdb', ['-O', copyDb.user, '-T', initDb.name, copyDb.name]);
 
+      if (!(await areMigrationsAvailable(copyDb))) {
+        console.log('❎ Found some migration commits, but no actual migrations in the end state.');
+        break;
+      }
+
       console.log('Migrate and hash the database');
       const hashes = await migrateAndHash(copyDb);
-
-      if (hashes === false) break; // no migrations
 
       console.log('Post-migrations overall hash:', hashes.summary);
       if (previousHashes && hashes.summary !== previousHashes.summary) {
