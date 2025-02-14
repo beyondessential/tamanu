@@ -19,6 +19,7 @@ export class FhirResource extends Model {
   declare upstreamId: string;
   declare lastUpdated: Date;
   declare isLive: boolean;
+  declare resolved: boolean;
 
   static initResource(attributes: ModelAttributes, options: InitOptions) {
     super.init(
@@ -56,6 +57,11 @@ export class FhirResource extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: true,
+        },
+        resolved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
         ...attributes,
       },
@@ -111,7 +117,12 @@ export class FhirResource extends Model {
     const currentIsLive = resource.isLive;
     await resource.updateIsLive();
     const newIsLive = resource.isLive;
-    if (!currentIsLive && !newIsLive && !(await resource.shouldForceRematerialise())) {
+    if (
+      resource.resolved && // We can only skip rematerialisation if the resource is resolved
+      !currentIsLive &&
+      !newIsLive &&
+      !(await resource.shouldForceRematerialise())
+    ) {
       // Skipping rematerialisation
       return resource;
     }
@@ -182,7 +193,15 @@ export class FhirResource extends Model {
   }
 
   static async resolveUpstreams() {
-    await this.sequelize.query('CALL fhir.resolve_upstreams()');
+    const unresolvedResources = await this.findAll({
+      where: {
+        resolved: false,
+      },
+    });
+
+    for (const unresolvedResource of unresolvedResources) {
+      await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+    }
   }
 
   // take a FhirResource and save it into Tamanu
@@ -210,8 +229,9 @@ export class FhirResource extends Model {
   asFhir() {
     const fields: Record<string, any> = {};
     for (const name of Object.keys((this.constructor as typeof FhirResource).getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'isLive'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'isLive', 'resolved'].includes(name)) continue;
       fields[name] = this.get(name) as any;
+
     }
 
     return {
