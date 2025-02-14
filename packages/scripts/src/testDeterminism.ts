@@ -123,7 +123,7 @@ function summarise(hashes: TableHashes): string {
   return hash.digest().toString('base64');
 }
 
-async function migrateAndHash(dbName: string, dbConfig: any): Promise<DbHashes | false> {
+async function migrate(dbConfig: any): Promise<Sequelize | false> {
   // kill the require cache so that we reload the entire database
   // handling code at the current repo state
   require.cache = {};
@@ -138,10 +138,17 @@ async function migrateAndHash(dbName: string, dbConfig: any): Promise<DbHashes |
 
   if (!pending.length) {
     console.log('❎ Found some migration commits, but no actual migrations in the end state.');
+    await sequelize.close();
     return false;
   }
 
   await umzug.up();
+  return sequelize;
+}
+
+async function migrateAndHash(dbConfig: any): Promise<DbHashes | false> {
+  const sequelize = await migrate(dbConfig);
+  if (sequelize === false) return false;
 
   const tables = await listTables(sequelize);
   const perTable = await hashTables(sequelize, tables);
@@ -150,7 +157,7 @@ async function migrateAndHash(dbName: string, dbConfig: any): Promise<DbHashes |
   await sequelize.close();
 
   return {
-    dbName,
+    dbName: dbConfig.name,
     summary,
     perTable,
   };
@@ -396,10 +403,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
       await runCommand('createdb', ['-O', initDb.user, initDb.name]);
 
       console.log('Migrate database from blank');
-      const db = await initDatabase(initDb);
-      const sequelize = db.sequelize as Sequelize;
-      await sequelize.migrate('up');
-      await sequelize.close();
+      await migrate(initDb);
 
       await generateFake(initDb.name, dataRounds);
     }
