@@ -17,7 +17,10 @@ type ConvertedDbRecord = {
 };
 
 // TODO: type function
-const mapRelations = (data: { [key: string]: any }, f) => {
+const mapRelations = (
+  data: object,
+  f: (value: DbRecord, index: number, array: DbRecord[]) => any,
+): object => {
   const relations = {};
   Object.entries(data).forEach(([key, value]) => {
     if (Array.isArray(value)) {

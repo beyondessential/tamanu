@@ -1,25 +1,42 @@
-import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
+import {
+  sign as signCallback,
+  verify as verifyCallback,
+  SignOptions,
+  VerifyOptions,
+  Jwt,
+  JwtPayload,
+} from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
 import { SERVER_TYPES } from '@tamanu/constants';
+import { type ModelProperties, type Models } from '@tamanu/database/types';
+import { type User } from '@tamanu/database';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
-export const stripUser = (user) => {
+export const stripUser = (user: ModelProperties<User>): Omit<ModelProperties<User>, 'password'> => {
   const userData = { ...user };
   delete userData.password;
   return userData;
 };
 
-export const buildToken = async (data, secret, options) => sign(data, secret, options);
+export const buildToken = async (
+  data: object | string,
+  secret: string,
+  options: SignOptions,
+): Jwt => sign(data, secret, options);
 
-// TODO: export model types from database package
+export const verifyToken = async (token: Jwt, secret: string, options: VerifyOptions): JwtPayload =>
+  verify(token, secret, options);
 
-export const getRandomBase64String = async (length: number, encoding = 'base64') => {
+export const getRandomBase64String = async (
+  length: number,
+  encoding: BufferEncoding = 'base64',
+) => {
   return new Promise((resolve, reject) => {
     randomBytes(length, (err, buf) => {
       if (err) reject(err);
@@ -32,9 +49,7 @@ export const getRandomU32 = (): number => {
   return randomInt(0, MAX_U32_VALUE);
 };
 
-export const verifyToken = async (token, secret, options) => verify(token, secret, options);
-
-export const findUserById = async (models, id: string) => {
+export const findUserById = async (models: Models, id: string): Promise<User> => {
   const user = await models.User.findByPk(id);
   if (!user) {
     return null;
