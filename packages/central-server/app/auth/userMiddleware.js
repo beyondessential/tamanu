@@ -32,7 +32,7 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      log.debug(`Auth error: Failed to verify token`, { error: e.message });
+      log.debug(`Auth error: Invalid token (hG7c)`, { error: e.message });
       return res.status(401).json();
     }
 
