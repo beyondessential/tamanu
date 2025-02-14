@@ -63,7 +63,7 @@ jobs:
         id: precheck
         run: |
           set +e
-          npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }} --check-precondition --skip-db-check
+          npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }} --check-precondition --skip-db-check --skip-env-check
           code=$?
           echo "code=$code" | tee -a "$GITHUB_OUTPUT"
           [[ "$code" = "1" ]] && exit 1

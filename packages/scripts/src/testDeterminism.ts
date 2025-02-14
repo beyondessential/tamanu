@@ -265,12 +265,23 @@ async function generateFake(database: string, rounds: number): Promise<void> {
       '--skip-db-check',
       'During a precondition check, skip checking the database (useful if the database is not ready yet)',
     )
+    .option(
+      '--skip-env-check',
+      'During a precondition check, skip checking the environment (used in CI)',
+    )
     .option('--test-rounds <number>', 'How many times to apply migrations during test', '10')
     .option('--data-rounds <number>', 'How much data to fill database with', '100')
     .parse()
     .opts();
 
-  if (!process.env.NODE_CONFIG_DIR) {
+  /* match (checkPrecondition, skipEnvCheck, NODE_CONFIG_DIR.is_set()) {
+    (true, true, false) => skip,
+    (_, _, false) => throw,
+    _ => skip
+  } */
+  if (opts.checkPrecondition && opts.skipEnvCheck && !process.env.NODE_CONFIG_DIR) {
+    // skip
+  } else if (!process.env.NODE_CONFIG_DIR) {
     throw new Error('NODE_CONFIG_DIR must be set, to select the target server');
   }
 
