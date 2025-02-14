@@ -123,8 +123,16 @@ function summarise(hashes: TableHashes): string {
   return hash.digest().toString('base64');
 }
 
-async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbHashes | false> {
+async function migrateAndHash(dbName: string, dbConfig: any): Promise<DbHashes | false> {
+  // kill the require cache so that we reload the entire database
+  // handling code at the current repo state
+  require.cache = {};
+  const { initDatabase } = require('@tamanu/database/services/database');
   const { createMigrationInterface } = require('@tamanu/database/services/migrations');
+
+  const db = await initDatabase(dbConfig);
+  const sequelize = db.sequelize as Sequelize;
+
   const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
 
@@ -138,6 +146,8 @@ async function migrateAndHash(dbName: string, sequelize: Sequelize): Promise<DbH
   const tables = await listTables(sequelize);
   const perTable = await hashTables(sequelize, tables);
   const summary = summarise(perTable);
+
+  await sequelize.close();
 
   return {
     dbName,
@@ -412,10 +422,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
       await runCommand('createdb', ['-O', copyDb.user, '-T', initDb.name, copyDb.name]);
 
       console.log('Migrate and hash the database');
-      const db = await initDatabase(copyDb);
-      const sequelize = db.sequelize as Sequelize;
-      const hashes = await migrateAndHash(copyDb.name, sequelize);
-      await sequelize.close();
+      const hashes = await migrateAndHash(copyDb);
 
       if (hashes === false) break; // no migrations
 
