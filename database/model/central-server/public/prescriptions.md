@@ -6,10 +6,6 @@ Records prescriptions for medications.
 When the prescription ends.
 {% enddocs %}
 
-{% docs prescriptions__note %}
-Free-form note about the prescription.
-{% enddocs %}
-
 {% docs prescriptions__indication %}
 The [indication of use](https://en.wikipedia.org/wiki/Indication_(medicine)) for the medicine.
 {% enddocs %}
@@ -24,6 +20,10 @@ The medication ([Reference Data](#!/source/source.tamanu.tamanu.reference_data),
 
 {% docs prescriptions__prescriber_id %}
 [Who](#!/source/source.tamanu.tamanu.users) prescribed the medication.
+{% enddocs %}
+
+{% docs prescriptions__notes %}
+Free-form note about the prescription.
 {% enddocs %}
 
 {% docs prescriptions__quantity %}
@@ -52,4 +52,44 @@ If the prescription was discontinued, when that happened.
 
 {% docs prescriptions__end_date_legacy %}
 [Deprecated] When the prescription ends.
+{% enddocs %}
+
+{% docs prescriptions__is_ongoing %}
+A flag to determine whether or not the current prescription is ongoing
+{% enddocs %}
+
+{% docs prescriptions__is_prn %}
+A flag to determine whether or not the current prescription is prn
+{% enddocs %}
+
+{% docs prescriptions__is_variable_dose %}
+A flag to determine whether or not the current prescription is variable does
+{% enddocs %}
+
+{% docs prescriptions__dose_amount %}
+Numeric field to record dose amount
+{% enddocs %}
+
+{% docs prescriptions__units %}
+The units of the prescription
+{% enddocs %}
+
+{% docs prescriptions__frequency %}
+The frequency of the prescription
+{% enddocs %}
+
+{% docs prescriptions__start_date %}
+The start date of the prescription
+{% enddocs %}
+
+{% docs prescriptions__duration_value %}
+The duration value of the prescription
+{% enddocs %}
+
+{% docs prescriptions__duration_unit %}
+The duration unit of the prescription
+{% enddocs %}
+
+{% docs prescriptions__is_phone_order %}
+A flag to determine whether or not the current prescription is phone order
 {% enddocs %}
