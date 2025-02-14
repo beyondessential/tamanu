@@ -142,10 +142,8 @@ async function migrate(dbConfig: any): Promise<void> {
     (async () => {
       const { initDatabase } = require('@tamanu/database/services/database');
       const db = await initDatabase(${JSON.stringify(dbConfig)});
-      const sequelize = db.sequelize as Sequelize;
-
-      await sequelize.migrate('up');
-      await sequelize.close();
+      await db.sequelize.migrate('up');
+      await db.sequelize.close();
     })().catch(err => {
       console.error(err);
       process.exit(1);
