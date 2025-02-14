@@ -280,12 +280,11 @@ async function generateFake(database: string, rounds: number): Promise<void> {
 
   /* match (checkPrecondition, skipEnvCheck, NODE_CONFIG_DIR.is_set()) {
     (true, true, false) => skip,
+    (false, true, _) => caught above,
     (_, _, false) => throw,
     _ => skip
   } */
-  if (opts.checkPrecondition && opts.skipEnvCheck && !process.env.NODE_CONFIG_DIR) {
-    // skip
-  } else if (!process.env.NODE_CONFIG_DIR) {
+  if (!process.env.NODE_CONFIG_DIR && !opts.skipEnvCheck) {
     throw new Error('NODE_CONFIG_DIR must be set, to select the target server');
   }
 
