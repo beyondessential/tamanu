@@ -274,6 +274,10 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     .parse()
     .opts();
 
+  if (!opts.checkPrecondition && (opts.skipDbCheck || opts.skipEnvCheck)) {
+    throw new Error('--skip-*-check cannot be used without --check-precondition');
+  }
+
   /* match (checkPrecondition, skipEnvCheck, NODE_CONFIG_DIR.is_set()) {
     (true, true, false) => skip,
     (_, _, false) => throw,
