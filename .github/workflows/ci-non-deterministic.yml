@@ -40,11 +40,11 @@ jobs:
       # Deal with the case where base_ref diverges from this branch
       # (e.g. main has gone beyond the point where this branch forked)
       #
-      # Test from the base of the PR or 10 commits back if on main/release.
+      # Test from the base of the PR or one commit back if on main/release.
       - name: Find base
         id: base
         run: |
-          realbase=$(git merge-base ${{ github.base_ref || 'HEAD~10' }} HEAD)
+          realbase=$(git merge-base ${{ github.base_ref || 'HEAD~1' }} HEAD)
           echo "realbase=$realbase" | tee -a "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
