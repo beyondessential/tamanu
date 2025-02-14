@@ -265,7 +265,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('>', script, ...args);
     const child = spawn(
       'node',
-      ['-e', `require("${script}").main().catch(console.error)`, '--', ...args],
+      ['-e', `require("${script}").main().catch(err=>{console.error(err);process.exit(1)})`, '--', ...args],
       {
         cwd: repoRoot,
         stdio: 'inherit',
