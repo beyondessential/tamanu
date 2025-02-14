@@ -1034,6 +1034,10 @@ describe('Encounter', () => {
           encounterId: medicationEncounter.id,
           medicationId: testMedication.id,
           prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'daily',
+          route: 'dermal',
         });
         expect(result).toHaveSucceeded();
         expect(result.body.date).toBeTruthy();
