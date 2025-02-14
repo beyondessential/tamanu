@@ -383,24 +383,27 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-        if (!parentId) return undefined;
 
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
+        return [
+          parentId && {
+            model: ReferenceData,
+            as: 'parent',
+            required: true,
+            through: {
+              attributes: [],
+              where: {
+                referenceDataParentId: parentId,
+                type: relationType,
+              },
             },
           },
-        };
+          'referenceDrug',
+        ].filter(Boolean);
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
+      mapper: (item) => item,
     },
     true,
   );

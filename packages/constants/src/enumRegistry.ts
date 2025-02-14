@@ -36,7 +36,7 @@ import { TEMPLATE_TYPE_LABELS } from './templates.js';
 import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
 import { ASSET_NAME_LABELS } from './importable.js';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
+import { DRUG_ROUTE_LABELS, DRUG_UNIT_LABELS, REPEATS_LABELS } from './medications.js';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
 import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
@@ -65,6 +65,7 @@ export const registeredEnums = {
   BLOOD_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
@@ -115,6 +116,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   BLOOD_LABELS: 'patient.property.blood',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
+  DRUG_UNIT_LABELS: 'medication.property.unit',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',

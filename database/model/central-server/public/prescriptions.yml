@@ -32,12 +32,12 @@ sources:
             description: "{{ doc('generic__date') }} in prescriptions."
             data_tests:
               - not_null
+          - name: notes
+            data_type: character varying(255)
+            description: "{{ doc('prescriptions__notes') }}"
           - name: end_date
             data_type: character(19)
             description: "{{ doc('prescriptions__end_date') }}"
-          - name: note
-            data_type: character varying(255)
-            description: "{{ doc('prescriptions__note') }}"
           - name: indication
             data_type: character varying(255)
             description: "{{ doc('prescriptions__indication') }}"
@@ -76,6 +76,36 @@ sources:
           - name: end_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('prescriptions__end_date_legacy') }}"
+          - name: is_ongoing
+            data_type: boolean
+            description: "{{ doc('prescriptions__is_ongoing') }}"
+          - name: is_prn
+            data_type: boolean
+            description: "{{ doc('prescriptions__is_prn') }}"
+          - name: is_variable_dose
+            data_type: boolean
+            description: "{{ doc('prescriptions__is_variable_dose') }}"
+          - name: dose_amount
+            data_type: numeric
+            description: "{{ doc('prescriptions__dose_amount') }}"
+          - name: units
+            data_type: character varying(255)
+            description: "{{ doc('prescriptions__units') }}"
+          - name: frequency
+            data_type: character varying(255)
+            description: "{{ doc('prescriptions__frequency') }}"
+          - name: start_date
+            data_type: character(19)
+            description: "{{ doc('prescriptions__start_date') }}"
+          - name: duration_value
+            data_type: numeric
+            description: "{{ doc('prescriptions__duration_value') }}"
+          - name: duration_unit
+            data_type: character varying(255)
+            description: "{{ doc('prescriptions__duration_unit') }}"
+          - name: is_phone_order
+            data_type: boolean
+            description: "{{ doc('prescriptions__is_phone_order') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in prescriptions."
