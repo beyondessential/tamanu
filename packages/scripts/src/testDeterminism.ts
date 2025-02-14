@@ -139,7 +139,7 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 
 async function migrate(dbConfig: any): Promise<void> {
   const script = `
-    (async() {
+    (async () => {
       const { initDatabase } = require('@tamanu/database/services/database');
       const db = await initDatabase(${JSON.stringify(dbConfig)});
       const sequelize = db.sequelize as Sequelize;
