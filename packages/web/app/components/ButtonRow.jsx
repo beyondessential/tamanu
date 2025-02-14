@@ -12,15 +12,15 @@ const FlexSpaceBetween = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: flex-end;
+  justify-content: ${p => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
   margin-top: 10px;
   width: 100%;
 
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
-  > button,
-  > div {
+  > button:not(:first-child),
+  > div:not(:first-child) {
     margin-left: 20px;
   }
 `;

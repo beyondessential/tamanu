@@ -28,7 +28,7 @@ const ContentRow = styled.div`
 const ContentColumn = props => <FormGrid columns={1} {...props} />;
 
 const StyledButtonRow = styled(ButtonRow)`
-  width: 50%;
+  ${p => (p.alignment === 'right' ? `width: 50%` : '')};
 `;
 
 const ERROR_COLUMNS = [
@@ -78,6 +78,7 @@ const ImportForm = ({
 }) => {
   const { values } = useFormikContext();
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
+  const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
   return (
     <ContentContainer>
       <Field
@@ -100,7 +101,7 @@ const ImportForm = ({
           options={dataTypes.map(value => ({ value, label: startCase(value) }))}
         />
       )}
-      <StyledButtonRow>
+      <StyledButtonRow alignment={buttonRowAlignment}>
         <ImportButton
           variant="outlined"
           onSubmit={(event, extraFormData) => {
