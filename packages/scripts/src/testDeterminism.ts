@@ -347,6 +347,11 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   // point, fill it with data, hash the tables (1), then move back to HEAD,
   // run all the migrations, hash the tables (2), and finally compare 1 & 2
 
+  if (opts.skipDbCheck) {
+    console.log('✔ Good to go!');
+    return;
+  }
+
   const { default: config } = await import('config');
   const { initDatabase } = require('@tamanu/database/services/database');
 
@@ -358,14 +363,12 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   });
 
   if (opts.checkPrecondition) {
-    if (!opts.skipDbCheck) {
-      const initDb = dbConfig('init');
-      console.log('Create new database', initDb.name);
-      await runCommand('dropdb', ['--if-exists', initDb.name]);
-      await runCommand('createdb', ['-O', initDb.user, initDb.name]);
-      const db = await initDatabase(initDb);
-      await db.sequelize.close();
-    }
+    const initDb = dbConfig('init');
+    console.log('Create new database', initDb.name);
+    await runCommand('dropdb', ['--if-exists', initDb.name]);
+    await runCommand('createdb', ['-O', initDb.user, initDb.name]);
+    const db = await initDatabase(initDb);
+    await db.sequelize.close();
 
     console.log('✔ Good to go!');
     return;
