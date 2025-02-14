@@ -6,23 +6,23 @@ export async function initBugsnag(options) {
   Bugsnag.start({
     ...options,
     plugins: [BugsnagPluginExpress],
+    logger: log,
     onError: function (event) {
-      const status = event.originalError?.status;
-      if (!status || status >= 500) return
-      // Reclassify 4xx errors as info level
+      if (!options.errorsToDowngrade || !options.errorsToDowngrade.includes(event.originalError?.message)) return;
       event.severity = 'info';
     },
-    logger: log,
-    redactedKeys: options.redactedKeys ? options.redactedKeys.map(redact => {
-      if (redact.startsWith('/') && redact.endsWith('/i')) {
-        return new RegExp(redact.slice(1, -1), 'i');
-      }
+    redactedKeys: options.redactedKeys
+      ? options.redactedKeys.map((redact) => {
+          if (redact.startsWith('/') && redact.endsWith('/i')) {
+            return new RegExp(redact.slice(1, -1), 'i');
+          }
 
-      if (redact.startsWith('/') && redact.endsWith('/')) {
-        return new RegExp(redact.slice(1, -1));
-      }
+          if (redact.startsWith('/') && redact.endsWith('/')) {
+            return new RegExp(redact.slice(1, -1));
+          }
 
-      return redact;
-    }) : undefined,
+          return redact;
+        })
+      : undefined,
   });
 }

@@ -58,6 +58,7 @@
     type: 'bugsnag',
     // paste your bugsnag API key here
     apiKey: '',
+    errorsToDowngrade: ['Invalid token (hG7c)']
   },
   "sync": {
     "maxConcurrentSessions": 4,

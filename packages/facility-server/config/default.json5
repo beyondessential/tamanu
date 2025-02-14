@@ -21,6 +21,8 @@
     type: 'bugsnag',
     // paste your bugsnag API key here
     apiKey: '',
+    // treat these errors as severity info
+    errorsToDowngrade: []
   },
   "sync": {
     "schedule": "*/1 * * * *",
