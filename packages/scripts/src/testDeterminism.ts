@@ -237,6 +237,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
+  await runCommand('npm', ['run', '--workspace', 'scripts', 'build']);
   return new Promise((resolve, reject) => {
     const script = join(__dirname, 'fake.js');
     const args = ['--database', database, '--rounds', rounds.toString()];
