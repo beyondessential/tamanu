@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
@@ -11,6 +13,61 @@ import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
+import { useTranslation } from '../contexts/Translation';
+import { getTranslatedFrequencySynonym } from '../utils/medications';
+import { LimitedLinesCell } from './FormattedTableCell';
+
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  border: none;
+  border-top: 1px solid ${Colors.outline};
+  margin-top: 8px;
+  .MuiTableCell-head {
+    background-color: ${Colors.white};
+    padding-top: 12px;
+    padding-bottom: 12px;
+    span {
+      font-weight: 400;
+      color: ${Colors.midText};
+    }
+    padding-left: 10px;
+    padding-right: 10px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableCell-body {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 44px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    &:hover {
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        td {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+`;
 
 const getMedicationName = ({ medication }) => (
   <TranslatedReferenceData
@@ -20,40 +77,64 @@ const getMedicationName = ({ medication }) => (
   />
 );
 
-const MEDICATION_COLUMNS = [
+const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) => {
+  if (!doseAmount || !units) return '';
+  if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
+  return `${doseAmount} ${units}${
+    isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
+  }`;
+};
+
+const getFrequency = ({ frequency }, getTranslation) => {
+  if (!frequency) return '';
+  return getTranslatedFrequencySynonym(
+    ADMINISTRATION_FREQUENCY_SYNONYMS[frequency],
+    0,
+    getTranslation,
+  );
+};
+
+const MEDICATION_COLUMNS = getTranslation => [
   {
-    key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date }) => <DateDisplay date={date} />,
-  },
-  {
-    key: 'medication.name',
-    title: <TranslatedText stringId="medication.table.column.name" fallback="Drug" />,
+    key: 'Medication.name',
+    title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
     accessor: getMedicationName,
-    sortable: false,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
   },
   {
-    key: 'prescription',
-    title: <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
+    key: 'dose',
+    title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
+    accessor: data => getDose(data, getTranslation),
+    sortable: false,
+    CellComponent: LimitedLinesCell,
+  },
+  {
+    key: 'frequency',
+    title: <TranslatedText stringId="medication.table.column.frequency" fallback="Frequency" />,
+    accessor: data => getFrequency(data, getTranslation),
+    sortable: false,
+    CellComponent: LimitedLinesCell,
   },
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+    CellComponent: LimitedLinesCell,
   },
   {
-    key: 'endDate',
-    title: <TranslatedText stringId="medication.endDate.label" fallback="End date" />,
-    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
+    key: 'date',
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+    accessor: ({ date }) => <DateDisplay date={date} />,
+    CellComponent: LimitedLinesCell,
   },
   {
-    key: 'prescriber',
+    key: 'prescriber.displayName',
     title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
     accessor: data => data?.prescriber?.displayName ?? '',
-    sortable: false,
+    CellComponent: LimitedLinesCell,
   },
 ];
 
-const FULL_LISTING_COLUMNS = [
+const FULL_LISTING_COLUMNS = getTranslation => [
   {
     key: 'name',
     title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
@@ -78,10 +159,11 @@ const FULL_LISTING_COLUMNS = [
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
-  ...MEDICATION_COLUMNS,
+  ...MEDICATION_COLUMNS(getTranslation),
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
+  const { getTranslation } = useTranslation();
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
@@ -91,17 +173,20 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
   return (
     <div>
-      <DataFetchingTable
-        columns={MEDICATION_COLUMNS}
+      <StyledDataFetchingTable
+        columns={MEDICATION_COLUMNS(getTranslation)}
         endpoint={`encounter/${encounterId}/medications`}
         rowStyle={rowStyle}
         elevated={false}
+        allowExport={false}
+        disablePagination
       />
     </div>
   );
 });
 
 export const DataFetchingMedicationTable = () => {
+  const { getTranslation } = useTranslation();
   const { loadEncounter } = useEncounter();
   const { facilityId } = useAuth();
   const dispatch = useDispatch();
@@ -121,10 +206,10 @@ export const DataFetchingMedicationTable = () => {
   return (
     <DataFetchingTableWithPermissionCheck
       verb="list"
-      noun="EncounterMedication"
+      noun="Prescription"
       endpoint="medication"
       fetchOptions={{ facilityId }}
-      columns={FULL_LISTING_COLUMNS}
+      columns={FULL_LISTING_COLUMNS(getTranslation)}
       noDataMessage={
         <TranslatedText
           stringId="medication.table.noData"
