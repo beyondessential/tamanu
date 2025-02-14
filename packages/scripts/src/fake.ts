@@ -402,7 +402,7 @@ export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
       await generateData(sequelize.models);
       process.stdout.write('.');
       done += 1;
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       process.stdout.write('!');
       errs += 1;
@@ -425,7 +425,7 @@ export async function main() {
 
   const opts = program
     .option('--rounds <number>', 'How much data to fill database with', '100')
-    .option('--database <string>', 'Override the database name to connect to')
+    .requiredOption('--database <string>', 'The database name to connect to')
     .parse()
     .opts();
 
@@ -433,7 +433,7 @@ export async function main() {
 
   const db = await initDatabase({
     ...(config as any).db,
-    name: opts.database ?? (config as any).db.name,
+    name: opts.database,
   });
 
   try {
