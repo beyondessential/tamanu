@@ -55,7 +55,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${Colors.veryLightBlue};
     }
   }
   .MuiTableBody-root {
