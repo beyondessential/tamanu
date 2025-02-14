@@ -248,8 +248,11 @@ async function generateFake(database: string, rounds: number): Promise<void> {
         stdio: 'inherit',
       },
     );
-    child.on('error', reject);
-    child.on('exit', resolve);
+    child.on('error', (err) => reject(err));
+    child.on('exit', (code) => {
+      if (code !== 0) reject(new Error(`fake.js exited with code ${code}`));
+      else resolve();
+    });
   });
 }
 

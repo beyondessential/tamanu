@@ -409,6 +409,10 @@ export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
     }
   }
 
+  if (done < rounds && errs > 0) {
+    throw new Error('encountered too many errors');
+  }
+
   console.log();
   await sequelize.close();
 }
