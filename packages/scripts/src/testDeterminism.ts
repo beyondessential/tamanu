@@ -319,10 +319,11 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   // commit list is from oldest to newest, so HEAD is at the bottom
   const HEAD = commits[commits.length - 1]!;
 
+  let commitBeforeMigration: string = commits[0]!;
+
   // find the first migration-touching commit
-  let commitBeforeMigration: string | undefined;
   let firstMigrationCommit: string | undefined;
-  for (const commit of commits) {
+  for (const commit of commits.slice(1)) {
     if (await commitTouchesMigrations(commit)) {
       firstMigrationCommit = commit;
       break;
@@ -337,19 +338,6 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   }
 
   console.log('The first commit to touch a migration is', firstMigrationCommit);
-
-  if (!commitBeforeMigration) {
-    if (commits.length == 2) {
-      // special case for single-commit PRs, where the commit before migration is outside the range
-      console.log('looking back further to find the commit before migration');
-      commitBeforeMigration = await gitCommand(['log', '--format=%H', '-n1', firstMigrationCommit]);
-    } else {
-      console.log('There is nothing to check!');
-      if (opts.checkPrecondition) process.exit(2);
-      return;
-    }
-  }
-
   console.log('Starting migration testing from commit', commitBeforeMigration);
 
   // so now we have:
