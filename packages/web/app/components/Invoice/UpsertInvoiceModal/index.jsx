@@ -49,7 +49,7 @@ export const UpsertInvoiceModal = ({
     }
   };
 
-  const { mutate: createInvoice, isLoading } = useCreateInvoice();
+  const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
   const [discountType, setDiscountType] = useState(getInitialDiscountType);
   const [activeView, setActiveView] = useState(getInitialView);
@@ -63,7 +63,7 @@ export const UpsertInvoiceModal = ({
   };
 
   const handleUpsertInvoice = (payload) => {
-    if (isLoading) {
+    if (isSubmitting) {
       return;
     }
 
@@ -106,7 +106,7 @@ export const UpsertInvoiceModal = ({
             }
             onClose={onClose}
             handleSkip={isCreating ? () => handleUpsertInvoice() : undefined}
-            isSubmitting={isLoading}
+            isSubmitting={isSubmitting}
           />
         );
       case ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
@@ -115,7 +115,7 @@ export const UpsertInvoiceModal = ({
             handleSubmit={handleUpsertInvoiceWithDiscount}
             onClose={onClose}
             handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE_SELECTOR)}
-            isSubmitting={isLoading}
+            isSubmitting={isSubmitting}
           />
         );
       case ACTIVE_VIEW.DISCOUNT_MANUAL:
@@ -124,7 +124,7 @@ export const UpsertInvoiceModal = ({
             handleSubmit={handleUpsertInvoiceWithDiscount}
             onClose={onClose}
             handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE_SELECTOR)}
-            isSubmitting={isLoading}
+            isSubmitting={isSubmitting}
             initialValues={
               invoice?.discount?.isManual
                 ? { ...invoice.discount, percentage: invoice.discount.percentage * 100 }
