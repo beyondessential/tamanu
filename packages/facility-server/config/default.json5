@@ -21,7 +21,7 @@
     type: 'bugsnag',
     // paste your bugsnag API key here
     apiKey: '',
-    // treat these errors as severity info
+    // Downgrade these errors to info severity
     errorsToDowngrade: []
   },
   "sync": {
