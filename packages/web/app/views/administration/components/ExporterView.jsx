@@ -9,7 +9,7 @@ import { useApi } from '../../../api';
 import { Field, Form } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
-import { LeftAlignedButtonRow, TranslatedText } from '../../../components';
+import { ButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
@@ -35,9 +35,9 @@ const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
-    <LeftAlignedButtonRow>
+    <ButtonRow alignment="left">
       <FormSubmitButton text={buttonLabel} />
-    </LeftAlignedButtonRow>
+    </ButtonRow>
   </StyledFormGrid>
 );
 

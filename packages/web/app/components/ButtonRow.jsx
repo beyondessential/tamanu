@@ -12,7 +12,7 @@ const FlexSpaceBetween = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: flex-end;
+  justify-content: ${p => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
   margin-top: 10px;
   width: 100%;
 
@@ -34,10 +34,6 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
     {children}
   </Row>
 ));
-
-export const LeftAlignedButtonRow = styled(ButtonRow)`
-  justify-content: flex-start;
-`;
 
 export const FormSubmitCancelRow = React.memo(
   ({

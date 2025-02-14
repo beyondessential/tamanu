@@ -5,7 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi } from '../../../api';
 import { AutocompleteField, Field, Form } from '../../../components/Field';
 import { FormGrid } from '../../../components/FormGrid';
-import { LeftAlignedButtonRow, TranslatedText } from '../../../components';
+import { ButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
@@ -27,9 +27,9 @@ const ExportForm = ({ options = [] }) => (
       options={options}
       required
     />
-    <LeftAlignedButtonRow>
+    <ButtonRow alignment="left">
       <FormSubmitButton text="Export" />
-    </LeftAlignedButtonRow>
+    </ButtonRow>
   </FormGrid>
 );
 

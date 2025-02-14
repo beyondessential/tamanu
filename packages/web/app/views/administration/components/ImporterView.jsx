@@ -8,7 +8,7 @@ import { Field, Form } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow, LeftAlignedButtonRow } from '../../../components/ButtonRow';
+import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { FormSubmitButton } from '../../../components/Button';
 import { FORM_TYPES } from '../../../constants';
@@ -27,8 +27,8 @@ const ContentRow = styled.div`
 
 const ContentColumn = props => <FormGrid columns={1} {...props} />;
 
-const RightAlignedButtonRow = styled(ButtonRow)`
-  width: 50%;
+const StyledButtonRow = styled(ButtonRow)`
+  ${p => (p.alignment === 'right' ? `width: 50%` : '')};
 `;
 
 const ERROR_COLUMNS = [
@@ -78,7 +78,7 @@ const ImportForm = ({
 }) => {
   const { values } = useFormikContext();
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
-  const StyledButtonRow = dataTypesSelectable ? LeftAlignedButtonRow : RightAlignedButtonRow;
+  const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
   return (
     <ContentContainer>
       <Field
@@ -101,7 +101,7 @@ const ImportForm = ({
           options={dataTypes.map(value => ({ value, label: startCase(value) }))}
         />
       )}
-      <StyledButtonRow>
+      <StyledButtonRow alignment={buttonRowAlignment}>
         <ImportButton
           variant="outlined"
           onSubmit={(event, extraFormData) => {

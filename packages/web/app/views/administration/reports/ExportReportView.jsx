@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import {
-  LeftAlignedButtonRow,
+  ButtonRow,
   Field,
   Form,
   FormGrid,
@@ -136,11 +136,11 @@ export const ExportReportView = () => {
               />
             )}
           </FormGrid>
-          <LeftAlignedButtonRow>
+          <ButtonRow alignment="left">
             <FormSubmitButton
               text={<TranslatedText stringId="general.action.export" fallback="Export" />}
             />
-          </LeftAlignedButtonRow>
+          </ButtonRow>
         </InnerContainer>
       )}
     />
