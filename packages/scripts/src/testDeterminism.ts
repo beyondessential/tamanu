@@ -195,7 +195,11 @@ function printDiff(a: DbHashes, b: DbHashes) {
   }
 }
 
-function runCommandImpl(prog: string, args: string[], opts: ExecFileOptions): Promise<string> {
+async function runCommandImpl(
+  prog: string,
+  args: string[],
+  opts: ExecFileOptions,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     console.log('$', prog, ...args);
     execFile(prog, args, { encoding: 'utf-8', ...opts }, (error, stdout, stderr) => {
@@ -210,9 +214,20 @@ function runCommandImpl(prog: string, args: string[], opts: ExecFileOptions): Pr
   });
 }
 
+let repoRoot: string;
+async function findRepoRoot(): Promise<string> {
+  if (!repoRoot) {
+    const root = await runCommandImpl('npm', ['root'], {});
+    if (!repoRoot) {
+      repoRoot = root;
+    }
+  }
+
+  return repoRoot;
+}
+
 async function runCommand(prog: string, args: string[]): Promise<string> {
-  const repoRoot = await runCommandImpl('npm', ['root'], {});
-  return runCommandImpl(prog, args, { cwd: repoRoot });
+  return runCommandImpl(prog, args, { cwd: await findRepoRoot() });
 }
 
 async function gitCommand(args: string[]): Promise<string> {
@@ -242,7 +257,7 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  const repoRoot = await runCommandImpl('npm', ['root'], {});
+  const repoRoot = await findRepoRoot();
   return new Promise((resolve, reject) => {
     const script = join(__dirname, 'fake.js');
     const args = ['--database', database, '--rounds', rounds.toString()];
