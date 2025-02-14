@@ -14,12 +14,12 @@ import {
   verifyToken,
 } from '../utils';
 
-export const refresh = ({ secret, refreshSecret }) =>
-  asyncHandler(async (req, res) => {
+export const refresh = ({ secret, refreshSecret }: { secret: string; refreshSecret: string }) =>
+  asyncHandler(async (req: any, res): Promise<void> => {
     const { body, store } = req;
     const { refreshToken, deviceId } = body;
 
-    const { canonicalHostName, auth } = config;
+    const { canonicalHostName, auth } = config as any;
     const {
       tokenDuration,
       saltRounds,

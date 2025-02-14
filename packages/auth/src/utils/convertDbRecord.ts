@@ -1,8 +1,8 @@
 type DbRecord = {
   id: string;
-  deletedAt: string | null;
-  updatedAt: string;
-  createdAt: string;
+  deletedAt: Date | null;
+  updatedAt: Date;
+  createdAt: Date;
   updatedAtSyncTick: string;
   password: string;
   [key: string]: any;

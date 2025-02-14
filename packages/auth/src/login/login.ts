@@ -6,18 +6,23 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { Models } from '@tamanu/database/types';
+import { RefreshToken } from '@tamanu/database';
+
 import {
   getRandomBase64String,
   getRandomU32,
   buildToken,
   isInternalClient,
-  stripUser,
   convertFromDbRecord,
 } from '../utils';
 
-const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
+const getRefreshToken = async (
+  models: Models,
+  { refreshSecret, userId, deviceId }: { refreshSecret: string; userId: string; deviceId: string },
+): Promise<RefreshToken> => {
   const { RefreshToken } = models;
-  const { auth, canonicalHostName } = config;
+  const { auth, canonicalHostName } = config as any;
   const {
     saltRounds,
     refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
@@ -44,26 +49,26 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 
   // Extract expiry as set by jwt.sign
   const { exp } = jwt.decode(refreshToken);
-  await RefreshToken.upsert(
-    {
-      refreshId: hashedRefreshId,
-      expiresAt: new Date(exp * 1000),
-      userId,
-      deviceId,
-    },
-    {
-      where: {
-        userId,
-        deviceId,
-      },
-    },
-  );
+  await RefreshToken.upsert({
+    refreshId: hashedRefreshId,
+    expiresAt: new Date(exp * 1000),
+    userId,
+    deviceId,
+  });
 
   return refreshToken;
 };
 
-export const login = ({ secret, refreshSecret, getLocalisation }) =>
-  asyncHandler(async (req, res) => {
+export const login = ({
+  secret,
+  refreshSecret,
+  getLocalisation,
+}: {
+  secret: string;
+  refreshSecret: string;
+  getLocalisation: Function;
+}) =>
+  asyncHandler(async (req: any, res): Promise<void> => {
     const { store, body, settings } = req;
     const { models } = store;
     const { email, password, facilityIds, deviceId } = body;
@@ -86,7 +91,8 @@ export const login = ({ secret, refreshSecret, getLocalisation }) =>
     }
 
     const user = await models.User.getForAuthByEmail(email);
-    if (!user && config.auth.reportNoUserError) {
+    const { auth, canonicalHostName } = config as any;
+    if (!user && auth.reportNoUserError) {
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
@@ -98,7 +104,6 @@ export const login = ({ secret, refreshSecret, getLocalisation }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
     const [token, refreshToken, allowedFacilities, localisation, permissions, role] =
@@ -129,13 +134,13 @@ export const login = ({ secret, refreshSecret, getLocalisation }) =>
     res.send({
       token,
       refreshToken,
-      user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
+      user: convertFromDbRecord(user.get({ plain: true })).data,
       permissions,
       serverType: SERVER_TYPES.CENTRAL,
       role: role?.forResponse() ?? null,
       allowedFacilities,
       localisation,
-      centralHost: config.canonicalHostName,
+      centralHost: canonicalHostName,
       settings: await getSettingsForFrontEnd(),
     });
   });

@@ -36,7 +36,7 @@ export const verifyToken = async (token: Jwt, secret: string, options: VerifyOpt
 export const getRandomBase64String = async (
   length: number,
   encoding: BufferEncoding = 'base64',
-) => {
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     randomBytes(length, (err, buf) => {
       if (err) reject(err);
