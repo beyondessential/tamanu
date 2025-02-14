@@ -419,8 +419,7 @@ export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
   await sequelize.close();
 }
 
-/** Run this file as a program. You should set the env var NODE_CONFIG_DIR to the appropriate place. */
-export async function main() {
+async function main() {
   const { program } = await import('commander');
   const { default: config } = await import('config');
   const { initDatabase } = require('@tamanu/database/services/database');
