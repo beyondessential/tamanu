@@ -254,11 +254,11 @@ export const TestSelectorInput = ({
             />
             <StyledSearchField
               field={{
+                name: 'search',
                 value: searchQuery.search,
                 onChange: handleChangeSearchQuery,
               }}
               placeholder={getSearchFieldPlaceholder()}
-              name="search"
             />
           </Box>
           <FormSeparatorLine />
