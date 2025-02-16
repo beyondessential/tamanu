@@ -137,7 +137,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       // Reload instance to get the complete village fields
       // (related fields won't display all info otherwise)
-      const reloadedPatient = await Patient.findOne(newPatient.id);
+      const reloadedPatient = await Patient.findOne({ where: { id: newPatient.id } });
       setSelectedPatient(reloadedPatient);
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
@@ -160,7 +160,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
-      const editedPatient = await Patient.findOne(selectedPatient.id);
+      const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
 
       // Mark patient for sync and update redux state
       await Patient.markForSync(editedPatient.id);
