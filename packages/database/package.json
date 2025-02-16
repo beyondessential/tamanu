@@ -60,11 +60,6 @@
       "require": "./dist/cjs/utils/fhir/index.js",
       "import": "./dist/esm/utils/fhir/index.js",
       "types": "./dist/esm/utils/fhir/index.d.ts"
-    },
-    "./types": {
-      "require": "./dist/cjs/types/index.js",
-      "import": "./dist/esm/types/index.js",
-      "types": "./dist/esm/types/index.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
