@@ -32,6 +32,7 @@
     "facility-migrate-down": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch migrate down",
     "mobile-run-android": "npm run build-shared && npm run --workspace @tamanu/mobile android",
     "shared-test": "npm run build-shared && npm run --workspace @tamanu/shared test",
+    "auth-test": "npm run build-shared && npm run --workspace @tamanu/auth test",
     "central-test": "npm run build-shared && npm run --workspace @tamanu/central-server test",
     "central-shell": "npm run build-shared && npm run --workspace @tamanu/central-server shell",
     "central-start-dev": "npm run build-shared && npm run watch-shared-and @tamanu/central-server start-dev",
