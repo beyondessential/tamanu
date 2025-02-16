@@ -65,7 +65,11 @@ export const EncounterDetailsExtended = ({ encounter, discharge }) => {
         />
         <DataItem
           label={getTranslation('encounter.dateOfDischarge.label', 'Date of discharge')}
-          value={formatShort(endDate)}
+          value={
+            discharge
+              ? formatShort(endDate)
+              : getTranslation('general.encounterDischargedNotApplicable', 'n/a (encounter in progress)')
+          }
           key="dateOfDischarge"
         />
       </Col>
