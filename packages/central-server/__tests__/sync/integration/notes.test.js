@@ -1,5 +1,5 @@
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/database/sync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser, fakeUUID } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
@@ -141,7 +141,8 @@ describe('CentralSyncManager', () => {
     const [triageNote, labRequestNote, imagingNote] =
       await createNotesOfRecordsWithPatientViaEncounter(encounters);
 
-    const { sessionId } = await centralSyncManager.startSession();
+    const sessionId = fakeUUID();
+    await centralSyncManager.startSession(sessionId);
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.setupSnapshotForPull(
@@ -190,7 +191,8 @@ describe('CentralSyncManager', () => {
       authorId: user.id,
     });
 
-    const { sessionId } = await centralSyncManager.startSession();
+    const sessionId = fakeUUID();
+    await centralSyncManager.startSession(sessionId);
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.setupSnapshotForPull(
@@ -234,7 +236,8 @@ describe('CentralSyncManager', () => {
 
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
-    const { sessionId } = await centralSyncManager.startSession();
+    const sessionId = fakeUUID();
+    await centralSyncManager.startSession(sessionId);
     await waitForSession(centralSyncManager, sessionId);
 
     await centralSyncManager.setupSnapshotForPull(
