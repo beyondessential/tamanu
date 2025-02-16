@@ -39,16 +39,17 @@ import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
-import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
+import { TASK_FREQUENCY_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
 import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
-type EnumValues = typeof registeredEnums[EnumKeys];
+type EnumValues = (typeof registeredEnums)[EnumKeys];
 type EnumEntries = [EnumKeys, EnumValues][];
 
 /**
@@ -82,6 +83,7 @@ export const registeredEnums = {
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPEAT_FREQUENCY_LABELS,
@@ -132,6 +134,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',
@@ -161,13 +164,12 @@ export const prefixMap = new Map(
 );
 
 /** The list of all translatable enums string id and fallback */
-export const enumTranslations = (Object.entries(
-  registeredEnums,
-) as EnumEntries).flatMap(([key, value]) =>
-  Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${enumKey
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
-    enumValue,
-  ]),
+export const enumTranslations = (Object.entries(registeredEnums) as EnumEntries).flatMap(
+  ([key, value]) =>
+    Object.entries(value).map(([enumKey, enumValue]) => [
+      `${translationPrefixes[key]}.${enumKey
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
+      enumValue,
+    ]),
 );

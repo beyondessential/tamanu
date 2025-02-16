@@ -770,7 +770,7 @@ export const dummyApi = {
 
       case 'programRegistry/1/conditions':
       case 'programRegistry/programRegistry-HepatitisBProgramRegistry/conditions':
-        return programRegistryConditions;
+        return { count: programRegistryConditions.length, data: programRegistryConditions };
 
       case 'patient/patient_id/additionalData':
       case 'patient/test-patient/additionalData':
@@ -809,7 +809,7 @@ export const dummyApi = {
         return practitioners;
 
       case 'suggestions/programRegistry':
-        return programRegistries.data;
+        return [programRegistry1, programRegistry2, programRegistry3];
 
       case 'suggestions/survey':
         // this needs to be done in the backend

@@ -54,14 +54,14 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistration');
     }
 
-    const { conditionIds = [], ...registrationData } = body;
+    const { conditions = [], ...registrationData } = body;
 
-    if (conditionIds.length > 0) {
+    if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditions] = await db.transaction(async () => {
+    const [registration, conditionsRecords] = await db.transaction(async () => {
       return Promise.all([
         models.PatientProgramRegistration.create({
           patientId,
@@ -69,13 +69,16 @@ patientProgramRegistration.post(
           ...registrationData,
         }),
         models.PatientProgramRegistrationCondition.bulkCreate(
-          conditionIds.map((conditionId) => ({
-            patientId,
-            programRegistryId,
-            clinicianId: registrationData.clinicianId,
-            date: registrationData.date,
-            programRegistryConditionId: conditionId,
-          })),
+          conditions
+            .filter((condition) => condition.conditionId)
+            .map((condition) => ({
+              patientId,
+              programRegistryId,
+              clinicianId: registrationData.clinicianId,
+              date: registrationData.date,
+              programRegistryConditionId: condition.conditionId,
+              conditionCategory: condition.category,
+            })),
         ),
         // as a side effect, mark for sync in the current facility
         models.PatientFacility.upsert({
@@ -88,7 +91,7 @@ patientProgramRegistration.post(
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...registration.get({ plain: true }),
-      conditions,
+      conditions: conditionsRecords,
     };
 
     res.send(responseObject);

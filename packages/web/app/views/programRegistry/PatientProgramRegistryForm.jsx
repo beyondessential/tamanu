@@ -1,31 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import * as yup from 'yup';
-import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
 import {
   AutocompleteField,
-  BaseMultiselectField,
   DateField,
   Field,
   FieldWithTooltip,
   Form,
+  ArrayField,
 } from '../../components/Field';
-import { FormGrid } from '../../components/FormGrid';
 import {
-  ConfirmCancelRow,
-  getReferenceDataStringId,
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components';
+  ProgramRegistryConditionField,
+  ProgramRegistryConditionCategoryField,
+} from '../../features/ProgramRegistry';
+import { FormGrid } from '../../components/FormGrid';
+import { ModalFormActionRow, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
-import { useProgramRegistryConditionsQuery, useProgramRegistryQuery } from '../../api/queries';
+import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { FORM_TYPES } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
+
+const RelatedConditionFieldsContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  grid-column: 1 / -1;
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 8px;
+  margin-top: -8px;
+
+  > div {
+    flex: 1;
+
+    &:first-child {
+      min-width: 50%;
+    }
+  }
+`;
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
@@ -34,7 +51,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
-  const { data: conditions } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -45,13 +61,62 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
+  const validationSchema = useMemo(
+    () =>
+      yup.object().shape({
+        conditions: yup.array().of(
+          yup.object().shape({
+            conditionId: yup.string().nullable(),
+            category: yup
+              .string()
+              .nullable()
+              .when('conditionId', {
+                is: (value) => Boolean(value),
+                then: yup
+                  .string()
+                  .required(
+                    getTranslation(
+                      'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
+                      'Category is required when a Related condition is set',
+                    ),
+                  ),
+              }),
+          }),
+        ),
+        programRegistryId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.programRegistry.label"
+            fallback="Program registry"
+          />,
+        ),
+        clinicalStatusId: optionalForeignKey().nullable(),
+        date: yup.date(),
+        clinicianId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeredBy.label"
+            fallback="Registered by"
+          />,
+        ),
+        registeringFacilityId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeringFacility.label"
+            fallback="Registering facility"
+          />,
+        ),
+      }),
+    [getTranslation],
+  );
+
   return (
     <Form
       showInlineErrorsOnly
       onSubmit={async (data) => {
         return onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
+          conditions: data.conditions
+            ? // Filter out empty conditions
+              data.conditions.filter((condition) => condition.conditionId)
+            : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -61,15 +126,15 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         const getButtonText = (isCompleted) => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
-          return 'Submit';
+          return 'Confirm';
         };
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
 
         return (
-          <div>
-            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
+          <>
+            <FormGrid style={{ paddingBottom: 30 }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
@@ -90,7 +155,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
@@ -142,53 +206,45 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
-                <FieldWithTooltip
-                  disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
-                  }
-                  name="conditionIds"
-                  label={
-                    <TranslatedText
-                      stringId="patientProgramRegistry.relatedConditions.label"
-                      fallback="Related conditions"
-                    />
-                  }
-                  placeholder={getTranslation('general.placeholder.select', 'Select')}
-                  component={BaseMultiselectField}
-                  options={conditions?.map?.((condition) => ({
-                    label: (
-                      <TranslatedReferenceData
-                        fallback={condition.name}
-                        value={condition.id}
-                        category="condition"
-                      />
-                    ),
-                    value: condition.id,
-                    searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'condition'),
-                      condition.name,
-                    ),
-                  }))}
-                  disabled={!conditions || conditions.length === 0}
-                />
               </FormGrid>
+              <Field
+                name="conditions"
+                component={ArrayField}
+                renderField={(index) => {
+                  const fieldName = `conditions[${index}]`;
+                  const conditionValue = values?.conditions ? values?.conditions[index] : null;
+                  const onClear = () => {
+                    setValues({
+                      ...values,
+                      // Clear the condition and category fields. Set to an empty object rather than
+                      // removing from the array keep the order of the conditions consistent with the fields
+                      conditions: values.conditions.map((condition, i) =>
+                        i === index ? {} : condition,
+                      ),
+                    });
+                  };
+                  return (
+                    <RelatedConditionFieldsContainer>
+                      <ProgramRegistryConditionField
+                        name={fieldName}
+                        programRegistryId={selectedProgramRegistryId}
+                        onClear={onClear}
+                      />
+                      <ProgramRegistryConditionCategoryField
+                        name={fieldName}
+                        conditionId={conditionValue?.conditionId}
+                      />
+                    </RelatedConditionFieldsContainer>
+                  );
+                }}
+              />
             </FormGrid>
-            <Divider
-              style={{
-                gridColumn: '1 / -1',
-                marginTop: '30px',
-                marginBottom: '30px',
-              }}
-            />
-            <ConfirmCancelRow
-              style={{ paddingLeft: '32px', paddingRight: '32px' }}
-              onCancel={handleCancel}
-              onConfirm={submitForm}
+            <ModalFormActionRow
               confirmText={buttonText}
+              onConfirm={submitForm}
+              onCancel={handleCancel}
             />
-          </div>
+          </>
         );
       }}
       initialValues={{
@@ -198,28 +254,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ...editedObject,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-      validationSchema={yup.object().shape({
-        programRegistryId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
-            fallback="Program registry"
-          />,
-        ),
-        clinicalStatusId: optionalForeignKey().nullable(),
-        date: yup.date(),
-        clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
-        ),
-        registeringFacilityId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
-            fallback="Registering facility"
-          />,
-        ),
-      })}
+      validationSchema={validationSchema}
     />
   );
 };
