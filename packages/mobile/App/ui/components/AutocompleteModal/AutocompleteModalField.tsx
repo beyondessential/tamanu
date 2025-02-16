@@ -78,7 +78,7 @@ export const AutocompleteModalField = ({
         setLabel(null);
       }
     })();
-  }, [value]);
+  }, [value, refDataType, suggester]);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
