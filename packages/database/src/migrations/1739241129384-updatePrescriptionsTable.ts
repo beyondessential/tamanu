@@ -1,6 +1,6 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, QueryInterface } from 'sequelize';
 
-export async function up(query) {
+export async function up(query: QueryInterface) {
   await query.addColumn('prescriptions', 'is_ongoing', {
     type: DataTypes.BOOLEAN,
     allowNull: true,
@@ -54,7 +54,7 @@ export async function up(query) {
   await query.renameColumn('prescriptions', 'note', 'notes');
 }
 
-export async function down(query) {
+export async function down(query: QueryInterface) {
   await query.removeColumn('prescriptions', 'is_ongoing');
   await query.removeColumn('prescriptions', 'is_prn');
   await query.removeColumn('prescriptions', 'is_variable_dose');
