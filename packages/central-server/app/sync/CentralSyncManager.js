@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
@@ -86,6 +87,8 @@ export class CentralSyncManager {
   }
 
   async startSession(sessionId, debugInfo = {}) {
+    assert.ok(sessionId, 'sessionId must be provided');
+
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
