@@ -6,8 +6,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { Models } from '@tamanu/database/types';
-import { RefreshToken } from '@tamanu/database';
+import { RefreshToken, type Models } from '@tamanu/database';
 
 import {
   getRandomBase64String,
