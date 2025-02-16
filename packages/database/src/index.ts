@@ -1,7 +1,6 @@
 export * from './models';
 export * from './utils';
 export * from './sync';
-export * from './types';
 
 export type Models = typeof import('./models');
 import * as sequelize from 'sequelize';
