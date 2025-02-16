@@ -1,5 +1,4 @@
-import { Brackets, Column, RelationId } from 'typeorm';
-import { Entity, ManyToOne } from 'typeorm/browser';
+import { Brackets, Column, RelationId, Entity, ManyToOne } from 'typeorm';
 import { get as getAtPath, merge, set as setAtPath } from 'lodash';
 
 import { BaseModel } from './BaseModel';
@@ -49,14 +48,14 @@ export class Setting extends BaseModel {
     const settingsQueryBuilder = this.getRepository()
       .createQueryBuilder('setting')
       .where(
-        new Brackets(qb => {
+        new Brackets((qb) => {
           qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
         }),
       );
 
     if (key) {
       settingsQueryBuilder.andWhere(
-        new Brackets(qb => {
+        new Brackets((qb) => {
           qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
         }),
       );
@@ -64,7 +63,7 @@ export class Setting extends BaseModel {
 
     if (scope) {
       settingsQueryBuilder.andWhere(
-        new Brackets(qb => {
+        new Brackets((qb) => {
           qb.where('scope = :scope', { scope });
         }),
       );
@@ -103,7 +102,7 @@ export class Setting extends BaseModel {
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map(row => {
+    return rows.map((row) => {
       const sanitizedRow = {
         ...row,
       };

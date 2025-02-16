@@ -1,10 +1,4 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  ManyToOne,
-  RelationId,
-} from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { IPatientFieldValue } from '~/types';
 import { Patient } from './Patient';
@@ -19,10 +13,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   @Column({ nullable: false })
   value: string;
 
-  @ManyToOne(
-    () => Patient,
-    patient => patient.patientFieldValues,
-  )
+  @ManyToOne(() => Patient, (patient) => patient.patientFieldValues)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -30,7 +21,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
 
   @ManyToOne(
     () => PatientFieldDefinition,
-    patientFieldDefinition => patientFieldDefinition.patientFieldValues,
+    (patientFieldDefinition) => patientFieldDefinition.patientFieldValues,
   )
   definition: PatientFieldDefinition;
 

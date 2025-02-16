@@ -30,3 +30,7 @@ Timestamp of when this FHIR resource was last materialised.
 {% docs fhir__generic__is_live %}
 Whether or not a FHIR resource is live. If a resource is not live, it won't be rematerialised if upstream changes are made.
 {% enddocs %}
+
+{% docs fhir__generic__resolved %}
+If this FHIR resource has resolved all of its references to other resources.
+{% enddocs %}

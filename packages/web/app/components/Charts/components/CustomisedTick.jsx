@@ -15,14 +15,15 @@ const Text = styled.text`
 export const CustomisedXAxisTick = props => {
   const { x, y, payload } = props;
   const { value } = payload;
+  const date = new Date(value);
 
   return (
     <g transform={`translate(${x},${y})`}>
       <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText}>
-        {formatShortest(value)}
+        {formatShortest(date)}
       </Text>
       <Text x={0} y={xAxisTickTimeY} textAnchor="middle" fill={Colors.midText}>
-        {formatTime(value)}
+        {formatTime(date)}
       </Text>
     </g>
   );

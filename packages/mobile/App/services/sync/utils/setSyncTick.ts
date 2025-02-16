@@ -5,7 +5,7 @@ export const setSyncTick = async (
   key: string,
   syncTick: number,
 ): Promise<void> => {
-  const localSystemFact = await models.LocalSystemFact.findOne({ key });
+  const localSystemFact = await models.LocalSystemFact.findOne({ where: { key } });
 
   if (localSystemFact) {
     localSystemFact.value = syncTick.toString();

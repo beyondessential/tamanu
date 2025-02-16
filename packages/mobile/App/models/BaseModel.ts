@@ -1,4 +1,4 @@
-import { Column, Generated, PrimaryColumn } from 'typeorm/browser';
+import { Column, Generated, PrimaryColumn } from 'typeorm';
 import { BaseModelWithoutId } from './BaseModelWithoutId';
 
 export type ModelPojo = {
@@ -55,7 +55,7 @@ export abstract class BaseModel extends BaseModelWithoutId {
     const repo = this.getRepository<T>();
 
     // Find the actual instance we want to update
-    const instance = await repo.findOne(id);
+    const instance = await repo.findOne({ where: { id } });
 
     // Bail early if no record was found
     if (!instance) {

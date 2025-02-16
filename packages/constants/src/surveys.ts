@@ -187,7 +187,7 @@ export const READONLY_DATA_FIELDS = {
 };
 
 export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
-  key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
+  key => PATIENT_DATA_FIELD_LOCATIONS[key]![0] === 'PatientProgramRegistration',
 );
 
 export const RESULT_COLORS = {

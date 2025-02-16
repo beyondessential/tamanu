@@ -1,13 +1,14 @@
 import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
 import { startOfDay } from 'date-fns';
-import { pick } from 'lodash';
+import { omit, pick } from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { parseDate } from '@tamanu/utils/dateTime';
+import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
@@ -20,6 +21,8 @@ import { OutpatientAppointmentsFilter } from './OutpatientAppointmentsFilter';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { useAuth } from '../../../contexts/Auth';
+import { CreateFromExistingConfirmModal } from './CreateFromExistingConfirmModal';
+import { ModifyRepeatingAppointmentModal } from '../../../components/Appointments/OutpatientsBookingForm/ModifyRepeatingAppointmentModal';
 
 const Container = styled(PageContainer)`
   block-size: 100%;
@@ -73,14 +76,16 @@ export const APPOINTMENT_GROUP_BY = {
 export const OutpatientAppointmentsView = () => {
   const { ability } = useAuth();
   const location = useLocation();
-  const defaultGroupBy =
-    new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+  const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [isCreateFromExistingWarningOpen, setIsCreateFromExistingWarningOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(defaultGroupBy);
+  const [modifyMode, setModifyMode] = useState('');
 
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
@@ -102,29 +107,70 @@ export const OutpatientAppointmentsView = () => {
     setIsCancelModalOpen(true);
   };
 
-  const handleCloseDrawer = () => setDrawerOpen(false);
+  const handleSelectAppointment = appointment => {
+    setSelectedAppointment(
+      pick(appointment, [
+        'id',
+        'locationGroupId',
+        'appointmentTypeId',
+        'startTime',
+        'endTime',
+        'patientId',
+        'clinicianId',
+        'isHighPriority',
+        'schedule',
+      ]),
+    );
+  };
 
-  const handleOpenDrawer = appointment => {
-    const appointmentFormValues = pick(appointment, [
-      'id',
-      'locationGroupId',
-      'appointmentTypeId',
-      'startTime',
-      'endTime',
-      'patientId',
-      'clinicianId',
-      'isHighPriority',
-      'schedule',
-    ]);
-    setSelectedAppointment({
-      ...appointmentFormValues,
-      isRepeatingAppointment: !!appointmentFormValues.schedule,
-    });
+  const handleModifyAppointment = appointment => {
+    handleSelectAppointment(appointment);
+    if (!appointment.schedule) {
+      handleOpenDrawer();
+      return;
+    }
+    setModifyMode(MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT);
+    setIsModifyModalOpen(true);
+  };
+
+  const handleCreateFromExistingAppointment = appointment => {
+    handleSelectAppointment(omit(appointment, ['id', 'schedule', 'startTime', 'endTime']));
+    if (!appointment.schedule) {
+      handleOpenDrawer();
+      return;
+    }
+    setIsCreateFromExistingWarningOpen(true);
+  };
+
+  const handleCreateAppointment = () => {
+    handleSelectAppointment({});
+    handleOpenDrawer();
+  };
+
+  const handleOpenDrawer = () => {
+    setModifyMode(null);
     setDrawerOpen(true);
   };
 
-  const canCreateAppointment = ability.can('create', 'Appointment');
-  const canViewAppointments = ability.can('listOrRead', 'Appointment');
+  const handleConfirmCreateFromExisting = () => {
+    setIsCreateFromExistingWarningOpen(false);
+    setDrawerOpen(true);
+  };
+
+  const handleCloseCreateFromExisting = () => {
+    setDrawerOpen(false);
+    setIsCreateFromExistingWarningOpen(false);
+  };
+
+  const handleConfirmModifyMode = () => {
+    setIsModifyModalOpen(false);
+    setDrawerOpen(true);
+  };
+
+  const handleCloseConfirmModifyMode = () => {
+    setDrawerOpen(false);
+    setIsModifyModalOpen(false);
+  };
 
   if (!canViewAppointments) {
     return <NoPermissionScreen />;
@@ -133,17 +179,34 @@ export const OutpatientAppointmentsView = () => {
   return (
     <Container>
       <OutpatientAppointmentsContextProvider>
+        <CreateFromExistingConfirmModal
+          open={isCreateFromExistingWarningOpen}
+          onCancel={handleCloseCreateFromExisting}
+          onConfirm={handleConfirmCreateFromExisting}
+        />
+
         <CancelAppointmentModal
           appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
         />
+        <ModifyRepeatingAppointmentModal
+          open={isModifyModalOpen}
+          modifyMode={modifyMode}
+          onChangeModifyMode={setModifyMode}
+          onClose={handleCloseConfirmModifyMode}
+          onConfirm={handleConfirmModifyMode}
+        />
         <AppointmentTopBar>
-          <GroupByToggle value={groupBy} onChange={setGroupBy} />
+          <GroupByToggle />
           <OutpatientAppointmentsFilter />
           {canCreateAppointment && (
-            <Button onClick={() => handleOpenDrawer({})}>
-              <AddIcon aria-hidden /> Book appointment
+            <Button onClick={handleCreateAppointment}>
+              <AddIcon aria-hidden />{' '}
+              <TranslatedText
+                stringId="scheduling.action.bookAppointment"
+                fallback="Book appointment"
+              />
             </Button>
           )}
         </AppointmentTopBar>
@@ -152,14 +215,15 @@ export const OutpatientAppointmentsView = () => {
           <CalendarInnerWrapper>
             <OutpatientBookingCalendar
               onCancel={handleOpenCancelModal}
-              onOpenDrawer={handleOpenDrawer}
-              groupBy={groupBy}
+              onCreateFromExisting={handleCreateFromExistingAppointment}
+              onModify={handleModifyAppointment}
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
               initialValues={selectedAppointment}
+              modifyMode={modifyMode}
               key={selectedAppointment.id}
-              onClose={handleCloseDrawer}
+              onClose={() => setDrawerOpen(false)}
               open={drawerOpen}
             />
           </CalendarInnerWrapper>

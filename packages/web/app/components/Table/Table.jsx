@@ -381,7 +381,7 @@ class TableComponent extends React.Component {
           {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || key}</span>
+        <span>{displayTitle ?? key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;

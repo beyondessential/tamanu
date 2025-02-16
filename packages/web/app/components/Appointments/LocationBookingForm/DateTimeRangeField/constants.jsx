@@ -12,7 +12,7 @@ export const CONFLICT_TOOLTIP_TITLE = {
   [TIME_SLOT_PICKER_VARIANTS.RANGE]: (
     <TranslatedText
       stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-      fallback="All times must be available when booking over multiple times"
+      fallback="All times must be available when booking over multiple timeslots"
     />
   ),
   [TIME_SLOT_PICKER_VARIANTS.START]: (

@@ -58,6 +58,7 @@ export const GenericPrimaryDetailsLayout = ({
           }
           component={TextField}
           required
+          enablePasting
         />
         <LocalisedField
           name="middleName"
@@ -69,6 +70,7 @@ export const GenericPrimaryDetailsLayout = ({
           }
           component={TextField}
           required={isRequiredPatientData('middleName')}
+          enablePasting
         />
         <LocalisedField
           name="lastName"
@@ -77,6 +79,7 @@ export const GenericPrimaryDetailsLayout = ({
           }
           component={TextField}
           required
+          enablePasting
         />
         <LocalisedField
           name="culturalName"
@@ -88,6 +91,7 @@ export const GenericPrimaryDetailsLayout = ({
           }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
+          enablePasting
         />
         <LocalisedField
           name="dateOfBirth"
@@ -132,6 +136,7 @@ export const GenericPrimaryDetailsLayout = ({
           component={TextField}
           type="email"
           required={isRequiredPatientData('email')}
+          enablePasting
         />
         <RequiredSecondaryDetails
           patientRegistryType={patientRegistryType}

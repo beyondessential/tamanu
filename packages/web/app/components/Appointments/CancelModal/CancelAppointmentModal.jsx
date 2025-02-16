@@ -1,6 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import { parseISO } from 'date-fns';
 
 import {
   APPOINTMENT_STATUSES,
@@ -23,26 +25,12 @@ import {
   StyledConfirmCancelRow,
   OptionsContainer,
 } from './BaseModalComponents';
-import { RadioInput } from '../../Field';
 import { BodyText } from '../../Typography';
-import styled from 'styled-components';
 import { RepeatCharacteristicsDescription } from '../OutpatientsBookingForm/RepeatCharacteristicsDescription';
-import { parseISO } from 'date-fns';
+import { ModifyModeRadioGroup } from '../ModifyModeRadioGroup';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 20px;
-`;
-
-const StyledRadioInput = styled(RadioInput)`
-  flex-direction: column;
-  .MuiFormControlLabel-root {
-    justify-content: flex-start;
-    border: none;
-    padding-left: 0;
-    .MuiButtonBase-root {
-      margin-left: 0;
-    }
-  }
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
@@ -159,29 +147,9 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
         appointment and all future appointments as well?"
         />
       </StyledBodyText>
-      <StyledRadioInput
+      <ModifyModeRadioGroup
+        onChange={event => setDeletionType(event.target.value)}
         value={deletionType}
-        onChange={e => setDeletionType(e.target.value)}
-        options={[
-          {
-            label: (
-              <TranslatedText
-                stringId="appointment.modify.option.thisAppointment"
-                fallback="This appointment"
-              />
-            ),
-            value: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
-          },
-          {
-            label: (
-              <TranslatedText
-                stringId="appointment.modify.option.thisAndFutureAppointments"
-                fallback="This and future appointments"
-              />
-            ),
-            value: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
-          },
-        ]}
       />
     </OptionsContainer>
   );
@@ -251,7 +219,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
             mutateAppointment({
               ...appointment,
               status: APPOINTMENT_STATUSES.CANCELLED,
-              modifyRepeatingMode: deletionType,
+              modifyMode: deletionType,
             });
           }}
           onClose={handleCloseModal}

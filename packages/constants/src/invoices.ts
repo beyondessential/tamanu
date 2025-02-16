@@ -1,4 +1,4 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from './importable';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from './importable.js';
 
 export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',

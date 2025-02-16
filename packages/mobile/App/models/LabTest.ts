@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { ILabTest } from '~/types';
 import { BaseModel } from './BaseModel';
@@ -20,10 +20,7 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'varchar', nullable: false, default: '' })
   result: string;
 
-  @ManyToOne(
-    () => LabRequest,
-    labRequest => labRequest.tests,
-  )
+  @ManyToOne(() => LabRequest, (labRequest) => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
   labRequestId: string;

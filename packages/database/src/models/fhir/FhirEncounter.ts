@@ -3,6 +3,9 @@ import { DataTypes } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from './Resource';
 import {
+  FhirReference,
+} from '@tamanu/shared/services/fhirTypes';
+import {
   getQueryOptions,
   getValues,
   fromEncounters,
@@ -84,8 +87,9 @@ export class FhirEncounter extends FhirResource {
   asFhir() {
     const resource = super.asFhir();
 
+    const { FhirPatient } = this.sequelize.models;
     // Exclude unresolved upstream if it remains in the materialised data.
-    if (resource.subject.type === 'upstream://patient') {
+    if (resource.subject.type === FhirReference.unresolvedReferenceType(FhirPatient)) {
       delete resource.subject;
     }
 

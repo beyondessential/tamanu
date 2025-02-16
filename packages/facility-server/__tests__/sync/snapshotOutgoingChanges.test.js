@@ -349,12 +349,12 @@ describe('snapshotOutgoingChanges', () => {
     await ctx.sequelize.query(`
       INSERT INTO reference_data (id, created_at, updated_at, type, code, name)
       SELECT
-        uuid_generate_v4() as id,
+        gen_random_uuid() as id,
         now() as created_at,
         now() as updated_at,
         'test' as type,
-        uuid_generate_v4() || '-' || generate_series as code,
-        uuid_generate_v4() || '-' || generate_series as name
+        gen_random_uuid() || '-' || generate_series as code,
+        gen_random_uuid() || '-' || generate_series as name
       FROM generate_series(1, ${limit + 100});
     `);
 

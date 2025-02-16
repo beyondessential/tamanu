@@ -2,22 +2,21 @@ sql: |
   SELECT *
   FROM ips_requests
   WHERE status = 'Error'
-  AND created_at > $1;
+  AND created_at > $1
+  ORDER BY created_at DESC
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] IPS request error ({{ hostname }})'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <h1>IPS request errored</h1>
-      <p>There are {{ rows | length }} IPS requests that have failed.</p>
-      <ul>
-        {% for row in rows | slice(end=5) %}
-        <li><b>{{ row.id }}</b> - <i>{{ row.error }}</i></li>
-        {% endfor %}
-        {% if rows | length > 5 %}
-        <li>... and {{ rows | length - 5 }} more</li>
-        {% endif %}
-      </ul>
-      <p>For more information, please check the logs.</p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      There are {{ rows | length }} IPS requests that have failed:
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.id }}**: {{ row.error }}
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

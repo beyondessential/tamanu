@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isMatch, isNumber, omit } from 'lodash';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -13,7 +13,7 @@ import {
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import type { ReadSettings } from '@tamanu/settings';
+import type { ReadSettings } from '@tamanu/settings/reader';
 
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -164,6 +164,12 @@ export class AppointmentSchedule extends Model {
     };
   }
 
+  isDifferentFromSchedule(scheduleData: AppointmentScheduleCreateData) {
+    const toComparable = (schedule: AppointmentScheduleCreateData) =>
+      omit(schedule, ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
+    return !isMatch(toComparable(this.get({ plain: true })), toComparable(scheduleData));
+  }
+
   /**
    * End the schedule at the given appointment.
    * This will cancel all appointments starting from the given appointment.
@@ -183,6 +189,7 @@ export class AppointmentSchedule extends Model {
       {
         where: {
           startTime: { [Op.gte]: appointment.startTime },
+          scheduleId: this.id,
         },
       },
     );
@@ -323,7 +330,15 @@ export class AppointmentSchedule extends Model {
 
     const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
     if (isFullyGenerated) {
-      await this.update({ isFullyGenerated });
+      await this.update({
+        isFullyGenerated,
+        // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
+        // and clear the occurrenceCount
+        ...(this.occurrenceCount && {
+          untilDate: appointments.at(-1)!.startTime,
+          occurrenceCount: null,
+        }),
+      });
     }
     return appointments;
   }

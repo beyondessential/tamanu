@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
+import { randomUUID } from 'node:crypto';
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
@@ -42,7 +43,12 @@ export class LocalSystemFact extends Model {
     if (existing) {
       await this.update({ value }, { where: { key } });
     } else {
-      await this.create({ key, value });
+      // This function is used in the migration code, and in Postgres
+      // version 12 `gen_random_uuid()` is not available in a blank
+      // database, and it's used to default the ID. So instead, create
+      // random UUIDs here in code, so the default isn't invoked. We
+      // use Node's native function so it's just as fast.
+      await this.create({ id: randomUUID(), key, value });
     }
   }
 
