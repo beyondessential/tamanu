@@ -10,8 +10,7 @@ import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { type ModelProperties } from '@tamanu/database/types';
-import { type User, type Models } from '@tamanu/database';
+import { type User, type Models, type ModelProperties } from '@tamanu/database';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
