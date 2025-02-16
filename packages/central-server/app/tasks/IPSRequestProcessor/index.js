@@ -13,8 +13,8 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { tmpdir } from '@tamanu/shared/utils';
+import { getRandomBase64String } from '@tamanu/auth/utils';
 
-import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
 import { QRCodeToFileAsync } from './helpers';
 
