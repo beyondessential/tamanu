@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Divider } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
@@ -25,48 +24,16 @@ import { useSuggester } from '../../api';
 import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { FORM_TYPES } from '../../constants';
-
-const validationSchema = yup.object().shape({
-  conditions: yup.array().of(
-    yup.object().shape({
-      conditionId: yup.string().nullable(),
-      category: yup
-        .string()
-        .nullable()
-        .when('conditionId', {
-          is: (value) => Boolean(value),
-          then: yup.string().required('Category is required when a Related condition is set'),
-        }),
-    }),
-  ),
-  programRegistryId: foreignKey().translatedLabel(
-    <TranslatedText
-      stringId="patientProgramRegistry.programRegistry.label"
-      fallback="Program registry"
-    />,
-  ),
-  clinicalStatusId: optionalForeignKey().nullable(),
-  date: yup.date(),
-  clinicianId: foreignKey().translatedLabel(
-    <TranslatedText
-      stringId="patientProgramRegistry.registeredBy.label"
-      fallback="Registered by"
-    />,
-  ),
-  registeringFacilityId: foreignKey().translatedLabel(
-    <TranslatedText
-      stringId="patientProgramRegistry.registeringFacility.label"
-      fallback="Registering facility"
-    />,
-  ),
-});
+import { Colors, FORM_TYPES } from '../../constants';
 
 const RelatedConditionFieldsContainer = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 10px;
   grid-column: 1 / -1;
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 8px;
+  margin-top: -8px;
 
   > div {
     flex: 1;
@@ -93,6 +60,52 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
+
+  const validationSchema = useMemo(
+    () =>
+      yup.object().shape({
+        conditions: yup.array().of(
+          yup.object().shape({
+            conditionId: yup.string().nullable(),
+            category: yup
+              .string()
+              .nullable()
+              .when('conditionId', {
+                is: (value) => Boolean(value),
+                then: yup
+                  .string()
+                  .required(
+                    getTranslation(
+                      'patientProgramRegistry.categoryRequiredMessage',
+                      'Category is required when a Related condition is set',
+                    ),
+                  ),
+              }),
+          }),
+        ),
+        programRegistryId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.programRegistry.label"
+            fallback="Program registry"
+          />,
+        ),
+        clinicalStatusId: optionalForeignKey().nullable(),
+        date: yup.date(),
+        clinicianId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeredBy.label"
+            fallback="Registered by"
+          />,
+        ),
+        registeringFacilityId: foreignKey().translatedLabel(
+          <TranslatedText
+            stringId="patientProgramRegistry.registeringFacility.label"
+            fallback="Registering facility"
+          />,
+        ),
+      }),
+    [getTranslation],
+  );
 
   return (
     <Form
@@ -194,11 +207,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabled={!program}
                 />
               </FormGrid>
-              <Divider
-                style={{
-                  gridColumn: '1 / -1',
-                }}
-              />
               <Field
                 name="conditions"
                 component={ArrayField}

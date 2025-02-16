@@ -1,6 +1,6 @@
 import config from 'config';
 import { afterAll, beforeAll } from '@jest/globals';
-import { REGISTRATION_STATUSES, CONDITION_CATEGORIES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 
@@ -163,7 +163,10 @@ describe('PatientProgramRegistration', () => {
         patientId: patient.id,
         date: '2023-09-02 08:00:00',
         conditions: [
-          { conditionId: programRegistryCondition.id, category: CONDITION_CATEGORIES.CONFIRMED },
+          {
+            conditionId: programRegistryCondition.id,
+            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+          },
         ],
         registeringFacilityId: facilityId,
       });

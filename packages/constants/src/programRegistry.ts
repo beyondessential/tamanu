@@ -24,14 +24,14 @@ export const STATUS_COLOR = {
   teal: '#125E7E',
 };
 
-export const CONDITION_CATEGORIES = {
-  SUSPECTED: 'Suspected',
-  UNDER_INVESTIGATION: 'Under investigation',
-  CONFIRMED: 'Confirmed',
-  UNKNOWN: 'Unknown',
-  DISPROVEN: 'Disproven',
-  RESOLVED: 'Resolved',
-  IN_REMISSION: 'In remission',
-  NOT_APPLICABLE: 'Not applicable',
-  RECORDED_IN_ERROR: 'Recorded in error',
+export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
+  Suspected: 'Suspected',
+  'Under investigation': 'Under investigation',
+  Confirmed: 'Confirmed',
+  Unknown: 'Unknown',
+  Disproven: 'Disproven',
+  Resolved: 'Resolved',
+  'In remission': 'In remission',
+  'Not applicable': 'Not applicable',
+  'Recorded in error': 'Recorded in error',
 };

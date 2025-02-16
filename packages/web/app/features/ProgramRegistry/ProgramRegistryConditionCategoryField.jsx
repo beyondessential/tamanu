@@ -1,18 +1,20 @@
 import React from 'react';
-import { CONDITION_CATEGORIES } from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
-import { BaseSelectField, FieldWithTooltip, TranslatedText } from '../../components';
-
-const categoryOptions = Object.values(CONDITION_CATEGORIES).map((category) => ({
-  label: category,
-  value: category,
-}));
+import { TranslatedSelectField, FieldWithTooltip, TranslatedText } from '../../components';
 
 export const ProgramRegistryConditionCategoryField = ({ name, conditionId }) => {
   const { getTranslation } = useTranslation();
   return (
     <FieldWithTooltip
-      disabledTooltipText={!conditionId ? 'Select a condition to add related categories' : ''}
+      disabledTooltipText={
+        !conditionId
+          ? getTranslation(
+              'patientProgramRegistry.relatedConditionsCategory.tooltip',
+              'Select a condition to add related categories',
+            )
+          : ''
+      }
       name={`${name}.category`}
       label={
         <TranslatedText
@@ -21,8 +23,8 @@ export const ProgramRegistryConditionCategoryField = ({ name, conditionId }) => 
         />
       }
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={BaseSelectField}
-      options={categoryOptions}
+      component={TranslatedSelectField}
+      enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
       disabled={!conditionId}
       required={conditionId}
     />
