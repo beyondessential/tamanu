@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
@@ -34,8 +34,10 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     const repo = this.getRepository();
 
     return repo.findOne({
-      type: referenceDataType,
-      visibilityStatus: VisibilityStatus.Current,
+      where: {
+        type: referenceDataType,
+        visibilityStatus: VisibilityStatus.Current,
+      },
     });
   }
 
