@@ -1,5 +1,6 @@
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/database/sync';
-import { fake, fakeUser, fakeUUID } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fakeUUID } from '@tamanu/utils/generateId';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
