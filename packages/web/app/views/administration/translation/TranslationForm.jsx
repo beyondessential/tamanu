@@ -9,14 +9,7 @@ import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import {
-  ButtonRow,
-  Form,
-  Button,
-  SearchInput,
-  TableFormFields,
-  TextField,
-} from '../../../components';
+import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
@@ -259,11 +252,9 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
             }
           />
         </SearchArea>
-        <ButtonRow>
-          <Button disabled={isSaving || !dirty} onClick={handleSave}>
-            <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
-          </Button>
-        </ButtonRow>
+        <Button disabled={isSaving || !dirty} onClick={handleSave}>
+          <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
+        </Button>
       </Box>
       <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
     </>
