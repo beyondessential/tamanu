@@ -101,7 +101,7 @@ export const FormFields = ({
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
-    [values],
+    [components, values],
   );
 
   // Handle back button press or swipe right gesture
