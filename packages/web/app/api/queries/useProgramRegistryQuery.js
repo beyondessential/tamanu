@@ -6,7 +6,7 @@ export const useProgramRegistryQuery = (programRegistryId, fetchOptions) => {
   return useQuery(
     ['programRegistry', programRegistryId, fetchOptions],
     () => api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
-    { enabled: !!programRegistryId },
+    { enabled: Boolean(programRegistryId) },
   );
 };
 
