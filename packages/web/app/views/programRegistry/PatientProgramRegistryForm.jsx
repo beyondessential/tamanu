@@ -76,7 +76,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   .string()
                   .required(
                     getTranslation(
-                      'patientProgramRegistry.categoryRequiredMessage',
+                      'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
                       'Category is required when a Related condition is set',
                     ),
                   ),
