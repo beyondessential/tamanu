@@ -25,12 +25,11 @@ export class AuthService {
 
   emitter = mitt();
 
-
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', err => {
+    this.centralServer.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -44,7 +43,7 @@ export class AuthService {
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
     // save local password to repo for later use
-    let user = await this.models.User.findOne({ email: userData.email });
+    let user = await this.models.User.findOne({ where: { email: userData.email } });
     if (!user) {
       const newUser = await this.models.User.create(userData).save();
       if (!user) user = newUser;
@@ -70,8 +69,10 @@ export class AuthService {
     console.log('Signing in locally as', email);
     const { User, Setting } = this.models;
     const user = await User.findOne({
-      email,
-      visibilityStatus: VisibilityStatus.Current,
+      where: {
+        email,
+        visibilityStatus: VisibilityStatus.Current,
+      },
     });
 
     if (!user.localPassword) {
@@ -99,9 +100,7 @@ export class AuthService {
     return user;
   }
 
-  async remoteSignIn(
-    params: SyncConnectionParameters,
-  ): Promise<{
+  async remoteSignIn(params: SyncConnectionParameters): Promise<{
     user: IUser;
     token: string;
     refreshToken: string;
@@ -117,14 +116,8 @@ export class AuthService {
     // create the sync source and log in to it
     await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    const {
-      user,
-      token,
-      refreshToken,
-      settings,
-      localisation,
-      permissions,
-    } = await this.centralServer.login(params.email, params.password);
+    const { user, token, refreshToken, settings, localisation, permissions } =
+      await this.centralServer.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
