@@ -116,7 +116,7 @@ export const FormFields = ({
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+  }, [onGoBack, currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
   if (encounterError) {
     return <ErrorScreen error={encounterError} />;
