@@ -16,11 +16,12 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-      params.patientId,
-    );
+    const registrationData =
+      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+        params.patientId,
+      );
 
-    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
+    const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
   }),
 );
@@ -53,14 +54,14 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistration');
     }
 
-    const { conditionIds = [], ...registrationData } = body;
+    const { conditions = [], ...registrationData } = body;
 
-    if (conditionIds.length > 0) {
+    if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditions] = await db.transaction(async () => {
+    const [registration, conditionsRecords] = await db.transaction(async () => {
       return Promise.all([
         models.PatientProgramRegistration.create({
           patientId,
@@ -68,13 +69,16 @@ patientProgramRegistration.post(
           ...registrationData,
         }),
         models.PatientProgramRegistrationCondition.bulkCreate(
-          conditionIds.map(conditionId => ({
-            patientId,
-            programRegistryId,
-            clinicianId: registrationData.clinicianId,
-            date: registrationData.date,
-            programRegistryConditionId: conditionId,
-          })),
+          conditions
+            .filter((condition) => condition.conditionId)
+            .map((condition) => ({
+              patientId,
+              programRegistryId,
+              clinicianId: registrationData.clinicianId,
+              date: registrationData.date,
+              programRegistryConditionId: condition.conditionId,
+              conditionCategory: condition.category,
+            })),
         ),
         // as a side effect, mark for sync in the current facility
         models.PatientFacility.upsert({
@@ -87,7 +91,7 @@ patientProgramRegistration.post(
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...registration.get({ plain: true }),
-      conditions,
+      conditions: conditionsRecords,
     };
 
     res.send(responseObject);
@@ -104,15 +108,15 @@ const getChangingFieldRecords = (allRecords, field) =>
     return currentValue !== prevValue;
   });
 
-const getRegistrationRecords = allRecords =>
+const getRegistrationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.ACTIVE,
   );
-const getDeactivationRecords = allRecords =>
+const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = allRecords =>
+const getStatusChangeRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
@@ -214,11 +218,11 @@ patientProgramRegistration.get(
       .reverse();
 
     const statusChangeRecords = getStatusChangeRecords(fullHistory);
-    const historyWithRegistrationDate = statusChangeRecords.map(data => ({
+    const historyWithRegistrationDate = statusChangeRecords.map((data) => ({
       ...data,
       // Find the latest registrationDate that is not after the date of interest
       registrationDate: registrationDates.find(
-        registrationDate => !isAfter(new Date(registrationDate), new Date(data.date)),
+        (registrationDate) => !isAfter(new Date(registrationDate), new Date(data.date)),
       ),
     }));
 
