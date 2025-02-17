@@ -45,9 +45,12 @@ export const getReportQueryReplacements = async (
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  const toDate =
-    params.toDate || getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
-  const fromDate = params.fromDate || getStartDate(dateRange, toDate);
+  const toDate = params.toDate
+    ? toDateTimeString(startOfDay(parseISO(params.toDate)))
+    : getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
+  const fromDate = params.fromDate
+    ? toDateTimeString(endOfDay(parseISO(params.fromDate)))
+    : getStartDate(dateRange, toDate);
 
   console.log({ fromDate, toDate });
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
