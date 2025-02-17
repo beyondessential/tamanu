@@ -72,18 +72,23 @@ encounter.put(
 
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
-        if (req.body.isDischarged) {
-          if (!req.body.discharge.dischargerId) {
-            // Only automatic discharges can have a null discharger ID
-            throw new InvalidParameterError('A discharge must have a discharger.');
-          }
-          const discharger = await models.User.findByPk(req.body.discharge.dischargerId);
-          if (!discharger) {
-            throw new InvalidParameterError(
-              `Discharger with id ${req.body.discharge.dischargerId} not found.`,
-            );
-          }
-          systemNote = `Patient discharged by ${discharger.displayName}.`;
+        if (!req.body.discharge.dischargerId) {
+          // Only automatic discharges can have a null discharger ID
+          throw new InvalidParameterError('A discharge must have a discharger.');
+        }
+        const discharger = await models.User.findByPk(req.body.discharge.dischargerId);
+        if (!discharger) {
+          throw new InvalidParameterError(
+            `Discharger with id ${req.body.discharge.dischargerId} not found.`,
+          );
+        }
+        systemNote = `Patient discharged by ${discharger.displayName}.`;
+
+        const discharge = await models.Discharge.findOne({ where: { encounterId: id } });
+        if (!discharge) {
+          await models.Discharge.create({ encounterId: id, ...req.body.discharge });
+        } else {
+          await discharge.update(req.body.discharge);
         }
 
         // Update medications that were marked for discharge and ensure
@@ -92,7 +97,7 @@ encounter.put(
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { isDischarge, quantity, repeats } = medicationValues;
           const medication = await models.EncounterMedication.findByPk(medicationId);
-          await medication.update({ isDischarge, quantity, repeats });
+          await medication.update(isDischarge ? { isDischarge, quantity, repeats } : { isDischarge });
         }
       }
 
@@ -107,13 +112,8 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
+      delete req.body.discharge;
       await encounterObject.update({ ...req.body, systemNote }, user);
-      const discharge = await models.Discharge.findOne({ where: { encounterId: id } });
-      if (!discharge) {
-        await models.Discharge.create({ encounterId: id, ...req.body.discharge });
-      } else {
-        await discharge.update(req.body.discharge);
-      }
     });
     res.send(encounterObject);
   }),

@@ -96,11 +96,12 @@ const dischargingClinicianLabel = (
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
+  const isSavedForm = !encounter?.discharge?.isDischarged;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (!encounter?.endDate) {
+    if (!isSavedForm) {
       if (isFuture(encounterStartDate)) {
         // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         return toDateTimeString(
@@ -122,7 +123,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: encounter?.discharge?.dischargerId,
       dispositionId: encounter?.discharge?.dispositionId,
-      note: encounter?.isDischarged
+      note: !isSavedForm
         ? dischargeNotes.map(n => n.content).join('\n\n')
         : encounter?.discharge?.note,
     },
@@ -142,9 +143,9 @@ const getMedicationsInitialValues = (medications, encounter) => {
   medications.forEach(medication => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      isDischarge: encounter.discharge ? medication.isDischarge : false,
+      isDischarge: encounter.discharge ? medication.isDischarge : true,
       quantity: medication.quantity || 0,
-      repeats: medication.repeats?.toString() || '0',
+      repeats: medication.repeats.toString() || '0',
     };
   });
   return medicationsInitialValues;
@@ -518,19 +519,11 @@ export const DischargeForm = ({
   const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
-      Object.values(data.medications).forEach(medication => {
-        if (!medication.quantity) {
-          medication.quantity = 0;
-        }
-      });
       await onSubmit({
         ...data,
-        endDate: data.endDate || null,
-        isDischarged,
         discharge: {
           ...data.discharge,
-          dischargerId: data.discharge.dischargerId || null,
-          dispositionId: data.discharge.dispositionId || null,
+          isDischarged,
         },
       });
     },

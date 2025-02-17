@@ -15,7 +15,6 @@ export class Discharge extends Model {
   declare encounterId?: string;
   declare dischargerId?: string;
   declare dispositionId?: string;
-  declare isDischarged: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

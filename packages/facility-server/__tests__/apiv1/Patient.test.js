@@ -108,8 +108,8 @@ describe('Patient', () => {
     // (the second one needs to have a 'greater' date to be the last)
     const endDate = new Date();
     await Promise.all([
-      encounterOne.update({ endDate, isDischarged: true }),
-      encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000), isDischarged: true }),
+      encounterOne.update({ endDate }),
+      encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
     ]);
 
     // Expect encounter to be the second encounter discharged

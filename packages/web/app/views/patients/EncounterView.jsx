@@ -164,7 +164,7 @@ export const EncounterView = () => {
 
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
-  const disabled = encounter?.isDischarged || !!patient.dateOfDeath;
+  const disabled = encounter?.endDate || !!patient.dateOfDeath;
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
@@ -239,7 +239,7 @@ export const EncounterView = () => {
         }
         encounter={encounter}
       >
-        {(facilityId === encounter.location.facilityId || encounter?.isDischarged) &&
+        {(facilityId === encounter.location.facilityId || encounter.endDate) &&
           // Hide all actions if encounter type is Vaccination or Survey Response,
           // as they should only contain 1 survey response or vaccination and discharged automatically,
           // no need to show any summaries or actions

@@ -158,7 +158,7 @@ const StyledMenuButton = styled(MenuButton)`
   }
 `;
 
-const getDate = ({ startDate, endDate, encounterType, isDischarged }) => {
+const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
     <DateWrapper>
@@ -166,7 +166,7 @@ const getDate = ({ startDate, endDate, encounterType, isDischarged }) => {
         <StatusIndicator patientStatus={patientStatus} />
         <DateDisplay date={startDate} />
         &nbsp;&ndash;{' '}
-        {isDischarged ? (
+        {endDate ? (
           <DateDisplay date={endDate} />
         ) : (
           <TranslatedText stringId="general.date.current" fallback="Current" />
