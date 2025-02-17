@@ -39,7 +39,9 @@ const getEndDate = (dateRange, { toDate, fromDate }) => {
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
       return getCurrentDateTimeString();
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return toDateTimeString(endOfDay(addDays(fromDate ? parseISO(fromDate) : new Date(), 30)));
+      return toDateTimeString(
+        endOfDay(addDays(fromDate ? parseISO(fromDate) : addDays(new Date(), 1), 30)),
+      );
     default:
       throw new Error('Unknown date range for report generation');
   }
