@@ -1,23 +1,24 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-const CATCH_ALL_FROM_DATE = '1970-01-01';
+const START_OF_EPOCH = '1970-01-01 00:00:00';
 
 function getStartDate(dateRange, endDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
-      return new Date(CATCH_ALL_FROM_DATE);
+      return START_OF_EPOCH;
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
-      return startOfDay(subYears(endDate, 18));
+      return toDateTimeString(startOfDay(subYears(parseISO(endDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      return startOfDay(subDays(endDate, 30));
+      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 30)));
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
-      return startOfDay(subDays(endDate, 7));
+      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 7)));
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return subDays(endDate, 1);
+      return toDateTimeString(subDays(parseISO(endDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return new Date();
+      return toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -30,9 +31,9 @@ function getEndDate(dateRange, fromDate) {
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return new Date();
+      return getCurrentDateTimeString();
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return endOfDay(addDays(fromDate || new Date(), 30));
+      return toDateTimeString(endOfDay(addDays(parseISO(fromDate) || new Date(), 30)));
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -44,14 +45,13 @@ export const getReportQueryReplacements = async (
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  let toDate;
-  if (params.toDate) {
-    toDate = new Date(params.toDate);
-  } else {
-    toDate = getEndDate(dateRange, params.fromDate ? new Date(params.fromDate) : new Date());
-  }
+  const toDate = params.toDate
+    ? toDateTimeString(endOfDay(parseISO(params.toDate)))
+    : getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
+  const fromDate = params.fromDate
+    ? toDateTimeString(startOfDay(parseISO(params.fromDate)))
+    : getStartDate(dateRange, toDate);
 
-  const fromDate = params.fromDate ? parseISO(params.fromDate) : getStartDate(dateRange, toDate);
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
