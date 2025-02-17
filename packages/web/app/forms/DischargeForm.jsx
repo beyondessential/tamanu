@@ -96,12 +96,12 @@ const dischargingClinicianLabel = (
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
-  const isSavedForm = !encounter?.discharge?.isDischarged;
+  const dischargeDraft = encounter?.encounterDraft?.discharge;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (!isSavedForm) {
+    if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
         // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         return toDateTimeString(
@@ -115,17 +115,15 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
         return getCurrentDateTimeString();
       }
     }
-    return encounter?.endDate;
+    return encounter?.encounterDraft?.endDate;
   };
 
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: encounter?.discharge?.dischargerId,
-      dispositionId: encounter?.discharge?.dispositionId,
-      note: !isSavedForm
-        ? dischargeNotes.map(n => n.content).join('\n\n')
-        : encounter?.discharge?.note,
+      dischargerId: dischargeDraft?.dischargerId,
+      dispositionId: dischargeDraft?.dispositionId,
+      note: !dischargeDraft ? dischargeNotes.map(n => n.content).join('\n\n') : dischargeDraft.note,
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -138,14 +136,15 @@ Creates an object to add initialValues to Formik that matches
 the table-like form fields.
 */
 const getMedicationsInitialValues = (medications, encounter) => {
+  const medicationDraft = encounter?.encounterDraft?.medications;
   const medicationsInitialValues = {};
 
   medications.forEach(medication => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      isDischarge: encounter.discharge ? medication.isDischarge : true,
-      quantity: medication.quantity || 0,
-      repeats: medication.repeats.toString() || '0',
+      isDischarge: medicationDraft?.[key]?.isDischarge ?? true,
+      quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? 0,
+      repeats: medicationDraft?.[key]?.repeats ?? medication?.repeats?.toString() ?? '0',
     };
   });
   return medicationsInitialValues;
@@ -519,13 +518,20 @@ export const DischargeForm = ({
   const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
-      await onSubmit({
-        ...data,
-        discharge: {
-          ...data.discharge,
-          isDischarged,
-        },
-      });
+      const { medications } = data;
+      if (isDischarged) {
+
+        // Filter out medications that weren't marked
+        const filteredMedications = {};
+        Object.keys(medications).forEach(id => {
+          const medication = medications[id];
+          if (medication.isDischarge) filteredMedications[id] = medication;
+        });
+
+        await onSubmit({ ...data, medications: filteredMedications });
+        return;
+      }
+      await onSubmit({ encounterDraft: data });
     },
     [onSubmit],
   );
@@ -571,7 +577,7 @@ export const DischargeForm = ({
               <UnsavedChangesScreen
                 {...props}
                 showWarningScreen={showWarningScreen}
-                onSubmit={onSubmit}
+                onSubmit={handleSubmit}
               />
             )
       }

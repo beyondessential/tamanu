@@ -70,7 +70,7 @@ encounter.put(
     await db.transaction(async () => {
       let systemNote;
 
-      if (req.body.discharge) {
+      if (req.body.discharge && req.body.endDate) {
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
           // Only automatic discharges can have a null discharger ID
@@ -84,20 +84,15 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const discharge = await models.Discharge.findOne({ where: { encounterId: id } });
-        if (!discharge) {
-          await models.Discharge.create({ encounterId: id, ...req.body.discharge });
-        } else {
-          await discharge.update(req.body.discharge);
-        }
-
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { isDischarge, quantity, repeats } = medicationValues;
-          const medication = await models.EncounterMedication.findByPk(medicationId);
-          await medication.update(isDischarge ? { isDischarge, quantity, repeats } : { isDischarge });
+          if (isDischarge) {
+            const medication = await models.EncounterMedication.findByPk(medicationId);
+            await medication.update({ isDischarge, quantity, repeats });
+          }
         }
       }
 
@@ -112,7 +107,6 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-      delete req.body.discharge;
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
     res.send(encounterObject);
