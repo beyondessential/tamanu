@@ -33,7 +33,7 @@ function getEndDate(dateRange, fromDate) {
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
       return getCurrentDateTimeString();
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return toDateTimeString(endOfDay(addDays(fromDate || new Date(), 30)));
+      return toDateTimeString(endOfDay(addDays(parseISO(fromDate) || new Date(), 30)));
     default:
       throw new Error('Unknown date range for report generation');
   }
