@@ -5,7 +5,8 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
 import { useTranslation } from '../../../contexts/Translation';
 import { Button, FormSubmitButton, OutlinedButton } from '../../../components/Button';
-import { Modal, ModalButtonActionRow } from '../../../components';
+import { ButtonRow } from '../../../components/ButtonRow';
+import { Modal, makeModalRow } from '../../../components';
 import { Field } from '../../../components/Field';
 import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
 
@@ -33,6 +34,7 @@ const ExportButtonRow = styled.div`
 `;
 
 const PreSubmitModal = ({ open, onClose, onConfirm }) => {
+  const ModalActionRow = makeModalRow(ButtonRow, true);
   return (
     <Modal
       title={
@@ -51,7 +53,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
           fallback="Would you like to import new defaults or overwrite existing translations?"
         />
       </ContentText>
-      <ModalButtonActionRow>
+      <ModalActionRow>
         <ButtonActionContainer>
           <OutlinedButton onClick={onClose}>
             <TranslatedText stringId="general.action.back" fallback="Back" />
@@ -71,7 +73,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
             </StyledConfirmButton>
           </div>
         </ButtonActionContainer>
-      </ModalButtonActionRow>
+      </ModalActionRow>
     </Modal>
   );
 };
