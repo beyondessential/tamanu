@@ -2,12 +2,12 @@ import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-const START_OF_EPOCH = '1970-01-01';
+const START_OF_EPOCH = '1970-01-01 00:00:00';
 
 function getStartDate(dateRange, endDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
-      return toDateTimeString(startOfDay(parseISO(START_OF_EPOCH)));
+      return START_OF_EPOCH;
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
       return toDateTimeString(startOfDay(subYears(parseISO(endDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
