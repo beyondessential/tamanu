@@ -1,5 +1,6 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
 
@@ -17,7 +18,7 @@ function getStartDate(dateRange, endDate) {
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
       return subDays(endDate, 1);
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return new Date();
+      return toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -30,9 +31,9 @@ function getEndDate(dateRange, fromDate) {
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return new Date();
+      return getCurrentDateTimeString();
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return endOfDay(addDays(fromDate || new Date(), 30));
+      return toDateTimeString(endOfDay(addDays(fromDate || new Date(), 30)));
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -48,10 +49,12 @@ export const getReportQueryReplacements = async (
   if (params.toDate) {
     toDate = new Date(params.toDate);
   } else {
-    toDate = getEndDate(dateRange, params.fromDate ? new Date(params.fromDate) : new Date());
+    toDate = getEndDate(dateRange, params.fromDate ? parseISO(params.fromDate) : new Date());
   }
 
   const fromDate = params.fromDate ? parseISO(params.fromDate) : getStartDate(dateRange, toDate);
+
+  console.log({ fromDate, toDate }, 'wowowow');
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
