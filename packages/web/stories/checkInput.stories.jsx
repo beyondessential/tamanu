@@ -20,11 +20,11 @@ export default {
       control: 'text',
     },
   },
-  title: 'FormControls/CheckInput',
+  title: 'Form Fields/CheckInput',
   component: CheckInput,
 };
 
-const Template = args => {
+const Template = (args) => {
   const [value, setValue] = useState(null);
   const handleChange = () => {
     setValue(!value);
@@ -57,7 +57,7 @@ WithError.args = {
 
 export const MultiSelectField = () => {
   const [values, setValues] = useState([]);
-  const handleChange = newValue => {
+  const handleChange = (newValue) => {
     setValues(newValue.target.value);
   };
 
