@@ -20,7 +20,12 @@ const StyledFormGrid = styled(FormGrid)`
   margin-left: 10px;
 `;
 
-const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
+const ExportForm = ({
+  dataTypes,
+  dataTypesSelectable,
+  buttonLabel,
+  ExportButton = FormSubmitButton,
+}) => (
   <StyledFormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
@@ -36,61 +41,64 @@ const ExportForm = ({ dataTypes, dataTypesSelectable, buttonLabel }) => (
       />
     )}
     <ButtonRow alignment="left">
-      <FormSubmitButton text={buttonLabel} />
+      <ExportButton text={buttonLabel} />
     </ButtonRow>
   </StyledFormGrid>
 );
 
-export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
-  const api = useApi();
-  const { getTranslation } = useTranslation();
+export const ExporterView = memo(
+  ({ title, endpoint, dataTypes, dataTypesSelectable, ExportButton }) => {
+    const api = useApi();
+    const { getTranslation } = useTranslation();
 
-  const onSubmit = useCallback(
-    async ({ includedDataTypes }) => {
-      await saveFile({
-        defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
-        getData: async () => api.download(`admin/export/${endpoint}`, { includedDataTypes }),
-        extension: 'xlsx',
-      });
-      notifySuccess(
-        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
-      );
-    },
-    [api, title, endpoint],
-  );
-
-  const buttonLabel = useMemo(() => {
-    return (
-      <span>
-        <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
-        {pluralize(title).toLowerCase()}
-      </span>
+    const onSubmit = useCallback(
+      async queryParameters => {
+        await saveFile({
+          defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
+          getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
+          extension: 'xlsx',
+        });
+        notifySuccess(
+          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+        );
+      },
+      [api, title, endpoint],
     );
-  }, [title]);
 
-  const renderForm = useCallback(
-    props => (
-      <ExportForm
-        dataTypes={dataTypes}
-        dataTypesSelectable={dataTypesSelectable}
-        buttonLabel={buttonLabel}
-        {...props}
+    const buttonLabel = useMemo(() => {
+      return (
+        <span>
+          <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
+          {pluralize(title).toLowerCase()}
+        </span>
+      );
+    }, [title]);
+
+    const renderForm = useCallback(
+      props => (
+        <ExportForm
+          dataTypes={dataTypes}
+          dataTypesSelectable={dataTypesSelectable}
+          buttonLabel={buttonLabel}
+          ExportButton={ExportButton}
+          {...props}
+        />
+      ),
+      [dataTypes, dataTypesSelectable, ExportButton, buttonLabel],
+    );
+
+    return (
+      <Form
+        onSubmit={onSubmit}
+        validationSchema={yup.object().shape({
+          includedDataTypes: yup.array(),
+        })}
+        formType={FORM_TYPES.CREATE_FORM}
+        initialValues={{
+          includedDataTypes: [...dataTypes],
+        }}
+        render={renderForm}
       />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
-
-  return (
-    <Form
-      onSubmit={onSubmit}
-      validationSchema={yup.object().shape({
-        includedDataTypes: yup.array(),
-      })}
-      formType={FORM_TYPES.CREATE_FORM}
-      initialValues={{
-        includedDataTypes: [...dataTypes],
-      }}
-      render={renderForm}
-    />
-  );
-});
+    );
+  },
+);
