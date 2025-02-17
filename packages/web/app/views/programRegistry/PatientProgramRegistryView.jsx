@@ -59,8 +59,10 @@ export const PatientProgramRegistryView = () => {
     patientId,
     programRegistryId,
   );
-  const { data: programRegistryConditions = [], isLoading: conditionsLoading } =
-    useProgramRegistryConditionsQuery(data?.programRegistryId);
+  const {
+    data: programRegistryConditions = [],
+    isLoading: conditionsLoading,
+  } = useProgramRegistryConditionsQuery(data?.programRegistryId);
 
   if (isLoading || conditionsLoading) {
     return <LoadingIndicator />;
@@ -70,7 +72,7 @@ export const PatientProgramRegistryView = () => {
     return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
   }
 
-  const conditionOptions = programRegistryConditions.map((x) => ({
+  const conditionOptions = programRegistryConditions.map(x => ({
     label: x.name,
     value: x.id,
   }));

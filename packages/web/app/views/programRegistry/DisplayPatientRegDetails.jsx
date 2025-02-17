@@ -66,12 +66,15 @@ const TextColumns = styled.div`
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
-  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] =
-    useState(false);
-  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] =
-    useState(false);
-  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] =
-    useState(false);
+  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] = useState(
+    false,
+  );
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;

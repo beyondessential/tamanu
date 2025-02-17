@@ -45,14 +45,14 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(
-      (row) => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
+      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
     );
     return [
       {
         key: 'clinicalStatusId',
         title: 'Status',
         sortable: false,
-        accessor: (row) => {
+        accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
       },
@@ -60,13 +60,13 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         key: 'clinicianId',
         title: 'Recorded By',
         sortable: false,
-        accessor: (row) => row.clinician.displayName,
+        accessor: row => row.clinician.displayName,
       },
       {
         key: 'date',
         title: 'Date recorded',
         sortable: true,
-        accessor: (row) => <DateDisplay date={row.date} />,
+        accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
         ? [
@@ -74,7 +74,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
               key: 'registrationDate',
               title: 'Date of registration',
               sortable: false,
-              accessor: (row) => <DateDisplay date={row?.registrationDate} />,
+              accessor: row => <DateDisplay date={row?.registrationDate} />,
             },
           ]
         : []),

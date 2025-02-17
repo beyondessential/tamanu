@@ -12,19 +12,19 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     {
       key: 'date',
       title: 'Date submitted',
-      accessor: (row) => <DateDisplay date={row.endTime} />,
+      accessor: row => <DateDisplay date={row.endTime} />,
       sortable: true,
     },
     {
       key: 'userId',
       title: 'Submitted By',
-      accessor: (row) => row.submittedBy,
+      accessor: row => row.submittedBy,
       sortable: false,
     },
     {
       key: 'surveyName',
       title: 'Form',
-      accessor: (row) => row.surveyName,
+      accessor: row => row.surveyName,
       sortable: false,
     },
     {
@@ -56,7 +56,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     // },
   ];
 
-  const onSelectResponse = useCallback((surveyResponse) => {
+  const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
   }, []);
 

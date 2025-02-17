@@ -52,10 +52,10 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     () =>
       api
         .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`)
-        .then((response) => {
+        .then(response => {
           return response.data
-            .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
-            .map((x) => ({ value: x.id, label: x.name }));
+            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+            .map(x => ({ value: x.id, label: x.name }));
         }),
   );
 
@@ -64,7 +64,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
       <Form
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
-        onSubmit={async (values) => {
+        onSubmit={async values => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,

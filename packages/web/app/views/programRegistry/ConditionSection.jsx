@@ -51,7 +51,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return <LoadingIndicator />;
   }
 
-  const data = sortBy(conditions.data, (c) => c?.programRegistryCondition?.name);
+  const data = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
 
   return (
     <Container>
@@ -59,7 +59,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         Related conditions
       </Heading5>
       <ScrollBody>
-        {data?.map((condition) => {
+        {data?.map(condition => {
           const { programRegistryCondition, conditionCategory } = condition;
           const { name } = programRegistryCondition;
           return (
