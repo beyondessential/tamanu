@@ -1,6 +1,18 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface) {
+  await query.changeColumn('prescriptions', 'created_at', {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('now'),
+    allowNull: false,
+  });
+
+  await query.changeColumn('prescriptions', 'updated_at', {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('now'),
+    allowNull: false,
+  });
+
   await query.addColumn('prescriptions', 'is_ongoing', {
     type: DataTypes.BOOLEAN,
     allowNull: true,
