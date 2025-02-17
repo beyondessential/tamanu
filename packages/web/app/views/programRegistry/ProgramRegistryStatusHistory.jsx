@@ -3,29 +3,32 @@ import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
-  width: ${p => (p.fullWidth ? '100%' : '70%')};
-  background-color: ${Colors.white};
-  padding: 13px 15px 30px 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: center;
-  margin-right: 10px;
-  border-radius: 5px;
-  border: 1px solid ${Colors.softOutline};
 `;
 
-export const ProgramRegistryStatusHistory = ({
-  patientProgramRegistration,
-  programRegistryConditions,
-}) => {
+const StyledTable = styled(Table)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-color: ${Colors.softOutline};
+
+  thead th {
+    border-color: ${Colors.softOutline};
+  }
+  table tr:last-child td {
+    border: none; // remove border from last row of table to prevent double border
+  }
+`;
+
+export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
   const { data, isLoading } = useProgramRegistryClinicalStatusQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -42,14 +45,14 @@ export const ProgramRegistryStatusHistory = ({
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(
-      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
+      (row) => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
     );
     return [
       {
         key: 'clinicalStatusId',
         title: 'Status',
         sortable: false,
-        accessor: row => {
+        accessor: (row) => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
       },
@@ -57,13 +60,13 @@ export const ProgramRegistryStatusHistory = ({
         key: 'clinicianId',
         title: 'Recorded By',
         sortable: false,
-        accessor: row => row.clinician.displayName,
+        accessor: (row) => row.clinician.displayName,
       },
       {
         key: 'date',
         title: 'Date recorded',
         sortable: true,
-        accessor: row => <DateDisplay date={row.date} />,
+        accessor: (row) => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
         ? [
@@ -71,7 +74,7 @@ export const ProgramRegistryStatusHistory = ({
               key: 'registrationDate',
               title: 'Date of registration',
               sortable: false,
-              accessor: row => <DateDisplay date={row?.registrationDate} />,
+              accessor: (row) => <DateDisplay date={row?.registrationDate} />,
             },
           ]
         : []),
@@ -79,9 +82,11 @@ export const ProgramRegistryStatusHistory = ({
   }, [data]);
 
   return (
-    <Container fullWidth={programRegistryConditions?.length === 0}>
-      <Heading5 style={{ marginBottom: '13px' }}>Program status history</Heading5>
-      <Table
+    <Container>
+      <Heading5 mt={0} mb={1}>
+        Program status history
+      </Heading5>
+      <StyledTable
         isBodyScrollable
         initialSort={{
           orderBy: 'date',

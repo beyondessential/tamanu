@@ -37,7 +37,7 @@ export const ProgramRegistryView = () => {
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
-    programRegistries.data.find(x => x.name === searchParams.get('name'))
+    programRegistries.data.find((x) => x.name === searchParams.get('name'))
   )
     return (
       <>
