@@ -21,7 +21,9 @@ const getStartDate = (dateRange, { toDate, fromDate }) => {
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
       return toDateTimeString(subDays(parseISO(toDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return toDateTimeString(startOfDay(addDays(new Date(), 1)));
+      return fromDate
+        ? getCurrentDateTimeString()
+        : toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
       throw new Error('Unknown date range for report generation');
   }
