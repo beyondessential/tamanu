@@ -4,7 +4,7 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTi
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
-const getStartDate = (dateRange, { toDate, fromDate }) => {
+const getFromDate = (dateRange, { toDate, fromDate }) => {
   if (fromDate) {
     return toDateTimeString(startOfDay(parseISO(fromDate)));
   }
@@ -29,7 +29,7 @@ const getStartDate = (dateRange, { toDate, fromDate }) => {
   }
 };
 
-const getEndDate = (dateRange, { toDate, fromDate }) => {
+const getToDate = (dateRange, { toDate, fromDate }) => {
   if (toDate) {
     return toDateTimeString(endOfDay(parseISO(toDate)));
   }
@@ -56,11 +56,12 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
+  console.log({ fromDate: getFromDate(dateRange, params), toDate: getToDate(dateRange, params) });
   return {
     ...paramDefaults,
     ...params,
-    fromDate: getStartDate(dateRange, params),
-    toDate: getEndDate(dateRange, params),
+    fromDate: getFromDate(dateRange, params),
+    toDate: getToDate(dateRange, params),
     currentFacilityId: facilityId,
   };
 };
