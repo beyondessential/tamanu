@@ -88,7 +88,10 @@ export class Encounter extends Model {
         reasonForEncounter: DataTypes.TEXT,
         deviceId: DataTypes.TEXT,
         plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
-        encounterDraft: DataTypes.JSONB,
+        encounterDraft: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+        },
       },
       {
         ...options,
