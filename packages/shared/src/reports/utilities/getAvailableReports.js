@@ -2,14 +2,14 @@ import { REPORT_DATE_RANGE_LABELS, REPORT_STATUSES } from '@tamanu/constants';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { canRunStaticReport } from './canRunStaticReport';
 
-const getStaticReports = ability => {
+const getStaticReports = (ability) => {
   const permittedReports = [];
   for (const reportDef of REPORT_DEFINITIONS) {
     if (canRunStaticReport(ability, reportDef.id)) {
       permittedReports.push(reportDef);
     }
   }
-  return permittedReports.map(r => ({ ...r, legacyReport: true }));
+  return permittedReports.map((r) => ({ ...r, legacyReport: true }));
 };
 
 const getDbReports = async (ability, models) => {
@@ -24,9 +24,9 @@ const getDbReports = async (ability, models) => {
     ],
     order: [['versions', 'version_number', 'DESC']],
   });
-  const permittedReportDefinitions = reportDefinitions.filter(rd => ability.can('run', rd));
+  const permittedReportDefinitions = reportDefinitions.filter((rd) => ability.can('run', rd));
 
-  return permittedReportDefinitions.map(r => {
+  return permittedReportDefinitions.map((r) => {
     // Get the latest report definition version by getting the first record from the ordered list
     const version = r.versions[0];
 
@@ -34,7 +34,6 @@ const getDbReports = async (ability, models) => {
       id: version.id,
       name: r.name,
       dataSourceOptions: version.queryOptions.dataSources,
-      filterDateRangeAsStrings: true,
       dateRangeLabel:
         version.queryOptions.dateRangeLabel ||
         REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],

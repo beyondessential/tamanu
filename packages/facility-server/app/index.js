@@ -18,10 +18,7 @@ import {
 } from './subCommands';
 
 async function run() {
-  program
-    .version(version)
-    .description('Tamanu Facility server')
-    .name('node dist');
+  program.version(version).description('Tamanu Facility server').name('node dist');
 
   program.addCommand(startAllCommand, { isDefault: true });
   program.addCommand(startApiCommand);

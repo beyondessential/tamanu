@@ -1,22 +1,22 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
 
 function getStartDate(dateRange, endDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
-      return new Date(CATCH_ALL_FROM_DATE);
+      return toDateTimeString(startOfDay(parseISO(CATCH_ALL_FROM_DATE)));
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
-      return startOfDay(subYears(endDate, 18));
+      return toDateTimeString(startOfDay(subYears(parseISO(endDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      return startOfDay(subDays(endDate, 30));
+      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 30)));
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
-      return startOfDay(subDays(endDate, 7));
+      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 7)));
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return subDays(endDate, 1);
+      return toDateTimeString(subDays(parseISO(endDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
       return toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
@@ -45,16 +45,10 @@ export const getReportQueryReplacements = async (
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  let toDate;
-  if (params.toDate) {
-    toDate = new Date(params.toDate);
-  } else {
-    toDate = getEndDate(dateRange, params.fromDate ? parseISO(params.fromDate) : new Date());
-  }
+  const toDate =
+    params.toDate || getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
+  const fromDate = params.fromDate || getStartDate(dateRange, toDate);
 
-  const fromDate = params.fromDate ? parseISO(params.fromDate) : getStartDate(dateRange, toDate);
-
-  console.log({ fromDate, toDate }, 'wowowow');
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
