@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm';
+import { Entity, ManyToOne, RelationId, Column } from 'typeorm/browser';
 
 import {
   DateTimeString,
@@ -30,6 +30,9 @@ export class PatientProgramRegistrationCondition
 
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
+
+  @Column({ nullable: false, default: 'Unknown' })
+  conditionCategory: string;
 
   // Relations
   @ManyToOne(() => ProgramRegistry)

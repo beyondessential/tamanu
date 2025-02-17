@@ -5,50 +5,51 @@ import {
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
-} from './patientFields.js';
+} from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-} from './invoices.js';
-import { ENCOUNTER_TYPE_LABELS } from './encounters.js';
-import { NOTE_TYPE_LABELS } from './notes.js';
+} from './invoices';
+import { ENCOUNTER_TYPE_LABELS } from './encounters';
+import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
-} from './statuses.js';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines.js';
+} from './statuses';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_LABELS,
-} from './births.js';
+} from './births';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_STATUS_LABELS,
-} from './reports.js';
-import { TEMPLATE_TYPE_LABELS } from './templates.js';
-import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
-import { ASSET_NAME_LABELS } from './importable.js';
-import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
-import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
-import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
-import { IMAGING_TYPES } from './imaging.js';
+} from './reports';
+import { TEMPLATE_TYPE_LABELS } from './templates';
+import { LAB_REQUEST_STATUS_LABELS } from './labs';
+import { ASSET_NAME_LABELS } from './importable';
+import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
+import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+import { TASK_FREQUENCY_UNIT_LABELS } from './tasks';
+import { IMAGING_TYPES } from './imaging';
 import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
-} from './appointments.js';
+} from './appointments';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
-type EnumValues = typeof registeredEnums[EnumKeys];
+type EnumValues = (typeof registeredEnums)[EnumKeys];
 type EnumEntries = [EnumKeys, EnumValues][];
 
 /**
@@ -82,6 +83,7 @@ export const registeredEnums = {
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPEAT_FREQUENCY_LABELS,
@@ -132,6 +134,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',
@@ -161,13 +164,12 @@ export const prefixMap = new Map(
 );
 
 /** The list of all translatable enums string id and fallback */
-export const enumTranslations = (Object.entries(
-  registeredEnums,
-) as EnumEntries).flatMap(([key, value]) =>
-  Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${enumKey
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
-    enumValue,
-  ]),
+export const enumTranslations = (Object.entries(registeredEnums) as EnumEntries).flatMap(
+  ([key, value]) =>
+    Object.entries(value).map(([enumKey, enumValue]) => [
+      `${translationPrefixes[key]}.${enumKey
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
+      enumValue,
+    ]),
 );
