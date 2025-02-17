@@ -552,7 +552,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
       expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
@@ -620,7 +620,7 @@ describe('Appointments', () => {
         ],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-02');
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-02');
       expect(updatedExistingSchedule.appointments).toHaveLength(0);
 
       const newScheduleAppointments = await models.Appointment.findAll({
@@ -691,7 +691,7 @@ describe('Appointments', () => {
         },
       });
 
-      expect(updatedSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedSchedule.cancelledAtDate).toEqual('2024-10-09');
     });
     it('should delete just the selected appointment if "this appointment" selected', async () => {
       const [schedule, appointments] = await generateSchedule();
