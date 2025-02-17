@@ -1379,16 +1379,23 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
-            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED]: {
-              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED,
+            [ADMINISTRATION_FREQUENCIES.AS_DIRECTED]: {
+              description: ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY,
               type: yup.boolean(),
               defaultValue: true,
             },
           },
         },
-        frequenciesAdministrationTimes: {
+        frequenciesAdministrationIdealTimes: {
           description: '-',
-          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES)),
+          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
+            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
+          )),
         },
       },
     },
