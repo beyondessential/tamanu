@@ -650,7 +650,7 @@ export class CentralSyncManager {
   async completePush(sessionId, deviceId, tablesToInclude) {
     await this.connectToSession(sessionId);
 
-    const device = await this.store.models.Device.findByPk(deviceId);
+    const device = await this.store.models.SyncDevice.findByPk(deviceId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
