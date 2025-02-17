@@ -4,19 +4,22 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTi
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
-const getStartDate = (dateRange, endDate) => {
+const getStartDate = (dateRange, { toDate, fromDate }) => {
+  if (fromDate) {
+    return toDateTimeString(startOfDay(parseISO(fromDate)));
+  }
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
       return START_OF_EPOCH;
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
-      return toDateTimeString(startOfDay(subYears(parseISO(endDate), 18)));
+      return toDateTimeString(startOfDay(subYears(parseISO(toDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 30)));
+      return toDateTimeString(startOfDay(subDays(parseISO(toDate), 30)));
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
-      return toDateTimeString(startOfDay(subDays(parseISO(endDate), 7)));
+      return toDateTimeString(startOfDay(subDays(parseISO(toDate), 7)));
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return toDateTimeString(subDays(parseISO(endDate), 1));
+      return toDateTimeString(subDays(parseISO(toDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
       return toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
@@ -24,7 +27,10 @@ const getStartDate = (dateRange, endDate) => {
   }
 };
 
-const getEndDate = (dateRange, fromDate) => {
+const getEndDate = (dateRange, { toDate, fromDate }) => {
+  if (toDate) {
+    return toDateTimeString(endOfDay(parseISO(toDate)));
+  }
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
@@ -39,15 +45,6 @@ const getEndDate = (dateRange, fromDate) => {
   }
 };
 
-const getQueryDates = (dateRange, { toDate, fromDate }) => ({
-  toDate: toDate
-    ? toDateTimeString(endOfDay(parseISO(toDate)))
-    : getEndDate(dateRange, fromDate || getCurrentDateTimeString()),
-  fromDate: fromDate
-    ? toDateTimeString(startOfDay(parseISO(fromDate)))
-    : getStartDate(dateRange, toDate),
-});
-
 export const getReportQueryReplacements = async (
   paramDefinitions,
   facilityId,
@@ -55,11 +52,11 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
-  const queryDates = getQueryDates(dateRange, params);
   return {
     ...paramDefaults,
     ...params,
-    ...queryDates,
+    fromDate: getStartDate(dateRange, params),
+    toDate: getEndDate(dateRange, params),
     currentFacilityId: facilityId,
   };
 };
