@@ -2,12 +2,12 @@ import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-const CATCH_ALL_FROM_DATE = '1970-01-01';
+const START_OF_EPOCH = '1970-01-01';
 
 function getStartDate(dateRange, endDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
-      return toDateTimeString(startOfDay(parseISO(CATCH_ALL_FROM_DATE)));
+      return toDateTimeString(startOfDay(parseISO(START_OF_EPOCH)));
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
       return toDateTimeString(startOfDay(subYears(parseISO(endDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
@@ -49,6 +49,7 @@ export const getReportQueryReplacements = async (
     params.toDate || getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
   const fromDate = params.fromDate || getStartDate(dateRange, toDate);
 
+  console.log({ fromDate, toDate });
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
