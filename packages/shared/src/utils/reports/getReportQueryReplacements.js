@@ -54,10 +54,6 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
-  console.log({
-    fromDate: getStartDate(dateRange, params),
-    toDate: getEndDate(dateRange, params),
-  });
   return {
     ...paramDefaults,
     ...params,
