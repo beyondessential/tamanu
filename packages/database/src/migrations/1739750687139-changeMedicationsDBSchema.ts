@@ -1,6 +1,6 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-export async function up(query) {
+export async function up(query: QueryInterface) {
   // Rename 'encounter_medications' to 'prescriptions'
   await query.renameTable('encounter_medications', 'prescriptions');
 
@@ -22,7 +22,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     encounter_id: {
       type: DataTypes.STRING,
@@ -66,7 +66,7 @@ export async function up(query) {
     INSERT INTO encounter_prescriptions (encounter_id, prescription_id)
     SELECT encounter_id, id FROM prescriptions
   `);
-  
+
   // Drop 'encounter_id' column from 'prescriptions'
   await query.removeColumn('prescriptions', 'encounter_id');
 
@@ -76,7 +76,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     patient_id: {
       type: DataTypes.STRING,
@@ -111,7 +111,7 @@ export async function up(query) {
   });
 }
 
-export async function down(query) {
+export async function down(query: QueryInterface) {
   // Drop 'patient_ongoing_prescriptions' table
   await query.dropTable('patient_ongoing_prescriptions');
 
@@ -127,8 +127,8 @@ export async function down(query) {
 
   // Populate 'prescriptions' table with 'encounter_id' values
   await query.sequelize.query(`
-    UPDATE prescriptions 
-    SET encounter_id = (SELECT encounter_id FROM encounter_prescriptions 
+    UPDATE prescriptions
+    SET encounter_id = (SELECT encounter_id FROM encounter_prescriptions
     WHERE prescription_id = prescriptions.id)
   `);
 

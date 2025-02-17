@@ -1,16 +1,12 @@
-/** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-/**
- * @param {QueryInterface} query
- */
-export async function up(query) {
+export async function up(query: QueryInterface) {
   await query.createTable('reference_drugs', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     reference_data_id: {
       type: DataTypes.STRING,
@@ -55,7 +51,7 @@ export async function up(query) {
   if (drugsReferenceData[0].length) {
     await query.bulkInsert(
       'reference_drugs',
-      drugsReferenceData[0].map((it) => ({ reference_data_id: it.id })),
+      drugsReferenceData[0].map((it: any) => ({ reference_data_id: it.id })),
     );
   }
 }
@@ -63,6 +59,6 @@ export async function up(query) {
 /**
  * @param {QueryInterface} query
  */
-export async function down(query) {
+export async function down(query: QueryInterface) {
   await query.dropTable('reference_drugs');
 }
