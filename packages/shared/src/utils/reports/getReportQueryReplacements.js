@@ -4,7 +4,7 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTi
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
-function getStartDate(dateRange, endDate) {
+const getStartDate = (dateRange, endDate) => {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
       return START_OF_EPOCH;
@@ -22,9 +22,9 @@ function getStartDate(dateRange, endDate) {
     default:
       throw new Error('Unknown date range for report generation');
   }
-}
+};
 
-function getEndDate(dateRange, fromDate) {
+const getEndDate = (dateRange, fromDate) => {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
@@ -37,7 +37,16 @@ function getEndDate(dateRange, fromDate) {
     default:
       throw new Error('Unknown date range for report generation');
   }
-}
+};
+
+const getQueryDates = (dateRange, { toDate, fromDate }) => ({
+  toDate: toDate
+    ? toDateTimeString(endOfDay(parseISO(toDate)))
+    : getEndDate(dateRange, fromDate || getCurrentDateTimeString()),
+  fromDate: fromDate
+    ? toDateTimeString(startOfDay(parseISO(fromDate)))
+    : getStartDate(dateRange, toDate),
+});
 
 export const getReportQueryReplacements = async (
   paramDefinitions,
@@ -45,19 +54,13 @@ export const getReportQueryReplacements = async (
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  const toDate = params.toDate
-    ? toDateTimeString(endOfDay(parseISO(params.toDate)))
-    : getEndDate(dateRange, params.fromDate || getCurrentDateTimeString());
-  const fromDate = params.fromDate
-    ? toDateTimeString(startOfDay(parseISO(params.fromDate)))
-    : getStartDate(dateRange, toDate);
-
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
+  const { toDate, fromDate } = getQueryDates(dateRange, params);
   return {
     ...paramDefaults,
     ...params,
-    currentFacilityId: facilityId,
     fromDate,
     toDate,
+    currentFacilityId: facilityId,
   };
 };
