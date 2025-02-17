@@ -61,9 +61,9 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
            }
           ${
             avoidRepull
-              ? `LEFT JOIN sync_device_ticks
-                  ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
-              : 'LEFT JOIN (select NULL as device_id) AS sync_device_ticks ON 1 = 1'
+              ? `LEFT JOIN sync_devices
+                  ON last_persisted_at_sync_tick = ${table}.updated_at_sync_tick`
+              : 'LEFT JOIN (select NULL as id) AS sync_devices ON 1 = 1'
           }
           ${joins || ''}
           WHERE

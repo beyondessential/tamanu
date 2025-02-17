@@ -196,7 +196,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
     }),
     {},
   );
-  const centralServer = new CentralServerConnection({ deviceId: 'test' });
+  const centralServer = new CentralServerConnection({ models });
 
   context.onClose(async () => {
     await new Promise((resolve) => {

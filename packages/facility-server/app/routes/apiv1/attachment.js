@@ -9,7 +9,7 @@ attachment.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Attachment');
 
-    const { query, params, deviceId } = req;
+    const { query, params } = req;
     const { base64 } = query;
     const { id } = params;
     const localAttachment = await req.models.Attachment.findByPk(params.id);
@@ -25,7 +25,7 @@ attachment.get(
       return;
     }
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection(req);
     const response = await centralServer.fetch(`attachment/${id}?base64=${base64}`, {
       method: 'GET',
     });

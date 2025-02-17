@@ -21,7 +21,7 @@ export function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}
       '${table}',
       ${table}.deleted_at IS NOT NULL,
       COALESCE(:updatedAtSyncTick, ${table}.updated_at_sync_tick),
-      sync_device_ticks.device_id,
+      sync_devices.id,
       json_build_object(
         ${Object.keys(attributes)
           .filter((a) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))

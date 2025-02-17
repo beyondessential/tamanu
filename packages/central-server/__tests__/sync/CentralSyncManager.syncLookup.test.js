@@ -8,6 +8,7 @@ import {
   REPORT_DB_SCHEMAS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
@@ -622,7 +623,7 @@ describe('Sync Lookup data', () => {
     });
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
-    await models.SyncDeviceTick.truncate({ force: true });
+    await models.SyncDevice.truncate({ force: true });
 
     jest.resetModules();
     jest.clearAllMocks();
@@ -1336,19 +1337,20 @@ describe('Sync Lookup data', () => {
   });
 
   describe('avoidRepull', () => {
-    const snapshotOutgoingRecordsForFacility = async avoidRepull => {
-      const deviceId = 'facility-a';
+    const snapshotOutgoingRecordsForFacility = async (avoidRepull) => {
+      const deviceId = models.SyncDevice.createDeviceId();
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
-      // Set new sync time so that it does not match the SyncDeviceTick record
+      // Set new sync time so that it does not match the SyncDevice record
       // in order to have it included in the snapshot.
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 5);
       const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
 
-      await models.SyncDeviceTick.create({
-        deviceId,
-        persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
+      await models.SyncDevice.create({
+        id: deviceId,
+        registeredById: SYSTEM_USER_UUID,
+        lastPersistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
       const actualConfig = jest.requireActual('config');

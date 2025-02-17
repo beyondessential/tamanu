@@ -29,6 +29,7 @@ export class User extends Model {
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
+  declare deviceRegistrationQuota: number;
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
@@ -119,6 +120,11 @@ export class User extends Model {
         phoneNumber: {
           type: DataTypes.STRING,
         },
+        deviceRegistrationQuota: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0,
+          allowNull: false,
+        },
         visibilityStatus: {
           type: DataTypes.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
@@ -191,6 +197,11 @@ export class User extends Model {
       through: models.UserDesignation,
       foreignKey: 'userId',
       as: 'designationData',
+    });
+
+    this.hasMany(models.SyncDevice, {
+      foreignKey: 'registeredById',
+      as: 'registeredDevices',
     });
   }
 

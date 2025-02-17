@@ -55,7 +55,6 @@ describe('UploadAttachment', () => {
     }));
     await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
     expect(CentralServerConnection.mock.calls.length).toBe(1);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 
   it('successfully uploads attachment', async () => {
@@ -84,6 +83,5 @@ describe('UploadAttachment', () => {
       metadata: { name: 'hello world image' },
     });
     expect(CentralServerConnection.mock.calls.length).toBe(2);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 });
