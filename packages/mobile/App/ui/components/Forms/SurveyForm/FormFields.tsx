@@ -51,7 +51,7 @@ const useScrollToFirstError = (): UseScrollToFirstError => {
 
   const setQuestionPosition = (questionCode: string) => (yPosition: string) => {
     if (yPosition) {
-      setQuestionPositions(x => ({ ...x, [questionCode]: yPosition }));
+      setQuestionPositions((x) => ({ ...x, [questionCode]: yPosition }));
     }
   };
 
@@ -84,9 +84,8 @@ export const FormFields = ({
   onGoBack,
 }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
-    GenericFormValues
-  >();
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } =
+    useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
   const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
@@ -130,11 +129,11 @@ export const FormFields = ({
 
   const { encounter } = encounterResult || {};
   const maxIndex = components
-    .map(x => x.screenIndex)
+    .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
+    .filter((x) => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
   const visibleComponents = screenComponents.filter(shouldShow);
 
@@ -150,8 +149,8 @@ export const FormFields = ({
     const formErrors = await validateForm();
 
     // Only include components that are on this page
-    const pageErrors = Object.keys(formErrors).filter(x =>
-      screenComponents.map(c => c.dataElement.code).includes(x),
+    const pageErrors = Object.keys(formErrors).filter((x) =>
+      screenComponents.map((c) => c.dataElement.code).includes(x),
     );
 
     if (pageErrors.length === 0) {

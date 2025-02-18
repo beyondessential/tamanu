@@ -48,8 +48,11 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     (model): OptionType => ({ label: model.displayName, value: model.id }),
   );
 
-  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
-    const where: any = { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current };
+  const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
+    const where: any = {
+      labTestCategory: { id: selectedValue },
+      visibilityStatus: VisibilityStatus.Current,
+    };
     if (!canCreateSensitive) {
       where.isSensitive = false;
     }
@@ -57,7 +60,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       where,
       order: { name: 'ASC' },
     });
-    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
+    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
       id: labTestType.id,
       text: (
         <TranslatedReferenceData
