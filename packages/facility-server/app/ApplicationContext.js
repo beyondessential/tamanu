@@ -43,15 +43,15 @@ export class ApplicationContext {
       }
     }
 
-    const ts = createTimesync({
+    console.log('setting ts')
+
+    this.ts = createTimesync({
       server: `${config.sync.host.trim().replace(/\/*$/, '')}/timesync`,
       interval: 4000,
     });
-
-    ts.on('change', (offset) => {
-      console.log(`Time offset updated: ${offset} ms`);
+    this.ts.on('change', (offset) => {
+      console.log('Time offset changed to', offset);
     });
-    this.ts = ts;
 
 
     const facilityIds = selectFacilityIds(config);
@@ -73,10 +73,10 @@ export class ApplicationContext {
   }
 
   async close() {
+    this.ts.destroy();
     for (const hook of this.closeHooks) {
       await hook();
     }
     await closeDatabase();
-    this.ts.destroy();
   }
 }
