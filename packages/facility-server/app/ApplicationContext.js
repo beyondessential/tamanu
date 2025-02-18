@@ -43,22 +43,19 @@ export class ApplicationContext {
       }
     }
 
-    console.log('setting ts')
-
-    this.ts = createTimesync({
-      server: `${config.sync.host.trim().replace(/\/*$/, '')}/timesync`,
-      interval: 4000,
-    });
-    this.ts.on('change', (offset) => {
-      console.log('Time offset changed to', offset);
-      console.log('Now timestamp', new Date(this.ts.now()).getTime())
-    });
-
-
     const facilityIds = selectFacilityIds(config);
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
+
+    this.ts = createTimesync({
+      server: `${config.sync.host.trim().replace(/\/*$/, '')}/timesync`,
+      interval: 60000,
+    });
+    this.ts.on('change', (offset) => {
+      this.models.LocalSystemFact.set('timesyncOffset', offset);
+    });
+
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
