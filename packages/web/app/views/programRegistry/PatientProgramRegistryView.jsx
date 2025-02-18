@@ -89,6 +89,7 @@ export const PatientProgramRegistryView = () => {
       <Container>
         <MainSection>
           <DisplayPatientRegDetails patientProgramRegistration={data} />
+          {/*Todo: Make first column fill if the second column isn't there */}
           <Grid>
             <ProgramRegistryStatusHistory
               patientProgramRegistration={data}

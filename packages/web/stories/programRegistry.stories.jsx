@@ -21,7 +21,7 @@ import {
   programRegistryConditions,
 } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
-import { AddConditionFormModal } from '../app/views/programRegistry/AddConditionFormModal';
+import { UpdateConditionFormModal } from '../app/features/ProgramRegistry';
 import { RemoveConditionFormModal } from '../app/views/programRegistry/RemoveConditionFormModal';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
@@ -43,7 +43,7 @@ const StoryProviders = ({ children }) => {
 export default {
   title: 'Program Registry',
   decorators: [
-    (Story) => (
+    Story => (
       <StoryProviders>
         <Story />
       </StoryProviders>
@@ -66,7 +66,7 @@ export const ProgramRegistry = {
         ListItemComponent={ProgramRegistryListItem}
         behavior="modal"
         itemTitle="Add program registry"
-        getEditFormName={(programRegistry) => `Program registry: ${programRegistry.name}`}
+        getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
         CustomEditForm={undefined}
       />
     </div>
@@ -146,10 +146,10 @@ export const ConditionSectionStory = {
   ),
 };
 
-export const AddConditionStory = {
-  name: 'Add Condition',
+export const UpdateConditionStory = {
+  name: 'Update Condition',
   render: () => (
-    <AddConditionFormModal
+    <UpdateConditionFormModal
       patientProgramRegistration={patientProgramRegistration}
       onClose={action('cancel')}
       open
