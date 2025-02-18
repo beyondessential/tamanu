@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
 
 import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
-import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { getModelsForPush, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -16,7 +16,7 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
-    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+    outgoingModels = getModelsForPush(models);
   });
 
   afterAll(() => ctx.close());
@@ -186,7 +186,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.sequelize.transaction(async transaction => {
+      const after = ctx.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(
           {
             ...fakeReferenceData(),
@@ -262,7 +262,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.sequelize.transaction(async transaction => {
+      const after = ctx.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(
           {
             ...fakeReferenceData(),
