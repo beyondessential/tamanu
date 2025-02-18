@@ -51,6 +51,7 @@ export class ApplicationContext {
     });
     this.ts.on('change', (offset) => {
       console.log('Time offset changed to', offset);
+      console.log('Now timestamp', new Date(this.ts.now()).getTime())
     });
 
 
