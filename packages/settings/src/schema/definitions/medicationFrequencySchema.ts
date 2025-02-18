@@ -64,6 +64,7 @@ export const medicationFrequencySchema = (frequencyKey) =>
     .test({
       name: 'validate-administration-ideal-times',
       test(value, ctx) {
+        if (!value) return true;
         return validateAdministrationIdealTimes(value, ctx, frequencyKey);
       },
     });
