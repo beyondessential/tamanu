@@ -4,7 +4,8 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTi
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
-const getFromDate = (dateRange, { toDate = getCurrentDateTimeString(), fromDate }) => {
+const getFromDate = (dateRange, { toDate, fromDate }) => {
+  const defaultedToDate = toDate || getCurrentDateTimeString();
   if (fromDate) {
     return toDateTimeString(startOfDay(parseISO(fromDate)));
   }
@@ -12,18 +13,19 @@ const getFromDate = (dateRange, { toDate = getCurrentDateTimeString(), fromDate 
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
       return START_OF_EPOCH;
     case REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS:
-      return toDateTimeString(startOfDay(subYears(parseISO(toDate), 18)));
+      return toDateTimeString(startOfDay(subYears(parseISO(defaultedToDate), 18)));
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      return toDateTimeString(startOfDay(subDays(parseISO(toDate), 30)));
+      return toDateTimeString(startOfDay(subDays(parseISO(defaultedToDate), 30)));
     case REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS:
-      return toDateTimeString(startOfDay(subDays(parseISO(toDate), 7)));
+      return toDateTimeString(startOfDay(subDays(parseISO(defaultedToDate), 7)));
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
-      return toDateTimeString(subDays(parseISO(toDate), 1));
+      return toDateTimeString(subDays(parseISO(defaultedToDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      return toDate
-        ? getCurrentDateTimeString()
-        : toDateTimeString(startOfDay(addDays(new Date(), 1)));
+      if (toDate) {
+        return toDateTimeString(startOfDay(subDays(parseISO(toDate), 30)));
+      }
+      return toDateTimeString(startOfDay(addDays(new Date(), 1)));
     default:
       throw new Error('Unknown date range for report generation');
   }
