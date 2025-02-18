@@ -22,10 +22,7 @@ const getFromDate = (dateRange, { toDate, fromDate }) => {
     case REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS:
       return toDateTimeString(subDays(parseISO(defaultedToDate), 1));
     case REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS:
-      if (toDate) {
-        return toDateTimeString(startOfDay(subDays(parseISO(toDate), 30)));
-      }
-      return toDateTimeString(startOfDay(addDays(new Date(), 1)));
+      return toDateTimeString(startOfDay(toDate ? subDays(parseISO(toDate), 30) : addDays(new Date(), 1)));
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -58,7 +55,6 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
-  console.log({ fromDate: getFromDate(dateRange, params), toDate: getToDate(dateRange, params) });
   return {
     ...paramDefaults,
     ...params,
