@@ -18,6 +18,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 import { createServer } from 'http';
+import timesyncServer from 'timesync/server';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 
@@ -82,6 +83,8 @@ export async function createApi(ctx) {
       index: true,
     });
   });
+
+  express.get('/timesync', timesyncServer.requestHandler)
 
   // API
   express.use('/api', api(ctx));
