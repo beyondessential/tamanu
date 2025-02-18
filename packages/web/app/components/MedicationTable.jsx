@@ -99,7 +99,7 @@ const MEDICATION_COLUMNS = getTranslation => [
     key: 'Medication.name',
     title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
     accessor: getMedicationName,
-    CellComponent: props => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: LimitedLinesCell,
   },
   {
     key: 'dose',
