@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase } from '@material-ui/core';
@@ -7,6 +7,7 @@ import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
 
 const Container = styled.div`
   display: flex;
@@ -42,6 +43,7 @@ const ClippedConditionName = styled.span`
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
+  const [selectedConditionId, setSelectedConditionId] = useState(null);
   const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -63,7 +65,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           const { programRegistryCondition, conditionCategory } = condition;
           const { name } = programRegistryCondition;
           return (
-            <Condition key={condition.id}>
+            <Condition key={condition.id} onClick={() => setSelectedConditionId(condition.id)}>
               <ConditionalTooltip title={name} visible={name.length > 30}>
                 <ClippedConditionName>
                   {name} ({conditionCategory})
@@ -73,6 +75,10 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           );
         })}
       </ScrollBody>
+      <UpdateConditionFormModal
+        open={Boolean(selectedConditionId)}
+        onClose={() => setSelectedConditionId(null)}
+      />
     </Container>
   );
 };

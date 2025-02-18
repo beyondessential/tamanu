@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -30,14 +30,15 @@ const useUpdateConditionMutation = () => {
   const { currentUser } = useAuth();
 
   return useMutation(
-    data =>
-      api.post(
+    data => {
+      return api.post(
         `patient/${data.patientId}/programRegistration/${data.programRegistryId}/condition`,
         {
           ...data,
           clinicianId: currentUser.id,
         },
-      ),
+      );
+    },
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['programRegistry', 'conditions']);
@@ -69,49 +70,12 @@ export const UpdateConditionFormModal = ({
   programRegistryConditions,
   open,
 }) => {
-  const { mutate: submit } = useUpdateConditionMutation();
+  const { mutateAsync: submit } = useUpdateConditionMutation();
 
-  const columns = useMemo(() => {
-    return [
-      {
-        title: 'Condition',
-        accessor: ({ programRegistryCondition }) => programRegistryCondition.name,
-      },
-      {
-        title: 'Date added',
-        accessor: ({ date }) => <DateDisplay date={date} />,
-      },
-      {
-        title: (
-          <span id="condition-category-label">
-            Category <span style={{ color: Colors.alert }}> *</span>
-          </span>
-        ),
-        accessor: ({ programRegistryCondition }) => (
-          <ProgramRegistryConditionCategoryField
-            name="test"
-            conditionId={programRegistryCondition.id}
-            ariaLabelledby="condition-category-label"
-            required
-          />
-        ),
-      },
-      {
-        title: (
-          <span id="condition-category-change-reason-label">Reason for change (if applicable)</span>
-        ),
-        accessor: () => (
-          <Field
-            name="programRegistryConditionId"
-            ariaLabelledBy="condition-category-change-reason-label"
-            component={StyledTextField}
-            required
-            disabled
-          />
-        ),
-      },
-    ];
-  }, []);
+  const handleSubmit = async values => {
+    await submit(values);
+    onClose();
+  };
 
   return (
     <Modal
@@ -127,21 +91,59 @@ export const UpdateConditionFormModal = ({
     >
       <Form
         showInlineErrorsOnly
-        onSubmit={submit}
+        onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{
-          patientId: patientProgramRegistration.patientId,
-          programRegistryId: patientProgramRegistration.programRegistryId,
-        }}
-        render={({ submitForm }) => {
-          const handleCancel = () => onClose();
+        initialValues={{ programRegistryConditionId: data[0].conditionCategory }}
+        render={({ submitForm, dirty }) => {
+          const columns = [
+            {
+              title: 'Condition',
+              accessor: ({ programRegistryCondition }) => programRegistryCondition.name,
+            },
+            {
+              title: 'Date added',
+              accessor: ({ date }) => <DateDisplay date={date} />,
+            },
+            {
+              title: (
+                <span id="condition-category-label">
+                  Category <span style={{ color: Colors.alert }}> *</span>
+                </span>
+              ),
+              width: 200,
+              accessor: ({ programRegistryCondition }) => (
+                <ProgramRegistryConditionCategoryField
+                  name="programRegistryConditionId"
+                  conditionId={programRegistryCondition.id}
+                  ariaLabelledby="condition-category-label"
+                  required
+                />
+              ),
+            },
+            {
+              title: (
+                <span id="condition-category-change-reason-label">
+                  Reason for change (if applicable)
+                </span>
+              ),
+              width: 300,
+              accessor: () => (
+                <Field
+                  name="programRegistryConditionChangeReason"
+                  ariaLabelledBy="condition-category-change-reason-label"
+                  component={StyledTextField}
+                  required
+                  disabled={!dirty}
+                />
+              ),
+            },
+          ];
+
           return (
             <>
               <FormTable columns={columns} data={data} />
-              {/*
-                Todo: Add Condition category history
-              */}
-              <ModalFormActionRow onConfirm={submitForm} onCancel={handleCancel} />
+              {/*Todo: Add Condition category history*/}
+              <ModalFormActionRow onConfirm={submitForm} onCancel={onClose} />
             </>
           );
         }}
