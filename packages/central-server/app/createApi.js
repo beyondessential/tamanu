@@ -84,7 +84,7 @@ export async function createApi(ctx) {
     });
   });
 
-  express.get('/timesync', timesyncServer.requestHandler)
+  express.use('/timesync', timesyncServer.requestHandler)
 
   // API
   express.use('/api', api(ctx));
