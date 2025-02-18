@@ -92,7 +92,8 @@ export const ADMINISTRATION_FREQUENCIES = {
   ONCE_A_WEEK: 'Once a week',
   ONCE_A_MONTH: 'Once a month',
   IMMEDIATELY: 'Immediately',
-  WHEN_REQUIRED: 'When required',
+  AS_DIRECTED: 'As directed',
+  TWICE_DAILY_AM_AND_MIDDAY: 'Twice daily - AM and midday',
 };
 
 export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
@@ -123,7 +124,20 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
     'Once monthly',
   ],
   [ADMINISTRATION_FREQUENCIES.IMMEDIATELY]: ['STAT', 'Immediately'],
-  [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED]: ['PRN', 'As required', 'No frequency'],
+  [ADMINISTRATION_FREQUENCIES.AS_DIRECTED]: [
+    'MDU',
+    'As directed by doctor',
+    'M.D.U.',
+    'As directed by prescriber',
+    'Variable dose',
+    'When required',
+  ],
+  [ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY]: [
+    'AM and midday',
+    'BD - AM and midday',
+    'AM and lunch',
+    'BD - AM and lunch',
+  ],
 };
 
 export const ADMINISTRATION_FREQUENCY_DETAILS = {
@@ -183,9 +197,13 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     startTimes: null,
     dosesPerDay: null,
   },
-  [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED]: {
+  [ADMINISTRATION_FREQUENCIES.AS_DIRECTED]: {
     startTimes: null,
     dosesPerDay: null,
+  },
+  [ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY]: {
+    startTimes: ['06:00', '12:00'],
+    dosesPerDay: 2,
   },
 };
 

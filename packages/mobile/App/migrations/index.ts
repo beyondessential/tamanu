@@ -123,6 +123,6 @@ export const migrationList = [
   removeLabTestStatus1734072605000,
   standardiseCaseAndPluralityOfAllTables1734080053767,
   changeMedicationsDBSchema1736398276000,
-  addReferenceDrugsTable1736614067055
+  addReferenceDrugsTable1736614067055,
   addIsSensitiveColumnToLabTestTypes1738620786000,
 ];
