@@ -147,7 +147,7 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth', 'nationality', 'ethnicity', 'insurer'];
+    return ['countryOfBirth', 'nationality', 'ethnicity', 'insurer', 'country'];
   }
 
   static buildSyncLookupQueryDetails() {
