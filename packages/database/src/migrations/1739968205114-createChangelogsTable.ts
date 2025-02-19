@@ -46,7 +46,7 @@ export async function up(query: QueryInterface): Promise<void> {
         type: DataTypes.STRING,
         allowNull: false,
         references: {
-          model: 'users',
+          model: { schema: 'public', tableName: 'users' },
           key: 'id',
         },
       },
