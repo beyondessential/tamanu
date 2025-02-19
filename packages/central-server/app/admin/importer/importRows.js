@@ -239,6 +239,7 @@ export async function importRows(
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
+          // Import always sets the language to null, to act as an overwritable default
         });
       }
     } catch (err) {
