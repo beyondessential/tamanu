@@ -21,6 +21,7 @@ async function getValuesFromFacility(upstream: Facility) {
     ],
     name: upstream.name,
     active: getActive(upstream),
+    resolved: true,
   };
 }
 

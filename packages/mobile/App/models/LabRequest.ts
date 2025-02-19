@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
-import { OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
@@ -45,18 +44,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: false })
   displayId: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.labRequests,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(
-    () => User,
-    user => user.labRequests,
-  )
+  @ManyToOne(() => User, (user) => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
@@ -81,10 +74,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;
 
-  @ManyToOne(
-    () => User,
-    user => user.collectedLabRequests,
-  )
+  @ManyToOne(() => User, (user) => user.collectedLabRequests)
   collectedBy: User;
   @RelationId(({ collectedBy }) => collectedBy)
   collectedById: string;
@@ -94,22 +84,27 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ specimenType }) => specimenType)
   specimenTypeId: string;
 
-  @OneToMany(
-    () => LabTest,
-    labTest => labTest.labRequest,
-  )
+  @OneToMany(() => LabTest, (labTest) => labTest.labRequest)
   tests: LabTest[];
 
-  static async getForPatient(patientId: string): Promise<LabRequest[]> {
-    return this.getRepository()
+  static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
+    const query = this.getRepository()
       .createQueryBuilder('labRequest')
-      .orderBy('labRequest.requestedDate', 'DESC')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
-      .where('encounter.patient = :patientId', { patientId })
-      .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
       .leftJoinAndSelect('labRequest.labSampleSite', 'labSampleSite')
-      .getMany();
+      .where('encounter.patient = :patientId', { patientId })
+      .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
+      .orderBy('labRequest.requestedDate', 'DESC');
+
+    if (!canListSensitive) {
+      query
+        .innerJoin('labRequest.tests', 'tests')
+        .innerJoin('tests.labTestType', 'labTestType')
+        .andWhere('labTestType.isSensitive = 0');
+    }
+
+    return query.getMany();
   }
 
   static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<BaseModel> {
@@ -122,7 +117,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId =>
+      labTestTypeIds.map((labTestTypeId) =>
         LabTest.createAndSaveOne({
           labTestType: labTestTypeId,
           labRequest: labRequest.id,

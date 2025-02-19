@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.25.0",
+  "version": "2.26.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -101,7 +101,7 @@
     "socket.io-client": "^4.8.1",
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
-    "typeorm": "^0.2.31",
+    "typeorm": "^0.3.20",
     "yup": "^0.28.5"
   },
   "devDependencies": {

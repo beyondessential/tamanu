@@ -25,6 +25,7 @@ async function getValuesFromUser(upstream: User) {
         value: upstream.email,
       }),
     ],
+    resolved: true,
   };
 }
 
