@@ -25,6 +25,20 @@ export function createMigrationInterface(log, sequelize) {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
       wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
+      customResolver: async (sqlPath) => {
+        const migrationImport = await import(sqlPath);
+        const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
+
+        if (!('up' in migration)) {
+          throw new Error(`Migration ${sqlPath} must export up and down functions`);
+        }
+
+        if (!('down' in migration)) {
+          migration.down = () => {};
+        }
+
+        return migration;
+      },
     },
     storage: 'sequelize',
     storageOptions: {
