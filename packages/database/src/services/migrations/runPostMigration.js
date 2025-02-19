@@ -3,7 +3,7 @@
 import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { NON_SYNCING_TABLES } from './constants';
+import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 
 const tablesWithoutColumn = (sequelize, column) =>
   sequelize.query(
@@ -23,7 +23,7 @@ const tablesWithoutColumn = (sequelize, column) =>
     { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
   );
 
-const tablesWithoutTrigger = (sequelize, prefix, suffix) =>
+const tablesWithoutTrigger = (sequelize, prefix, suffix, excludes = NON_SYNCING_TABLES) =>
   sequelize.query(
     `
       SELECT t.table_name as table
@@ -39,10 +39,47 @@ const tablesWithoutTrigger = (sequelize, prefix, suffix) =>
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema = 'public'
         AND t.table_type != 'VIEW'
-        AND t.table_name NOT IN ($exclude);
+        AND t.table_name NOT IN ($excludes);
     `,
-    { type: QueryTypes.SELECT, bind: { prefix, suffix, exclude: NON_SYNCING_TABLES } },
+    { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
   );
+
+const tablesWithTrigger = (sequelize, prefix, suffix, excludes = []) =>
+  sequelize.query(
+    `
+      SELECT t.table_name as table
+      FROM information_schema.tables t
+      LEFT JOIN information_schema.table_privileges privileges
+        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+      WHERE
+        EXISTS (
+          SELECT *
+          FROM pg_trigger p
+          WHERE p.tgname = substring(concat($prefix, lower(t.table_name), $suffix), 0, 64)
+        )
+        AND privileges.privilege_type = 'TRIGGER'
+        AND t.table_schema = 'public'
+        AND t.table_type != 'VIEW'
+        AND t.table_name NOT IN ($excludes);
+    `,
+    { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+  );
+
+export async function runPreMigration(log, sequelize) {
+  // remove sync tick trigger before migrations
+  // migrations are deterministic, so updating the sync tick just creates useless churn
+  for (const { table } of await tablesWithTrigger(sequelize, 'set_', '_updated_at_sync_tick')) {
+    log.info(`Removing updated_at_sync_tick trigger from ${table}`);
+    await sequelize.query(`DROP TRIGGER set_${table}_updated_at_sync_tick ON ${table}`);
+  }
+
+  // remove changelog trigger before migrations
+  // except from SequelizeMeta, so that migrations are recorded in the changelog
+  for (const { table } of await tablesWithTrigger(sequelize, 'record_', '_changelog', ['SequelizeMeta'])) {
+    log.info(`Removing changelog trigger from ${table}`);
+    await sequelize.query(`DROP TRIGGER record_${table}_changelog ON ${table}`);
+  }
+}
 
 export async function runPostMigration(log, sequelize) {
   // add column: holds last update tick, default to -999 (not marked for sync) on facility,
@@ -83,7 +120,7 @@ export async function runPostMigration(log, sequelize) {
   }
 
   // add trigger to table for changelogs
-  for (const { table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog')) {
+  for (const { table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', NON_LOGGED_TABLES)) {
     log.info(`Adding changelog trigger to ${table}`);
     await sequelize.query(`
       CREATE TRIGGER record_${table}_changelog
