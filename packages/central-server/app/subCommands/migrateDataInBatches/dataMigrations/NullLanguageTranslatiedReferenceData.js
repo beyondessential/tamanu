@@ -1,6 +1,6 @@
 import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
-export class NullEnLanguageTranslatiedStrings extends CursorDataMigration {
+export class NullLanguageTranslatiedReferenceData extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
 
   static defaultDelayMs = 50;
@@ -15,7 +15,7 @@ export class NullEnLanguageTranslatiedStrings extends CursorDataMigration {
       where id in (
           select id
           from translated_strings
-          where id > $fromId and language = 'en'
+          where id > $fromId and language = 'en' and string_id like 'refData.%'
           order by id
           limit $limit
       )
