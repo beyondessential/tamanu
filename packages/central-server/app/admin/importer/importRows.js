@@ -4,7 +4,6 @@ import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
-  ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
@@ -240,7 +239,6 @@ export async function importRows(
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
-          language: ENGLISH_LANGUAGE_CODE,
         });
       }
     } catch (err) {
