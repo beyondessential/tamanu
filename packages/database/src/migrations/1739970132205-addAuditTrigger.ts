@@ -2,13 +2,13 @@ import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createFunction(
-    'record_change',
+    'logs.record_change',
     [],
     'trigger',
     'plpgsql',
     `
     BEGIN
-      INSERT INTO public.changelogs (
+      INSERT INTO logs.changes (
         table_oid,
         table_schema,
         table_name,
@@ -42,5 +42,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropFunction('record_change', []);
+  await query.dropFunction('logs.record_change', []);
 }
