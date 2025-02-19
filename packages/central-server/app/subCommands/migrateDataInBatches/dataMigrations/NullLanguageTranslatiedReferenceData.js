@@ -15,7 +15,7 @@ export class NullLanguageTranslatiedReferenceData extends CursorDataMigration {
       where id in (
           select id
           from translated_strings
-          where id > $fromId and language = 'en' and string_id like 'refData.%'
+          where id > $fromId and language = 'en' and split_part(string_id, '.', 1) = 'refData';
           order by id
           limit $limit
       )
