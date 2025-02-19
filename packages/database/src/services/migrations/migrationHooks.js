@@ -18,7 +18,7 @@ const tablesWithoutColumn = (sequelize, column) =>
     WHERE pg_namespace.nspname = 'public'
       AND pg_class.relkind = 'r'
       AND pg_attribute.attname IS NULL
-      AND pg_class.relname NOT IN $excludes;
+      AND pg_class.relname NOT IN ($excludes);
   `,
     { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
   );
@@ -39,7 +39,7 @@ const tablesWithoutTrigger = (sequelize, prefix, suffix, excludes = NON_SYNCING_
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema = 'public'
         AND t.table_type != 'VIEW'
-        AND t.table_name NOT IN $excludes;
+        AND t.table_name NOT IN ($excludes);
     `,
     { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
   );
@@ -60,7 +60,7 @@ const tablesWithTrigger = (sequelize, prefix, suffix, excludes = []) =>
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema = 'public'
         AND t.table_type != 'VIEW'
-        AND t.table_name NOT IN $excludes;
+        AND t.table_name NOT IN ($excludes);
     `,
     { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
   );
@@ -70,7 +70,7 @@ export async function runPreMigration(log, sequelize) {
   // migrations are deterministic, so updating the sync tick just creates useless churn
   for (const { table } of await tablesWithTrigger(sequelize, 'set_', '_updated_at_sync_tick')) {
     log.info(`Removing updated_at_sync_tick trigger from ${table}`);
-    await sequelize.query(`DROP TRIGGER set_${table}_updated_at_sync_tick ON ${table}`);
+    await sequelize.query(`DROP TRIGGER set_${table}_updated_at_sync_tick ON "${table}"`);
   }
 
   // remove changelog trigger before migrations
@@ -79,7 +79,7 @@ export async function runPreMigration(log, sequelize) {
     'SequelizeMeta',
   ])) {
     log.info(`Removing changelog trigger from ${table}`);
-    await sequelize.query(`DROP TRIGGER record_${table}_changelog ON ${table}`);
+    await sequelize.query(`DROP TRIGGER record_${table}_changelog ON "${table}"`);
   }
 }
 
@@ -117,7 +117,7 @@ export async function runPostMigration(log, sequelize) {
       log.info(`Adding updated_at_sync_tick trigger to ${table}`);
       await sequelize.query(`
       CREATE TRIGGER set_${table}_updated_at_sync_tick
-      BEFORE INSERT OR UPDATE ON ${table}
+      BEFORE INSERT OR UPDATE ON "${table}"
       FOR EACH ROW
       EXECUTE FUNCTION set_updated_at_sync_tick();
     `);
@@ -130,7 +130,7 @@ export async function runPostMigration(log, sequelize) {
       log.info(`Adding notify change trigger to ${table}`);
       await sequelize.query(`
       CREATE TRIGGER notify_${table}_changed
-      AFTER INSERT OR UPDATE OR DELETE ON ${table}
+      AFTER INSERT OR UPDATE OR DELETE ON "${table}"
       FOR EACH ROW
       EXECUTE FUNCTION notify_table_changed();
     `);
@@ -148,7 +148,7 @@ export async function runPostMigration(log, sequelize) {
       log.info(`Adding changelog trigger to ${table}`);
       await sequelize.query(`
       CREATE TRIGGER record_${table}_changelog
-      AFTER INSERT OR UPDATE ON ${table}
+      AFTER INSERT OR UPDATE ON "${table}"
       FOR EACH ROW
       EXECUTE FUNCTION logs.record_change();
     `);
