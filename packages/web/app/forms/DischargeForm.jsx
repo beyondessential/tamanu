@@ -49,6 +49,14 @@ const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
+const StyledFormSubmitButton = styled(FormSubmitButton)`
+  &.Mui-disabled {
+    color: ${Colors.white};
+    box-shadow: none;
+    background-color: #c2d2e1;
+  }
+`;
+
 const IconButton = styled(BaseIconButton)`
   position: absolute;
   top: 14px;
@@ -411,14 +419,14 @@ const DischargeFormScreen = props => {
                   </SmallBodyText>
                 }
               >
-                <FormSubmitButton {...props}>
+                <StyledFormSubmitButton {...props}>
                   <Box whiteSpace="nowrap">
                     <TranslatedText
                       stringId="general.action.finaliseDischarge"
                       fallback="Finalise discharge"
                     />
                   </Box>
-                </FormSubmitButton>
+                </StyledFormSubmitButton>
               </ConditionalTooltip>
             )}
             confirmDisabled={isDiagnosisEmpty}
@@ -520,7 +528,6 @@ export const DischargeForm = ({
     async ({ isDischarged = true, ...data }) => {
       const { medications } = data;
       if (isDischarged) {
-
         // Filter out medications that weren't marked
         const filteredMedications = {};
         Object.keys(medications).forEach(id => {
