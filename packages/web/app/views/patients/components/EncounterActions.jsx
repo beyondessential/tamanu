@@ -141,8 +141,8 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="patient.encounter.action.dischargeWithoutBeingSeen"
-          fallback="Discharge without being seen"
+          stringId="patient.encounter.action.prepareDischargeWithoutBeingSeen"
+          fallback="Prepare discharge without being seen"
         />
       ),
       onClick: onDischargeOpen,
@@ -169,7 +169,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="patient.encounter.action.discharge" fallback="Discharge" />,
+      label: <TranslatedText stringId="patient.encounter.action.prepareDischarge" fallback="Prepare discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
