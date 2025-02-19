@@ -18,7 +18,7 @@ const tablesWithoutColumn = (sequelize, column) =>
     WHERE pg_namespace.nspname = 'public'
       AND pg_class.relkind = 'r'
       AND pg_attribute.attname IS NULL
-      AND pg_class.relname NOT IN ($excludes);
+      AND pg_class.relname NOT IN $excludes;
   `,
     { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
   );
@@ -39,7 +39,7 @@ const tablesWithoutTrigger = (sequelize, prefix, suffix, excludes = NON_SYNCING_
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema = 'public'
         AND t.table_type != 'VIEW'
-        AND t.table_name NOT IN ($excludes);
+        AND t.table_name NOT IN $excludes;
     `,
     { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
   );
@@ -60,7 +60,7 @@ const tablesWithTrigger = (sequelize, prefix, suffix, excludes = []) =>
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema = 'public'
         AND t.table_type != 'VIEW'
-        AND t.table_name NOT IN ($excludes);
+        AND t.table_name NOT IN $excludes;
     `,
     { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
   );
@@ -92,10 +92,10 @@ export async function runPostMigration(log, sequelize) {
   for (const { table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${table}`);
     await sequelize.query(`
-      ALTER TABLE ${table} ADD COLUMN updated_at_sync_tick BIGINT NOT NULL DEFAULT ${initialValue};
+      ALTER TABLE "${table}" ADD COLUMN updated_at_sync_tick BIGINT NOT NULL DEFAULT ${initialValue};
     `);
     await sequelize.query(`
-      CREATE INDEX ${table}_updated_at_sync_tick_index ON ${table}(updated_at_sync_tick);
+      CREATE INDEX ${table}_updated_at_sync_tick_index ON "${table}" (updated_at_sync_tick);
     `);
   }
 
