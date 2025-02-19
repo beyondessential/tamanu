@@ -245,6 +245,11 @@ export const globalSettings = {
               defaultValue: false,
               unit: 'seconds',
             },
+            dischargeDiagnosisMandatory: {
+              description: 'Require at least one diagnosis to be selected before discharging',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
       },
