@@ -1,8 +1,8 @@
-import Umzug from 'umzug';
-import { readdirSync } from 'fs';
-import path from 'path';
-import { runPostMigration, runPreMigration } from './runPostMigration';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 import { wrap, chain } from 'lodash';
+import Umzug from 'umzug';
+import { runPostMigration, runPreMigration } from './migrationHooks';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
