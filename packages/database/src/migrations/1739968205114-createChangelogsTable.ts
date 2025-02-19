@@ -52,6 +52,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    record_update: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
     record_data: {
       type: DataTypes.JSONB,
       allowNull: false,
