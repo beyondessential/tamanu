@@ -593,6 +593,18 @@ const EncounterRecordPrintoutComponent = ({
           {[0, 12, 24, 36, 48].map((start) => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
+                <MultiPageHeader
+                  documentName={
+                    discharge
+                      ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
+                      : getTranslation(
+                          'pdf.encounterProgressRecord.title',
+                          'Patient encounter progress record',
+                        )
+                  }
+                  patientId={patientData.displayId}
+                  patientName={getName(patientData)}
+                />
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
