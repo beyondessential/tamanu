@@ -16,12 +16,6 @@ const ContentText = styled.div`
   height: 200px;
 `;
 
-const StyledModalButtonActionRow = styled(ModalButtonActionRow)`
-  > div {
-    padding-left: 32px;
-    }
-`
-
 const ButtonActionContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -51,7 +45,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
           fallback="Would you like to import new defaults or overwrite existing translations?"
         />
       </ContentText>
-      <StyledModalButtonActionRow>
+      <ModalButtonActionRow>
         <ButtonActionContainer>
           <OutlinedButton onClick={onClose}>
             <TranslatedText stringId="general.action.back" fallback="Back" />
@@ -71,7 +65,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
             </StyledConfirmButton>
           </div>
         </ButtonActionContainer>
-      </StyledModalButtonActionRow>
+      </ModalButtonActionRow>
     </Modal>
   );
 };

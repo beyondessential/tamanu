@@ -20,7 +20,6 @@ const StyledTabDisplay = styled(TabDisplay)`
 
 const TabContainer = styled.div`
   padding: 20px;
-  overflow-y: auto;
 `;
 
 export const ImportExportView = memo(
