@@ -1,6 +1,5 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
-import { wrap, chain } from 'lodash';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 
@@ -25,20 +24,7 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      customResolver: async (sqlPath) => {
-        const migrationImport = await import(sqlPath);
-        const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
-
-        if (!('up' in migration) || !('down' in migration)) {
-          throw new Error(`Migration ${sqlPath} must export up and down functions`);
-        }
-        const transaction = (updown, ...args) => sequelize.transaction(() => updown(...args));
-
-        return chain(migration)
-          .pick(['up', 'down'])
-          .mapValues((updown) => wrap(updown, transaction))
-          .value();
-      },
+      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
     },
     storage: 'sequelize',
     storageOptions: {
