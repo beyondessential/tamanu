@@ -7,7 +7,6 @@ export async function up(query: QueryInterface): Promise<void> {
     'trigger',
     'plpgsql',
     `
-    BEGIN
       INSERT INTO logs.changes (
         table_oid,
         table_schema,
@@ -36,7 +35,6 @@ export async function up(query: QueryInterface): Promise<void> {
         to_jsonb(NEW.*)           -- record_data
       );
       RETURN NEW;
-    END
     `,
   );
 }
