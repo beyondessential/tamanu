@@ -1,4 +1,3 @@
-import { DEFAULT_LANGUAGE_CODE } from './../../../../node_modules/@tamanu/constants/src/translations';
 import {
   SYNC_DIRECTIONS,
   ENGLISH_LANGUAGE_CODE,

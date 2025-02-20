@@ -1,6 +1,5 @@
 import { pick } from 'lodash';
-import { QueryTypes, Op } from 'sequelize';
-import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants'
+import { QueryTypes } from 'sequelize';
 
 /**
  * Queries translated_string table and returns all translated strings grouped by stringId with a column
