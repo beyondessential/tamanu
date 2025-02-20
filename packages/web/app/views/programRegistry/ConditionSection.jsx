@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase } from '@material-ui/core';
-import { Heading5 } from '../../components/Typography';
+import { Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -56,7 +56,10 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   return (
     <Container>
       <Heading5 mt={0} mb={1}>
-        Related conditions
+        <TranslatedText
+          stringId="patientProgramRegistry.relatedConditions.title"
+          fallback="Related conditions"
+        />
       </Heading5>
       <ScrollBody>
         {data?.map(condition => {

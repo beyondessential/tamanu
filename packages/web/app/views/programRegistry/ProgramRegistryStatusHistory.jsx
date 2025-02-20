@@ -8,6 +8,7 @@ import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProg
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components';
 
 const Container = styled.div`
   display: flex;
@@ -98,12 +99,13 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
     ];
   }, [data]);
 
-  console.log('data', data);
-
   return (
     <Container>
       <Heading5 mt={0} mb={1}>
-        Program status history
+        <TranslatedText
+          stringId="patientProgramRegistry.statusHistory.title"
+          fallback="Program status history"
+        />
       </Heading5>
       <StyledTable
         isBodyScrollable
