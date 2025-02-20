@@ -1,6 +1,8 @@
+import { DEFAULT_LANGUAGE_CODE } from './../../../../node_modules/@tamanu/constants/src/translations';
 import {
   SYNC_DIRECTIONS,
   ENGLISH_LANGUAGE_CODE,
+  DEFAULT_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
@@ -94,7 +96,7 @@ export class TranslatedString extends Model {
       group: 'language',
       where: {
         language: {
-          [Op.not]: null,
+          [Op.not]: DEFAULT_LANGUAGE_CODE
         }
       }
     });

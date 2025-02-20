@@ -5,6 +5,7 @@ import config from 'config';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  DEFAULT_LANGUAGE_CODE
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
 
@@ -239,6 +240,7 @@ export async function importRows(
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
+          language: DEFAULT_LANGUAGE_CODE
           // Import always sets the language to null, to act as an overwritable default
         });
       }
@@ -251,7 +253,7 @@ export async function importRows(
   // Ensure we have a translation record for each row of translatable reference data
   await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
     fields: ['stringId', 'text', 'language'],
-    updateOnDuplicate: ['stringId'],
+    updateOnDuplicate: ['stringId', 'language'],
   });
 
   log.debug('Done with these rows');

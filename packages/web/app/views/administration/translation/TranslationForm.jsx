@@ -23,7 +23,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { ENGLISH_LANGUAGE_CODE, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -229,7 +229,7 @@ export const FormContents = ({
           );
         },
       },
-      ...Object.keys(omit(data[0], ['stringId', 'defaultText'])).map((code, i) => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map((code, i) => ({
         key: code,
         title: languageNames[code],
         accessor: row => <TranslationField code={code} isFirstColumn={i === 0} {...row} />,
@@ -286,7 +286,7 @@ export const TranslationForm = () => {
     for (const { stringId, ...rest } of translations) {
       values[stringId] = {
         ...rest,
-        [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || rest.defaultText,
+        [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || rest[DEFAULT_LANGUAGE_CODE],
       };
     }
     return values;
@@ -296,13 +296,13 @@ export const TranslationForm = () => {
     // Swap temporary id out for stringId
     delete payload.search;
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, defaultText, ...rest }]) => [
+      Object.entries(payload).map(([key, {  [DEFAULT_LANGUAGE_CODE]: defaultText, stringId, ...rest }]) => [
         stringId || key,
         {
           ...rest,
           // Remove en translations that are the same as the default text so they are not saved
           [ENGLISH_LANGUAGE_CODE]:
-            defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
+          defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
         },
       ]),
     );
