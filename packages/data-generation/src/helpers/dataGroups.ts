@@ -23,8 +23,7 @@ import type {
   ProgramRegistry,
 } from '@tamanu/database';
 
-// TODO: maybe this should come here?
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+import { fake } from './fake';
 
 export const setupImportData = async ({
   ReferenceData,

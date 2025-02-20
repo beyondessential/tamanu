@@ -2,7 +2,7 @@ import { beforeAll, describe, it } from '@jest/globals';
 import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/data-generation/helpers/fake';
 import {
   createSnapshotTable,
   findSyncSnapshotRecords,
@@ -28,7 +28,7 @@ describe('sanitize binary data', () => {
     const { Asset, LocalSystemFact, SyncSession } = models;
 
     await fc.assert(
-      fc.asyncProperty(fc.uint8Array(), data =>
+      fc.asyncProperty(fc.uint8Array(), (data) =>
         ctx.store.sequelize.transaction(
           { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
           async () => {

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/data-generation/helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
@@ -384,7 +384,10 @@ describe('Data definition import', () => {
   });
 
   it('should allow importing sensitive lab test types within the same lab test category', async () => {
-    const { didntSendReason, errors, stats } = await doImport({ file: 'valid-sensitive-lab-test-types', dryRun: true });
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-sensitive-lab-test-types',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toMatchObject({
@@ -417,7 +420,10 @@ describe('Data definition import', () => {
       isSensitive: false,
     });
 
-    const { didntSendReason, errors, stats } = await doImport({ file: 'valid-sensitive-lab-test-types', dryRun: true });
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-sensitive-lab-test-types',
+      dryRun: true,
+    });
     await models.LabTestType.destroy({ where: {}, force: true });
     await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
     expect(didntSendReason).toEqual('dryRun');
@@ -429,7 +435,10 @@ describe('Data definition import', () => {
   });
 
   it('should error if not all lab test types are sensitive within the same lab test category (on the same spreadsheet)', async () => {
-    const { didntSendReason, errors } = await doImport({ file: 'invalid-sensitive-lab-test-types', dryRun: true });
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-sensitive-lab-test-types',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors).toContainValidationError(
       'labTestType',
@@ -453,7 +462,10 @@ describe('Data definition import', () => {
       isSensitive: true,
     });
 
-    const { didntSendReason, errors } = await doImport({ file: 'invalid-non-sensitive-lab-test-type', dryRun: true });
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-non-sensitive-lab-test-type',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors).toContainValidationError(
       'labTestType',
@@ -477,7 +489,10 @@ describe('Data definition import', () => {
     });
 
     // Try to add one non-sensitive lab test to previously uploaded sensitive category"
-    const { didntSendReason, errors } = await doImport({ file: 'invalid-sensitive-lab-test-type', dryRun: true });
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-sensitive-lab-test-type',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors).toContainValidationError(
       'labTestType',
@@ -487,7 +502,10 @@ describe('Data definition import', () => {
   });
 
   it('should import a lab test panel', async () => {
-    const { didntSendReason, errors, stats } = await doImport({ file: 'valid-lab-test-panel', dryRun: true });
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-lab-test-panel',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toMatchObject({
@@ -498,7 +516,10 @@ describe('Data definition import', () => {
   });
 
   it('should not import a lab test panel with a sensitive test', async () => {
-    const { didntSendReason, errors } = await doImport({ file: 'invalid-lab-test-panel-complete', dryRun: true });
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-lab-test-panel-complete',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors).toContainValidationError(
       'labTestPanel',
@@ -533,7 +554,10 @@ describe('Data definition import', () => {
       isSensitive: true,
     });
 
-    const { didntSendReason, errors } = await doImport({ file: 'invalid-lab-test-panel-partial', dryRun: true });
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-lab-test-panel-partial',
+      dryRun: true,
+    });
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors).toContainValidationError(
       'labTestPanel',
