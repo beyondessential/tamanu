@@ -71,11 +71,11 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           const { programRegistryCondition } = condition;
           const { name } = programRegistryCondition;
           return (
-            <Condition key={condition.id}>
-              <ConditionalTooltip title={name} visible={name.length > 30}>
+            <ConditionalTooltip title={name} visible={name.length > 30} key={condition.id}>
+              <Condition>
                 <ClippedConditionName>{name}</ClippedConditionName>
-              </ConditionalTooltip>
-            </Condition>
+              </Condition>
+            </ConditionalTooltip>
           );
         })}
       </ScrollBody>
