@@ -23,19 +23,19 @@ export async function up(query: QueryInterface): Promise<void> {
         allowNull: false,
       },
       logged_at: {
-        type: DataTypes.TIMESTAMP,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       created_at: {
-        type: DataTypes.TIMESTAMP,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       updated_at: {
-        type: DataTypes.TIMESTAMP,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       deleted_at: {
-        type: DataTypes.TIMESTAMP,
+        type: DataTypes.DATE,
         allowNull: true,
       },
       updated_at_sync_tick: {
