@@ -41,6 +41,7 @@ export class Encounter extends Model {
   declare location?: Location;
   declare patient?: Patient;
   declare discharge?: Discharge;
+  declare dischargeDraft?: Record<string, any>;
 
   static initModel(
     { primaryKey, hackToSkipEncounterValidation, ...options }: InitOptions,
@@ -87,6 +88,10 @@ export class Encounter extends Model {
         reasonForEncounter: DataTypes.TEXT,
         deviceId: DataTypes.TEXT,
         plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
+        dischargeDraft: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+        },
       },
       {
         ...options,

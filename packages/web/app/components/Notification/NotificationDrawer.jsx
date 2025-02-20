@@ -195,7 +195,7 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
   const {
     unreadNotifications = [],
     readNotifications = [],
-    recentNotificationsTimeFrame = 48,
+    recentNotificationsTimeFrame,
   } = notifications;
 
   const onMarkAllAsRead = () => {

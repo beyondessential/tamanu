@@ -124,12 +124,12 @@ const WelcomePaneContainer = styled.div`
 
 const TopBar = ({ subtitle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const { currentUser, facilityId } = useAuth();
   const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
     'notifications',
-    {},
+    { facilityId },
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
-  const { currentUser } = useAuth();
 
   return (
     <TopBarContainer>

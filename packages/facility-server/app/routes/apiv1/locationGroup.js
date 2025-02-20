@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const locationGroup = express.Router();
 
@@ -16,6 +17,7 @@ locationGroup.get(
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
         facilityId: facilityId ?? { [Op.ne]: null },
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       order: [['name', 'ASC']],
     });
@@ -165,7 +167,7 @@ locationGroup.get(
       },
     );
 
-    const data = results.map(item => ({
+    const data = results.map((item) => ({
       location: item.location,
       arrivalDate: item.arrival_date,
       patient: {

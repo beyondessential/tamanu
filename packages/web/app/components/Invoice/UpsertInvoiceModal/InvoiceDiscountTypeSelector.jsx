@@ -14,7 +14,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${p => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;
@@ -45,6 +45,7 @@ export const InvoiceDiscountTypeSelector = ({
   handleNext,
   onClose,
   handleSkip,
+  isSubmitting,
 }) => {
   return (
     <>
@@ -118,6 +119,7 @@ export const InvoiceDiscountTypeSelector = ({
         onBack={handleSkip}
         backButtonText={<TranslatedText stringId="general.action.skip" fallback="Skip" />}
         confirmDisabled={!discountType}
+        backDisabled={isSubmitting}
       />
     </>
   );

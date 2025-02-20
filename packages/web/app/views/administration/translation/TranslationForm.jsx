@@ -1,11 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
-import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
-import shortid from 'shortid';
+import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
@@ -28,12 +26,6 @@ const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
     text-align: left;
   }
-`;
-
-const StyledIconButton = styled(IconButton)`
-  padding: 3px;
-  margin-left: 5px;
-  color: #2f4358;
 `;
 
 const ReservedText = styled.p`
@@ -132,14 +124,9 @@ const useTranslationMutation = () => {
   });
 };
 
-const TranslationField = ({ placeholderId, stringId, code }) => (
+const TranslationField = ({ stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField
-    id={`['${placeholderId || stringId}']`}
-    name={code}
-    component={TextField}
-    multiline
-  />
+  <AccessorField id={`['${stringId}']`} name={code} component={TextField} multiline />
 );
 
 export const FormContents = ({
@@ -149,8 +136,6 @@ export const FormContents = ({
   isSaving,
   submitForm,
   dirty,
-  additionalRows,
-  setAdditionalRows,
   values,
 }) => {
   const handleSave = event => {
@@ -158,26 +143,6 @@ export const FormContents = ({
     setFieldValue('search', '');
     submitForm(event);
   };
-
-  const handleAddColumn = useCallback(() => {
-    const placeholderId = shortid();
-    setAdditionalRows([
-      ...additionalRows,
-      {
-        placeholderId,
-      },
-    ]);
-    // Initialize stringId so it can be validated if empty
-    setFieldValue(`${placeholderId}.stringId`, '');
-  }, [additionalRows, setAdditionalRows, setFieldValue]);
-
-  const handleRemoveColumn = useCallback(
-    placeholderId => {
-      setAdditionalRows(additionalRows.filter(column => column.placeholderId !== placeholderId));
-      setFieldValue(placeholderId, undefined);
-    },
-    [additionalRows, setAdditionalRows, setFieldValue],
-  );
 
   const columns = useMemo(
     () => [
@@ -189,12 +154,9 @@ export const FormContents = ({
               stringId="admin.translation.table.column.translationId"
               fallback="Translation ID"
             />
-            <StyledIconButton onClick={handleAddColumn}>
-              <AddIcon />
-            </StyledIconButton>
           </Box>
         ),
-        accessor: ({ stringId, placeholderId }) => {
+        accessor: ({ stringId }) => {
           if (stringId === 'languageName')
             return (
               <Box display="flex" alignItems="center">
@@ -211,21 +173,7 @@ export const FormContents = ({
                 </Tooltip>
               </Box>
             );
-          if (!placeholderId) return stringId;
-          return (
-            <AccessorField
-              id={placeholderId}
-              name="stringId"
-              component={TextField}
-              InputProps={{
-                endAdornment: (
-                  <StyledIconButton onClick={() => handleRemoveColumn(placeholderId)}>
-                    <DeleteIcon />
-                  </StyledIconButton>
-                ),
-              }}
-            />
-          );
+          return stringId;
         },
       },
       ...Object.keys(omit(data[0], ['stringId'])).map(code => ({
@@ -234,18 +182,16 @@ export const FormContents = ({
         accessor: row => <TranslationField code={code} {...row} />,
       })),
     ],
-    [handleAddColumn, handleRemoveColumn, data, languageNames],
+    [data, languageNames],
   );
 
   const tableRows = useMemo(
     () =>
-      [...data, ...additionalRows].filter(
-        row =>
-          row.placeholderId ||
-          // Search from start of stringId or after a . delimiter
-          row.stringId.match(new RegExp(`(?:^|\\.)${values.search.replace('.', '\\.')}`, 'i')),
+      data.filter(row =>
+        // Search from start of stringId or after a . delimiter
+        row.stringId.match(new RegExp(`(?:^|\\.)${values.search.replace('.', '\\.')}`, 'i')),
       ),
-    [data, additionalRows, values.search],
+    [data, values.search],
   );
 
   if (data.length === 0)
@@ -275,7 +221,6 @@ export const FormContents = ({
 };
 
 export const TranslationForm = () => {
-  const [additionalRows, setAdditionalRows] = useState([]);
   const { data = {}, error, isLoading } = useTranslationQuery();
   const { translations = [], languageNames = {} } = data;
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
@@ -295,7 +240,6 @@ export const TranslationForm = () => {
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
     await saveTranslations(submitData);
-    setAdditionalRows([]);
   };
 
   if (isLoading) return <LoadingIndicator />;
@@ -327,8 +271,6 @@ export const TranslationForm = () => {
           data={sortedTranslations}
           languageNames={languageNames}
           isSaving={isSaving}
-          setAdditionalRows={setAdditionalRows}
-          additionalRows={additionalRows}
         />
       )}
     />
