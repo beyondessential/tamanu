@@ -45,6 +45,7 @@ extend-exclude = [
   # encoded or generated files
   "*.asc",
   "sbom.cdx.json",
+  "license.json",
 
   # legacy code, can't touch
   "packages/central-server/__tests__/integrations/fijiVrs/**/*",
