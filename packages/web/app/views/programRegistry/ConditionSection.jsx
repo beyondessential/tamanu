@@ -22,6 +22,7 @@ const ScrollBody = styled.div`
 
 const Condition = styled(ButtonBase)`
   width: 100%;
+  justify-content: flex-start;
   text-align: left;
   padding: 7px 12px;
   font-size: 14px;
@@ -51,7 +52,11 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return <LoadingIndicator />;
   }
 
-  const data = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  if (conditions.data.length === 0) {
+    return null;
+  }
+
+  const sortedData = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
 
   return (
     <Container>
@@ -62,7 +67,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         />
       </Heading5>
       <ScrollBody>
-        {data?.map(condition => {
+        {sortedData?.map(condition => {
           const { programRegistryCondition } = condition;
           const { name } = programRegistryCondition;
           return (
