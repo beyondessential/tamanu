@@ -1,7 +1,7 @@
 import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
-export class DefaultLanguageTranslatiedReferenceData extends CursorDataMigration {
+export class DefaultLanguageTranslatedReferenceData extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
 
   static defaultDelayMs = 50;

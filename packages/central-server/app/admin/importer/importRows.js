@@ -263,14 +263,19 @@ export async function importRows(
   }
 
   // Bulk upsert translation defaults
-  await models.TranslatedString.sequelize.query(`
-      INSERT INTO translated_strings (string_id, text, language)
-      VALUES ${translationData.map(() => '(?)').join(',')}
-      ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-  `, {
-    replacements: translationData,
-    type: models.TranslatedString.sequelize.QueryTypes.INSERT,
-  });
+  if (translationData.length > 0) {
+    await models.TranslatedString.sequelize.query(
+      `
+        INSERT INTO translated_strings (string_id, text, language)
+        VALUES ${translationData.map(() => '(?)').join(',')}
+        ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+    `,
+      {
+        replacements: translationData,
+        type: models.TranslatedString.sequelize.QueryTypes.INSERT,
+      },
+    );
+  }
 
   log.debug('Done with these rows');
   return stats;
