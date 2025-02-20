@@ -81,7 +81,7 @@ async function migrateDown(log, sequelize, options) {
   log.info(`Applied pre-migration steps successfully.`);
 
   log.info(`Reverting 1 migration...`);
-  const reverted = await migrations.up(options);
+  const reverted = await migrations.down(options);
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
       log.warn(`No migrations to revert.`);
