@@ -58,6 +58,7 @@ import { removeSettingsValueNotNullConstraint1724900789000 } from './17249007890
 import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-updateReferenceDataRelationIndex';
 import { removeLabTestStatus1734072605000 } from './1734072605000-removeLabTestStatus';
 import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './1734080053767-standardiseCaseAndPluralityOfAllTables';
+import { addIsSensitiveColumnToLabTestTypes1738620786000 } from './1738620786000-addIsSensitiveColumnToLabTestTypes';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -118,5 +119,6 @@ export const migrationList = [
   removeSettingsValueNotNullConstraint1724900789000,
   updateReferenceDataRelationIndex1714605577000,
   removeLabTestStatus1734072605000,
-  standardiseCaseAndPluralityOfAllTables1734080053767
+  standardiseCaseAndPluralityOfAllTables1734080053767,
+  addIsSensitiveColumnToLabTestTypes1738620786000,
 ];

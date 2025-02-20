@@ -46,16 +46,8 @@ const getPatientInitialValues = (
   }
 
   // Only grab the fields that will get used in the form
-  const {
-    firstName,
-    middleName,
-    lastName,
-    culturalName,
-    dateOfBirth,
-    email,
-    sex,
-    villageId,
-  } = patient;
+  const { firstName, middleName, lastName, culturalName, dateOfBirth, email, sex, villageId } =
+    patient;
 
   const requiredPADFields = getConfiguredPatientAdditionalDataFields(
     ALL_ADDITIONAL_DATA_FIELDS,
@@ -91,8 +83,8 @@ const getPatientInitialValues = (
   );
 };
 
-const containsAdditionalData = values =>
-  ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
+const containsAdditionalData = (values) =>
+  ALL_ADDITIONAL_DATA_FIELDS.some((fieldName) => Object.keys(values).includes(fieldName));
 
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
@@ -115,12 +107,12 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     }
 
     // Update any custom field definitions contained in this form
-    const customValuesToUpdate = Object.keys(values).filter(key =>
+    const customValuesToUpdate = Object.keys(values).filter((key) =>
       customPatientFieldDefinitions.map(({ id }) => id).includes(key),
     );
 
     await Promise.all(
-      customValuesToUpdate.map(definitionId =>
+      customValuesToUpdate.map((definitionId) =>
         PatientFieldValue.updateOrCreateForPatientAndDefinition(
           patientId,
           definitionId,
@@ -136,7 +128,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       const { dateOfBirth, ...otherValues } = values;
       const newPatient = await Patient.createAndSaveOne<Patient>({
         ...otherValues,
-        dateOfBirth: formatISO9075(dateOfBirth),
+        dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
         displayId: generateId(),
       });
 
@@ -145,7 +137,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       // Reload instance to get the complete village fields
       // (related fields won't display all info otherwise)
-      const reloadedPatient = await Patient.findOne(newPatient.id);
+      const reloadedPatient = await Patient.findOne({ where: { id: newPatient.id } });
       setSelectedPatient(reloadedPatient);
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
@@ -154,19 +146,21 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   );
 
   const onEditPatient = useCallback(
-    async values => {
+    async (values) => {
       // Update patient values (helper function uses .save()
       // so it will mark the record for upload).
       const { dateOfBirth, ...otherValues } = values;
       await Patient.updateValues(selectedPatient.id, {
-        dateOfBirth: formatISO9075(dateOfBirth),
+        dateOfBirth: formatISO9075(dateOfBirth, {
+          representation: 'date',
+        }),
         ...otherValues,
       });
 
       await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
-      const editedPatient = await Patient.findOne(selectedPatient.id);
+      const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
 
       // Mark patient for sync and update redux state
       await Patient.markForSync(editedPatient.id);
@@ -212,6 +206,5 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   );
 };
 
-export const PatientPersonalInfoForm = compose<
-  React.FC<{ isEdit?: boolean; children?: ReactNode }>
->(withPatient)(FormComponent);
+export const PatientPersonalInfoForm =
+  compose<React.FC<{ isEdit?: boolean; children?: ReactNode }>>(withPatient)(FormComponent);

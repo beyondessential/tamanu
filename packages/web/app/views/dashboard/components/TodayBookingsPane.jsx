@@ -1,4 +1,5 @@
 import React from 'react';
+import { omit } from 'lodash';
 import styled from 'styled-components';
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';
@@ -23,6 +24,7 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
+import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
@@ -207,7 +209,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -230,7 +232,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
   const onLocationBookingsClick = async () => {
     await mutateUserPreferences({
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-      value: { [facilityId]: {} },
+      value: omit(LOCATION_BOOKINGS_EMPTY_FILTER_STATE, ['patientNameOrId']),
     });
     history.push(`/appointments/locations`);
   };

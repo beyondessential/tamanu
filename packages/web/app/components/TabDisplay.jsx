@@ -38,6 +38,10 @@ const Icon = styled.i`
 export const TabDisplay = React.memo(
   ({ tabs, currentTab, onTabSelect, className, scrollable = true, ...tabProps }) => {
     const currentTabData = tabs.find(t => t.key === currentTab);
+    if (!currentTabData) {
+      return null;
+    }
+
     const buttons = tabs.map(({ key, label, render, icon }) => (
       <StyledTab
         key={key}

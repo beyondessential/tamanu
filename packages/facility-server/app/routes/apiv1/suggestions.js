@@ -78,7 +78,7 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
 
       const where = {
         [Op.or]: [
@@ -342,19 +342,24 @@ createSuggester(
       const types = query.types;
       if (!types?.length) return;
 
-      const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+      const caseStatement = types
+        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
         .join(' ');
 
       return [
         Sequelize.literal(`
-        CASE "ReferenceData"."type"
-          ${caseStatement}
-          ELSE ${query.types.length + 1}
-        END
-      `),
+          CASE "ReferenceData"."type"
+            ${caseStatement}
+            ELSE ${types.length + 1}
+          END
+        `),
       ];
     },
+    extraReplacementsBuilder: (query) =>
+      query.types.reduce((acc, value, index) => {
+        acc[`type${index}`] = value;
+        return acc;
+      }, {}),
     mapper: (item) => item,
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
@@ -564,19 +569,16 @@ createSuggester(
 createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
-  (search, query) => {
+  (search, query, req) => {
     const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
 
-    return {
-      ...baseWhere,
-      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      id: {
-        [Op.in]: Sequelize.literal(
-          `(
+    const idBaseFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
           SELECT DISTINCT(lab_test_category_id)
           FROM lab_requests
           INNER JOIN
@@ -586,8 +588,33 @@ createSuggester(
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
-        ),
-      },
+      ),
+    };
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const idSensitiveFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_types.lab_test_category_id)
+          FROM lab_requests
+          INNER JOIN encounters
+            ON (encounters.id = lab_requests.encounter_id)
+          INNER JOIN lab_tests
+            ON (lab_requests.id = lab_tests.lab_request_id)
+          INNER JOIN lab_test_types
+            ON (lab_test_types.id = lab_tests.lab_test_type_id)
+          WHERE lab_requests.status = :lab_request_status
+            AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
+            AND lab_test_types.is_sensitive IS FALSE
+        )`,
+      ),
+    };
+
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: canListSensitive ? idBaseFilter : idSensitiveFilter,
     };
   },
   {
@@ -703,31 +730,40 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.patientId) {
-    return baseWhere;
-  }
+createNameSuggester(
+  'programRegistry',
+  'ProgramRegistry',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    // Only suggest program registries this patient isn't already part of
-    id: {
-      [Op.notIn]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = '${query.patientId}'
+            ppr.patient_id = :patient_id
           AND
             ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: (query) => ({
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');

@@ -124,12 +124,12 @@ const WelcomePaneContainer = styled.div`
 
 const TopBar = ({ subtitle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const { currentUser, facilityId } = useAuth();
   const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
     'notifications',
-    {},
+    { facilityId },
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
   );
-  const { currentUser } = useAuth();
 
   return (
     <TopBarContainer>
@@ -198,7 +198,7 @@ const WelcomePane = ({ patientPerPage }) => {
             <WelcomeText mt={4} color={Colors.darkText}>
               <TranslatedText
                 stringId="view.dashboard.welcome.description"
-                fallback="This is the Tamanu Dashboard - at the moment, you do not have permission to see bookings, appointments, or tasking so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect."
+                fallback="This is the Tamanu Dashboard. At the moment you do not have permission to view appointments, bookings or tasks, so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect."
               />
             </WelcomeText>
           </WelcomeMessage>
