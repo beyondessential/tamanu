@@ -207,7 +207,7 @@ export async function importRows(
   }
 
   log.debug('Upserting database rows', { rows: validRows.length });
-  const translationCreates = [];
+  const translationData = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -237,24 +237,11 @@ export async function importRows(
       const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
-        console.log('going for existing');
-        const existing = await models.TranslatedString.findOne({
-          where: { stringId, language: DEFAULT_LANGUAGE_CODE },
-        });
-
-        const translationData = {
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: extractRecordName(values, dataType) ?? '',
-          language: DEFAULT_LANGUAGE_CODE,
-        };
-        if (existing) {
-          if (existing.text !== translationData.text) {
-            await existing.update(translationData);
-          }
-        } else {
-          translationCreates.push(translationData);
-        }
+        translationData.push([
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
+          extractRecordName(values, dataType) ?? '',
+          DEFAULT_LANGUAGE_CODE,
+        ]);
       }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -262,21 +249,11 @@ export async function importRows(
     }
   }
 
-  /*
-  TODO lets do in one
-    const values: Array<Array<number | string>> = [
-    [1, 'Apple', 'Red', 'Yummy'],
-    [2, 'Kiwi', 'Green', 'Yuck'],
-]
-
-const query = 'INSERT INTO fruits (id, name, color, flavor) VALUES ' +
-     values.map(_ => { return '(?)' }).join(',') +
-     ' ON CONFLICT (id) DO UPDATE SET flavor = excluded.flavor;'
-   */
-  // Ensure we have a translation record for each row of translatable reference data
-  await models.TranslatedString.bulkCreate(translationCreates, {
-    fields: ['stringId', 'text', 'language'],
-  });
+  await models.sequelize.query(`
+      INSERT INTO translated_strings (string_id, text, language)
+      VALUES ${translationData.map(() => '(?)').join(',')};
+      ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+    `);
 
   log.debug('Done with these rows');
   return stats;
