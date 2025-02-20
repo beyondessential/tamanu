@@ -47,7 +47,7 @@ const RelatedConditionFieldsContainer = styled.div`
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
@@ -64,25 +64,28 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        conditions: yup.array().of(
-          yup.object().shape({
-            conditionId: yup.string().nullable(),
-            category: yup
-              .string()
-              .nullable()
-              .when('conditionId', {
-                is: (value) => Boolean(value),
-                then: yup
-                  .string()
-                  .required(
-                    getTranslation(
-                      'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-                      'Category is required when a Related condition is set',
+        conditions: yup
+          .array()
+          .of(
+            yup.object().shape({
+              conditionId: yup.string().nullable(),
+              category: yup
+                .string()
+                .nullable()
+                .when('conditionId', {
+                  is: value => Boolean(value),
+                  then: yup
+                    .string()
+                    .required(
+                      getTranslation(
+                        'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
+                        'Category is required when a Related condition is set',
+                      ),
                     ),
-                  ),
-              }),
-          }),
-        ),
+                }),
+            }),
+          )
+          .nullable(),
         programRegistryId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="patientProgramRegistry.programRegistry.label"
@@ -110,12 +113,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   return (
     <Form
       showInlineErrorsOnly
-      onSubmit={async (data) => {
+      onSubmit={async data => {
         return onSubmit({
           ...data,
           conditions: data.conditions
             ? // Filter out empty conditions
-              data.conditions.filter((condition) => condition.conditionId)
+              data.conditions.filter(condition => condition.conditionId)
             : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
@@ -123,7 +126,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       render={({ submitForm, values, setValues }) => {
         const handleCancel = () => onCancel && onCancel();
-        const getButtonText = (isCompleted) => {
+        const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
           return 'Confirm';
@@ -148,7 +151,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
-                  onChange={(event) => {
+                  onChange={event => {
                     if (selectedProgramRegistryId !== event.target.value) {
                       setValues({ ...values, clinicalStatusId: null, conditions: null });
                       setSelectedProgramRegistryId(event.target.value);
@@ -210,7 +213,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               <Field
                 name="conditions"
                 component={ArrayField}
-                renderField={(index) => {
+                renderField={index => {
                   const fieldName = `conditions[${index}]`;
                   const conditionValue = values?.conditions ? values?.conditions[index] : null;
                   const onClear = () => {
