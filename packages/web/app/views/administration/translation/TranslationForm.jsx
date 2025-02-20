@@ -132,12 +132,12 @@ const useTranslationMutation = () => {
   });
 };
 
-const TranslationField = ({ placeholderId, stringId, code, defaultText }) => (
+const TranslationField = ({ placeholderId, isFirstColumn, stringId, code, defaultText }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
   <AccessorField
     id={`['${placeholderId || stringId}']`}
     name={code}
-    placeholder={defaultText}
+    placeholder={isFirstColumn && defaultText}
     component={TextField}
     multiline
   />
@@ -229,10 +229,10 @@ export const FormContents = ({
           );
         },
       },
-      ...Object.keys(omit(data[0], ['stringId'])).map(code => ({
+      ...Object.keys(omit(data[0], ['stringId', 'defaultText'])).map((code, i) => ({
         key: code,
         title: languageNames[code],
-        accessor: row => <TranslationField code={code} {...row} />,
+        accessor: row => <TranslationField code={code} isFirstColumn={i === 0} {...row} />,
       })),
     ],
     [handleAddColumn, handleRemoveColumn, data, languageNames],
