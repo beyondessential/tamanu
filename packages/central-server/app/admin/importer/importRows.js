@@ -249,7 +249,9 @@ export async function importRows(
           language: DEFAULT_LANGUAGE_CODE,
         };
         if (existing) {
-          await existing.update(translationData);
+          if (existing.text !== translationData.text) {
+            await existing.update(translationData);
+          }
         } else {
           translationCreates.push(translationData);
         }
