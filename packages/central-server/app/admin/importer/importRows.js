@@ -249,6 +249,7 @@ export async function importRows(
     }
   }
 
+  // Bulk upsert translation defaults
   await models.TranslatedString.sequelize.query(`
       INSERT INTO translated_strings (string_id, text, language)
       VALUES ${translationData.map(() => '(?)').join(',')}
