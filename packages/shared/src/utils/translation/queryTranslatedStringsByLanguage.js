@@ -1,4 +1,3 @@
-import { pick } from 'lodash';
 import { QueryTypes } from 'sequelize';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
