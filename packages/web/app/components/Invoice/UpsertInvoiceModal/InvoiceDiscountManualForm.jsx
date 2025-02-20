@@ -14,8 +14,8 @@ const StyledDivider = styled(Divider)`
 `;
 
 export const InvoiceDiscountManualForm = React.memo(
-  ({ handleSubmit, onClose, handleBack, initialValues }) => {
-    const preventInvalid = event => {
+  ({ handleSubmit, onClose, handleBack, initialValues, isSubmitting }) => {
+    const preventInvalid = (event) => {
       if (!event.target.validity.valid) {
         event.target.value = '';
       }
@@ -23,8 +23,8 @@ export const InvoiceDiscountManualForm = React.memo(
 
     const onSubmit = (data) => {
       const percentage = data.percentage / 100;
-      handleSubmit({ ...data, percentage })
-    }
+      handleSubmit({ ...data, percentage });
+    };
 
     return (
       <>
@@ -77,6 +77,7 @@ export const InvoiceDiscountManualForm = React.memo(
                 onCancel={onClose}
                 onBack={handleBack}
                 confirmText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+                confirmDisabled={isSubmitting}
               />
             </>
           )}
