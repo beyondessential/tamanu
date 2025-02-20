@@ -206,7 +206,8 @@ export async function importRows(
   }
 
   log.debug('Upserting database rows', { rows: validRows.length });
-  const translationRecordsForSheet = [];
+  const translationCreates = [];
+  const translationUpdates = []
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -237,12 +238,19 @@ export async function importRows(
         model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        translationRecordsForSheet.push({
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`
+        const existing = await models.TranslatedString.findByPk(`${stringId};${DEFAULT_LANGUAGE_CODE}`)
+        const translationData = {
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
           language: DEFAULT_LANGUAGE_CODE
-          // Import always sets the language to null, to act as an overwritable default
-        });
+        }
+        if (existing) {
+          translationUpdates.push({...translationData, id: existing.id})
+        } else {
+          translationCreates.push(translationData)
+        }
+
       }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -251,10 +259,13 @@ export async function importRows(
   }
 
   // Ensure we have a translation record for each row of translatable reference data
-  await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
+  await models.TranslatedString.bulkCreate(translationCreates, {
     fields: ['stringId', 'text', 'language'],
-    updateOnDuplicate: ['stringId', 'language'],
   });
+
+  await models.TranslatedString.bulkUpdate(translationUpdates, {
+    fields: ['text'],
+  })
 
   log.debug('Done with these rows');
   return stats;
