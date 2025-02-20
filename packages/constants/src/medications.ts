@@ -34,3 +34,21 @@ export const DRUG_ROUTE_LABELS = {
 
 const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
+
+export const ADMINISTRATION_FREQUENCIES = {
+  DAILY_IN_THE_MORNING: 'Daily in the morning',
+  DAILY_AT_MIDDAY: 'Daily at midday',
+  DAILY_AT_NIGHT: 'Daily at night',
+  DAILY: 'Daily',
+  TWO_TIMES_DAILY: 'Two times daily',
+  THREE_TIMES_DAILY: 'Three times daily',
+  FOUR_TIMES_DAILY: 'Four times daily',
+  EVERY_4_HOURS: 'Every 4 hours',
+  EVERY_6_HOURS: 'Every 6 hours',
+  EVERY_8_HOURS: 'Every 8 hours',
+  EVERY_SECOND_DAY: 'Every second day',
+  ONCE_A_WEEK: 'Once a week',
+  ONCE_A_MONTH: 'Once a month',
+  IMMEDIATELY: 'Immediately',
+  WHEN_REQUIRE: 'When required',
+};

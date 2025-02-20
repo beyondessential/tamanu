@@ -31,6 +31,7 @@ async function generateData(models: Models) {
     SurveyScreenComponent,
     ReferenceData,
     ReferenceDataRelation,
+    ReferenceDrug,
     ReportDefinition,
     ReportDefinitionVersion,
     LabRequestLog,
@@ -100,6 +101,10 @@ async function generateData(models: Models) {
       startDate: '2023-12-21T04:59:51.851Z',
     }),
   );
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
+
+  await ReferenceDrug.create(fake(ReferenceDrug, { referenceDataId: referenceData.id }));
+
   await Discharge.create(
     fake(Discharge, {
       encounterId: encounter.id,
@@ -222,7 +227,6 @@ async function generateData(models: Models) {
     }),
   );
 
-  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
