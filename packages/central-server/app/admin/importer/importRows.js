@@ -251,7 +251,7 @@ export async function importRows(
   // Ensure we have a translation record for each row of translatable reference data
   await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
     fields: ['stringId', 'text', 'language'],
-    ignoreDuplicates: true,
+    updateOnDuplicate: ['stringId'],
   });
 
   log.debug('Done with these rows');
