@@ -1,0 +1,43 @@
+name: SBOM
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/*
+
+jobs:
+  sbom:
+    name: Manifest up-to-date
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run sbom-update
+      - run: git diff
+
+  licenses:
+    name: Licenses approved
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - run: sbom-utility license list --input-file sbom.cdx.json --where usage-policy=needs-review -q --config-license license.json --format json | tee licensing.json
+      - run: jq -e '. == null' licensing.json
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    if: always() # always run even if dependencies fail
+    name: SBOM checks pass
+    needs:
+      - sbom
+      - licenses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

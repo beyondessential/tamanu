@@ -42,7 +42,8 @@
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
     "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
     "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
-    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js"
+    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
+    "sbom-update": "npm sbom --sbom-format cyclonedx --package-lock-only --sbom-type application --legacy-peer-deps > sbom.cdx.json"
   },
   "engines": {
     "node": "^20.9.0"
