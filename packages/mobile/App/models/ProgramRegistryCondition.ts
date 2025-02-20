@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm';
 
 import {
   ID,

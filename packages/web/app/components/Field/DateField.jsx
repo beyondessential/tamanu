@@ -66,11 +66,35 @@ export const DateInput = ({
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
+  // Weird thing alert:
+  // If the value is cleared, we need to remount the component to reset the input field
+  // because the html date input doesn't know the difference between an empty string and an invalid
+  // date, so if the value is cleared while the user has partially typed a date, the input will
+  // still show the partially typed date
+  const [isRemounting, setIsRemounting] = useState(false);
+  const clearValue = useCallback(() => {
+    onChange({ target: { value: '', name } });
+    setIsRemounting(true);
+    setTimeout(() => setIsRemounting(false), 0);
+    setIsPlaceholder(true);
+  }, [onChange, name]);
+
   const onValueChange = useCallback(
     event => {
+      if (event.target.validity?.badInput) {
+        // if the user starts editing the field by typing e.g. a '0' in the month field, until they
+        // type another digit the resulting string is an invalid date
+        // in this case we don't want to save the value to the form, as it would clear the whole
+        // field and interrupt their edit
+        // instead, simply return early, which will mean the last valid date will be kept
+        // (conveniently, this is also what the html date input will display)
+        // however, we -do- still want to change the text colour from the placeholder colour
+        return;
+      }
+
       const formattedValue = event.target.value;
       if (!formattedValue) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
       const date = parse(formattedValue, format, new Date());
@@ -88,14 +112,24 @@ export const DateInput = ({
       setIsPlaceholder(false);
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, min, max, saveDateAsString, type],
+    [onChange, format, name, saveDateAsString, type, clearValue],
   );
+
+  const onKeyDown = event => {
+    if (event.key === 'Backspace') {
+      clearValue();
+    }
+    // if the user has started typing a date, turn off placeholder styling
+    if (event.key.length === 1 && isPlaceholder) {
+      setIsPlaceholder(false);
+    }
+  };
 
   const onArrowChange = addDaysAmount => {
     const date = parse(currentText, format, new Date());
@@ -104,13 +138,20 @@ export const DateInput = ({
     onValueChange({ target: { value: newDate } });
   };
 
-  const handleBlur = () => {
+  const handleBlur = e => {
+    // if the final input is invalid, clear the component value
+    if (!e.target.value) {
+      clearValue();
+      setCurrentText('');
+      return;
+    }
+
     const date = parse(currentText, format, new Date());
 
     if (max && !keepIncorrectValue) {
       const maxDate = parse(max, format, new Date());
       if (isAfter(date, maxDate)) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
     }
@@ -118,7 +159,7 @@ export const DateInput = ({
     if (min && !keepIncorrectValue) {
       const minDate = parse(min, format, new Date());
       if (isBefore(date, minDate)) {
-        onChange({ target: { value: '', name } });
+        clearValue();
         return;
       }
     }
@@ -136,11 +177,14 @@ export const DateInput = ({
     };
   }, [value, format]);
 
-  const defaultDateField = (
+  // We create two copies of the DateField component, so that we can have a temporary one visible
+  // during remount (for more on that, see the remounting description at the top of this component)
+  const normalDateField = (
     <CustomIconTextInput
       type={type}
       value={currentText}
       onChange={onValueChange}
+      onKeyDown={onKeyDown}
       onBlur={handleBlur}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
@@ -150,6 +194,20 @@ export const DateInput = ({
       {...props}
     />
   );
+
+  const remountingDateField = (
+    <CustomIconTextInput
+      key="remounting"
+      type={type}
+      InputProps={{
+        inputProps,
+      }}
+      style={{ color: Colors.softText }}
+      {...props}
+    />
+  );
+
+  const activeDateField = isRemounting ? remountingDateField : normalDateField;
 
   const ContainerWithArrows = ({ children }) => (
     <Box display="flex" alignContent="center">
@@ -163,7 +221,7 @@ export const DateInput = ({
     </Box>
   );
 
-  return arrows ? <ContainerWithArrows>{defaultDateField}</ContainerWithArrows> : defaultDateField;
+  return arrows ? <ContainerWithArrows>{activeDateField}</ContainerWithArrows> : activeDateField;
 };
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;

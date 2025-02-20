@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { EncounterType } from '~/types';
 import { Encounter } from './Encounter';
@@ -23,10 +23,7 @@ export class EncounterHistory extends BaseModel {
   @DateTimeStringColumn({ nullable: false })
   date?: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.encounterHistory,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.encounterHistory)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;

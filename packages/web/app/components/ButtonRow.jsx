@@ -44,18 +44,23 @@ export const FormSubmitCancelRow = React.memo(
     cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
     confirmStyle,
+    CustomConfirmButton,
     ...props
   }) => (
     <ButtonRow {...props}>
       {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
-      <FormSubmitButton
-        color={confirmColor}
-        onSubmit={onConfirm}
-        disabled={confirmDisabled}
-        {...(confirmStyle && { confirmStyle })}
-      >
-        {confirmText}
-      </FormSubmitButton>
+      {CustomConfirmButton ? (
+        <CustomConfirmButton onClick={onConfirm} disabled={confirmDisabled} />
+      ) : (
+        <FormSubmitButton
+          color={confirmColor}
+          onSubmit={onConfirm}
+          disabled={confirmDisabled}
+          {...(confirmStyle && { confirmStyle })}
+        >
+          {confirmText}
+        </FormSubmitButton>
+      )}
     </ButtonRow>
   ),
 );
@@ -107,12 +112,15 @@ export const FormConfirmCancelBackRow = ({
 export const ConfirmCancelBackRow = ({
   onBack,
   backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  backDisabled = false,
   ...props
 }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+        <OutlinedButton onClick={onBack} disabled={backDisabled}>
+          {backButtonText}
+        </OutlinedButton>
       </GoBackButtonContainer>
     )}
     <ConfirmCancelRow {...props} />

@@ -274,6 +274,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       code: chance.word(),
       name: chance.word(),
       unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
+      isSensitive: false,
       externalCode: chance.pickone([chance.word(), null]), // sometimes external code not mapped
     };
   },
@@ -514,6 +515,12 @@ const FHIR_MODELS_HANDLERS = {
   },
 };
 
+/**
+ *
+ * @param {import('@tamanu/database').Model} model
+ * @param {Record<string, any>} passedOverrides
+ * @returns {Record<string, any>}
+ */
 export const fake = (model, passedOverrides = {}) => {
   const id = fakeUUID();
   const record = {};

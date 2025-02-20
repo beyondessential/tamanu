@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { IPatientContact } from '~/types';
 import { Patient } from './Patient';
@@ -20,10 +20,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: true })
   connectionDetails: string;
 
-  @ManyToOne(
-    () => Patient,
-    patient => patient.contacts,
-  )
+  @ManyToOne(() => Patient, (patient) => patient.contacts)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -36,7 +33,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   relationshipId: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map(row => {
+    return rows.map((row) => {
       const sanitizedRow = {
         ...row,
       };
@@ -51,7 +48,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map(row => {
+    return rows.map((row) => {
       const sanitizedRow = {
         ...row,
       };

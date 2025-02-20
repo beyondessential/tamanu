@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { IPatientFieldDefinition } from '~/types';
 import { BaseModel } from './BaseModel';
@@ -23,14 +23,14 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
 
   @ManyToOne(
     () => PatientFieldDefinitionCategory,
-    patientFieldDefinitionCategory => patientFieldDefinitionCategory.patientFieldDefinitions,
+    (patientFieldDefinitionCategory) => patientFieldDefinitionCategory.patientFieldDefinitions,
   )
   category: PatientFieldDefinitionCategory;
   @RelationId(({ category }) => category)
   categoryId: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map(row => {
+    return rows.map((row) => {
       const sanitizedRow = {
         ...row,
       };
@@ -44,7 +44,7 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map(row => {
+    return rows.map((row) => {
       const sanitizedRow = {
         ...row,
       };

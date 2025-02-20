@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
+import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
 import { IUser } from '~/types';
@@ -9,7 +9,6 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
-import { PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 @Entity('users')
 export class User extends BaseModel implements IUser {
@@ -36,46 +35,25 @@ export class User extends BaseModel implements IUser {
   @Column()
   role: string;
 
-  @OneToMany(
-    () => Referral,
-    referral => referral.practitioner,
-  )
+  @OneToMany(() => Referral, (referral) => referral.practitioner)
   referrals: Referral[];
 
-  @OneToMany(
-    () => LabRequest,
-    labRequest => labRequest.requestedBy,
-  )
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
   labRequests: LabRequest[];
 
-  @OneToMany(
-    () => LabRequest,
-    labRequest => labRequest.collectedBy,
-  )
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.collectedBy)
   collectedLabRequests: LabRequest[];
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    administeredVaccine => administeredVaccine.recorder,
-  )
+  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
-  @OneToMany(
-    () => Note,
-    note => note.author,
-  )
+  @OneToMany(() => Note, (note) => note.author)
   authoredNotes: Note[];
 
-  @OneToMany(
-    () => Note,
-    note => note.onBehalfOf,
-  )
+  @OneToMany(() => Note, (note) => note.onBehalfOf)
   onBehalfOfNotes: Note[];
 
-  @OneToMany(
-    () => VitalLog,
-    vitalLog => vitalLog.recordedBy,
-  )
+  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.recordedBy)
   recordedVitalLogs: VitalLog[];
 
   @Column({ default: VisibilityStatus.Current })
@@ -97,7 +75,7 @@ export class User extends BaseModel implements IUser {
       },
     });
 
-    return userFacilities.map(f => f.facilityId);
+    return userFacilities.map((f) => f.facilityId);
   }
 
   async canAccessFacility(id: string) {
