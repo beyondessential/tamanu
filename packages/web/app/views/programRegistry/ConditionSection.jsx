@@ -16,7 +16,7 @@ const Container = styled.div`
 const ScrollBody = styled.div`
   flex: 1;
   border-radius: 5px;
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   padding: 5px 0;
 `;
 
