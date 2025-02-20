@@ -205,10 +205,10 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map((code, i) => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
-        accessor: row => <TranslationField code={code} isFirstColumn={i === 0} {...row} />,
+        accessor: row => <TranslationField code={code} {...row} />,
       })),
     ],
     [data, languageNames],
