@@ -16,7 +16,7 @@ export class DefaultLanguageTranslatiedReferenceData extends CursorDataMigration
       where id in (
           select id
           from translated_strings
-          where id > $fromId and language = 'en' and split_part(string_id, '.', 1) = 'refData';
+          where language = 'en' and split_part(string_id, '.', 1) = 'refData' and id > $fromId
           order by id
           limit $limit
       )
