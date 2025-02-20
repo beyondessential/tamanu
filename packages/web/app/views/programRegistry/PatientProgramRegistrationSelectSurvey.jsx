@@ -17,25 +17,14 @@ import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DisplayContainer = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  justify-content: start;
-  align-items: flex-start;
   border: 1px solid ${Colors.softOutline};
-  font-size: 11px;
-  padding-left: 20px;
-  padding-top: 13px;
-  padding-right: 14px;
-  padding-bottom: 20px;
+  padding: 0 15px 20px 20px;
+  border-radius: 5px;
   background-color: ${Colors.white};
 `;
 
 const StyledFormGrid = styled(FormGrid)`
-  width: 100%;
-  display: grid;
   grid-template-columns: 80% 18%;
-  width: 100%;
   justify-content: space-between;
   align-items: flex-end;
 `;
@@ -72,9 +61,6 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
 
   return (
     <DisplayContainer>
-      <Heading5>
-        Select a {patientProgramRegistration.programRegistry.name} form below to complete
-      </Heading5>
       <Form
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
@@ -96,10 +82,13 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 <Field
                   name="surveyId"
                   label={
-                    <TranslatedText
-                      stringId="patientProgramRegistry.selectForm.label"
-                      fallback="Select form"
-                    />
+                    <Heading5 mt={1} mb={1}>
+                      <TranslatedText
+                        stringId="patientProgramRegistry.selectSurvey.label"
+                        fallback={`Select a ${patientProgramRegistration.programRegistry.name} form below to
+                      complete`}
+                      />
+                    </Heading5>
                   }
                   component={BaseSelectField}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
@@ -107,7 +96,6 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   disabled={isRemoved}
                 />
               </ConditionalTooltip>
-
               <ConditionalTooltip
                 title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
                 visible={isRemoved || !values.surveyId}

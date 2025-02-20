@@ -1,53 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import CloseIcon from '@material-ui/icons/Close';
-import { IconButton } from '@material-ui/core';
 import { sortBy } from 'lodash';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../constants';
+import { ButtonBase } from '@material-ui/core';
 import { Heading5 } from '../../components/Typography';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { RemoveConditionFormModal } from './RemoveConditionFormModal';
-import { AddConditionFormModal } from './AddConditionFormModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-  width: 28%;
-  background-color: ${Colors.white};
-  padding-top: 13px;
-  padding-left: 20px;
-  padding-right: 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: flex-start;
-  border: 1px solid ${Colors.softOutline};
+`;
+
+const ScrollBody = styled.div`
+  flex: 1;
   border-radius: 5px;
+  border: 1px solid ${Colors.softOutline};
+  padding: 5px 0;
 `;
 
-const HeadingContainer = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
-  padding-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
+const Condition = styled(ButtonBase)`
   width: 100%;
-`;
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 14px;
+  line-height: 18px;
 
-const ConditionContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-  width: 100%;
-  margin-top: 5px;
+  &:hover {
+    background-color: #f4f9ff;
+  }
 `;
 
 const ClippedConditionName = styled.span`
@@ -59,98 +41,36 @@ const ClippedConditionName = styled.span`
   width: 95%;
 `;
 
-const AddConditionButton = styled.button`
-  display: inline-block;
-  padding: 10px 20px;
-  color: ${Colors.darkestText};
-  text-decoration: underline;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-  font-size: 11px;
-  padding: 0px;
-  background-color: transparent;
-
-  :hover {
-    color: ${Colors.blue};
-  }
-  :disabled {
-    color: ${Colors.darkText};
-  }
-`;
-
-export const ConditionSection = ({ patientProgramRegistration, programRegistryConditions }) => {
-  const {
-    data: patientProgramRegistrationConditions,
-    isLoading,
-  } = usePatientProgramRegistryConditionsQuery(
+export const ConditionSection = ({ patientProgramRegistration }) => {
+  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
 
-  const [conditionToRemove, setConditionToRemove] = useState();
-  const [openAddCondition, setOpenAddCondition] = useState(false);
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
-  if (isLoading) return <LoadingIndicator />;
-
-  const isRemoved =
-    patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
-
-  if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
+  const data = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
 
   return (
     <Container>
-      <HeadingContainer>
-        <Heading5>Related conditions</Heading5>
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-          <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
-            + Add condition
-          </AddConditionButton>
-        </ConditionalTooltip>
-      </HeadingContainer>
-      {Array.isArray(patientProgramRegistrationConditions?.data) &&
-        sortBy(
-          patientProgramRegistrationConditions.data,
-          c => c?.programRegistryCondition?.name,
-        ).map(x => (
-          <ConditionContainer key={x.id}>
-            <ConditionalTooltip
-              title={x.programRegistryCondition?.name}
-              visible={x.programRegistryCondition?.name?.length > 30}
-            >
-              <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
-            </ConditionalTooltip>
-            <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-              <IconButton
-                style={{ padding: 0 }}
-                onClick={() => setConditionToRemove(x)}
-                disabled={isRemoved}
-              >
-                <CloseIcon style={{ fontSize: '14px' }} />
-              </IconButton>
-            </ConditionalTooltip>
-          </ConditionContainer>
-        ))}
-      {openAddCondition && (
-        <AddConditionFormModal
-          onClose={() => setOpenAddCondition(false)}
-          patientProgramRegistration={patientProgramRegistration}
-          patientProgramRegistrationConditions={patientProgramRegistrationConditions.data.map(
-            x => ({ value: x.programRegistryConditionId }),
-          )}
-          programRegistryConditions={programRegistryConditions}
-          open
-        />
-      )}
-      {conditionToRemove && (
-        <RemoveConditionFormModal
-          patientProgramRegistration={patientProgramRegistration}
-          conditionToRemove={conditionToRemove}
-          onSubmit={() => setConditionToRemove(undefined)}
-          onCancel={() => setConditionToRemove(undefined)}
-          open
-        />
-      )}
+      <Heading5 mt={0} mb={1}>
+        Related conditions
+      </Heading5>
+      <ScrollBody>
+        {data?.map(condition => {
+          const { programRegistryCondition } = condition;
+          const { name } = programRegistryCondition;
+          return (
+            <Condition key={condition.id}>
+              <ConditionalTooltip title={name} visible={name.length > 30}>
+                <ClippedConditionName>{name}</ClippedConditionName>
+              </ConditionalTooltip>
+            </Condition>
+          );
+        })}
+      </ScrollBody>
     </Container>
   );
 };
