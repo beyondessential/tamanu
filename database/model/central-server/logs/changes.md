@@ -2,7 +2,7 @@
 TODO
 {% enddocs %}
 
-{% docs logs__debug_logs__id %}
+{% docs logs__changes__id %}
 TODO
 {% enddocs %}
 
