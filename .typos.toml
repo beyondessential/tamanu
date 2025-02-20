@@ -41,12 +41,11 @@ pilon = "pilon"
 extend-exclude = [
   # third party schemas
   "*.schema.json",
-  "packages/qr-tester/schemata/*.json",
 
-  # encoded files
+  # encoded or generated files
   "*.asc",
+  "sbom.cdx.json",
 
   # legacy code, can't touch
   "packages/central-server/__tests__/integrations/fijiVrs/**/*",
-  "scripts/csca.sh",
 ]
