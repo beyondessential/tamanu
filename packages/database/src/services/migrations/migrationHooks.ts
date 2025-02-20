@@ -1,13 +1,15 @@
 // run any post migration checks or side effects
 // so far, this is just adding the updated_at_sync_tick column and trigger to all new tables
 import config from 'config';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, type Sequelize } from 'sequelize';
+import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 
-const tablesWithoutColumn = (sequelize, column) =>
-  sequelize.query(
-    `
+const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
+  sequelize
+    .query(
+      `
     SELECT pg_class.relname as table
     FROM pg_catalog.pg_class
     JOIN pg_catalog.pg_namespace
@@ -20,12 +22,23 @@ const tablesWithoutColumn = (sequelize, column) =>
       AND pg_attribute.attname IS NULL
       AND pg_class.relname NOT IN ($excludes);
   `,
-    { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
-  );
+      { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
+    )
+    .then((rows) =>
+      rows
+        .map((row) => (row as any).table as string)
+        .filter((table) => !NON_SYNCING_TABLES.includes(table)),
+    );
 
-const tablesWithoutTrigger = (sequelize, prefix, suffix, excludes = NON_SYNCING_TABLES) =>
-  sequelize.query(
-    `
+const tablesWithoutTrigger = (
+  sequelize: Sequelize,
+  prefix: string,
+  suffix: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) =>
+  sequelize
+    .query(
+      `
       SELECT t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
@@ -41,12 +54,21 @@ const tablesWithoutTrigger = (sequelize, prefix, suffix, excludes = NON_SYNCING_
         AND t.table_type != 'VIEW'
         AND t.table_name NOT IN ($excludes);
     `,
-    { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
-  );
+      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+    )
+    .then((rows) =>
+      rows.map((row) => (row as any).table as string).filter((table) => !excludes.includes(table)),
+    );
 
-const tablesWithTrigger = (sequelize, prefix, suffix, excludes = []) =>
-  sequelize.query(
-    `
+const tablesWithTrigger = (
+  sequelize: Sequelize,
+  prefix: string,
+  suffix: string,
+  excludes: string[] = [],
+) =>
+  sequelize
+    .query(
+      `
       SELECT t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
@@ -62,20 +84,23 @@ const tablesWithTrigger = (sequelize, prefix, suffix, excludes = []) =>
         AND t.table_type != 'VIEW'
         AND t.table_name NOT IN ($excludes);
     `,
-    { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
-  );
+      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+    )
+    .then((rows) =>
+      rows.map((row) => (row as any).table as string).filter((table) => !excludes.includes(table)),
+    );
 
-export async function runPreMigration(log, sequelize) {
+export async function runPreMigration(log: Logger, sequelize: Sequelize) {
   // remove sync tick trigger before migrations
   // migrations are deterministic, so updating the sync tick just creates useless churn
-  for (const { table } of await tablesWithTrigger(sequelize, 'set_', '_updated_at_sync_tick')) {
+  for (const table of await tablesWithTrigger(sequelize, 'set_', '_updated_at_sync_tick')) {
     log.info(`Removing updated_at_sync_tick trigger from ${table}`);
     await sequelize.query(`DROP TRIGGER set_${table}_updated_at_sync_tick ON "${table}"`);
   }
 
   // remove changelog trigger before migrations
   // except from SequelizeMeta, so that migrations are recorded in the changelog
-  for (const { table } of await tablesWithTrigger(sequelize, 'record_', '_changelog', [
+  for (const table of await tablesWithTrigger(sequelize, 'record_', '_changelog', [
     'SequelizeMeta',
   ])) {
     log.info(`Removing changelog trigger from ${table}`);
@@ -83,13 +108,13 @@ export async function runPreMigration(log, sequelize) {
   }
 }
 
-export async function runPostMigration(log, sequelize) {
+export async function runPostMigration(log: Logger, sequelize: Sequelize) {
   // add column: holds last update tick, default to -999 (not marked for sync) on facility,
   // and 0 (will be caught in any initial sync) on central server
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
   const initialValue = isFacilityServer ? -999 : 0; // -999 on facility, 0 on central server
-  for (const { table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
+  for (const table of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${table}`);
     await sequelize.query(`
       ALTER TABLE "${table}" ADD COLUMN updated_at_sync_tick BIGINT NOT NULL DEFAULT ${initialValue};
@@ -99,21 +124,17 @@ export async function runPostMigration(log, sequelize) {
     `);
   }
 
-  const functionExists = (name) =>
+  const functionExists = (name: string) =>
     sequelize
       .query('select count(*) as count from pg_catalog.pg_proc where proname = $name', {
         type: QueryTypes.SELECT,
         bind: { name },
       })
-      .then((rows) => rows?.[0]?.count > 0);
+      .then((rows) => (rows?.[0] as any)?.count > 0);
 
   // add trigger: before insert or update, set updated_at (overriding any that is passed in)
   if (await functionExists('set_updated_at_sync_tick')) {
-    for (const { table } of await tablesWithoutTrigger(
-      sequelize,
-      'set_',
-      '_updated_at_sync_tick',
-    )) {
+    for (const table of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at_sync_tick')) {
       log.info(`Adding updated_at_sync_tick trigger to ${table}`);
       await sequelize.query(`
       CREATE TRIGGER set_${table}_updated_at_sync_tick
@@ -126,7 +147,7 @@ export async function runPostMigration(log, sequelize) {
 
   // add trigger to table for pg notify
   if (await functionExists('notify_table_changed')) {
-    for (const { table } of await tablesWithoutTrigger(sequelize, 'notify_', '_changed')) {
+    for (const table of await tablesWithoutTrigger(sequelize, 'notify_', '_changed')) {
       log.info(`Adding notify change trigger to ${table}`);
       await sequelize.query(`
       CREATE TRIGGER notify_${table}_changed
@@ -139,7 +160,7 @@ export async function runPostMigration(log, sequelize) {
 
   // add trigger to table for changelogs
   if (await functionExists('record_change')) {
-    for (const { table } of await tablesWithoutTrigger(
+    for (const table of await tablesWithoutTrigger(
       sequelize,
       'record_',
       '_changelog',
