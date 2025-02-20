@@ -59,6 +59,7 @@ export const setupImportData = async ({
 }> => {
   const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+
   const facility = await Facility.create(fake(Facility));
   const locationGroup = await LocationGroup.create(
     fake(LocationGroup, {
