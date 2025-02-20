@@ -26,7 +26,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - run: sbom-utility license list --input-file sbom.cdx.json --where usage-policy=needs-review -q --config-license license.json --format json | tee licensing.json
+      - run: curl -LO https://github.com/CycloneDX/sbom-utility/releases/download/v0.17.0/sbom-utility-v0.17.0-linux-amd64.tar.gz
+      - run: tar xf sbom-utility-v0.17.0-linux-amd64.tar.gz sbom-utility
+      - run: ./sbom-utility license list --input-file sbom.cdx.json --where usage-policy=needs-review -q --config-license license.json --format json | tee licensing.json
       - run: jq -e '. == null' licensing.json
 
   # Dummy job to have a stable name for PR requirements
