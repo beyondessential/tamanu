@@ -10,16 +10,18 @@ export const usePatientProgramRegistryConditionsQuery = (
   return useQuery(
     ['patient', patientId, 'programRegistration', programRegistryId, 'condition', fetchOptions],
     () =>
-      api.get(
-        `patient/${encodeURIComponent(patientId)}/programRegistration/${encodeURIComponent(
-          programRegistryId,
-        )}/condition`,
-        fetchOptions,
-      ),
+      api
+        .get(
+          `patient/${encodeURIComponent(patientId)}/programRegistration/${encodeURIComponent(
+            programRegistryId,
+          )}/condition`,
+          fetchOptions,
+        )
+        .then(response => response.data),
   );
 };
 
-export const useProgramRegistryConditionsQuery = (programRegistryId) => {
+export const useProgramRegistryConditionsQuery = programRegistryId => {
   const api = useApi();
   return useQuery(
     ['programRegistry', programRegistryId, 'conditions'],
@@ -29,7 +31,7 @@ export const useProgramRegistryConditionsQuery = (programRegistryId) => {
           orderBy: 'name',
           order: 'ASC',
         })
-        .then((response) => response.data),
+        .then(response => response.data),
     { enabled: Boolean(programRegistryId) },
   );
 };

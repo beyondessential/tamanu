@@ -44,7 +44,7 @@ const ClippedConditionName = styled.span`
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
   const [selectedConditionId, setSelectedConditionId] = useState(null);
-  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
@@ -53,7 +53,14 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return <LoadingIndicator />;
   }
 
-  const data = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  if (!conditions.length) {
+    return null;
+  }
+
+  const sortedConditions = sortBy(
+    conditions,
+    ({ programRegistryCondition }) => programRegistryCondition?.name,
+  );
 
   return (
     <Container>
@@ -61,7 +68,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         Related conditions
       </Heading5>
       <ScrollBody>
-        {data?.map(condition => {
+        {sortedConditions.map(condition => {
           const { programRegistryCondition, conditionCategory } = condition;
           const { name } = programRegistryCondition;
           return (
