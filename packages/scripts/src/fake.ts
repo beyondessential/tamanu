@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import type { Sequelize } from '@tamanu/database';
-import { generateAllDataTypes } from '@tamanu/data-generation/helpers';
+import { generateEachDataType } from '@tamanu/data-generation/helpers';
 
 /** Generate fake data to exercise the whole database */
 export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
@@ -11,7 +11,7 @@ export async function generateFake(sequelize: Sequelize, rounds: number = 1) {
   let errs = 0;
   while (done < rounds && errs < Math.max(10, rounds / 10)) {
     try {
-      await generateAllDataTypes(sequelize.models);
+      await generateEachDataType(sequelize.models);
       process.stdout.write('.');
       done += 1;
     } catch (err) {
