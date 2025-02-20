@@ -30,7 +30,7 @@ export function createMigrationInterface(log, sequelize) {
         const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
 
         if (!('up' in migration)) {
-          throw new Error(`Migration ${sqlPath} must export up and down functions`);
+          throw new Error(`Migration ${sqlPath} must export an up function`);
         }
 
         if (!('down' in migration)) {
