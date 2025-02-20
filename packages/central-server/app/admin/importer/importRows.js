@@ -62,7 +62,7 @@ function extractRecordName(values, dataType) {
 
 export async function importRows(
   { errors, log, models },
-  { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
+  { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {}, skipExisting = false },
   validationContext = {},
 ) {
   const stats = { ...previousStats };
@@ -218,6 +218,11 @@ export async function importRows(
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
+
+    if (existing && skipExisting) {
+      updateStat(stats, statkey(model, sheetName), 'skipped');
+      continue;
+    }
 
     try {
       if (existing) {
