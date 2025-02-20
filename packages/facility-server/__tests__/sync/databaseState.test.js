@@ -1,7 +1,7 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { fake } from '@tamanu/data-generation/helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -17,7 +17,7 @@ describe('databaseState', () => {
 
   it('all syncing models should have a tick column', async () => {
     const syncModels = Object.values(models).filter(
-      (model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
+      model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
     );
 
     for (const Model of syncModels) {
@@ -31,7 +31,7 @@ describe('databaseState', () => {
   it('unsyncing models should not have tick column', async () => {
     const unsyncModels = Object.values(models).filter(
       // sync_lookup is a special table that is non syncing but should still have updated_at_sync_tick
-      (model) =>
+      model =>
         model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC && model.tableName !== 'sync_lookup',
     );
 

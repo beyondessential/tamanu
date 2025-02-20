@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';

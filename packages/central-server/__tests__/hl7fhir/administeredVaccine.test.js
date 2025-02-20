@@ -1,4 +1,4 @@
-import { fake, fakeReferenceData, fakeUser } from '@tamanu/data-generation/helpers/fake';
+import { fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import {
   administeredVaccineToHL7Immunization,
   getAdministeredVaccineInclude,

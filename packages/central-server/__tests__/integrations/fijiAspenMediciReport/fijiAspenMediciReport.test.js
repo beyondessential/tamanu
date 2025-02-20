@@ -10,7 +10,7 @@ import {
   DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { fake } from '@tamanu/data-generation/helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
@@ -548,7 +548,8 @@ describe('fijiAspenMediciReport', () => {
         ],
         procedures: [
           {
-            name: 'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
+            name:
+              'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
             code: '61340',
             date: '2022-06-11T01:20:54+00:00',
             location: 'Emergency room 1',

@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from './utilities';
 
 describe('facility routes', () => {
