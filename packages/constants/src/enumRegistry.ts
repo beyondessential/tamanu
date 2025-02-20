@@ -5,42 +5,47 @@ import {
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
-} from './patientFields';
+} from './patientFields.js';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-} from './invoices';
-import { ENCOUNTER_TYPE_LABELS } from './encounters';
-import { NOTE_TYPE_LABELS } from './notes';
+} from './invoices.js';
+import { ENCOUNTER_TYPE_LABELS } from './encounters.js';
+import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
-} from './statuses';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
+} from './statuses.js';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines.js';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_LABELS,
-} from './births';
+} from './births.js';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_STATUS_LABELS,
-} from './reports';
-import { TEMPLATE_TYPE_LABELS } from './templates';
-import { LAB_REQUEST_STATUS_LABELS } from './labs';
-import { ASSET_NAME_LABELS } from './importable';
-import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
-import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+} from './reports.js';
+import { TEMPLATE_TYPE_LABELS } from './templates.js';
+import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
+import { ASSET_NAME_LABELS } from './importable.js';
+import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
+import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
 import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
-import { IMAGING_TYPES } from './imaging';
+import { IMAGING_TYPES } from './imaging.js';
+import {
+  REPEAT_FREQUENCY_LABELS,
+  REPEAT_FREQUENCY_UNIT_LABELS,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
+} from './appointments.js';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
@@ -79,6 +84,9 @@ export const registeredEnums = {
   PLACE_OF_DEATHS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
+  REPEAT_FREQUENCY_LABELS,
+  REPEAT_FREQUENCY_UNIT_LABELS,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -126,6 +134,9 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
+  REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',
+  REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatFrequencyUnit',
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS: 'scheduling.property.repeatFrequencyUnitPlural',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
   REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',

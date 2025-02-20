@@ -13,3 +13,7 @@ Key of the user preference
 {% docs user_preferences__value %}
 Value of the user preference
 {% enddocs %}
+
+{% docs user_preferences__facility_id %}
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) that this preference applies to
+{% enddocs %}

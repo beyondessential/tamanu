@@ -1,10 +1,16 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+import { useHistory } from 'react-router-dom';
 
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 import { TranslatedText } from '../../../components';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
+import { useUserPreferencesMutation } from '../../../api/mutations';
+import { useAuth } from '../../../contexts/Auth';
+import { debounce } from 'lodash';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 const Wrapper = styled(Box)`
   cursor: pointer;
@@ -50,21 +56,41 @@ const AnimatedBackground = styled('div')`
 `;
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
-export const GroupByAppointmentToggle = ({ value, onChange, ...props }) => {
+export const GroupByAppointmentToggle = props => {
+  const { groupBy, setGroupBy } = useOutpatientAppointmentsContext();
+  const { facilityId } = useAuth();
+
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+
+  const updateGroupByUserPreferences = debounce(
+    newGroupBy =>
+      mutateUserPreferences({
+        key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_GROUP_BY,
+        value: newGroupBy,
+      }),
+    200,
+  );
+
+  const history = useHistory();
   const handleChange = () => {
-    onChange(
-      value === APPOINTMENT_GROUP_BY.LOCATION_GROUP
+    const newValue =
+      groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP
         ? APPOINTMENT_GROUP_BY.CLINICIAN
-        : APPOINTMENT_GROUP_BY.LOCATION_GROUP,
-    );
+        : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
+    setGroupBy(newValue);
+    history.push(`?groupBy=${newValue}`);
+    updateGroupByUserPreferences(newValue);
   };
+
+  if (!groupBy) return null;
+
   return (
     <Wrapper onClick={handleChange} role="radiogroup" {...props}>
-      <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
+      <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
+      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
         <TranslatedText stringId="outpatientAppointments.groupByToggle.area" fallback="Area" />
       </ToggleButton>
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.CLINICIAN}>
+      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}>
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.clinicians"
           fallback="Clinicians"

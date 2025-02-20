@@ -12,7 +12,7 @@ import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAp
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const locationGroupsQuery = useLocationGroupsQuery();
+  const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 
   const usersQuery = useUsersQuery(
@@ -20,6 +20,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     {
       // Add an 'unknown' user to the list for appointments that don't have a clinician
       select: ({ data }) => [...data, { id: 'unknown', displayName: 'Unknown' }],
+      keepPreviousData: true,
     },
   );
   const { data: usersData } = usersQuery;
@@ -35,6 +36,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     {
       /** A null `filters` is valid (i.e. when a user has never used this filter before) */
       enabled: filters !== undefined,
+      keepPreviousData: true,
     },
   );
   const { data: appointmentsData } = appointmentsQuery;
@@ -53,15 +55,16 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
       return {
         cellData,
         headData: usersData.filter(user => !!cellData[user.id]),
-        titleKey: 'displayName',
       };
     }
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
         cellData,
         headData: locationGroupData?.filter(group => !!cellData[group.id]),
-        titleKey: 'name',
       };
+    }
+    if (!groupBy) {
+      return {};
     }
   }, [appointmentsData?.data, groupBy, usersData, locationGroupData]);
 

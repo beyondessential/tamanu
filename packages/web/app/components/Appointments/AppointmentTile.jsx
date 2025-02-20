@@ -31,7 +31,7 @@ const Tile = styled(UnstyledHtmlButton)`
   gap: 0.3125rem;
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
-  padding-inline: 0.3125rem;
+  padding-inline: 0.625rem;
   transition: background-color 150ms ease, border-color 150ms ease;
 
   &:hover {
@@ -66,7 +66,6 @@ const Timestamp = ({ date }) => (
 
 const Label = styled.span`
   overflow: hidden;
-  padding-inline-start: 0.3125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 
@@ -89,6 +88,7 @@ export const AppointmentTile = ({
   onEdit,
   onCancel,
   actions,
+  allowViewDetail = true,
   ...props
 }) => {
   const {
@@ -107,13 +107,13 @@ export const AppointmentTile = ({
     if (appointmentId && appointmentId === appointment.id && !hideTime) {
       setTimeout(() => {
         setOpen(true);
-        ref.current.scrollIntoView({ block: 'center', inline: 'start' });
+        ref.current.scrollIntoView({ block: 'center', inline: 'center' });
       });
     }
   }, [appointment.id, hideTime, location.search]);
 
   const startTime = parseISO(startTimeStr);
-  const endTime = parseISO(endTimeStr);
+  const endTime = endTimeStr && parseISO(endTimeStr);
 
   const isLocationBooking = !!appointment.location;
   const isOvernightLocationBooking = isLocationBooking && !isSameDay(startTime, endTime);
@@ -132,7 +132,7 @@ export const AppointmentTile = ({
           $color={APPOINTMENT_STATUS_COLORS[status]}
           $selected={open}
           ref={ref}
-          onClick={() => setOpen(true)}
+          onClick={() => allowViewDetail && setOpen(true)}
           {...props}
         >
           <Label $strikethrough={status === APPOINTMENT_STATUSES.NO_SHOW}>{tileText}</Label>

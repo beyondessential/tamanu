@@ -14,6 +14,7 @@ import { AppointmentStatusSelector } from './AppointmentStatusSelector';
 import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 import { CheckInButton } from './CheckInButton';
+import { useAuth } from '../../../contexts/Auth';
 
 export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
@@ -49,6 +50,7 @@ export const AppointmentDetailPopper = ({
   open = false,
   preventOverflowPadding = {},
 }) => {
+  const { ability } = useAuth();
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
@@ -84,6 +86,9 @@ export const AppointmentDetailPopper = ({
     },
   ];
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+  const canCreateEncounter = ability.can('create', 'Encounter');
+
   return (
     <Popper
       anchorEl={anchorEl}
@@ -113,8 +118,13 @@ export const AppointmentDetailPopper = ({
             />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <Footer>
-              <AppointmentStatusSelector appointment={appointment} />
-              <CheckInButton appointment={appointment} />
+              <AppointmentStatusSelector
+                appointment={appointment}
+                disabled={!canWriteAppointment}
+              />
+              {canWriteAppointment && canCreateEncounter && (
+                <CheckInButton appointment={appointment} />
+              )}
             </Footer>
           </StyledPaper>
         </div>

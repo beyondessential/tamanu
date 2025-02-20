@@ -22,7 +22,6 @@ const Container = styled.div`
   ${Border};
   background: ${Colors.white};
   transition: color 0.2s ease;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
 const NoVisitContainer = styled.div`

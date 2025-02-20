@@ -13,6 +13,7 @@ import {
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
+export { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import { Colors } from '../constants';
 

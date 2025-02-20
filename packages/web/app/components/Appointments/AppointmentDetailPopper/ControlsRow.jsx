@@ -5,6 +5,7 @@ import Close from '@mui/icons-material/Close';
 
 import { MenuButton } from '../../MenuButton';
 import { TranslatedText } from '../../Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 const ControlsContainer = styled('div')`
   z-index: 1;
@@ -42,6 +43,9 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
+  const { ability } = useAuth();
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
@@ -56,7 +60,7 @@ export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] 
 
   return (
     <ControlsContainer>
-      <StyledMenuButton actions={actions} placement="bottom-start" />
+      {canWriteAppointment && <StyledMenuButton actions={actions} placement="bottom-start" />}
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
