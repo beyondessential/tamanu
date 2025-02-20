@@ -27,7 +27,7 @@ const ExportForm = ({ options = [] }) => (
       options={options}
       required
     />
-    <ButtonRow>
+    <ButtonRow alignment="left">
       <FormSubmitButton text="Export" />
     </ButtonRow>
   </FormGrid>
