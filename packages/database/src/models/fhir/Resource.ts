@@ -27,13 +27,13 @@ export class FhirResource extends Model {
         id: {
           type: DataTypes.UUID,
           allowNull: false,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
           primaryKey: true,
         },
         versionId: {
           type: DataTypes.UUID,
           allowNull: false,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
         },
         upstreamId: {
           type: this.UPSTREAM_UUID ? DataTypes.UUID : DataTypes.STRING,
@@ -108,8 +108,8 @@ export class FhirResource extends Model {
 
     if (!resource) {
       resource = this.build({
-        id: Sequelize.fn('uuid_generate_v4'),
-        versionId: Sequelize.fn('uuid_generate_v4'),
+        id: Sequelize.fn('gen_random_uuid'),
+        versionId: Sequelize.fn('gen_random_uuid'),
         upstreamId: id,
       });
     }
