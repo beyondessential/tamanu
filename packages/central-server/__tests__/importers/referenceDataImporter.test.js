@@ -737,6 +737,7 @@ describe('Import from an exported file', () => {
         2: REFERENCE_TYPES.ALLERGY,
         3: 'diagnosis',
       },
+      {},
       './exported-refdata-all-table.xlsx',
     );
 
