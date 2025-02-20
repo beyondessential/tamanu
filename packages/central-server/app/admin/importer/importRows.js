@@ -249,11 +249,12 @@ export async function importRows(
     }
   }
 
+  log.debug('Upserting translations', { count: translationData.length });
   await models.sequelize.query(`
       INSERT INTO translated_strings (string_id, text, language)
       VALUES ${translationData.map(() => '(?)').join(',')};
       ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-    `);
+  `);
 
   log.debug('Done with these rows');
   return stats;
