@@ -114,6 +114,9 @@ export class FhirDiagnosticReport extends FhirResource {
 
       if (this.shouldUpdateLabRequestStatus(labRequest, newStatus)) {
         labRequest.set({ status: newStatus });
+        if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+          labRequest.set({ publishedDate: new Date() });
+        }
         await labRequest.save();
 
         if (!requesterId)
