@@ -1,4 +1,4 @@
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 
 /**
  * Queries translated_string table and returns all translated strings grouped by stringId with a column
@@ -10,6 +10,11 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
   const languagesInDb = await TranslatedString.findAll({
     attributes: ['language'],
     group: 'language',
+    where: {
+      language: {
+        [Op.not]: null,
+      }
+    }
   });
 
   if (!languagesInDb.length) return [];
@@ -18,9 +23,10 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
     `
       SELECT
           string_id as "stringId",
+          MAX (text) FILTER(WHERE language IS NULL) AS "default",
           ${languagesInDb
             .map(
-              (_, index) => `MAX(text) FILTER(WHERE language = $lang${index}) AS "lang${index}"`,
+              (_, index) => `MAX(text) FILTER(WHERE language = $lang${index}) AS "lang${index}"`
             )
             .join(',')}
       FROM
@@ -44,7 +50,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
   // object to switch the dynamic alias to the expected alias which should exactly
   // match the language column from the translated string.
   const mappedTranslations = translations.map(row => {
-    const newRow = { stringId: row.stringId };
+    const newRow = { stringId: row.stringId, default: row.default };
     languagesInDb.forEach(({ language }, index) => {
       newRow[language] = row[`lang${index}`];
     });
