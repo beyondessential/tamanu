@@ -1,21 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
-import {
-  Field,
-  Form,
-  OutlinedButton,
-  SearchField,
-  TableFormFields,
-  TextField,
-} from '../../../components';
+import { Form, OutlinedButton, SearchInput, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
@@ -44,8 +37,6 @@ const ReservedText = styled.p`
  *
  */
 const validationSchema = yup.lazy(values => {
-  delete values.search; // Remove the search option
-
   const existingStringIds = new Set(); // Use to check if a new id clashes with an existing id
   const numNewIdsByStringId = {}; // Use to check if any new ids clash with each other
 
@@ -129,18 +120,12 @@ const TranslationField = ({ stringId, code }) => (
   <AccessorField id={`['${stringId}']`} name={code} component={TextField} multiline />
 );
 
-export const FormContents = ({
-  data,
-  languageNames,
-  setFieldValue,
-  isSaving,
-  submitForm,
-  dirty,
-  values,
-}) => {
+export const FormContents = ({ data, languageNames, isSaving, submitForm, dirty }) => {
+  const [searchValue, setSearchValue] = useState('');
+
   const handleSave = event => {
     // Reset search so any validation errors are visible
-    setFieldValue('search', '');
+    setSearchValue('');
     submitForm(event);
   };
 
@@ -189,9 +174,9 @@ export const FormContents = ({
     () =>
       data.filter(row =>
         // Search from start of stringId or after a . delimiter
-        row.stringId.match(new RegExp(`(?:^|\\.)${values.search.replace('.', '\\.')}`, 'i')),
+        row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
       ),
-    [data, values.search],
+    [data, searchValue],
   );
 
   if (data.length === 0)
@@ -205,10 +190,11 @@ export const FormContents = ({
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <Field
+          <SearchInput
             label={<TranslatedText stringId="general.action.search" fallback="Search" />}
-            name="search"
-            component={SearchField}
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onClear={() => setSearchValue('')}
           />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
@@ -226,7 +212,7 @@ export const TranslationForm = () => {
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
   const initialValues = useMemo(() => {
-    const values = { search: '' };
+    const values = {};
     for (const { stringId, ...rest } of translations) {
       values[stringId] = rest;
     }
@@ -234,8 +220,6 @@ export const TranslationForm = () => {
   }, [translations]);
 
   const handleSubmit = async payload => {
-    // Swap temporary id out for stringId
-    delete payload.search;
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
