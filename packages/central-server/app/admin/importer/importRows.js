@@ -262,6 +262,17 @@ export async function importRows(
     }
   }
 
+  /*
+  TODO lets do in one
+    const values: Array<Array<number | string>> = [
+    [1, 'Apple', 'Red', 'Yummy'],
+    [2, 'Kiwi', 'Green', 'Yuck'],
+]
+
+const query = 'INSERT INTO fruits (id, name, color, flavor) VALUES ' +
+     values.map(_ => { return '(?)' }).join(',') +
+     ' ON CONFLICT (id) DO UPDATE SET flavor = excluded.flavor;'
+   */
   // Ensure we have a translation record for each row of translatable reference data
   await models.TranslatedString.bulkCreate(translationCreates, {
     fields: ['stringId', 'text', 'language'],
