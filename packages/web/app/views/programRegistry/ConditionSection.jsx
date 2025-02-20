@@ -23,6 +23,7 @@ const ScrollBody = styled.div`
 
 const Condition = styled(ButtonBase)`
   width: 100%;
+  justify-content: flex-start;
   text-align: left;
   padding: 8px 12px;
   font-size: 14px;

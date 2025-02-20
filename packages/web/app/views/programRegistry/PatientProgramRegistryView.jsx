@@ -104,12 +104,10 @@ export const PatientProgramRegistryView = () => {
               patientProgramRegistration={data}
               programRegistryConditions={conditionOptions}
             />
-            {programRegistryConditions?.length > 0 && (
-              <ConditionSection
-                patientProgramRegistration={data}
-                programRegistryConditions={conditionOptions}
-              />
-            )}
+            <ConditionSection
+              patientProgramRegistration={data}
+              programRegistryConditions={conditionOptions}
+            />
           </Grid>
         </MainSection>
         <Row>
