@@ -1,1 +1,1 @@
-export * from './generateDataGroups';
+export * from './dataGroups';
