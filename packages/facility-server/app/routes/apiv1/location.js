@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { Op } from 'sequelize';
 
@@ -21,14 +21,18 @@ location.get(
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       include: [
         {
           required: true,
           model: LocationGroup,
           as: 'locationGroup',
-          ...(bookableOnly ? { where: { isBookable: true } } : null),
-          ...(locationGroupIds ? { where: { id: { [Op.in]: locationGroupIds } } } : null),
+          where: {
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+            ...(bookableOnly ? { isBookable: true } : null),
+            ...(locationGroupIds ? { id: { [Op.in]: locationGroupIds } } : null),
+          },
         },
       ],
       order: [
