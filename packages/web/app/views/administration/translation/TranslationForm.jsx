@@ -23,6 +23,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -132,12 +133,11 @@ const useTranslationMutation = () => {
   });
 };
 
-const TranslationField = ({ placeholderId, isFirstColumn, stringId, code, defaultText }) => (
+const TranslationField = ({ placeholderId, stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
   <AccessorField
     id={`['${placeholderId || stringId}']`}
     name={code}
-    placeholder={isFirstColumn && defaultText}
     component={TextField}
     multiline
   />
@@ -284,7 +284,7 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = { search: '' };
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = rest;
+        values[stringId] = {...rest, [ENGLISH_LANGUAGE_CODE]: rest.en || rest.defaultText};
     }
     return values;
   }, [translations]);
