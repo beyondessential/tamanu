@@ -111,10 +111,8 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
-
     res.send(encounterObject);
   }),
 );
