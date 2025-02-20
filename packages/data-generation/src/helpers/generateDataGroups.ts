@@ -451,3 +451,40 @@ export const createReferenceData = async ({ ReferenceData, ReferenceDataRelation
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   return { referenceData };
 };
+
+export const generateAllDataTypes = async (models: Models) => {
+  // Reference/Setup data
+  const { referenceData } = await createReferenceData(models);
+  const { facility, department, locationGroup, location } = await createFacilityData(models);
+  const { user } = await createUserData(models);
+
+  // Clinical data
+  const { patient } = await createPatientData(models, facility.id, user.id);
+  const { encounter } = await createEncounterData(
+    models,
+    patient.id,
+    department.id,
+    location.id,
+    user.id,
+    referenceData.id,
+  );
+
+  await Promise.all([
+    await createLabRequestData(
+      models,
+      department.id,
+      user.id,
+      encounter.id,
+      referenceData.id,
+      patient.id,
+    ),
+    await createProgramData(models, user.id, patient.id),
+    await createSurveyData(models, encounter.id),
+    await createDbReportData(models, user.id),
+    await createVaccineData(models, referenceData.id, encounter.id),
+    await createInvoiceData(models, encounter.id, user.id, referenceData.id),
+    await createImagingRequestData(models, user.id, encounter.id, locationGroup.id),
+    await createAppointmentData(models, locationGroup.id, patient.id, user.id),
+    await createTaskingData(models, encounter.id, user.id, referenceData.id),
+  ]);
+};
