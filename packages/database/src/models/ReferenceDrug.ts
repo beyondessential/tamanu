@@ -3,12 +3,12 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class TaskTemplate extends Model {
+export class ReferenceDrug extends Model {
   declare id: string;
   declare referenceDataId: string;
-  declare frequencyValue?: number;
-  declare frequencyUnit?: string;
-  declare highPriority?: boolean;
+  declare route?: string;
+  declare units?: string;
+  declare notes?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -23,16 +23,16 @@ export class TaskTemplate extends Model {
             key: 'id',
           },
         },
-        frequencyValue: {
-          type: DataTypes.DECIMAL,
-          allowNull: true,
-        },
-        frequencyUnit: {
+        route: {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        highPriority: {
-          type: DataTypes.BOOLEAN,
+        units: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        notes: {
+          type: DataTypes.STRING,
           allowNull: true,
         },
       },
@@ -45,10 +45,6 @@ export class TaskTemplate extends Model {
       foreignKey: 'referenceDataId',
       as: 'referenceData',
     });
-    this.hasMany(models.TaskTemplateDesignation, {
-      foreignKey: 'taskTemplateId',
-      as: 'designations',
-    });
   }
 
   static buildSyncFilter() {
@@ -60,21 +56,6 @@ export class TaskTemplate extends Model {
   }
 
   static getFullReferenceAssociations() {
-    const { models } = this.sequelize;
-
-    return [
-      'referenceData',
-      {
-        model: models.TaskTemplateDesignation,
-        as: 'designations',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'designation',
-            attributes: ['name'],
-          },
-        ],
-      },
-    ];
+    return ['referenceData'];
   }
 }
