@@ -46,11 +46,18 @@ const Row = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-auto-columns: 1.3fr 1fr;
   gap: 10px;
 
   > div {
     height: 255px;
+
+    &:first-child {
+      grid-column: 1;
+    }
+
+    &:nth-child(2) {
+      grid-column: 2;
   }
 `;
 
@@ -92,7 +99,6 @@ export const PatientProgramRegistryView = () => {
       <Container>
         <MainSection>
           <DisplayPatientRegDetails patientProgramRegistration={data} />
-          {/*Todo: Make first column fill if the second column isn't there */}
           <Grid>
             <ProgramRegistryStatusHistory
               patientProgramRegistration={data}
