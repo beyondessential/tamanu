@@ -60,7 +60,7 @@ const TextColumns = styled.div`
   justify-content: flex-start;
   margin-right: 5px;
   font-weight: 400;
-  font-size: 11px;
+  font-size: 14px;
 `;
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {

@@ -63,7 +63,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     Form={AllergyForm}
-    getName={(allergy) => (
+    getName={allergy => (
       <TranslatedReferenceData
         fallback={allergy.allergy.name}
         value={allergy.allergy.id}
@@ -87,7 +87,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     Form={FamilyHistoryForm}
-    getName={(historyItem) => {
+    getName={historyItem => {
       const { name } = historyItem.diagnosis;
       const relation = historyItem.relationship;
       if (!relation) return name;
@@ -110,7 +110,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
-    getName={(issue) => issue.note}
+    getName={issue => issue.note}
   />
 ));
 
@@ -145,6 +145,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
 
 const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
+    id={PANE_SECTION_IDS.PROGRAM_REGISTRY}
     patient={patient}
     readonly={readonly}
     title={
@@ -159,7 +160,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     ListItemComponent={ProgramRegistryListItem}
     behavior="modal"
     itemTitle="Add program registry"
-    getEditFormName={(programRegistry) => `Program registry: ${programRegistry.name}`}
+    getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
   />
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
@@ -208,7 +209,7 @@ export const PatientInfoPane = () => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getSetting } = useSettings();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const api = useApi();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const { data: deathData, isFetching } = useQuery(

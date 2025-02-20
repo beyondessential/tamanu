@@ -85,8 +85,11 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     <Heading5 mt={1} mb={1}>
                       <TranslatedText
                         stringId="patientProgramRegistry.selectSurvey.label"
-                        fallback={`Select a ${patientProgramRegistration.programRegistry.name} form below to
+                        fallback={`Select a :programName form below to
                       complete`}
+                        replacements={{
+                          programName: patientProgramRegistration.programRegistry.name,
+                        }}
                       />
                     </Heading5>
                   }

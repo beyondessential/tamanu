@@ -64,25 +64,28 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        conditions: yup.array().of(
-          yup.object().shape({
-            conditionId: yup.string().nullable(),
-            category: yup
-              .string()
-              .nullable()
-              .when('conditionId', {
-                is: value => Boolean(value),
-                then: yup
-                  .string()
-                  .required(
-                    getTranslation(
-                      'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-                      'Category is required when a Related condition is set',
+        conditions: yup
+          .array()
+          .of(
+            yup.object().shape({
+              conditionId: yup.string().nullable(),
+              category: yup
+                .string()
+                .nullable()
+                .when('conditionId', {
+                  is: value => Boolean(value),
+                  then: yup
+                    .string()
+                    .required(
+                      getTranslation(
+                        'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
+                        'Category is required when a Related condition is set',
+                      ),
                     ),
-                  ),
-              }),
-          }),
-        ),
+                }),
+            }),
+          )
+          .nullable(),
         programRegistryId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="patientProgramRegistry.programRegistry.label"
