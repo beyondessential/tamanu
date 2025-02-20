@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import { QueryTypes, Op } from 'sequelize';
 
 /**
@@ -50,7 +51,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
   // object to switch the dynamic alias to the expected alias which should exactly
   // match the language column from the translated string.
   const mappedTranslations = translations.map(row => {
-    const newRow = { stringId: row.stringId, defaultText: row.defaultText };
+    const newRow = pick(row, ['stringId', 'defaultText']);
     languagesInDb.forEach(({ language }, index) => {
       newRow[language] = row[`lang${index}`];
     });

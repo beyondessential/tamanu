@@ -284,7 +284,10 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = { search: '' };
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = { ...rest, [ENGLISH_LANGUAGE_CODE]: rest.en || rest.defaultText };
+      values[stringId] = {
+        ...rest,
+        [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || rest.defaultText,
+      };
     }
     return values;
   }, [translations]);
