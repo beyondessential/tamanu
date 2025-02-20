@@ -609,7 +609,7 @@ describe('Reference data exporter', () => {
       text: 'ឯកសារយោងសាកល្បង',
     });
 
-    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: true });
+    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'true' });
 
     expect(writeExcelFile).toBeCalledWith(
       [
@@ -652,7 +652,7 @@ describe('Reference data exporter', () => {
       text: 'ឯកសារយោងសាកល្បង',
     });
 
-    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: false });
+    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'false' });
 
     expect(writeExcelFile).toBeCalledWith(
       [
