@@ -92,6 +92,11 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
+      where: {
+        language: {
+          [Op.not]: null,
+        }
+      }
     });
 
     const languageNames = await TranslatedString.findAll({
