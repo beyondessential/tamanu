@@ -15,7 +15,7 @@ const Text = styled.div`
     text-align: start;
   }
 `;
-
+// Todo: Update to new design issue/SAV-868/consolidate-workflow-to-change-program-registry-status-and-condition
 export const RemoveConditionFormModal = ({
   patientProgramRegistration,
   conditionToRemove,
@@ -36,7 +36,7 @@ export const RemoveConditionFormModal = ({
         { deletionDate: getCurrentDateTimeString() },
       );
       toast.success('Related condition removed successfully');
-      queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
+      queryClient.invalidateQueries(['programRegistry', 'conditions']);
       onSubmit();
     } catch (e) {
       toast.error(`Failed to remove related condition with error: ${e.message}`);

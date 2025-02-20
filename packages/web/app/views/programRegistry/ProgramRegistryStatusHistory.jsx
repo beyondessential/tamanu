@@ -3,29 +3,50 @@ import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
+import { Colors } from '../../constants';
+import { TranslatedText } from '../../components';
 
 const Container = styled.div`
-  width: ${p => (p.fullWidth ? '100%' : '70%')};
-  background-color: ${Colors.white};
-  padding: 13px 15px 30px 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: center;
-  margin-right: 10px;
-  border-radius: 5px;
-  border: 1px solid ${Colors.softOutline};
 `;
 
-export const ProgramRegistryStatusHistory = ({
-  patientProgramRegistration,
-  programRegistryConditions,
-}) => {
+const StyledTable = styled(Table)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-color: ${Colors.softOutline};
+
+  table tr:last-child td {
+    border: none; // remove border from last row of table to prevent double border
+  }
+
+  .MuiTableCell-head {
+    height: 45px;
+    padding: 5px;
+    color: ${Colors.darkText};
+    border-color: ${Colors.softOutline};
+
+    &:first-child {
+      padding-left: 15px;
+    }
+  }
+
+  .MuiTableCell-body {
+    height: 50px;
+    padding: 5px;
+
+    &:first-child {
+      padding-left: 15px;
+    }
+  }
+`;
+
+export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
   const { data, isLoading } = useProgramRegistryClinicalStatusQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -62,7 +83,7 @@ export const ProgramRegistryStatusHistory = ({
       {
         key: 'date',
         title: 'Date recorded',
-        sortable: true,
+        sortable: false,
         accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
@@ -79,9 +100,14 @@ export const ProgramRegistryStatusHistory = ({
   }, [data]);
 
   return (
-    <Container fullWidth={programRegistryConditions?.length === 0}>
-      <Heading5 style={{ marginBottom: '13px' }}>Program status history</Heading5>
-      <Table
+    <Container>
+      <Heading5 mt={0} mb={1}>
+        <TranslatedText
+          stringId="patientProgramRegistry.statusHistory.title"
+          fallback="Program status history"
+        />
+      </Heading5>
+      <StyledTable
         isBodyScrollable
         initialSort={{
           orderBy: 'date',
@@ -90,8 +116,6 @@ export const ProgramRegistryStatusHistory = ({
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
-        rowStyle={() => `height: 50px; padding: 0px;`}
-        containerStyle="max-height: 290px;"
         allowExport={false}
         noDataMessage="No Program registry clinical status found"
         elevated={false}

@@ -16,42 +16,63 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
   border-bottom: 1px solid ${Colors.softOutline};
-  padding: 20px 30px;
+  padding: 15px 28px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+
   h1 {
-    margin: 0px;
+    margin: 0;
     font-weight: 500;
     font-size: 16px;
   }
 `;
 
 const Container = styled.div`
-  margin: 20px 20px;
-`;
-const Row = styled.div`
-  margin: 20px 0px;
+  margin: 15px 10px;
 `;
 
-const ProgramStatusAndConditionContainer = styled.div`
-  margin: 20px 0px;
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  width: 100%;
-  position: relative;
+const MainSection = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.softOutline};
+  border-radius: 5px;
+  padding: 10px 20px;
 `;
+
+const Row = styled.div`
+  margin: 20px 0;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-auto-columns: 1.3fr 1fr;
+  gap: 10px;
+
+  > div {
+    height: 255px;
+
+    &:first-child {
+      grid-column: 1;
+    }
+
+    &:nth-child(2) {
+      grid-column: 2;
+  }
+`;
+
 export const PatientProgramRegistryView = () => {
   const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(patientId, programRegistryId);
+  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
+    patientId,
+    programRegistryId,
+  );
   const {
     data: programRegistryConditions = [],
     isLoading: conditionsLoading,
-  } = useProgramRegistryConditionsQuery(data?.programRegistryId);
+  } = useProgramRegistryConditionsQuery(programRegistryId);
 
   if (isLoading || conditionsLoading) {
     return <LoadingIndicator />;
@@ -67,7 +88,7 @@ export const PatientProgramRegistryView = () => {
   }));
 
   return (
-    <Fragment key={data.id}>
+    <>
       <ViewHeader>
         <h1>{data.programRegistry.name}</h1>
         <RegistrationStatusIndicator
@@ -76,20 +97,21 @@ export const PatientProgramRegistryView = () => {
         />
       </ViewHeader>
       <Container>
-        <Row>
+        <MainSection>
           <DisplayPatientRegDetails patientProgramRegistration={data} />
-        </Row>
-        <ProgramStatusAndConditionContainer>
-          <ProgramRegistryStatusHistory
-            patientProgramRegistration={data}
-            programRegistryConditions={conditionOptions}
-          />
-          <ConditionSection
-            patientProgramRegistration={data}
-            programRegistryConditions={conditionOptions}
-          />
-        </ProgramStatusAndConditionContainer>
-
+          <Grid>
+            <ProgramRegistryStatusHistory
+              patientProgramRegistration={data}
+              programRegistryConditions={conditionOptions}
+            />
+            {programRegistryConditions?.length > 0 && (
+              <ConditionSection
+                patientProgramRegistration={data}
+                programRegistryConditions={conditionOptions}
+              />
+            )}
+          </Grid>
+        </MainSection>
         <Row>
           <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>
@@ -97,6 +119,6 @@ export const PatientProgramRegistryView = () => {
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
-    </Fragment>
+    </>
   );
 };
