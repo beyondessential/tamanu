@@ -40,6 +40,7 @@ export async function importerTransaction({
   dryRun = false,
   includedDataTypes = [],
   checkPermission,
+  ...extraOptions
 }) {
   const errors = [];
   const stats = [];
@@ -65,7 +66,15 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, includedDataTypes, checkPermission });
+          await importer({
+            errors,
+            models,
+            stats,
+            file,
+            includedDataTypes,
+            checkPermission,
+            ...extraOptions,
+          });
         } catch (err) {
           errors.push(err);
         }
@@ -112,6 +121,7 @@ export function createDataImporterEndpoint(importer) {
       deleteFileAfterImport = true,
       dryRun = false,
       includedDataTypes,
+      ...extraOptions
     } = await getUploadedData(req);
 
     const result = await importerTransaction({
@@ -121,6 +131,7 @@ export function createDataImporterEndpoint(importer) {
       dryRun,
       includedDataTypes,
       checkPermission,
+      ...extraOptions,
     });
 
     // we don't need the file any more
