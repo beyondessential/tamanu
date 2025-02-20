@@ -51,7 +51,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-export const SwitchInput = ({ label, disabled, value, ...props }) => {
+export const SwitchInput = ({ label, disabled, value, className, ...props }) => {
   const handleChange = event => {
     event.target.value = event.target.checked;
     props.onChange(event);
@@ -61,6 +61,7 @@ export const SwitchInput = ({ label, disabled, value, ...props }) => {
       control={<StyledSwitch value={value} checked={!!value} {...props} onChange={handleChange} />}
       label={label}
       disabled={disabled}
+      className={className}
     />
   );
 };
