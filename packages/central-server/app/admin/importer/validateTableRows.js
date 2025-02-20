@@ -1,12 +1,12 @@
 async function validateLabTestTypes(models, rows, pushErrorFn) {
   // Ensure data is correct at spreadsheet level
   const categories = {};
-  for (const { values } of rows) {
+  for (const { model, values } of rows) {
     const { isSensitive = false, labTestCategoryId } = values;
 
     const isNewCategory = categories[labTestCategoryId] === undefined;
     if (!isNewCategory && categories[labTestCategoryId] !== isSensitive) {
-      pushErrorFn(-3, 'Only sensitive lab test types allowed in sensitive category');
+      pushErrorFn(model, -3, 'Only sensitive lab test types allowed in sensitive category');
       break;
     }
 
@@ -26,7 +26,7 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
   }
 
   // Ensure data is correct at db level
-  for (const { values, sheetRow } of rows) {
+  for (const { model, values, sheetRow } of rows) {
     const { isSensitive = false, labTestCategoryId } = values;
     const otherLabTestTypes = await models.LabTestType.findAll({
       where: { labTestCategoryId },
@@ -44,11 +44,13 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
       const areAllSensitive = otherLabTestTypes.every(type => type.isSensitive);
       if (isSensitive && !areAllSensitive) {
         pushErrorFn(
+          model,
           sheetRow,
           `Cannot add sensitive lab test type to non sensitive category '${labTestCategoryId}'`,
         );
       } else if (!isSensitive && areAllSensitive) {
         pushErrorFn(
+          model,
           sheetRow,
           `Cannot add non sensitive lab test type to sensitive category '${labTestCategoryId}'`,
         );
@@ -67,7 +69,7 @@ async function validateLabTestPanels(models, rows, pushErrorFn) {
     const { labTestTypeId } = values;
     const labTestType = await models.LabTestType.findOne({ where: { id: labTestTypeId }});
     if (labTestType?.isSensitive) {
-      pushErrorFn(-3, 'Lab test panels cannot contain sensitive lab test types');
+      pushErrorFn(model, -3, 'Lab test panels cannot contain sensitive lab test types');
     }
   }
 }

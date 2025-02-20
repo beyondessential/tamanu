@@ -207,9 +207,10 @@ export async function importRows(
   }
 
   // Check values across the whole spreadsheet
-  const pushErrorFn = (sheetRow, message) => errors.push(
-    new ValidationError(sheetName, sheetRow, message),
-  );
+  const pushErrorFn = (model, sheetRow, message) => {
+    updateStat(stats, statkey(model, sheetName), 'errored');
+    errors.push(new ValidationError(sheetName, sheetRow, message));
+  };
   await validateTableRows(models, validRows, pushErrorFn);
 
   log.debug('Upserting database rows', { rows: validRows.length });
