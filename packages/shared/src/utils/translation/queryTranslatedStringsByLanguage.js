@@ -23,7 +23,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
     `
       SELECT
           string_id as "stringId",
-          MAX (text) FILTER(WHERE language IS NULL) AS "default",
+          MAX (text) FILTER(WHERE language IS NULL) AS "defaultText",
           ${languagesInDb
             .map(
               (_, index) => `MAX(text) FILTER(WHERE language = $lang${index}) AS "lang${index}"`
@@ -50,7 +50,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
   // object to switch the dynamic alias to the expected alias which should exactly
   // match the language column from the translated string.
   const mappedTranslations = translations.map(row => {
-    const newRow = { stringId: row.stringId, default: row.default };
+    const newRow = { stringId: row.stringId, defaultText: row.defaultText };
     languagesInDb.forEach(({ language }, index) => {
       newRow[language] = row[`lang${index}`];
     });

@@ -132,11 +132,12 @@ const useTranslationMutation = () => {
   });
 };
 
-const TranslationField = ({ placeholderId, stringId, code }) => (
+const TranslationField = ({ placeholderId, stringId, code, defaultText }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
   <AccessorField
     id={`['${placeholderId || stringId}']`}
     name={code}
+    placeholder={defaultText}
     component={TextField}
     multiline
   />
