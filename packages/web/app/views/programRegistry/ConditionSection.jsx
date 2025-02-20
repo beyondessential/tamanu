@@ -22,7 +22,6 @@ const ScrollBody = styled.div`
 
 const Condition = styled(ButtonBase)`
   width: 100%;
-  justify-content: flex-start;
   text-align: left;
   padding: 7px 12px;
   font-size: 14px;
@@ -40,6 +39,10 @@ const ClippedConditionName = styled.span`
   -webkit-box-orient: vertical;
   word-wrap: break-word;
   width: 100%;
+`;
+
+const ConditionCategory = styled.span`
+  color: ${Colors.midText};
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
@@ -68,12 +71,15 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
       </Heading5>
       <ScrollBody>
         {sortedData?.map(condition => {
-          const { programRegistryCondition } = condition;
+          const { programRegistryCondition, conditionCategory } = condition;
           const { name } = programRegistryCondition;
+          const fullText = `${name} (${conditionCategory})`;
           return (
-            <ConditionalTooltip title={name} visible={name.length > 30} key={condition.id}>
+            <ConditionalTooltip title={fullText} visible={fullText.length > 30} key={condition.id}>
               <Condition>
-                <ClippedConditionName>{name}</ClippedConditionName>
+                <ClippedConditionName>
+                  {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
+                </ClippedConditionName>
               </Condition>
             </ConditionalTooltip>
           );
