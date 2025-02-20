@@ -53,7 +53,7 @@ export const queryTranslatedStringsByLanguage = async ({
   // object to switch the dynamic alias to the expected alias which should exactly
   // match the language column from the translated string.
   const mappedTranslations = translations.map(row => {
-    const newRow = pick(row, ['stringId']);
+    const newRow = {stringId: row.stringId}
     languagesInDb.forEach(({ language }, index) => {
       newRow[language] = row[`lang${index}`];
     });
