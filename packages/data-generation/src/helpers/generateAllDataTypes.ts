@@ -14,7 +14,7 @@ import {
   createTaskingData,
   createUserData,
   createVaccineData,
-} from 'helpers/linkedDataGenerators';
+} from './generateDataGroups';
 
 export async function generateAllDataTypes(models: Models) {
   const { referenceData } = await createReferenceData(models);
