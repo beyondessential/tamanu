@@ -39,7 +39,7 @@ const ClippedConditionName = styled.span`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   word-wrap: break-word;
-  width: 95%;
+  width: 100%;
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
