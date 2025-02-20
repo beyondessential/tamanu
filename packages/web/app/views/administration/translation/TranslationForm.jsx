@@ -284,7 +284,7 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = { search: '' };
     for (const { stringId, ...rest } of translations) {
-        values[stringId] = {...rest, [ENGLISH_LANGUAGE_CODE]: rest.en || rest.defaultText};
+      values[stringId] = { ...rest, [ENGLISH_LANGUAGE_CODE]: rest.en || rest.defaultText };
     }
     return values;
   }, [translations]);
@@ -293,7 +293,15 @@ export const TranslationForm = () => {
     // Swap temporary id out for stringId
     delete payload.search;
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
+      Object.entries(payload).map(([key, { stringId, defaultText, ...rest }]) => [
+        stringId || key,
+        {
+          ...rest,
+          // Remove en translations that are the same as the default text so they are not saved
+          [ENGLISH_LANGUAGE_CODE]:
+            defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
+        },
+      ]),
     );
     await saveTranslations(submitData);
     setAdditionalRows([]);
