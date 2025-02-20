@@ -54,7 +54,7 @@ export const ImportExportView = memo(
           </TabContainer>
         ),
       }),
-      [endpoint, dataTypes, dataTypesSelectable],
+      [endpoint, dataTypes, dataTypesSelectable, ImportButton],
     );
 
     const exportTab = useMemo(
@@ -75,7 +75,7 @@ export const ImportExportView = memo(
           </TabContainer>
         ),
       }),
-      [title, endpoint, dataTypes, dataTypesSelectable],
+      [title, endpoint, dataTypes, dataTypesSelectable, ExportButton],
     );
 
     const tabs = buildTabs ? buildTabs(importTab, exportTab) : [importTab, exportTab];
