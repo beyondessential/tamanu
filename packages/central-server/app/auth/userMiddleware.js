@@ -34,9 +34,10 @@ export const userMiddleware = ({ secret }) =>
     } catch (e) {
       const errorMessage = 'Auth error: Invalid token (hG7c)';
       log.debug(errorMessage, { error: e.message });
-      return res.status(401).json({
+       res.status(401).send({
         error: { message: errorMessage },
       });
+      return;
     }
 
     const { userId, deviceId } = contents;
