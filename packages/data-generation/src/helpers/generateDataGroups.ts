@@ -11,6 +11,12 @@ import { type Models } from '@tamanu/database';
 // TODO: maybe this should come here?
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
+export const createReferenceData = async ({ ReferenceData, ReferenceDataRelation }) => {
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
+  await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+  return { referenceData };
+};
+
 export const createFacilityData = async ({
   LocationGroup,
   Location,
@@ -50,6 +56,7 @@ export const createSurveyData = async (
       config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
     }),
   );
+
   await SurveyResponse.create(
     fake(SurveyResponse, {
       surveyId: survey.id,
@@ -87,6 +94,7 @@ export const createVaccineData = async (
       vaccineId: referenceDataId,
     }),
   );
+
   await AdministeredVaccine.create(
     fake(AdministeredVaccine, {
       scheduledVaccineId: scheduledVaccine.id,
@@ -153,6 +161,7 @@ export const createProgramData = async (
       programRegistryId: programRegistry.id,
     }),
   );
+
   await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
       clinicianId: userId,
@@ -206,6 +215,12 @@ export const createInvoiceData = async (
   userId: string,
   referenceDataId: string,
 ) => {
+  const invoiceProduct = await InvoiceProduct.create(
+    fake(InvoiceProduct, {
+      id: referenceDataId,
+    }),
+  );
+
   const invoice = await Invoice.create(
     fake(Invoice, {
       encounterId,
@@ -240,11 +255,6 @@ export const createInvoiceData = async (
       methodId: referenceDataId,
     }),
   );
-  const invoiceProduct = await InvoiceProduct.create(
-    fake(InvoiceProduct, {
-      id: referenceDataId,
-    }),
-  );
   const invoiceItem = await InvoiceItem.create(
     fake(InvoiceItem, {
       invoiceId: invoice.id,
@@ -268,6 +278,12 @@ export const createLabRequestData = async (
   referenceDataId: string,
   patientId: string,
 ) => {
+  const labTestType = await LabTestType.create(
+    fake(LabTestType, {
+      labTestCategoryId: referenceDataId,
+    }),
+  );
+
   const labRequest = await LabRequest.create(
     fake(LabRequest, {
       departmentId,
@@ -279,11 +295,6 @@ export const createLabRequestData = async (
     fake(LabRequestLog, {
       status: 'reception_pending',
       labRequestId: labRequest.id,
-    }),
-  );
-  const labTestType = await LabTestType.create(
-    fake(LabTestType, {
-      labTestCategoryId: referenceDataId,
     }),
   );
   const labTest = await LabTest.create(
@@ -444,12 +455,6 @@ export const createUserData = async ({ User, UserPreference }: Models) => {
     }),
   );
   return { user };
-};
-
-export const createReferenceData = async ({ ReferenceData, ReferenceDataRelation }) => {
-  const referenceData = await ReferenceData.create(fake(ReferenceData));
-  await ReferenceDataRelation.create(fake(ReferenceDataRelation));
-  return { referenceData };
 };
 
 export const generateAllDataTypes = async (models: Models) => {
