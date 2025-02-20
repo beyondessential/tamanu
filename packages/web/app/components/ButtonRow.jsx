@@ -112,12 +112,15 @@ export const FormConfirmCancelBackRow = ({
 export const ConfirmCancelBackRow = ({
   onBack,
   backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  backDisabled = false,
   ...props
 }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+        <OutlinedButton onClick={onBack} disabled={backDisabled}>
+          {backButtonText}
+        </OutlinedButton>
       </GoBackButtonContainer>
     )}
     <ConfirmCancelRow {...props} />
