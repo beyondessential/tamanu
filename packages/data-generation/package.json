@@ -38,6 +38,7 @@
     "rimraf": "^6.0.1"
   },
   "dependencies": {
+    "@tamanu/database": "*",
     "@tamanu/shared": "*"
   }
 }
