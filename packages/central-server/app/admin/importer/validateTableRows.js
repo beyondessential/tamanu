@@ -13,6 +13,18 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
     categories[labTestCategoryId] = isSensitive;
   }
 
+  // Keep track of all IDs included in spreadsheet
+  const testsByCategory = {};
+  for (const { values } of rows) {
+    const { id, labTestCategoryId } = values;
+
+    if (testsByCategory[labTestCategoryId] === undefined) {
+      testsByCategory[labTestCategoryId] = [id];
+    } else {
+      testsByCategory[labTestCategoryId].push(id);
+    }
+  }
+
   // Ensure data is correct at db level
   for (const { values, sheetRow } of rows) {
     const { isSensitive = false, labTestCategoryId } = values;
@@ -21,6 +33,14 @@ async function validateLabTestTypes(models, rows, pushErrorFn) {
     });
 
     if (otherLabTestTypes.length !== 0) {
+      // Bypass check if we are updating all from that category
+      const areAllIncluded = otherLabTestTypes.every(
+        testType => testsByCategory[labTestCategoryId].includes(testType.id),
+      );
+      if (areAllIncluded) {
+        continue;
+      }
+
       const areAllSensitive = otherLabTestTypes.every(type => type.isSensitive);
       if (isSensitive && !areAllSensitive) {
         pushErrorFn(

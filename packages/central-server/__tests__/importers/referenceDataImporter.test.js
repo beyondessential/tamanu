@@ -393,6 +393,41 @@ describe('Data definition import', () => {
     });
   });
 
+  it('should allow updating lab test types if all from category have the same sensitivity', async () => {
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-SensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Sensitive category 1',
+      code: 'SENSITIVECATEGORY1',
+    });
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestOne',
+      name: 'STONE',
+      code: 'SensitiveTestOne',
+      isSensitive: false,
+    });
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestTwo',
+      name: 'STTWO',
+      code: 'SensitiveTestTwo',
+      isSensitive: false,
+    });
+
+    const { didntSendReason, errors, stats } = await doImport({ file: 'valid-sensitive-lab-test-types', dryRun: true });
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'ReferenceData/labTestCategory': { created: 0, updated: 1, errored: 0 },
+      LabTestType: { created: 0, updated: 2, errored: 0 },
+    });
+  });
+
   it('should error if not all lab test types are sensitive within the same lab test category (on the same spreadsheet)', async () => {
     const { didntSendReason, errors } = await doImport({ file: 'invalid-sensitive-lab-test-types', dryRun: true });
     expect(didntSendReason).toEqual('validationFailed');
