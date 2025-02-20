@@ -32,8 +32,11 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      log.debug(`Auth error: Invalid token (hG7c)`, { error: e.message });
-      return res.status(401).json();
+      const errorMessage = 'Auth error: Invalid token (hG7c)';
+      log.debug(errorMessage, { error: e.message });
+      return res.status(401).json({
+        error: { message: errorMessage },
+      });
     }
 
     const { userId, deviceId } = contents;
