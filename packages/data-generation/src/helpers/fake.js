@@ -33,7 +33,7 @@ import {
   FhirImmunizationProtocolApplied,
   FhirPatientLink,
   FhirReference,
-} from '../services/fhirTypes';
+} from '@tamanu/shared/services/fhirTypes';
 
 // this file is most commonly used within tests, but also outside them
 // jest wom't always be defined, in which case we can use a random seed
