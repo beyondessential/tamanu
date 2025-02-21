@@ -165,7 +165,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             conditionId: programRegistryCondition.id,
-            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
           },
         ],
         registeringFacilityId: facilityId,
