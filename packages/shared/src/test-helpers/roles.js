@@ -1,4 +1,4 @@
-import { fake } from './fake';
+import { fake } from '@tamanu/data-generation/helpers';
 
 export const asNewRole = async (baseApp, models, permissions = [], roleOverrides = {}) => {
   const { Role, Permission } = models;
