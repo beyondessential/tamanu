@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
-import { ButtonBase } from '@material-ui/core';
+import { ButtonBase, Divider } from '@material-ui/core';
 import { Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -45,6 +45,42 @@ const ConditionCategory = styled.span`
   color: ${Colors.midText};
 `;
 
+// TODO: use constant
+const getGroupedConditions = (conditions) => {
+  const openConditions = [];
+  const closedConditions = [];
+
+  conditions.forEach(condition => {
+    if (condition.conditionCategory === 'Recorded in error') {
+      return;
+    }
+
+    if (['Resolved', 'Disproven'].includes(condition.conditionCategory)) {
+      closedConditions.push(condition);
+      return;
+    }
+
+    openConditions.push(condition);
+  });
+
+  return { openConditions, closedConditions };
+};
+
+const ConditionMapperFn = (condition) => {
+  const { programRegistryCondition, conditionCategory } = condition;
+  const { name } = programRegistryCondition;
+  const fullText = `${name} (${conditionCategory})`;
+  return (
+    <ConditionalTooltip title={fullText} visible={fullText.length > 65} key={condition.id}>
+      <Condition>
+        <ClippedConditionName>
+          {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
+        </ClippedConditionName>
+      </Condition>
+    </ConditionalTooltip>
+  );
+};
+
 export const ConditionSection = ({ patientProgramRegistration }) => {
   const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
@@ -60,6 +96,8 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   }
 
   const sortedData = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  const { openConditions, closedConditions } = getGroupedConditions(sortedData);
+  const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
 
   return (
     <Container>
@@ -70,20 +108,9 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         />
       </Heading5>
       <ScrollBody>
-        {sortedData?.map(condition => {
-          const { programRegistryCondition, conditionCategory } = condition;
-          const { name } = programRegistryCondition;
-          const fullText = `${name} (${conditionCategory})`;
-          return (
-            <ConditionalTooltip title={fullText} visible={fullText.length > 65} key={condition.id}>
-              <Condition>
-                <ClippedConditionName>
-                  {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
-                </ClippedConditionName>
-              </Condition>
-            </ConditionalTooltip>
-          );
-        })}
+        {openConditions.map(ConditionMapperFn)}
+        {needsDivider && <Divider variant="middle" />}
+        {closedConditions.map(ConditionMapperFn)}
       </ScrollBody>
     </Container>
   );
