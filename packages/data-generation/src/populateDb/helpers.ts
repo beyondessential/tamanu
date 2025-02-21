@@ -8,8 +8,7 @@ import {
 } from '@tamanu/constants';
 import type { Models, Encounter, Patient } from '@tamanu/database';
 
-// TODO: maybe this should come here?
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+import { fake } from '../helpers/fake';
 
 // Each function in this file takes the models for a DB instance + any relevant linking ids
 // depending on the data type
