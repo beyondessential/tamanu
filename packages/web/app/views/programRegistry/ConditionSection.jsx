@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase, Divider } from '@material-ui/core';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -46,17 +47,19 @@ const ConditionCategory = styled.span`
   color: ${Colors.midText};
 `;
 
-// TODO: use constant
 const getGroupedConditions = (conditions) => {
   const openConditions = [];
   const closedConditions = [];
 
   conditions.forEach(condition => {
-    if (condition.conditionCategory === 'Recorded in error') {
+    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.recordedInError) {
       return;
     }
 
-    if (['Resolved', 'Disproven'].includes(condition.conditionCategory)) {
+    if ([
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
+    ].includes(condition.conditionCategory)) {
       closedConditions.push(condition);
       return;
     }
