@@ -281,19 +281,21 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.put(
-  '/:patientId/programRegistration/:programRegistryId/condition',
+  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
+    const { conditionId } = params;
 
-    await validatePatientProgramRegistrationRequest(req);
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     req.checkPermission('write', 'PatientProgramRegistrationCondition');
-    const updatedCondition = await models.PatientProgramRegistrationCondition.update({
-      patientId,
-      programRegistryId,
-      ...body,
+
+    // Todo: Update the change reason https://linear.app/bes/issue/SAV-862/record-events-in-the-history-table-facility-server
+    const [_, updatedRows] = await models.PatientProgramRegistrationCondition.update(body, {
+      where: { id: conditionId },
+      returning: true,
     });
+
+    const updatedCondition = updatedRows ? updatedRows[0] : null;
 
     res.send(updatedCondition);
   }),
@@ -329,7 +331,7 @@ patientProgramRegistration.delete(
   '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { patientId, programRegistryId, conditionId } = params;
+    const { conditionId } = params;
 
     await validatePatientProgramRegistrationRequest(req);
 

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase } from '@material-ui/core';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { Heading5 } from '../../components/Typography';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
+import { TranslatedEnum } from '../../components/index.js';
+import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -43,11 +46,12 @@ const ClippedConditionName = styled.span`
   width: 95%;
 `;
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
+export const ConditionSection = () => {
   const [selectedConditionId, setSelectedConditionId] = useState(null);
+  const { patientId, programRegistryId } = useParams();
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
+    patientId,
+    programRegistryId,
   );
 
   if (isLoading) {
@@ -63,6 +67,9 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     ({ programRegistryCondition }) => programRegistryCondition?.name,
   );
 
+  const selectedCondition = conditions.find(({ id }) => id === selectedConditionId);
+  const updateModalIsOpen = Boolean(selectedConditionId) && Boolean(selectedCondition);
+
   return (
     <Container>
       <Heading5 mt={0} mb={1}>
@@ -76,7 +83,12 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
             <Condition key={condition.id} onClick={() => setSelectedConditionId(condition.id)}>
               <ConditionalTooltip title={name} visible={name.length > 30}>
                 <ClippedConditionName>
-                  {name} ({conditionCategory})
+                  {name} (
+                  <TranslatedEnum
+                    value={conditionCategory}
+                    enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
+                  />
+                  )
                 </ClippedConditionName>
               </ConditionalTooltip>
             </Condition>
@@ -84,8 +96,9 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         })}
       </ScrollBody>
       <UpdateConditionFormModal
-        open={Boolean(selectedConditionId)}
+        open={updateModalIsOpen}
         onClose={() => setSelectedConditionId(null)}
+        condition={selectedCondition}
       />
     </Container>
   );

@@ -13,10 +13,10 @@ import {
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { Colors, FORM_TYPES } from '../../constants';
-import { useAuth } from '../../contexts/Auth';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import styled from 'styled-components';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
@@ -24,54 +24,38 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const useUpdateConditionMutation = () => {
+const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { currentUser } = useAuth();
 
   return useMutation(
     data => {
-      return api.post(
-        `patient/${data.patientId}/programRegistration/${data.programRegistryId}/condition`,
-        {
-          ...data,
-          clinicianId: currentUser.id,
-        },
+      return api.put(
+        `patient/${patientId}/programRegistration/${programRegistryId}/condition/${conditionId}`,
+        data,
       );
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['programRegistry', 'conditions']);
+        queryClient.invalidateQueries([
+          'patient',
+          patientId,
+          'programRegistration',
+          programRegistryId,
+        ]);
       },
     },
   );
 };
 
-const data = [
-  {
-    id: '6d8a0256-9987-4a69-9a42-109863d8346a',
-    date: '2025-02-11 15:08:28',
-    conditionCategory: 'Unknown',
-    programRegistryId: 'programRegistry-maternalhealthregistry',
-    programRegistryConditionId: 'prCondition-maternalhealthregistryanaemia',
-    programRegistryCondition: {
-      id: 'prCondition-maternalhealthregistryanaemia',
-      code: 'maternalhealthregistryanaemia',
-      name: 'Anaemia',
-      programRegistryId: 'programRegistry-maternalhealthregistry',
-    },
-  },
-];
-
-export const UpdateConditionFormModal = ({
-  onClose,
-  patientProgramRegistration,
-  patientProgramRegistrationConditions,
-  programRegistryConditions,
-  open,
-}) => {
-  const { mutateAsync: submit } = useUpdateConditionMutation();
-
+export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
+  const { getTranslation } = useTranslation();
+  const { id: conditionId, patientId, programRegistryId, conditionCategory } = condition;
+  const { mutateAsync: submit } = useUpdateConditionMutation(
+    patientId,
+    programRegistryId,
+    conditionId,
+  );
   const handleSubmit = async values => {
     await submit(values);
     onClose();
@@ -93,12 +77,12 @@ export const UpdateConditionFormModal = ({
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{ programRegistryConditionId: data[0].conditionCategory }}
+        initialValues={{ conditionCategory: conditionCategory }}
         render={({ submitForm, dirty }) => {
           const columns = [
             {
               title: 'Condition',
-              accessor: ({ programRegistryCondition }) => programRegistryCondition.name,
+              accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
             },
             {
               title: 'Date added',
@@ -113,8 +97,8 @@ export const UpdateConditionFormModal = ({
               width: 200,
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
-                  name="programRegistryConditionId"
-                  conditionId={programRegistryCondition.id}
+                  name="conditionCategory"
+                  conditionId={programRegistryCondition?.id}
                   ariaLabelledby="condition-category-label"
                   required
                 />
@@ -129,7 +113,7 @@ export const UpdateConditionFormModal = ({
               width: 300,
               accessor: () => (
                 <Field
-                  name="programRegistryConditionChangeReason"
+                  name="reasonForChange"
                   ariaLabelledBy="condition-category-change-reason-label"
                   component={StyledTextField}
                   required
@@ -141,21 +125,16 @@ export const UpdateConditionFormModal = ({
 
           return (
             <>
-              <FormTable columns={columns} data={data} />
+              <FormTable columns={columns} data={condition ? [condition] : []} />
               {/*Todo: Add Condition category history*/}
               <ModalFormActionRow onConfirm={submitForm} onCancel={onClose} />
             </>
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey()
+          conditionCategory: foreignKey()
             .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="conditions.validation.conditionName.path"
-                fallback="Condition"
-              />,
-            ),
+            .label(getTranslation('validation.required.inline', '*Required')),
         })}
       />
     </Modal>
