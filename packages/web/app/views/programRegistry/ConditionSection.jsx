@@ -18,6 +18,7 @@ const ScrollBody = styled.div`
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
   padding: 5px 0;
+  overflow: auto;
 `;
 
 const Condition = styled(ButtonBase)`
