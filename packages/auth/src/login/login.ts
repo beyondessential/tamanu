@@ -16,9 +16,19 @@ import {
   convertFromDbRecord,
 } from '../utils';
 
+export interface AuthArgs {
+  secret: string;
+  refreshSecret: string;
+}
+
+interface GetRefreshTokenArgs {
+  refreshSecret: string;
+  userId: string;
+  deviceId: string;
+}
 const getRefreshToken = async (
   models: Models,
-  { refreshSecret, userId, deviceId }: { refreshSecret: string; userId: string; deviceId: string },
+  { refreshSecret, userId, deviceId }: GetRefreshTokenArgs,
 ): Promise<RefreshToken> => {
   const { RefreshToken } = models;
   const { auth, canonicalHostName } = config as any;
@@ -58,15 +68,10 @@ const getRefreshToken = async (
   return refreshToken;
 };
 
-export const login = ({
-  secret,
-  refreshSecret,
-  getLocalisation,
-}: {
-  secret: string;
-  refreshSecret: string;
+export interface LoginArgs extends AuthArgs {
   getLocalisation: Function;
-}) =>
+}
+export const login = ({ secret, refreshSecret, getLocalisation }: LoginArgs) =>
   asyncHandler(async (req: any, res): Promise<void> => {
     const { store, body, settings } = req;
     const { models } = store;

@@ -13,8 +13,10 @@ import {
   isInternalClient,
   verifyToken,
 } from '../utils';
+// TODO: should this be in its own types file
+import { AuthArgs } from './login';
 
-export const refresh = ({ secret, refreshSecret }: { secret: string; refreshSecret: string }) =>
+export const refresh = ({ secret, refreshSecret }: AuthArgs) =>
   asyncHandler(async (req: any, res): Promise<void> => {
     const { body, store } = req;
     const { refreshToken, deviceId } = body;
