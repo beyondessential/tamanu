@@ -510,6 +510,12 @@ const FHIR_MODELS_HANDLERS = {
   },
 };
 
+/**
+ *
+ * @param {import('@tamanu/database').Model} model
+ * @param {Record<string, any>} passedOverrides
+ * @returns {Record<string, any>}
+ */
 export const fake = (model, passedOverrides = {}) => {
   const id = fakeUUID();
   const record = {};

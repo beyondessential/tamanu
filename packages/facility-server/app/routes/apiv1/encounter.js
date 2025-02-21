@@ -111,10 +111,8 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
-
     res.send(encounterObject);
   }),
 );
@@ -188,12 +186,15 @@ encounterRelations.get(
 
     const baseQueryOptions = {
       order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: [...associations, {
-        model: models.Encounter,
-        as: 'encounters',
-        through: { attributes: [] },
-        where: { id: params.id },
-      }],
+      include: [
+        ...associations,
+        {
+          model: models.Encounter,
+          as: 'encounters',
+          through: { attributes: [] },
+          where: { id: params.id },
+        },
+      ],
     };
 
     const count = await Prescription.count({

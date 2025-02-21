@@ -117,6 +117,9 @@ sources:
           - name: planned_location_start_time
             data_type: character(19)
             description: "{{ doc('encounters__planned_location_start_time') }}"
+          - name: discharge_draft
+            data_type: jsonb
+            description: "{{ doc('encounters__discharge_draft') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in encounters."

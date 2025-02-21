@@ -128,15 +128,17 @@ export const Paginator = React.memo(
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            <TranslatedText
-              stringId="general.table.pageRecordCount"
-              fallback=":lowerRange–:upperRange of :count"
-              replacements={{
-                lowerRange,
-                upperRange,
-                count,
-              }}
-            />
+            {isDataInTable && (
+              <TranslatedText
+                stringId="general.table.pageRecordCount"
+                fallback=":lowerRange–:upperRange of :count"
+                replacements={{
+                  lowerRange,
+                  upperRange,
+                  count,
+                }}
+              />
+            )}
           </PageRecordCount>
           <StyledSelectField
             label={<TranslatedText stringId="general.table.rowsPerPage" fallback="Rows per page" />}
@@ -144,6 +146,7 @@ export const Paginator = React.memo(
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}
             MenuProps={{ classes: { paper: classes.selectMenu } }}
+            disabled={!isDataInTable}
           >
             {rowsPerPageOptions.map(option => (
               <StyledMenuItem key={option} value={option}>
@@ -162,7 +165,7 @@ export const Paginator = React.memo(
                 return (
                   <PaginationItem
                     {...item}
-                    disabled={selectedPageNumber === 1}
+                    disabled={selectedPageNumber === 1 || !isDataInTable}
                     component={PreviousButton}
                   />
                 );
@@ -171,7 +174,7 @@ export const Paginator = React.memo(
                 return (
                   <PaginationItem
                     {...item}
-                    disabled={selectedPageNumber === numberOfPages}
+                    disabled={selectedPageNumber === numberOfPages || !isDataInTable}
                     component={NextButton}
                   />
                 );

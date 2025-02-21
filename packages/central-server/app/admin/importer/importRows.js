@@ -12,6 +12,7 @@ import { normaliseSheetName } from './importerEndpoint';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
+import { validateTableRows } from './validateTableRows';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -61,7 +62,7 @@ function extractRecordName(values, dataType) {
 
 export async function importRows(
   { errors, log, models },
-  { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
+  { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {}, skipExisting = false },
   validationContext = {},
 ) {
   const stats = { ...previousStats };
@@ -205,11 +206,23 @@ export async function importRows(
     return stats;
   }
 
+  // Check values across the whole spreadsheet
+  const pushErrorFn = (model, sheetRow, message) => {
+    updateStat(stats, statkey(model, sheetName), 'errored');
+    errors.push(new ValidationError(sheetName, sheetRow, message));
+  };
+  await validateTableRows(models, validRows, pushErrorFn);
+
   log.debug('Upserting database rows', { rows: validRows.length });
   const translationRecordsForSheet = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
+
+    if (existing && skipExisting) {
+      updateStat(stats, statkey(model, sheetName), 'skipped');
+      continue;
+    }
 
     try {
       if (existing) {

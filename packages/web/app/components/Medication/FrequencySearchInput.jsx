@@ -4,6 +4,7 @@ import { FrequencySuggester } from './frequencySuggester';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
 import { getTranslatedFrequencySynonyms } from '../../utils/medications';
+import { useSettings } from '../../contexts/Settings';
 
 const getFrequencySuggestions = synonyms => {
   return Object.entries(synonyms).map(([key, value]) => ({
@@ -15,7 +16,10 @@ const getFrequencySuggestions = synonyms => {
 
 export const FrequencySearchInput = ({ ...props }) => {
   const { getTranslation } = useTranslation();
-  const translatedFrequencySynonyms = getTranslatedFrequencySynonyms(getTranslation);
+  const { getSetting } = useSettings();
+  const frequenciesEnabled = getSetting(`medications.frequenciesEnabled`);
+
+  const translatedFrequencySynonyms = getTranslatedFrequencySynonyms(frequenciesEnabled, getTranslation);
 
   const frequencySuggestions = getFrequencySuggestions(translatedFrequencySynonyms);
   const frequencySuggester = new FrequencySuggester(frequencySuggestions);

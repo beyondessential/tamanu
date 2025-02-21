@@ -250,18 +250,23 @@ export const globalSettings = {
           },
         },
         disableInputPasting: {
-          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
           type: yup.boolean(),
           defaultValue: false,
         },
         discharge: {
-          description:
-            'Encounter discharge configuration',
+          description: 'Encounter discharge configuration',
           properties: {
             dischargeNoteMandatory: {
               type: yup.boolean(),
               defaultValue: false,
               unit: 'seconds',
+            },
+            dischargeDiagnosisMandatory: {
+              description: 'Require at least one diagnosis to be selected before discharging',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
@@ -1379,16 +1384,39 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
-            [ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED]: {
-              description: ADMINISTRATION_FREQUENCIES.WHEN_REQUIRED,
+            [ADMINISTRATION_FREQUENCIES.AS_DIRECTED]: {
+              description: ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY,
               type: yup.boolean(),
               defaultValue: true,
             },
           },
         },
-        frequenciesAdministrationTimes: {
+        frequenciesAdministrationIdealTimes: {
           description: '-',
-          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES)),
+          properties: generateFrequencyProperties(
+            Object.values(ADMINISTRATION_FREQUENCIES).filter(
+              (frequency) =>
+                ![
+                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                ].includes(frequency),
+            ),
+          ),
+        },
+      },
+    },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: 'Settings for the time frame of recent notifications',
+          type: yup.number(),
+          defaultValue: 48,
         },
       },
     },

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/central-server",
-  "version": "2.26.0",
+  "version": "2.27.0",
   "private": true,
   "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -113,7 +113,7 @@
     "wait-for-expect": "^3.0.2",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9",
     "zod": "^3.23.8",
     "uuid": "^11.0.3"
