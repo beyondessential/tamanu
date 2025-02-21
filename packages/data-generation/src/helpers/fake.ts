@@ -39,9 +39,9 @@ import {
 // jest wom't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
-export function fakeStringFields(prefix, fields) {
+export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
-    (obj, field) => ({
+    (obj: object, field: string) => ({
       ...obj,
       [field]: prefix + field,
     }),
@@ -49,7 +49,7 @@ export function fakeStringFields(prefix, fields) {
   );
 }
 
-export function fakeScheduledVaccine(prefix = 'test-') {
+export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     weeksFromBirthDue: chance.integer({ min: 0, max: 1000 }),
@@ -67,7 +67,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
   };
 }
 
-export function fakeSurvey(prefix = 'test-') {
+export function fakeSurvey(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     programId: null,
@@ -77,7 +77,7 @@ export function fakeSurvey(prefix = 'test-') {
   };
 }
 
-export function fakeSurveyScreenComponent(prefix = 'test-') {
+export function fakeSurveyScreenComponent(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     surveyId: null,
@@ -97,7 +97,7 @@ export function fakeSurveyScreenComponent(prefix = 'test-') {
   };
 }
 
-export function fakeProgramDataElement(prefix = 'test-') {
+export function fakeProgramDataElement(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     type: chance.pickone(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
@@ -112,7 +112,7 @@ export function fakeProgramDataElement(prefix = 'test-') {
   };
 }
 
-export function fakeReferenceData(prefix = 'test-') {
+export function fakeReferenceData(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     type: chance.pickone(REFERENCE_TYPE_VALUES),
@@ -121,7 +121,7 @@ export function fakeReferenceData(prefix = 'test-') {
   };
 }
 
-export function fakeUser(prefix = 'test-') {
+export function fakeUser(prefix: string = 'test-') {
   const id = fakeUUID();
   return fakeStringFields(`${prefix}user_${id}_`, [
     'id',
@@ -132,12 +132,12 @@ export function fakeUser(prefix = 'test-') {
   ]);
 }
 
-export function fakeProgram(prefix = 'test-') {
+export function fakeProgram(prefix: string = 'test-') {
   const id = fakeUUID();
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
-export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
+export function fakeAdministeredVaccine(prefix: string = 'test-', scheduledVaccineId: string) {
   const id = fakeUUID();
   return {
     encounterId: null,
@@ -147,7 +147,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   };
 }
 
-export function fakeEncounter(prefix = 'test-') {
+export function fakeEncounter(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     deviceId: null,
@@ -160,7 +160,7 @@ export function fakeEncounter(prefix = 'test-') {
   };
 }
 
-export function fakeSurveyResponse(prefix = 'test-') {
+export function fakeSurveyResponse(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     answers: [],
@@ -173,7 +173,7 @@ export function fakeSurveyResponse(prefix = 'test-') {
   };
 }
 
-export function fakeSurveyResponseAnswer(prefix = 'test-') {
+export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     dataElementId: null,
@@ -182,7 +182,7 @@ export function fakeSurveyResponseAnswer(prefix = 'test-') {
   };
 }
 
-export function fakeEncounterDiagnosis(prefix = 'test-') {
+export function fakeEncounterDiagnosis(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     certainty: chance.pickone(DIAGNOSIS_CERTAINTY_VALUES),
@@ -194,7 +194,7 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix = 'test-') {
+export function fakeEncounterMedication(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
@@ -214,7 +214,7 @@ export function fakeEncounterMedication(prefix = 'test-') {
 }
 
 export const fakeDate = () => chance.date();
-export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+export const fakeString = (model, { fieldName }, id: string) => `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
 export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
@@ -238,7 +238,8 @@ const FIELD_HANDLERS = {
   'VARCHAR(255)': fakeString,
 
   // fallback for all other varchar lengths
-  'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
+  'VARCHAR(N)': (model, attrs, id: string, length: number) =>
+    fakeString(model, attrs, id).slice(0, length),
 
   TEXT: fakeString,
   INTEGER: fakeInt,
@@ -518,10 +519,8 @@ const FHIR_MODELS_HANDLERS = {
 /**
  *
  * @param {import('@tamanu/database').Model} model
- * @param {Record<string, any>} passedOverrides
- * @returns {Record<string, any>}
  */
-export const fake = (model, passedOverrides = {}) => {
+export const fake = (model, passedOverrides: Record<string, any> = {}): Record<string, any> => {
   const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
@@ -529,7 +528,7 @@ export const fake = (model, passedOverrides = {}) => {
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  function fakeField(name, attribute) {
+  function fakeField(name: string, attribute) {
     const { type, fieldName, defaultValue } = attribute;
 
     if (overrideFields.includes(fieldName)) {
