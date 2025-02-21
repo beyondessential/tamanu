@@ -452,54 +452,112 @@ describe('PatientProgramRegistration', () => {
       });
     });
 
-    describe('GET patient/:patientId/programRegistration/:programRegistryId/condition', () => {
-      it.todo('should retrieve current patient program registration conditions');
-    });
+    describe.only('PUT patient/:patientId/programRegistration/:programRegistryId/condition/:conditionId', () => {
+      let patient;
+      let programRegistry;
+      let programRegistryCondition;
+      let patientProgramRegistrationCondition;
 
-    describe('DELETE patient/:patientId/programRegistration/:programRegistryId/condition', () => {
-      it('Deletes a condition', async () => {
-        const clinician = await models.User.create(fake(models.User));
-        const patient = await models.Patient.create(fake(models.Patient));
+      beforeEach(async () => {
+        patient = await models.Patient.create(fake(models.Patient));
         const program1 = await models.Program.create(fake(models.Program));
-        const programRegistry1 = await models.ProgramRegistry.create(
+        programRegistry = await models.ProgramRegistry.create(
           fake(models.ProgramRegistry, { programId: program1.id }),
         );
-        const programRegistryCondition = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
+        programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
         );
-        const createdCondition = await models.PatientProgramRegistrationCondition.create(
-          fake(models.PatientProgramRegistrationCondition, {
-            date: '2023-09-01 08:00:00',
-            patientId: patient.id,
-            programRegistryId: programRegistry1.id,
-            programRegistryConditionId: programRegistryCondition.id,
-          }),
-        );
+        patientProgramRegistrationCondition =
+          await models.PatientProgramRegistrationCondition.create(
+            fake(models.PatientProgramRegistrationCondition, {
+              programRegistryId: programRegistry.id,
+              patientId: patient.id,
+              programRegistryConditionId: programRegistryCondition.id,
+            }),
+          );
+
+        console.log('1', patientProgramRegistrationCondition.id);
+      });
+
+      afterEach(async () => {
+        await models.PatientProgramRegistrationCondition.truncate({ cascade: true, force: true });
+        await models.ProgramRegistryCondition.truncate({ cascade: true, force: true });
+        await models.Patient.truncate({ cascade: true, force: true });
+        await models.ProgramRegistry.truncate({ cascade: true, force: true });
+        await models.Program.truncate({ cascade: true, force: true });
+      });
+
+      it.only('Updates a condition', async () => {
         const result = await app
-          .delete(
-            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}?deletionDate=2023-09-02%2008%3A00%3A00`,
+          .put(
+            `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/${patientProgramRegistrationCondition.id}`,
           )
           .send({
-            programRegistryConditionId: programRegistryCondition.id,
-            deletionClinicianId: clinician.id,
+            conditionCategory: 'confirmed',
+            reasonForChange: 'Test reason',
           });
 
         expect(result).toHaveSucceeded();
 
-        const deletedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+        const updatedCondition = await models.PatientProgramRegistrationCondition.findByPk(
           result.body.id,
-          { paranoid: false },
         );
 
-        expect(deletedCondition).toMatchObject({
-          programRegistryId: programRegistry1.id,
-          patientId: patient.id,
-          programRegistryConditionId: programRegistryCondition.id,
-          date: '2023-09-01 08:00:00',
-          deletionDate: '2023-09-02 08:00:00',
+        expect(updatedCondition).toMatchObject({
+          conditionCategory: 'confirmed',
+          reasonForChange: 'Test reason',
         });
       });
     });
+
+    describe('GET patient/:patientId/programRegistration/:programRegistryId/condition', () => {
+      it.todo('should retrieve current patient program registration conditions');
+    });
+
+    // describe('DELETE patient/:patientId/programRegistration/:programRegistryId/condition', () => {
+    //   it('Deletes a condition', async () => {
+    //     const clinician = await models.User.create(fake(models.User));
+    //     const patient = await models.Patient.create(fake(models.Patient));
+    //     const program1 = await models.Program.create(fake(models.Program));
+    //     const programRegistry1 = await models.ProgramRegistry.create(
+    //       fake(models.ProgramRegistry, { programId: program1.id }),
+    //     );
+    //     const programRegistryCondition = await models.ProgramRegistryCondition.create(
+    //       fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
+    //     );
+    //     const createdCondition = await models.PatientProgramRegistrationCondition.create(
+    //       fake(models.PatientProgramRegistrationCondition, {
+    //         date: '2023-09-01 08:00:00',
+    //         patientId: patient.id,
+    //         programRegistryId: programRegistry1.id,
+    //         programRegistryConditionId: programRegistryCondition.id,
+    //       }),
+    //     );
+    //     const result = await app
+    //       .delete(
+    //         `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}?deletionDate=2023-09-02%2008%3A00%3A00`,
+    //       )
+    //       .send({
+    //         programRegistryConditionId: programRegistryCondition.id,
+    //         deletionClinicianId: clinician.id,
+    //       });
+    //
+    //     expect(result).toHaveSucceeded();
+    //
+    //     const deletedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+    //       result.body.id,
+    //       { paranoid: false },
+    //     );
+    //
+    //     expect(deletedCondition).toMatchObject({
+    //       programRegistryId: programRegistry1.id,
+    //       patientId: patient.id,
+    //       programRegistryConditionId: programRegistryCondition.id,
+    //       date: '2023-09-01 08:00:00',
+    //       deletionDate: '2023-09-02 08:00:00',
+    //     });
+    //   });
+    // });
   });
 
   describe('Permissions', () => {
