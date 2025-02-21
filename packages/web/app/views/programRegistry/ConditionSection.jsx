@@ -70,6 +70,7 @@ const getGroupedConditions = (conditions) => {
   return { openConditions, closedConditions };
 };
 
+// TODO: Translate program registry condition name and category, plus sort by that new display name
 const ConditionMapperFn = (condition) => {
   const { programRegistryCondition, conditionCategory } = condition;
   const { name } = programRegistryCondition;
