@@ -200,7 +200,6 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
       expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
       expect((await labRequest.getLatestAttachment()).title).toBe(testAttachment.title);
-      jest.useRealTimers();
     });
 
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
