@@ -75,7 +75,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           const { name } = programRegistryCondition;
           const fullText = `${name} (${conditionCategory})`;
           return (
-            <ConditionalTooltip title={fullText} visible={fullText.length > 30} key={condition.id}>
+            <ConditionalTooltip title={fullText} visible={fullText.length > 65} key={condition.id}>
               <Condition>
                 <ClippedConditionName>
                   {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
