@@ -289,7 +289,6 @@ patientProgramRegistration.put(
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     req.checkPermission('write', 'PatientProgramRegistrationCondition');
 
-    // Todo: Update the change reason https://linear.app/bes/issue/SAV-862/record-events-in-the-history-table-facility-server
     const [_, updatedRows] = await models.PatientProgramRegistrationCondition.update(body, {
       where: { id: conditionId },
       returning: true,
