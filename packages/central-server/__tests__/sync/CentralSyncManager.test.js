@@ -6,7 +6,7 @@ import {
   LOOKUP_UP_TO_TICK_KEY,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/data-generation/helpers';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';

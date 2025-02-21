@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/data-generation/helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';

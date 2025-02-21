@@ -1,5 +1,5 @@
 import { sub } from 'date-fns';
-import { fake, chance } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/data-generation/helpers';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   IMAGING_REQUEST_STATUS_TYPES,

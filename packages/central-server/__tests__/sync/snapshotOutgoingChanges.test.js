@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
-import { fake, fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
+import { withErrorShown } from '@tamanu/shared/test-helpers';
+import { fake, fakeReferenceData } from '@tamanu/data-generation/helpers';
+
 import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   createSnapshotTable,
@@ -107,7 +109,7 @@ describe('snapshotOutgoingChanges', () => {
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
       expect(
-        Object.keys(syncRecord.data).every(key => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
+        Object.keys(syncRecord.data).every((key) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
       ).toBe(true);
     }),
   );
@@ -199,7 +201,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise(resolve => {
+      const promise = new Promise((resolve) => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -262,7 +264,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async transaction => {
+      const after = ctx.store.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -285,7 +287,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise(resolve => {
+      const promise = new Promise((resolve) => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -345,7 +347,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async transaction => {
+      const after = ctx.store.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -500,7 +502,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,
@@ -550,7 +552,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,

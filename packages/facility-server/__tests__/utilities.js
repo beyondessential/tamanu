@@ -12,7 +12,8 @@ import {
   seedSettings,
 } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
-import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/data-generation/helpers';
+import { asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApiApp } from '../dist/createApiApp';
 import { initReporting } from '../dist/database';

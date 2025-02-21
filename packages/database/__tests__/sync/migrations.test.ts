@@ -1,7 +1,7 @@
 import { closeDatabase, initDatabase } from './utilities';
 import { runPostMigration } from '../../src/services/migrations/runPostMigration';
 import { createMigrationInterface } from '../../src/services/migrations/migrations';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/data-generation/helpers';
 import { log } from '@tamanu/shared/services/logging/log';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 

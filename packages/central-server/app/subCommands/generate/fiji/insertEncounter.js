@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/data-generation/helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { chance } from '../chance';

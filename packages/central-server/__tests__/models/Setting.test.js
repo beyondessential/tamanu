@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/data-generation/helpers';
 import { createTestContext } from '../utilities';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
