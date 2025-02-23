@@ -54,6 +54,18 @@ const StyledSearchInput = styled(SearchInput)`
   width: 340px;
 `;
 
+const translationToFormValue = ({[DEFAULT_LANGUAGE_CODE]: defaultText, ...rest}) => ({
+  ...rest,
+  [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
+});
+
+const formValuesToTranslation = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ( {
+  ...rest,
+  // Remove en translations that are the same as the default text so they are not saved
+  [ENGLISH_LANGUAGE_CODE]:
+    defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
+});
+
 /**
  *
  * `values` is an object of existing, and new values
@@ -273,10 +285,7 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = {};
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = {
-        ...rest,
-        [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || rest[DEFAULT_LANGUAGE_CODE],
-      };
+      values[stringId] = translationToFormValue(rest);
     }
     return values;
   }, [translations]);
@@ -284,14 +293,9 @@ export const TranslationForm = () => {
   const handleSubmit = async payload => {
     const submitData = Object.fromEntries(
       Object.entries(payload).map(
-        ([key, { [DEFAULT_LANGUAGE_CODE]: defaultText, stringId, ...rest }]) => [
+        ([key, { stringId, ...rest }]) => [
           stringId || key,
-          {
-            ...rest,
-            // Remove en translations that are the same as the default text so they are not saved
-            [ENGLISH_LANGUAGE_CODE]:
-              defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
-          },
+          formValuesToTranslation(rest)
         ],
       ),
     );
