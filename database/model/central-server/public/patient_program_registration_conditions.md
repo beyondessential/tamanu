@@ -32,4 +32,5 @@ Optional field for recording the reason for changing the condition.
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__condition %}
+
 {% enddocs %}
