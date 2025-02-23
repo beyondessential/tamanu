@@ -1,6 +1,6 @@
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
-import Sequelize, { DataTypes } from 'sequelize';
+import Sequelize, { DataTypes, ModelAttributeColumnOptions } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
@@ -34,6 +34,7 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
+import { Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
 // jest wom't always be defined, in which case we can use a random seed
@@ -214,7 +215,8 @@ export function fakeEncounterMedication(prefix: string = 'test-') {
 }
 
 export const fakeDate = () => chance.date();
-export const fakeString = (model, { fieldName }, id: string) => `${model.name}.${fieldName}.${id}`;
+export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
+  `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
 export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
@@ -238,7 +240,7 @@ const FIELD_HANDLERS = {
   'VARCHAR(255)': fakeString,
 
   // fallback for all other varchar lengths
-  'VARCHAR(N)': (model, attrs, id: string, length: number) =>
+  'VARCHAR(N)': (model: typeof Model, attrs, id: string, length: number) =>
     fakeString(model, attrs, id).slice(0, length),
 
   TEXT: fakeString,
@@ -247,7 +249,7 @@ const FIELD_HANDLERS = {
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: (model, { type }) => chance.pickone(type.values),
+  ENUM: (_: typeof Model, { type }) => chance.pickone(type.values),
   UUID: () => fakeUUID(),
 };
 
@@ -417,110 +419,109 @@ const MODEL_SPECIFIC_OVERRIDES = {
 
 const FHIR_MODELS_HANDLERS = {
   FhirPatient: {
-    identifier: (...args) =>
+    identifier: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    name: (...args) =>
+    name: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirHumanName.fake(...args)),
-    telecom: (...args) =>
+    telecom: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirContactPoint.fake(...args)),
-    address: (...args) =>
+    address: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirAddress.fake(...args)),
-    link: (...args) =>
+    link: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirPatientLink.fake(...args)),
-    extension: (...args) =>
+    extension: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirExtension.fake(...args)),
   },
   FhirServiceRequest: {
-    identifier: (...args) =>
+    identifier: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    category: (...args) =>
+    category: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    order_detail: (...args) =>
+    order_detail: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    location_code: (...args) =>
+    location_code: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    code: (...args) => FhirCodeableConcept.fake(...args),
-    subject: (...args) => FhirReference.fake(...args),
-    requester: (...args) => FhirReference.fake(...args),
+    code: (...args: any[]) => FhirCodeableConcept.fake(...args),
+    subject: (...args: any[]) => FhirReference.fake(...args),
+    requester: (...args: any[]) => FhirReference.fake(...args),
   },
   FhirDiagnosticReport: {
-    extension: (...args) =>
+    extension: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirExtension.fake(...args)),
-    identifier: (...args) =>
+    identifier: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    code: (...args) => FhirCodeableConcept.fake(...args),
-    subject: (...args) => FhirReference.fake(...args),
-    performer: (...args) =>
+    code: (...args: any[]) => FhirCodeableConcept.fake(...args),
+    subject: (...args: any[]) => FhirReference.fake(...args),
+    performer: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
-    result: (...args) =>
+    result: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
   },
   FhirImmunization: {
-    vaccine_code: (...args) => FhirCodeableConcept.fake(...args),
-    patient: (...args) => FhirReference.fake(...args),
-    encounter: (...args) => FhirReference.fake(...args),
-    site: (...args) =>
+    vaccine_code: (...args: any[]) => FhirCodeableConcept.fake(...args),
+    patient: (...args: any[]) => FhirReference.fake(...args),
+    encounter: (...args: any[]) => FhirReference.fake(...args),
+    site: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    performer: (...args) =>
+    performer: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirImmunizationPerformer.fake(...args)),
-    protocol_applied: (...args) =>
+    protocol_applied: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirImmunizationProtocolApplied.fake(...args)),
   },
   FhirImagingStudy: {
-    identifier: (...args) =>
+    identifier: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    basedOn: (...args) =>
+    basedOn: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
-    note: (...args) =>
+    note: (...args: any[]) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirAnnotation.fake(...args)),
   },
 };
 
-/**
- *
- * @param {import('@tamanu/database').Model} model
- */
-export const fake = (model, passedOverrides: Record<string, any> = {}): Record<string, any> => {
+export const fake = (
+  model: typeof Model,
+  passedOverrides: Record<string, any> = {},
+): Record<string, any> => {
   const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
@@ -528,7 +529,7 @@ export const fake = (model, passedOverrides: Record<string, any> = {}): Record<s
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  function fakeField(name: string, attribute) {
+  function fakeField(name: string, attribute: ModelAttributeColumnOptions) {
     const { type, fieldName, defaultValue } = attribute;
 
     if (overrideFields.includes(fieldName)) {
@@ -598,7 +599,7 @@ export const fake = (model, passedOverrides: Record<string, any> = {}): Record<s
     );
   }
 
-  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+  for (const [name, attribute] of Object.entries(model.getAttributes())) {
     const fakeValue = fakeField(name, attribute);
     if (fakeValue !== undefined) record[name] = fakeValue;
   }
