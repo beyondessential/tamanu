@@ -9,7 +9,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
-import { TranslatedEnum } from '../../components/index.js';
+import { TranslatedEnum } from '../../components';
 import { useParams } from 'react-router-dom';
 
 const Container = styled.div`

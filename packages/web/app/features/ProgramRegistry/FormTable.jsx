@@ -1,11 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import MaterialTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
@@ -16,14 +12,12 @@ const Container = styled.div`
   padding: 0 20px;
 `;
 
-const Table = styled(MaterialTable)`
+const StyledTable = styled(Table)`
   table-layout: fixed;
   tr:last-child td {
     border-bottom: none;
   }
 `;
-
-const StyledTableHead = styled(TableHead)``;
 
 const StyledTableHeaderCell = styled(TableCell)`
   width: ${props => (props.width ? props.width : 'auto')};
@@ -51,11 +45,10 @@ const StyledTableDataCell = styled(TableCell)`
 `;
 
 export const FormTable = React.memo(({ columns, data, className = '' }) => {
-  const rows = data;
   return (
     <Container className={className}>
-      <Table>
-        <StyledTableHead>
+      <StyledTable>
+        <TableHead>
           <TableRow>
             {columns.map(({ key, title, width }) => (
               <StyledTableHeaderCell key={key} width={width}>
@@ -63,9 +56,9 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
               </StyledTableHeaderCell>
             ))}
           </TableRow>
-        </StyledTableHead>
+        </TableHead>
         <TableBody>
-          {rows.map((rowData, i) => (
+          {data.map((rowData, i) => (
             <TableRow key={rowData.id || i}>
               {columns.map(({ key, accessor }) => (
                 <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
@@ -73,7 +66,7 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </StyledTable>
     </Container>
   );
 });

@@ -289,14 +289,21 @@ patientProgramRegistration.put(
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     req.checkPermission('write', 'PatientProgramRegistrationCondition');
 
-    // eslint-disable-next-line no-unused-vars
+    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
+      where: {
+        id: conditionId,
+      },
+    });
+
+    if (!existingCondition) {
+      throw new NotFoundError('Patient program registration condition not found');
+    }
+
     const [_, updatedRows] = await models.PatientProgramRegistrationCondition.update(body, {
       where: { id: conditionId },
       returning: true,
     });
-
     const updatedCondition = updatedRows ? updatedRows[0] : null;
-
     res.send(updatedCondition);
   }),
 );

@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -15,8 +16,7 @@ import { foreignKey } from '../../utils/validation';
 import { Colors, FORM_TYPES } from '../../constants';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
-import styled from 'styled-components';
-import { useTranslation } from '../../contexts/Translation.jsx';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
@@ -78,7 +78,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
         initialValues={{ conditionCategory: conditionCategory }}
-        render={({ submitForm, dirty }) => {
+        render={({ dirty }) => {
           const columns = [
             {
               title: 'Condition',
@@ -91,7 +91,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
             {
               title: (
                 <span id="condition-category-label">
-                  Category <span style={{ color: Colors.alert }}> *</span>
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.category"
+                    fallback="Category"
+                  />
+                  <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
               width: 200,
@@ -107,7 +111,10 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
             {
               title: (
                 <span id="condition-category-change-reason-label">
-                  Reason for change (if applicable)
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.reasonForChange"
+                    fallback="Reason for change (if applicable)"
+                  />
                 </span>
               ),
               width: 300,
@@ -126,8 +133,8 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           return (
             <>
               <FormTable columns={columns} data={condition ? [condition] : []} />
-              {/*Todo: Add Condition category history*/}
-              <ModalFormActionRow onConfirm={submitForm} onCancel={onClose} />
+              {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
+              <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty} />
             </>
           );
         }}
