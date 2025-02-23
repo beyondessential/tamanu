@@ -71,12 +71,12 @@ const getGroupedConditions = (conditions) => {
 };
 
 // TODO: Translate program registry condition name and category, plus sort by that new display name
-const ConditionMapperFn = (condition) => {
+const ConditionComponent = (condition) => {
   const { programRegistryCondition, conditionCategory } = condition;
   const { name } = programRegistryCondition;
   const fullText = `${name} (${conditionCategory})`;
   return (
-    <ConditionalTooltip title={fullText} visible={fullText.length > 65} key={condition.id}>
+    <ConditionalTooltip title={fullText} visible={fullText.length > 65}>
       <Condition>
         <ClippedConditionName>
           {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
@@ -113,9 +113,13 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         />
       </Heading5>
       <ScrollBody>
-        {openConditions.map(ConditionMapperFn)}
+        {openConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition }/>,
+        )}
         {needsDivider && <Divider variant="middle" />}
-        {closedConditions.map(ConditionMapperFn)}
+        {closedConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition }/>,
+        )}
       </ScrollBody>
     </Container>
   );
