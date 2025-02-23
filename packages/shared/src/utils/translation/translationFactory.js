@@ -22,7 +22,7 @@ const applyCasing = (text, casing) => {
  *
  * @example replaceStringVariables("there are :count users", { replacements: { count: 2 } }) => "there are 2 users"
  */
-export const replaceStringVariables = (templateString, { replacements, casing }, translations) => {
+export const replaceStringVariables = (templateString, { replacements, casing } = {}, translations) => {
   if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
