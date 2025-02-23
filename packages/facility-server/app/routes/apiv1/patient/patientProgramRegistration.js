@@ -289,6 +289,7 @@ patientProgramRegistration.put(
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     req.checkPermission('write', 'PatientProgramRegistrationCondition');
 
+    // eslint-disable-next-line no-unused-vars
     const [_, updatedRows] = await models.PatientProgramRegistrationCondition.update(body, {
       where: { id: conditionId },
       returning: true,

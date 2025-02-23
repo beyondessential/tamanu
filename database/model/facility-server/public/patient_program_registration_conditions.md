@@ -33,3 +33,7 @@ Used to store the category of the condition.
 {% docs patient_program_registration_conditions__condition %}
 
 {% enddocs %}
+
+{% docs patient_program_registration_conditions__reason_for_change %}
+Optional field for recording the reason for changing the condition.
+{% enddocs %}
