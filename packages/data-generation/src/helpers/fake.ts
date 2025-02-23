@@ -1,4 +1,4 @@
-import { isFunction, snakeCase } from 'lodash';
+import { isFunction, isObject, isString, snakeCase } from 'lodash';
 import Chance from 'chance';
 import Sequelize, { DataTypes, ModelAttributeColumnOptions } from 'sequelize';
 import { inspect } from 'util';
@@ -530,10 +530,10 @@ export const fake = (
   const overrideFields = Object.keys(overrides);
 
   function fakeField(name: string, attribute: ModelAttributeColumnOptions) {
-    const { type, fieldName, defaultValue } = attribute;
+    const { type, field, defaultValue } = attribute;
 
-    if (overrideFields.includes(fieldName)) {
-      return overrides[fieldName];
+    if (overrideFields.includes(field)) {
+      return overrides[field];
     }
 
     if (attribute.references) {
@@ -541,23 +541,23 @@ export const fake = (
       return null;
     }
 
-    if (IGNORED_FIELDS.includes(fieldName)) {
+    if (IGNORED_FIELDS.includes(field)) {
       // ignore metadata fields
       return undefined;
     }
 
-    if (fieldName === 'id') {
+    if (field === 'id') {
       return fakeUUID();
     }
 
-    if (fieldName === 'visibilityStatus') {
+    if (field === 'visibilityStatus') {
       return VISIBILITY_STATUSES.CURRENT;
     }
 
-    if (type instanceof DataTypes.ARRAY && type.type) {
+    if (type instanceof DataTypes.ARRAY && 'type' in type && isString(type.type)) {
       return Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
-        .map(() => fakeField(name, { ...attribute, type: type.type }));
+        .map(() => fakeField(name, { ...attribute, type: type.type as string }));
     }
 
     if (defaultValue) {
@@ -571,20 +571,20 @@ export const fake = (
       return Buffer.from('test');
     }
 
-    if (FIELD_HANDLERS[type]) {
+    if (isString(type) && FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
     }
 
-    if (type.type && FIELD_HANDLERS[type.type]) {
+    if (isObject(type) && 'type' in type && isString(type.type) && FIELD_HANDLERS[type.type]) {
       return FIELD_HANDLERS[type.type](model, attribute, id);
     }
 
-    if (type instanceof DataTypes.STRING && type.options.length) {
+    if (type instanceof DataTypes.STRING && 'options' in type && type.options.length) {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     }
 
-    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
-      return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
+    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[field]) {
+      return FHIR_MODELS_HANDLERS[model.name][field](model, attribute, id);
     }
 
     if (type instanceof DataTypes.JSONB) {
@@ -593,9 +593,7 @@ export const fake = (
 
     // if you hit this error, you probably need to add a new field handler or a model-specific override
     throw new Error(
-      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
-        type,
-      )}`,
+      `Could not fake field ${model.name}.${name} of type ${type} / ${inspect(type)}`,
     );
   }
 
