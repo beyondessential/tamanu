@@ -1,4 +1,4 @@
-import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import { DEFAULT_LANGUAGE_CODE, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { CursorDataMigration } from '@tamanu/database/dataMigrations';
 
 export class DefaultLanguageTranslatedReferenceData extends CursorDataMigration {
@@ -16,7 +16,7 @@ export class DefaultLanguageTranslatedReferenceData extends CursorDataMigration 
       where id in (
           select id
           from translated_strings
-          where language = 'en' and split_part(string_id, '.', 1) = 'refData' and id > $fromId
+          where language = 'en' and split_part(string_id, '.', 1) = '${REFERENCE_DATA_TRANSLATION_PREFIX}' and id > $fromId
           order by id
           limit $limit
       )
