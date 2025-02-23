@@ -71,7 +71,7 @@ const getGroupedConditions = (conditions) => {
 };
 
 // TODO: Translate program registry condition name and category, plus sort by that new display name
-const ConditionComponent = (condition) => {
+const ConditionComponent = ({ condition }) => {
   const { programRegistryCondition, conditionCategory } = condition;
   const { name } = programRegistryCondition;
   const fullText = `${name} (${conditionCategory})`;
