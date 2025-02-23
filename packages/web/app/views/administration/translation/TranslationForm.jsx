@@ -54,16 +54,20 @@ const StyledSearchInput = styled(SearchInput)`
   width: 340px;
 `;
 
-const translationToFormValue = ({[DEFAULT_LANGUAGE_CODE]: defaultText, ...rest}) => ({
+const translationToFormValue = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ({
   ...rest,
+  // Display default translations in english column
   [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
 });
 
-const formValuesToTranslation = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ( {
+const formValuesToTranslation = ({
+  [DEFAULT_LANGUAGE_CODE]: defaultText,
+  [ENGLISH_LANGUAGE_CODE]: enText,
+  ...rest
+}) => ({
   ...rest,
   // Remove en translations that are the same as the default text so they are not saved
-  [ENGLISH_LANGUAGE_CODE]:
-    defaultText === rest[ENGLISH_LANGUAGE_CODE] ? null : rest[ENGLISH_LANGUAGE_CODE],
+  [ENGLISH_LANGUAGE_CODE]: defaultText === enText ? null : enText,
 });
 
 /**
@@ -292,12 +296,10 @@ export const TranslationForm = () => {
 
   const handleSubmit = async payload => {
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(
-        ([key, { stringId, ...rest }]) => [
-          stringId || key,
-          formValuesToTranslation(rest)
-        ],
-      ),
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [
+        stringId || key,
+        formValuesToTranslation(rest),
+      ]),
     );
     await saveTranslations(submitData);
   };
