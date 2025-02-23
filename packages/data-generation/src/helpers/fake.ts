@@ -42,9 +42,9 @@ export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
-    (obj: object, field: string) => ({
+    (obj: object, fieldName: string) => ({
       ...obj,
-      [field]: prefix + field,
+      [fieldName]: prefix + fieldName,
     }),
     {},
   );
@@ -530,10 +530,10 @@ export const fake = (
   const overrideFields = Object.keys(overrides);
 
   function fakeField(name: string, attribute: ModelAttributeColumnOptions) {
-    const { type, field, defaultValue } = attribute;
+    const { type, fieldName, defaultValue } = attribute;
 
-    if (overrideFields.includes(field)) {
-      return overrides[field];
+    if (overrideFields.includes(fieldName)) {
+      return overrides[fieldName];
     }
 
     if (attribute.references) {
@@ -541,16 +541,16 @@ export const fake = (
       return null;
     }
 
-    if (IGNORED_FIELDS.includes(field)) {
+    if (IGNORED_FIELDS.includes(fieldName)) {
       // ignore metadata fields
       return undefined;
     }
 
-    if (field === 'id') {
+    if (fieldName === 'id') {
       return fakeUUID();
     }
 
-    if (field === 'visibilityStatus') {
+    if (fieldName === 'visibilityStatus') {
       return VISIBILITY_STATUSES.CURRENT;
     }
 
@@ -583,17 +583,17 @@ export const fake = (
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     }
 
-    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[field]) {
-      return FHIR_MODELS_HANDLERS[model.name][field](model, attribute, id);
+    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
+      return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
     }
 
     if (type instanceof DataTypes.JSONB) {
       return { test: 'test' };
     }
 
-    // if you hit this error, you probably need to add a new field handler or a model-specific override
+    // if you hit this error, you probably need to add a new fieldName handler or a model-specific override
     throw new Error(
-      `Could not fake field ${model.name}.${name} of type ${type} / ${inspect(type)}`,
+      `Could not fake fieldName ${model.name}.${name} of type ${type} / ${inspect(type)}`,
     );
   }
 
