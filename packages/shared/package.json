@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.24.0",
+  "version": "2.27.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -71,13 +71,14 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "npm run remove-build-artifacts && npm run build:esm && npm run build:cjs",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
     "build:dev": "npm run build",
-    "build:dev:watch": "npm run remove-build-artifacts && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\"",
+    "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
-    "remove-build-artifacts": "rimraf dist",
     "build-watch": "npm run build:dev:watch",
+    "clean": "rimraf dist",
+    "clean:deps": "rimraf node_modules",
     "test": "NODE_ENV=test jest"
   },
   "private": true,

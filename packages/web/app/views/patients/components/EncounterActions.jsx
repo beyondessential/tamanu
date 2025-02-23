@@ -41,6 +41,7 @@ const ENCOUNTER_MODALS = {
   CANCEL_MOVE: 'cancelMove',
 
   ENCOUNTER_RECORD: 'encounterRecord',
+  ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
 };
 
 const StyledButton = styled(Button)`
@@ -70,6 +71,8 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
+  const onViewEncounterProgressRecord = () =>
+    setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD);
   const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
   const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
@@ -138,8 +141,8 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="patient.encounter.action.dischargeWithoutBeingSeen"
-          fallback="Discharge without being seen"
+          stringId="patient.encounter.action.prepareDischargeWithoutBeingSeen"
+          fallback="Prepare discharge without being seen"
         />
       ),
       onClick: onDischargeOpen,
@@ -166,7 +169,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="patient.encounter.action.discharge" fallback="Discharge" />,
+      label: <TranslatedText stringId="patient.encounter.action.prepareDischarge" fallback="Prepare discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
@@ -240,6 +243,15 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       condition: () => isInpatient(encounter.encounterType),
       onClick: onChangeDiet,
     },
+    {
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.encounterProgressRecord"
+          fallback="Encounter progress record"
+        />
+      ),
+      onClick: onViewEncounterProgressRecord,
+    },
   ].filter(action => !action.condition || action.condition());
 
   return <StyledDropdownButton actions={actions} />;
@@ -298,7 +310,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       />
       <EncounterRecordModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD}
+        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD || openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
         onClose={onClose}
       />
       <ChangeReasonModal

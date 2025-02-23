@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * Tests the rendering and translation of the ‘Export’ button itself.
  *

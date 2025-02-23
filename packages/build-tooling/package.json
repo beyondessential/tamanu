@@ -1,9 +1,12 @@
 {
   "name": "@tamanu/build-tooling",
-  "version": "2.24.0",
+  "version": "2.27.0",
   "description": "Build tooling for Tamanu packages",
   "main": "index.mjs",
   "type": "module",
+  "scripts": {
+    "clean:deps": "rimraf node_modules"
+  },
   "bin": {
     "nodemon": "./node_modules/.bin/nodemon",
     "concurrently": "./node_modules/.bin/concurrently",
@@ -22,6 +25,9 @@
     "pkg": "^5.8.1",
     "swc-loader": "^0.2.3",
     "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
   },
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

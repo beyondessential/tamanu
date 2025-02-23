@@ -14,6 +14,6 @@ Key of the user preference
 Value of the user preference
 {% enddocs %}
 
-{% docs user_preferences__clinician_dashboard_tasking_table_filter %}
-In the Clinician dashboard, tasking tables can be filtered. This is remembered per user.
+{% docs user_preferences__facility_id %}
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) that this preference applies to
 {% enddocs %}

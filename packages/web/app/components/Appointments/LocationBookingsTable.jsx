@@ -20,6 +20,7 @@ import { MenuButton } from '../MenuButton';
 import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingModal';
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
+import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -123,9 +124,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 6px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 11px 6px;
     &:first-child {
       position: relative;
       padding-left: 10px;
@@ -153,6 +152,8 @@ const StyledTable = styled(Table)`
       }
       position: relative;
       border-bottom: none;
+      padding-top: 0;
+      padding-bottom: 0;
       &:before {
         content: '';
         position: absolute;
@@ -177,9 +178,21 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        .MuiTableCell-body {
+          border-bottom: none;
+          &:before {
+            height: 0;
+          }
+        }
+      }
     }
   }
 `;
@@ -233,7 +246,7 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
   </TableTitleContainer>
 );
 
-const getFormattedTime = (time) => {
+const getFormattedTime = time => {
   return formatTime(time).replace(' ', '');
 };
 
@@ -274,10 +287,18 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 };
 
 export const LocationBookingsTable = ({ patient }) => {
+  const { ability } = useAuth();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
   });
+
+  const allAppointments =
+    useLocationBookingsQuery({
+      all: true,
+      patientId: patient?.id,
+      after: '1970-01-01 00:00',
+    }).data?.data ?? [];
 
   const { data, isLoading } = useLocationBookingsQuery(
     {
@@ -307,6 +328,8 @@ export const LocationBookingsTable = ({ patient }) => {
     const { id, startTime } = data;
     history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
+
+  const canWriteAppointment = ability.can('write', 'Appointment');
 
   const COLUMNS = [
     {
@@ -340,18 +363,29 @@ export const LocationBookingsTable = ({ patient }) => {
       accessor: ({ bookingType }) => bookingType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
     },
-    {
-      key: '',
-      title: '',
-      dontCallRowInput: true,
-      sortable: false,
-      CellComponent: ({ data }) => (
-        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} />
-        </MenuContainer>
-      ),
-    },
+    ...(canWriteAppointment
+      ? [
+          {
+            key: '',
+            title: '',
+            dontCallRowInput: true,
+            sortable: false,
+            CellComponent: ({ data }) => (
+              <MenuContainer
+                className="menu-container"
+                onMouseEnter={() => setSelectedAppointment(data)}
+              >
+                <StyledMenuButton actions={actions} />
+              </MenuContainer>
+            ),
+          },
+        ]
+      : []),
   ];
+
+  if (!allAppointments.length) {
+    return null;
+  }
 
   if (!appointments.length && !isLoading) {
     return (

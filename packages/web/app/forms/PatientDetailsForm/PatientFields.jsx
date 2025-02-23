@@ -25,7 +25,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
     return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
-    return <Field name={fieldName} component={TextField} label={name} />;
+    return <Field name={fieldName} component={TextField} label={name} enablePasting />;
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
     return <Field name={fieldName} component={NumberField} label={name} />;

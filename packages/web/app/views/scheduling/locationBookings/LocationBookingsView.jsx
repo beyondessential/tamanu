@@ -1,13 +1,9 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
 import { parseISO } from 'date-fns';
-import { omit } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-
-import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
@@ -18,6 +14,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
 import { appointmentToFormValues } from './utils';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -64,21 +61,9 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
 
-  const { filters, setFilters, updateSelectedCell } = useLocationBookingsContext();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
-
-  const handleFilterChange = useCallback(
-    values => {
-      setFilters(values);
-      mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-        value: { [facilityId]: omit(values, ['patientNameOrId']) },
-      });
-    },
-    [setFilters, mutateUserPreferences, facilityId],
-  );
+  const { filters, updateSelectedCell } = useLocationBookingsContext();
 
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
@@ -109,26 +94,38 @@ export const LocationBookingsView = () => {
     openBookingForm({});
   };
 
-  const locationsQuery = useLocationsQuery({
-    facilityId,
-    bookableOnly: true,
-    locationGroupIds: filters.locationGroupIds,
-  });
+  const locationsQuery = useLocationsQuery(
+    {
+      facilityId,
+      bookableOnly: true,
+      locationGroupIds: filters.locationGroupIds,
+    },
+    { keepPreviousData: true },
+  );
 
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
+  const canCreateAppointment = ability.can('create', 'Appointment');
+  const canViewAppointments = ability.can('listOrRead', 'Appointment');
+
+  if (!canViewAppointments) {
+    return <NoPermissionScreen />;
+  }
+
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <LocationBookingsFilter onFilterChange={handleFilterChange} />
-        <NewBookingButton onClick={handleNewBooking}>
-          <PlusIcon />
-          <TranslatedText
-            stringId="locationBooking.calendar.bookLocation"
-            fallback="Book location"
-          />
-        </NewBookingButton>
+        <LocationBookingsFilter />
+        {canCreateAppointment && (
+          <NewBookingButton onClick={handleNewBooking}>
+            <PlusIcon />
+            <TranslatedText
+              stringId="locationBooking.calendar.bookLocation"
+              fallback="Book location"
+            />
+          </NewBookingButton>
+        )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>

@@ -1,10 +1,15 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { omit } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { BodyText, FormModal, SmallBodyText, TranslatedText } from '../../../components';
+import {
+  BodyText,
+  FormModal,
+  SmallBodyText,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
@@ -13,6 +18,9 @@ import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmen
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../contexts/Auth';
+import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -139,9 +147,16 @@ export const HeadCell = ({ title, count }) => (
   </>
 );
 
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+export const OutpatientBookingCalendar = ({
+  selectedDate,
+  onCreateFromExisting,
+  onModify,
+  onCancel,
+}) => {
+  const { ability } = useAuth();
+  const { groupBy } = useOutpatientAppointmentsContext();
   const {
-    data: { headData = [], cellData, titleKey },
+    data: { headData = [], cellData },
     isLoading,
     error,
   } = useOutpatientAppointmentsCalendarData({
@@ -195,6 +210,9 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       </StatusText>
     );
   }
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
+
   return (
     <Box
       className={APPOINTMENT_CALENDAR_CLASS}
@@ -205,37 +223,51 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
     >
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
+        const title =
+          groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP ? (
+            <TranslatedReferenceData
+              category="locationGroup"
+              value={cell.id}
+              fallback={cell.name}
+            />
+          ) : (
+            cell.displayName
+          );
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
-            <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
+            <HeadCell title={title} count={appointments?.length || 0} />
             <AppointmentColumnWrapper>
               {appointments.map(a => (
                 <AppointmentTile
                   key={a.id}
                   appointment={a}
-                  onEdit={() => onOpenDrawer(a)}
+                  onEdit={() => onModify(a)}
                   onCancel={() => onCancel(a)}
-                  actions={[
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.newAppointment"
-                          fallback="New appointment"
-                        />
-                      ),
-                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.emailAppointment"
-                          fallback="Email appointment"
-                        />
-                      ),
-                      action: () =>
-                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                    },
-                  ]}
+                  actions={
+                    canCreateAppointment
+                      ? [
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.newAppointment"
+                                fallback="New appointment"
+                              />
+                            ),
+                            action: () => onCreateFromExisting(a),
+                          },
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.emailAppointment"
+                                fallback="Email appointment"
+                              />
+                            ),
+                            action: () =>
+                              setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                          },
+                        ]
+                      : []
+                  }
                 />
               ))}
             </AppointmentColumnWrapper>

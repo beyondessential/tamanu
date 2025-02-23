@@ -36,6 +36,7 @@ import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
+import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -93,6 +94,8 @@ export const ImagingRequestForm = React.memo(
   }) => {
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
+    const { currentUser } = useAuth();
+
     const imagingTypes = getLocalisation('imagingTypes') || {};
 
     const { examiner = {} } = encounter;
@@ -106,6 +109,7 @@ export const ImagingRequestForm = React.memo(
         initialValues={{
           displayId: generateId(),
           requestedDate: getCurrentDateTimeString(),
+          requestedById: currentUser.id,
           ...editedObject,
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

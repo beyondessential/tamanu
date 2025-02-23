@@ -21,6 +21,11 @@ const Toggle = styled(ToggleButton)`
       background-color: ${Colors.veryLightBlue};
     }
 
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: initial;
+    }
+
     &.${toggleButtonClasses.selected} {
       border-color: transparent;
 
