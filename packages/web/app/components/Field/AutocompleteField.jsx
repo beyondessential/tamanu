@@ -295,6 +295,7 @@ export class AutocompleteInput extends Component {
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
+    const { isHtmlOptionLabel } = this.props;
     return (
       <Item selected={isHighlighted} component="div">
         <Typography variant="body2">
@@ -307,6 +308,8 @@ export class AutocompleteInput extends Component {
               />
               )
             </>
+          ) : isHtmlOptionLabel ? (
+            <div dangerouslySetInnerHTML={{ __html: suggestion.label }} />
           ) : (
             suggestion.label
           )}
@@ -525,6 +528,7 @@ AutocompleteInput.defaultProps = {
   autofill: false,
   allowCreatingCustomValue: false,
   multiSection: false,
+  isHtmlOptionLabel: false,
   filterer: () => true,
 };
 
