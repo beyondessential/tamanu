@@ -118,7 +118,14 @@ export const defineTelegramBotService = async (injector) => {
       'telegramRegistration.successMessage',
       `Dear <strong>:contactName</strong>, you have successfully registered to receive messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.
       \nIf you would prefer to not receive future messages from <strong>:botName</strong>, please select :command`,
-      { contactName, patientName, botName: botInfo.first_name, command: '/unsubscribe' },
+      {
+        replacements: {
+          contactName,
+          patientName,
+          botName: botInfo.first_name,
+          command: '/unsubscribe',
+        },
+      },
     );
 
     await sendMessage(message.chat.id, successMessage, { parse_mode: 'HTML' });
