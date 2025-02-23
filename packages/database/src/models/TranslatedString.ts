@@ -11,7 +11,7 @@ import type { InitOptions } from '../types/model';
 
 type TranslationOptions = {
   replacements: Record<string, string>;
-  casing: 'uppercase' | 'lowercase' | 'sentance';
+  casing: 'uppercase' | 'lowercase' | 'sentence';
 };
 
 export class TranslatedString extends Model {
