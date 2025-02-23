@@ -36,10 +36,11 @@ const validatePatientProgramRegistrationRequest = async (req) => {
   const { programRegistryId } = body;
 
   req.checkPermission('read', 'Patient');
+  req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+
   const patient = await models.Patient.findByPk(patientId);
   if (!patient) throw new NotFoundError();
 
-  req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
   const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
   if (!programRegistry) throw new NotFoundError();
 
@@ -294,16 +295,10 @@ patientProgramRegistration.put(
         id: conditionId,
       },
     });
-
     if (!existingCondition) {
       throw new NotFoundError('Patient program registration condition not found');
     }
-
-    const [_, updatedRows] = await models.PatientProgramRegistrationCondition.update(body, {
-      where: { id: conditionId },
-      returning: true,
-    });
-    const updatedCondition = updatedRows ? updatedRows[0] : null;
+    const updatedCondition = await existingCondition.update(body);
     res.send(updatedCondition);
   }),
 );

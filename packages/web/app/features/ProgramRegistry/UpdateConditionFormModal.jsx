@@ -51,7 +51,7 @@ const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) =
 export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const { getTranslation } = useTranslation();
   const { id: conditionId, patientId, programRegistryId, conditionCategory } = condition;
-  const { mutateAsync: submit } = useUpdateConditionMutation(
+  const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientId,
     programRegistryId,
     conditionId,
@@ -81,11 +81,21 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         render={({ dirty }) => {
           const columns = [
             {
-              title: 'Condition',
+              title: (
+                <TranslatedText
+                  stringId="patientProgramRegistry.updateConditionModal.condition"
+                  fallback="Condition"
+                />
+              ),
               accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
             },
             {
-              title: 'Date added',
+              title: (
+                <TranslatedText
+                  stringId="patientProgramRegistry.updateConditionModal.dateAdded"
+                  fallback="Date added"
+                />
+              ),
               accessor: ({ date }) => <DateDisplay date={date} />,
             },
             {
@@ -134,7 +144,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
             <>
               <FormTable columns={columns} data={condition ? [condition] : []} />
               {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
-              <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty} />
+              <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
             </>
           );
         }}
