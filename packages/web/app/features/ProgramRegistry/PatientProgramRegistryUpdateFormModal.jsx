@@ -2,80 +2,82 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
+  DateDisplay,
   Field,
   Form,
-  FormSeparatorLine,
+  Heading5,
   Modal,
   ModalFormActionRow,
+  TextField,
   TranslatedText,
 } from '../../components';
-import { useAuth } from '../../contexts/Auth';
 import { useApi, useSuggester } from '../../api';
 import { optionalForeignKey } from '../../utils/validation';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
-import { FORM_TYPES } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
+import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
+import { FormTable } from './FormTable';
+import MuiDivider from '@material-ui/core/Divider';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/index.js';
 
-const Container = styled.div`
-  //margin: auto;
-  //margin-top: 30px;
+const Container = styled.div``;
+
+const Divider = styled(MuiDivider)`
+  margin: 10px 0;
 `;
 
-const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) => {
+const StyledTextField = styled(TextField)`
+  .Mui-disabled {
+    background-color: #f3f5f7;
+  }
+`;
+
+const StyledAutocompleteField = styled(AutocompleteField)`
+  width: 300px;
+`;
+
+const useUpdateProgramRegistryMutation = patientId => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation(
     data => {
-      return api.put(
-        `patient/${patientId}/programRegistration/${programRegistryId}/condition/${conditionId}`,
-        data,
-      );
+      return api.post(`patient/${patientId}/programRegistration`, data);
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          'patient',
-          patientId,
-          'programRegistration',
-          programRegistryId,
-        ]);
+        queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+        queryClient.invalidateQueries(['patient', patientId]);
       },
     },
   );
 };
 
 export const PatientProgramRegistryUpdateFormModal = ({
-  patientProgramRegistration,
+  patientProgramRegistration = {},
   onClose,
   open,
 }) => {
-  const api = useApi();
-  const { currentUser } = useAuth();
-  const queryClient = useQueryClient();
-
+  const { programRegistryId, patientId, clinicalStatusId } = patientProgramRegistration;
+  const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
+    patientId,
+  );
+  const { data: conditions = [] } = usePatientProgramRegistryConditionsQuery(
+    patientId,
+    programRegistryId,
+  );
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
+    baseQueryParameters: { programRegistryId },
   });
 
-  if (!patientProgramRegistration) return <></>;
-
-  const changeStatus = async changedStatus => {
-    const { ...rest } = patientProgramRegistration;
-    delete rest.id;
-    delete rest.date;
-
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus, date: getCurrentDateTimeString(), clinicianId: currentUser.id },
-    );
-
-    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-    queryClient.invalidateQueries(['patient', patientProgramRegistration.patientId]);
+  const handleSubmit = async data => {
+    await submit(data);
     onClose();
   };
+
+  if (!patientProgramRegistration) return null;
 
   return (
     <Modal
@@ -91,22 +93,95 @@ export const PatientProgramRegistryUpdateFormModal = ({
     >
       <Form
         showInlineErrorsOnly
-        onSubmit={changeStatus}
+        onSubmit={handleSubmit}
         render={({ dirty }) => {
+          const columns = [
+            {
+              title: (
+                <TranslatedText
+                  stringId="patientProgramRegistry.updateConditionModal.condition"
+                  fallback="Condition"
+                />
+              ),
+              key: 'condition',
+              accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
+            },
+            {
+              title: (
+                <TranslatedText
+                  stringId="patientProgramRegistry.updateConditionModal.dateAdded"
+                  fallback="Date added"
+                />
+              ),
+              key: 'dateAdded',
+              accessor: ({ date }) => <DateDisplay date={date} />,
+            },
+            {
+              title: (
+                <span id="condition-category-label">
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.category"
+                    fallback="Category"
+                  />
+                  <span style={{ color: Colors.alert }}> *</span>
+                </span>
+              ),
+              width: 200,
+              key: 'conditionCategory',
+              accessor: ({ programRegistryCondition }, index) => (
+                <ProgramRegistryConditionCategoryField
+                  name={`conditions[${index}].conditionCategory`}
+                  conditionId={programRegistryCondition?.id}
+                  ariaLabelledby="condition-category-label"
+                  required
+                />
+              ),
+            },
+            {
+              title: (
+                <span id="condition-category-change-reason-label">
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.reasonForChange"
+                    fallback="Reason for change (if applicable)"
+                  />
+                </span>
+              ),
+              width: 300,
+              key: 'reasonForChange',
+              accessor: (row, index) => (
+                <Field
+                  name={`conditions[${index}].reasonForChange`}
+                  ariaLabelledBy="condition-category-change-reason-label"
+                  component={StyledTextField}
+                  required
+                  disabled={!dirty}
+                />
+              ),
+            },
+          ];
+
           return (
             <Container>
               <Field
                 name="clinicalStatusId"
                 label={<TranslatedText stringId="general.status.label" fallback="Status" />}
-                component={AutocompleteField}
+                component={StyledAutocompleteField}
                 suggester={programRegistryStatusSuggester}
               />
+              <Divider />
+              <Heading5 mt={0} mb={1}>
+                <TranslatedText
+                  stringId="programRegistry.relatedConditions"
+                  fallback="Related conditions"
+                />
+              </Heading5>
+              <FormTable columns={columns} data={conditions} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
             </Container>
           );
         }}
         initialValues={{
-          clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
+          clinicalStatusId: clinicalStatusId,
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
