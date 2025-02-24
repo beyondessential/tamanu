@@ -217,7 +217,6 @@ export class AppointmentSchedule extends Model {
     const updatedSchedule = await this.update({
       isFullyGenerated: true,
       cancelledAtDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
-      occurrenceCount: null,
     });
     return updatedSchedule;
   }
