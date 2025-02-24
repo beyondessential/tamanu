@@ -25,14 +25,14 @@ export const createDbReport = async ({
   );
 };
 
-interface CreateDbReportVersionParams extends CreateDbReportParams {
+interface UpdateDbReportParams extends CreateDbReportParams {
   reportDefinitionId: string;
 }
-export const createDbReportVersion = async ({
+export const updateDbReport = async ({
   models: { ReportDefinitionVersion },
   userId,
   reportDefinitionId,
-}: CreateDbReportVersionParams): Promise<void> => {
+}: UpdateDbReportParams): Promise<void> => {
   await ReportDefinitionVersion.create(
     fake(ReportDefinitionVersion, {
       status: REPORT_STATUSES.DRAFT,
