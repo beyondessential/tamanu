@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import {

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
-import { fake, fakeUser } from '@tamanu/data-generation/helpers';
+import { fake, fakeUser } from '@tamanu/fake-data/helpers';
 import { VdsNcDocument } from '@tamanu/central-server/app/integrations/VdsNc';
 import {
   loadCertificateIntoSigner,

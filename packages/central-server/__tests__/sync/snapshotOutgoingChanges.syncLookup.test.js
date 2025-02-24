@@ -7,7 +7,7 @@ import {
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 

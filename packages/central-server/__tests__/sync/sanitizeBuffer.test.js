@@ -2,7 +2,7 @@ import { beforeAll, describe, it } from '@jest/globals';
 import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import {
   createSnapshotTable,
   findSyncSnapshotRecords,

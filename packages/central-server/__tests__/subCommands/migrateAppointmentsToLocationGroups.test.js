@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { migrateImagingRequests } from '../../dist/subCommands';

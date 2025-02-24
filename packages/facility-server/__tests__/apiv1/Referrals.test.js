@@ -1,7 +1,7 @@
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { chance } from '@tamanu/data-generation/helpers';
+import { chance } from '@tamanu/fake-data/helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';

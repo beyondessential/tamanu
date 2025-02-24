@@ -6,7 +6,7 @@ import {
   randomRecordId,
   randomReferenceId,
 } from '@tamanu/database/demoData';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';

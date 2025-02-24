@@ -1,6 +1,6 @@
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { NotFoundError } from '../../../shared/src/errors';
 
 describe('Reference data', () => {

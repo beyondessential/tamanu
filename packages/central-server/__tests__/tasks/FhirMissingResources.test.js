@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { Op } from 'sequelize';
 import { createTestContext } from '../utilities';
 import {

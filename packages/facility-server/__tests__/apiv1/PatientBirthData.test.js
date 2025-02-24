@@ -1,7 +1,7 @@
 import { UniqueConstraintError } from 'sequelize';
 
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 
 import { createTestContext } from '../utilities';
 

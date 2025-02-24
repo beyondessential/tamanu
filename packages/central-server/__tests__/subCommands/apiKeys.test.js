@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { DEFAULT_JWT_SECRET } from '../../dist/auth';
 import { verifyToken } from '../../dist/auth/utils';
 import { genToken } from '../../dist/subCommands/apiKeys/issue';

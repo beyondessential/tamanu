@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 

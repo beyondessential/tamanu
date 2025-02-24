@@ -4,7 +4,7 @@ import { afterAll, beforeAll } from '@jest/globals';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 
 import { createTestContext } from '../utilities';
 

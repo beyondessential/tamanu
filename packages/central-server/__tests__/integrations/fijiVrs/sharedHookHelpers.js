@@ -1,5 +1,5 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { chance } from '@tamanu/data-generation/helpers';
+import { chance } from '@tamanu/fake-data/helpers';
 
 export const fakeVRSPatient = async ({ ReferenceData }) => {
   const village = await ReferenceData.create(fakeVillage());

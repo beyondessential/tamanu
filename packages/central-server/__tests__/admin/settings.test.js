@@ -1,5 +1,5 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { fake, chance } from '@tamanu/data-generation/helpers';
+import { fake, chance } from '@tamanu/fake-data/helpers';
 import { createTestContext } from '../utilities';
 import { settingsCache } from '@tamanu/settings';
 

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 

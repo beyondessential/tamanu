@@ -1,5 +1,5 @@
 import { randomReferenceId } from './patients';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 
 export const randomLabRequest = async (models, overrides) => {
   const categoryId = overrides?.categoryId || (await randomReferenceId(models, 'labTestCategory'));

@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createTestContext } from '../../utilities';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';

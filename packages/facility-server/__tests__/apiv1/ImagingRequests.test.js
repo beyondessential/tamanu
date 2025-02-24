@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 

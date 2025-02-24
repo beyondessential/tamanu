@@ -17,7 +17,7 @@ import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/database/demoData/vaccines';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { createTestContext } from '../utilities';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';

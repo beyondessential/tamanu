@@ -1,6 +1,6 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';

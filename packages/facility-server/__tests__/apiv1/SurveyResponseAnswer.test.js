@@ -1,6 +1,6 @@
 import Chance from 'chance';
 import config from 'config';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,

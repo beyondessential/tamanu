@@ -1,5 +1,5 @@
 import { add } from 'date-fns';
-import { fake, fakeReferenceData, fakeUser } from '@tamanu/data-generation/helpers';
+import { fake, fakeReferenceData, fakeUser } from '@tamanu/fake-data/helpers';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';

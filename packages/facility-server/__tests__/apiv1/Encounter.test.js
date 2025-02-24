@@ -15,7 +15,7 @@ import {
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
-import { fake, fakeUser } from '@tamanu/data-generation/helpers';
+import { fake, fakeUser } from '@tamanu/fake-data/helpers';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';

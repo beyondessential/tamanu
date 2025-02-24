@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { chance, fake } from '@tamanu/data-generation/helpers';
+import { chance, fake } from '@tamanu/fake-data/helpers';
 
 import { createTestContext } from '../utilities';
 import { changePassword } from '../../dist/subCommands/user';

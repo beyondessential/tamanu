@@ -15,7 +15,7 @@ import {
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 

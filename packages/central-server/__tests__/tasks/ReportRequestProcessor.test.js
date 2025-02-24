@@ -2,7 +2,7 @@ import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { ReportRequestProcessor } from '../../app/tasks/ReportRequestProcessor';
 import { createTestContext } from '../utilities';
-import { fake } from '@tamanu/data-generation/helpers';
+import { fake } from '@tamanu/fake-data/helpers';
 
 jest.mock('@tamanu/shared/reports', () => {
   return {
