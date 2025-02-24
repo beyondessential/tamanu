@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { generate } from 'shortid';
+import { Add } from '@material-ui/icons';
+import MuiDivider from '@material-ui/core/Divider';
 import {
   AutocompleteField,
+  Button,
   DateDisplay,
+  DateField,
   Field,
   Form,
   Heading5,
   Modal,
   ModalFormActionRow,
+  TextButton,
   TextField,
   TranslatedText,
 } from '../../components';
@@ -19,8 +25,8 @@ import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections'
 import { Colors, FORM_TYPES } from '../../constants';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { FormTable } from './FormTable';
-import MuiDivider from '@material-ui/core/Divider';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/index.js';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
+import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 
 const Container = styled.div``;
 
@@ -36,6 +42,27 @@ const StyledTextField = styled(TextField)`
 
 const StyledAutocompleteField = styled(AutocompleteField)`
   width: 300px;
+`;
+
+const AddButton = styled(Button)`
+  position: absolute;
+  padding-left: 10px;
+
+  .MuiSvgIcon-root,
+  .MuiButton-startIcon {
+    margin-right: 0;
+  }
+`;
+
+const ViewHistoryButton = styled(TextButton)`
+  color: ${Colors.primary};
+  font-size: 0.6875rem;
+  text-decoration: underline;
+  padding: 0.3rem 1rem;
+  text-transform: none;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const useUpdateProgramRegistryMutation = patientId => {
@@ -64,7 +91,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
   );
-  const { data: conditions = [] } = usePatientProgramRegistryConditionsQuery(
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientId,
     programRegistryId,
   );
@@ -78,6 +105,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
   };
 
   if (!patientProgramRegistration) return null;
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <Modal
@@ -94,29 +125,90 @@ export const PatientProgramRegistryUpdateFormModal = ({
       <Form
         showInlineErrorsOnly
         onSubmit={handleSubmit}
-        render={({ dirty }) => {
+        render={({ setFieldValue, values, initialValues, dirty }) => {
+          const getIsDirty = index => {
+            return (
+              values.conditions[index]?.conditionCategory !==
+              initialValues.conditions[index]?.conditionCategory
+            );
+          };
+
           const columns = [
             {
-              title: (
-                <TranslatedText
-                  stringId="patientProgramRegistry.updateConditionModal.condition"
-                  fallback="Condition"
-                />
-              ),
               key: 'condition',
-              accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
-            },
-            {
               title: (
-                <TranslatedText
-                  stringId="patientProgramRegistry.updateConditionModal.dateAdded"
-                  fallback="Date added"
-                />
+                <span id="condition-label">
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.condition"
+                    fallback="Condition"
+                  />
+                </span>
               ),
-              key: 'dateAdded',
-              accessor: ({ date }) => <DateDisplay date={date} />,
+              accessor: ({ name }, index) => {
+                if (name) {
+                  return name;
+                }
+
+                const fieldName = `conditions[${index}]`;
+
+                const onClear = () => {
+                  console.log('clearing', fieldName);
+                };
+
+                const isLastRow = index === rows.length - 1;
+
+                return (
+                  <div>
+                    <ProgramRegistryConditionField
+                      name={`conditions[${index}].id`}
+                      programRegistryId={programRegistryId}
+                      onClear={onClear}
+                      ariaLabelledby="condition-label"
+                    />
+                    {isLastRow && (
+                      <AddButton
+                        startIcon={<Add />}
+                        type="button"
+                        variant="text"
+                        onClick={() => {
+                          setFieldValue('conditions', [...values.conditions, { id: generate() }]);
+                        }}
+                      >
+                        Add additional
+                      </AddButton>
+                    )}
+                  </div>
+                );
+              },
             },
             {
+              key: 'dateAdded',
+              width: 120,
+              title: (
+                <span id="date-added-label">
+                  <TranslatedText
+                    stringId="patientProgramRegistry.updateConditionModal.dateAdded"
+                    fallback="Date added"
+                  />
+                </span>
+              ),
+              accessor: ({ date }, index) => {
+                if (date) {
+                  return <DateDisplay date={date} />;
+                }
+                return (
+                  <Field
+                    name={`conditions[${index}].date`}
+                    saveDateAsString
+                    required
+                    component={DateField}
+                    ariaLabelledby="date-added-label"
+                  />
+                );
+              },
+            },
+            {
+              key: 'conditionCategory',
               title: (
                 <span id="condition-category-label">
                   <TranslatedText
@@ -127,17 +219,19 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 200,
-              key: 'conditionCategory',
-              accessor: ({ programRegistryCondition }, index) => (
-                <ProgramRegistryConditionCategoryField
-                  name={`conditions[${index}].conditionCategory`}
-                  conditionId={programRegistryCondition?.id}
-                  ariaLabelledby="condition-category-label"
-                  required
-                />
-              ),
+              accessor: ({ id }, index) => {
+                return (
+                  <ProgramRegistryConditionCategoryField
+                    name={`conditions[${index}].conditionCategory`}
+                    conditionId={id}
+                    ariaLabelledby="condition-category-label"
+                    required
+                  />
+                );
+              },
             },
             {
+              key: 'reasonForChange',
               title: (
                 <span id="condition-category-change-reason-label">
                   <TranslatedText
@@ -146,19 +240,25 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              width: 300,
-              key: 'reasonForChange',
+              width: 320,
               accessor: (row, index) => (
                 <Field
                   name={`conditions[${index}].reasonForChange`}
                   ariaLabelledBy="condition-category-change-reason-label"
                   component={StyledTextField}
                   required
-                  disabled={!dirty}
+                  disabled={!getIsDirty(index)}
                 />
               ),
             },
+            {
+              key: 'history',
+              width: 100,
+              accessor: () => <ViewHistoryButton>View history</ViewHistoryButton>,
+            },
           ];
+
+          const rows = values.conditions;
 
           return (
             <Container>
@@ -175,13 +275,23 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   fallback="Related conditions"
                 />
               </Heading5>
-              <FormTable columns={columns} data={conditions} />
+              <FormTable columns={columns} data={values.conditions} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
             </Container>
           );
         }}
         initialValues={{
           clinicalStatusId: clinicalStatusId,
+          conditions: [
+            ...conditions.map(({ programRegistryCondition, date, conditionCategory }) => ({
+              id: programRegistryCondition.id,
+              name: programRegistryCondition.name,
+              date,
+              conditionCategory,
+            })),
+            // Add an empty row for adding new conditions
+            {},
+          ],
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({

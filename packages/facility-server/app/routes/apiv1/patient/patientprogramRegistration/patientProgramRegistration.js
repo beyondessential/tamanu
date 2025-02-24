@@ -27,7 +27,6 @@ patientProgramRegistration.get(
   }),
 );
 
-// Todo: Split into put and post
 patientProgramRegistration.post(
   '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {

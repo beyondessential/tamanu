@@ -790,9 +790,22 @@ export const dummyApi = {
       case `patient/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/conditions`:
         return [
           ...programRegistryConditions,
-          ...programRegistryConditions.map((x) => ({ ...x, id: x.id + 1 })),
+          ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
         ];
-
+      case `patient/patient_id/programRegistration/programRegistry-HepatitisBProgramRegistry/condition`:
+        return {
+          data: [
+            {
+              id: 'e2fe0145-526f-4e56-af2c-51a6afe53159',
+              date: '2025-02-13 14:23:39',
+              conditionCategory: 'underInvestigation',
+              programRegistryCondition: {
+                id: '1',
+                name: 'Anaemia',
+              },
+            },
+          ],
+        };
       case 'program/program-samoancdscreening/surveys':
         return programRegistrysurveys;
 
@@ -813,7 +826,7 @@ export const dummyApi = {
 
       case 'suggestions/survey':
         // this needs to be done in the backend
-        return programRegistryFormHistory.map((x) => ({
+        return programRegistryFormHistory.map(x => ({
           id: x.id.toString(),
           name: x.survey.name,
         }));

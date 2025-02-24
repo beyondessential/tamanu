@@ -6,13 +6,18 @@ import {
   FieldWithTooltip,
   getReferenceDataStringId,
   TranslatedReferenceData,
-  TranslatedText,
 } from '../../components';
 
-export const ProgramRegistryConditionField = ({ name, programRegistryId, onClear }) => {
+export const ProgramRegistryConditionField = ({
+  name,
+  programRegistryId,
+  onClear,
+  label,
+  ariaLabelledby = null,
+}) => {
   const { getTranslation } = useTranslation();
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
-  const options = conditions?.map?.((condition) => ({
+  const options = conditions?.map?.(condition => ({
     label: (
       <TranslatedReferenceData
         fallback={condition.name}
@@ -27,7 +32,7 @@ export const ProgramRegistryConditionField = ({ name, programRegistryId, onClear
     ),
   }));
 
-  const onChange = (event) => {
+  const onChange = event => {
     const userClickedClear = !event.target.value;
     if (userClickedClear) {
       onClear();
@@ -48,17 +53,13 @@ export const ProgramRegistryConditionField = ({ name, programRegistryId, onClear
               'No conditions have been configured for this program registry',
             )
       }
-      name={`${name}.conditionId`}
-      label={
-        <TranslatedText
-          stringId="patientProgramRegistry.relatedConditions.label"
-          fallback="Related condition"
-        />
-      }
+      name={name}
+      label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
       component={BaseSelectField}
       options={options}
       disabled={!conditions || conditions.length === 0}
+      ariaLabelledby={ariaLabelledby}
     />
   );
 };

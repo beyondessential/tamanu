@@ -14,12 +14,7 @@ import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/Del
 import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
 import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
-import {
-  dummyApi,
-  patient,
-  patientProgramRegistration,
-  programRegistryConditions,
-} from './utils/mockProgramRegistryData';
+import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
 import { UpdateConditionFormModal } from '../app/features/ProgramRegistry';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
