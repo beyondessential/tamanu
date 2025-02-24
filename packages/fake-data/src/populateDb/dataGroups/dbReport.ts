@@ -28,7 +28,7 @@ export const createDbReport = async ({
 interface UpdateDbReportParams extends CreateDbReportParams {
   reportDefinitionId: string;
 }
-export const addDbReportVersion = async ({
+export const createDbReportVersion = async ({
   models: { ReportDefinitionVersion },
   userId,
   reportDefinitionId,

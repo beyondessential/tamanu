@@ -9,45 +9,6 @@ interface CreatePatientDataParams {
 export const createPatient = async ({
   models: {
     Patient,
-    PatientAllergy,
-    PatientAdditionalData,
-    PatientDeathData,
-    PatientCommunication,
-  },
-  userId,
-}: CreatePatientDataParams): Promise<{ patient: Patient }> => {
-  const patient = await Patient.create(fake(Patient));
-  await PatientAllergy.create(
-    fake(PatientAllergy, {
-      patientId: patient.id,
-    }),
-  );
-
-  await PatientAdditionalData.create(
-    fake(PatientAdditionalData, {
-      patientId: patient.id,
-    }),
-  );
-
-  await PatientDeathData.create(
-    fake(PatientDeathData, {
-      patientId: patient.id,
-      clinicianId: userId,
-    }),
-  );
-
-  await PatientCommunication.create(
-    fake(PatientCommunication, {
-      patientId: patient.id,
-    }),
-  );
-
-  return { patient };
-};
-
-export const createPatientBirth = async ({
-  models: {
-    Patient,
     PatientBirthData,
     PatientAllergy,
     PatientAdditionalData,
