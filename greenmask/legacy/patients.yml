@@ -1,0 +1,10 @@
+---
+schema: public
+name: patients
+transformers:
+  - name: SetNull
+    params:
+      column: date_of_birth_legacy
+  - name: SetNull
+    params:
+      column: date_of_death_legacy

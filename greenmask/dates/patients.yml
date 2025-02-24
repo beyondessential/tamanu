@@ -1,0 +1,23 @@
+---
+schema: public
+name: patients
+transformers:
+  - name: Template
+    params:
+      column: date_of_death
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
+
+  - name: Template
+    params:
+      column: date_of_birth
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
