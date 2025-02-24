@@ -85,8 +85,8 @@ appointments.post(
       settings,
     } = req;
     const { Appointment } = models;
-    await db.transaction(async () => {
-      const result = scheduleData
+    const result = await db.transaction(async () => {
+      const appointment = scheduleData
         ? (
             await Appointment.createWithSchedule({
               settings: settings[facilityId],
@@ -99,15 +99,17 @@ appointments.post(
       const { email } = appointmentData;
       if (email) {
         await sendAppointmentReminder({
-          appointmentId: result.id,
+          appointmentId: appointment.id,
           email,
           facilityId,
           models,
           settings,
         });
       }
-      res.status(201).send(result);
+
+      return appointment;
     });
+    res.status(201).send(result);
   }),
 );
 
