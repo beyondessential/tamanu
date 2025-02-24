@@ -4,8 +4,7 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { chance } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/data-generation/helpers';
+import { chance, fake } from '@tamanu/data-generation/helpers';
 import { createTestContext } from '../utilities';
 import { addMinutes } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
