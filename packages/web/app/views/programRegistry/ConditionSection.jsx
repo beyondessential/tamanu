@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase, Divider } from '@material-ui/core';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5, TranslatedText } from '../../components';
+import { Heading5, TranslatedEnum, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -79,7 +79,16 @@ const ConditionComponent = ({ condition }) => {
     <ConditionalTooltip title={fullText} visible={fullText.length > 65}>
       <Condition>
         <ClippedConditionName>
-          {name} <ConditionCategory>({conditionCategory})</ConditionCategory>
+          {name}
+          {' '/* Needs a space separator */}
+          <ConditionCategory>
+            (
+              <TranslatedEnum
+                value={conditionCategory}
+                enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
+              />
+            )
+          </ConditionCategory>
         </ClippedConditionName>
       </Condition>
     </ConditionalTooltip>
