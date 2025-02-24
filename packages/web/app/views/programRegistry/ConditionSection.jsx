@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase, Divider } from '@material-ui/core';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../components';
+import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -71,47 +72,17 @@ const getGroupedConditions = (conditions) => {
   return { openConditions, closedConditions };
 };
 
-// TODO: Translate program registry condition name and category, plus sort by that new display name
 const ConditionComponent = ({ condition }) => {
-  const { programRegistryCondition, conditionCategory } = condition;
-  const { id, name } = programRegistryCondition;
+  const { translatedName, translatedCategory } = condition;
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip
-      title={
-        <>
-          <TranslatedReferenceData
-            fallback={name}
-            value={id}
-            category="condition"
-          />
-          {' '/* Needs a space separator */}
-          (
-            <TranslatedEnum
-              value={conditionCategory}
-              enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
-            />
-          )
-        </>
-      }
+      title={`${translatedName} (${translatedCategory})`}
       visible={isOverflowing}
     >
       <Condition>
         <ClippedConditionName ref={ref}>
-          <TranslatedReferenceData
-            fallback={name}
-            value={id}
-            category="condition"
-          />
-          {' '/* Needs a space separator */}
-          <ConditionCategory>
-            (
-              <TranslatedEnum
-                value={conditionCategory}
-                enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
-              />
-            )
-          </ConditionCategory>
+          {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
         </ClippedConditionName>
       </Condition>
     </ConditionalTooltip>
@@ -119,6 +90,7 @@ const ConditionComponent = ({ condition }) => {
 };
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -132,7 +104,18 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return null;
   }
 
-  const sortedData = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  const translatedData = conditions.data.map(condition => {
+    const { programRegistryCondition, conditionCategory } = condition;
+    const { id, name } = programRegistryCondition;
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'condition'),
+      name,
+    );
+
+    const translatedCategory = getEnumTranslation(PROGRAM_REGISTRY_CONDITION_CATEGORIES, conditionCategory);
+    return { ...condition, translatedName, translatedCategory };
+  });
+  const sortedData = sortBy(translatedData, c => c.translatedName);
   const { openConditions, closedConditions } = getGroupedConditions(sortedData);
   const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
 
