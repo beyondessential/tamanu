@@ -17,6 +17,7 @@ import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
 import { startTasks } from './startTasks';
 import { SyncTask } from '../tasks/SyncTask';
+import { initTimesync } from '../initTimeSync';
 
 const APP_TYPES = {
   API: 'api',
@@ -50,6 +51,8 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
     context.centralServer = new CentralServerConnection(context);
     context.syncManager = new FacilitySyncManager(context);
   }
+
+  await initTimesync(context);
 
   await performTimeZoneChecks({
     remote: context.centralServer,

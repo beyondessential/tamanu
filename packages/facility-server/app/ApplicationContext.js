@@ -1,6 +1,5 @@
 import config from 'config';
 import { omit } from 'lodash';
-import {create as createTimesync} from 'timesync';
 
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
@@ -47,14 +46,6 @@ export class ApplicationContext {
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
-
-    this.ts = createTimesync({
-      server: `${config.sync.host.trim().replace(/\/*$/, '')}/timesync`,
-      interval: 60000,
-    });
-    this.ts.on('change', (offset) => {
-      this.models.LocalSystemFact.set('timesyncOffset', offset);
-    });
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
