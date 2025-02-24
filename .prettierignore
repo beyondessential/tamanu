@@ -6,3 +6,4 @@
 **/data/**
 **/.bin/**
 database/model/**/*.md
+.github/workflows/*.yml

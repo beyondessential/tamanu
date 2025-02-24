@@ -38,51 +38,38 @@ import { useSelector } from 'react-redux';
 import { getReferenceDataStringId } from '../components/Translation/index.js';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput.jsx';
 import { useAuth } from '../contexts/Auth.js';
+import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils.jsx';
 
 const validationSchema = yup.object().shape({
-  medicationId: foreignKey().translatedLabel(
-    <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+  medicationId: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
   isOngoing: yup.boolean().optional(),
   isPrn: yup.boolean().optional(),
   doseAmount: yup
     .number()
     .positive()
-    .required()
-    .translatedLabel(
-      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
-    ),
-  units: foreignKey()
-    .oneOf(DRUG_UNIT_VALUES)
-    .translatedLabel(<TranslatedText stringId="medication.units.label" fallback="Units" />),
-  frequency: foreignKey().translatedLabel(
-    <TranslatedText stringId="medication.frequency.label" fallback="Frequency" />,
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  units: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ).oneOf(DRUG_UNIT_VALUES),
+  frequency: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
-  route: foreignKey()
-    .oneOf(DRUG_ROUTE_VALUES)
-    .translatedLabel(<TranslatedText stringId="medication.route.label" fallback="Route" />),
+  route: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ).oneOf(DRUG_ROUTE_VALUES),
   date: yup
     .date()
-    .required()
-    .translatedLabel(
-      <TranslatedText stringId="medication.date.label" fallback="Prescription date" />,
-    ),
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   startDate: yup
     .date()
-    .required()
-    .translatedLabel(
-      <TranslatedText stringId="medication.startDatetime.label" fallback="Start date & time" />,
-    ),
-  prescriberId: foreignKey().translatedLabel(
-    <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  prescriberId: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
   quantity: yup.number().integer(),
-  patientWeight: yup
-    .number()
-    .positive()
-    .translatedLabel(
-      <TranslatedText stringId="medication.patientWeight.label" fallback="Patient weight" />,
-    ),
+  patientWeight: yup.number().positive(),
 });
 
 const CheckboxGroup = styled.div`
@@ -102,6 +89,12 @@ const ButtonRow = styled.div`
   grid-column: 1 / -1;
   justify-content: space-between;
   height: 40px;
+`;
+
+const StyledFormGrid = styled(FormGrid)`
+  .MuiFormHelperText-root.Mui-error {
+    font-size: 12px;
+  }
 `;
 
 export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) => {
@@ -147,27 +140,6 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
     })();
   }, [awaitingPrint, submittedMedication]);
 
-  const validateDecimalPlaces = e => {
-    const value = e.target.value;
-    if (/^[−-]/.test(value)) {
-      e.target.value = '';
-      return;
-    }
-    if (value.includes('.')) {
-      const decimalPlaces = value.split('.')[1].length;
-      if (decimalPlaces > 1) {
-        console.log(e.target.value, parseFloat(value).toFixed(1));
-        e.target.value = parseFloat(value).toFixed(1);
-      }
-    }
-  };
-
-  const preventNegative = value => {
-    if (!value.target.validity.valid) {
-      value.target.value = 0;
-    }
-  };
-
   const onSubmit = async data => {
     const medicationSubmission = await api.post('medication', {
       ...data,
@@ -182,6 +154,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
   return (
     <>
       <Form
+        suppressErrorDialog
         onSubmit={onSubmit}
         onSuccess={() => {
           if (!awaitingPrint) {
@@ -195,7 +168,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
-          <FormGrid>
+          <StyledFormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
               <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
               <span style={{ fontWeight: 500 }}>
@@ -221,7 +194,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                   const referenceDrug = e.target.referenceDrug;
                   setValues({
                     ...values,
-                    route: referenceDrug?.route || '',
+                    route: referenceDrug?.route?.toLowerCase() || '',
                     units: referenceDrug?.units || '',
                     notes: referenceDrug?.notes || '',
                   });
@@ -242,10 +215,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
               <Field
                 name="isPrn"
                 label={
-                  <TranslatedText
-                    stringId="medication.isPrn.label"
-                    fallback="PRN Medication"
-                  />
+                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN Medication" />
                 }
                 component={CheckField}
               />
@@ -257,7 +227,6 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
               }
               component={NumberField}
               min={0}
-              step="any"
               onInput={validateDecimalPlaces}
               required
             />
@@ -303,7 +272,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                 label={<TranslatedText stringId="medication.duration.label" fallback="Duration" />}
                 component={NumberField}
                 min={0}
-                onInput={preventNegative}
+                onInput={preventInvalidNumber}
               />
               <Field
                 name="durationUnit"
@@ -365,7 +334,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
               }
               min={0}
               component={NumberField}
-              onInput={preventNegative}
+              onInput={preventInvalidNumber}
             />
             {showPatientWeight && (
               <>
@@ -378,7 +347,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                     <TranslatedText
                       stringId="medication.patientWeight.label"
                       fallback="Patient weight if printing (:unit)"
-                      replacements={{ unit: `(${weightUnit})` }}
+                      replacements={{ unit: weightUnit }}
                     />
                   }
                   onChange={e => setPatientWeight(e.target.value)}
@@ -388,7 +357,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                 />
               </>
             )}
-            <div style={{ gridColumn: '1 / -1' }}>
+            <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
               <Divider />
             </div>
             <ButtonRow>
@@ -421,7 +390,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                 </FormSubmitButton>
               </Box>
             </ButtonRow>
-          </FormGrid>
+          </StyledFormGrid>
         )}
       />
       {submittedMedication && (
