@@ -2,7 +2,7 @@ import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateImagingRequestDataParams {
+interface CreateImagingRequestParams {
   models: Models;
   userId: string;
   encounterId: string;
@@ -13,7 +13,7 @@ export const createImagingRequest = async ({
   userId,
   encounterId,
   locationGroupId,
-}: CreateImagingRequestDataParams): Promise<void> => {
+}: CreateImagingRequestParams): Promise<void> => {
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
       requestedById: userId,

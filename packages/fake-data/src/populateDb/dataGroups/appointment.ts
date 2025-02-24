@@ -2,7 +2,7 @@ import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateAppointmentDataParams {
+interface CreateAppointmentParams {
   models: Models;
   locationGroupId: string;
   patientId: string;
@@ -13,7 +13,7 @@ export const createRepeatingAppointment = async ({
   locationGroupId,
   patientId,
   clinicianId,
-}: CreateAppointmentDataParams): Promise<void> => {
+}: CreateAppointmentParams): Promise<void> => {
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
       frequency: REPEAT_FREQUENCY.WEEKLY,
@@ -26,6 +26,21 @@ export const createRepeatingAppointment = async ({
       clinicianId,
       locationGroupId,
       scheduleId: appointmentSchedule.id,
+    }),
+  );
+};
+
+export const createAppointment = async ({
+  models: { Appointment },
+  locationGroupId,
+  patientId,
+  clinicianId,
+}: CreateAppointmentParams): Promise<void> => {
+  await Appointment.create(
+    fake(Appointment, {
+      patientId,
+      clinicianId,
+      locationGroupId,
     }),
   );
 };

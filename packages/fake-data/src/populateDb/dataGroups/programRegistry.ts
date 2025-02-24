@@ -1,7 +1,7 @@
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateProgramRegistryDataParams {
+interface CreateProgramRegistryParams {
   models: Models;
   userId: string;
   patientId: string;
@@ -12,7 +12,7 @@ export const createProgramRegistry = async ({
   userId,
   patientId,
   programRegistryId,
-}: CreateProgramRegistryDataParams): Promise<void> => {
+}: CreateProgramRegistryParams): Promise<void> => {
   await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
       clinicianId: userId,

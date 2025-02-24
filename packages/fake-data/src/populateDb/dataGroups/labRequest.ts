@@ -1,7 +1,7 @@
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateLabRequestDataParams {
+interface CreateLabRequestParams {
   models: Models;
   departmentId: string;
   userId: string;
@@ -18,7 +18,7 @@ export const createLabRequest = async ({
   referenceDataId,
   patientId,
   labTestTypeId,
-}: CreateLabRequestDataParams): Promise<void> => {
+}: CreateLabRequestParams): Promise<void> => {
   const labRequest = await LabRequest.create(
     fake(LabRequest, {
       departmentId,

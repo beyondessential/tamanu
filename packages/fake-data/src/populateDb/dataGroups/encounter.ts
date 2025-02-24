@@ -2,7 +2,7 @@ import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { Models, Encounter } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateEncounterDataParams {
+interface CreateEncounterParams {
   models: Models;
   patientId: string;
   departmentId: string;
@@ -17,7 +17,7 @@ export const createEncounter = async ({
   locationId,
   userId,
   referenceDataId,
-}: CreateEncounterDataParams): Promise<{ encounter: Encounter }> => {
+}: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
   const encounter = await Encounter.create(
     fake(Encounter, {
       patientId,

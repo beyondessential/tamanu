@@ -1,7 +1,7 @@
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateSurveyResponseDataParams {
+interface CreateSurveyResponseParams {
   models: Models;
   encounterId: string;
   surveyId: string;
@@ -10,7 +10,7 @@ export const createSurveyResponse = async ({
   models: { SurveyResponse },
   encounterId,
   surveyId,
-}: CreateSurveyResponseDataParams): Promise<void> => {
+}: CreateSurveyResponseParams): Promise<void> => {
   await SurveyResponse.create(
     fake(SurveyResponse, {
       surveyId,

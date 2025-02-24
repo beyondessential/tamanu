@@ -1,7 +1,7 @@
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateInvoiceDataParams {
+interface CreateInvoiceParams {
   models: Models;
   encounterId: string;
   userId: string;
@@ -23,7 +23,7 @@ export const createInvoice = async ({
   userId,
   referenceDataId,
   productId,
-}: CreateInvoiceDataParams): Promise<void> => {
+}: CreateInvoiceParams): Promise<void> => {
   const invoice = await Invoice.create(
     fake(Invoice, {
       encounterId,

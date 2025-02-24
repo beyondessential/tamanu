@@ -1,7 +1,7 @@
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateTaskingDataParams {
+interface CreateTaskParams {
   models: Models;
   encounterId: string;
   userId: string;
@@ -12,7 +12,7 @@ export const createTask = async ({
   encounterId,
   userId,
   referenceDataId,
-}: CreateTaskingDataParams): Promise<void> => {
+}: CreateTaskParams): Promise<void> => {
   const task = await Task.create(
     fake(Task, {
       encounterId,
