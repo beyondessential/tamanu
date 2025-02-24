@@ -64,7 +64,7 @@
       "packages/mobile",
       "packages/database",
       "packages/utils",
-      "packages/data-generation"
+      "packages/fake-data"
     ]
   },
   "devDependencies": {
