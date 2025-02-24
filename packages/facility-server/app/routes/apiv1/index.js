@@ -9,6 +9,7 @@ import {
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
+import { attachAuditUserToDbSession } from '../../middleware/audit';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
@@ -107,6 +108,8 @@ apiv1.get(
 apiv1.use(authMiddleware);
 
 apiv1.use(constructPermission);
+
+apiv1.use(attachAuditUserToDbSession)
 
 apiv1.delete(
   '/admin/settings/cache',
