@@ -87,14 +87,6 @@ export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [modifyMode, setModifyMode] = useState('');
 
-  const initialDrawerValues = useMemo(
-    () => ({
-      ...selectedAppointment,
-      isRepeatingAppointment: !!selectedAppointment.schedule,
-    }),
-    [selectedAppointment],
-  );
-
   useEffect(() => {
     const { patientId, date } = queryString.parse(location.search);
     if (patientId) {
@@ -228,7 +220,7 @@ export const OutpatientAppointmentsView = () => {
               selectedDate={selectedDate}
             />
             <OutpatientAppointmentDrawer
-              initialValues={initialDrawerValues}
+              initialValues={selectedAppointment}
               modifyMode={modifyMode}
               key={selectedAppointment.id}
               onClose={() => setDrawerOpen(false)}

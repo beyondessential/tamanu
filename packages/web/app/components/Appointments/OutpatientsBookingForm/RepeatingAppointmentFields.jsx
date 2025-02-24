@@ -227,7 +227,7 @@ export const RepeatingAppointmentFields = ({
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
               value={ENDS_MODES.ON}
-              control={<StyledRadio />}
+              control={<StyledRadio disabled={readonly}/>}
               label={
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.on"
