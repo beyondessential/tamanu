@@ -1,7 +1,5 @@
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
-
-// TODO: maybe this should come here?
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 
 interface CreateDbReportDataParams {

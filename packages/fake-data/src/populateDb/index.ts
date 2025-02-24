@@ -3,14 +3,14 @@ export * from './generateEachDataType';
 export * from './generateImportData';
 
 // Clinical data types
-export * from './createDbReportData';
-export * from './createTaskingData';
-export * from './createPatientData';
-export * from './createEncounterData';
-export * from './createInvoiceData';
-export * from './createImagingRequestData';
-export * from './createLabRequestData';
-export * from './createAppointmentData';
-export * from './createProgramRegistryData';
-export * from './createSurveyResponseData';
-export * from './createAdministeredVaccineData';
+export * from './dataGroups/createDbReportData';
+export * from './dataGroups/createTaskingData';
+export * from './dataGroups/createPatientData';
+export * from './dataGroups/createEncounterData';
+export * from './dataGroups/createInvoiceData';
+export * from './dataGroups/createImagingRequestData';
+export * from './dataGroups/createLabRequestData';
+export * from './dataGroups/createAppointmentData';
+export * from './dataGroups/createProgramRegistryData';
+export * from './dataGroups/createSurveyResponseData';
+export * from './dataGroups/createAdministeredVaccineData';
