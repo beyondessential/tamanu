@@ -8,6 +8,7 @@ import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import useOverflow from '../../hooks/useOverflow';
 
 const Container = styled.div`
   display: flex;
@@ -74,6 +75,7 @@ const getGroupedConditions = (conditions) => {
 const ConditionComponent = ({ condition }) => {
   const { programRegistryCondition, conditionCategory } = condition;
   const { id, name } = programRegistryCondition;
+  const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip
       title={
@@ -92,10 +94,10 @@ const ConditionComponent = ({ condition }) => {
           )
         </>
       }
-      visible={true}
+      visible={isOverflowing}
     >
       <Condition>
-        <ClippedConditionName>
+        <ClippedConditionName ref={ref}>
           <TranslatedReferenceData
             fallback={name}
             value={id}
