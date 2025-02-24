@@ -599,7 +599,7 @@ export const fake = (
     );
   }
 
-  for (const [name, attribute] of Object.entries(model.rawAttributes)) {
+  for (const [name, attribute] of Object.entries(model.getAttributes())) {
     const fakeValue = fakeField(name, attribute);
     if (fakeValue !== undefined) record[name] = fakeValue;
   }
