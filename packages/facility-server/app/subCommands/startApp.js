@@ -45,6 +45,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
+
   if (appType === APP_TYPES.API) {
     context.syncConnection = new FacilitySyncConnection();
   } else {
