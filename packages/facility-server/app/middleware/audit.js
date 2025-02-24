@@ -1,4 +1,4 @@
-const attachAuditUserToDbSession = async (req, res, next) => {
+export const attachAuditUserToDbSession = async (req, res, next) => {
   const { db, user } = req;
   const { id: userId } = user;
 
