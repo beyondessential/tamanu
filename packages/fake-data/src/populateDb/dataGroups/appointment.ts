@@ -2,7 +2,7 @@ import { times } from 'lodash';
 
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
 
 interface CreateAppointmentParams {
   models: Models;
@@ -35,7 +35,7 @@ export const createRepeatingAppointment = async ({
   locationGroupId,
   patientId,
   clinicianId,
-  apptCount = 5,
+  apptCount = chance.number({ min: 1, max: 50 }),
 }: CreateRepeatingAppointmentParams): Promise<void> => {
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
