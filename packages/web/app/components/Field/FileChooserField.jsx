@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import MuiTextField from '@material-ui/core/TextField';
-import PublishIcon from '@material-ui/icons/Publish';
+import { Colors } from '../../constants';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -14,13 +13,16 @@ const FieldButtonRow = styled.div`
   margin-top: 0.5rem;
   grid-template-columns: max-content auto;
   grid-gap: 1rem;
-  &.has-value {
-    grid-template-columns: auto max-content;
-  }
 `;
 
 const HintText = styled.div`
   font-size: 0.9em;
+`;
+
+const ChangeSelectionButton = styled.a`
+  color: ${Colors.primary};
+  font-weight: 500;
+  cursor: pointer;
 `;
 
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
@@ -56,11 +58,13 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
         <FieldButtonRow className={value ? 'has-value' : ''}>
           {value ? (
             <>
-              <MuiTextField readOnly value={value.name} variant="outlined" />
-              <Button onClick={showFileDialog} variant="outlined">
-                <PublishIcon />
-                <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
-              </Button>
+              {value.name}
+              <ChangeSelectionButton onClick={showFileDialog}>
+                <TranslatedText
+                  stringId="chooseFile.button.changeSelection.label"
+                  fallback="Change selection"
+                />
+              </ChangeSelectionButton>
             </>
           ) : (
             <>

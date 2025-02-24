@@ -4,24 +4,21 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import {
+  ButtonRow,
   Field,
   Form,
   FormGrid,
-  OutlinedButton,
+  FormSubmitButton,
   RadioField,
   TranslatedText,
 } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { FORM_TYPES } from '../../../constants';
 import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { useTranslation } from '../../../contexts/Translation';
 
-const StyledButton = styled(OutlinedButton)`
-  margin-top: 30px;
-  background-color: ${Colors.white};
-`;
 const InnerContainer = styled.div`
   padding: 20px;
   max-width: 500px;
@@ -94,7 +91,7 @@ export const ExportReportView = () => {
       }}
       formType={FORM_TYPES.CREATE_FORM}
       showInlineErrorsOnly
-      render={({ values, isSubmitting }) => (
+      render={({ values }) => (
         <InnerContainer>
           <FormGrid columns={1}>
             <Field
@@ -139,9 +136,11 @@ export const ExportReportView = () => {
               />
             )}
           </FormGrid>
-          <StyledButton type="submit" isSubmitting={isSubmitting}>
-            <TranslatedText stringId="general.action.export" fallback="Export" />
-          </StyledButton>
+          <ButtonRow alignment="left">
+            <FormSubmitButton
+              text={<TranslatedText stringId="general.action.export" fallback="Export" />}
+            />
+          </ButtonRow>
         </InnerContainer>
       )}
     />
