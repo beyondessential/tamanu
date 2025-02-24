@@ -10,7 +10,7 @@ import {
   createLabRequest,
   createPatient,
   createProgramRegistry,
-  fillOutSurvey,
+  createSurveyResponse,
   createTask,
 } from './dataGroups';
 
