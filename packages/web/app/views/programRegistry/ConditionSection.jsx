@@ -146,11 +146,11 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
       </Heading5>
       <ScrollBody>
         {openConditions.map(
-          condition => <ConditionComponent key={condition.id} condition={condition }/>,
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
         )}
         {needsDivider && <Divider variant="middle" />}
         {closedConditions.map(
-          condition => <ConditionComponent key={condition.id} condition={condition }/>,
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
         )}
       </ScrollBody>
     </Container>
