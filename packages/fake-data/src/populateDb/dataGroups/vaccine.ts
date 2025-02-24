@@ -6,7 +6,7 @@ interface CreateAdministeredVaccineDataParams {
   scheduledVaccineId: string;
   encounterId: string;
 }
-export const createAdministeredVaccineData = async ({
+export const createAdministeredVaccine = async ({
   models: { AdministeredVaccine },
   scheduledVaccineId,
   encounterId,

@@ -6,7 +6,7 @@ interface CreateSurveyResponseDataParams {
   encounterId: string;
   surveyId: string;
 }
-export const createSurveyResponseData = async ({
+export const fillOutSurvey = async ({
   models: { SurveyResponse },
   encounterId,
   surveyId,

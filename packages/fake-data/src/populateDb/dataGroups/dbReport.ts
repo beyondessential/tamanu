@@ -6,7 +6,7 @@ interface CreateDbReportDataParams {
   models: Models;
   userId: string;
 }
-export const createDbReportData = async ({
+export const createDbReport = async ({
   models: { ReportDefinition, ReportDefinitionVersion },
   userId,
 }: CreateDbReportDataParams): Promise<void> => {

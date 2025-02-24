@@ -7,7 +7,7 @@ interface CreateTaskingDataParams {
   userId: string;
   referenceDataId: string;
 }
-export const createTaskingData = async ({
+export const createTask = async ({
   models: { Task, TaskDesignation, TaskTemplate, TaskTemplateDesignation, UserDesignation },
   encounterId,
   userId,

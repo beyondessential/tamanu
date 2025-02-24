@@ -8,7 +8,7 @@ interface CreateAppointmentDataParams {
   patientId: string;
   clinicianId: string;
 }
-export const createAppointmentData = async ({
+export const createRepeatingAppointment = async ({
   models: { AppointmentSchedule, Appointment },
   locationGroupId,
   patientId,

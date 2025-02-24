@@ -6,7 +6,7 @@ interface CreatePatientDataParams {
   facilityId: string;
   userId: string;
 }
-export const createPatientData = async ({
+export const createPatient = async ({
   models: {
     Patient,
     PatientBirthData,
