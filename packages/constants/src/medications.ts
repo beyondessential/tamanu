@@ -220,3 +220,10 @@ export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
   [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
 };
+
+export const ADMINISTRATION_STATUS = {
+  GIVEN: 'given',
+  NOT_GIVEN: 'not-given',
+  MISSED: 'missed',
+  DUE: 'due',
+};
