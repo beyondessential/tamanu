@@ -62,7 +62,6 @@ export class ApplicationContext {
   }
 
   async close() {
-    this.ts.destroy();
     for (const hook of this.closeHooks) {
       await hook();
     }
