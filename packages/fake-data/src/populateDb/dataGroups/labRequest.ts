@@ -10,7 +10,7 @@ interface CreateLabRequestDataParams {
   patientId: string;
   labTestTypeId: string;
 }
-export const createLabRequestData = async ({
+export const createLabRequest = async ({
   models: { LabRequest, LabRequestLog, LabTest, CertificateNotification },
   departmentId,
   userId,

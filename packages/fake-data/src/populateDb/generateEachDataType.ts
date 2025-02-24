@@ -57,7 +57,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
-    await fillOutSurvey({ models, encounterId: encounter.id, surveyId: survey.id }),
+    await createSurveyResponse({ models, encounterId: encounter.id, surveyId: survey.id }),
     await createDbReport({ models, userId: user.id }),
     await createAdministeredVaccine({
       models,

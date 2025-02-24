@@ -10,7 +10,7 @@ interface CreateEncounterDataParams {
   userId: string;
   referenceDataId: string;
 }
-export const createEncounterData = async ({
+export const createEncounter = async ({
   models: { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis },
   patientId,
   departmentId,

@@ -8,7 +8,7 @@ interface CreateInvoiceDataParams {
   referenceDataId: string;
   productId: string;
 }
-export const createInvoiceData = async ({
+export const createInvoice = async ({
   models: {
     Invoice,
     InvoiceDiscount,

@@ -7,7 +7,7 @@ interface CreateProgramRegistryDataParams {
   patientId: string;
   programRegistryId: string;
 }
-export const createProgramRegistryData = async ({
+export const createProgramRegistry = async ({
   models: { PatientProgramRegistration, PatientProgramRegistrationCondition },
   userId,
   patientId,

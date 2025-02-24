@@ -8,7 +8,7 @@ interface CreateImagingRequestDataParams {
   encounterId: string;
   locationGroupId: string;
 }
-export const createImagingRequestData = async ({
+export const createImagingRequest = async ({
   models: { ImagingRequest, ImagingResult },
   userId,
   encounterId,
