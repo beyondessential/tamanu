@@ -11,6 +11,5 @@ export const initTimesync = ({ models, centralServer }) => {
   timesync.on('change', (offset) => {
     models.LocalSystemFact.set('timesyncOffset', offset);
   });
-  console.log('yay')
   return timesync;
 };
