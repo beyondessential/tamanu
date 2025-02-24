@@ -7,7 +7,7 @@ import { reloadPatient } from '../../store';
 import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry/PatientProgramRegistryUpdateFormModal.jsx';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
@@ -225,7 +225,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       />
 
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
-        <ChangeStatusFormModal
+        <PatientProgramRegistryUpdateFormModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();

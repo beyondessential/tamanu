@@ -3,17 +3,14 @@ import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
-import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { MenuButton } from '../../components/MenuButton';
-import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { OutlinedButton } from '../../components';
+import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Row = styled.div`
   display: flex;
@@ -163,10 +160,10 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       >
         <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
           <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-            Change status
+            <TranslatedText stringId="general.action.update" fallback="Update" />
           </OutlinedButton>
         </ConditionalTooltip>
-        <ChangeStatusFormModal
+        <PatientProgramRegistryUpdateFormModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}
