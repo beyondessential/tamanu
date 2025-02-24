@@ -13,3 +13,4 @@ export * from './createLabRequestData';
 export * from './createAppointmentData';
 export * from './createProgramRegistryData';
 export * from './createSurveyResponseData';
+export * from './createAdministeredVaccineData';
