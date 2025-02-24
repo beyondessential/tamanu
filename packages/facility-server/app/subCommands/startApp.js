@@ -7,7 +7,6 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
-import { initTimesync } from '../sync/initTimesync';
 import { performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
@@ -50,7 +49,6 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   } else {
     context.centralServer = new CentralServerConnection(context);
     context.syncManager = new FacilitySyncManager(context);
-    context.timesync = initTimesync(context);
   }
 
 

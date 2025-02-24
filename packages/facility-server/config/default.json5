@@ -53,6 +53,7 @@
     }
   },
   "timesync": {
+    "enabled": true,
     "interval": 60000 // ms interval for syncronising
   },
   "port": 4000,
