@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase, Divider } from '@material-ui/core';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5, TranslatedEnum, TranslatedText } from '../../components';
+import { Heading5, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -73,13 +73,17 @@ const getGroupedConditions = (conditions) => {
 // TODO: Translate program registry condition name and category, plus sort by that new display name
 const ConditionComponent = ({ condition }) => {
   const { programRegistryCondition, conditionCategory } = condition;
-  const { name } = programRegistryCondition;
+  const { id, name } = programRegistryCondition;
   const fullText = `${name} (${conditionCategory})`;
   return (
     <ConditionalTooltip title={fullText} visible={fullText.length > 65}>
       <Condition>
         <ClippedConditionName>
-          {name}
+          <TranslatedReferenceData
+            fallback={name}
+            value={id}
+            category="condition"
+          />
           {' '/* Needs a space separator */}
           <ConditionCategory>
             (
