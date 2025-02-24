@@ -81,7 +81,7 @@ export const DateInput = ({
 
   const onValueChange = useCallback(
     event => {
-      if (event.target.validity.badInput) {
+      if (event.target.validity?.badInput) {
         // if the user starts editing the field by typing e.g. a '0' in the month field, until they
         // type another digit the resulting string is an invalid date
         // in this case we don't want to save the value to the form, as it would clear the whole
