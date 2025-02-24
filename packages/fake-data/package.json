@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@tamanu/database": "*",
-    "@tamanu/shared": "*"
+    "@tamanu/shared": "*",
+    "lodash": "^4.17.10"
   }
 }
