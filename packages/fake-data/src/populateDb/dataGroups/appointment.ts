@@ -27,7 +27,7 @@ export const createAppointment = async ({
 };
 
 interface CreateRepeatingAppointmentParams extends CreateAppointmentParams {
-  apptCount: number;
+  apptCount?: number;
 }
 
 export const createRepeatingAppointment = async ({
