@@ -8,6 +8,7 @@ import {
   LAB_REQUEST_STATUSES,
   SUPPORTED_CONTENT_TYPES,
 } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
@@ -114,6 +115,9 @@ export class FhirDiagnosticReport extends FhirResource {
 
       if (this.shouldUpdateLabRequestStatus(labRequest, newStatus)) {
         labRequest.set({ status: newStatus });
+        if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+          labRequest.set({ publishedDate: getCurrentDateTimeString() });
+        }
         await labRequest.save();
 
         if (!requesterId)
