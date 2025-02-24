@@ -49,8 +49,8 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
     context.syncConnection = new FacilitySyncConnection();
   } else {
     context.centralServer = new CentralServerConnection(context);
-    context.timesync = initTimesync(context);
     context.syncManager = new FacilitySyncManager(context);
+    context.timesync = initTimesync(context);
   }
 
 
