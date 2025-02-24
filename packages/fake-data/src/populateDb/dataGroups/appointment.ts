@@ -1,3 +1,5 @@
+import { times } from 'lodash';
+
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
 const { fake } = require('@tamanu/shared/test-helpers/fake');
@@ -8,27 +10,6 @@ interface CreateAppointmentParams {
   patientId: string;
   clinicianId: string;
 }
-export const createRepeatingAppointment = async ({
-  models: { AppointmentSchedule, Appointment },
-  locationGroupId,
-  patientId,
-  clinicianId,
-}: CreateAppointmentParams): Promise<void> => {
-  const appointmentSchedule = await AppointmentSchedule.create(
-    fake(AppointmentSchedule, {
-      frequency: REPEAT_FREQUENCY.WEEKLY,
-      locationGroupId,
-    }),
-  );
-  await Appointment.create(
-    fake(Appointment, {
-      patientId,
-      clinicianId,
-      locationGroupId,
-      scheduleId: appointmentSchedule.id,
-    }),
-  );
-};
 
 export const createAppointment = async ({
   models: { Appointment },
@@ -43,4 +24,34 @@ export const createAppointment = async ({
       locationGroupId,
     }),
   );
+};
+
+interface CreateRepeatingAppointmentParams extends CreateAppointmentParams {
+  apptCount: number;
+}
+
+export const createRepeatingAppointment = async ({
+  models: { AppointmentSchedule, Appointment },
+  locationGroupId,
+  patientId,
+  clinicianId,
+  apptCount = 5,
+}: CreateRepeatingAppointmentParams): Promise<void> => {
+  const appointmentSchedule = await AppointmentSchedule.create(
+    fake(AppointmentSchedule, {
+      frequency: REPEAT_FREQUENCY.WEEKLY,
+      locationGroupId,
+    }),
+  );
+
+  times(apptCount, async () => {
+    await Appointment.create(
+      fake(Appointment, {
+        patientId,
+        clinicianId,
+        locationGroupId,
+        scheduleId: appointmentSchedule.id,
+      }),
+    );
+  });
 };
