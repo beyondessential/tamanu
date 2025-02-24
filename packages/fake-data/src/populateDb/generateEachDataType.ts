@@ -12,7 +12,7 @@ import {
   createProgramRegistryData,
   createSurveyResponseData,
   createTaskingData,
-} from './helpers';
+} from './index';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   // Create one of each basic deployment/reference data to reference for clinical data
