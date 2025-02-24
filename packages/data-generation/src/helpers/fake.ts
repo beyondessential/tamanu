@@ -1,6 +1,6 @@
-import { isFunction, isObject, isString, snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
-import Sequelize, { DataTypes, ModelAttributeColumnOptions } from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
@@ -40,17 +40,17 @@ import { Model } from '@tamanu/database/models/Model';
 // jest wom't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
-export function fakeStringFields(prefix: string, fields: string[]) {
+export function fakeStringFields(prefix, fields) {
   return fields.reduce(
-    (obj: object, fieldName: string) => ({
+    (obj, field) => ({
       ...obj,
-      [fieldName]: prefix + fieldName,
+      [field]: prefix + field,
     }),
     {},
   );
 }
 
-export function fakeScheduledVaccine(prefix: string = 'test-') {
+export function fakeScheduledVaccine(prefix = 'test-') {
   const id = fakeUUID();
   return {
     weeksFromBirthDue: chance.integer({ min: 0, max: 1000 }),
@@ -68,7 +68,7 @@ export function fakeScheduledVaccine(prefix: string = 'test-') {
   };
 }
 
-export function fakeSurvey(prefix: string = 'test-') {
+export function fakeSurvey(prefix = 'test-') {
   const id = fakeUUID();
   return {
     programId: null,
@@ -78,7 +78,7 @@ export function fakeSurvey(prefix: string = 'test-') {
   };
 }
 
-export function fakeSurveyScreenComponent(prefix: string = 'test-') {
+export function fakeSurveyScreenComponent(prefix = 'test-') {
   const id = fakeUUID();
   return {
     surveyId: null,
@@ -98,7 +98,7 @@ export function fakeSurveyScreenComponent(prefix: string = 'test-') {
   };
 }
 
-export function fakeProgramDataElement(prefix: string = 'test-') {
+export function fakeProgramDataElement(prefix = 'test-') {
   const id = fakeUUID();
   return {
     type: chance.pickone(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
@@ -113,7 +113,7 @@ export function fakeProgramDataElement(prefix: string = 'test-') {
   };
 }
 
-export function fakeReferenceData(prefix: string = 'test-') {
+export function fakeReferenceData(prefix = 'test-') {
   const id = fakeUUID();
   return {
     type: chance.pickone(REFERENCE_TYPE_VALUES),
@@ -122,7 +122,7 @@ export function fakeReferenceData(prefix: string = 'test-') {
   };
 }
 
-export function fakeUser(prefix: string = 'test-') {
+export function fakeUser(prefix = 'test-') {
   const id = fakeUUID();
   return fakeStringFields(`${prefix}user_${id}_`, [
     'id',
@@ -133,12 +133,12 @@ export function fakeUser(prefix: string = 'test-') {
   ]);
 }
 
-export function fakeProgram(prefix: string = 'test-') {
+export function fakeProgram(prefix = 'test-') {
   const id = fakeUUID();
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
-export function fakeAdministeredVaccine(prefix: string = 'test-', scheduledVaccineId: string) {
+export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   const id = fakeUUID();
   return {
     encounterId: null,
@@ -148,7 +148,7 @@ export function fakeAdministeredVaccine(prefix: string = 'test-', scheduledVacci
   };
 }
 
-export function fakeEncounter(prefix: string = 'test-') {
+export function fakeEncounter(prefix = 'test-') {
   const id = fakeUUID();
   return {
     deviceId: null,
@@ -161,7 +161,7 @@ export function fakeEncounter(prefix: string = 'test-') {
   };
 }
 
-export function fakeSurveyResponse(prefix: string = 'test-') {
+export function fakeSurveyResponse(prefix = 'test-') {
   const id = fakeUUID();
   return {
     answers: [],
@@ -174,7 +174,7 @@ export function fakeSurveyResponse(prefix: string = 'test-') {
   };
 }
 
-export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
+export function fakeSurveyResponseAnswer(prefix = 'test-') {
   const id = fakeUUID();
   return {
     dataElementId: null,
@@ -183,7 +183,7 @@ export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   };
 }
 
-export function fakeEncounterDiagnosis(prefix: string = 'test-') {
+export function fakeEncounterDiagnosis(prefix = 'test-') {
   const id = fakeUUID();
   return {
     certainty: chance.pickone(DIAGNOSIS_CERTAINTY_VALUES),
@@ -195,7 +195,7 @@ export function fakeEncounterDiagnosis(prefix: string = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix: string = 'test-') {
+export function fakeEncounterMedication(prefix = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
@@ -215,8 +215,7 @@ export function fakeEncounterMedication(prefix: string = 'test-') {
 }
 
 export const fakeDate = () => chance.date();
-export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
-  `${model.name}.${fieldName}.${id}`;
+export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
 export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
@@ -240,8 +239,7 @@ const FIELD_HANDLERS = {
   'VARCHAR(255)': fakeString,
 
   // fallback for all other varchar lengths
-  'VARCHAR(N)': (model: typeof Model, attrs, id: string, length: number) =>
-    fakeString(model, attrs, id).slice(0, length),
+  'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
 
   TEXT: fakeString,
   INTEGER: fakeInt,
@@ -249,7 +247,7 @@ const FIELD_HANDLERS = {
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: (_: typeof Model, { type }) => chance.pickone(type.values),
+  ENUM: (_, { type }) => chance.pickone(type.values),
   UUID: () => fakeUUID(),
 };
 
@@ -419,99 +417,99 @@ const MODEL_SPECIFIC_OVERRIDES = {
 
 const FHIR_MODELS_HANDLERS = {
   FhirPatient: {
-    identifier: (...args: any[]) =>
+    identifier: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    name: (...args: any[]) =>
+    name: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirHumanName.fake(...args)),
-    telecom: (...args: any[]) =>
+    telecom: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirContactPoint.fake(...args)),
-    address: (...args: any[]) =>
+    address: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirAddress.fake(...args)),
-    link: (...args: any[]) =>
+    link: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirPatientLink.fake(...args)),
-    extension: (...args: any[]) =>
+    extension: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirExtension.fake(...args)),
   },
   FhirServiceRequest: {
-    identifier: (...args: any[]) =>
+    identifier: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    category: (...args: any[]) =>
+    category: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    order_detail: (...args: any[]) =>
+    order_detail: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    location_code: (...args: any[]) =>
+    location_code: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    code: (...args: any[]) => FhirCodeableConcept.fake(...args),
-    subject: (...args: any[]) => FhirReference.fake(...args),
-    requester: (...args: any[]) => FhirReference.fake(...args),
+    code: (...args) => FhirCodeableConcept.fake(...args),
+    subject: (...args) => FhirReference.fake(...args),
+    requester: (...args) => FhirReference.fake(...args),
   },
   FhirDiagnosticReport: {
-    extension: (...args: any[]) =>
+    extension: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirExtension.fake(...args)),
-    identifier: (...args: any[]) =>
+    identifier: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    code: (...args: any[]) => FhirCodeableConcept.fake(...args),
-    subject: (...args: any[]) => FhirReference.fake(...args),
-    performer: (...args: any[]) =>
+    code: (...args) => FhirCodeableConcept.fake(...args),
+    subject: (...args) => FhirReference.fake(...args),
+    performer: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
-    result: (...args: any[]) =>
+    result: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
   },
   FhirImmunization: {
-    vaccine_code: (...args: any[]) => FhirCodeableConcept.fake(...args),
-    patient: (...args: any[]) => FhirReference.fake(...args),
-    encounter: (...args: any[]) => FhirReference.fake(...args),
-    site: (...args: any[]) =>
+    vaccine_code: (...args) => FhirCodeableConcept.fake(...args),
+    patient: (...args) => FhirReference.fake(...args),
+    encounter: (...args) => FhirReference.fake(...args),
+    site: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirCodeableConcept.fake(...args)),
-    performer: (...args: any[]) =>
+    performer: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirImmunizationPerformer.fake(...args)),
-    protocol_applied: (...args: any[]) =>
+    protocol_applied: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirImmunizationProtocolApplied.fake(...args)),
   },
   FhirImagingStudy: {
-    identifier: (...args: any[]) =>
+    identifier: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirIdentifier.fake(...args)),
-    basedOn: (...args: any[]) =>
+    basedOn: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirReference.fake(...args)),
-    note: (...args: any[]) =>
+    note: (...args) =>
       Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => FhirAnnotation.fake(...args)),
@@ -529,7 +527,7 @@ export const fake = (
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  function fakeField(name: string, attribute: ModelAttributeColumnOptions) {
+  function fakeField(name, attribute) {
     const { type, fieldName, defaultValue } = attribute;
 
     if (overrideFields.includes(fieldName)) {
@@ -554,10 +552,10 @@ export const fake = (
       return VISIBILITY_STATUSES.CURRENT;
     }
 
-    if (type instanceof DataTypes.ARRAY && 'type' in type && isString(type.type)) {
+    if (type instanceof DataTypes.ARRAY && (type as any).type) {
       return Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
-        .map(() => fakeField(name, { ...attribute, type: type.type as string }));
+        .map(() => fakeField(name, { ...attribute, type: (type as any).type }));
     }
 
     if (defaultValue) {
@@ -571,16 +569,16 @@ export const fake = (
       return Buffer.from('test');
     }
 
-    if (isString(type) && FIELD_HANDLERS[type]) {
+    if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
     }
 
-    if (isObject(type) && 'type' in type && isString(type.type) && FIELD_HANDLERS[type.type]) {
+    if (type.type && FIELD_HANDLERS[type.type]) {
       return FIELD_HANDLERS[type.type](model, attribute, id);
     }
 
-    if (type instanceof DataTypes.STRING && 'options' in type && type.options.length) {
-      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    if (type instanceof DataTypes.STRING && (type as any).options.length) {
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, (type as any).options.length);
     }
 
     if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
@@ -591,13 +589,15 @@ export const fake = (
       return { test: 'test' };
     }
 
-    // if you hit this error, you probably need to add a new fieldName handler or a model-specific override
+    // if you hit this error, you probably need to add a new field handler or a model-specific override
     throw new Error(
-      `Could not fake fieldName ${model.name}.${name} of type ${type} / ${inspect(type)}`,
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+        type,
+      )}`,
     );
   }
 
-  for (const [name, attribute] of Object.entries(model.getAttributes())) {
+  for (const [name, attribute] of Object.entries(model.rawAttributes)) {
     const fakeValue = fakeField(name, attribute);
     if (fakeValue !== undefined) record[name] = fakeValue;
   }
