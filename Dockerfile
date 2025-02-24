@@ -2,7 +2,7 @@
 # The general concept is to build in build-base, then copy into a slimmer run-base
 FROM node:20-alpine AS base
 WORKDIR /app
-COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL sbom.cdx.json ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
