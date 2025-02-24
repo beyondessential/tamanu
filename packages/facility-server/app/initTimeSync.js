@@ -1,9 +1,9 @@
 import config from '../config';
 import {create as createTimesync} from 'timesync';
 
-export const initTimesync = async ({models, centralServerConnection}) => {
+export const initTimesync = async ({models, centralServer}) => {
    const ts = createTimesync({
-      server: `${centralServerConnection.host}/timesync`,
+      server: `${centralServer.host}/timesync`,
       interval: config.timesync.interval,
     });
     ts.on('change', (offset) => {
