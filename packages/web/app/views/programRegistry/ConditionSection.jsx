@@ -74,9 +74,26 @@ const getGroupedConditions = (conditions) => {
 const ConditionComponent = ({ condition }) => {
   const { programRegistryCondition, conditionCategory } = condition;
   const { id, name } = programRegistryCondition;
-  const fullText = `${name} (${conditionCategory})`;
   return (
-    <ConditionalTooltip title={fullText} visible={fullText.length > 65}>
+    <ConditionalTooltip
+      title={
+        <>
+          <TranslatedReferenceData
+            fallback={name}
+            value={id}
+            category="condition"
+          />
+          {' '/* Needs a space separator */}
+          (
+            <TranslatedEnum
+              value={conditionCategory}
+              enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
+            />
+          )
+        </>
+      }
+      visible={true}
+    >
       <Condition>
         <ClippedConditionName>
           <TranslatedReferenceData
