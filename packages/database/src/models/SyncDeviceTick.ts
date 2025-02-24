@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import type { InitOptions, Models } from '../types/model';
 
 export class SyncDeviceTick extends Model {
   declare id: number;
@@ -33,5 +33,12 @@ export class SyncDeviceTick extends Model {
         timestamps: false,
       },
     );
+  }
+
+  static initRelations(models: Models) {
+    this.belongsTo(models.Device, {
+      foreignKey: 'deviceId',
+      as: 'device',
+    });
   }
 }

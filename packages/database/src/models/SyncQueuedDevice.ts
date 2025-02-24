@@ -5,7 +5,7 @@ import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTi
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import type { InitOptions, Models } from '../types/model';
 
 const SYNC_READY_WINDOW_MINUTES = 5;
 
@@ -40,6 +40,14 @@ export class SyncQueuedDevice extends Model {
       },
     );
   }
+
+  static initRelations(models: Models) {
+    this.belongsTo(models.Device, {
+      foreignKey: 'id',
+      as: 'device',
+    });
+  }
+
   static getReadyDevicesWhereClause() {
     return {
       lastSeenTime: {

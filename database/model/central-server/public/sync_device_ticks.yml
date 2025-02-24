@@ -22,3 +22,6 @@ sources:
             description: "{{ doc('sync_device_ticks__device_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'devices')
+                  field: id
