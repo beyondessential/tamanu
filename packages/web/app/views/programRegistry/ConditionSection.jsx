@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { ButtonBase } from '@material-ui/core';
-import { Heading5, TranslatedText } from '../../components';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { Heading5 } from '../../components/Typography';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
+import { TranslatedEnum } from '../../components';
+import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -24,7 +28,7 @@ const Condition = styled(ButtonBase)`
   width: 100%;
   justify-content: flex-start;
   text-align: left;
-  padding: 7px 12px;
+  padding: 8px 12px;
   font-size: 14px;
   line-height: 18px;
 
@@ -42,43 +46,60 @@ const ClippedConditionName = styled.span`
   width: 95%;
 `;
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
+export const ConditionSection = () => {
+  const [selectedConditionId, setSelectedConditionId] = useState(null);
+  const { patientId, programRegistryId } = useParams();
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
+    patientId,
+    programRegistryId,
   );
 
   if (isLoading) {
     return <LoadingIndicator />;
   }
 
-  if (conditions.data.length === 0) {
+  if (!conditions.length) {
     return null;
   }
 
-  const sortedData = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  const sortedConditions = sortBy(
+    conditions,
+    ({ programRegistryCondition }) => programRegistryCondition?.name,
+  );
+
+  const selectedCondition = conditions.find(({ id }) => id === selectedConditionId);
+  const updateModalIsOpen = Boolean(selectedConditionId) && Boolean(selectedCondition);
 
   return (
     <Container>
       <Heading5 mt={0} mb={1}>
-        <TranslatedText
-          stringId="patientProgramRegistry.relatedConditions.title"
-          fallback="Related conditions"
-        />
+        Related conditions
       </Heading5>
       <ScrollBody>
-        {sortedData?.map(condition => {
-          const { programRegistryCondition } = condition;
+        {sortedConditions.map(condition => {
+          const { programRegistryCondition, conditionCategory } = condition;
           const { name } = programRegistryCondition;
           return (
-            <Condition key={condition.id}>
+            <Condition key={condition.id} onClick={() => setSelectedConditionId(condition.id)}>
               <ConditionalTooltip title={name} visible={name.length > 30}>
-                <ClippedConditionName>{name}</ClippedConditionName>
+                <ClippedConditionName>
+                  {name} (
+                  <TranslatedEnum
+                    value={conditionCategory}
+                    enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
+                  />
+                  )
+                </ClippedConditionName>
               </ConditionalTooltip>
             </Condition>
           );
         })}
       </ScrollBody>
+      <UpdateConditionFormModal
+        open={updateModalIsOpen}
+        onClose={() => setSelectedConditionId(null)}
+        condition={selectedCondition}
+      />
     </Container>
   );
 };

@@ -9,6 +9,7 @@ import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
+import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -46,15 +47,12 @@ const StyledTable = styled(Table)`
   }
 `;
 
-export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
-  const { data, isLoading } = useProgramRegistryClinicalStatusQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
-    {
-      orderBy: 'date',
-      order: 'desc',
-    },
-  );
+export const ProgramRegistryStatusHistory = () => {
+  const { patientId, programRegistryId } = useParams();
+  const { data, isLoading } = useProgramRegistryClinicalStatusQuery(patientId, programRegistryId, {
+    orderBy: 'date',
+    order: 'desc',
+  });
 
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'date',

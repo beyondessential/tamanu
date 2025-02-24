@@ -15,6 +15,7 @@ export class PatientProgramRegistrationCondition extends Model {
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
   declare conditionCategory?: string;
+  declare reasonForChange?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -31,6 +32,10 @@ export class PatientProgramRegistrationCondition extends Model {
           type: DataTypes.STRING,
           defaultValue: 'Unknown',
           allowNull: false,
+        },
+        reasonForChange: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
       },
       {

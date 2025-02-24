@@ -1,9 +1,15 @@
 import React from 'react';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedSelectField, FieldWithTooltip, TranslatedText } from '../../components';
+import { TranslatedSelectField, FieldWithTooltip } from '../../components';
 
-export const ProgramRegistryConditionCategoryField = ({ name, conditionId }) => {
+export const ProgramRegistryConditionCategoryField = ({
+  label,
+  name,
+  conditionId,
+  required = false,
+  ariaLabelledby = null,
+}) => {
   const { getTranslation } = useTranslation();
   return (
     <FieldWithTooltip
@@ -15,18 +21,14 @@ export const ProgramRegistryConditionCategoryField = ({ name, conditionId }) => 
             )
           : ''
       }
-      name={`${name}.category`}
-      label={
-        <TranslatedText
-          stringId="patientProgramRegistry.relatedConditionsCategory.label"
-          fallback="Category"
-        />
-      }
+      name={name}
+      label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
       component={TranslatedSelectField}
       enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
       disabled={!conditionId}
-      required={conditionId}
+      required={required}
+      ariaLabelledby={ariaLabelledby}
     />
   );
 };
