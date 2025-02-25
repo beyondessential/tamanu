@@ -31,6 +31,7 @@ export const createTask = async ({
       designationId: referenceDataId,
     }),
   );
+
   const taskTemplate = await TaskTemplate.create(fake(TaskTemplate, { referenceDataId }));
   await TaskTemplateDesignation.create(
     fake(TaskTemplateDesignation, {

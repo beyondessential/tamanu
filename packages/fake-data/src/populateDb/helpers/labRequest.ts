@@ -29,6 +29,7 @@ export const createLabRequest = async ({
       encounter: encounterId,
     }),
   );
+
   await LabRequestLog.create(
     fake(LabRequestLog, {
       status: 'reception_pending',
