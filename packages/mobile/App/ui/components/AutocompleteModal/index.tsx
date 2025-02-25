@@ -4,7 +4,9 @@ import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
+import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -40,6 +42,7 @@ type AutocompleteModalScreenProps = {
     params: {
       suggester: Suggester<BaseModelSubclass>;
       callback: (item: any) => any;
+      modalTitle?: string;
     };
   };
 };
@@ -48,7 +51,7 @@ export const AutocompleteModalScreen = ({
   route,
   navigation,
 }: AutocompleteModalScreenProps): ReactElement => {
-  const { callback, suggester } = route.params;
+  const { callback, suggester, modalTitle } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedOptions, setDisplayedOptions] = useState([]);
   const { language, getTranslation } = useTranslation();
@@ -60,7 +63,7 @@ export const AutocompleteModalScreen = ({
     })();
   }, [suggester, searchTerm, language]);
 
-  const onSelectItem = useCallback(item => {
+  const onSelectItem = useCallback((item) => {
     navigation.goBack();
     callback(item);
   }, [callback, navigation]);
@@ -71,6 +74,17 @@ export const AutocompleteModalScreen = ({
 
   return (
     <View style={styles.container}>
+      {modalTitle && (
+        <EmptyStackHeader
+          title={modalTitle}
+          onGoBack={() => {
+            navigation.goBack();
+          }}
+        />
+      )}
+      {modalTitle && (
+        <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
+      )}
       <Autocomplete
         placeholder={getTranslation('general.placeholder.search...', 'Search...')}
         placeholderTextColor={theme.colors.TEXT_DARK}
@@ -78,7 +92,7 @@ export const AutocompleteModalScreen = ({
         onChangeText={setSearchTerm}
         autoFocus
         flatListProps={{
-          keyExtractor: item => item.value,
+          keyExtractor: (item) => item.value,
           renderItem: ({ item, index }): ReactElement => {
             const useDarkBackground = index % 2 === 0;
             return (
