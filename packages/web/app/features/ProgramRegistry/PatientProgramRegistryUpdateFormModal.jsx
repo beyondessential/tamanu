@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,7 +28,11 @@ import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 
-const Container = styled.div``;
+const StyledFormTable = styled(FormTable)`
+  table tr td {
+    border: none;
+  }
+`;
 
 const Divider = styled(MuiDivider)`
   margin: 10px 0;
@@ -80,6 +84,42 @@ const useUpdateProgramRegistryMutation = patientId => {
       },
     },
   );
+};
+
+const getGroupedData = rows => {
+  const groupMapping = {
+    group1: [
+      'suspected',
+      'underInvestigation',
+      'confirmed',
+      'unknown',
+      'inRemission',
+      'notApplicable',
+    ],
+    group2: ['disproven', 'resolved'],
+    group3: ['recordedInError'],
+  };
+
+  // Initialize result object
+  // const emptyRow = { id: '', name: '', date: '', conditionCategory: '' };
+  const groupedData = { group1: [], group2: [], group3: [] };
+
+  // Process rows
+  rows.forEach(row => {
+    if (!row.id || !row.conditionCategory) return; // Skip invalid entries
+
+    for (const [group, conditions] of Object.entries(groupMapping)) {
+      if (conditions.includes(row.conditionCategory)) {
+        groupedData[group].push(row);
+        break;
+      }
+    }
+  });
+  Object.keys(groupedData).forEach(group => {
+    groupedData[group].sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  return groupedData;
 };
 
 export const PatientProgramRegistryUpdateFormModal = ({
@@ -155,10 +195,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   console.log('clearing', fieldName);
                 };
 
-                const isLastRow = index === rows.length - 1;
+                const isLastRow = index === groupedData.group1.length - 1;
 
                 return (
-                  <div>
+                  <div style={{ position: 'relative' }}>
                     <ProgramRegistryConditionField
                       name={`conditions[${index}].id`}
                       programRegistryId={programRegistryId}
@@ -259,9 +299,13 @@ export const PatientProgramRegistryUpdateFormModal = ({
           ];
 
           const rows = values.conditions;
+          const groupedData = getGroupedData(rows);
+
+          // console.log('groupedRows', groupedData);
+          console.log('VALUES', values);
 
           return (
-            <Container>
+            <>
               <Field
                 name="clinicalStatusId"
                 label={<TranslatedText stringId="general.status.label" fallback="Status" />}
@@ -275,9 +319,9 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   fallback="Related conditions"
                 />
               </Heading5>
-              <FormTable columns={columns} data={values.conditions} />
+              <StyledFormTable columns={columns} data={groupedData} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
-            </Container>
+            </>
           );
         }}
         initialValues={{

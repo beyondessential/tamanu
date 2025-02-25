@@ -142,7 +142,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
 
           return (
             <>
-              <FormTable columns={columns} data={condition ? [condition] : []} />
+              <FormTable columns={columns} data={[condition]} />
               {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
             </>

@@ -1,3 +1,5 @@
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+
 // function sleep(milliseconds) {
 //   return new Promise(resolve => {
 //     setTimeout(resolve, milliseconds);
@@ -796,12 +798,66 @@ export const dummyApi = {
         return {
           data: [
             {
-              id: 'e2fe0145-526f-4e56-af2c-51a6afe53159',
+              id: 'condition-1',
+              date: '2025-01-11 14:23:39',
+              conditionCategory: 'confirmed',
+              programRegistryCondition: {
+                id: 'prc-2',
+                name: 'Hypertension',
+              },
+            },
+            {
+              id: 'condition-2',
               date: '2025-02-13 14:23:39',
+              conditionCategory: 'confirmed',
+              programRegistryCondition: {
+                id: 'prc-1',
+                name: 'Diabetes',
+              },
+            },
+            {
+              id: 'condition-3',
+              date: '2024-01-03 14:23:39',
               conditionCategory: 'underInvestigation',
               programRegistryCondition: {
-                id: '1',
-                name: 'Anaemia',
+                id: 'prc-3',
+                name: 'Liver cancer',
+              },
+            },
+            {
+              id: 'condition-4',
+              date: '2024-03-02 14:23:39',
+              conditionCategory: 'underInvestigation',
+              programRegistryCondition: {
+                id: 'prc-4',
+                name: 'Tuberculosis of lung',
+              },
+            },
+            {
+              id: 'condition-5',
+              date: '2024-01-09 14:23:39',
+              conditionCategory: 'disproven',
+              programRegistryCondition: {
+                id: 'prc-5',
+                name: 'Tuberculosis of heart',
+              },
+            },
+            {
+              id: 'condition-6',
+              date: '2024-06-11 14:23:39',
+              conditionCategory: 'resolved',
+              programRegistryCondition: {
+                id: 'prc-6',
+                name: 'Malaria',
+              },
+            },
+            {
+              id: 'condition-7',
+              date: '2024-07-11 14:23:39',
+              conditionCategory: 'recordedInError',
+              programRegistryCondition: {
+                id: 'prc-7',
+                name: 'Hayfever',
               },
             },
           ],

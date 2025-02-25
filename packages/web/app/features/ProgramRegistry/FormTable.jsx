@@ -45,6 +45,9 @@ const StyledTableDataCell = styled(TableCell)`
 `;
 
 export const FormTable = React.memo(({ columns, data, className = '' }) => {
+  // Check if data is grouped (object) or ungrouped (array)
+  const isGrouped = !Array.isArray(data);
+
   return (
     <Container className={className}>
       <StyledTable>
@@ -58,13 +61,48 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((rowData, i) => (
-            <TableRow key={rowData.id || i}>
-              {columns.map(({ key, accessor }) => (
-                <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+          {isGrouped
+            ? // Handle grouped data
+              Object.entries(data).map(([groupName, groupData], groupIndex) => (
+                <React.Fragment key={groupName}>
+                  {groupData.map((rowData, i) => {
+                    // Get the total index of the row in the table
+                    const index =
+                      Object.values(data)
+                        .slice(0, groupIndex)
+                        .reduce((acc, group) => acc + group.length, 0) + i;
+                    console.log('index', index);
+
+                    // Is it the last group in the table?
+                    const isLast = groupIndex === Object.keys(data).length - 1;
+                    // Is it the last row in the group?
+                    const showBorder = !isLast && i === groupData.length - 1;
+
+                    return (
+                      <TableRow
+                        key={rowData.id || `${groupName}-${i}`}
+                        style={{
+                          borderBottom: showBorder ? `1px solid ${Colors.outline}` : 'none',
+                        }}
+                      >
+                        {columns.map(({ key, accessor }) => (
+                          <StyledTableDataCell key={key}>
+                            {accessor(rowData, index)}
+                          </StyledTableDataCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+                </React.Fragment>
+              ))
+            : // Handle ungrouped data
+              data.map((rowData, i) => (
+                <TableRow key={rowData.id || i}>
+                  {columns.map(({ key, accessor }) => (
+                    <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
         </TableBody>
       </StyledTable>
     </Container>
@@ -75,10 +113,32 @@ FormTable.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
-      title: PropTypes.node,
-      accessor: PropTypes.func.isRequired,
+      title: PropTypes.string.isRequired,
       width: PropTypes.string,
+      accessor: PropTypes.func.isRequired,
     }),
   ).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  data: PropTypes.oneOfType([
+    // Case 1: Ungrouped data (Array of objects)
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        date: PropTypes.string,
+        conditionCategory: PropTypes.string,
+      }),
+    ),
+    // Case 2: Grouped data (Object where values are arrays of objects)
+    PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string,
+          name: PropTypes.string,
+          date: PropTypes.string,
+          conditionCategory: PropTypes.string,
+        }),
+      ),
+    ),
+  ]).isRequired,
+  className: PropTypes.string,
 };
