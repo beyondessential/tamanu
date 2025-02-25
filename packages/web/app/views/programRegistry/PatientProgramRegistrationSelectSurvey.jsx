@@ -17,7 +17,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DisplayContainer = styled.div`
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   padding: 0 15px 20px 20px;
   border-radius: 5px;
   background-color: ${Colors.white};

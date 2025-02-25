@@ -10,7 +10,7 @@ import { ProgramRegistryTable } from './ProgramRegistryTable';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${Colors.outline};
   padding: 20px 30px;
   display: flex;
   flex-direction: row;

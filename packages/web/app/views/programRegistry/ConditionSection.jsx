@@ -1,12 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
-import { ButtonBase } from '@material-ui/core';
-import { Heading5, TranslatedText } from '../../components';
+import { ButtonBase, Divider } from '@material-ui/core';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import useOverflow from '../../hooks/useOverflow';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -16,13 +19,13 @@ const Container = styled.div`
 const ScrollBody = styled.div`
   flex: 1;
   border-radius: 5px;
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   padding: 5px 0;
+  overflow: auto;
 `;
 
 const Condition = styled(ButtonBase)`
   width: 100%;
-  justify-content: flex-start;
   text-align: left;
   padding: 7px 12px;
   font-size: 14px;
@@ -39,10 +42,55 @@ const ClippedConditionName = styled.span`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   word-wrap: break-word;
-  width: 95%;
+  width: 100%;
 `;
 
+const ConditionCategory = styled.span`
+  color: ${Colors.midText};
+`;
+
+const getGroupedConditions = (conditions) => {
+  const openConditions = [];
+  const closedConditions = [];
+
+  conditions.forEach(condition => {
+    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.recordedInError) {
+      return;
+    }
+
+    if ([
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
+    ].includes(condition.conditionCategory)) {
+      closedConditions.push(condition);
+      return;
+    }
+
+    openConditions.push(condition);
+  });
+
+  return { openConditions, closedConditions };
+};
+
+const ConditionComponent = ({ condition }) => {
+  const { translatedName, translatedCategory } = condition;
+  const [ref, isOverflowing] = useOverflow();
+  return (
+    <ConditionalTooltip
+      title={`${translatedName} (${translatedCategory})`}
+      visible={isOverflowing}
+    >
+      <Condition>
+        <ClippedConditionName ref={ref}>
+          {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
+        </ClippedConditionName>
+      </Condition>
+    </ConditionalTooltip>
+  );
+};
+
 export const ConditionSection = ({ patientProgramRegistration }) => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
@@ -56,7 +104,20 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return null;
   }
 
-  const sortedData = sortBy(conditions.data, c => c?.programRegistryCondition?.name);
+  const translatedData = conditions.data.map(condition => {
+    const { programRegistryCondition, conditionCategory } = condition;
+    const { id, name } = programRegistryCondition;
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'condition'),
+      name,
+    );
+
+    const translatedCategory = getEnumTranslation(PROGRAM_REGISTRY_CONDITION_CATEGORIES, conditionCategory);
+    return { ...condition, translatedName, translatedCategory };
+  });
+  const sortedData = sortBy(translatedData, c => c.translatedName);
+  const { openConditions, closedConditions } = getGroupedConditions(sortedData);
+  const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
 
   return (
     <Container>
@@ -67,17 +128,13 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         />
       </Heading5>
       <ScrollBody>
-        {sortedData?.map(condition => {
-          const { programRegistryCondition } = condition;
-          const { name } = programRegistryCondition;
-          return (
-            <Condition key={condition.id}>
-              <ConditionalTooltip title={name} visible={name.length > 30}>
-                <ClippedConditionName>{name}</ClippedConditionName>
-              </ConditionalTooltip>
-            </Condition>
-          );
-        })}
+        {openConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
+        )}
+        {needsDivider && <Divider variant="middle" />}
+        {closedConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
+        )}
       </ScrollBody>
     </Container>
   );

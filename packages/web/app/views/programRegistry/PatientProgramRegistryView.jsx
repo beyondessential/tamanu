@@ -15,7 +15,7 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${Colors.outline};
   padding: 15px 28px;
   display: flex;
   flex-direction: row;
@@ -35,7 +35,7 @@ const Container = styled.div`
 
 const MainSection = styled.div`
   background-color: ${Colors.white};
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 10px 20px;
 `;
