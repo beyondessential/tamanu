@@ -50,6 +50,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries(['patient', patientProgramRegistration.patientId]);
     onClose();
   };
 

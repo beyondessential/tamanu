@@ -23,3 +23,15 @@ export const STATUS_COLOR = {
   brown: '#7A492E',
   teal: '#125E7E',
 };
+
+export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
+  suspected: 'Suspected',
+  underInvestigation: 'Under investigation',
+  confirmed: 'Confirmed',
+  unknown: 'Unknown',
+  disproven: 'Disproven',
+  resolved: 'Resolved',
+  inRemission: 'In remission',
+  notApplicable: 'Not applicable',
+  recordedInError: 'Recorded in error',
+};

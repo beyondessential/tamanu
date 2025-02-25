@@ -16,3 +16,8 @@ export * from './useTranslationLanguagesQuery';
 export * from './useTelegramBotInfoQuery';
 export * from './useChartSurveysQuery';
 export * from './useEncounterChartsQuery';
+export {
+  usePatientProgramRegistryConditionsQuery,
+  useProgramRegistryConditionsQuery,
+} from './usePatientProgramRegistryConditionsQuery';
+export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';

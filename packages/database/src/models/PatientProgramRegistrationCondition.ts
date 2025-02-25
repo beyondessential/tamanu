@@ -1,4 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
@@ -13,6 +14,7 @@ export class PatientProgramRegistrationCondition extends Model {
   declare programRegistryConditionId?: string;
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
+  declare conditionCategory?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -25,6 +27,11 @@ export class PatientProgramRegistrationCondition extends Model {
         deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),
+        conditionCategory: {
+          type: DataTypes.STRING,
+          defaultValue: 'Unknown',
+          allowNull: false,
+        },
       },
       {
         ...options,
