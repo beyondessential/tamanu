@@ -44,6 +44,7 @@
   "dependencies": {
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "chance": "^1.1.12"
   }
 }
