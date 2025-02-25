@@ -1,4 +1,4 @@
-import { fake } from '../helpers/fake';
+import { fake } from '../../fake';
 
 import type {
   Department,

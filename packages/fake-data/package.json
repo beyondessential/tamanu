@@ -15,8 +15,8 @@
       "require": "./dist/cjs/populateDb/index.js"
     },
     "./helpers": {
-      "import": "./dist/mjs/helpers/index.js",
-      "require": "./dist/cjs/helpers/index.js"
+      "import": "./dist/mjs/fake/index.js",
+      "require": "./dist/cjs/fake/index.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
