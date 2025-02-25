@@ -1,5 +1,6 @@
 import type { Models } from '@tamanu/database';
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+import { times } from 'lodash';
+const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
 
 interface CreateLabRequestParams {
   models: Models;
@@ -9,6 +10,7 @@ interface CreateLabRequestParams {
   referenceDataId: string;
   patientId: string;
   labTestTypeId: string;
+  testCount?: number;
 }
 export const createLabRequest = async ({
   models: { LabRequest, LabRequestLog, LabTest, CertificateNotification },
@@ -18,6 +20,7 @@ export const createLabRequest = async ({
   referenceDataId,
   patientId,
   labTestTypeId,
+  testCount = chance.integer({ min: 1, max: 10 }),
 }: CreateLabRequestParams): Promise<void> => {
   const labRequest = await LabRequest.create(
     fake(LabRequest, {
@@ -32,19 +35,22 @@ export const createLabRequest = async ({
       labRequestId: labRequest.id,
     }),
   );
-  const labTest = await LabTest.create(
-    fake(LabTest, {
-      labRequestId: labRequest.id,
-      categoryId: referenceDataId,
-      labTestMethodId: referenceDataId,
-      labTestTypeId,
-    }),
-  );
-  await CertificateNotification.create(
-    fake(CertificateNotification, {
-      patientId,
-      labTestId: labTest.id,
-      labRequestId: labRequest.id,
-    }),
-  );
+
+  times(testCount, async () => {
+    const labTest = await LabTest.create(
+      fake(LabTest, {
+        labRequestId: labRequest.id,
+        categoryId: referenceDataId,
+        labTestMethodId: referenceDataId,
+        labTestTypeId,
+      }),
+    );
+    await CertificateNotification.create(
+      fake(CertificateNotification, {
+        patientId,
+        labTestId: labTest.id,
+        labRequestId: labRequest.id,
+      }),
+    );
+  });
 };

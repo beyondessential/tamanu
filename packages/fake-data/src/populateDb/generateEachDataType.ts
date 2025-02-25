@@ -12,6 +12,7 @@ import {
   createProgramRegistry,
   createSurveyResponse,
   createTask,
+  createPatientCommunication,
 } from './dataGroups';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
@@ -31,7 +32,11 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   } = await generateImportData(models);
 
   // Clinical data
-  const { patient } = await createPatient({ models, facilityId: facility.id, userId: user.id });
+  const { patient } = await createPatient({
+    models,
+    facilityId: facility.id,
+    userId: user.id,
+  });
   const { encounter } = await createEncounter({
     models,
     patientId: patient.id,
@@ -89,5 +94,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       userId: user.id,
       referenceDataId: referenceData.id,
     }),
+    await createPatientCommunication({ models, patientId: patient.id }),
   ]);
 };
