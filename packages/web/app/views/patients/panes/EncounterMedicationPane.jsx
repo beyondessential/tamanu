@@ -34,7 +34,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClick={() => setPrintMedicationModalOpen(true)}
           disabled={readonly}
           verb="read"
-          noun="EncounterMedication"
+          noun="Prescription"
           variant="outlined"
           color="primary"
         >
@@ -44,7 +44,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClick={() => setCreateMedicationModalOpen(true)}
           disabled={readonly}
           verb="create"
-          noun="EncounterMedication"
+          noun="Prescription"
         >
           <TranslatedText
             stringId="medication.action.newPrescription"
