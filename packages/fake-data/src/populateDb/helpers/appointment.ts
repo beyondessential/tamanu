@@ -34,7 +34,7 @@ export const createRepeatingAppointment = async ({
   locationGroupId,
   patientId,
   clinicianId,
-  apptCount = chance.number({ min: 1, max: 50 }),
+  apptCount = chance.integer({ min: 1, max: 50 }),
 }: CreateRepeatingAppointmentParams): Promise<void> => {
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
