@@ -9,3 +9,4 @@ export * from './appointment';
 export * from './programRegistry';
 export * from './survey';
 export * from './vaccine';
+export * from './importData';

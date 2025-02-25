@@ -1,5 +1,4 @@
 import { type Models } from '@tamanu/database';
-import { generateImportData } from './generateImportData';
 import {
   createAdministeredVaccine,
   createRepeatingAppointment,
@@ -13,7 +12,8 @@ import {
   createSurveyResponse,
   createTask,
   createPatientCommunication,
-} from './dataGroups';
+  generateImportData,
+} from './helpers';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   // Create one of each basic deployment/reference data to reference for clinical data
