@@ -255,7 +255,7 @@ export class AutocompleteInput extends Component {
     const autoSelectOption = suggestions[0];
     this.setState({
       selectedOption: {
-        value: autoSelectOption.label,
+        value: autoSelectOption.value,
         tag: autoSelectOption.tag,
       },
     });
