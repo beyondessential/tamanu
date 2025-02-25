@@ -1,18 +1,19 @@
 import { type Models } from '@tamanu/database';
-import { generateImportData } from './generateImportData';
 import {
-  createAdministeredVaccineData,
-  createAppointmentData,
-  createDbReportData,
-  createEncounterData,
-  createImagingRequestData,
-  createInvoiceData,
-  createLabRequestData,
-  createPatientData,
-  createProgramRegistryData,
-  createSurveyResponseData,
-  createTaskingData,
-} from './index';
+  createAdministeredVaccine,
+  createRepeatingAppointment,
+  createDbReport,
+  createEncounter,
+  createImagingRequest,
+  createInvoice,
+  createLabRequest,
+  createPatient,
+  createProgramRegistry,
+  createSurveyResponse,
+  createTask,
+  createPatientCommunication,
+  generateImportData,
+} from './helpers';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   // Create one of each basic deployment/reference data to reference for clinical data
@@ -31,8 +32,12 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   } = await generateImportData(models);
 
   // Clinical data
-  const { patient } = await createPatientData({ models, facilityId: facility.id, userId: user.id });
-  const { encounter } = await createEncounterData({
+  const { patient } = await createPatient({
+    models,
+    facilityId: facility.id,
+    userId: user.id,
+  });
+  const { encounter } = await createEncounter({
     models,
     patientId: patient.id,
     departmentId: department.id,
@@ -42,7 +47,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   });
 
   await Promise.all([
-    await createLabRequestData({
+    await createLabRequest({
       models,
       departmentId: department.id,
       userId: user.id,
@@ -51,43 +56,44 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       patientId: patient.id,
       labTestTypeId: labTestType.id,
     }),
-    await createProgramRegistryData({
+    await createProgramRegistry({
       models,
       userId: user.id,
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
-    await createSurveyResponseData({ models, encounterId: encounter.id, surveyId: survey.id }),
-    await createDbReportData({ models, userId: user.id }),
-    await createAdministeredVaccineData({
+    await createSurveyResponse({ models, encounterId: encounter.id, surveyId: survey.id }),
+    await createDbReport({ models, userId: user.id }),
+    await createAdministeredVaccine({
       models,
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
     }),
-    await createInvoiceData({
+    await createInvoice({
       models,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
       productId: invoiceProduct.id,
     }),
-    await createImagingRequestData({
+    await createImagingRequest({
       models,
       userId: user.id,
       encounterId: encounter.id,
       locationGroupId: locationGroup.id,
     }),
-    await createAppointmentData({
+    await createRepeatingAppointment({
       models,
       locationGroupId: locationGroup.id,
       patientId: patient.id,
       clinicianId: user.id,
     }),
-    await createTaskingData({
+    await createTask({
       models,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
     }),
+    await createPatientCommunication({ models, patientId: patient.id }),
   ]);
 };

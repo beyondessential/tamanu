@@ -49,7 +49,7 @@ export const ExportDataScreen = ({ navigation }: ExportDataScreenProps): ReactEl
               <TranslatedText
                 stringId="report.export.form.heading.emailAddress"
                 fallback="EMAIL ADDRESS"
-                uppercase
+                casing="upper"
               />
             </SectionHeader>
           </StyledView>

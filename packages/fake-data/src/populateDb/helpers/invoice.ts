@@ -1,14 +1,16 @@
 import type { Models } from '@tamanu/database';
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+import { times } from 'lodash';
+const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
 
-interface CreateInvoiceDataParams {
+interface CreateInvoiceParams {
   models: Models;
   encounterId: string;
   userId: string;
   referenceDataId: string;
   productId: string;
+  itemCount?: number;
 }
-export const createInvoiceData = async ({
+export const createInvoice = async ({
   models: {
     Invoice,
     InvoiceDiscount,
@@ -23,24 +25,44 @@ export const createInvoiceData = async ({
   userId,
   referenceDataId,
   productId,
-}: CreateInvoiceDataParams): Promise<void> => {
+  itemCount = chance.integer({ min: 1, max: 50 }),
+}: CreateInvoiceParams): Promise<void> => {
   const invoice = await Invoice.create(
     fake(Invoice, {
       encounterId,
     }),
   );
+
   await InvoiceDiscount.create(
     fake(InvoiceDiscount, {
       invoiceId: invoice.id,
       appliedByUserId: userId,
     }),
   );
+
+  times(itemCount, async () => {
+    const invoiceItem = await InvoiceItem.create(
+      fake(InvoiceItem, {
+        invoiceId: invoice.id,
+        productId,
+        orderedByUserId: userId,
+      }),
+    );
+
+    await InvoiceItemDiscount.create(
+      fake(InvoiceItemDiscount, {
+        invoiceItemId: invoiceItem.id,
+      }),
+    );
+  });
+
   await InvoiceInsurer.create(
     fake(InvoiceInsurer, {
       invoiceId: invoice.id,
       insurerId: referenceDataId,
     }),
   );
+
   const invoicePayment = await InvoicePayment.create(
     fake(InvoicePayment, {
       invoiceId: invoice.id,
@@ -56,19 +78,6 @@ export const createInvoiceData = async ({
     fake(InvoicePatientPayment, {
       invoicePaymentId: invoicePayment.id,
       methodId: referenceDataId,
-    }),
-  );
-  const invoiceItem = await InvoiceItem.create(
-    fake(InvoiceItem, {
-      invoiceId: invoice.id,
-      productId,
-      orderedByUserId: userId,
-    }),
-  );
-
-  await InvoiceItemDiscount.create(
-    fake(InvoiceItemDiscount, {
-      invoiceItemId: invoiceItem.id,
     }),
   );
 };
