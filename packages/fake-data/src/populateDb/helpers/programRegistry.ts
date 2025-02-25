@@ -14,7 +14,7 @@ export const createProgramRegistry = async ({
   userId,
   patientId,
   programRegistryId,
-  conditionCount = chance({ min: 1, max: 5 }),
+  conditionCount = chance.integer({ min: 1, max: 5 }),
 }: CreateProgramRegistryParams): Promise<void> => {
   await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
