@@ -215,7 +215,8 @@ export function fakeEncounterMedication(prefix: string = 'test-') {
 }
 
 export const fakeDate = () => chance.date();
-export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
+  `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
 export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
@@ -528,7 +529,6 @@ export const fake = (
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  // TODO: Fix the "any" keys in this function. The contents of this attribute variable are very confusing
   function fakeField(name: string, attribute: any) {
     const { type, fieldName, defaultValue } = attribute;
 
