@@ -89,6 +89,7 @@ export * from './AppointmentSchedule';
 export * from './DocumentMetadata';
 export * from './Template';
 
+export * from './Device';
 export * from './OneTimeLogin';
 export * from './RefreshToken';
 export * from './Permission';

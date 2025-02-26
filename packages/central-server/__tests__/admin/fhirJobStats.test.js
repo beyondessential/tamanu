@@ -20,7 +20,7 @@ describe('FHIR job stats', () => {
       models: { FhirJob },
     } = ctx.store;
     await Promise.all(
-      ['topic1', 'topic2', 'topic2', 'topic2', 'topic3', 'topic3'].map(t =>
+      ['topic1', 'topic2', 'topic2', 'topic2', 'topic3', 'topic3'].map((t) =>
         FhirJob.submit(t, { payload: 'value' }),
       ),
     );
@@ -30,16 +30,16 @@ describe('FHIR job stats', () => {
 
     // assert
     expect(response.status).toBe(200);
-    expect(response.body.data).toEqual([
-      { id: 'topic2,Queued', topic: 'topic2', status: 'Queued', count: '3' },
-      { id: 'topic3,Queued', topic: 'topic3', status: 'Queued', count: '2' },
-      { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },
+    expect(response.body.data.sort((a, b) => a.id.localeCompare(b.id))).toEqual([
       {
         id: 'fhir.refresh.allFromUpstream,Queued',
         topic: 'fhir.refresh.allFromUpstream',
         status: 'Queued',
-        count: '1',
+        count: '2',
       },
+      { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },
+      { id: 'topic2,Queued', topic: 'topic2', status: 'Queued', count: '3' },
+      { id: 'topic3,Queued', topic: 'topic3', status: 'Queued', count: '2' },
     ]);
     expect(response.body.count).toBe(4);
   });

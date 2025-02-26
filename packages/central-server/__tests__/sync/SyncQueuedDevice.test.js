@@ -42,6 +42,12 @@ describe('SyncQueuedDevice', () => {
       ),
     );
 
+    await Promise.all(
+      ['A', 'B', 'C', 'D', 'E'].map((id) =>
+        models.Device.create(fake(models.Device, { id: `queue-${id}` })),
+      ),
+    );
+
     const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
     CentralSyncManager.overrideConfig({
       sync: {

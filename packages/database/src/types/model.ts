@@ -5,7 +5,7 @@ import type { Model } from '../models/Model';
 import type { SyncDirectionValues } from './sync';
 
 type PrimaryKey = {
-  type: typeof DataTypes.STRING;
+  type: typeof DataTypes.UUID;
   defaultValue: unknown extends string ? string : never;
   allowNull: boolean;
   primaryKey: boolean;
