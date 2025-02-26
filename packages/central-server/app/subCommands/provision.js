@@ -187,14 +187,6 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     }
   }
 
-  log.info('Creating system user');
-  await store.models.User.create({
-    id: SYSTEM_USER_UUID,
-    email: 'system@tamanu.io',
-    role: 'system',
-    displayName: 'System',
-  });
-
   /// ////////
   /// PROGRAMS
 

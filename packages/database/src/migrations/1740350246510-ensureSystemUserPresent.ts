@@ -7,9 +7,9 @@ export async function up(query: QueryInterface) {
   // user existing with a Nil UUID, this migration is here to make certain.
   await query.sequelize.query(`
     INSERT INTO "users"
-    (id, email, created_at, updated_at, display_name, role)
+    (id, email, display_name, role)
     VALUES
-    (uuid_nil(), 'system', NOW(), NOW(), 'System', 'admin')
+    (uuid_nil(), 'system', 'System', 'system')
     ON CONFLICT (id) DO NOTHING;
   `);
 }
