@@ -1338,16 +1338,12 @@ describe('Sync Lookup data', () => {
   describe('avoidRepull', () => {
     const deviceId = 'facility-avoidrepull';
     beforeAll(async () => {
-      await models.Device.create({
+      await models.Device.create(fake(models.Device, {
         id: deviceId,
-        publicKey: new Uint8Array(32),
-        canLogin: true,
-        canSync: true,
-        canRebind: true,
-      });
+      }));
     });
     afterAll(async () => {
-      await ctx.sequelize.query('DELETE FROM devices WHERE id = $1', { bind: [deviceId] });
+      await models.Device.truncate({ cascade: true, force: true });
     });
 
     const snapshotOutgoingRecordsForFacility = async avoidRepull => {

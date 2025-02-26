@@ -412,6 +412,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
         : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
+  Device: () => ({
+    // create full-permission devices by default
+    canLogin: true,
+    canSync: true,
+    canRebind: true,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {
