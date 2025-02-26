@@ -115,12 +115,11 @@ async function connectToDatabase(dbOptions) {
     async run(sql, options) {
       const userid = namespace.get('userid');
         if (!userid) return super.run(sql, options);
-        await super.run(`SELECT set_config('auth.user', '${userid}', false)`);
+        await super.run(`SELECT set_config('audit.userid', '${userid}', false)`);
         return super.run(
           sql,
           options,
         );
-
     }
   }
 
