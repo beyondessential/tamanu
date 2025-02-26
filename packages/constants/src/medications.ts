@@ -220,3 +220,18 @@ export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.WEEK]: 'Week',
   [MEDICATION_DURATION_UNITS.MONTH]: 'Month',
 };
+
+export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
+  { startTime: '00:00', endTime: '02:00' },
+  { startTime: '02:00', endTime: '04:00' },
+  { startTime: '04:00', endTime: '06:00' },
+  { startTime: '06:00', endTime: '08:00', mealTime: 'breakfast' },
+  { startTime: '08:00', endTime: '10:00' },
+  { startTime: '10:00', endTime: '12:00' },
+  { startTime: '12:00', endTime: '14:00', mealTime: 'lunch' },
+  { startTime: '14:00', endTime: '16:00' },
+  { startTime: '16:00', endTime: '18:00' },
+  { startTime: '18:00', endTime: '20:00', mealTime: 'dinner' },
+  { startTime: '20:00', endTime: '22:00' },
+  { startTime: '22:00', endTime: '24:00', mealTime: 'night' },
+];
