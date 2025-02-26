@@ -49,23 +49,27 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    can_login: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
     can_sync: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
     },
     can_rebind: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
     },
   });
 
   await query.sequelize.query(`
-    INSERT INTO devices (id, can_sync, metadata)
+    INSERT INTO devices (id, can_login, can_sync, can_rebind, metadata)
     SELECT
       id,
+      true AS can_login,
       true AS can_sync,
+      true AS can_rebind,
       json_build_object('lastSyncTick', max(persisted_at_sync_tick)) AS metadata
     FROM sync_device_ticks
     GROUP BY id

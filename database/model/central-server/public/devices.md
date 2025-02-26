@@ -14,6 +14,10 @@ In Tamanu, devices / facilities / users are orthogonal concepts:
   - users may have multiple devices
   - users own devices (registered by)
   - users use devices (last login by)
+
+The record contains a set of crude permissions flags that apply restrictions to
+any particular device, named with the `can_` prefix. These columns do not have
+defaults set at the database level; instead defaults are obtained from settings.
 {% enddocs %}
 
 {% docs devices__public_key %}
@@ -75,10 +79,26 @@ The user that last logged in specifying this device ID.
 This may be different from `registered_by_id`.
 {% enddocs %}
 
+{% docs devices__can_login %}
+Whether the device can obtain a session token via login.
+
+This is used to implement a device approval queue: in the case where this
+permission defaults to `false`, devices have to be manually approved via the
+admin interface before they can do anything. Until then, when they login they'll
+get rejected at the last step of the authentication process with a message to
+consult their administrator.
+
+The default for this option lives at `auth.deviceRegistration.defaults.canLogin`
+in the [`settings`](#!/source/source.tamanu.tamanu.settings) table.
+{% enddocs %}
+
 {% docs devices__can_sync %}
 Whether the device can use sync endpoints.
 
 If `public_key` is null, this value is ignored and interpreted as `false`.
+
+The default for this option lives at `auth.deviceRegistration.defaults.canSync`
+in the [`settings`](#!/source/source.tamanu.tamanu.settings) table.
 {% enddocs %}
 
 {% docs devices__can_rebind %}
@@ -89,4 +109,7 @@ known device logs in for a different user than recorded, it will be rejected on
 the spot. If `can_rebind` is true, the login will be accepted (pending other
 validations pass, like password/key and public key checks), and the
 `last_login_by_id` value will be updated to the authentication user.
+
+The default for this option lives at `auth.deviceRegistration.defaults.canRebind`
+in the [`settings`](#!/source/source.tamanu.tamanu.settings) table.
 {% enddocs %}

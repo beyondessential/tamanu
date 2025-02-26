@@ -19,6 +19,7 @@ export class Device extends Model {
   declare id: string;
   declare publicKey?: Uint8Array;
   declare metadata: DeviceMetadata;
+  declare canLogin: boolean;
   declare canSync: boolean;
   declare canRebind: boolean;
   declare registeredBy: User;
@@ -50,11 +51,16 @@ export class Device extends Model {
           defaultValue: {},
         },
 
+        // Controls whether this device can obtain a token at login
+        canLogin: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+
         // Controls whether this device can sync
         canSync: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: false,
         },
 
         // On login, if the authenticating user ID is different from the lastLoginBy:
@@ -63,7 +69,6 @@ export class Device extends Model {
         canRebind: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: true,
         },
       },
       {
