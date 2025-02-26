@@ -9,6 +9,7 @@ import {
 import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
 import { JOB_PRIORITIES } from '@tamanu/constants';
 
+
 describe('FhirMissingResources task', () => {
   let ctx;
   let resources;
@@ -37,6 +38,8 @@ describe('FhirMissingResources task', () => {
     ctx.close();
   });
 
+  // There's always going to be 1 Practitioner's job in the queue as the system user is created
+
   it('should create jobs with low priority', async () => {
     const { FhirJob } = ctx.store.models;
 
@@ -50,7 +53,7 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
+    expect(count).toEqual(4); // 1 Organization, 1 ServiceRequest, 1 Specimen, 1 Practitioner
     rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
 
     await labRequest.destroy();
@@ -75,7 +78,7 @@ describe('FhirMissingResources task', () => {
     const name = fhirMissingResourcesWorker.getName();
     expect(name).toEqual('FhirMissingResources');
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(2); // 1 MediciReport AND 1 ServiceRequest
+    expect(countQueue).toEqual(3); // 1 Practitioner, 1 MediciReport AND 1 ServiceRequest
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -111,7 +114,7 @@ describe('FhirMissingResources task', () => {
     );
 
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(1);
+    expect(countQueue).toEqual(2); // 1 Practitioner, 1 Encounter
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -119,7 +122,7 @@ describe('FhirMissingResources task', () => {
         topic: 'fhir.refresh.fromUpstream',
         payload: {
           resource: {
-            [Op.ne]: 'Organization',
+            [Op.notIn]: ['Practitioner', 'Organization'],
           },
         },
       },
@@ -155,7 +158,7 @@ describe('FhirMissingResources task', () => {
     });
 
     const countQueue = await fhirMissingResourcesCreatedAfterWorker.countQueue();
-    expect(countQueue).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
+    expect(countQueue).toEqual(4); // 1 Practitioner, 1 Organization, 1 ServiceRequest, 1 Specimen
     await fhirMissingResourcesCreatedAfterWorker.run();
 
     const { count, rows } = await FhirJob.findAndCountAll({
@@ -163,7 +166,7 @@ describe('FhirMissingResources task', () => {
         topic: 'fhir.refresh.fromUpstream',
         payload: {
           resource: {
-            [Op.ne]: 'Organization',
+            [Op.notIn]: ['Practitioner', 'Organization'],
           },
         },
       },
