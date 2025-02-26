@@ -64,15 +64,29 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 
   await query.sequelize.query(`
-    INSERT INTO devices (id, can_login, can_sync, can_rebind, metadata)
+    INSERT INTO devices (id, created_at, updated_at, can_login, can_sync, can_rebind, metadata)
     SELECT
       id,
+      created_at,
+      updated_at,
+      true AS can_login,
+      true AS can_sync,
+      true AS can_rebind,
+      json_build_object('lastSyncTick', last_synced_tick) AS metadata
+    FROM sync_queued_devices
+  `);
+
+  await query.sequelize.query(`
+    INSERT INTO devices (id, can_login, can_sync, can_rebind, metadata)
+    SELECT
+      device_id AS id,
       true AS can_login,
       true AS can_sync,
       true AS can_rebind,
       json_build_object('lastSyncTick', max(persisted_at_sync_tick)) AS metadata
     FROM sync_device_ticks
-    GROUP BY id
+    GROUP BY device_id
+    ON CONFLICT (id) DO NOTHING
   `);
 
   await query.addConstraint('sync_device_ticks', {
