@@ -1,4 +1,5 @@
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/shared/reports';
 
 import { createTestContext } from '../../utilities';
@@ -10,7 +11,7 @@ describe('Generic survey export line list report', () => {
   let ctx;
   let survey;
 
-  const setupSurvey = async answerBody => {
+  const setupSurvey = async (answerBody) => {
     const {
       Facility,
       Location,

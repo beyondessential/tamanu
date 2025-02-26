@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 import { createScheduledVaccine } from '@tamanu/database/demoData/vaccines';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';

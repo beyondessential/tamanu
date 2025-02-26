@@ -2,7 +2,7 @@ import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { ReportRequestProcessor } from '../../app/tasks/ReportRequestProcessor';
 import { createTestContext } from '../utilities';
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 jest.mock('@tamanu/shared/reports', () => {
   return {
@@ -31,7 +31,7 @@ describe('ReportRequestProcessor', () => {
     const processEvents = {};
     const { ReportRequest } = ctx.store.models;
     process.on = (signal, cb) => {
-      signal.forEach(s => {
+      signal.forEach((s) => {
         processEvents[s] = cb;
       });
     };

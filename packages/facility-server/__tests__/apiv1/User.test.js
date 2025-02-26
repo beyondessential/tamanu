@@ -1,6 +1,8 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
-import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake, chance } from '@tamanu/fake-data/fake';
+
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 

@@ -2,8 +2,7 @@ import { times } from 'lodash';
 
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
-const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
-
+import { fake, chance } from '../../fake';
 interface CreateAppointmentParams {
   models: Models;
   locationGroupId: string;

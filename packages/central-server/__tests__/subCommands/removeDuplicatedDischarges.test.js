@@ -1,7 +1,7 @@
 import { sub } from 'date-fns';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 

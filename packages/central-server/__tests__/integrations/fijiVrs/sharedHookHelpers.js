@@ -1,5 +1,5 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { chance } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/fake-data/fake';
 
 export const fakeVRSPatient = async ({ ReferenceData }) => {
   const village = await ReferenceData.create(fakeVillage());
@@ -10,10 +10,7 @@ export const fakeVRSPatient = async ({ ReferenceData }) => {
     individual_refno: chance.integer({ min: 0, max: 10000000 }).toString(),
     fname: chance.first(),
     lname: chance.last(),
-    dob: chance
-      .date({ year: 1980 })
-      .toISOString()
-      .slice(0, 10),
+    dob: chance.date({ year: 1980 }).toISOString().slice(0, 10),
     sex: chance.pickone(['MALE', 'FEMALE']),
     sub_division: village.name,
     phone: chance.phone(),

@@ -1,5 +1,5 @@
 import { createTestContext } from './utilities';
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { AuditLogItem } from '../dist/middleware/auditLog';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 

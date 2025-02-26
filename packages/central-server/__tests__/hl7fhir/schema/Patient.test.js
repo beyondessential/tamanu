@@ -1,4 +1,5 @@
-import { fake, withErrorShown } from '@tamanu/shared/test-helpers';
+import { withErrorShown } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   FhirAddress,
   FhirCodeableConcept,

@@ -7,7 +7,8 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from '../../src/models/Model';
 import { sortInDependencyOrder } from '../../src/utils/sortInDependencyOrder';
-import { chance } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/fake-data/fake';
+
 import { describe, expect, it } from 'vitest';
 import type { InitOptions } from '../../src/types/model';
 

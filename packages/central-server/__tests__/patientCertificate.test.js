@@ -4,7 +4,7 @@ import {
   createDummyPatientAdditionalData,
 } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { chance, fake } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/fake-data/fake';
 import { CertificateTypes } from '@tamanu/shared/utils';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeCovidCertificate, makeVaccineCertificate } from '../dist/utils/makePatientCertificate';

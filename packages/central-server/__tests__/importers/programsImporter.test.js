@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
@@ -384,7 +384,7 @@ describe('Programs import', () => {
     it('Should import a valid vitals survey and delete visualisationConfig', async () => {
       const { ProgramDataElement } = ctx.store.models;
 
-      const validateVisualisationConfig = async expectValue => {
+      const validateVisualisationConfig = async (expectValue) => {
         const { visualisationConfig } = await ProgramDataElement.findOne({
           where: {
             code: 'PatientVitalsHeartRate',
@@ -688,7 +688,8 @@ describe('Programs import', () => {
           file: 'charting-simple-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
+        const expectedError =
+          "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -697,7 +698,8 @@ describe('Programs import', () => {
           file: 'charting-simple-datetime-invalid-type',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
+        const expectedError =
+          "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -722,14 +724,22 @@ describe('Programs import', () => {
           file: 'charting-complex-main-only-invalid',
           dryRun: true,
         });
-        expect(errors).toContainAnError('metadata', 0, 'Complex charts need a core data set survey');
+        expect(errors).toContainAnError(
+          'metadata',
+          0,
+          'Complex charts need a core data set survey',
+        );
       });
       it('Should refuse to import without its main info (ComplexChart)', async () => {
         const { errors } = await doImport({
           file: 'charting-complex-core-only-invalid',
           dryRun: true,
         });
-        expect(errors).toContainAnError('metadata', 0, 'Cannot import a complex chart core without the main survey');
+        expect(errors).toContainAnError(
+          'metadata',
+          0,
+          'Cannot import a complex chart core without the main survey',
+        );
       });
       it('Should refuse to import a complex core survey without special question config types', async () => {
         const { errors, stats } = await doImport({
@@ -738,7 +748,7 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "Invalid complex chart core questions",
+          'Invalid complex chart core questions',
           "sheetName: Core, code: 'ComplexChartInstanceName', Invalid question type",
           "sheetName: Core, code: 'ComplexChartDate', Invalid question type",
           "sheetName: Core, code: 'ComplexChartType', Invalid question type",
@@ -807,7 +817,11 @@ describe('Programs import', () => {
           file: 'charting-complex-multiple-invalid',
           dryRun: true,
         });
-        expect(errors).toContainAnError('metadata', 0, 'Only one complex chart and complex chart core allowed in a program');
+        expect(errors).toContainAnError(
+          'metadata',
+          0,
+          'Only one complex chart and complex chart core allowed in a program',
+        );
       });
       it('Should refuse to import a complex chart set if it already exists in that program', async () => {
         const { Program, Survey } = ctx.store.models;
@@ -830,7 +844,11 @@ describe('Programs import', () => {
           file: 'charting-complex-valid',
           dryRun: true,
         });
-        expect(errors).toContainAnError('metadata', 0, 'Complex chart set already exists for this program');
+        expect(errors).toContainAnError(
+          'metadata',
+          0,
+          'Complex chart set already exists for this program',
+        );
       });
       it('Should refuse to import a complex chart survey with isSensitive set to true', async () => {
         const { errors } = await doImport({
@@ -851,7 +869,8 @@ describe('Programs import', () => {
           file: 'charting-complex-datetime-invalid-id',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
+        const expectedError =
+          "sheetName: Test Chart, code: 'testchartcode0', First question should have 'pde-PatientChartingDate' as ID";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -860,7 +879,8 @@ describe('Programs import', () => {
           file: 'charting-complex-datetime-invalid-type',
           dryRun: true,
         });
-        const expectedError = "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
+        const expectedError =
+          "sheetName: Test Chart, code: 'PatientChartingDate', First question should be DateTime type";
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -869,7 +889,7 @@ describe('Programs import', () => {
           file: 'charting-complex-core-question-amount-invalid',
           dryRun: true,
         });
-        const expectedError = "Invalid complex chart core questions";
+        const expectedError = 'Invalid complex chart core questions';
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
@@ -878,7 +898,7 @@ describe('Programs import', () => {
           file: 'charting-complex-core-question-order-invalid',
           dryRun: true,
         });
-        const expectedError = "Invalid complex chart core questions";
+        const expectedError = 'Invalid complex chart core questions';
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });

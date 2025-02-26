@@ -1,5 +1,5 @@
 import { beforeAll, describe, it } from '@jest/globals';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
@@ -37,7 +37,7 @@ describe('SyncQueuedDevice', () => {
     app = await baseApp.asRole('admin');
 
     await Promise.all(
-      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map(id =>
+      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map((id) =>
         models.Facility.create(fake(models.Facility, { id, name: id })),
       ),
     );

@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { importerTransaction } from '../../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../../dist/admin/referenceDataImporter';
