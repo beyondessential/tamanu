@@ -1,12 +1,10 @@
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 import Umzug from 'umzug';
-import { readdirSync } from 'fs';
-import path from 'path';
-import { runPostMigration } from './runPostMigration';
-import { wrap, chain } from 'lodash';
+import { runPostMigration, runPreMigration } from './migrationHooks';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
-const NO_SYNC_MIGRATION_TIMESTAMP = '1692710205000';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
@@ -26,29 +24,20 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
+      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
         const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
 
-        if (!('up' in migration) || !('down' in migration)) {
-          throw new Error(`Migration ${sqlPath} must export up and down functions`);
+        if (!('up' in migration)) {
+          throw new Error(`Migration ${sqlPath} must export an up function`);
         }
-        const transaction = (updown, ...args) => sequelize.transaction(() => updown(...args));
-        const disableSyncTrigger = async (updown, query, ...args) => {
-          const { LocalSystemFact } = query.sequelize.models;
-          await LocalSystemFact.set('syncTrigger', 'disabled');
-          await updown(query, ...args);
-          await LocalSystemFact.set('syncTrigger', 'enabled');
-        };
 
-        const timestamp = path.basename(sqlPath).split(/[-_]/, 1);
-        const is_no_sync = !migration.NON_DETERMINISTIC && timestamp > NO_SYNC_MIGRATION_TIMESTAMP;
+        if (!('down' in migration)) {
+          migration.down = () => {};
+        }
 
-        return chain(migration)
-          .pick(['up', 'down'])
-          .mapValues((updown) => (is_no_sync ? wrap(updown, disableSyncTrigger) : updown))
-          .mapValues((updown) => wrap(updown, transaction))
-          .value();
+        return migration;
       },
     },
     storage: 'sequelize',
@@ -68,9 +57,15 @@ async function migrateUp(log, sequelize) {
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
+    log.info('Running pre-migration steps...');
+    await runPreMigration(log, sequelize);
+    log.info(`Applied pre-migration steps successfully.`);
+
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
     await migrations.up();
-    log.info(`Applied migrations successfully, running post-migration steps...`);
+    log.info('Applied migrations successfully');
+
+    log.info('Running post-migration steps...');
     await runPostMigration(log, sequelize);
     log.info(`Applied post-migration steps successfully.`);
   } else {
@@ -80,6 +75,11 @@ async function migrateUp(log, sequelize) {
 
 async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
+
+  log.info('Running pre-migration steps...');
+  await runPreMigration(log, sequelize);
+  log.info(`Applied pre-migration steps successfully.`);
+
   log.info(`Reverting 1 migration...`);
   const reverted = await migrations.down(options);
   if (Array.isArray(reverted)) {
@@ -91,6 +91,10 @@ async function migrateDown(log, sequelize, options) {
   } else {
     log.info(`Reverted migration ${reverted.file}.`);
   }
+
+  log.info('Running post-migration steps...');
+  await runPostMigration(log, sequelize);
+  log.info(`Applied post-migration steps successfully.`);
 }
 
 export async function assertUpToDate(log, sequelize, options) {
