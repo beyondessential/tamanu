@@ -158,6 +158,7 @@ describe('CentralSyncManager', () => {
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.Device.truncate({ cascade: true, force: true });
   });
 
   afterAll(() => ctx.close());
@@ -1178,6 +1179,14 @@ describe('CentralSyncManager', () => {
       it("discharge outpatients when encounter's startDate is before today and pull the discharged encounter down ", async () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '6';
+        const deviceId = 'facility-a';
+        await models.Device.create({
+          id: deviceId,
+          publicKey: new Uint8Array(32),
+          canLogin: true,
+          canSync: true,
+          canRebind: true,
+        });
         const facility = await models.Facility.create(fake(models.Facility));
         await models.Department.create({
           ...fake(models.Department),
@@ -1225,7 +1234,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, 'facility-a');
+        await centralSyncManager.completePush(sessionId, deviceId);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         // Start the snapshot for pull process
@@ -1264,6 +1273,14 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
+        const deviceId = facility.id;
+        await models.Device.create({
+          id: deviceId,
+          publicKey: new Uint8Array(32),
+          canLogin: true,
+          canSync: true,
+          canRebind: true,
+        });
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1305,7 +1322,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, facility.id);
+        await centralSyncManager.completePush(sessionId, deviceId);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1316,7 +1333,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId: facility.id,
+            deviceId,
           },
           () => true,
         );
@@ -1352,6 +1369,14 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '12';
         const facility = await models.Facility.create(fake(models.Facility));
+        const deviceId = facility.id;
+        await models.Device.create({
+          id: deviceId,
+          publicKey: new Uint8Array(32),
+          canLogin: true,
+          canSync: true,
+          canRebind: true,
+        });
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1390,7 +1415,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, facility.id);
+        await centralSyncManager.completePush(sessionId, deviceId);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1401,7 +1426,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId: facility.id,
+            deviceId,
           },
           () => true,
         );
@@ -1789,6 +1814,15 @@ describe('CentralSyncManager', () => {
     });
 
     it('does not include records inserted from another sync session when updating lookup table already started', async () => {
+      const deviceId = 'facility-anothersyncstarted';
+      await models.Device.create({
+        id: deviceId,
+        publicKey: new Uint8Array(32),
+        canLogin: true,
+        canSync: true,
+        canRebind: true,
+      });
+
       await prepareRecordsForSync();
 
       // Build the fakeModelPromise so that it can block the updateLookupTable process,
@@ -1848,7 +1882,7 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionIdTwo);
 
       await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
-      await centralSyncManager.completePush(sessionIdTwo);
+      await centralSyncManager.completePush(sessionIdTwo, deviceId);
 
       // Now release the lock to see if the lookup table captures the newly inserted records above
       await resolveMockedQueryPromise();

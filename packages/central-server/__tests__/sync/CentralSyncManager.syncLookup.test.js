@@ -1336,8 +1336,21 @@ describe('Sync Lookup data', () => {
   });
 
   describe('avoidRepull', () => {
+    const deviceId = 'facility-avoidrepull';
+    beforeAll(async () => {
+      await models.Device.create({
+        id: deviceId,
+        publicKey: new Uint8Array(32),
+        canLogin: true,
+        canSync: true,
+        canRebind: true,
+      });
+    });
+    afterAll(async () => {
+      await ctx.sequelize.query('DELETE FROM devices WHERE id = $1', { bind: [deviceId] });
+    });
+
     const snapshotOutgoingRecordsForFacility = async avoidRepull => {
-      const deviceId = 'facility-a';
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
