@@ -1,12 +1,12 @@
 import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-    await query.createFunction(
-      'logs.record_change',
-      [],
-      'trigger',
-      'plpgsql',
-      `
+  await query.createFunction(
+    'logs.record_change',
+    [],
+    'trigger',
+    'plpgsql',
+    `
       INSERT INTO logs.changes (
         table_oid,
         table_schema,
@@ -36,11 +36,9 @@ export async function up(query: QueryInterface): Promise<void> {
           );
           RETURN NEW;
           `,
-        );
-
+  );
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropFunction('logs.record_change', []);
+  await query.sequelize.query('DROP FUNCTION logs.record_change CASCADE');
 }
-
