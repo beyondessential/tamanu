@@ -114,12 +114,7 @@ async function connectToDatabase(dbOptions) {
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = namespace.get('audit.userid');
-      const endpoint = namespace.get('audit.endpoint');
-      if (userid)
-        await super.run(
-          `SELECT set_config('audit.userid', $1, false), set_config('audit.endpoint', $2, false)`,
-          [userid, endpoint],
-        );
+      if (userid) await super.run(`SELECT set_config('audit.userid', $1, false)`, [userid]);
       return super.run(sql, options);
     }
   }
