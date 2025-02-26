@@ -8,5 +8,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-  await query.removeColumn('prescriptions', 'is_ongoing');
+  await query.removeColumn('prescriptions', 'ideal_times');
 }

@@ -362,7 +362,7 @@ const MedicationAdministrationForm = () => {
                     title={
                       <TranslatedText
                         stringId="medication.medicationAdministrationSchedule.disabledTooltip"
-                        fallback="Only :slots administration times can be selected based on the frequency. Pease deselect a time in order to select another."
+                        fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
                         replacements={{
                           slots:
                             values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
