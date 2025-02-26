@@ -129,14 +129,14 @@ async function connectToDatabase(dbOptions) {
       bind: { key, value },
     });
 
-  class QueryWithAditConfig extends sequelize.dialect.Query {
+  class QueryWithAuditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
       if (userid) await super.run('SELECT set_session_config($1, $2)', [AUDIT_USERID_KEY, userid]);
       return super.run(sql, options);
     }
   }
-  sequelize.dialect.Query = QueryWithAditConfig;
+  sequelize.dialect.Query = QueryWithAuditConfig;
 
   setupQuote(sequelize);
   await sequelize.authenticate();
