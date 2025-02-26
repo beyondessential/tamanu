@@ -111,3 +111,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in prescriptions."
             data_tests:
               - not_null
+          - name: ideal_times
+            data_type: array
+            description: "{{ doc('prescriptions__ideal_times') }}"
