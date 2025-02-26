@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, AUDIT_ENDPOINT_KEY, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
@@ -133,12 +133,11 @@ async function connectToDatabase(dbOptions) {
     async run(sql, options) {
       const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
       const path = getSessionConfigInNamespace(AUDIT_ENDPOINT_KEY);
-      if (userid) {
+      if (userid)
         await super.run(
           'SELECT set_session_config($1, $2), set_session_config($3, $4)',
           [AUDIT_USERID_KEY, userid, AUDIT_ENDPOINT_KEY, path],
         );
-      }
       return super.run(sql, options);
     }
   }

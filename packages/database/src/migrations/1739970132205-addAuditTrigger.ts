@@ -49,3 +49,4 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query('DROP FUNCTION logs.record_change CASCADE');
 }
+
