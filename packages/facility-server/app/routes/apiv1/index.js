@@ -109,7 +109,7 @@ apiv1.use(authMiddleware);
 
 apiv1.use(constructPermission);
 
-apiv1.use(attachAuditUserToDbSession)
+apiv1.use(attachAuditUserToDbSession);
 
 apiv1.delete(
   '/admin/settings/cache',

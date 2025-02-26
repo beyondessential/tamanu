@@ -14,6 +14,7 @@ import { setupQuote } from '../utils/pgComposite';
 
 createDateTypes();
 
+export const asyncLocalStorage = new AsyncLocalStorage();
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
 // done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
@@ -24,7 +25,6 @@ export const namespace = {
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
 };
 
-export const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS(namespace);
 
@@ -113,8 +113,8 @@ async function connectToDatabase(dbOptions) {
 
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
-      const userid = namespace.get('audit.userid');
-      if (userid) await super.run(`SELECT set_config('audit.userid', $1, false)`, [userid]);
+      const userid = namespace.get('tamanu.audit.userid');
+      if (userid) await super.run(`SELECT set_config('tamanu.audit.userid', $1, false)`, [userid]);
       return super.run(sql, options);
     }
   }

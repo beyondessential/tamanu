@@ -1,5 +1,6 @@
 import { Op, Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants/fhir';
+import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { sortInDependencyOrder } from '@tamanu/database';
 import { FAKE_UUID_PATTERN } from '@tamanu/utils/generateId';
 
@@ -16,8 +17,8 @@ export function deleteAllTestIds({ models }) {
     ]
     if (Model.name === 'User') {
       where.push({
-        displayName: {
-          [Op.not]: 'System',
+        id: {
+          [Op.not]: SYSTEM_USER_UUID
         },
       });
     }
