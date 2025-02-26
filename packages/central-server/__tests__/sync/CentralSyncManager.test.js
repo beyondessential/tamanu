@@ -1183,13 +1183,9 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '6';
         const deviceId = 'facility-a';
-        await models.Device.create({
+        await models.Device.create(fake(models.Device, {
           id: deviceId,
-          publicKey: new Uint8Array(32),
-          canLogin: true,
-          canSync: true,
-          canRebind: true,
-        });
+        }));
         const facility = await models.Facility.create(fake(models.Facility));
         await models.Department.create({
           ...fake(models.Department),
@@ -1277,13 +1273,9 @@ describe('CentralSyncManager', () => {
         const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
         const deviceId = facility.id;
-        await models.Device.create({
+        await models.Device.create(fake(models.Device, {
           id: deviceId,
-          publicKey: new Uint8Array(32),
-          canLogin: true,
-          canSync: true,
-          canRebind: true,
-        });
+        }));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1373,13 +1365,9 @@ describe('CentralSyncManager', () => {
         const CURRENT_SYNC_TICK = '12';
         const facility = await models.Facility.create(fake(models.Facility));
         const deviceId = facility.id;
-        await models.Device.create({
+        await models.Device.create(fake(models.Device, {
           id: deviceId,
-          publicKey: new Uint8Array(32),
-          canLogin: true,
-          canSync: true,
-          canRebind: true,
-        });
+        }));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1977,13 +1965,9 @@ describe('CentralSyncManager', () => {
 
     it('does not include records inserted from another sync session when updating lookup table already started', async () => {
       const deviceId = 'facility-anothersyncstarted';
-      await models.Device.create({
+      await models.Device.create(fake(models.Device, {
         id: deviceId,
-        publicKey: new Uint8Array(32),
-        canLogin: true,
-        canSync: true,
-        canRebind: true,
-      });
+      }));
 
       await prepareRecordsForSync();
 
