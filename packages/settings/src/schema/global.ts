@@ -45,6 +45,51 @@ export const globalSettings: SettingsSchema = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        deviceRegistration: {
+          name: 'Device registration',
+          description: 'Controls how new devices can connect and authenticate to Tamanu',
+          properties: {
+            allowUnknown: {
+              name: 'Allow unknown devices',
+              description: 'When OFF, only devices manually imported can connect / login at all',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowAbsentPk: {
+              name: 'Allow legacy devices',
+              description: 'When OFF, only devices that present a public key via client certificate are allowed',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            checkQuota: {
+              name: 'Check per-user registration quota',
+              description: 'When ON, each user has a quota of devices they can register; when OFF, the quota is effectively unlimited',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            defaults: {
+              name: 'New device permission defaults',
+              description: 'These apply both for automatic registration (when `allowUnknown` is ON) and to the UI defaults for the admin panel manual registration form',
+              properties: {
+                canLogin: {
+                  description: 'When OFF, new devices are registered but cannot proceed past login',
+                  type: yup.boolean(),
+                  defaultValue: true,
+                },
+                canSync: {
+                  description: 'When OFF, new devices cannot sync',
+                  type: yup.boolean(),
+                  defaultValue: true,
+                },
+                canRebind: {
+                  description: 'When OFF, new devices cannot be used by another user than did the initial login',
+                  type: yup.boolean(),
+                  defaultValue: true,
+                },
+              },
+            },
+          },
+        },
       },
     },
     ageDisplayFormat: {
