@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 
@@ -31,7 +32,12 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token (hG7c)');
+      const errorMessage = 'Auth error: Invalid token (hG7c)';
+      log.debug(errorMessage, { error: e.message });
+       res.status(401).send({
+        error: { message: errorMessage },
+      });
+      return;
     }
 
     const { userId, deviceId } = contents;
