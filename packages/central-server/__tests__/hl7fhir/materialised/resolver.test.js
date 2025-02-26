@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
 import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';

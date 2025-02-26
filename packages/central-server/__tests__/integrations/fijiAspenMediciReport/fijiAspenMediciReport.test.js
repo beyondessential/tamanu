@@ -10,7 +10,7 @@ import {
   DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';

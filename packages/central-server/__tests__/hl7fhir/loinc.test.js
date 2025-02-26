@@ -1,4 +1,4 @@
-import { chance } from '@tamanu/fake-data/helpers';
+import { chance } from '@tamanu/fake-data/fake';
 import { labTestTypeToLOINCCode } from '../../dist/hl7fhir/loinc';
 
 describe('HL7 LOINC', () => {

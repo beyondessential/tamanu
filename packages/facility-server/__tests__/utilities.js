@@ -12,7 +12,7 @@ import {
   seedSettings,
 } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
-import { chance } from '@tamanu/fake-data/helpers';
+import { chance } from '@tamanu/fake-data/fake';
 import { asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApiApp } from '../dist/createApiApp';

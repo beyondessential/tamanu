@@ -1,5 +1,5 @@
 import { createTestContext } from '../utilities';
-import { fakeReferenceData } from '@tamanu/fake-data/helpers';
+import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 

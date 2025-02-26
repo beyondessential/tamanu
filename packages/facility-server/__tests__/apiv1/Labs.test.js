@@ -9,7 +9,7 @@ import {
   createDummyPatient,
   randomLabRequest,
 } from '@tamanu/database/demoData';
-import { chance, fake } from '@tamanu/fake-data/helpers';
+import { chance, fake } from '@tamanu/fake-data/fake';
 import {
   createLabTestTypes,
   randomSensitiveLabRequest,

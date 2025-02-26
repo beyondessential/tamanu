@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 

@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 

@@ -1,7 +1,7 @@
 import { Chance } from 'chance';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const chance = new Chance();

@@ -1,5 +1,5 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 

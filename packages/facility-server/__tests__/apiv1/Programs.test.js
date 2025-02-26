@@ -3,7 +3,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { chance } from '@tamanu/fake-data/helpers';
+import { chance } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 

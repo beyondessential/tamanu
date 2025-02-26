@@ -2,7 +2,7 @@
 
 import { addDays, formatRFC7231 } from 'date-fns';
 
-import { fake, fakeReferenceData } from '@tamanu/fake-data/helpers';
+import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 
 import {
   FHIR_DATETIME_PRECISION,
