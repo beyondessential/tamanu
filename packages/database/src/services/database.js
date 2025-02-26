@@ -111,15 +111,20 @@ async function connectToDatabase(dbOptions) {
     pool,
   });
 
-  class ExtendedQuery extends sequelize.dialect.Query {
+  class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
-      const userid = namespace.get('userid');
-      if (userid) await super.run(`SELECT set_config('audit.userid', $1, false)`, [userid]);
+      const userid = namespace.get('audit.userid');
+      const path = namespace.get('audit.path');
+      if (userid)
+        await super.run(
+          `SELECT set_config('audit.userid', $1, false), set_config('audit.path', $2, false)`,
+          [userid, path],
+        );
       return super.run(sql, options);
     }
   }
 
-  sequelize.dialect.Query = ExtendedQuery;
+  sequelize.dialect.Query = QueryWithAditConfig;
 
   setupQuote(sequelize);
   await sequelize.authenticate();
