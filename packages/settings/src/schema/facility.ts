@@ -11,8 +11,9 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
 } from './definitions';
+import type { SettingsSchema } from 'types';
 
-export const facilitySettings = {
+export const facilitySettings: SettingsSchema = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
