@@ -1,0 +1,8 @@
+---
+schema: public
+name: patient_care_plans
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerTimestamp -}}'

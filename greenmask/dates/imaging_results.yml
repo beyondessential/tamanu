@@ -1,0 +1,8 @@
+---
+schema: public
+name: imaging_results
+transformers:
+  - name: Template
+    params:
+      column: completed_at
+      template: '{{- fakerTimestamp -}}'

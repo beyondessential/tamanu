@@ -1,0 +1,7 @@
+---
+schema: public
+name: patient_field_values
+transformers:
+  - name: Masking
+    params:
+      column: value
