@@ -343,22 +343,22 @@ const MedicationAdministrationForm = () => {
             return (
               <Box
                 key={index}
-                {...(slot.mealTime && {
+                {...(slot.periodLabel && {
                   p: 1,
                   border: `1px solid ${Colors.outline}`,
                   borderRadius: '3px',
                   width: 'fit-content',
                 })}
               >
-                {slot.mealTime && (
+                {slot.periodLabel && (
                   <FieldLabel mb={'3px'}>
                     <TranslatedText
-                      stringId={`medication.medicationAdministrationSchedule.mealTime.${slot.mealTime}`}
-                      fallback={capitalize(slot.mealTime)}
+                      stringId={`medication.medicationAdministrationSchedule.periodLabel.${slot.periodLabel}`}
+                      fallback={capitalize(slot.periodLabel)}
                     />
                   </FieldLabel>
                 )}
-                <Box display="flex" ml={slot.mealTime ? 0 : 1}>
+                <Box display="flex" ml={slot.periodLabel ? 0 : 1}>
                   <ConditionalTooltip
                     visible={isDisabled}
                     title={
