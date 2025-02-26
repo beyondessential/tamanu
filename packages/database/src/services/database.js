@@ -113,7 +113,7 @@ async function connectToDatabase(dbOptions) {
 
   class ExtendedQuery extends sequelize.dialect.Query {
     async run(sql, options) {
-      const userid = namespace.get('userid');
+      const userid = namespace.get('audit.userid');
         if (!userid) return super.run(sql, options);
         await super.run(`SELECT set_config('audit.userid', '${userid}', false)`);
         return super.run(
