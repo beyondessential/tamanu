@@ -27,10 +27,10 @@ describe('FhirMissingResources task', () => {
 
   beforeEach(async () => {
     const { FhirJob, FhirServiceRequest, FhirSpecimen, ImagingRequest } = ctx.store.models;
-    await FhirJob.destroy({ where: {} });
-    await FhirServiceRequest.destroy({ where: {} });
-    await FhirSpecimen.destroy({ where: {} });
-    await ImagingRequest.destroy({ where: {} });
+    await FhirJob.truncate();
+    await FhirServiceRequest.truncate();
+    await FhirSpecimen.truncate();
+    await ImagingRequest.truncate();
   });
 
   afterAll(() => {
