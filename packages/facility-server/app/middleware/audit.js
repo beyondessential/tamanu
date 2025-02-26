@@ -1,10 +1,8 @@
+import { namespace } from '@tamanu/database/services/database';
+
 export const attachAuditUserToDbSession = async (req, res, next) => {
-  const { db, user } = req;
-  const { id: userId } = user;
-
-  await db.sequelize.query(`set_config('audit.user_id', :userId, true);`, {
-    replacements: { userId },
+  namespace.run(() => {
+    namespace.set("userid", req.user?.id); // Example: Store user ID
+    next();
   });
-
-  next();
 };
