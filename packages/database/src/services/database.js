@@ -22,7 +22,7 @@ export const namespace = {
   get: (id) => asyncLocalStorage.getStore()?.get(id),
   set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
-}
+};
 
 export const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -114,12 +114,8 @@ async function connectToDatabase(dbOptions) {
   class ExtendedQuery extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = namespace.get('audit.userid');
-        if (!userid) return super.run(sql, options);
-        await super.run(`SELECT set_config('audit.userid', '${userid}', false)`);
-        return super.run(
-          sql,
-          options,
-        );
+      if (userid) await super.run(`SELECT set_config('audit.userid', '${userid}', false)`);
+      return super.run(sql, options);
     }
   }
 
