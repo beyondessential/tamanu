@@ -462,16 +462,17 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   }, [awaitingPrint, submittedMedication]);
 
   const onSubmit = async data => {
-    const idealTimes = data.timeSlots.map(slot => slot.value);
-    const medicationSubmission = await api.post('medication', {
-      ...data,
-      idealTimes,
-      encounterId,
-    });
-    // The return from the post doesn't include the joined tables like medication and prescriber
-    const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+    console.log({data})
+    // const idealTimes = data.timeSlots.map(slot => slot.value);
+    // const medicationSubmission = await api.post('medication', {
+    //   ...data,
+    //   idealTimes,
+    //   encounterId,
+    // });
+    // // The return from the post doesn't include the joined tables like medication and prescriber
+    // const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 
-    setSubmittedMedication(newMedication);
+    // setSubmittedMedication(newMedication);
   };
 
   return (
@@ -726,9 +727,10 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
-                  onClick={data => {
+                  onClick={e => {
+                    e.preventDefault();
                     setAwaitingPrint(false);
-                    submitForm(data);
+                    submitForm(e);
                   }}
                 >
                   <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
