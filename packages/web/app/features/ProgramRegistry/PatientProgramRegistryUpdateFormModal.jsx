@@ -2,7 +2,6 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { generate } from 'shortid';
 import { Add } from '@material-ui/icons';
 import MuiDivider from '@material-ui/core/Divider';
 import {
@@ -101,14 +100,14 @@ const getGroupedData = rows => {
   };
 
   // Initialize result object
-  const groupedData = { confirmedSection: [], resolvedSection: [], recordedInErrorSection: [] };
+  const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
   rows.forEach(({ conditionCategory, date, programRegistryCondition }) => {
     for (const [group, conditions] of Object.entries(groupMapping)) {
       if (conditions.includes(conditionCategory)) {
         groupedData[group].push({
-          id: programRegistryCondition.id,
+          conditionId: programRegistryCondition.id,
           name: programRegistryCondition.name,
           date,
           conditionCategory,
@@ -202,7 +201,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 return (
                   <div style={{ position: 'relative' }}>
                     <ProgramRegistryConditionField
-                      name={`conditions[${groupName}][${index}].id`}
+                      name={`conditions[${groupName}][${index}].conditionId`}
                       programRegistryId={programRegistryId}
                       onClear={onClear}
                       ariaLabelledby="condition-label"
@@ -213,10 +212,11 @@ export const PatientProgramRegistryUpdateFormModal = ({
                         type="button"
                         variant="text"
                         onClick={() => {
-                          setFieldValue('conditions', [
-                            ...groupedData.conditions,
-                            { id: generate() },
-                          ]);
+                          // Add a new empty row to the end of the confirmed section
+                          setFieldValue('conditions', {
+                            ...values.conditions,
+                            confirmedSection: [...values.conditions.confirmedSection, {}],
+                          });
                         }}
                       >
                         Add additional
@@ -242,16 +242,13 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   return <DateDisplay date={date} />;
                 }
                 return (
-                  <div>
-                    {index}
-                    <Field
-                      name={`conditions[${groupName}][${index}].date`}
-                      saveDateAsString
-                      required
-                      component={DateField}
-                      ariaLabelledby="date-added-label"
-                    />
-                  </div>
+                  <Field
+                    name={`conditions[${groupName}][${index}].date`}
+                    saveDateAsString
+                    required
+                    component={DateField}
+                    ariaLabelledby="date-added-label"
+                  />
                 );
               },
             },
@@ -269,15 +266,12 @@ export const PatientProgramRegistryUpdateFormModal = ({
               width: 200,
               accessor: ({ id }, groupName, index) => {
                 return (
-                  <div>
-                    {index}
-                    <ProgramRegistryConditionCategoryField
-                      name={`conditions[${groupName}][${index}].conditionCategory`}
-                      conditionId={id}
-                      ariaLabelledby="condition-category-label"
-                      required
-                    />
-                  </div>
+                  <ProgramRegistryConditionCategoryField
+                    name={`conditions[${groupName}][${index}].conditionCategory`}
+                    conditionId={id}
+                    ariaLabelledby="condition-category-label"
+                    required
+                  />
                 );
               },
             },
