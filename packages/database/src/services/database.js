@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, AUDIT_USERID_KEY } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
@@ -113,8 +113,8 @@ async function connectToDatabase(dbOptions) {
 
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
-      const userid = namespace.get('tamanu.audit.userid');
-      if (userid) await super.run(`SELECT set_config('tamanu.audit.userid', $1, false)`, [userid]);
+      const userid = namespace.get(AUDIT_USERID_KEY);
+      if (userid) await super.run(`SELECT set_config('${AUDIT_USERID_KEY}', $1, false)`, [userid]);
       return super.run(sql, options);
     }
   }
