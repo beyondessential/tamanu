@@ -38,5 +38,5 @@ export const NON_LOGGED_TABLES = [
   'signers',
 
   // internal configuration
-  'local_system_facts'
+  'local_system_facts',
 ];
