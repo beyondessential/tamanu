@@ -66,16 +66,9 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
               Object.entries(data).map(([groupName, groupData], groupIndex) => (
                 <React.Fragment key={groupName}>
                   {groupData.map((rowData, i) => {
-                    // Get the total index of the row in the table
-                    const index =
-                      Object.values(data)
-                        .slice(0, groupIndex)
-                        .reduce((acc, group) => acc + group.length, 0) + i;
-                    console.log('index', index);
-
-                    // Is it the last group in the table?
+                    // Is it the last group in the table
                     const isLast = groupIndex === Object.keys(data).length - 1;
-                    // Is it the last row in the group?
+                    // Is it the last row in the group
                     const showBorder = !isLast && i === groupData.length - 1;
 
                     return (
@@ -87,7 +80,7 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
                       >
                         {columns.map(({ key, accessor }) => (
                           <StyledTableDataCell key={key}>
-                            {accessor(rowData, index)}
+                            {accessor(rowData, groupName, i)}
                           </StyledTableDataCell>
                         ))}
                       </TableRow>

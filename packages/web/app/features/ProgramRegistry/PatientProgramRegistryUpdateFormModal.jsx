@@ -88,7 +88,7 @@ const useUpdateProgramRegistryMutation = patientId => {
 
 const getGroupedData = rows => {
   const groupMapping = {
-    group1: [
+    confirmedSection: [
       'suspected',
       'underInvestigation',
       'confirmed',
@@ -96,29 +96,30 @@ const getGroupedData = rows => {
       'inRemission',
       'notApplicable',
     ],
-    group2: ['disproven', 'resolved'],
-    group3: ['recordedInError'],
+    resolvedSection: ['disproven', 'resolved'],
+    recordedInErrorSection: ['recordedInError'],
   };
 
   // Initialize result object
-  // const emptyRow = { id: '', name: '', date: '', conditionCategory: '' };
-  const groupedData = { group1: [], group2: [], group3: [] };
+  const groupedData = { confirmedSection: [], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(row => {
-    if (!row.id || !row.conditionCategory) return; // Skip invalid entries
-
+  rows.forEach(({ conditionCategory, date, programRegistryCondition }) => {
     for (const [group, conditions] of Object.entries(groupMapping)) {
-      if (conditions.includes(row.conditionCategory)) {
-        groupedData[group].push(row);
+      if (conditions.includes(conditionCategory)) {
+        groupedData[group].push({
+          id: programRegistryCondition.id,
+          name: programRegistryCondition.name,
+          date,
+          conditionCategory,
+        });
         break;
       }
     }
   });
   Object.keys(groupedData).forEach(group => {
-    groupedData[group].sort((a, b) => a.name.localeCompare(b.name));
+    groupedData[group].sort((a, b) => a.name?.localeCompare(b?.name));
   });
-
   return groupedData;
 };
 
@@ -166,12 +167,15 @@ export const PatientProgramRegistryUpdateFormModal = ({
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         render={({ setFieldValue, values, initialValues, dirty }) => {
+          const groupedData = values.conditions;
           const getIsDirty = index => {
             return (
               values.conditions[index]?.conditionCategory !==
               initialValues.conditions[index]?.conditionCategory
             );
           };
+
+          console.log('values', values);
 
           const columns = [
             {
@@ -184,23 +188,21 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ name }, index) => {
+              accessor: ({ name }, groupName, index) => {
                 if (name) {
                   return name;
                 }
 
-                const fieldName = `conditions[${index}]`;
-
                 const onClear = () => {
-                  console.log('clearing', fieldName);
+                  console.log('clearing');
                 };
 
-                const isLastRow = index === groupedData.group1.length - 1;
+                const isLastRow = index === groupedData.confirmedSection.length - 1;
 
                 return (
                   <div style={{ position: 'relative' }}>
                     <ProgramRegistryConditionField
-                      name={`conditions[${index}].id`}
+                      name={`conditions[${groupName}][${index}].id`}
                       programRegistryId={programRegistryId}
                       onClear={onClear}
                       ariaLabelledby="condition-label"
@@ -211,7 +213,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
                         type="button"
                         variant="text"
                         onClick={() => {
-                          setFieldValue('conditions', [...values.conditions, { id: generate() }]);
+                          setFieldValue('conditions', [
+                            ...groupedData.conditions,
+                            { id: generate() },
+                          ]);
                         }}
                       >
                         Add additional
@@ -232,18 +237,21 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ date }, index) => {
+              accessor: ({ date }, groupName, index) => {
                 if (date) {
                   return <DateDisplay date={date} />;
                 }
                 return (
-                  <Field
-                    name={`conditions[${index}].date`}
-                    saveDateAsString
-                    required
-                    component={DateField}
-                    ariaLabelledby="date-added-label"
-                  />
+                  <div>
+                    {index}
+                    <Field
+                      name={`conditions[${groupName}][${index}].date`}
+                      saveDateAsString
+                      required
+                      component={DateField}
+                      ariaLabelledby="date-added-label"
+                    />
+                  </div>
                 );
               },
             },
@@ -259,14 +267,17 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 200,
-              accessor: ({ id }, index) => {
+              accessor: ({ id }, groupName, index) => {
                 return (
-                  <ProgramRegistryConditionCategoryField
-                    name={`conditions[${index}].conditionCategory`}
-                    conditionId={id}
-                    ariaLabelledby="condition-category-label"
-                    required
-                  />
+                  <div>
+                    {index}
+                    <ProgramRegistryConditionCategoryField
+                      name={`conditions[${groupName}][${index}].conditionCategory`}
+                      conditionId={id}
+                      ariaLabelledby="condition-category-label"
+                      required
+                    />
+                  </div>
                 );
               },
             },
@@ -281,9 +292,9 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 320,
-              accessor: (row, index) => (
+              accessor: (row, groupName, index) => (
                 <Field
-                  name={`conditions[${index}].reasonForChange`}
+                  name={`conditions[${groupName}][${index}].reasonForChange`}
                   ariaLabelledBy="condition-category-change-reason-label"
                   component={StyledTextField}
                   required
@@ -297,12 +308,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
               accessor: () => <ViewHistoryButton>View history</ViewHistoryButton>,
             },
           ];
-
-          const rows = values.conditions;
-          const groupedData = getGroupedData(rows);
-
-          // console.log('groupedRows', groupedData);
-          console.log('VALUES', values);
 
           return (
             <>
@@ -326,16 +331,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
         }}
         initialValues={{
           clinicalStatusId: clinicalStatusId,
-          conditions: [
-            ...conditions.map(({ programRegistryCondition, date, conditionCategory }) => ({
-              id: programRegistryCondition.id,
-              name: programRegistryCondition.name,
-              date,
-              conditionCategory,
-            })),
-            // Add an empty row for adding new conditions
-            {},
-          ],
+          conditions: getGroupedData(conditions),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
