@@ -27,6 +27,7 @@ import {
   CheckInput,
   DateField,
   DateTimeField,
+  Dialog,
   Field,
   Form,
   FormCancelButton,
@@ -260,6 +261,7 @@ const MedicationAdministrationForm = () => {
             {
               index,
               value: getDefaultIdealTimeFromTimeSlot(slot, index),
+              timeSlot: slot,
             },
           ]
         : selectedTimeSlots.filter(s => s.index !== index),
@@ -421,6 +423,10 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
+  const frequenciesAdministrationIdealTimes = getSetting(
+    'medications.frequenciesAdministrationIdealTimes',
+  );
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -432,6 +438,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const [printModalOpen, setPrintModalOpen] = useState();
   const [awaitingPrint, setAwaitingPrint] = useState(false);
   const [patientWeight, setPatientWeight] = useState('');
+  const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
 
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
@@ -462,6 +469,15 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   }, [awaitingPrint, submittedMedication]);
 
   const onSubmit = async data => {
+    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
+    if (
+      data.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
+      data.timeSlots.length < defaultIdealTimes?.length
+    ) {
+      setIdealTimesErrorOpen(true);
+      return Promise.reject({ message: 'Administration times discrepancy error' });
+    }
+
     const idealTimes = data.timeSlots.map(slot => slot.value);
     const medicationSubmission = await api.post('medication', {
       ...data,
@@ -750,6 +766,33 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
             setAwaitingPrint(false);
             setPrintModalOpen(false);
           }}
+        />
+      )}
+      {idealTimesErrorOpen && (
+        <Dialog
+          isVisible
+          onClose={() => setIdealTimesErrorOpen(false)}
+          headerTitle={
+            <TranslatedText
+              stringId="medication.medicationAdministrationSchedule.discrepancyError.title"
+              fallback="Administration times discrepancy"
+            />
+          }
+          disableDevWarning
+          contentText={
+            <Box pt={2} pb={4}>
+              <TranslatedText
+                stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
+                fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+              />
+            </Box>
+          }
+          okText={
+            <TranslatedText
+              stringId="medication.medicationAdministrationSchedule.discrepancyError.backToPrescription"
+              fallback="Back to prescription"
+            />
+          }
         />
       )}
     </>
