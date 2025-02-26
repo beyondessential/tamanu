@@ -17,14 +17,16 @@ createDateTypes();
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
 // done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
-const asyncLocalStorage = new AsyncLocalStorage();
-// eslint-disable-next-line react-hooks/rules-of-hooks
-Sequelize.useCLS({
+export const namespace = {
   bind: () => {}, // compatibility with cls-hooked, not used by sequelize
   get: (id) => asyncLocalStorage.getStore()?.get(id),
   set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
-});
+}
+
+export const asyncLocalStorage = new AsyncLocalStorage();
+// eslint-disable-next-line react-hooks/rules-of-hooks
+Sequelize.useCLS(namespace);
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -108,6 +110,22 @@ async function connectToDatabase(dbOptions) {
     logging,
     pool,
   });
+
+  class ExtendedQuery extends sequelize.dialect.Query {
+    async run(sql, options) {
+      const userid = namespace.get('userid');
+        if (!userid) return super.run(sql, options);
+        await super.run(`SELECT set_config('auth.user', '${userid}', false)`);
+        return super.run(
+          sql,
+          options,
+        );
+
+    }
+  }
+
+  sequelize.dialect.Query = ExtendedQuery;
+
   setupQuote(sequelize);
   await sequelize.authenticate();
 
