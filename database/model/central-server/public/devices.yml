@@ -51,6 +51,11 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
+          - name: can_login
+            data_type: boolean
+            description: "{{ doc('devices__can_sync') }}"
+            data_tests:
+              - not_null
           - name: can_sync
             data_type: boolean
             description: "{{ doc('devices__can_sync') }}"
