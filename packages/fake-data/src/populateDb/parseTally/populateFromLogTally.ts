@@ -1,5 +1,6 @@
 import { times } from 'lodash';
-import { createEncounter, createPatient, createRepeatingAppointment } from 'populateDb';
+import { createEncounter, createPatient, createRepeatingAppointment } from './populateDb';
+import { Models } from '@tamanu/database';
 
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment, PUT: () => null },
@@ -26,13 +27,9 @@ const exampleFile = {
 
 // Loop through the file and map to functions
 
-const models = [];
-
-const populateDbFromTallyFile = (tallyFile: object) => {
+export const populateDbFromTallyFile = (tallyFile: object, models: Models) => {
   Object.entries(tallyFile).forEach(([model, tally]) => {
     times(tally.POST, () => MODEL_TO_FUNCTION[model].POST({ models }));
     times(tally.PUT, () => MODEL_TO_FUNCTION[model].PUT({ models }));
   });
 };
-
-populateDbFromTallyFile(exampleFile);
