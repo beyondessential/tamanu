@@ -132,11 +132,11 @@ async function connectToDatabase(dbOptions) {
   class QueryWithAuditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
-      const path = getSessionConfigInNamespace(AUDIT_PATH_KEY);
+      const path = getSessionConfigInNamespace(AUDIT_ENDPOINT_KEY);
       if (userid) {
         await super.run(
           'SELECT set_session_config($1, $2), set_session_config($3, $4)',
-          [AUDIT_USERID_KEY, userid, AUDIT_PATH_KEY, path],
+          [AUDIT_USERID_KEY, userid, AUDIT_ENDPOINT_KEY, path],
         );
       }
       return super.run(sql, options);
