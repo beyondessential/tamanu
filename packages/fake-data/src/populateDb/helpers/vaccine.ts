@@ -16,7 +16,7 @@ export const createAdministeredVaccine = async ({
   const { AdministeredVaccine } = models;
   await AdministeredVaccine.create(
     fake(AdministeredVaccine, {
-      scheduledVaccineId,
+      scheduledVaccineId: scheduledVaccineId || (await randomRecordId(models, 'ScheduledVaccine')),
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );

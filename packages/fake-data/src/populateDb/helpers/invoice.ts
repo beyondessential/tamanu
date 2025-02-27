@@ -1,5 +1,8 @@
-import type { Models } from '@tamanu/database';
 import { times } from 'lodash';
+
+import type { Models } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake, chance } from '../../fake';
 
 interface CreateInvoiceParams {
@@ -31,14 +34,14 @@ export const createInvoice = async ({
 
   const invoice = await Invoice.create(
     fake(Invoice, {
-      encounterId,
+      encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );
 
   await InvoiceDiscount.create(
     fake(InvoiceDiscount, {
       invoiceId: invoice.id,
-      appliedByUserId: userId,
+      appliedByUserId: userId || (await randomRecordId(models, 'User')),
     }),
   );
 
@@ -46,8 +49,8 @@ export const createInvoice = async ({
     const invoiceItem = await InvoiceItem.create(
       fake(InvoiceItem, {
         invoiceId: invoice.id,
-        productId,
-        orderedByUserId: userId,
+        productId: productId || (await randomRecordId(models, 'InvoiceProduct')),
+        orderedByUserId: userId || (await randomRecordId(models, 'User')),
       }),
     );
 
@@ -61,7 +64,7 @@ export const createInvoice = async ({
   await InvoiceInsurer.create(
     fake(InvoiceInsurer, {
       invoiceId: invoice.id,
-      insurerId: referenceDataId,
+      insurerId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
     }),
   );
 
@@ -73,13 +76,13 @@ export const createInvoice = async ({
   await InvoiceInsurerPayment.create(
     fake(InvoiceInsurerPayment, {
       invoicePaymentId: invoicePayment.id,
-      insurerId: referenceDataId,
+      insurerId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
     }),
   );
   await InvoicePatientPayment.create(
     fake(InvoicePatientPayment, {
       invoicePaymentId: invoicePayment.id,
-      methodId: referenceDataId,
+      methodId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
     }),
   );
 };

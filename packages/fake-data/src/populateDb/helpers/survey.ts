@@ -1,4 +1,6 @@
 import type { Models } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake } from '../../fake';
 
 interface CreateSurveyResponseParams {
@@ -14,8 +16,8 @@ export const createSurveyResponse = async ({
   const { SurveyResponse } = models;
   await SurveyResponse.create(
     fake(SurveyResponse, {
-      surveyId,
-      encounterId,
+      surveyId: surveyId || (await randomRecordId(models, 'Survey')),
+      encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );
 };

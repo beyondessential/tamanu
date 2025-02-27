@@ -1,5 +1,8 @@
-import type { Models, Patient } from '@tamanu/database';
 import { times } from 'lodash';
+
+import type { Models, Patient } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake, chance } from '../../fake';
 
 interface CreatePatientParams {
@@ -29,7 +32,7 @@ export const createPatient = async ({
     await PatientBirthData.create(
       fake(PatientBirthData, {
         patientId: patient.id,
-        facilityId,
+        facilityId: facilityId || (await randomRecordId(models, 'Facility')),
       }),
     );
   }
@@ -46,7 +49,7 @@ export const createPatient = async ({
     await PatientDeathData.create(
       fake(PatientDeathData, {
         patientId: patient.id,
-        clinicianId: userId,
+        clinicianId: userId || (await randomRecordId(models, 'User')),
       }),
     );
   }
