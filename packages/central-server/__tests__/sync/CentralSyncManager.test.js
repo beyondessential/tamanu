@@ -162,13 +162,15 @@ describe('CentralSyncManager', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
-    await models.User.truncate({ cascade: true, force: true });
-    await models.User.create({
-      id: SYSTEM_USER_UUID,
-      email: 'system',
-      displayName: 'System',
-      role: 'system',
-    });
+    await models.User.destroy({
+      where: {
+        id: {
+          [Op.not]: SYSTEM_USER_UUID
+        }
+      },
+      force: true,
+      cascade: true
+    })
   });
 
   afterAll(() => ctx.close());
@@ -443,9 +445,15 @@ describe('CentralSyncManager', () => {
 
         // ~ ~ ~ Set up old data
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
-        const patient1 = await models.Patient.create({
-          ...fake(models.Patient),
-        });
+        let patient1
+        try {
+
+           patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+        } catch(err) {
+          console.error(err)
+        }
         const patient2 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -914,11 +922,12 @@ describe('CentralSyncManager', () => {
           await models.User.destroy({
             where: {
               id: {
-                [Op.not]: SYSTEM_USER_UUID,
-              },
+                [Op.not]: SYSTEM_USER_UUID
+              }
             },
             force: true,
-          });
+            cascade: true
+          })
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
           await models.LabRequest.truncate({ cascade: true, force: true });
@@ -1676,9 +1685,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
 
       expect(lookupData).toHaveLength(1);
@@ -1726,9 +1735,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
 
       expect(lookupData).toHaveLength(1);
@@ -1764,10 +1773,11 @@ describe('CentralSyncManager', () => {
       const lookupData2 = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
+
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1820,9 +1830,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
 
       expect(lookupData).toHaveLength(2);
@@ -1858,10 +1868,11 @@ describe('CentralSyncManager', () => {
       const lookupData2 = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
+
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1952,9 +1963,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
 
       // only expect 3 records as it should not include the 3 records inserted manually
@@ -2004,9 +2015,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
 
       // only expect 3 records as it should not include the 3 records inserted from the importer
@@ -2084,9 +2095,9 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({
         where: {
           recordId: {
-            [Op.not]: SYSTEM_USER_UUID,
-          },
-        },
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
       });
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
