@@ -2,6 +2,7 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
+import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 
 import {
   authMiddleware,
@@ -9,7 +10,6 @@ import {
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
-import { attachAuditUserToDbSession } from '../../middleware/audit';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
