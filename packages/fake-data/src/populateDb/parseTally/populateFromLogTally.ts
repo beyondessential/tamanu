@@ -1,6 +1,14 @@
 import { times } from 'lodash';
-import { createEncounter, createPatient, createRepeatingAppointment } from '../helpers';
+import { promises as fs } from 'fs';
+
 import { Models } from '@tamanu/database';
+
+import {
+  createEncounter,
+  createPatient,
+  createRepeatingAppointment,
+  generateImportData,
+} from '../helpers';
 
 // TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {
@@ -17,17 +25,34 @@ const MODEL_TO_FUNCTION = {
   ReportDefinition: { POST: () => null, PUT: () => null },
 };
 
-// Read and parse the file
+export const readJSON = async (path: string): Promise<object> => {
+  const data = await fs.readFile(path, 'utf8');
+  return JSON.parse(data);
+};
 
-// Create/get db instance
+export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
+  // Generate import data
+  const {
+    referenceData,
+    facility,
+    department,
+    locationGroup,
+    location,
+    survey,
+    scheduledVaccine,
+    invoiceProduct,
+    labTestType,
+    user,
+    programRegistry,
+  } = await generateImportData(models);
 
-// Generate import data
+  const tallyJson = await readJSON(tallyFilePath);
 
-// Loop through the file and map to functions
+  Object.entries(tallyJson).forEach(([model, tally]) => {
+    const { POST: postCount, PUT: putCount } = tally;
+    const { POST: simulatePost, PUT: simplatePut } = MODEL_TO_FUNCTION[model];
 
-export const populateDbFromTallyFile = (tallyFile: object, models: Models) => {
-  Object.entries(tallyFile).forEach(([model, tally]) => {
-    times(tally.POST, async () => MODEL_TO_FUNCTION[model].POST({ models }));
-    times(tally.PUT, async () => MODEL_TO_FUNCTION[model].PUT({ models }));
+    times(postCount, async () => simulatePost({ models }));
+    times(putCount, async () => simplatePut({ models }));
   });
 };
