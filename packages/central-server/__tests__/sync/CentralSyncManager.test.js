@@ -667,9 +667,6 @@ describe('CentralSyncManager', () => {
     });
 
     describe('handles concurrent transactions', () => {
-      beforeEach(async () => {
-        await models.User.truncate({ cascade: true, force: true });
-      });
       afterEach(async () => {
         // Revert to the original models
         ctx.store.models = models;
@@ -738,7 +735,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          (change) => change.recordId != SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -790,7 +789,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          (change) => change.recordId != SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -881,7 +882,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionIdOne, {});
+        const outgoingChanges = (
+          await centralSyncManager.getOutgoingChanges(sessionIdOne, {})
+        ).filter((change) => change.recordId != SYSTEM_USER_UUID);
 
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
