@@ -10,7 +10,6 @@ import {
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
-import { attachAuditUserToDbSession } from '../../middleware/audit';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
