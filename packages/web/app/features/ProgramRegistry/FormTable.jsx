@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Colors } from '../../constants';
 
@@ -14,8 +14,14 @@ const Container = styled.div`
 
 const StyledTable = styled(Table)`
   table-layout: fixed;
-  tr:last-child td {
-    border-bottom: none;
+  tr {
+    &:first-child td {
+      padding-top: 20px;
+    }
+    &:last-child td {
+      border-bottom: none;
+      padding-bottom: 20px;
+    }
   }
 `;
 
@@ -33,7 +39,7 @@ const StyledTableHeaderCell = styled(TableCell)`
 `;
 
 const StyledTableDataCell = styled(TableCell)`
-  padding: 30px 5px;
+  padding: 5px;
 
   &:last-child {
     padding-right: 0;
@@ -42,6 +48,35 @@ const StyledTableDataCell = styled(TableCell)`
   &:first-child {
     padding-left: 0;
   }
+`;
+
+const StyledTableRow = styled(TableRow)`
+  ${props =>
+    props.$sectionStart &&
+    css`
+      td {
+        padding-top: 20px;
+      }
+    `};
+
+  ${props =>
+    props.$sectionEnd &&
+    css`
+      border-bottom: 1px solid ${Colors.outline};
+      td {
+        padding-bottom: 20px;
+      }
+    `};
+
+  ${props =>
+    props.$hasAddButton &&
+    css`
+      td {
+        padding-bottom: 40px;
+      }
+    `};
+}
+
 `;
 
 export const FormTable = React.memo(({ columns, data, className = '' }) => {
@@ -66,24 +101,23 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
               Object.entries(data).map(([groupName, groupData], groupIndex) => (
                 <React.Fragment key={groupName}>
                   {groupData.map((rowData, i) => {
-                    // Is it the last group in the table
-                    const isLast = groupIndex === Object.keys(data).length - 1;
-                    // Is it the last row in the group
-                    const showBorder = !isLast && i === groupData.length - 1;
+                    const isFirst = groupIndex > 0 && i === 0;
+                    const isLast = groupIndex < groupData.length && i === groupData.length - 1;
+                    const hasAddButton = isLast && groupIndex === 0;
 
                     return (
-                      <TableRow
+                      <StyledTableRow
                         key={rowData.id || `${groupName}-${i}`}
-                        style={{
-                          borderBottom: showBorder ? `1px solid ${Colors.outline}` : 'none',
-                        }}
+                        $sectionStart={isFirst}
+                        $sectionEnd={isLast}
+                        $hasAddButton={hasAddButton}
                       >
                         {columns.map(({ key, accessor }) => (
                           <StyledTableDataCell key={key}>
                             {accessor(rowData, groupName, i)}
                           </StyledTableDataCell>
                         ))}
-                      </TableRow>
+                      </StyledTableRow>
                     );
                   })}
                 </React.Fragment>

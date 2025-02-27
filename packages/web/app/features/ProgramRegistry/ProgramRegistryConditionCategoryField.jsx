@@ -1,7 +1,14 @@
 import React from 'react';
+import styled from 'styled-components';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedSelectField, FieldWithTooltip } from '../../components';
+
+const StyledTextField = styled(TranslatedSelectField)`
+  .Mui-disabled {
+    background-color: #f3f5f7;
+  }
+`;
 
 export const ProgramRegistryConditionCategoryField = ({
   label,
@@ -24,11 +31,11 @@ export const ProgramRegistryConditionCategoryField = ({
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={TranslatedSelectField}
+      component={StyledTextField}
       enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
       disabled={!conditionId}
       required={required}
-      ariaLabelledby={ariaLabelledby}
+      aria-labelledby={ariaLabelledby}
     />
   );
 };

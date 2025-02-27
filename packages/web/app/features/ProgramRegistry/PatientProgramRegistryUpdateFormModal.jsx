@@ -103,7 +103,7 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ conditionCategory, date, programRegistryCondition }) => {
+  rows.forEach(({ conditionCategory, date, programRegistryCondition, reasonForChange }) => {
     for (const [group, conditions] of Object.entries(groupMapping)) {
       if (conditions.includes(conditionCategory)) {
         groupedData[group].push({
@@ -111,6 +111,7 @@ const getGroupedData = rows => {
           name: programRegistryCondition.name,
           date,
           conditionCategory,
+          reasonForChange,
         });
         break;
       }
@@ -167,12 +168,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
         onSubmit={handleSubmit}
         render={({ setFieldValue, values, initialValues, dirty }) => {
           const groupedData = values.conditions;
-          const getIsDirty = index => {
-            return (
-              values.conditions[index]?.conditionCategory !==
-              initialValues.conditions[index]?.conditionCategory
-            );
-          };
 
           console.log('values', values);
 
@@ -187,9 +182,18 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ name }, groupName, index) => {
+              accessor: ({ name, conditionCategory }, groupName, index) => {
                 if (name) {
-                  return name;
+                  return (
+                    <span
+                      style={{
+                        textDecoration:
+                          conditionCategory === 'recordedInError' ? 'line-through' : 'none',
+                      }}
+                    >
+                      {name}
+                    </span>
+                  );
                 }
 
                 const onClear = () => {
@@ -228,7 +232,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
             },
             {
               key: 'dateAdded',
-              width: 120,
+              width: 160,
               title: (
                 <span id="date-added-label">
                   <TranslatedText
@@ -237,9 +241,18 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ date }, groupName, index) => {
-                if (date) {
-                  return <DateDisplay date={date} />;
+              accessor: ({ date, conditionCategory }, groupName, index) => {
+                const initialValue = initialValues.conditions[groupName][index]?.date;
+                if (initialValue) {
+                  return (
+                    <DateDisplay
+                      date={date}
+                      style={{
+                        textDecoration:
+                          conditionCategory === 'recordedInError' ? 'line-through' : 'none',
+                      }}
+                    />
+                  );
                 }
                 return (
                   <Field
@@ -247,7 +260,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                     saveDateAsString
                     required
                     component={DateField}
-                    ariaLabelledby="date-added-label"
+                    aria-labelledby="date-added-label"
                   />
                 );
               },
@@ -264,11 +277,11 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 200,
-              accessor: ({ id }, groupName, index) => {
+              accessor: ({ conditionId }, groupName, index) => {
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={`conditions[${groupName}][${index}].conditionCategory`}
-                    conditionId={id}
+                    conditionId={conditionId}
                     ariaLabelledby="condition-category-label"
                     required
                   />
@@ -286,15 +299,25 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 320,
-              accessor: (row, groupName, index) => (
-                <Field
-                  name={`conditions[${groupName}][${index}].reasonForChange`}
-                  ariaLabelledBy="condition-category-change-reason-label"
-                  component={StyledTextField}
-                  required
-                  disabled={!getIsDirty(index)}
-                />
-              ),
+              accessor: (row, groupName, index) => {
+                // Check for date as a proxy for whether the row is new
+                const initialValue = initialValues.conditions[groupName][index]?.date;
+                if (!initialValue) {
+                  return null;
+                }
+                return (
+                  <Field
+                    name={`conditions[${groupName}][${index}].reasonForChange`}
+                    ariaLabelledBy="condition-category-change-reason-label"
+                    component={StyledTextField}
+                    required
+                    disabled={
+                      values.conditions[groupName][index].conditionCategory ===
+                      initialValues.conditions[groupName][index].conditionCategory
+                    }
+                  />
+                );
+              },
             },
             {
               key: 'history',

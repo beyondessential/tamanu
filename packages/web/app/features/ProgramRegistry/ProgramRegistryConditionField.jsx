@@ -59,7 +59,7 @@ export const ProgramRegistryConditionField = ({
       component={BaseSelectField}
       options={options}
       disabled={!conditions || conditions.length === 0}
-      ariaLabelledby={ariaLabelledby}
+      aria-labelledby={ariaLabelledby}
     />
   );
 };
