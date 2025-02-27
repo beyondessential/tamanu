@@ -11,7 +11,14 @@ interface CreateInvoiceParams {
   itemCount?: number;
 }
 export const createInvoice = async ({
-  models: {
+  models,
+  encounterId,
+  userId,
+  referenceDataId,
+  productId,
+  itemCount = chance.integer({ min: 1, max: 50 }),
+}: CreateInvoiceParams): Promise<void> => {
+  const {
     Invoice,
     InvoiceDiscount,
     InvoiceInsurer,
@@ -20,13 +27,8 @@ export const createInvoice = async ({
     InvoicePatientPayment,
     InvoiceItemDiscount,
     InvoiceItem,
-  },
-  encounterId,
-  userId,
-  referenceDataId,
-  productId,
-  itemCount = chance.integer({ min: 1, max: 50 }),
-}: CreateInvoiceParams): Promise<void> => {
+  } = models;
+
   const invoice = await Invoice.create(
     fake(Invoice, {
       encounterId,

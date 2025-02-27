@@ -7,10 +7,11 @@ interface CreateSurveyResponseParams {
   surveyId: string;
 }
 export const createSurveyResponse = async ({
-  models: { SurveyResponse },
+  models,
   encounterId,
   surveyId,
 }: CreateSurveyResponseParams): Promise<void> => {
+  const { SurveyResponse } = models;
   await SurveyResponse.create(
     fake(SurveyResponse, {
       surveyId,

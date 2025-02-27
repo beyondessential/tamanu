@@ -12,7 +12,7 @@ interface CreatePatientParams {
   allergyCount?: number;
 }
 export const createPatient = async ({
-  models: { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData },
+  models,
   facilityId,
   userId,
   isBirth = chance.bool(),
@@ -20,6 +20,9 @@ export const createPatient = async ({
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
+  const { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData } =
+    models;
+
   const patient = await Patient.create(fake(Patient));
 
   if (isBirth) {

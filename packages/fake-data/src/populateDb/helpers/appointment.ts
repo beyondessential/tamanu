@@ -52,7 +52,7 @@ export const createRepeatingAppointment = async ({
       fake(Appointment, {
         patientId: patientId || (await randomRecordId(models, 'Patient')),
         clinicianId: clinicianId || (await randomRecordId(models, 'User')),
-        locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),,
+        locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
         scheduleId: appointmentSchedule.id,
       }),
     );
