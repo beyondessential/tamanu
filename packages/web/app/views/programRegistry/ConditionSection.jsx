@@ -1,53 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import CloseIcon from '@material-ui/icons/Close';
-import { IconButton } from '@material-ui/core';
 import { sortBy } from 'lodash';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../constants';
-import { Heading5 } from '../../components/Typography';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { ButtonBase, Divider } from '@material-ui/core';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { RemoveConditionFormModal } from './RemoveConditionFormModal';
-import { AddConditionFormModal } from './AddConditionFormModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { Colors } from '../../constants';
+import useOverflow from '../../hooks/useOverflow';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-  width: 28%;
-  background-color: ${Colors.white};
-  padding-top: 13px;
-  padding-left: 20px;
-  padding-right: 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: flex-start;
-  border: 1px solid ${Colors.softOutline};
+`;
+
+const ScrollBody = styled.div`
+  flex: 1;
   border-radius: 5px;
+  border: 1px solid ${Colors.outline};
+  padding: 5px 0;
+  overflow: auto;
 `;
 
-const HeadingContainer = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
-  padding-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
+const Condition = styled(ButtonBase)`
   width: 100%;
-`;
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 14px;
+  line-height: 18px;
 
-const ConditionContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-  width: 100%;
-  margin-top: 5px;
+  &:hover {
+    background-color: #f4f9ff;
+  }
 `;
 
 const ClippedConditionName = styled.span`
@@ -56,101 +42,100 @@ const ClippedConditionName = styled.span`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   word-wrap: break-word;
-  width: 95%;
+  width: 100%;
 `;
 
-const AddConditionButton = styled.button`
-  display: inline-block;
-  padding: 10px 20px;
-  color: ${Colors.darkestText};
-  text-decoration: underline;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-  font-size: 11px;
-  padding: 0px;
-  background-color: transparent;
-
-  :hover {
-    color: ${Colors.blue};
-  }
-  :disabled {
-    color: ${Colors.darkText};
-  }
+const ConditionCategory = styled.span`
+  color: ${Colors.midText};
 `;
 
-export const ConditionSection = ({ patientProgramRegistration, programRegistryConditions }) => {
-  const {
-    data: patientProgramRegistrationConditions,
-    isLoading,
-  } = usePatientProgramRegistryConditionsQuery(
+const getGroupedConditions = (conditions) => {
+  const openConditions = [];
+  const closedConditions = [];
+
+  conditions.forEach(condition => {
+    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.recordedInError) {
+      return;
+    }
+
+    if ([
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
+    ].includes(condition.conditionCategory)) {
+      closedConditions.push(condition);
+      return;
+    }
+
+    openConditions.push(condition);
+  });
+
+  return { openConditions, closedConditions };
+};
+
+const ConditionComponent = ({ condition }) => {
+  const { translatedName, translatedCategory } = condition;
+  const [ref, isOverflowing] = useOverflow();
+  return (
+    <ConditionalTooltip
+      title={`${translatedName} (${translatedCategory})`}
+      visible={isOverflowing}
+    >
+      <Condition>
+        <ClippedConditionName ref={ref}>
+          {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
+        </ClippedConditionName>
+      </Condition>
+    </ConditionalTooltip>
+  );
+};
+
+export const ConditionSection = ({ patientProgramRegistration }) => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
 
-  const [conditionToRemove, setConditionToRemove] = useState();
-  const [openAddCondition, setOpenAddCondition] = useState(false);
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
-  if (isLoading) return <LoadingIndicator />;
+  if (conditions.data.length === 0) {
+    return null;
+  }
 
-  const isRemoved =
-    patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
+  const translatedData = conditions.data.map(condition => {
+    const { programRegistryCondition, conditionCategory } = condition;
+    const { id, name } = programRegistryCondition;
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'condition'),
+      name,
+    );
 
-  if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
+    const translatedCategory = getEnumTranslation(PROGRAM_REGISTRY_CONDITION_CATEGORIES, conditionCategory);
+    return { ...condition, translatedName, translatedCategory };
+  });
+  const sortedData = sortBy(translatedData, c => c.translatedName);
+  const { openConditions, closedConditions } = getGroupedConditions(sortedData);
+  const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
 
   return (
     <Container>
-      <HeadingContainer>
-        <Heading5>Related conditions</Heading5>
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-          <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
-            + Add condition
-          </AddConditionButton>
-        </ConditionalTooltip>
-      </HeadingContainer>
-      {Array.isArray(patientProgramRegistrationConditions?.data) &&
-        sortBy(
-          patientProgramRegistrationConditions.data,
-          c => c?.programRegistryCondition?.name,
-        ).map(x => (
-          <ConditionContainer key={x.id}>
-            <ConditionalTooltip
-              title={x.programRegistryCondition?.name}
-              visible={x.programRegistryCondition?.name?.length > 30}
-            >
-              <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
-            </ConditionalTooltip>
-            <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-              <IconButton
-                style={{ padding: 0 }}
-                onClick={() => setConditionToRemove(x)}
-                disabled={isRemoved}
-              >
-                <CloseIcon style={{ fontSize: '14px' }} />
-              </IconButton>
-            </ConditionalTooltip>
-          </ConditionContainer>
-        ))}
-      {openAddCondition && (
-        <AddConditionFormModal
-          onClose={() => setOpenAddCondition(false)}
-          patientProgramRegistration={patientProgramRegistration}
-          patientProgramRegistrationConditions={patientProgramRegistrationConditions.data.map(
-            x => ({ value: x.programRegistryConditionId }),
-          )}
-          programRegistryConditions={programRegistryConditions}
-          open
+      <Heading5 mt={0} mb={1}>
+        <TranslatedText
+          stringId="patientProgramRegistry.relatedConditions.title"
+          fallback="Related conditions"
         />
-      )}
-      {conditionToRemove && (
-        <RemoveConditionFormModal
-          patientProgramRegistration={patientProgramRegistration}
-          conditionToRemove={conditionToRemove}
-          onSubmit={() => setConditionToRemove(undefined)}
-          onCancel={() => setConditionToRemove(undefined)}
-          open
-        />
-      )}
+      </Heading5>
+      <ScrollBody>
+        {openConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
+        )}
+        {needsDivider && <Divider variant="middle" />}
+        {closedConditions.map(
+          condition => <ConditionComponent key={condition.id} condition={condition} />,
+        )}
+      </ScrollBody>
     </Container>
   );
 };
