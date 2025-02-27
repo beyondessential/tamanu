@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-expressions */
+import dateFnsTz from 'date-fns-tz';
+
 import {
   LAB_REQUEST_STATUSES,
   FHIR_DIAGNOSTIC_REPORT_STATUS,
@@ -23,7 +25,7 @@ describe('Create DiagnosticReport', () => {
   };
   const INTEGRATION_ROUTE = 'fhir/mat';
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
-  const postBody = serviceRequestId => ({
+  const postBody = (serviceRequestId) => ({
     resourceType: 'DiagnosticReport',
     basedOn: [
       {
@@ -167,6 +169,37 @@ describe('Create DiagnosticReport', () => {
         labRequest.set({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED });
         await labRequest.save();
       }
+    });
+
+    it('post a DiagnosticReport to a ServiceRequest', async () => {
+      const fakeDate = new Date('2020-01-01');
+      jest.useFakeTimers().setSystemTime(fakeDate);
+
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(serviceRequestId);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
+      body.presentedForm = [testAttachment];
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
+      expect((await labRequest.getLatestAttachment()).title).toBe(testAttachment.title);
     });
 
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
