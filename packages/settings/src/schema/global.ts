@@ -25,7 +25,7 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
-import type { SettingsSchema } from 'types';
+import type { SettingsSchema } from '../types';
 
 export const globalSettings: SettingsSchema = {
   name: 'Global settings',

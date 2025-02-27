@@ -11,7 +11,7 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
 } from './definitions';
-import type { SettingsSchema } from 'types';
+import type { SettingsSchema } from '../types';
 
 export const facilitySettings: SettingsSchema = {
   name: 'Facility server settings',
