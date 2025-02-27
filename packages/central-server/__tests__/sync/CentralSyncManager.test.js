@@ -798,6 +798,8 @@ describe('CentralSyncManager', () => {
           ...models,
         };
 
+        const device = await models.Device.create(fake(models.Device));
+
         const centralSyncManager = initializeCentralSyncManager();
         const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionIdOne);
@@ -855,7 +857,7 @@ describe('CentralSyncManager', () => {
         await waitForSession(centralSyncManager, sessionIdTwo);
 
         await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
-        await centralSyncManager.completePush(sessionIdTwo);
+        await centralSyncManager.completePush(sessionIdTwo, device.id);
         // Wait for persist of session 2 to complete
         await sleepAsync(100);
 
@@ -1272,10 +1274,7 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
-        const deviceId = facility.id;
-        await models.Device.create(fake(models.Device, {
-          id: deviceId,
-        }));
+        const device = await models.Device.create(fake(models.Device));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1317,7 +1316,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, deviceId);
+        await centralSyncManager.completePush(sessionId, device.id);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1328,7 +1327,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId,
+            deviceId: device.id,
           },
           () => true,
         );
@@ -1364,10 +1363,7 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '12';
         const facility = await models.Facility.create(fake(models.Facility));
-        const deviceId = facility.id;
-        await models.Device.create(fake(models.Device, {
-          id: deviceId,
-        }));
+        const device = await models.Device.create(fake(models.Device));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1406,7 +1402,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, deviceId);
+        await centralSyncManager.completePush(sessionId, device.id);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1417,7 +1413,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId,
+            deviceId: device.id,
           },
           () => true,
         );
