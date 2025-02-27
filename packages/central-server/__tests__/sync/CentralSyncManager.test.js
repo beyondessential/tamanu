@@ -18,6 +18,7 @@ import {
   DEBUG_LOG_TYPES,
   APPOINTMENT_STATUSES,
   REPEAT_FREQUENCY,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
@@ -160,8 +161,14 @@ describe('CentralSyncManager', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
-    await models.User.truncate({ cascade: true, force: true });
     await models.Device.truncate({ cascade: true, force: true });
+    await models.User.truncate({ cascade: true, force: true });
+    await models.User.create({
+      id: SYSTEM_USER_UUID,
+      email: 'system',
+      displayName: 'System',
+      role: 'system',
+    });
   });
 
   afterAll(() => ctx.close());
