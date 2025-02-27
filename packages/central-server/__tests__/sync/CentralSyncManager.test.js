@@ -1456,18 +1456,18 @@ describe('CentralSyncManager', () => {
       await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
       settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
+      const device = await models.Device.create(fake(models.Device));
+      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
         facilityId: facility.id,
       });
-      const locationGroup = await models.LocationGroup.create({
-        ...fake(models.LocationGroup),
-        facilityId: facility.id,
-      });
+      const locationGroup = await models.LocationGroup.create(
+        fake(models.LocationGroup, {
+          facilityId: facility.id,
+        }),
+      );
       await models.ReferenceData.create({
         id: 'appointmentType-standard',
         type: 'appointmentType',
@@ -1569,7 +1569,7 @@ describe('CentralSyncManager', () => {
 
       // Push the cancelled schedule
       await centralSyncManager.addIncomingChanges(sessionId, changes);
-      await centralSyncManager.completePush(sessionId, facility.id);
+      await centralSyncManager.completePush(sessionId, device.id);
       await waitForPushCompleted(centralSyncManager, sessionId);
 
       await centralSyncManager.updateLookupTable();
