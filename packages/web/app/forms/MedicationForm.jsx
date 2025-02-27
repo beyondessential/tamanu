@@ -65,7 +65,13 @@ const validationSchema = yup.object().shape({
   doseAmount: yup
     .number()
     .positive()
-    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+    .when('isVariableDose', {
+      is: false,
+      then: schema =>
+        schema.required(
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        ),
+    }),
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
@@ -481,6 +487,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     const idealTimes = data.timeSlots.map(slot => slot.value);
     const medicationSubmission = await api.post('medication', {
       ...data,
+      doseAmount: data.doseAmount || null,
       idealTimes,
       encounterId,
     });
@@ -560,6 +567,25 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 component={CheckField}
               />
             </CheckboxGroup>
+            <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
+              <Field
+                name="isVariableDose"
+                label={
+                  <BodyText>
+                    <TranslatedText
+                      stringId="medication.variableDose.label"
+                      fallback="Variable dose"
+                    />
+                  </BodyText>
+                }
+                component={CheckField}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, doseAmount: '' });
+                  }
+                }}
+              />
+            </div>
             <Field
               name="doseAmount"
               label={
@@ -568,7 +594,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               component={NumberField}
               min={0}
               onInput={validateDecimalPlaces}
-              required
+              required={!values.isVariableDose}
+              disabled={values.isVariableDose}
             />
             <Field
               name="units"
@@ -646,10 +673,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 name="isPhoneOrder"
                 label={
                   <BodyText>
-                    <TranslatedText
-                      stringId="medication.isPhoneOrder.label"
-                      fallback="Phone Order"
-                    />
+                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone Order" />
                   </BodyText>
                 }
                 component={CheckField}

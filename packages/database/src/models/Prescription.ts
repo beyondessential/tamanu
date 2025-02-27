@@ -38,10 +38,7 @@ export class Prescription extends Model {
         isOngoing: DataTypes.BOOLEAN,
         isPrn: DataTypes.BOOLEAN,
         isVariableDose: DataTypes.BOOLEAN,
-        doseAmount: {
-          type: DataTypes.DECIMAL,
-          allowNull: false,
-        },
+        doseAmount: DataTypes.DECIMAL,
         units: {
           type: DataTypes.STRING,
           allowNull: false,
