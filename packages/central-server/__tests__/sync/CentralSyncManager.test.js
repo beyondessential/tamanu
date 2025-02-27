@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Op } from 'sequelize';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
 import {
@@ -18,6 +19,7 @@ import {
   DEBUG_LOG_TYPES,
   APPOINTMENT_STATUSES,
   REPEAT_FREQUENCY,
+  SYSTEM_USER_UUID
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
@@ -160,7 +162,15 @@ describe('CentralSyncManager', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
-    await models.User.truncate({ cascade: true, force: true });
+    await models.User.destroy({
+      where: {
+        id: {
+          [Op.not]: SYSTEM_USER_UUID
+        }
+      },
+      force: true,
+      cascade: true
+    })
   });
 
   afterAll(() => ctx.close());
@@ -435,9 +445,15 @@ describe('CentralSyncManager', () => {
 
         // ~ ~ ~ Set up old data
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
-        const patient1 = await models.Patient.create({
-          ...fake(models.Patient),
-        });
+        let patient1
+        try {
+
+           patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+        } catch(err) {
+          console.error(err)
+        }
         const patient2 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -897,7 +913,15 @@ describe('CentralSyncManager', () => {
             cascade: true,
             force: true,
           });
-          await models.User.truncate({ cascade: true, force: true });
+          await models.User.destroy({
+            where: {
+              id: {
+                [Op.not]: SYSTEM_USER_UUID
+              }
+            },
+            force: true,
+            cascade: true
+          })
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
           await models.LabRequest.truncate({ cascade: true, force: true });
@@ -1652,7 +1676,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1696,7 +1726,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1728,7 +1764,14 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
+
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1778,7 +1821,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
 
       expect(lookupData).toHaveLength(2);
       expect(lookupData.find((d) => d.recordType === 'patients')).toEqual(
@@ -1810,7 +1859,14 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
+
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1898,7 +1954,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
 
       // only expect 3 records as it should not include the 3 records inserted manually
       expect(lookupData).toHaveLength(3);
@@ -1944,7 +2006,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
 
       // only expect 3 records as it should not include the 3 records inserted from the importer
       expect(lookupData).toHaveLength(3);
@@ -2018,8 +2086,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
-
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID
+          }
+        }
+      });
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
     });

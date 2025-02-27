@@ -36,4 +36,7 @@ export const NON_LOGGED_TABLES = [
 
   // internal and also signers.privateKey needs to be hard-deletable
   'signers',
+
+  // internal configuration
+  'local_system_facts',
 ];

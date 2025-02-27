@@ -20,11 +20,13 @@ import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
   apiRoutes.use(authModule);
+  apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
   apiRoutes.use(buildRoutes(ctx));
