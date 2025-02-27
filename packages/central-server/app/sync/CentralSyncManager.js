@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
@@ -566,6 +567,8 @@ export class CentralSyncManager {
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+    assert(deviceId);
+
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -650,6 +653,7 @@ export class CentralSyncManager {
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
+    assert(deviceId);
     await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
