@@ -444,15 +444,9 @@ describe('CentralSyncManager', () => {
 
         // ~ ~ ~ Set up old data
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
-        let patient1
-        try {
-
-           patient1 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-        } catch(err) {
-          console.error(err)
-        }
+        const patient1 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
         const patient2 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -920,7 +914,6 @@ describe('CentralSyncManager', () => {
             },
             force: true
           })
-          console.log('truncating')
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
           await models.LabRequest.truncate({ cascade: true, force: true });
