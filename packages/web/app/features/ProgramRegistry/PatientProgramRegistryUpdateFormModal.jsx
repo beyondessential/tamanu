@@ -26,6 +26,7 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
+import { useAuth } from '../../contexts/Auth.js';
 
 const StyledFormTable = styled(FormTable)`
   table tr td {
@@ -68,13 +69,18 @@ const ViewHistoryButton = styled(TextButton)`
   }
 `;
 
-const useUpdateProgramRegistryMutation = patientId => {
+const useUpdateProgramRegistryMutation = (patientId, programRegistryId) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { facilityId } = useAuth();
 
   return useMutation(
     data => {
-      return api.post(`patient/${patientId}/programRegistration`, data);
+      return api.post(`patient/${patientId}/programRegistration`, {
+        ...data,
+        programRegistryId,
+        registeringFacilityId: facilityId,
+      });
     },
     {
       onSuccess: () => {
@@ -103,10 +109,11 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ conditionCategory, date, programRegistryCondition, reasonForChange }) => {
+  rows.forEach(({ id, conditionCategory, date, programRegistryCondition, reasonForChange }) => {
     for (const [group, conditions] of Object.entries(groupMapping)) {
       if (conditions.includes(conditionCategory)) {
         groupedData[group].push({
+          id,
           conditionId: programRegistryCondition.id,
           name: programRegistryCondition.name,
           date,
@@ -128,9 +135,15 @@ export const PatientProgramRegistryUpdateFormModal = ({
   onClose,
   open,
 }) => {
-  const { programRegistryId, patientId, clinicalStatusId } = patientProgramRegistration;
+  const {
+    programRegistryId,
+    patientId,
+    clinicalStatusId,
+    clinicianId,
+  } = patientProgramRegistration;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
+    programRegistryId,
   );
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientId,
@@ -141,7 +154,11 @@ export const PatientProgramRegistryUpdateFormModal = ({
   });
 
   const handleSubmit = async data => {
-    await submit(data);
+    // flatten data for form submission
+    const conditions = Object.values(data.conditions)
+      .reduce((acc, group) => acc.concat(group), [])
+      .filter(({ conditionId }) => conditionId);
+    await submit({ ...data, conditions });
     onClose();
   };
 
@@ -168,9 +185,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
         onSubmit={handleSubmit}
         render={({ setFieldValue, values, initialValues, dirty }) => {
           const groupedData = values.conditions;
-
-          console.log('values', values);
-
           const columns = [
             {
               key: 'condition',
@@ -348,10 +362,12 @@ export const PatientProgramRegistryUpdateFormModal = ({
         }}
         initialValues={{
           clinicalStatusId: clinicalStatusId,
+          clinicianId,
           conditions: getGroupedData(conditions),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
+          // Todo: Add validation for conditions
           clinicalStatusId: optionalForeignKey(),
         })}
       />

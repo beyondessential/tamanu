@@ -36,17 +36,29 @@ patientProgramRegistration.post(
 
     await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
+    // Make sure and get the latest registration status for the patient
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       where: {
         programRegistryId,
         patientId,
       },
+      order: [['date', 'DESC']],
     });
 
+    let patientProgramRegistrationPromise;
+
+    // Update the existing registration if it exists. Otherwise, create a new one.
+    // Move to using the audit table for history rather than creating a new record on every update
     if (existingRegistration) {
       req.checkPermission('write', 'PatientProgramRegistration');
+      patientProgramRegistrationPromise = existingRegistration.update(body);
     } else {
       req.checkPermission('create', 'PatientProgramRegistration');
+      patientProgramRegistrationPromise = models.PatientProgramRegistration.create({
+        patientId,
+        programRegistryId,
+        ...body,
+      });
     }
 
     const { conditions = [], ...registrationData } = body;
@@ -55,26 +67,25 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    // Run in a transaction so it either fails or succeeds together
+    const conditionsData = conditions
+      .filter((condition) => condition.conditionId)
+      .map((condition) => ({
+        id: condition.id,
+        patientId,
+        programRegistryId,
+        clinicianId: registrationData.clinicianId,
+        date: condition.date,
+        programRegistryConditionId: condition.conditionId,
+        conditionCategory: condition.conditionCategory,
+        reasonForChange: condition.reasonForChange,
+      }));
+
     const [registration, conditionsRecords] = await db.transaction(async () => {
       return Promise.all([
-        models.PatientProgramRegistration.create({
-          patientId,
-          programRegistryId,
-          ...registrationData,
+        patientProgramRegistrationPromise,
+        models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
+          updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),
-        models.PatientProgramRegistrationCondition.bulkCreate(
-          conditions
-            .filter((condition) => condition.conditionId)
-            .map((condition) => ({
-              patientId,
-              programRegistryId,
-              clinicianId: registrationData.clinicianId,
-              date: registrationData.date,
-              programRegistryConditionId: condition.conditionId,
-              conditionCategory: condition.category,
-            })),
-        ),
         // as a side effect, mark for sync in the current facility
         models.PatientFacility.upsert({
           patientId,

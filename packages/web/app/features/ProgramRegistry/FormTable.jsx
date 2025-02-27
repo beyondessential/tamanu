@@ -72,7 +72,7 @@ const StyledTableRow = styled(TableRow)`
     props.$hasAddButton &&
     css`
       td {
-        padding-bottom: 40px;
+        padding-bottom: 40px !important;
       }
     `};
 }
