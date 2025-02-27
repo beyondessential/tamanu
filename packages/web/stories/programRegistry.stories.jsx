@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
+import { PatientProgramRegistryUpdateFormModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateFormModal.jsx';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
@@ -14,15 +14,9 @@ import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/Del
 import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
 import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
-import {
-  dummyApi,
-  patient,
-  patientProgramRegistration,
-  programRegistryConditions,
-} from './utils/mockProgramRegistryData';
+import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
 import { UpdateConditionFormModal } from '../app/features/ProgramRegistry';
-import { RemoveConditionFormModal } from '../app/views/programRegistry/RemoveConditionFormModal';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
@@ -157,18 +151,6 @@ export const UpdateConditionStory = {
   ),
 };
 
-export const RemoveConditionStory = {
-  name: 'Remove Condition',
-  render: () => (
-    <RemoveConditionFormModal
-      condition={programRegistryConditions[0]}
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      open
-    />
-  ),
-};
-
 export const ProgramRegistryStatusHistoryNeverStory = {
   name: 'Program Registry Status History removed never',
   render: () => (
@@ -191,9 +173,9 @@ export const PatientProgramRegistryFormHistoryStory = {
 };
 
 export const ProgramRegistryStatusChangeStory = {
-  name: 'Program Registry Status Change',
+  name: 'Patient Program Registry Update Form Modal',
   render: () => (
-    <ChangeStatusFormModal
+    <PatientProgramRegistryUpdateFormModal
       patientProgramRegistration={patientProgramRegistration}
       onSubmit={action('submit')}
       onCancel={action('cancel')}

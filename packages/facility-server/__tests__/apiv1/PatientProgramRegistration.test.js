@@ -239,6 +239,71 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
+  describe.only('Updating program registrations', () => {
+    it('updates a program registration', async () => {
+      const clinician = await models.User.create(fake(models.User));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program1 = await models.Program.create(fake(models.Program));
+      const programRegistry1 = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program1.id }),
+      );
+      const programRegistryCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
+      );
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        conditions: [
+          {
+            conditionId: programRegistryCondition.id,
+            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+          },
+        ],
+        registeringFacilityId: facilityId,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
+
+      expect(createdRegistration).toMatchObject({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+      });
+
+      const createdRegistrationCondition =
+        await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
+
+      expect(createdRegistrationCondition).toMatchObject({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        programRegistryConditionId: programRegistryCondition.id,
+      });
+
+      const result2 = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        conditions: [
+          {
+            conditionId: programRegistryCondition.id,
+            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+          },
+        ],
+        registeringFacilityId: facilityId,
+      });
+
+      expect(result).toHaveSucceeded();
+    });
+  });
+
   describe('reading registration information', () => {
     const populate = async () => {
       const clinician = await models.User.create(fake(models.User));

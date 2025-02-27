@@ -9,7 +9,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
-import { TranslatedEnum } from '../../components';
+import { TranslatedEnum, TranslatedText } from '../../components';
 import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
@@ -73,7 +73,10 @@ export const ConditionSection = () => {
   return (
     <Container>
       <Heading5 mt={0} mb={1}>
-        Related conditions
+        <TranslatedText
+          stringId="programRegistry.relatedConditions"
+          fallback="Related conditions"
+        />
       </Heading5>
       <ScrollBody>
         {sortedConditions.map(condition => {

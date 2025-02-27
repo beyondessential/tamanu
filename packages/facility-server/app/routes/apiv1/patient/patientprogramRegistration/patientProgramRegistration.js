@@ -2,8 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { validatePatientProgramRegistrationRequest } from './utils';
 
 export const patientProgramRegistration = express.Router();
 
@@ -26,25 +27,6 @@ patientProgramRegistration.get(
   }),
 );
 
-/**
- * Check if the request is valid for patient program registration
- * Checks if the patient and program registry exist and if the user has the required permissions
- */
-const validatePatientProgramRegistrationRequest = async (req, patientId, programRegistryId) => {
-  const { checkPermission, models } = req;
-
-  checkPermission('read', 'Patient');
-  checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-
-  const patient = await models.Patient.findByPk(patientId);
-  if (!patient) throw new NotFoundError();
-
-  const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-  if (!programRegistry) throw new NotFoundError();
-
-  return true;
-};
-
 patientProgramRegistration.post(
   '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
@@ -54,17 +36,29 @@ patientProgramRegistration.post(
 
     await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
+    // Make sure and get the latest registration status for the patient
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       where: {
         programRegistryId,
         patientId,
       },
+      order: [['date', 'DESC']],
     });
 
+    let patientProgramRegistrationPromise;
+
+    // Update the existing registration if it exists. Otherwise, create a new one.
+    // Move to using the audit table for history rather than creating a new record on every update
     if (existingRegistration) {
       req.checkPermission('write', 'PatientProgramRegistration');
+      patientProgramRegistrationPromise = existingRegistration.update(body);
     } else {
       req.checkPermission('create', 'PatientProgramRegistration');
+      patientProgramRegistrationPromise = models.PatientProgramRegistration.create({
+        patientId,
+        programRegistryId,
+        ...body,
+      });
     }
 
     const { conditions = [], ...registrationData } = body;
@@ -73,26 +67,25 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    // Run in a transaction so it either fails or succeeds together
+    const conditionsData = conditions
+      .filter((condition) => condition.conditionId)
+      .map((condition) => ({
+        id: condition.id,
+        patientId,
+        programRegistryId,
+        clinicianId: registrationData.clinicianId,
+        date: condition.date,
+        programRegistryConditionId: condition.conditionId,
+        conditionCategory: condition.conditionCategory,
+        reasonForChange: condition.reasonForChange,
+      }));
+
     const [registration, conditionsRecords] = await db.transaction(async () => {
       return Promise.all([
-        models.PatientProgramRegistration.create({
-          patientId,
-          programRegistryId,
-          ...registrationData,
+        patientProgramRegistrationPromise,
+        models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
+          updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),
-        models.PatientProgramRegistrationCondition.bulkCreate(
-          conditions
-            .filter((condition) => condition.conditionId)
-            .map((condition) => ({
-              patientId,
-              programRegistryId,
-              clinicianId: registrationData.clinicianId,
-              date: registrationData.date,
-              programRegistryConditionId: condition.conditionId,
-              conditionCategory: condition.category,
-            })),
-        ),
         // as a side effect, mark for sync in the current facility
         models.PatientFacility.upsert({
           patientId,
@@ -245,108 +238,5 @@ patientProgramRegistration.get(
       // Give the history latest-first
       data: historyWithRegistrationDate.reverse(),
     });
-  }),
-);
-
-patientProgramRegistration.post(
-  '/:patientId/programRegistration/:programRegistryId/condition',
-  asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
-
-    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
-
-    req.checkPermission('read', 'PatientProgramRegistrationCondition');
-    const conditionExists = await models.PatientProgramRegistrationCondition.count({
-      where: {
-        programRegistryId,
-        patientId,
-        programRegistryConditionId: body.programRegistryConditionId,
-      },
-    });
-    if (conditionExists) {
-      throw new ValidationError("Can't create a duplicate condition for the same patient");
-    }
-
-    req.checkPermission('create', 'PatientProgramRegistrationCondition');
-    const condition = await models.PatientProgramRegistrationCondition.create({
-      patientId,
-      programRegistryId,
-      ...body,
-    });
-
-    res.send(condition);
-  }),
-);
-
-patientProgramRegistration.put(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
-  asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
-    const { conditionId } = params;
-
-    req.checkPermission('read', 'PatientProgramRegistrationCondition');
-    req.checkPermission('write', 'PatientProgramRegistrationCondition');
-
-    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
-      where: {
-        id: conditionId,
-      },
-    });
-    if (!existingCondition) {
-      throw new NotFoundError('Patient program registration condition not found');
-    }
-    const updatedCondition = await existingCondition.update(body);
-    res.send(updatedCondition);
-  }),
-);
-
-patientProgramRegistration.get(
-  '/:patientId/programRegistration/:programRegistryId/condition',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { patientId, programRegistryId } = params;
-    const { PatientProgramRegistrationCondition } = models;
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    req.checkPermission('list', 'PatientProgramRegistrationCondition');
-
-    const history = await PatientProgramRegistrationCondition.findAll({
-      where: {
-        patientId,
-        programRegistryId,
-      },
-      include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
-      order: [['date', 'DESC']],
-    });
-
-    res.send({
-      count: history.length,
-      data: history,
-    });
-  }),
-);
-
-patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
-  asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { conditionId, patientId, programRegistryId } = params;
-
-    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
-
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition');
-    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
-      where: {
-        id: conditionId,
-      },
-    });
-    if (!existingCondition) throw new NotFoundError();
-    const condition = await existingCondition.update({
-      deletionClinicianId: req.user.id,
-      deletionDate: query.deletionDate,
-    });
-    await condition.destroy();
-    res.send(condition);
   }),
 );
