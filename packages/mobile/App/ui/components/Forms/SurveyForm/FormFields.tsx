@@ -33,13 +33,13 @@ interface UseScrollToFirstError {
 }
 
 const useScrollToFirstError = (): UseScrollToFirstError => {
-  const [questionPositions, setQuestionPositions] = useState<{ [key: string]: string }>({});
+  const questionPositionsRef = useRef({});
 
   const scrollToQuestion = (
     scrollViewRef: MutableRefObject<ScrollView>,
     questionCode: string,
   ): void => {
-    const yPosition = questionPositions[questionCode];
+    const yPosition = questionPositionsRef.current[questionCode];
 
     if (scrollViewRef.current !== null) {
       // Allow a bit of space at the top of the form field for the form label text
@@ -50,7 +50,7 @@ const useScrollToFirstError = (): UseScrollToFirstError => {
 
   const setQuestionPosition = (questionCode: string) => (yPosition: string) => {
     if (yPosition) {
-      setQuestionPositions((x) => ({ ...x, [questionCode]: yPosition }));
+      questionPositionsRef.current[questionCode] = yPosition;
     }
   };
 
