@@ -4,10 +4,18 @@ import { promises as fs } from 'fs';
 import { Models } from '@tamanu/database';
 
 import {
+  createAdministeredVaccine,
+  createDbReport,
   createEncounter,
+  createImagingRequest,
+  createInvoice,
+  createLabRequest,
   createPatient,
+  createProgramRegistry,
   createRepeatingAppointment,
-  generateImportData,
+  createSurveyResponse,
+  createTask,
+  // generateImportData,
 } from '../helpers';
 
 // TODO: this needs way more data groups
@@ -15,14 +23,14 @@ const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment, PUT: () => null },
   Patient: { POST: createPatient, PUT: () => null },
   Encounter: { POST: createEncounter, PUT: () => null },
-  ImagingRequest: { POST: () => null, PUT: () => null },
-  Invoice: { POST: () => null, PUT: () => null },
-  LabRequest: { POST: () => null, PUT: () => null },
-  ProgramRegistry: { POST: () => null, PUT: () => null },
-  Survey: { POST: () => null, PUT: () => null },
-  Tasking: { POST: () => null, PUT: () => null },
-  Vaccine: { POST: () => null, PUT: () => null },
-  ReportDefinition: { POST: () => null, PUT: () => null },
+  ImagingRequest: { POST: createImagingRequest, PUT: () => null },
+  Invoice: { POST: createInvoice, PUT: () => null },
+  LabRequest: { createLabRequest, PUT: () => null },
+  ProgramRegistry: { POST: createProgramRegistry, PUT: () => null },
+  Survey: { POST: createSurveyResponse, PUT: () => null },
+  Tasking: { POST: createTask, PUT: () => null },
+  Vaccine: { POST: createAdministeredVaccine, PUT: () => null },
+  ReportDefinition: { POST: createDbReport, PUT: () => null },
 };
 
 export const readJSON = async (path: string): Promise<object> => {
@@ -32,19 +40,19 @@ export const readJSON = async (path: string): Promise<object> => {
 
 export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
   // Generate import data
-  const {
-    referenceData,
-    facility,
-    department,
-    locationGroup,
-    location,
-    survey,
-    scheduledVaccine,
-    invoiceProduct,
-    labTestType,
-    user,
-    programRegistry,
-  } = await generateImportData(models);
+  // const {
+  //   referenceData,
+  //   facility,
+  //   department,
+  //   locationGroup,
+  //   location,
+  //   survey,
+  //   scheduledVaccine,
+  //   invoiceProduct,
+  //   labTestType,
+  //   user,
+  //   programRegistry,
+  // } = await generateImportData(models);
 
   const tallyJson = await readJSON(tallyFilePath);
 
