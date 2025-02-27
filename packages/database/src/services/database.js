@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { Sequelize } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
@@ -156,7 +156,7 @@ export async function initDatabase(dbOptions) {
   // init all models
   const modelClasses = Object.values(models);
   const primaryKey = {
-    type: Sequelize.STRING,
+    type: DataTypes.STRING,
     defaultValue: primaryKeyDefault,
     allowNull: false,
     primaryKey: true,

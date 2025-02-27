@@ -174,6 +174,15 @@ export class User extends Model {
       foreignKey: 'userId',
     });
 
+    this.hasMany(models.Device, {
+      foreignKey: 'lastLoginById',
+      as: 'loginDevices',
+    });
+    this.hasMany(models.Device, {
+      foreignKey: 'registeredById',
+      as: 'registeredDevices',
+    });
+
     (this.belongsToMany as any)(models.Facility, {
       through: 'UserFacility',
       as: 'facilities',

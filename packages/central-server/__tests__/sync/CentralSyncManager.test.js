@@ -1,5 +1,7 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
+import { cloneDeep } from 'lodash';
+import { Op } from 'sequelize';
 
 import {
   CURRENT_SYNC_TIME_KEY,
@@ -18,6 +20,7 @@ import {
   DEBUG_LOG_TYPES,
   APPOINTMENT_STATUSES,
   REPEAT_FREQUENCY,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
@@ -25,7 +28,6 @@ import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
-import { cloneDeep } from 'lodash';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -160,7 +162,14 @@ describe('CentralSyncManager', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
+    await models.Device.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.User.create({
+      id: SYSTEM_USER_UUID,
+      email: 'system',
+      displayName: 'System',
+      role: 'system',
+    });
   });
 
   afterAll(() => ctx.close());
@@ -381,6 +390,7 @@ describe('CentralSyncManager', () => {
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
       jest.resetModules();
+      await models.User.truncate({ cascade: true, force: true });
     });
 
     it('returns all the outgoing changes', async () => {
@@ -725,7 +735,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          (change) => change.recordId != SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -777,7 +789,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          (change) => change.recordId != SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -796,6 +810,8 @@ describe('CentralSyncManager', () => {
           MockedPullOnlyModel,
           ...models,
         };
+
+        const device = await models.Device.create(fake(models.Device));
 
         const centralSyncManager = initializeCentralSyncManager();
         const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
@@ -854,7 +870,7 @@ describe('CentralSyncManager', () => {
         await waitForSession(centralSyncManager, sessionIdTwo);
 
         await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
-        await centralSyncManager.completePush(sessionIdTwo);
+        await centralSyncManager.completePush(sessionIdTwo, device.id);
         // Wait for persist of session 2 to complete
         await sleepAsync(100);
 
@@ -866,7 +882,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionIdOne, {});
+        const outgoingChanges = (
+          await centralSyncManager.getOutgoingChanges(sessionIdOne, {})
+        ).filter((change) => change.recordId != SYSTEM_USER_UUID);
 
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
@@ -1181,6 +1199,12 @@ describe('CentralSyncManager', () => {
       it("discharge outpatients when encounter's startDate is before today and pull the discharged encounter down ", async () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '6';
+        const deviceId = 'facility-a';
+        await models.Device.create(
+          fake(models.Device, {
+            id: deviceId,
+          }),
+        );
         const facility = await models.Facility.create(fake(models.Facility));
         await models.Department.create({
           ...fake(models.Department),
@@ -1228,7 +1252,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, 'facility-a');
+        await centralSyncManager.completePush(sessionId, deviceId);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         // Start the snapshot for pull process
@@ -1267,6 +1291,7 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
+        const device = await models.Device.create(fake(models.Device));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1308,7 +1333,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, facility.id);
+        await centralSyncManager.completePush(sessionId, device.id);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1319,7 +1344,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId: facility.id,
+            deviceId: device.id,
           },
           () => true,
         );
@@ -1355,6 +1380,7 @@ describe('CentralSyncManager', () => {
         // Set up data pre sync
         const CURRENT_SYNC_TICK = '12';
         const facility = await models.Facility.create(fake(models.Facility));
+        const device = await models.Device.create(fake(models.Device));
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
 
@@ -1393,7 +1419,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId, facility.id);
+        await centralSyncManager.completePush(sessionId, device.id);
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         await centralSyncManager.updateLookupTable();
@@ -1404,7 +1430,7 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            deviceId: facility.id,
+            deviceId: device.id,
           },
           () => true,
         );
@@ -1430,18 +1456,18 @@ describe('CentralSyncManager', () => {
       await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
       settingsCache.reset();
       const facility = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
+      const device = await models.Device.create(fake(models.Device));
+      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
         facilityId: facility.id,
       });
-      const locationGroup = await models.LocationGroup.create({
-        ...fake(models.LocationGroup),
-        facilityId: facility.id,
-      });
+      const locationGroup = await models.LocationGroup.create(
+        fake(models.LocationGroup, {
+          facilityId: facility.id,
+        }),
+      );
       await models.ReferenceData.create({
         id: 'appointmentType-standard',
         type: 'appointmentType',
@@ -1543,7 +1569,7 @@ describe('CentralSyncManager', () => {
 
       // Push the cancelled schedule
       await centralSyncManager.addIncomingChanges(sessionId, changes);
-      await centralSyncManager.completePush(sessionId, facility.id);
+      await centralSyncManager.completePush(sessionId, device.id);
       await waitForPushCompleted(centralSyncManager, sessionId);
 
       await centralSyncManager.updateLookupTable();
@@ -1652,7 +1678,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1696,7 +1728,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1728,7 +1766,13 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1778,7 +1822,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(2);
       expect(lookupData.find((d) => d.recordType === 'patients')).toEqual(
@@ -1810,7 +1860,13 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
@@ -1898,7 +1954,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       // only expect 3 records as it should not include the 3 records inserted manually
       expect(lookupData).toHaveLength(3);
@@ -1944,13 +2006,26 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       // only expect 3 records as it should not include the 3 records inserted from the importer
       expect(lookupData).toHaveLength(3);
     });
 
     it('does not include records inserted from another sync session when updating lookup table already started', async () => {
+      const deviceId = 'facility-anothersyncstarted';
+      await models.Device.create(
+        fake(models.Device, {
+          id: deviceId,
+        }),
+      );
+
       await prepareRecordsForSync();
 
       // Build the fakeModelPromise so that it can block the updateLookupTable process,
@@ -2010,7 +2085,7 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionIdTwo);
 
       await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
-      await centralSyncManager.completePush(sessionIdTwo);
+      await centralSyncManager.completePush(sessionIdTwo, deviceId);
 
       // Now release the lock to see if the lookup table captures the newly inserted records above
       await resolveMockedQueryPromise();
@@ -2018,7 +2093,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.ne]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);

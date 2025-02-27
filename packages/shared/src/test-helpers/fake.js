@@ -17,6 +17,7 @@ import {
   REGISTRATION_STATUSES,
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
+  SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -412,6 +413,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
         : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
+  Device: () => ({
+    // create full-permission devices by default
+    canLogin: true,
+    canSync: true,
+    canRebind: true,
+    registeredById: SYSTEM_USER_UUID,
+    lastLoginById: SYSTEM_USER_UUID,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {
