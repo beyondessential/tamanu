@@ -2,6 +2,8 @@ import { times } from 'lodash';
 
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake, chance } from '../../fake';
 interface CreateAppointmentParams {
   models: Models;
@@ -11,16 +13,17 @@ interface CreateAppointmentParams {
 }
 
 export const createAppointment = async ({
-  models: { Appointment },
+  models,
   locationGroupId,
   patientId,
   clinicianId,
 }: CreateAppointmentParams): Promise<void> => {
+  const { Appointment } = models;
   await Appointment.create(
     fake(Appointment, {
-      patientId,
-      clinicianId,
-      locationGroupId,
+      patientId: patientId || (await randomRecordId(models, 'Patient')),
+      clinicianId: clinicianId || (await randomRecordId(models, 'User')),
+      locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
     }),
   );
 };
@@ -30,25 +33,26 @@ interface CreateRepeatingAppointmentParams extends CreateAppointmentParams {
 }
 
 export const createRepeatingAppointment = async ({
-  models: { AppointmentSchedule, Appointment },
+  models,
   locationGroupId,
   patientId,
   clinicianId,
   apptCount = chance.integer({ min: 1, max: 50 }),
 }: CreateRepeatingAppointmentParams): Promise<void> => {
+  const { AppointmentSchedule, Appointment } = models;
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
       frequency: REPEAT_FREQUENCY.WEEKLY,
-      locationGroupId,
+      locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
     }),
   );
 
   times(apptCount, async () => {
     await Appointment.create(
       fake(Appointment, {
-        patientId,
-        clinicianId,
-        locationGroupId,
+        patientId: patientId || (await randomRecordId(models, 'Patient')),
+        clinicianId: clinicianId || (await randomRecordId(models, 'User')),
+        locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
         scheduleId: appointmentSchedule.id,
       }),
     );
