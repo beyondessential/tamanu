@@ -49,7 +49,7 @@ const ConditionCategory = styled.span`
   color: ${Colors.midText};
 `;
 
-const getGroupedConditions = (conditions) => {
+const getGroupedConditions = conditions => {
   const openConditions = [];
   const closedConditions = [];
 
@@ -58,10 +58,12 @@ const getGroupedConditions = (conditions) => {
       return;
     }
 
-    if ([
-      PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
-      PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
-    ].includes(condition.conditionCategory)) {
+    if (
+      [
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
+      ].includes(condition.conditionCategory)
+    ) {
       closedConditions.push(condition);
       return;
     }
@@ -76,10 +78,7 @@ const ConditionComponent = ({ condition }) => {
   const { translatedName, translatedCategory } = condition;
   const [ref, isOverflowing] = useOverflow();
   return (
-    <ConditionalTooltip
-      title={`${translatedName} (${translatedCategory})`}
-      visible={isOverflowing}
-    >
+    <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
       <Condition>
         <ClippedConditionName ref={ref}>
           {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
@@ -100,19 +99,15 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
     return <LoadingIndicator />;
   }
 
-  if (conditions.data.length === 0) {
-    return null;
-  }
-
   const translatedData = conditions.data.map(condition => {
     const { programRegistryCondition, conditionCategory } = condition;
     const { id, name } = programRegistryCondition;
-    const translatedName = getTranslation(
-      getReferenceDataStringId(id, 'condition'),
-      name,
-    );
+    const translatedName = getTranslation(getReferenceDataStringId(id, 'condition'), name);
 
-    const translatedCategory = getEnumTranslation(PROGRAM_REGISTRY_CONDITION_CATEGORIES, conditionCategory);
+    const translatedCategory = getEnumTranslation(
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+      conditionCategory,
+    );
     return { ...condition, translatedName, translatedCategory };
   });
   const sortedData = sortBy(translatedData, c => c.translatedName);
@@ -128,13 +123,13 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         />
       </Heading5>
       <ScrollBody>
-        {openConditions.map(
-          condition => <ConditionComponent key={condition.id} condition={condition} />,
-        )}
+        {openConditions.map(condition => (
+          <ConditionComponent key={condition.id} condition={condition} />
+        ))}
         {needsDivider && <Divider variant="middle" />}
-        {closedConditions.map(
-          condition => <ConditionComponent key={condition.id} condition={condition} />,
-        )}
+        {closedConditions.map(condition => (
+          <ConditionComponent key={condition.id} condition={condition} />
+        ))}
       </ScrollBody>
     </Container>
   );
