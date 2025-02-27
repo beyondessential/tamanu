@@ -168,8 +168,7 @@ describe('CentralSyncManager', () => {
           [Op.not]: SYSTEM_USER_UUID
         }
       },
-      force: true,
-      cascade: true
+      force: true
     })
   });
 
@@ -925,9 +924,9 @@ describe('CentralSyncManager', () => {
                 [Op.not]: SYSTEM_USER_UUID
               }
             },
-            force: true,
-            cascade: true
+            force: true
           })
+          console.log('truncating')
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
           await models.LabRequest.truncate({ cascade: true, force: true });
@@ -1872,7 +1871,6 @@ describe('CentralSyncManager', () => {
           }
         }
       });
-
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
