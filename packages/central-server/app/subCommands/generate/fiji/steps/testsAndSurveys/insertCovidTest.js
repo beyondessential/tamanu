@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance } from '../../../chance';
 

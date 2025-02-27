@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
-import { fake, fakeReferenceData } from '@tamanu/fake-data/helpers';
+import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 
 import {
   COLUMNS_EXCLUDED_FROM_SYNC,

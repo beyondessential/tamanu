@@ -2,7 +2,7 @@
 
 import { addDays, getYear } from 'date-fns';
 
-import { chance, fake } from '@tamanu/fake-data/helpers';
+import { chance, fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';

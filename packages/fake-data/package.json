@@ -14,7 +14,7 @@
       "import": "./dist/mjs/populateDb/index.js",
       "require": "./dist/cjs/populateDb/index.js"
     },
-    "./helpers": {
+    "./fake": {
       "import": "./dist/mjs/fake/index.js",
       "require": "./dist/cjs/fake/index.js"
     }

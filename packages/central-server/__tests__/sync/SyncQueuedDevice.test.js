@@ -1,5 +1,5 @@
 import { beforeAll, describe, it } from '@jest/globals';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 

@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
-import { fakeReferenceData } from '@tamanu/fake-data/helpers';
+import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,

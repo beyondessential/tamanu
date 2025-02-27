@@ -1,4 +1,4 @@
-import { fake, fakeUser } from '@tamanu/fake-data/helpers';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
   getTablesWithNoMergeCoverage,
   mergePatient,

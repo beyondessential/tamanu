@@ -1,7 +1,7 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 

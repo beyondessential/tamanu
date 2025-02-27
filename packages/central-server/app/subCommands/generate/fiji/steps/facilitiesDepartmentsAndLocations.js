@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { NUM_FACILITIES, REF_ID_PREFIX } from '../constants';
 
 export default {

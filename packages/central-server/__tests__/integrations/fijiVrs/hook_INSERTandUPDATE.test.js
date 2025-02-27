@@ -1,7 +1,7 @@
 import { parseISO } from 'date-fns';
 import config from 'config';
 
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';

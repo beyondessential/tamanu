@@ -1,4 +1,4 @@
-import { chance, fake } from '@tamanu/fake-data/helpers';
+import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 

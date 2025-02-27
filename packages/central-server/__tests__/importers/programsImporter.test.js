@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';

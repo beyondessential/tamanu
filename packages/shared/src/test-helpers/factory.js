@@ -14,7 +14,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
-} from '@tamanu/fake-data/helpers';
+} from '@tamanu/fake-data/fake';
 
 // TODO: generic
 

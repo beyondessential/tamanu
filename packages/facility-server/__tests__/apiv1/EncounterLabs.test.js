@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { fakeUser } from '@tamanu/fake-data/helpers';
+import { fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 
 async function createLabRequest(models, overrides) {

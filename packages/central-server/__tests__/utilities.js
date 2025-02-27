@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
-import { fake } from '@tamanu/fake-data/helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
