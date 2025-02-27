@@ -390,6 +390,7 @@ describe('CentralSyncManager', () => {
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
       jest.resetModules();
+      await models.User.truncate({ cascade: true, force: true });
     });
 
     it('returns all the outgoing changes', async () => {
@@ -666,6 +667,9 @@ describe('CentralSyncManager', () => {
     });
 
     describe('handles concurrent transactions', () => {
+      beforeEach(async () => {
+        await models.User.truncate({ cascade: true, force: true });
+      });
       afterEach(async () => {
         // Revert to the original models
         ctx.store.models = models;
