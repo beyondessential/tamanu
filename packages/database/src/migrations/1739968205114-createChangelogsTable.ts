@@ -68,7 +68,6 @@ export async function up(query: QueryInterface): Promise<void> {
   );
 
   await query.addIndex(TABLE, ['table_oid'], { using: 'hash' });
-  await query.addIndex(TABLE, ['table_schema', 'table_name'], { using: 'hash' });
   await query.addIndex(TABLE, ['record_id'], { using: 'hash' });
   await query.addIndex(TABLE, ['updated_by_user_id'], { using: 'hash' });
 
@@ -79,6 +78,10 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE, ['updated_at_sync_tick'], { using: 'btree' });
 
   await query.addIndex(TABLE, ['record_data'], { using: 'gin' });
+
+  await query.sequelize.query(
+    `CREATE INDEX ON logs.changes USING HASH ((table_schema || '.' || table_name))`
+  );
 }
 
 export async function down(query: QueryInterface): Promise<void> {
