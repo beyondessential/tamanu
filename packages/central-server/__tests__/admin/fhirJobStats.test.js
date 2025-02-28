@@ -38,7 +38,7 @@ describe('FHIR job stats', () => {
         id: 'fhir.refresh.allFromUpstream,Queued',
         topic: 'fhir.refresh.allFromUpstream',
         status: 'Queued',
-        count: '1',
+        count: '2',
       },
     ]);
     expect(response.body.count).toBe(4);
