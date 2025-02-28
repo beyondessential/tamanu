@@ -57,6 +57,7 @@ user.get(
         userId: currentUser.id,
       })),
       makeFilter(true, `patients.merged_into_id IS NULL`),
+      makeFilter(true, `patients.date_of_death IS NULL`),
     ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(filters);
