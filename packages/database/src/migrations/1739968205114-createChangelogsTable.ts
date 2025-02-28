@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, QueryInterface } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'changes' };
 
@@ -7,10 +7,10 @@ export async function up(query: QueryInterface): Promise<void> {
     TABLE,
     {
       id: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
         allowNull: false,
         primaryKey: true,
-        defaultValue: Sequelize.fn('gen_random_uuid'),
+        autoIncrement: true,
       },
       table_oid: {
         type: DataTypes.INTEGER,
