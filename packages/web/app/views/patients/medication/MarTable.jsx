@@ -1,26 +1,17 @@
 import { Box } from '@material-ui/core';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { format, parse } from 'date-fns';
+import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 
-const ADMINISTRATION_WINDOWS = [
-  { timeSlot: '12am - 2am' },
-  { timeSlot: '2am - 4am' },
-  { timeSlot: '4am - 6am' },
-  { timeSlot: '6am - 8am', label: 'Breakfast' },
-  { timeSlot: '8am - 10am' },
-  { timeSlot: '10am - 12pm' },
-  { timeSlot: '12pm - 2pm', label: 'Lunch' },
-  { timeSlot: '2pm - 4pm' },
-  { timeSlot: '4pm - 6pm' },
-  { timeSlot: '6pm - 8pm', label: 'Dinner' },
-  { timeSlot: '8pm - 10pm' },
-  { timeSlot: '10pm - 12am', label: 'Night' },
-];
+const Container = styled.div`
+  position: relative;
+`;
 
 const MedicationContainer = styled.div`
   display: flex;
@@ -56,7 +47,7 @@ const HeadingCell = styled.div`
   height: 100%;
 `;
 
-const TimeSlotHeader = styled.div`
+const TimeSlotHeaderContainer = styled.div`
   padding: 24px 0px 10px 0px;
   height: 105px;
   display: flex;
@@ -64,6 +55,7 @@ const TimeSlotHeader = styled.div`
   align-items: center;
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
+  ${props => props.isCurrentTimeSlot && `background: #EBF0F5; color: ${Colors.primary};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -72,6 +64,11 @@ const TimeSlotText = styled.div`
   transform: rotate(-90deg);
   white-space: nowrap;
   color: ${Colors.midText};
+`;
+
+const TimeSlotLabel = styled.div`
+  text-transform: capitalize;
+  color: ${Colors.darkestText};
 `;
 
 const SubHeader = styled.div`
@@ -118,6 +115,20 @@ const MedicationGrid = styled.div`
   grid-template-columns: minmax(100px, 1fr) repeat(12, 48px);
 `;
 
+const CurrentTimeOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  width: 48px;
+  height: 100%;
+  z-index: 11;
+  right: ${p => (p.$length - p.$index - 1) * 48}px;
+  border: 1px solid ${Colors.primary};
+`;
+
+const formatTime = time => {
+  return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
+};
+
 const MedicationCell = ({
   id,
   isPrn,
@@ -144,15 +155,38 @@ const MedicationCell = ({
         </Box>
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
-      {ADMINISTRATION_WINDOWS.map(({ timeSlot }) => (
-        <StatusCell key={timeSlot} />
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime }) => (
+        <StatusCell key={startTime} />
       ))}
     </React.Fragment>
   );
 };
 
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, index, setCurrentTimeSlotIndex }) => {
+  const startDate = getDateFromTimeString(startTime).getTime();
+  const endDate = getDateFromTimeString(endTime).getTime();
+  const isCurrentTimeSlot = startDate <= Date.now() && Date.now() <= endDate;
+
+  useEffect(() => {
+    if (isCurrentTimeSlot) {
+      setCurrentTimeSlotIndex(index);
+    }
+  }, [index, isCurrentTimeSlot, setCurrentTimeSlotIndex]);
+
+  return (
+    <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
+      <TimeSlotText>
+        <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
+        <div>{`${formatTime(startTime)} - ${formatTime(endTime)}`}</div>
+      </TimeSlotText>
+    </TimeSlotHeaderContainer>
+  );
+};
+
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
+  const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(-1);
+
   const medications = (
     useEncounterMedicationQuery(encounter?.id, { after: selectedDate }).data?.data || []
   ).sort((a, b) => {
@@ -165,18 +199,24 @@ export const MarTable = ({ selectedDate }) => {
   const scheduledMedications = medications.filter(medication => !medication.isPrn);
 
   return (
-    <Box>
-      <HeaderRow columns={ADMINISTRATION_WINDOWS.length}>
+    <Container>
+      <CurrentTimeOverlay
+        $index={currentTimeSlotIndex}
+        $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
+      />
+      <HeaderRow columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
         <HeadingCell>
           <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
         </HeadingCell>
-        {ADMINISTRATION_WINDOWS.map(({ label, timeSlot }) => (
-          <TimeSlotHeader key={timeSlot}>
-            <TimeSlotText>
-              <Box color={Colors.darkestText}>{label || ''}</Box>
-              <div>{timeSlot}</div>
-            </TimeSlotText>
-          </TimeSlotHeader>
+        {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ periodLabel, startTime, endTime }, index) => (
+          <TimeSlotHeader
+            key={startTime}
+            periodLabel={periodLabel}
+            startTime={startTime}
+            endTime={endTime}
+            index={index}
+            setCurrentTimeSlotIndex={setCurrentTimeSlotIndex}
+          />
         ))}
       </HeaderRow>
       <MedicationContainer>
@@ -226,6 +266,6 @@ export const MarTable = ({ selectedDate }) => {
           </MedicationGrid>
         </ScrollableContent>
       </MedicationContainer>
-    </Box>
+    </Container>
   );
 };

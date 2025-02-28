@@ -201,7 +201,7 @@ encounterRelations.get(
       baseQueryOptions.where = {
         ...baseQueryOptions.where,
         startDate: {
-          [Op.gte]: new Date(after),
+          [Op.lte]: new Date(after),
         },
       };
     }
