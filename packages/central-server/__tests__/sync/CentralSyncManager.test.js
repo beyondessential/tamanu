@@ -162,14 +162,13 @@ describe('CentralSyncManager', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
-    await models.User.destroy({
-      where: {
-        id: {
-          [Op.not]: SYSTEM_USER_UUID
-        }
-      },
-      force: true
-    })
+    await models.User.truncate({ cascade: true, force: true })
+    await models.User.create({
+      id: SYSTEM_USER_UUID,
+      email: 'system',
+      displayName: 'System',
+      role: 'system',
+    });
   });
 
   afterAll(() => ctx.close());
@@ -390,6 +389,8 @@ describe('CentralSyncManager', () => {
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
       jest.resetModules();
+      // await models.User.truncate({ cascade: true, force: true });
+
     });
 
     it('returns all the outgoing changes', async () => {
