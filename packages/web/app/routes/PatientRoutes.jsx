@@ -24,6 +24,7 @@ import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegis
 import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { MarView } from '../views/patients/medication/MarView';
 
 export const usePatientRoutes = () => {
   const {
@@ -67,6 +68,16 @@ export const usePatientRoutes = () => {
                 <TranslatedText
                   stringId="encounter.dischargeSummary.title"
                   fallback="Discharge Summary"
+                />
+              ),
+            },
+            {
+              path: `${PATIENT_PATHS.MAR}/view`,
+              component: MarView,
+              title: (
+                <TranslatedText
+                  stringId="encounter.mar.title"
+                  fallback="Medication Admin Record"
                 />
               ),
             },
