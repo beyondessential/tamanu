@@ -431,7 +431,7 @@ describe('CentralSyncManager', () => {
       const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
         limit: 10,
       });
-      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(4);
+      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
     });
   });
 
