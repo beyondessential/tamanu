@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { IPatient, ISurveyScreenComponent } from '../../../../types';
+import { IPatient, ISurveyScreenComponent, GenericFormValues } from '../../../../types';
 import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
@@ -21,7 +21,6 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
-import { GenericFormValues } from '~/models/Forms';
 import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '../../LoadingScreen';
@@ -101,7 +100,7 @@ export const FormFields = ({
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
-    [values],
+    [components, values],
   );
 
   // Handle back button press or swipe right gesture
@@ -117,7 +116,7 @@ export const FormFields = ({
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+  }, [onGoBack, currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
   if (encounterError) {
     return <ErrorScreen error={encounterError} />;

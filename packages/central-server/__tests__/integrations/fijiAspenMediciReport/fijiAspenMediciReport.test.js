@@ -425,6 +425,40 @@ describe('fijiAspenMediciReport', () => {
     expect(response.body.error.name).toBe('InvalidOperationError');
   });
 
+  it('should not fail if period.start and period.end are not provided but encounters are provided', async () => {
+    const query = `encounters=${encodeURIComponent([fakedata.encounterId])}`;
+    const response = await app
+      .get(`/api/integration/fijiAspenMediciReport?${query}`)
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.data.length).toEqual(1);
+  });
+
+  it('should fail if period.start is provided but period.end is not provided', async () => {
+    const query = `period.start=2022-06-12T00:00:00Z&encounters=${encodeURIComponent([
+      fakedata.encounterId,
+    ])}`;
+    const response = await app
+      .get(`/api/integration/fijiAspenMediciReport?${query}`)
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.name).toBe('InvalidOperationError');
+  });
+
+  it('should fail if period.end is provided but period.start is not provided', async () => {
+    const query = `period.end=2022-06-12T00:00:00Z&encounters=${encodeURIComponent([
+      fakedata.encounterId,
+    ])}`;
+    const response = await app
+      .get(`/api/integration/fijiAspenMediciReport?${query}`)
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.name).toBe('InvalidOperationError');
+  });
+
   it('should fail if period.start and period.end are not within 1 hour', async () => {
     const response = await app
       .get(

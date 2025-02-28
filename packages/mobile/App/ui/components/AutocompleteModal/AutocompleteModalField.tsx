@@ -50,7 +50,6 @@ export const AutocompleteModalField = ({
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
-  const refDataType = getReferenceDataTypeFromSuggester(suggester);
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
@@ -68,6 +67,7 @@ export const AutocompleteModalField = ({
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) {
+        const refDataType = getReferenceDataTypeFromSuggester(suggester);
         setLabel(
           <TranslatedText
             stringId={getReferenceDataStringId(data.value, refDataType)}
@@ -78,7 +78,7 @@ export const AutocompleteModalField = ({
         setLabel(null);
       }
     })();
-  }, [value]);
+  }, [value, suggester]);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
