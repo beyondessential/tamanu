@@ -45,7 +45,7 @@ export async function up(query: QueryInterface): Promise<void> {
         allowNull: false,
       },
       updated_by_user_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         references: {
           model: { schema: 'public', tableName: 'users' },
@@ -80,7 +80,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE, ['record_data'], { using: 'gin' });
 
   await query.sequelize.query(
-    `CREATE INDEX ON logs.changes USING HASH ((table_schema || '.' || table_name))`
+    `CREATE INDEX changes_table_name ON logs.changes USING HASH ((table_schema || '.' || table_name))`
   );
 }
 
