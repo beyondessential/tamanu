@@ -4,7 +4,7 @@ import { camelCase } from 'lodash';
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
   const result = {};
   Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
-    if (!frequenciesEnabled[frequency]) return;
+    if (!frequenciesEnabled?.[frequency]) return;
     const labelKey = getTranslation(
       `medication.frequency.${camelCase(frequency)}.label`,
       frequency,
