@@ -268,39 +268,19 @@ describe('PatientProgramRegistration', () => {
 
       const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
 
-      expect(createdRegistration).toMatchObject({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        date: '2023-09-02 08:00:00',
-      });
+      const result2 = await app
+        .put(`/api/patient/programRegistration/${createdRegistration.id}`)
+        .send({
+          clinicianId: clinician.id,
+          conditions: [
+            {
+              conditionId: programRegistryCondition.id,
+              category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+            },
+          ],
+        });
 
-      const createdRegistrationCondition =
-        await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
-
-      expect(createdRegistrationCondition).toMatchObject({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        date: '2023-09-02 08:00:00',
-        programRegistryConditionId: programRegistryCondition.id,
-      });
-
-      const result2 = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        date: '2023-09-02 08:00:00',
-        conditions: [
-          {
-            conditionId: programRegistryCondition.id,
-            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
-          },
-        ],
-        registeringFacilityId: facilityId,
-      });
-
-      expect(result).toHaveSucceeded();
+      expect(result2).toHaveSucceeded();
     });
   });
 

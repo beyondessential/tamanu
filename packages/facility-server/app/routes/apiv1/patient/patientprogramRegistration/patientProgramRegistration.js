@@ -36,29 +36,17 @@ patientProgramRegistration.post(
 
     await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
-    // Make sure and get the latest registration status for the patient
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       where: {
         programRegistryId,
         patientId,
       },
-      order: [['date', 'DESC']],
     });
 
-    let patientProgramRegistrationPromise;
-
-    // Update the existing registration if it exists. Otherwise, create a new one.
-    // Move to using the audit table for history rather than creating a new record on every update
     if (existingRegistration) {
       req.checkPermission('write', 'PatientProgramRegistration');
-      patientProgramRegistrationPromise = existingRegistration.update(body);
     } else {
       req.checkPermission('create', 'PatientProgramRegistration');
-      patientProgramRegistrationPromise = models.PatientProgramRegistration.create({
-        patientId,
-        programRegistryId,
-        ...body,
-      });
     }
 
     const { conditions = [], ...registrationData } = body;
@@ -66,6 +54,65 @@ patientProgramRegistration.post(
     if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
+
+    // Run in a transaction so it either fails or succeeds together
+    const [registration, conditionsRecords] = await db.transaction(async () => {
+      return Promise.all([
+        models.PatientProgramRegistration.create({
+          patientId,
+          programRegistryId,
+          ...registrationData,
+        }),
+        models.PatientProgramRegistrationCondition.bulkCreate(
+          conditions
+            .filter((condition) => condition.conditionId)
+            .map((condition) => ({
+              patientId,
+              programRegistryId,
+              clinicianId: registrationData.clinicianId,
+              date: registrationData.date,
+              programRegistryConditionId: condition.conditionId,
+              conditionCategory: condition.category,
+            })),
+        ),
+        // as a side effect, mark for sync in the current facility
+        models.PatientFacility.upsert({
+          patientId,
+          facilityId: registeringFacilityId,
+        }),
+      ]);
+    });
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...registration.get({ plain: true }),
+      conditions: conditionsRecords,
+    };
+
+    res.send(responseObject);
+  }),
+);
+
+patientProgramRegistration.put(
+  '/programRegistration/:programRegistrationId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'PatientProgramRegistration');
+    const { db, models, params, body } = req;
+    const { programRegistrationId } = params;
+    const { conditions = [], ...registrationData } = body;
+
+    if (conditions.length > 0) {
+      req.checkPermission('create', 'PatientProgramRegistrationCondition');
+    }
+
+    const existingRegistration =
+      await models.PatientProgramRegistration.findByPk(programRegistrationId);
+
+    if (!existingRegistration) {
+      throw new NotFoundError('PatientProgramRegistration not found');
+    }
+
+    const { patientId, programRegistryId } = existingRegistration;
 
     const conditionsData = conditions
       .filter((condition) => condition.conditionId)
@@ -82,14 +129,9 @@ patientProgramRegistration.post(
 
     const [registration, conditionsRecords] = await db.transaction(async () => {
       return Promise.all([
-        patientProgramRegistrationPromise,
+        existingRegistration.update(body),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
           updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
-        }),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
-          patientId,
-          facilityId: registeringFacilityId,
         }),
       ]);
     });

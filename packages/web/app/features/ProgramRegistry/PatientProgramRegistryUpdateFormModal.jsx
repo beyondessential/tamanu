@@ -26,7 +26,6 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
-import { useAuth } from '../../contexts/Auth.js';
 
 const StyledFormTable = styled(FormTable)`
   table tr td {
@@ -69,18 +68,13 @@ const ViewHistoryButton = styled(TextButton)`
   }
 `;
 
-const useUpdateProgramRegistryMutation = (patientId, programRegistryId) => {
+const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { facilityId } = useAuth();
 
   return useMutation(
     data => {
-      return api.post(`patient/${patientId}/programRegistration`, {
-        ...data,
-        programRegistryId,
-        registeringFacilityId: facilityId,
-      });
+      return api.put(`patient/programRegistration/${registrationId}`, data);
     },
     {
       onSuccess: () => {
@@ -136,14 +130,14 @@ export const PatientProgramRegistryUpdateFormModal = ({
   open,
 }) => {
   const {
+    id: registrationId,
     programRegistryId,
     patientId,
     clinicalStatusId,
-    clinicianId,
   } = patientProgramRegistration;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
-    programRegistryId,
+    registrationId,
   );
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientId,
@@ -362,7 +356,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
         }}
         initialValues={{
           clinicalStatusId: clinicalStatusId,
-          clinicianId,
           conditions: getGroupedData(conditions),
         }}
         formType={FORM_TYPES.EDIT_FORM}
