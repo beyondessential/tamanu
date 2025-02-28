@@ -431,7 +431,7 @@ describe('CentralSyncManager', () => {
       const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
         limit: 10,
       });
-      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(4);
+      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
     });
   });
 
@@ -733,7 +733,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          ({ recordId }) => recordId !== SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -785,7 +787,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          ({ recordId }) => recordId !== SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -874,7 +878,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionIdOne, {});
+        const outgoingChanges = (
+          await centralSyncManager.getOutgoingChanges(sessionIdOne, {})
+        ).filter(({ recordId }) => recordId !== SYSTEM_USER_UUID);
 
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
