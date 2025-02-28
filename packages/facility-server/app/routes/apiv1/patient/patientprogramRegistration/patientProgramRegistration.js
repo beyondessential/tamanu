@@ -115,7 +115,7 @@ patientProgramRegistration.put(
     const { patientId, programRegistryId } = existingRegistration;
 
     const conditionsData = conditions
-      .filter((condition) => condition.conditionId)
+      .filter((condition) => condition.id)
       .map((condition) => ({
         id: condition.id,
         patientId,

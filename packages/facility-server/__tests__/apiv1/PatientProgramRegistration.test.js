@@ -240,47 +240,99 @@ describe('PatientProgramRegistration', () => {
   });
 
   describe.only('Updating program registrations', () => {
-    it('updates a program registration', async () => {
+    let registration;
+    let registry;
+    let condition1;
+    let status1;
+
+    beforeEach(async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
-      const program1 = await models.Program.create(fake(models.Program));
-      const programRegistry1 = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: program1.id }),
+      const program = await models.Program.create(fake(models.Program));
+      registry = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program.id }),
       );
       const programRegistryCondition = await models.ProgramRegistryCondition.create(
-        fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
+        fake(models.ProgramRegistryCondition, { programRegistryId: registry.id }),
       );
-      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        date: '2023-09-02 08:00:00',
-        conditions: [
-          {
-            conditionId: programRegistryCondition.id,
-            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
-          },
-        ],
-        registeringFacilityId: facilityId,
+      status1 = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId: registry.id,
+          name: 'registry1-clinicalStatus',
+        }),
+      );
+      condition1 = await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient.id,
+          programRegistryId: registry.id,
+          programRegistryConditionId: programRegistryCondition.id,
+        }),
+      );
+
+      registration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: registry.id,
+          clinicalStatusId: status1.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          date: '2023-09-02 08:00:00',
+        }),
+      );
+    });
+
+    afterEach(async () => {
+      await models.PatientProgramRegistrationCondition.truncate({ cascade: true, force: true });
+      await models.ProgramRegistryCondition.truncate({ cascade: true, force: true });
+      await models.Patient.truncate({ cascade: true, force: true });
+      await models.ProgramRegistry.truncate({ cascade: true, force: true });
+      await models.Program.truncate({ cascade: true, force: true });
+    });
+
+    it('updates a program registration field', async () => {
+      const status2 = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId: registry.id,
+          name: 'registry1-clinicalStatus-2',
+        }),
+      );
+
+      const result = await app.put(`/api/patient/programRegistration/${registration.id}`).send({
+        clinicalStatusId: status2.id,
       });
 
       expect(result).toHaveSucceeded();
+      expect(result.body.clinicalStatusId).toBe(status2.id);
 
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
+      // Check that the updated status is reflected in the database
+      const updatedRegistration = await models.PatientProgramRegistration.findByPk(registration.id);
+      expect(updatedRegistration.clinicalStatusId).toBe(status2.id);
+    });
 
-      const result2 = await app
-        .put(`/api/patient/programRegistration/${createdRegistration.id}`)
-        .send({
-          clinicianId: clinician.id,
-          conditions: [
-            {
-              conditionId: programRegistryCondition.id,
-              category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
-            },
-          ],
-        });
+    it('updates a condition', async () => {
+      const status2 = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId: registry.id,
+          name: 'registry1-clinicalStatus-2',
+        }),
+      );
 
-      expect(result2).toHaveSucceeded();
+      const result = await app.put(`/api/patient/programRegistration/${registration.id}`).send({
+        clinicalStatusId: status2.id,
+        conditions: [
+          {
+            id: condition1.id,
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.suspected,
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+      const updatedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+        condition1.id,
+      );
+      expect(updatedCondition.conditionCategory).toBe(
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.suspected,
+      );
     });
   });
 
