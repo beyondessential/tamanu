@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -25,6 +25,7 @@ import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { MarView } from '../views/patients/medication/MarView';
+import { Colors } from '../constants';
 
 export const usePatientRoutes = () => {
   const {
@@ -75,10 +76,7 @@ export const usePatientRoutes = () => {
               path: `${PATIENT_PATHS.MAR}/view`,
               component: MarView,
               title: (
-                <TranslatedText
-                  stringId="encounter.mar.title"
-                  fallback="Medication Admin Record"
-                />
+                <TranslatedText stringId="encounter.mar.title" fallback="Medication Admin Record" />
               ),
             },
             {
@@ -129,6 +127,9 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 
 const PatientPane = styled.div`
   overflow: auto;
+  ${({ pathname }) => 
+    pathname?.endsWith('/mar/view') ? `background-color: ${Colors.white};` : ''
+  }
 `;
 
 const PATIENT_PANE_WIDTH = '650px';
@@ -140,12 +141,13 @@ const PatientPaneInner = styled.div`
 
 export const PatientRoutes = React.memo(() => {
   const patientRoutes = usePatientRoutes();
+  const location = useLocation();
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
       {/* Using contain:size along with overflow: auto here allows sticky navigation section
       to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <PatientPane>
+      <PatientPane pathname={location.pathname}>
         <PatientPaneInner>
           <PatientNavigation patientRoutes={patientRoutes} />
           <Switch>

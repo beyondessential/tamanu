@@ -22,10 +22,26 @@ const ADMINISTRATION_WINDOWS = [
   { timeSlot: '10pm - 12am', label: 'Night' },
 ];
 
-const GridContainer = styled.div`
+const MedicationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 221px);
+  background-color: ${Colors.white};
+`;
+
+// Header row for the time slots
+const HeaderRow = styled.div`
   display: grid;
   grid-template-columns: minmax(100px, 1fr) repeat(${props => props.columns}, 48px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background-color: ${Colors.white};
+`;
+
+const ScrollableContent = styled.div`
+  overflow-y: auto;
+  ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
 `;
 
 const HeadingCell = styled.div`
@@ -65,11 +81,23 @@ const SubHeader = styled.div`
   padding: 10px 8px;
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
+  margin-top: -1px;
   grid-column: 1 / -1;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: ${Colors.white};
 `;
 
-const EmptyMessage = styled(SubHeader)`
+const EmptyMessage = styled.div`
   color: ${Colors.darkestText};
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 8px;
+  border-top: 1px solid ${Colors.outline};
+  border-left: 1px solid ${Colors.outline};
+  grid-column: 1 / -1;
 `;
 
 const MedicationCellContainer = styled.div`
@@ -83,6 +111,11 @@ const MedicationCellContainer = styled.div`
 const StatusCell = styled.div`
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
+`;
+
+const MedicationGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) repeat(12, 48px);
 `;
 
 const MedicationCell = ({
@@ -133,7 +166,7 @@ export const MarTable = ({ selectedDate }) => {
 
   return (
     <Box>
-      <GridContainer columns={ADMINISTRATION_WINDOWS.length}>
+      <HeaderRow columns={ADMINISTRATION_WINDOWS.length}>
         <HeadingCell>
           <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
         </HeadingCell>
@@ -145,38 +178,54 @@ export const MarTable = ({ selectedDate }) => {
             </TimeSlotText>
           </TimeSlotHeader>
         ))}
-        <SubHeader>
-          <TranslatedText
-            fallback="Scheduled medication"
-            stringId="medication.mar.scheduledMedication.label"
-          />
-        </SubHeader>
-        {scheduledMedications.length ? (
-          scheduledMedications.map(medication => (
-            <MedicationCell key={medication?.id} {...medication} />
-          ))
-        ) : (
-          <EmptyMessage>
+      </HeaderRow>
+      <MedicationContainer>
+        <ScrollableContent $flexShrink={!scheduledMedications.length ? 0 : null}>
+          <SubHeader>
             <TranslatedText
-              fallback="No scheduled medication to display"
-              stringId="medication.mar.noScheduledMedication.label"
+              fallback="Scheduled medication"
+              stringId="medication.mar.scheduledMedication.label"
             />
-          </EmptyMessage>
-        )}
-        <SubHeader>
-          <TranslatedText fallback="PRN medication" stringId="medication.mar.prnMedication.label" />
-        </SubHeader>
-        {prnMedications.length ? (
-          prnMedications.map(medication => <MedicationCell key={medication?.id} {...medication} />)
-        ) : (
-          <EmptyMessage>
+          </SubHeader>
+          <MedicationGrid>
+            {scheduledMedications.length ? (
+              scheduledMedications.map(medication => (
+                <MedicationCell key={medication?.id} {...medication} />
+              ))
+            ) : (
+              <EmptyMessage>
+                <TranslatedText
+                  fallback="No scheduled medication to display"
+                  stringId="medication.mar.noScheduledMedication.label"
+                />
+              </EmptyMessage>
+            )}
+          </MedicationGrid>
+        </ScrollableContent>
+        {/* PRN medications section */}
+        <ScrollableContent $flexShrink={!prnMedications.length ? 0 : null}>
+          <SubHeader>
             <TranslatedText
-              fallback="No PRN medication to display"
-              stringId="medication.mar.noPrnMedication.label"
+              fallback="PRN medication"
+              stringId="medication.mar.prnMedication.label"
             />
-          </EmptyMessage>
-        )}
-      </GridContainer>
+          </SubHeader>
+          <MedicationGrid>
+            {prnMedications.length ? (
+              prnMedications.map(medication => (
+                <MedicationCell key={medication?.id} {...medication} />
+              ))
+            ) : (
+              <EmptyMessage>
+                <TranslatedText
+                  fallback="No PRN medication to display"
+                  stringId="medication.mar.noPrnMedication.label"
+                />
+              </EmptyMessage>
+            )}
+          </MedicationGrid>
+        </ScrollableContent>
+      </MedicationContainer>
     </Box>
   );
 };
