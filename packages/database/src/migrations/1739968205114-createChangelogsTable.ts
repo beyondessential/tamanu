@@ -1,8 +1,10 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
+const TABLE = { schema: 'logs', tableName: 'changes' };
+
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(
-    { schema: 'logs', tableName: 'changes' },
+    TABLE,
     {
       id: {
         type: DataTypes.UUID,
@@ -64,8 +66,21 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
   );
+
+  await query.addIndex(TABLE, ['table_oid'], { using: 'hash' });
+  await query.addIndex(TABLE, ['table_schema', 'table_name'], { using: 'hash' });
+  await query.addIndex(TABLE, ['record_id'], { using: 'hash' });
+  await query.addIndex(TABLE, ['updated_by_user_id'], { using: 'hash' });
+
+  await query.addIndex(TABLE, ['logged_at'], { using: 'btree' });
+  await query.addIndex(TABLE, ['created_at'], { using: 'btree' });
+  await query.addIndex(TABLE, ['updated_at'], { using: 'btree' });
+  await query.addIndex(TABLE, ['deleted_at'], { using: 'btree' });
+  await query.addIndex(TABLE, ['updated_at_sync_tick'], { using: 'btree' });
+
+  await query.addIndex(TABLE, ['record_data'], { using: 'gist' });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropTable({ schema: 'logs', tableName: 'changes' });
+  await query.dropTable(TABLE);
 }
