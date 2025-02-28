@@ -78,7 +78,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE, ['deleted_at'], { using: 'btree' });
   await query.addIndex(TABLE, ['updated_at_sync_tick'], { using: 'btree' });
 
-  await query.addIndex(TABLE, ['record_data'], { using: 'gist' });
+  await query.addIndex(TABLE, ['record_data'], { using: 'gin' });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
