@@ -210,7 +210,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
               <TranslatedText
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
-                lowercase
+                casing="lower"
               />
             ),
           }}
