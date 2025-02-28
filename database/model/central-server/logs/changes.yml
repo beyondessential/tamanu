@@ -53,7 +53,7 @@ sources:
             data_tests:
               - not_null
           - name: updated_by_user_id
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('logs__changes__updated_by_user_id') }}"
             data_tests:
               - not_null
