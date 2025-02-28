@@ -239,7 +239,7 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
-  describe.only('Updating program registrations', () => {
+  describe('Updating program registrations', () => {
     let patient;
     let registration;
     let registry;
