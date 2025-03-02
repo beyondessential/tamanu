@@ -5,6 +5,12 @@ import { translationFactory } from '@tamanu/shared/utils/translation/translation
 import { getCurrentLanguageCode } from '../utils/translation';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
+/**
+ * @typedef {Object} TranslationOptions
+ * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
+ * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
+ */
+
 export const TranslationContext = React.createContext(null);
 
 export const useTranslation = () => {
@@ -22,15 +28,14 @@ export const TranslationProvider = ({ children }) => {
 
   const translationFunc = translationFactory(translations);
 
-  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase, upperFirst) => {
-    const { value } = translationFunc(
-      stringId,
-      fallback,
-      replacements,
-      uppercase,
-      lowercase,
-      upperFirst,
-    );
+  /**
+   * @param {string} stringId
+   * @param {string} fallback
+   * @param {TranslationOptions} translationOptions
+   * @returns {string}
+   */
+  const getTranslation = (stringId, fallback, translationOptions = {}) => {
+    const { value } = translationFunc(stringId, fallback, translationOptions);
     return value;
   };
 

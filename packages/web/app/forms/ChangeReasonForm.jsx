@@ -49,7 +49,7 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
             getTranslation(
               'reasonForEncounter.validation.rule.maxNCharacters',
               'Reason for encounter must not exceed :maxChars characters',
-              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS },
+              { replacements: { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS } },
             ),
           ),
       })}

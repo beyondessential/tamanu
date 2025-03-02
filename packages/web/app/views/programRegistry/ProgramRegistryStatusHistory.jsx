@@ -20,7 +20,7 @@ const StyledTable = styled(Table)`
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-color: ${Colors.softOutline};
+  border-color: ${Colors.outline};
 
   table tr:last-child td {
     border: none; // remove border from last row of table to prevent double border
@@ -30,7 +30,7 @@ const StyledTable = styled(Table)`
     height: 45px;
     padding: 5px;
     color: ${Colors.darkText};
-    border-color: ${Colors.softOutline};
+    border-color: ${Colors.outline};
 
     &:first-child {
       padding-left: 15px;
