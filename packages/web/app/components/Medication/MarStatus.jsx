@@ -73,7 +73,7 @@ export const MARStatus = ({
   doseAmount,
   units,
   isFuture = false,
-  isError = false,
+  isAlert = false,
   isEdited = false,
 }) => {
   const [isSelected, setIsSelected] = useState(false);
@@ -99,7 +99,7 @@ export const MARStatus = ({
         return (
           <IconWrapper status={status}>
             <CheckCircleIcon />
-            {isError && <StyledPriorityHighIcon />}
+            {isAlert && <StyledPriorityHighIcon />}
             {isEdited && <EditedIcon>*</EditedIcon>}
           </IconWrapper>
         );
@@ -107,6 +107,7 @@ export const MARStatus = ({
         return (
           <IconWrapper status={status}>
             <CancelIcon />
+            {isEdited && <EditedIcon>*</EditedIcon>}
           </IconWrapper>
         );
       case ADMINISTRATION_STATUS.MISSED:
