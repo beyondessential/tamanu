@@ -31,7 +31,7 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ appType } = {}) {
+  async init({ appType, databaseOverrides } = {}) {
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -43,7 +43,7 @@ export class ApplicationContext {
     }
 
     const facilityIds = selectFacilityIds(config);
-    const database = await initDatabase();
+    const database = await initDatabase(databaseOverrides);
     this.sequelize = database.sequelize;
     this.models = database.models;
     this.settings = facilityIds.reduce((acc, facilityId) => {
