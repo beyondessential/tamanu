@@ -11,13 +11,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { authMiddleware, buildToken } from '../app/middleware/auth';
 import { createTestContext } from './utilities';
-
-const reducedPoolConfig = {
-  pool: {
-    max: 2,
-    min: 2,
-  },
-};
+import bodyParser from 'body-parser';
 
 describe('attachAuditUserToSession', () => {
   let ctx;
@@ -48,7 +42,8 @@ describe('attachAuditUserToSession', () => {
     // and includes the attachAuditUserToDbSession middleware
     // to set the authenticated user in the sequelize cls async storage context
     const mockApp = defineExpress();
-    mockApp.get(
+    mockApp.use(bodyParser.json({ limit: '50mb' }));
+    mockApp.post(
       '/updateAuthenticatedUser',
       (req, _res, next) => {
         req.models = models;
@@ -62,16 +57,13 @@ describe('attachAuditUserToSession', () => {
         await sleepAsync(parseInt(sleep, 10));
 
         // Update the authenticated user to have a different display name
-        const userUpdated = await req.models.User.update(
-          { displayName: 'changed' },
-          { where: { id: req.user.id } },
-        );
+        const userUpdated = await req.models.User.update(req.body, { where: { id: req.user.id } });
         res.json(userUpdated);
       }),
     );
 
     const asUser = async (user) => {
-      const agent = _agent(mockApp);
+      const agent = _agent(mockApp, { http2: true });
       const token = await buildToken(user, facilityIds[0], '1d');
       agent.set('authorization', `Bearer ${token}`);
       agent.user = user;
@@ -96,10 +88,18 @@ describe('attachAuditUserToSession', () => {
   it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
     // Stagger the response times of the 4 requests to ensure they are processed in parallel
     await Promise.all([
-      userApp1.get('/updateAuthenticatedUser?sleep=4000'),
-      userApp2.get('/updateAuthenticatedUser?sleep=3000'),
-      userApp3.get('/updateAuthenticatedUser?sleep=2000'),
-      userApp4.get('/updateAuthenticatedUser?sleep=1000'),
+      userApp1.post('/updateAuthenticatedUser?sleep=4000').send({
+        displayName: 'changed',
+      }),
+      userApp2.post('/updateAuthenticatedUser?sleep=3000').send({
+        displayName: 'changed',
+      }),
+      userApp3.post('/updateAuthenticatedUser?sleep=2000').send({
+        displayName: 'changed',
+      }),
+      userApp4.post('/updateAuthenticatedUser?sleep=1000').send({
+        displayName: 'changed',
+      }),
     ]);
 
     // Get the created audit entries for the 4 users that updated their own records
