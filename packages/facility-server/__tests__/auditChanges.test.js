@@ -13,7 +13,7 @@ import { authMiddleware, buildToken } from '../app/middleware/auth';
 import { createTestContext } from './utilities';
 import bodyParser from 'body-parser';
 
-describe('attachAuditUserToSession', () => {
+describe('Audit changes', () => {
   let ctx;
   let user1;
   let user2;
