@@ -38,6 +38,14 @@ export const readJSON = async (path: string): Promise<object> => {
   return JSON.parse(data);
 };
 
+// Expects JSON in the format:
+// {
+//  "<modelName>": {
+//      "POST": <requestCount>,
+//      "PUT": <requestCount>,
+//   },
+//  ...
+// }
 export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
   await generateImportData(models);
 
