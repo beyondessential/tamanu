@@ -15,7 +15,7 @@ import {
   createRepeatingAppointment,
   createSurveyResponse,
   createTask,
-  // generateImportData,
+  generateImportData,
 } from '../helpers';
 
 // TODO: this needs way more data groups
@@ -39,20 +39,7 @@ export const readJSON = async (path: string): Promise<object> => {
 };
 
 export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
-  // Generate import data
-  // const {
-  //   referenceData,
-  //   facility,
-  //   department,
-  //   locationGroup,
-  //   location,
-  //   survey,
-  //   scheduledVaccine,
-  //   invoiceProduct,
-  //   labTestType,
-  //   user,
-  //   programRegistry,
-  // } = await generateImportData(models);
+  await generateImportData(models);
 
   const tallyJson = await readJSON(tallyFilePath);
 
