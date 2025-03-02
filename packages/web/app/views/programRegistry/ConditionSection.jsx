@@ -76,12 +76,12 @@ const getGroupedConditions = conditions => {
   return { openConditions, closedConditions };
 };
 
-const ConditionComponent = ({ condition }) => {
+const ConditionComponent = ({ condition, onClick }) => {
   const { translatedName, translatedCategory } = condition;
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
-      <Condition>
+      <Condition onClick={() => onClick(condition.id)}>
         <ClippedConditionName ref={ref}>
           {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
         </ClippedConditionName>
@@ -103,7 +103,11 @@ export const ConditionSection = () => {
     return <LoadingIndicator />;
   }
 
-  const translatedData = conditions.data.map(condition => {
+  const onConditionClick = conditionId => {
+    setSelectedConditionId(conditionId);
+  };
+
+  const translatedData = conditions.map(condition => {
     const { programRegistryCondition, conditionCategory } = condition;
     const { id, name } = programRegistryCondition;
     const translatedName = getTranslation(getReferenceDataStringId(id, 'condition'), name);
@@ -130,11 +134,11 @@ export const ConditionSection = () => {
       </Heading5>
       <ScrollBody>
         {openConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
         ))}
         {needsDivider && <Divider variant="middle" />}
         {closedConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
         ))}
       </ScrollBody>
       <UpdateConditionFormModal
