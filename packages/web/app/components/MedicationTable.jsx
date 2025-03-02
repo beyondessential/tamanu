@@ -2,9 +2,11 @@ import React, { useCallback } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { format, parseISO, add } from 'date-fns';
+import { Box } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
+import { formatShortest } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { reloadPatient } from '../store';
@@ -13,10 +15,11 @@ import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
-import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../contexts/Translation';
 import { getTranslatedFrequencySynonym } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { ConditionalTooltip } from './Tooltip';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   border: none;
@@ -118,12 +121,41 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+    accessor: ({ route }) => DRUG_ROUTE_LABELS[route],
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date }) => <DateDisplay date={date} />,
+    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
+      const parsedStartDate = parseISO(startDate);
+      const duration = parseInt(durationValue, 10);
+      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+      let tooltipTitle = '';
+      if (durationValue && durationUnit) {
+        tooltipTitle = (
+          <>
+            <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
+            <div>{format(endDate, 'dd/MM/yy h:mma').toLowerCase()}</div>
+          </>
+        );
+      } else if (isOngoing) {
+        tooltipTitle = (
+          <TranslatedText
+            stringId="medication.table.ongoingMedication.label"
+            fallback="Ongoing medication"
+          />
+        );
+      }
+      return (
+        <ConditionalTooltip
+          visible={isOngoing || (durationValue && durationUnit)}
+          title={<Box fontWeight={400}>{tooltipTitle}</Box>}
+        >
+          {formatShortest(date)}
+        </ConditionalTooltip>
+      );
+    },
     CellComponent: LimitedLinesCell,
   },
   {
