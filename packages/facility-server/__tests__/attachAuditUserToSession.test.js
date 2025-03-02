@@ -48,8 +48,13 @@ describe('attachAuditUserToSession', () => {
       authMiddleware,
       attachAuditUserToDbSession,
       asyncHandler(async (req, res) => {
-        const randomSleepTime = Math.floor(Math.random() * 3000);
-        await sleepAsync(randomSleepTime);
+        // Stagger the response time to simulate overlapping requests
+        await sleepAsync( {
+          [user1.id]: 4000,
+          [user2.id]: 3000,
+          [user3.id]: 2000,
+          [user4.id]: 1000,
+        }[req.user.id]);
 
         const userUpdated = await req.models.User.update(
           { displayName: 'changed' },
@@ -67,8 +72,7 @@ describe('attachAuditUserToSession', () => {
       return agent;
     };
     // Create 4 users to simulate different users making simultaneous requests
-    // this is 2 more than the pool size to ensure that the pool is used
-    // and that the audit user is correctly attached to the session
+    // this is explictly over the max pool connections
     [user1, user2, user3, user4] = await models.User.bulkCreate([
       { ...fakeUser(), role: 'practitioner' },
       { ...fakeUser(), role: 'practitioner' },
