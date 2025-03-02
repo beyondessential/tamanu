@@ -1,5 +1,3 @@
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-
 // function sleep(milliseconds) {
 //   return new Promise(resolve => {
 //     setTimeout(resolve, milliseconds);
