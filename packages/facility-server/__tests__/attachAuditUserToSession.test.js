@@ -56,6 +56,7 @@ describe('attachAuditUserToSession', () => {
           [user4.id]: 1000,
         }[req.user.id]);
 
+        // Update the authenticated user to have a different display name
         const userUpdated = await req.models.User.update(
           { displayName: 'changed' },
           { where: { id: req.user.id } },
@@ -72,7 +73,7 @@ describe('attachAuditUserToSession', () => {
       return agent;
     };
     // Create 4 users to simulate different users making simultaneous requests
-    // this is explictly over the max pool connections
+    // this is explicitly 2+ the max pool connections
     [user1, user2, user3, user4] = await models.User.bulkCreate([
       { ...fakeUser(), role: 'practitioner' },
       { ...fakeUser(), role: 'practitioner' },
@@ -105,6 +106,7 @@ describe('attachAuditUserToSession', () => {
       },
     );
     expect(changes).toHaveLength(4);
+    // Each user should be shown to have updated their own record in the audit log
     expect(changes.every((change) => change.updated_by_user_id === change.record_id)).toBeTruthy();
   });
 });
