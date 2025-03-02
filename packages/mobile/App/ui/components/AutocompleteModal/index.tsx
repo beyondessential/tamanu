@@ -58,16 +58,16 @@ export const AutocompleteModalScreen = ({
       const data = await suggester.fetchSuggestions(searchTerm, language);
       setDisplayedOptions(data);
     })();
-  }, [searchTerm]);
+  }, [suggester, searchTerm, language]);
 
   const onSelectItem = useCallback(item => {
     navigation.goBack();
     callback(item);
-  }, []);
+  }, [callback, navigation]);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
