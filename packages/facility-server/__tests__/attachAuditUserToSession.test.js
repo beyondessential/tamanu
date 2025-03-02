@@ -66,7 +66,7 @@ describe('attachAuditUserToSession', () => {
       agent.user = user;
       return agent;
     };
-    // Create 4 users to simulate different users making simultanious requests
+    // Create 4 users to simulate different users making simultaneous requests
     // this is 2 more than the pool size to ensure that the pool is used
     // and that the audit user is correctly attached to the session
     [user1, user2, user3, user4] = await models.User.bulkCreate([
@@ -81,12 +81,9 @@ describe('attachAuditUserToSession', () => {
     userApp4 = await asUser(user4);
   });
 
-  afterAll(async () => {
-    await ctx.close();
-    jest.clearAllMocks();
-  });
+  afterAll(() => ctx.close());
 
-  it('audit log updated_by_user_id should match autenticated user with multiple simultanious requests', async () => {
+  it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
     await Promise.all([
       userApp1.get('/test'),
       userApp2.get('/test'),
