@@ -40,6 +40,7 @@ const StyledTableHeaderCell = styled(TableCell)`
 
 const StyledTableDataCell = styled(TableCell)`
   padding: 5px;
+  vertical-align: top;
 
   &:last-child {
     padding-right: 0;
@@ -102,8 +103,9 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
                 <React.Fragment key={groupName}>
                   {groupData.map((rowData, i) => {
                     const isFirst = groupIndex > 0 && i === 0;
-                    const isLast = groupIndex < groupData.length && i === groupData.length - 1;
-                    const hasAddButton = isLast && groupIndex === 0;
+                    // Show a bottom border if it is the end of a section
+                    const isLast = groupIndex < data.length && i === groupData.length - 1;
+                    const hasAddButton = i === groupData.length - 1 && groupIndex === 0;
 
                     return (
                       <StyledTableRow

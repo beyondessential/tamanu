@@ -26,6 +26,7 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const StyledFormTable = styled(FormTable)`
   table tr td {
@@ -67,6 +68,44 @@ const ViewHistoryButton = styled(TextButton)`
     text-decoration: underline;
   }
 `;
+
+const getConditionShape = getTranslation =>
+  yup.object().shape({
+    conditionId: yup.string().nullable(),
+    conditionCategory: yup
+      .string()
+      .nullable()
+      .when('conditionId', {
+        is: value => Boolean(value),
+        then: yup
+          .string()
+          .required(
+            getTranslation(
+              'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
+              'Category is required when a Related condition is set',
+            ),
+          ),
+      }),
+    date: yup
+      .date()
+      .nullable()
+      .when('conditionId', {
+        is: value => Boolean(value),
+        then: yup.date().required(getTranslation('validation.required.inline', '*Required')),
+      }),
+    reasonForChange: yup.string(),
+  });
+
+const getValidationSchema = getTranslation => {
+  return yup.object().shape({
+    clinicalStatusId: optionalForeignKey(),
+    conditions: yup.object().shape({
+      confirmedSection: yup.array().of(getConditionShape(getTranslation)),
+      resolvedSection: yup.array().of(getConditionShape(getTranslation)),
+      recordedInErrorSection: yup.array().of(getConditionShape(getTranslation)),
+    }),
+  });
+};
 
 const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
   const api = useApi();
@@ -135,6 +174,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
     patientId,
     clinicalStatusId,
   } = patientProgramRegistration;
+  const { getTranslation } = useTranslation();
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
     registrationId,
@@ -205,7 +245,15 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 }
 
                 const onClear = () => {
-                  console.log('clearing');
+                  console.log('onClear', groupedData, groupName, index);
+                  setFieldValue('conditions', {
+                    ...groupedData,
+                    // Clear the condition and category fields. Set to an empty object rather than
+                    // removing from the array keep the order of the conditions consistent with the fields
+                    [groupName]: groupedData[groupName].map((condition, i) =>
+                      i === index ? {} : condition,
+                    ),
+                  });
                 };
 
                 const isLastRow = index === groupedData.confirmedSection.length - 1;
@@ -359,10 +407,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
           conditions: getGroupedData(conditions),
         }}
         formType={FORM_TYPES.EDIT_FORM}
-        validationSchema={yup.object().shape({
-          // Todo: Add validation for conditions
-          clinicalStatusId: optionalForeignKey(),
-        })}
+        validationSchema={getValidationSchema(getTranslation)}
       />
     </Modal>
   );
