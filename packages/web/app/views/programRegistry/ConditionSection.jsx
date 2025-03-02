@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
-import { ButtonBase, Divider } from '@material-ui/core';
+import { Divider, ButtonBase } from '@material-ui/core';
+import { useParams } from 'react-router-dom';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
-import { ButtonBase } from '@material-ui/core';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5 } from '../../components/Typography';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -14,8 +12,6 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { useTranslation } from '../../contexts/Translation';
 import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
-import { TranslatedEnum } from '../../components';
-import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -94,14 +90,10 @@ const ConditionComponent = ({ condition }) => {
   );
 };
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { getTranslation, getEnumTranslation } = useTranslation();
-  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
 export const ConditionSection = () => {
-  const [selectedConditionId, setSelectedConditionId] = useState(null);
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { patientId, programRegistryId } = useParams();
+  const [selectedConditionId, setSelectedConditionId] = useState(null);
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientId,
     programRegistryId,
