@@ -26,11 +26,19 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
-import { useTranslation } from '../../contexts/Translation.jsx';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormTable = styled(FormTable)`
   table tr td {
     border: none;
+
+    // This is a hacky workaround to make sure that the cell contents are vertically aligned
+    // If we use vertical-align center, the validation error messages break the table alignment
+    > span,
+    > button {
+      position: relative;
+      top: 10px;
+    }
   }
 `;
 
@@ -332,15 +340,25 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 </span>
               ),
               width: 200,
-              accessor: ({ conditionId }, groupName, index) => {
+              accessor: ({ conditionId, conditionCategory }, groupName, index) => {
+                if (conditionCategory === 'recordedInError') {
+                  return (
+                    <ProgramRegistryConditionCategoryField
+                      name={`conditions[${groupName}][${index}].conditionCategory`}
+                      disabled
+                      disabledTooltipText={getTranslation(
+                        'patientProgramRegistry.recordedInError.tooltip',
+                        'Cannot edit entry that has been recorded in error',
+                      )}
+                      ariaLabelledby="condition-category-label"
+                    />
+                  );
+                }
+
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={`conditions[${groupName}][${index}].conditionCategory`}
                     disabled={!conditionId}
-                    disabledTooltipText={getTranslation(
-                      'patientProgramRegistry.relatedConditionsCategory.tooltip',
-                      'Select a condition to add related categories',
-                    )}
                     ariaLabelledby="condition-category-label"
                     required
                   />

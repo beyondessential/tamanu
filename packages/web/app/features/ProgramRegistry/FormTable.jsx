@@ -104,7 +104,8 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
                   {groupData.map((rowData, i) => {
                     const isFirst = groupIndex > 0 && i === 0;
                     // Show a bottom border if it is the end of a section
-                    const isLast = groupIndex < data.length && i === groupData.length - 1;
+                    const isLast =
+                      groupIndex < Object.keys(data).length - 1 && i === groupData.length - 1;
                     const hasAddButton = i === groupData.length - 1 && groupIndex === 0;
 
                     return (
