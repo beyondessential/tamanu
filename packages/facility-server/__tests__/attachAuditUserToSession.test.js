@@ -33,13 +33,23 @@ describe('attachAuditUserToSession', () => {
   beforeAll(async () => {
     const facilityIds = selectFacilityIds(config);
 
-    ctx = await createTestContext({ databaseOverrides: reducedPoolConfig });
+    // Reduce the max pool size to 2
+    ctx = await createTestContext({
+      databaseOverrides: {
+        pool: {
+          max: 2,
+          min: 2,
+        },
+      },
+    });
     models = ctx.models;
 
     // Setup a mock express app with a route that updates a user
+    // and includes the attachAuditUserToDbSession middleware
+    // to set the authenticated user in the sequelize cls async storage context
     const mockApp = defineExpress();
     mockApp.get(
-      '/test',
+      '/updateAuthenticatedUser',
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
@@ -48,13 +58,8 @@ describe('attachAuditUserToSession', () => {
       authMiddleware,
       attachAuditUserToDbSession,
       asyncHandler(async (req, res) => {
-        // Stagger the response time to simulate overlapping requests
-        await sleepAsync( {
-          [user1.id]: 4000,
-          [user2.id]: 3000,
-          [user3.id]: 2000,
-          [user4.id]: 1000,
-        }[req.user.id]);
+        const { sleep } = req.query;
+        await sleepAsync(parseInt(sleep, 10));
 
         // Update the authenticated user to have a different display name
         const userUpdated = await req.models.User.update(
@@ -89,13 +94,15 @@ describe('attachAuditUserToSession', () => {
   afterAll(() => ctx.close());
 
   it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
+    // Stagger the response times of the 4 requests to ensure they are processed in parallel
     await Promise.all([
-      userApp1.get('/test'),
-      userApp2.get('/test'),
-      userApp3.get('/test'),
-      userApp4.get('/test'),
+      userApp1.get('/updateAuthenticatedUser?sleep=4000'),
+      userApp2.get('/updateAuthenticatedUser?sleep=3000'),
+      userApp3.get('/updateAuthenticatedUser?sleep=2000'),
+      userApp4.get('/updateAuthenticatedUser?sleep=1000'),
     ]);
 
+    // Get the created audit entries for the 4 users that updated their own records
     const changes = await ctx.sequelize.query(
       `SELECT * FROM logs.changes WHERE record_id IN (:userIds) AND record_data->>'display_name' = 'changed'`,
       {
