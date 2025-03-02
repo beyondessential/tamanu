@@ -97,7 +97,7 @@ describe('attachAuditUserToSession', () => {
     ]);
 
     const changes = await ctx.sequelize.query(
-      `SELECT * FROM logs.changes where record_id in (:userIds) and record_data->>'display_name' = 'changed'`,
+      `SELECT * FROM logs.changes WHERE record_id IN (:userIds) AND record_data->>'display_name' = 'changed'`,
       {
         type: QueryTypes.SELECT,
         replacements: {
