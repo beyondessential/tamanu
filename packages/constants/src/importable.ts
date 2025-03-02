@@ -54,6 +54,7 @@ export const REFERENCE_TYPES = {
   TASK_SET: 'taskSet',
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
+  REASON_NOT_ADMINISTERED: 'reasonNotAdministered',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -87,9 +88,8 @@ const CLINCAL_DATA_TYPES = {
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
 
 // System data used for configuration purposes
-const SYSTEM_DATA_TYPES = {
+export const SYSTEM_DATA_TYPES = {
   REFERENCE_DATA_RELATION: 'referenceDataRelation',
-  TRANSLATED_STRING: 'translatedString',
   CERTIFIABLE_VACCINE: 'certifiableVaccine',
   IMAGING_AREA_EXTERNAL_CODE: 'imagingAreaExternalCode',
 };

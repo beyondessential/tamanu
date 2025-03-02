@@ -33,7 +33,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
     return getTranslation(
       'notification.content.imagingRequest.completed',
       'Imaging results for :patientName (:displayId) are <strong>now available</strong>',
-      { displayId, patientName },
+      { replacements: { displayId, patientName } },
     );
   } else if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
     const labRequestStatus = metadata.status;
@@ -43,13 +43,13 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
         return getTranslation(
           'notification.content.labRequest.published',
           'Lab results for :patientName (:displayId) are <strong>now available</strong>',
-          { displayId, patientName },
+          { replacements: { displayId, patientName } },
         );
       case LAB_REQUEST_STATUSES.INVALIDATED:
         return getTranslation(
           'notification.content.labRequest.invalidated',
           'Lab results for :patientName (:displayId) have been <strong>invalidated</strong>',
-          { displayId, patientName },
+          { replacements: { displayId, patientName } },
         );
     }
   }
@@ -195,7 +195,7 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
   const {
     unreadNotifications = [],
     readNotifications = [],
-    recentNotificationsTimeFrame = 48,
+    recentNotificationsTimeFrame,
   } = notifications;
 
   const onMarkAllAsRead = () => {

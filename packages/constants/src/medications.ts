@@ -208,17 +208,17 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
 };
 
 const MEDICATION_DURATION_UNITS = {
-  HOUR: 'hour',
-  DAY: 'day',
-  WEEK: 'week',
-  MONTH: 'month',
+  HOURS: 'hours',
+  DAYS: 'days',
+  WEEKS: 'weeks',
+  MONTHS: 'months',
 };
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOUR]: 'Hour',
-  [MEDICATION_DURATION_UNITS.DAY]: 'Day',
-  [MEDICATION_DURATION_UNITS.WEEK]: 'Week',
-  [MEDICATION_DURATION_UNITS.MONTH]: 'Month',
+  [MEDICATION_DURATION_UNITS.HOURS]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
+  [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
+  [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
 };
 
 export const ADMINISTRATION_STATUS = {
@@ -227,3 +227,18 @@ export const ADMINISTRATION_STATUS = {
   MISSED: 'missed',
   DUE: 'due',
 };
+
+export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
+  { startTime: '00:00', endTime: '02:00' },
+  { startTime: '02:00', endTime: '04:00' },
+  { startTime: '04:00', endTime: '06:00' },
+  { startTime: '06:00', endTime: '08:00', periodLabel: 'breakfast' },
+  { startTime: '08:00', endTime: '10:00' },
+  { startTime: '10:00', endTime: '12:00' },
+  { startTime: '12:00', endTime: '14:00', periodLabel: 'lunch' },
+  { startTime: '14:00', endTime: '16:00' },
+  { startTime: '16:00', endTime: '18:00' },
+  { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
+  { startTime: '20:00', endTime: '22:00' },
+  { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
+];

@@ -193,7 +193,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 <TranslatedText
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
-                  lowercase
+                  casing="lower"
                 />
               ),
             }}

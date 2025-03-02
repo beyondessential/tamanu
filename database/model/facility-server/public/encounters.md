@@ -65,3 +65,7 @@ The time that the encounter will transfer to the planned location
 {% docs encounters__referral_source_id %}
 
 {% enddocs %}
+
+{% docs encounters__discharge_draft %}
+Draft data of the encounter
+{% enddocs %}
