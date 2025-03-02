@@ -51,3 +51,11 @@ At least one of `occurrence_count` or `until_date` must be set.
 {% docs appointment_schedules__is_fully_generated %}
 Whether or not all repeating appointments have been created for a schedule
 {% enddocs %}
+
+{% docs appointment_schedules__generated_until_date %}
+The date of the most recent appointment in a schedule, this is set after generation of the repeated appointment and then updated if it is necessary to generate further appointments.
+{% enddocs %}
+
+{% docs appointment_schedules__cancelled_at_date %}
+The date from which appointments in a schedule have been cancelled, this is set when cancelling 'this and all future appointments'.
+{% enddocs %}

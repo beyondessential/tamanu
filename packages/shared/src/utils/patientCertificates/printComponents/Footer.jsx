@@ -88,8 +88,10 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
           style={styles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              currentPage: pageNumber,
-              totalPages,
+              replacements: {
+                currentPage: pageNumber,
+                totalPages,
+              },
             })
           }
         />

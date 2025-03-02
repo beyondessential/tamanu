@@ -317,7 +317,6 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
-      order: [['date', 'DESC']],
     });
 
     res.send({
