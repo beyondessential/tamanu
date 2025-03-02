@@ -13,27 +13,21 @@ const StyledTextField = styled(TranslatedSelectField)`
 export const ProgramRegistryConditionCategoryField = ({
   label,
   name,
-  conditionId,
+  disabled,
+  disabledTooltipText,
   required = false,
   ariaLabelledby = null,
 }) => {
   const { getTranslation } = useTranslation();
   return (
     <FieldWithTooltip
-      disabledTooltipText={
-        !conditionId
-          ? getTranslation(
-              'patientProgramRegistry.relatedConditionsCategory.tooltip',
-              'Select a condition to add related categories',
-            )
-          : ''
-      }
+      disabledTooltipText={disabled ? disabledTooltipText : ''}
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
       component={StyledTextField}
       enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
-      disabled={!conditionId}
+      disabled={disabled}
       required={required}
       aria-labelledby={ariaLabelledby}
     />

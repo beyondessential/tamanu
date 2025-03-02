@@ -112,7 +112,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="conditionCategory"
-                  conditionId={programRegistryCondition?.id}
+                  disabled={!programRegistryCondition?.id}
+                  disabledTooltipText={getTranslation(
+                    'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                    'Select a condition to add related categories',
+                  )}
                   ariaLabelledby="condition-category-label"
                   required
                 />

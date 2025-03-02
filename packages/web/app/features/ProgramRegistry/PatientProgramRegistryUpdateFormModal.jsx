@@ -82,7 +82,7 @@ const getConditionShape = getTranslation =>
           .required(
             getTranslation(
               'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-              'Category is required when a Related condition is set',
+              'Select a related condition to record category',
             ),
           ),
       }),
@@ -245,7 +245,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 }
 
                 const onClear = () => {
-                  console.log('onClear', groupedData, groupName, index);
                   setFieldValue('conditions', {
                     ...groupedData,
                     // Clear the condition and category fields. Set to an empty object rather than
@@ -337,7 +336,11 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={`conditions[${groupName}][${index}].conditionCategory`}
-                    conditionId={conditionId}
+                    disabled={!conditionId}
+                    disabledTooltipText={getTranslation(
+                      'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                      'Select a condition to add related categories',
+                    )}
                     ariaLabelledby="condition-category-label"
                     required
                   />
