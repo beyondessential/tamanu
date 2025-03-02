@@ -21,8 +21,8 @@ const colorFromEncounterType = {
   default: Colors.blue,
 };
 
-function getPatientStatusColor({ $encounterType, $isDeceased }) {
-  if ($isDeceased) {
+function getPatientStatusColor({ $encounterType, $isPatientDeceased }) {
+  if ($isPatientDeceased) {
     return Colors.midText;
   }
 
@@ -161,7 +161,7 @@ const SectionTitle = styled.div`
 const PATIENTS_PER_PAGE = 6;
 
 const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
-  const isDeceased = Boolean(patient.dateOfDeath);
+  const isPatientDeceased = Boolean(patient.dateOfDeath);
 
   return (
     <CardComponent
@@ -169,12 +169,15 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
       patientPerPage={patientPerPage}
       $isDashboard={isDashboard}
     >
-      <PatientStatusIndicator $encounterType={patient.encounter_type} $isDeceased={isDeceased} />
+      <PatientStatusIndicator
+        $encounterType={patient.encounter_type}
+        $isPatientDeceased={isPatientDeceased}
+      />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
           <CardTitle
             $encounterType={patient.encounter_type}
-            $isDeceased={isDeceased}
+            $isPatientDeceased={isPatientDeceased}
             $isDashboard={isDashboard}
           >
             {patient.firstName} {patient.lastName}
