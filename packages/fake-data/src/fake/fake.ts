@@ -42,7 +42,7 @@ export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
-    (obj: object, field: string) => ({
+    (obj: Record<string, string>, field: string) => ({
       ...obj,
       [field]: prefix + field,
     }),
@@ -249,7 +249,7 @@ const FIELD_HANDLERS = {
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: (_: typeof Model, { type }) => chance.pickone(type.values),
+  ENUM: (_, { type }) => chance.pickone(type.values),
   UUID: () => fakeUUID(),
 };
 
