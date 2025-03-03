@@ -1,6 +1,6 @@
 import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
-const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
+import { fake, chance } from '../../fake';
 
 interface CreateImagingRequestParams {
   models: Models;

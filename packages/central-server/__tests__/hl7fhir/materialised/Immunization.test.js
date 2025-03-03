@@ -1,6 +1,6 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { chance, fake, fakeReferenceData, fakeUser } from '@tamanu/shared/test-helpers';
+import { chance, fake, fakeReferenceData, fakeUser } from '@tamanu/fake-data/fake';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
@@ -107,14 +107,8 @@ describe(`Materialised FHIR - Immunization`, () => {
 
     it('fetches an immunization by materialised ID', async () => {
       const { FhirImmunization } = ctx.store.models;
-      const {
-        patient,
-        examiner,
-        encounter,
-        vaccine,
-        scheduledVaccine,
-        administeredVaccine,
-      } = await createAdministeredVaccineHierarchy(ctx.store.models);
+      const { patient, examiner, encounter, vaccine, scheduledVaccine, administeredVaccine } =
+        await createAdministeredVaccineHierarchy(ctx.store.models);
       const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
 
       const path = `/api/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
@@ -133,7 +127,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         },
         patient: {
           reference: expect.stringContaining(patient.id),
-          display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
+          display: [patient.firstName, patient.lastName].filter((x) => x).join(' '),
         },
         encounter: {
           reference: expect.stringContaining(encounter.id),
@@ -306,8 +300,7 @@ describe(`Materialised FHIR - Immunization`, () => {
             diagnostics: expect.any(String),
             expression: '_page',
             details: {
-              text:
-                'this must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
+              text: 'this must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             },
           },
           {
@@ -316,8 +309,7 @@ describe(`Materialised FHIR - Immunization`, () => {
             diagnostics: expect.any(String),
             expression: '_count',
             details: {
-              text:
-                'this must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
+              text: 'this must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             },
           },
         ],
