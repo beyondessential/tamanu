@@ -16,13 +16,13 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -35,11 +35,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const facilitySuggester = new Suggester(models.Facility, {
     where: {
       visibilityStatus: VisibilityStatus.Current,
-    },
-  });
-  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
-    where: {
-      programRegistry: programRegistry.id,
     },
   });
 
@@ -82,6 +77,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     });
   };
   const { user } = useAuth();
+
   return (
     <FullView>
       <StyledScrollView>
@@ -171,27 +167,25 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map(x => ({ label: x.name, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({ label: x.name, value: x.id })) || []
                     }
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
+                  <PatientProgramRegistrationConditionsField
                     label={
                       <TranslatedText
                         stringId="patientProgramRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
+                    programRegistryId={programRegistry.id}
                     labelFontSize={14}
-                    component={MultiSelectModalField}
-                    modalTitle="Conditions"
-                    suggester={conditionSuggester}
                     placeholder={`Search`}
-                    navigation={navigation}
-                    name="conditions"
-                    value={values.conditions}
-                    searchPlaceholder="Search conditions..."
+                    values={values.conditions}
+                    onChange={(newValue) => {
+                      values.conditions = newValue;
+                    }}
                   />
                 </StyledView>
                 <Button
