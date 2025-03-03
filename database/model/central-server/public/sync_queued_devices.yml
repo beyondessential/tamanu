@@ -15,6 +15,9 @@ sources:
             data_tests:
               - unique
               - not_null
+              - relationships:
+                  to: source('tamanu', 'devices')
+                  field: id
           - name: last_seen_time
             data_type: timestamp with time zone
             description: "{{ doc('sync_queued_devices__last_seen_time') }}"

@@ -1336,8 +1336,17 @@ describe('Sync Lookup data', () => {
   });
 
   describe('avoidRepull', () => {
+    const deviceId = 'facility-avoidrepull';
+    beforeAll(async () => {
+      await models.Device.create(fake(models.Device, {
+        id: deviceId,
+      }));
+    });
+    afterAll(async () => {
+      await models.Device.truncate({ cascade: true, force: true });
+    });
+
     const snapshotOutgoingRecordsForFacility = async avoidRepull => {
-      const deviceId = 'facility-a';
       await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
