@@ -25,9 +25,8 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
-import type { SettingsSchema } from '../types';
 
-export const globalSettings: SettingsSchema = {
+export const globalSettings = {
   name: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {

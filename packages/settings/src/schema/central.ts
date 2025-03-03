@@ -8,9 +8,8 @@ import {
   questionCodeIdsDescription,
 } from './definitions';
 import { extractDefaults } from './utils';
-import type { SettingsSchema } from '../types';
 
-export const centralSettings: SettingsSchema = {
+export const centralSettings = {
   name: 'Central server settings',
   description: 'Settings that apply only to a central server',
   properties: {
