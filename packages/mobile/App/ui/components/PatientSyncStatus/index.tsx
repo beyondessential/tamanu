@@ -18,7 +18,7 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
   const facilityId = readConfig('facilityId', '');
   const [patientFacility, , isLoading] = useBackendEffect(
     ({ models: m }) =>
-      m.PatientFacility.getRepository().findOne({
+      m.PatientFacility.findOne({
         where: { patient: { id: selectedPatient.id }, facility: { id: facilityId } },
       }),
     [refreshCount],
