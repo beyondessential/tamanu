@@ -249,7 +249,7 @@ const FIELD_HANDLERS = {
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: (_: typeof Model, { type }) => chance.pickone(type.values),
+  ENUM: (_, { type }) => chance.pickone(type.values),
   UUID: () => fakeUUID(),
 };
 
