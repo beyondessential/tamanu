@@ -66,14 +66,15 @@ export async function importRows(
   validationContext = {},
 ) {
   const stats = { ...previousStats };
+  console.log('sheetName', sheetName);
 
-  log.debug('Importing rows to database', { count: rows.length });
+  console.log('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
-    log.debug('Nothing to do, skipping');
+    console.log('Nothing to do, skipping');
     return stats;
   }
 
-  log.debug('Building reverse lookup table');
+  console.log('Building reverse lookup table');
   const lookup = new Map();
   for (const {
     model,
@@ -85,7 +86,7 @@ export async function importRows(
     if (name) lookup.set(`kind.${kind}-name.${name.toLowerCase()}`, id);
   }
 
-  log.debug('Resolving foreign keys', { rows: rows.length });
+  console.log('Resolving foreign keys', { rows: rows.length });
   const resolvedRows = [];
   for (const { model, sheetRow, values } of rows) {
     try {
@@ -115,15 +116,16 @@ export async function importRows(
                   })
                 : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (fkSchema.model === 'ReferenceData'
-              ? await models.ReferenceData.findOne({
-                  where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                })
-              : await models[fkSchema.model].findOne({
-                  where: {
-                    name: { [Op.iLike]: fkFieldValue },
-                  },
-                })
+            const idByRemoteName = (
+              fkSchema.model === 'ReferenceData'
+                ? await models.ReferenceData.findOne({
+                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                  })
+                : await models[fkSchema.model].findOne({
+                    where: {
+                      name: { [Op.iLike]: fkFieldValue },
+                    },
+                  })
             )?.id;
 
             if (hasRemoteId) {
@@ -149,11 +151,11 @@ export async function importRows(
   }
 
   if (resolvedRows.length === 0) {
-    log.debug('Nothing left, skipping');
+    console.log('Nothing left, skipping');
     return stats;
   }
 
-  log.debug('Validating data', { rows: resolvedRows.length });
+  console.log('Validating data', { rows: resolvedRows.length });
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
@@ -202,7 +204,7 @@ export async function importRows(
   }
 
   if (validRows.length === 0) {
-    log.debug('Nothing left, skipping');
+    console.log('Nothing left, skipping');
     return stats;
   }
 
@@ -213,7 +215,8 @@ export async function importRows(
   };
   await validateTableRows(models, validRows, pushErrorFn);
 
-  log.debug('Upserting database rows', { rows: validRows.length });
+  console.log('Upserting database rows', { rows: validRows.length });
+  console.log('SKIP EXISTING: ', skipExisting);
   const translationRecordsForSheet = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
@@ -247,9 +250,25 @@ export async function importRows(
 
       const dataType = normaliseSheetName(sheetName);
       const isValidTable =
-        model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
+        model === 'ReferenceData' ||
+        camelCase(model) === dataType ||
+        dataType === 'registry' ||
+        dataType === 'registryCondition'; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
+
+      if (
+        dataType === 'registry' ||
+        dataType === 'registryConditions' ||
+        sheetName === 'Registry Conditions'
+      ) {
+        console.log('DATA TYPE: ', dataType);
+        console.log('model: ', model);
+        console.log('VALUES: ', values);
+        console.log('Is translatable', isTranslatable);
+        console.log('Is valid table', isValidTable);
+      }
       if (isTranslatable && isValidTable) {
+        console.log('PUSHING TRANSLATION RECORD');
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
@@ -262,12 +281,14 @@ export async function importRows(
     }
   }
 
+  console.log('translationRecordsForSheet', translationRecordsForSheet);
+
   // Ensure we have a translation record for each row of translatable reference data
   await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
     fields: ['stringId', 'text', 'language'],
     ignoreDuplicates: true,
   });
 
-  log.debug('Done with these rows');
+  console.log('Done with these rows');
   return stats;
 }
