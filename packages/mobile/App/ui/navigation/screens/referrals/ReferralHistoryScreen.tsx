@@ -61,7 +61,6 @@ export const ReferralHistoryScreen = (): ReactElement => {
                   description={(): ReactNode => {
                     const { dataElement, body } = answer;
                     if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
-                      // TODO: i think its this here
                       const [autocompleteAnswer, answerError] = useBackendEffect(
                         async ({ models }): Promise<string | null> =>
                           getAutocompleteDisplayAnswer(models, dataElement.id, body),
