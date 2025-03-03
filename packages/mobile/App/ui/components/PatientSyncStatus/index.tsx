@@ -15,14 +15,16 @@ interface PatientSyncStatusProps {
 export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
-  const facilityId = readConfig('facilityId', '');
-  const [patientFacility, , isLoading] = useBackendEffect(
+  const facilityId = readConfig('facilityId', ''); // TODO: this always comes back empty and stops query
+  const [patientFacility, err, isLoading] = useBackendEffect(
     ({ models: m }) =>
-      m.PatientFacility.findOne({
+      m.PatientFacility.getRepository().findOne({
         where: { patient: { id: selectedPatient.id }, facility: { id: facilityId } },
       }),
     [refreshCount],
   );
+
+  console.log(patientFacility, err, isLoading);
 
   if (isLoading) {
     return <StyledView flex={1} />;

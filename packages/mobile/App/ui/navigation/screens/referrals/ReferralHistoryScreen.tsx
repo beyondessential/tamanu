@@ -29,7 +29,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
   const [referrals, error] = useBackendEffect(
     async ({ models }) => {
       const referrals = (await models.Referral.getForPatient(selectedPatient.id)) || [];
-      return referrals.filter(referral =>
+      return referrals.filter((referral) =>
         ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
       );
     },
@@ -54,13 +54,14 @@ export const ReferralHistoryScreen = (): ReactElement => {
               title={`${survey.name} (${formatStringDate(startTime, DateFormats.DDMMYY)})`}
               left={(props): ReactElement => <List.Icon {...props} icon="clipboard-plus-outline" />}
             >
-              {answers.map(answer => (
+              {answers.map((answer) => (
                 <List.Item
                   key={answer.id}
                   title={answer.dataElement.defaultText}
                   description={(): ReactNode => {
                     const { dataElement, body } = answer;
                     if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
+                      // TODO: i think its this here
                       const [autocompleteAnswer, answerError] = useBackendEffect(
                         async ({ models }): Promise<string | null> =>
                           getAutocompleteDisplayAnswer(models, dataElement.id, body),
