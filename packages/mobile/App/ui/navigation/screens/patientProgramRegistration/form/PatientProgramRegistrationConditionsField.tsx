@@ -10,6 +10,7 @@ import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessa
 import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface FieldValue {
   label: string;
@@ -24,7 +25,6 @@ interface ConditionAndCategory {
 interface PatientProgramRegistrationConditionsFieldItemProps {
   conditionSuggester: Suggester;
   value?: ConditionAndCategory;
-  placeholder?: string;
   onChange: (newValue: ConditionAndCategory) => void;
   onDelete?: () => void;
   marginTop?: number;
@@ -41,10 +41,10 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   marginTop,
   error,
   disabled,
-  placeholder,
   openConditionScreenImmediately,
 }: PatientProgramRegistrationConditionsFieldItemProps): ReactElement => {
   const navigation = useNavigation();
+  const { getTranslation } = useTranslation();
 
   const [condition, setCondition] = useState(value?.condition);
   const [category, setCategory] = useState(value?.category);
@@ -78,10 +78,10 @@ const PatientProgramRegistrationConditionsFieldItem = ({
           { value: 'disproved', label: 'Disproved' },
           { value: 'resolved', label: 'Resolved' },
         ],
-        modalTitle: 'Category',
+        modalTitle: getTranslation('programRegistry.category.label', 'Category'),
       });
     },
-    [setCategory, onChange, navigation],
+    [setCategory, onChange, getTranslation, navigation],
   );
 
   const openConditionScreen = useCallback(() => {
@@ -91,9 +91,9 @@ const PatientProgramRegistrationConditionsFieldItem = ({
         openCategoryScreen(newValue);
       },
       suggester: conditionSuggester,
-      modalTitle: 'Condition',
+      modalTitle: getTranslation('programRegistry.conditions.label', 'Conditions'),
     });
-  }, [setCondition, openCategoryScreen, conditionSuggester, navigation]);
+  }, [setCondition, openCategoryScreen, getTranslation, conditionSuggester, navigation]);
 
   useEffect(() => {
     if (openConditionScreenImmediately && !hasOpenedConditionScreenImmediately) {
@@ -114,7 +114,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
           marginTop={marginTop}
           backgroundColor={theme.colors.WHITE}
           textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-          buttonText={label || placeholder || 'Select'}
+          buttonText={label || getTranslation('general.placeholder.search', 'Search')}
           minHeight={screenPercentageToDP(6.68, Orientation.Height)}
           height={'auto'}
           justifyContent="flex-start"
@@ -166,6 +166,7 @@ export const PatientProgramRegistrationConditionsField = ({
 }: PatientProgramRegistrationConditionsFieldProps): ReactElement => {
   const [conditions, setConditions] = useState(values);
   const { models } = useBackend();
+  const { getTranslation } = useTranslation();
 
   const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
     where: {
@@ -222,7 +223,7 @@ export const PatientProgramRegistrationConditionsField = ({
         <Button
           backgroundColor="transparent"
           textColor={theme.colors.BRIGHT_BLUE}
-          buttonText={'+ Add additional'}
+          buttonText={`+ ${getTranslation('general.action.addAdditional', 'Add additional')}`}
           height={'auto'}
           justifyContent="flex-start"
           borderStyle="solid"

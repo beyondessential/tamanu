@@ -16,15 +16,18 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -40,11 +43,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       visibilityStatus: VisibilityStatus.Current,
     },
   });
-  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
-    where: {
-      programRegistry: programRegistry.id,
-    },
-  });
 
   const [clinicalStatusOptions] = useBackendEffect(
     async ({ models }) => {
@@ -55,13 +53,13 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         },
       });
 
-      return statuses.map(status => {
+      return statuses.map((status) => {
         const translatedName = getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
         );
         return {
-            ...status,
+          ...status,
           translatedName,
         };
       });
@@ -97,6 +95,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     });
   };
   const { user } = useAuth();
+
   return (
     <FullView>
       <StyledScrollView>
@@ -192,34 +191,26 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({
+                        label: x.translatedName,
+                        value: x.id,
+                      })) || []
                     }
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
+                  <PatientProgramRegistrationConditionsField
                     label={
                       <TranslatedText
                         stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
-                    labelFontSize={14}
-                    component={MultiSelectModalField}
-                    modalTitle={
-                      getTranslation('programRegistry.conditions.label', 'Conditions')
-                    }
-                    suggester={conditionSuggester}
-                    placeholder={getTranslation('general.placeholder.search', 'Search')}
-                    navigation={navigation}
-                    name="conditions"
-                    value={values.conditions}
-                    searchPlaceholder={
-                      getTranslation(
-                        'programRegistry.search.conditions',
-                        'Search conditions...',
-                      )
-                    }
+                    programRegistryId={programRegistry.id}
+                    values={values.conditions}
+                    onChange={(newValue) => {
+                      values.conditions = newValue;
+                    }}
                   />
                 </StyledView>
                 <Button
