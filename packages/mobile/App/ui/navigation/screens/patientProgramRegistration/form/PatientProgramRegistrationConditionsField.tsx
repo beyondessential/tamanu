@@ -30,6 +30,7 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   marginTop?: number;
   error?: string;
   disabled?: boolean;
+  openConditionScreenImmediately?: boolean;
 }
 
 const PatientProgramRegistrationConditionsFieldItem = ({
@@ -41,11 +42,14 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   error,
   disabled,
   placeholder,
+  openConditionScreenImmediately,
 }: PatientProgramRegistrationConditionsFieldItemProps): ReactElement => {
   const navigation = useNavigation();
 
   const [condition, setCondition] = useState(value?.condition);
   const [category, setCategory] = useState(value?.category);
+  const [hasOpenedConditionScreenImmediately, setHasOpenedConditionScreenImmediately] =
+    useState(false);
 
   const buildLabel = useCallback(() => {
     if (!condition || !category) return '';
@@ -59,25 +63,28 @@ const PatientProgramRegistrationConditionsFieldItem = ({
     setLabel(buildLabel());
   }, [setLabel, buildLabel]);
 
-  const openCategoryScreen = (newCondition) => {
-    navigation.navigate(Routes.Autocomplete.SelectModal, {
-      callback: (newValue: FieldValue) => {
-        // Submit values
-        setCategory(newValue);
-        onChange({ condition: newCondition, category: newValue });
-      },
-      options: [
-        { value: 'confirmed', label: 'Confirmed' },
-        { value: 'suspected', label: 'Suspected' },
-        { value: 'under_investigation', label: 'Under investigation' },
-        { value: 'disproved', label: 'Disproved' },
-        { value: 'resolved', label: 'Resolved' },
-      ],
-      modalTitle: 'Category',
-    });
-  };
+  const openCategoryScreen = useCallback(
+    (newCondition) => {
+      navigation.navigate(Routes.Autocomplete.SelectModal, {
+        callback: (newValue: FieldValue) => {
+          // Submit values
+          setCategory(newValue);
+          onChange({ condition: newCondition, category: newValue });
+        },
+        options: [
+          { value: 'confirmed', label: 'Confirmed' },
+          { value: 'suspected', label: 'Suspected' },
+          { value: 'under_investigation', label: 'Under investigation' },
+          { value: 'disproved', label: 'Disproved' },
+          { value: 'resolved', label: 'Resolved' },
+        ],
+        modalTitle: 'Category',
+      });
+    },
+    [setCategory, onChange, navigation],
+  );
 
-  const openConditionScreen = () => {
+  const openConditionScreen = useCallback(() => {
     navigation.navigate(Routes.Autocomplete.Modal, {
       callback: (newValue: FieldValue) => {
         setCondition(newValue);
@@ -86,7 +93,19 @@ const PatientProgramRegistrationConditionsFieldItem = ({
       suggester: conditionSuggester,
       modalTitle: 'Condition',
     });
-  };
+  }, [setCondition, openCategoryScreen, conditionSuggester, navigation]);
+
+  useEffect(() => {
+    if (openConditionScreenImmediately && !hasOpenedConditionScreenImmediately) {
+      openConditionScreen();
+      setHasOpenedConditionScreenImmediately(true);
+    }
+  }, [
+    openConditionScreen,
+    openConditionScreenImmediately,
+    hasOpenedConditionScreenImmediately,
+    setHasOpenedConditionScreenImmediately,
+  ]);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -195,6 +214,7 @@ export const PatientProgramRegistrationConditionsField = ({
             conditionSuggester={conditionSuggester}
             onChange={editItem(index)}
             onDelete={deleteItem(index)}
+            openConditionScreenImmediately={value === undefined} // Newly created item
           />
         ))
       )}
