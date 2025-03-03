@@ -152,7 +152,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
-                  suggester={programRegistryStatusSuggester} // TODO: the broken suggester
+                  suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
                 <FieldWithTooltip
