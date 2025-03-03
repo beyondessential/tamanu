@@ -31,7 +31,6 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
   }
 
   const isMarkedForSync = Boolean(patientFacility);
-
   return (
     <>
       <SyncStatusModal
