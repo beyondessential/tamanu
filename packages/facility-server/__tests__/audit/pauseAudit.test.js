@@ -2,16 +2,16 @@ import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('pauseAudit', () => {
-   let ctx;
-   let sequelize;
-   let models;
-   beforeAll(async () => {
-     ctx = await createTestContext();
-     models = ctx.models;
-      sequelize = ctx.sequelize;
-   });
+  let ctx;
+  let sequelize;
+  let models;
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.models;
+    sequelize = ctx.sequelize;
+  });
 
-   afterAll(() => ctx.close());
+  afterAll(() => ctx.close());
 
   it('should pause audit for a transaction when pause key is true', async () => {
     const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
@@ -20,7 +20,7 @@ describe('pauseAudit', () => {
       return models.Program.create({ code: 'test-2', name: 'Test Program 2' });
     });
     const changes = await sequelize.query(
-      `SELECT * FROM logs.changes WHERE record_id in (:programIds);`,
+      `SELECT * FROM logs.changes WHERE record_id IN (:programIds);`,
       {
         type: sequelize.QueryTypes.SELECT,
         replacements: {
