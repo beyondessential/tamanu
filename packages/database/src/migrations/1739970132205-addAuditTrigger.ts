@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize';
-import { AUDIT_USERID_KEY, AUDIT_PAUSE_KEY } from '@tamanu/constants/audit';
+import { AUDIT_USERID_KEY, AUDIT_PAUSE_KEY } from '@tamanu/constants/database';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createFunction(
@@ -9,7 +9,7 @@ export async function up(query: QueryInterface): Promise<void> {
     'plpgsql',
     `
       BEGIN
-        IF (SELECT coalesce(nullif(current_setting('${AUDIT_PAUSE_KEY}', true), ''), 'false')::boolean) THEN 
+        IF (SELECT get_session_config('${AUDIT_PAUSE_KEY}', 'false')::boolean) THEN
           RETURN NEW;
         END IF;
 
@@ -35,7 +35,7 @@ export async function up(query: QueryInterface): Promise<void> {
           NEW.updated_at,           -- updated_at
           NEW.deleted_at,           -- deleted_at
           NEW.updated_at_sync_tick, -- updated_at_sync_tick
-          coalesce(nullif(current_setting('${AUDIT_USERID_KEY}', true), ''), uuid_nil()::text), -- updated_by_user_id
+          get_session_config('${AUDIT_USERID_KEY}', uuid_nil()::text), -- updated_by_user_id
           NEW.id,                   -- record_id
           TG_OP = 'UPDATE',         -- record_update
           to_jsonb(NEW.*)           -- record_data
