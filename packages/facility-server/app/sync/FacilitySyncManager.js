@@ -17,6 +17,7 @@ import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { pauseAuditForTransaction } from '@tamanu/database';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -229,6 +230,7 @@ export class FacilitySyncManager {
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
+        await pauseAuditForTransaction(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await saveIncomingChanges(
           this.sequelize,

@@ -1,2 +1,2 @@
 export * from './attachAuditUserToDbSession';
-export * from './pauseAudit';
+export * from './pauseAuditForTransaction';
