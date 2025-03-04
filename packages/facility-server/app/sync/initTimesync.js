@@ -13,7 +13,7 @@ export const initTimesync = ({ models, centralServer }) => {
   const timesync = createTimesync({ server, interval });
 
   timesync.on('change', (offset) => {
-    log.debug('Timesync offset changed', { offset });
+    log.debug('Timesync offset changed (ms)', { offset });
     models.LocalSystemFact.set('timesyncOffset', offset);
   });
 
