@@ -44,10 +44,5 @@ export class UserPatientIntentionalView extends Model {
       foreignKey: 'facilityId',
       as: 'facility',
     });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'viewedById',
-      as: 'viewedBy',
-    });
   }
 }
