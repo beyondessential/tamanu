@@ -111,10 +111,19 @@ async function connectToDatabase(dbOptions) {
     pool,
   });
 
+  sequelize.setSessionVar = (key, value) => sequelize.query(
+    `SELECT set_config($key, $value, false)`,
+    { bind: { key, value } },
+  );
+
+  sequelize.setTransactionVar = (key, value) => sequelize.query(
+    `SELECT set_config($key, $value, true)`,
+    { bind: { key, value } },
+  );
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = namespace.get(AUDIT_USERID_KEY);
-      if (userid) await super.run(`SELECT set_config('${AUDIT_USERID_KEY}', $1, false)`, [userid]);
+      if (userid) await sequelize.setSessionVar(AUDIT_USERID_KEY, userid);
       return super.run(sql, options);
     }
   }
@@ -154,16 +163,6 @@ export async function initDatabase(dbOptions) {
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
-
-  sequelize.setSessionVar = (key, value) => sequelize.query(
-    `SELECT set_config($key, $value)`,
-    { bind: { key, value } },
-  );
-
-  sequelize.setTransactionVar = (key, value) => sequelize.query(
-    `SELECT set_config($key, $value, true)`,
-    { bind: { key, value } },
-  );
 
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
