@@ -31,9 +31,7 @@ export const setSessionConfigInNamespace = (key, value) => {
   });
 };
 
-export const getSessionConfigInNamespace = (key) => {
-  return namespace.get(`${SESSION_CONFIG_PREFIX}${key}`);
-};
+export const getSessionConfigInNamespace = (key) => namespace.get(`${SESSION_CONFIG_PREFIX}${key}`);
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS(namespace);
