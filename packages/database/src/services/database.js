@@ -111,19 +111,15 @@ async function connectToDatabase(dbOptions) {
     pool,
   });
 
-  sequelize.setSessionVar = (key, value) => sequelize.query(
-    `SELECT set_config($key, $value, false)`,
-    { bind: { key, value } },
-  );
+  sequelize.setSessionVar = (key, value) =>
+    sequelize.query(`SELECT set_config($key, $value, false)`, { bind: { key, value } });
 
-  sequelize.setTransactionVar = (key, value) => sequelize.query(
-    `SELECT set_config($key, $value, true)`,
-    { bind: { key, value } },
-  );
+  sequelize.setTransactionVar = (key, value) =>
+    sequelize.query(`SELECT set_config($key, $value, true)`, { bind: { key, value } });
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
       const userid = namespace.get(AUDIT_USERID_KEY);
-      if (userid) await sequelize.setSessionVar(AUDIT_USERID_KEY, userid);
+      if (userid) await super.run('SELECT set_config($1, $2, false)', [AUDIT_USERID_KEY, userid]);
       return super.run(sql, options);
     }
   }
