@@ -9,7 +9,7 @@ export class UserPatientIntentionalView extends Model {
   declare id: string;
   declare viewedById: string;
   declare patientId: string;
-  declare facilityId: string;
+  declare facilityId?: string;
   declare loggedAt: string;
   declare context: string;
 

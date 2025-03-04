@@ -14,10 +14,7 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: {
-          tableName: 'users',
-          schema: 'public',
-        },
+        model: { tableName: 'users', schema: 'public' },
         key: 'id',
       },
     },
@@ -25,21 +22,15 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: {
-          tableName: 'patients',
-          schema: 'public',
-        },
+        model: { tableName: 'patients', schema: 'public' },
         key: 'id',
       },
     },
     facility_id: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       references: {
-        model: {
-          tableName: 'facilities',
-          schema: 'public',
-        },
+        model: { tableName: 'facilities', schema: 'public' },
         key: 'id',
       },
     },
