@@ -186,6 +186,7 @@ programRegistry.get(
             WHERE program_registry_id = :programRegistryId
           ) n
           WHERE n.row_num = 1
+          AND is_most_recent IS TRUE
         ),
         conditions as (
           SELECT patient_id, array_agg(prc."name") condition_list

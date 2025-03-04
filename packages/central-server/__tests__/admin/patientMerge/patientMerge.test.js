@@ -2,33 +2,21 @@ import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import {
   getTablesWithNoMergeCoverage,
   mergePatient,
-} from '../../dist/admin/patientMerge/mergePatient';
-import { createTestContext } from '../utilities';
+} from '../../../dist/admin/patientMerge/mergePatient';
+import { createTestContext } from '../../utilities';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
+import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { makeTwoPatients } from './makeTwoPatients';
 
 describe('Patient merge', () => {
   let ctx;
   let models;
   let baseApp;
   let adminApp;
-
-  const makeTwoPatients = async (overridesKeep = {}, overridesMerge = {}) => {
-    const { Patient } = models;
-    const keep = await models.Patient.create({
-      ...fake(Patient),
-      ...overridesKeep,
-    });
-    const merge = await models.Patient.create({
-      ...fake(Patient),
-      ...overridesMerge,
-    });
-    return [keep, merge];
-  };
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -54,7 +42,7 @@ describe('Patient merge', () => {
   });
 
   it('Should merge a patient with no additional records', async () => {
-    const [keep, merge] = await makeTwoPatients();
+    const [keep, merge] = await makeTwoPatients(models);
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
@@ -73,7 +61,7 @@ describe('Patient merge', () => {
   it('Should merge encounters across', async () => {
     const { Encounter, Facility, Department, Location, User } = models;
 
-    const [keep, merge] = await makeTwoPatients();
+    const [keep, merge] = await makeTwoPatients(models);
 
     const facility = await Facility.create({
       ...fake(Facility),
@@ -132,7 +120,7 @@ describe('Patient merge', () => {
   });
 
   it('Should merge a patient with some extra records', async () => {
-    const [keep, merge] = await makeTwoPatients();
+    const [keep, merge] = await makeTwoPatients(models);
     const allergy = await models.PatientAllergy.create({
       ...fake(models.PatientAllergy),
       patientId: merge.id,
@@ -182,7 +170,7 @@ describe('Patient merge', () => {
   });
 
   it('Should merge a page of notes across', async () => {
-    const [keep, merge] = await makeTwoPatients();
+    const [keep, merge] = await makeTwoPatients(models);
 
     const note = await merge.createNote({
       noteType: NOTE_TYPES.OTHER,
@@ -199,7 +187,7 @@ describe('Patient merge', () => {
 
   describe('Patient', () => {
     it('Should preserve fields and grab missing fields', async () => {
-      const [keep, merge] = await makeTwoPatients({ middleName: '', culturalName: null });
+      const [keep, merge] = await makeTwoPatients(models, { middleName: '', culturalName: null });
       const mergedFirstName = merge.firstName;
       const mergeMiddleName = merge.middleName;
       const mergeCulturalName = merge.culturalName;
@@ -216,7 +204,7 @@ describe('Patient merge', () => {
   describe('PatientAdditionalData', () => {
     it('Should delete both PADs and generate a new one', async () => {
       const { PatientAdditionalData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientPad = await PatientAdditionalData.create({
         patientId: keep.id,
         passport: 'keep-passport',
@@ -249,7 +237,7 @@ describe('Patient merge', () => {
 
     it('Should merge patient additional data cleanly', async () => {
       const { PatientAdditionalData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       await PatientAdditionalData.create({
         patientId: keep.id,
@@ -274,7 +262,7 @@ describe('Patient merge', () => {
 
     it('Should merge patient additional data even if the keep patient PAD is null', async () => {
       const { PatientAdditionalData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       await PatientAdditionalData.create({
         patientId: keep.id,
@@ -298,7 +286,7 @@ describe('Patient merge', () => {
 
     it('Should keep data from the keep patient and fill unknown values from merge patient', async () => {
       const { PatientAdditionalData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       await PatientAdditionalData.create({
         patientId: keep.id,
@@ -329,7 +317,7 @@ describe('Patient merge', () => {
 
     it('Should NOT use sync merge logic', async () => {
       const { PatientAdditionalData, LocalSystemFact } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       await PatientAdditionalData.create({
         patientId: keep.id,
         passport: 'keep-passport',
@@ -357,7 +345,7 @@ describe('Patient merge', () => {
   describe('PatientBirthData', () => {
     it('deletes both PatientBirthData records and generate a new one', async () => {
       const { PatientBirthData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientBirthData = await PatientBirthData.create({
         patientId: keep.id,
         birthWeight: 5,
@@ -390,7 +378,7 @@ describe('Patient merge', () => {
 
     it('merges Patient Birth Data cleanly', async () => {
       const { PatientBirthData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       const keepPatientBirthData = await PatientBirthData.create({
         patientId: keep.id,
@@ -421,7 +409,7 @@ describe('Patient merge', () => {
 
     it('merges Patient Birth Data even if the keep Patient Birth Data is null', async () => {
       const { PatientBirthData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       await PatientBirthData.create({
         patientId: keep.id,
@@ -448,7 +436,7 @@ describe('Patient merge', () => {
 
     it('keeps Patient Birth Data from the keep patient and fill unknown values from merge patient', async () => {
       const { PatientBirthData } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       const keepPatientBirthData = await PatientBirthData.create({
         patientId: keep.id,
@@ -494,7 +482,7 @@ describe('Patient merge', () => {
   describe('PatientDeathData', () => {
     it('appends PatientDeathData of merged patient into keep patient WITHOUT death record, and switch the status to MERGED', async () => {
       const { PatientDeathData, User } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const clinician = await User.create(fakeUser());
 
       const oldMergePatientDeathData = await PatientDeathData.create({
@@ -528,7 +516,7 @@ describe('Patient merge', () => {
 
     it('appends PatientDeathData of merged patient into keep patient WITH death record, and switch the status to MERGED', async () => {
       const { PatientDeathData, User } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const clinician = await User.create(fakeUser());
 
       await PatientDeathData.create({
@@ -568,7 +556,7 @@ describe('Patient merge', () => {
 
     it('append HISTORICAL and MERGED PatientDeathData into keep patient', async () => {
       const { PatientDeathData, User } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       const clinician = await User.create(fakeUser());
 
@@ -637,7 +625,7 @@ describe('Patient merge', () => {
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
       });
 
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const testValuesObject = {
         [definitionA.id]: {
           merge: 'Dick Grayson',
@@ -700,7 +688,7 @@ describe('Patient merge', () => {
   describe('PatientFacility', () => {
     it('Should replace patient facility records with a new one per facility', async () => {
       const { Facility, PatientFacility } = models;
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       const facilityWithNone = await Facility.create(fake(Facility)); // eslint-disable-line no-unused-vars
 
@@ -750,7 +738,7 @@ describe('Patient merge', () => {
 
   describe('Endpoint', () => {
     it('Should call the function from the endpoint', async () => {
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
 
       const response = await adminApp.post('/api/admin/mergePatient').send({
         keepPatientId: keep.id,
@@ -771,7 +759,7 @@ describe('Patient merge', () => {
     });
 
     it('Should only allow admins to merge patients', async () => {
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       const app = await baseApp.asRole('reception');
 
       const response = await app.post('/api/admin/mergePatient').send({
@@ -813,7 +801,7 @@ describe('Patient merge', () => {
       // This is a stand-in for all the simple merge models
       const { PatientIssue } = models;
 
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       await mergePatient(models, keep.id, merge.id);
 
       const enc = await PatientIssue.create({
@@ -833,7 +821,7 @@ describe('Patient merge', () => {
     it('Should remerge some patient additional data', async () => {
       const { PatientAdditionalData, LocalSystemFact } = models;
 
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       await mergePatient(models, keep.id, merge.id);
 
       // give the Keep patient some PAD to reconcile into
@@ -870,7 +858,7 @@ describe('Patient merge', () => {
     it('Should remerge a patient note', async () => {
       const { Note } = models;
 
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       await mergePatient(models, keep.id, merge.id);
 
       const note = await merge.createNote({
@@ -891,7 +879,7 @@ describe('Patient merge', () => {
 
       const facility = await Facility.create(fake(Facility));
 
-      const [keep, merge] = await makeTwoPatients();
+      const [keep, merge] = await makeTwoPatients(models);
       await mergePatient(models, keep.id, merge.id);
 
       // create the facility association after the merge
