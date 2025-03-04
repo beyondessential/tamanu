@@ -23,7 +23,7 @@ const InfoDiv = styled.div`
   background-color: ${Colors.white};
   display: flex;
   flex-direction: row;
-  justify-content: center-between;
+  justify-content: space-between;
   width: 100%;
   border: 1px solid ${Colors.softOutline};
   border-radius: 5px;
@@ -97,15 +97,12 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           <Info>
             <Label>Program registry</Label>
             <Value>
-              {patientProgramRegistration.programRegistry.id ? (
-                <TranslatedReferenceData
-                  fallback={patientProgramRegistration.programRegistry.name}
-                  value={patientProgramRegistration.programRegistry.id}
-                  category="programRegistry"
-                />
-              ) : (
-                '-'
-              )}
+              <TranslatedReferenceData
+                fallback={patientProgramRegistration.programRegistry?.name}
+                value={patientProgramRegistration.programRegistry?.id}
+                category="programRegistry"
+                placeholder="-"
+              />
             </Value>
           </Info>
           <Info>
@@ -114,7 +111,14 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           </Info>
           <Info>
             <Label>Status</Label>
-            <Value>{patientProgramRegistration.clinicalStatus?.name || '-'}</Value>
+            <Value>
+              <TranslatedReferenceData
+                fallback={patientProgramRegistration.clinicalStatus?.name}
+                value={patientProgramRegistration.clinicalStatus?.id}
+                category="programRegistryClinicalStatus"
+                placeholder="-"
+              />
+            </Value>
           </Info>
         </InfoColumn>
         <FormSeparatorVerticalLine />
