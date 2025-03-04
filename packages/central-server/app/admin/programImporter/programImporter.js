@@ -21,8 +21,6 @@ export async function programImporter({
   checkPermission('create', 'Program');
   checkPermission('write', 'Program');
 
-  console.log('programImporter');
-
   const createContext = (sheetName) => ({
     errors,
     log: log.child({

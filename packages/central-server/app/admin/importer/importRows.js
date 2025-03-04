@@ -66,15 +66,14 @@ export async function importRows(
   validationContext = {},
 ) {
   const stats = { ...previousStats };
-  console.log('sheetName', sheetName);
 
-  console.log('Importing rows to database', { count: rows.length });
+  log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
-    console.log('Nothing to do, skipping');
+    log.debug('Nothing to do, skipping');
     return stats;
   }
 
-  console.log('Building reverse lookup table');
+  log.debug('Building reverse lookup table');
   const lookup = new Map();
   for (const {
     model,
@@ -86,7 +85,7 @@ export async function importRows(
     if (name) lookup.set(`kind.${kind}-name.${name.toLowerCase()}`, id);
   }
 
-  console.log('Resolving foreign keys', { rows: rows.length });
+  log.debug('Resolving foreign keys', { rows: rows.length });
   const resolvedRows = [];
   for (const { model, sheetRow, values } of rows) {
     try {
@@ -151,11 +150,11 @@ export async function importRows(
   }
 
   if (resolvedRows.length === 0) {
-    console.log('Nothing left, skipping');
+    log.debug('Nothing left, skipping');
     return stats;
   }
 
-  console.log('Validating data', { rows: resolvedRows.length });
+  log.debug('Validating data', { rows: resolvedRows.length });
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
@@ -204,7 +203,7 @@ export async function importRows(
   }
 
   if (validRows.length === 0) {
-    console.log('Nothing left, skipping');
+    log.debug('Nothing left, skipping');
     return stats;
   }
 
@@ -215,8 +214,7 @@ export async function importRows(
   };
   await validateTableRows(models, validRows, pushErrorFn);
 
-  console.log('Upserting database rows', { rows: validRows.length });
-  console.log('SKIP EXISTING: ', skipExisting);
+  log.debug('Upserting database rows', { rows: validRows.length });
   const translationRecordsForSheet = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
@@ -248,27 +246,12 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType = normaliseSheetName(sheetName);
-      const isValidTable =
-        model === 'ReferenceData' ||
-        camelCase(model) === dataType ||
-        dataType === 'registry' ||
-        dataType === 'registryCondition'; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
+      const dataType = normaliseSheetName(sheetName, model);
+
+      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      if (
-        dataType === 'registry' ||
-        dataType === 'registryConditions' ||
-        sheetName === 'Registry Conditions'
-      ) {
-        console.log('DATA TYPE: ', dataType);
-        console.log('model: ', model);
-        console.log('VALUES: ', values);
-        console.log('Is translatable', isTranslatable);
-        console.log('Is valid table', isValidTable);
-      }
       if (isTranslatable && isValidTable) {
-        console.log('PUSHING TRANSLATION RECORD');
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           text: extractRecordName(values, dataType) ?? '',
@@ -281,14 +264,12 @@ export async function importRows(
     }
   }
 
-  console.log('translationRecordsForSheet', translationRecordsForSheet);
-
   // Ensure we have a translation record for each row of translatable reference data
   await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
     fields: ['stringId', 'text', 'language'],
     ignoreDuplicates: true,
   });
 
-  console.log('Done with these rows');
+  log.debug('Done with these rows');
   return stats;
 }

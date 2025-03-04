@@ -71,9 +71,9 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
-  PROGRAM_REGISTRY: 'registry',
-  PROGRAM_REGISTRY_CLINICAL_STATUS: 'registryClinicalStatus',
-  PROGRAM_REGISTRY_CONDITION: 'registryCondition',
+  PROGRAM_REGISTRY: 'programRegistry',
+  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
