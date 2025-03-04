@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -25,6 +25,7 @@ import {
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
 } from '@tamanu/database/sync';
+import { pauseAudit } from '@tamanu/database';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -581,6 +582,8 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
+        // Pause audit logging for the duration of the incoming sync
+        await pauseAudit(sequelize);
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
