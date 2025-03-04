@@ -38,7 +38,7 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    endpoint: {
+    context: {
       type: DataTypes.STRING,
       allowNull: false,
     },

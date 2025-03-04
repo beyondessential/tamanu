@@ -11,7 +11,7 @@ export class UserPatientIntentionalView extends Model {
   declare patientId: string;
   declare facilityId: string;
   declare loggedAt: string;
-  declare endpoint: string;
+  declare context: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
