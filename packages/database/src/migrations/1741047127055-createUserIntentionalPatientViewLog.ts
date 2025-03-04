@@ -15,7 +15,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
       references: {
         model: {
-          tableName: 'users',
+          tableName: 'public.users',
           schema: 'public',
         },
         key: 'id',
@@ -26,7 +26,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
       references: {
         model: {
-          tableName: 'patients',
+          tableName: 'public.patients',
           schema: 'public',
         },
         key: 'id',
@@ -37,7 +37,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
       references: {
         model: {
-          tableName: 'facilities',
+          tableName: 'public.facilities',
           schema: 'public',
         },
         key: 'id',
