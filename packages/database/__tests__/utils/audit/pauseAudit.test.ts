@@ -1,8 +1,8 @@
-import { closeDatabase, createTestDatabase } from '../sync/utilities';
+import { closeDatabase, createTestDatabase } from '../../sync/utilities';
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 
-describe('pauseAuditForTransaction', () => {
+describe('pauseAudit', () => {
   let sequelize;
   let models;
 
