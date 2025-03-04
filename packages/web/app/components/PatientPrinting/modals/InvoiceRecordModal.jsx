@@ -23,11 +23,12 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',
     'Clinician',
-  ).toLowerCase();
+    { casing: 'lower' },
+  );
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 

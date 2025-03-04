@@ -9,8 +9,11 @@ import {
   createDummyPatient,
   randomLabRequest,
 } from '@tamanu/database/demoData';
-import { chance, fake } from '@tamanu/shared/test-helpers';
-import { createLabTestTypes, randomSensitiveLabRequest } from '@tamanu/database/demoData/labRequests';
+import { chance, fake } from '@tamanu/fake-data/fake';
+import {
+  createLabTestTypes,
+  randomSensitiveLabRequest,
+} from '@tamanu/database/demoData/labRequests';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
@@ -324,7 +327,11 @@ describe('Labs', () => {
       patientId,
     });
     const { id: requestId } = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId, requestedById: user.body.id, encounterId: encounter.id }),
+      await randomLabRequest(models, {
+        patientId,
+        requestedById: user.body.id,
+        encounterId: encounter.id,
+      }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
     const response = await app
@@ -590,12 +597,12 @@ describe('Labs', () => {
           status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
         });
       };
-  
+
       beforeAll(async () => {
         // Because of the high number of lab requests
         // the endpoint pagination doesn't return the expected results.
         await models.LabRequest.truncate({ cascade: true, force: true });
-  
+
         await makeRequestAtFacility(facilityId);
         await makeRequestAtFacility(facilityId);
         await makeRequestAtFacility(facilityId);
@@ -603,23 +610,25 @@ describe('Labs', () => {
         await makeRequestAtFacility(otherFacilityId);
         await makeRequestAtFacility(otherFacilityId);
       });
-  
+
       it('should omit external requests when allFacilities is false', async () => {
-        const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
+        const result = await app.get(
+          `/api/labRequest?allFacilities=false&facilityId=${facilityId}`,
+        );
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(3);
         result.body.data.forEach((lr) => {
           expect(lr.facilityId).toBe(facilityId);
         });
       });
-  
+
       it('should include all requests when allFacilities is true', async () => {
         const result = await app.get(`/api/labRequest?allFacilities=true`);
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(6);
         const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
         expect(hasConfigFacility).toBe(true);
-  
+
         const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
         expect(hasOtherFacility).toBe(true);
       });
@@ -632,9 +641,7 @@ describe('Labs', () => {
         await models.LabRequest.truncate({ cascade: true, force: true });
 
         for (let i = 0; i < 3; i++) {
-          await models.LabRequest.createWithTests(
-            await randomLabRequest(models, { patientId }),
-          );
+          await models.LabRequest.createWithTests(await randomLabRequest(models, { patientId }));
         }
 
         const labRequestData = await randomSensitiveLabRequest(models, {
@@ -650,7 +657,7 @@ describe('Labs', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(3);
         expect(result.body.data.length).toBe(3);
-        const labIds = result.body.data.map(lab => lab.id);
+        const labIds = result.body.data.map((lab) => lab.id);
         const hasSensitiveRequest = labIds.includes(sensitiveLabRequestId);
         expect(hasSensitiveRequest).toBe(false);
       });
