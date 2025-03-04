@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 export const makeTwoPatients = async (models, overridesKeep = {}, overridesMerge = {}) => {
   const { Patient } = models;

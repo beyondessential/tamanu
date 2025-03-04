@@ -1,5 +1,5 @@
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
