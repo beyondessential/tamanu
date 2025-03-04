@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize';
-import { AUDIT_USERID_KEY } from '@tamanu/constants/auth';
+import { AUDIT_USERID_KEY, AUDIT_PAUSE_KEY } from '@tamanu/constants/audit';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createFunction(
@@ -8,35 +8,41 @@ export async function up(query: QueryInterface): Promise<void> {
     'trigger',
     'plpgsql',
     `
-      INSERT INTO logs.changes (
-        table_oid,
-        table_schema,
-        table_name,
-        logged_at,
-        created_at,
-        updated_at,
-        deleted_at,
-        updated_at_sync_tick,
-        updated_by_user_id,
-        record_id,
-        record_update,
-        record_data
-      ) VALUES (
-        TG_RELID,                 -- table_oid
-        TG_TABLE_SCHEMA,          -- table_schema
-        TG_TABLE_NAME,            -- table_name
-        CURRENT_TIMESTAMP,        -- logged_at
-        NEW.created_at,           -- created_at
-        NEW.updated_at,           -- updated_at
-        NEW.deleted_at,           -- deleted_at
-        NEW.updated_at_sync_tick, -- updated_at_sync_tick
-        coalesce(nullif(current_setting('${AUDIT_USERID_KEY}', true), ''), uuid_nil()::text), -- updated_by_user_id
-        NEW.id,                   -- record_id
-        TG_OP = 'UPDATE',         -- record_update
-        to_jsonb(NEW.*)           -- record_data
-      );
-      RETURN NEW;
-    `,
+      BEGIN
+        IF (SELECT coalesce(current_setting('${AUDIT_PAUSE_KEY}', true), 'false')::boolean) THEN
+          RETURN NEW;
+        END IF;
+
+        INSERT INTO logs.changes (
+          table_oid,
+          table_schema,
+          table_name,
+          logged_at,
+          created_at,
+          updated_at,
+          deleted_at,
+          updated_at_sync_tick,
+          updated_by_user_id,
+          record_id,
+          record_update,
+          record_data
+        ) VALUES (
+          TG_RELID,                 -- table_oid
+          TG_TABLE_SCHEMA,          -- table_schema
+          TG_TABLE_NAME,            -- table_name
+          CURRENT_TIMESTAMP,        -- logged_at
+          NEW.created_at,           -- created_at
+          NEW.updated_at,           -- updated_at
+          NEW.deleted_at,           -- deleted_at
+          NEW.updated_at_sync_tick, -- updated_at_sync_tick
+          coalesce(nullif(current_setting('${AUDIT_USERID_KEY}', true), ''), uuid_nil()::text), -- updated_by_user_id
+          NEW.id,                   -- record_id
+          TG_OP = 'UPDATE',         -- record_update
+          to_jsonb(NEW.*)           -- record_data
+        );
+        RETURN NEW;
+      END;
+    `
   );
 }
 
