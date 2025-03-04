@@ -14,7 +14,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'user',
+        model: {
+          tableName: 'users',
+          schema: 'public',
+        },
         key: 'id',
       },
     },
@@ -22,7 +25,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'patient',
+        model: {
+          tableName: 'patients',
+          schema: 'public',
+        },
         key: 'id',
       },
     },
@@ -30,7 +36,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'user',
+        model: {
+          tableName: 'facilities',
+          schema: 'public',
+        },
         key: 'id',
       },
     },
