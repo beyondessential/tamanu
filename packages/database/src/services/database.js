@@ -155,6 +155,16 @@ export async function initDatabase(dbOptions) {
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
+  sequelize.setSessionVar = (key, value) => sequelize.query(
+    `SELECT set_config($key, $value)`,
+    { bind: { key, value } },
+  );
+
+  sequelize.setTransactionVar = (key, value) => sequelize.query(
+    `SELECT set_config($key, $value, true)`,
+    { bind: { key, value } },
+  );
+
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)

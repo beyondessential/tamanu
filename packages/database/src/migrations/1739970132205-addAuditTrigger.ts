@@ -9,7 +9,7 @@ export async function up(query: QueryInterface): Promise<void> {
     'plpgsql',
     `
       BEGIN
-        IF (SELECT coalesce(current_setting('${AUDIT_PAUSE_KEY}', true), 'false')::boolean) THEN
+        IF (SELECT coalesce(nullif(current_setting('${AUDIT_PAUSE_KEY}', true), ''), 'false')::boolean) THEN 
           RETURN NEW;
         END IF;
 
