@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createTestContext } from '../../utilities';
 
@@ -92,7 +92,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
         );
 
         expect(response.body.total).toBe(6);
-        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+        expect(response.body.entry.map((entry) => entry.resource.id)).toEqual(
           practitioners.map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
@@ -104,7 +104,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
         );
 
         expect(response.body.total).toBe(6);
-        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+        expect(response.body.entry.map((entry) => entry.resource.id)).toEqual(
           practitioners.map(([, mat]) => mat.id).reverse(),
         );
         expect(response).toHaveSucceeded();
@@ -118,7 +118,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
         );
 
         expect(response.body.total).toBe(1);
-        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
+        expect(response.body.entry.map((ent) => ent.resource.id)).toStrictEqual(
           [practitioners[0]].map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
@@ -130,7 +130,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
         );
 
         expect(response.body.total).toBe(1);
-        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
+        expect(response.body.entry.map((ent) => ent.resource.id)).toStrictEqual(
           [practitioners[0]].map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();

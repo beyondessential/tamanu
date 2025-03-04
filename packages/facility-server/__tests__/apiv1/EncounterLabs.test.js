@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 
 async function createLabRequest(models, overrides) {
@@ -76,13 +76,15 @@ describe('Encounter labs', () => {
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       ];
 
-      await Promise.all(statuses.map(status =>
-        createLabRequest(models, {
-          patientId: patient.id,
-          encounterId: encounter.id,
-          status,
-        }),
-      ));
+      await Promise.all(
+        statuses.map((status) =>
+          createLabRequest(models, {
+            patientId: patient.id,
+            encounterId: encounter.id,
+            status,
+          }),
+        ),
+      );
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();

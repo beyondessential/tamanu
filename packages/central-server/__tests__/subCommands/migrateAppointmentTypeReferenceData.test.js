@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
 import { APPOINTMENT_TYPES } from '@tamanu/database/demoData';
