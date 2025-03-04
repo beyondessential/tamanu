@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
@@ -15,6 +15,7 @@ import {
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { validateDecimalPlaces } from '../../../utils';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -84,13 +85,13 @@ export const InvoiceItemHeader = () => {
       <Box width="10%" paddingLeft="10px">
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
       </Box>
-      <Box width="20%">
+      <Box width="19%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
         />
       </Box>
-      <Box width="10%" flexGrow={1} paddingLeft="10px">
+      <Box width="11%" flexGrow={1} paddingLeft="10px">
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </Box>
     </StyledItemHeader>
@@ -100,6 +101,7 @@ export const InvoiceItemHeader = () => {
 export const InvoiceItemRow = ({
   index,
   item,
+  defaultItem,
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
@@ -115,6 +117,7 @@ export const InvoiceItemRow = ({
       casing: 'lower',
     },
   );
+  const hidePriceInput = item.product?.price || item.product?.price === 0;
 
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({
@@ -127,8 +130,9 @@ export const InvoiceItemRow = ({
   const practitionerSuggester = useSuggester('practitioner');
 
   const price = getInvoiceItemPriceDisplay(item);
-  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
-
+  const discountPrice = isNaN(item.productPrice)
+    ? undefined
+    : getInvoiceItemDiscountPriceDisplay(item);
   const [actionModal, setActionModal] = useState();
 
   const onCloseActionModal = () => {
@@ -212,7 +216,7 @@ export const InvoiceItemRow = ({
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount,
+      hidden: !!item.discount?.amount || !hidePriceInput,
     },
     {
       label: (
@@ -220,7 +224,7 @@ export const InvoiceItemRow = ({
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount,
+      hidden: !!item.discount?.amount || !hidePriceInput,
     },
     {
       label: item.note ? (
@@ -256,8 +260,16 @@ export const InvoiceItemRow = ({
       productCode: value.code,
       productPrice: value.price,
       productDiscountable: value.discountable,
+      product: { ...item.product, price: value.price },
     });
   };
+
+  useEffect(() => {
+    formArrayMethods.replace(index, {
+      ...item,
+      productPrice: defaultItem?.productPrice,
+    });
+  }, []);
 
   return (
     <>
@@ -329,7 +341,7 @@ export const InvoiceItemRow = ({
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="20%">
+        <StyledItemCell width="19%">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderedByUserId`}
@@ -345,17 +357,34 @@ export const InvoiceItemRow = ({
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="10%" sx={{ flexGrow: 1 }} paddingLeft="10px">
+        <StyledItemCell width="11%" sx={{ flexGrow: 1 }} paddingLeft="10px">
           <PriceCell $hasLargeFont={!editable}>
-            <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
-            {!!discountPrice && (
-              <ThemedTooltip
-                key={item.discount?.reason}
-                title={item.discount?.reason}
-                open={item.discount?.reason ? undefined : false}
-              >
-                <span>{discountPrice}</span>
-              </ThemedTooltip>
+            {hidePriceInput ? (
+              <>
+                <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+                {!!discountPrice && (
+                  <ThemedTooltip
+                    key={item.discount?.reason}
+                    title={item.discount?.reason}
+                    open={item.discount?.reason ? undefined : false}
+                  >
+                    <span>{discountPrice}</span>
+                  </ThemedTooltip>
+                )}
+              </>
+            ) : (
+              item.productId && (
+                <Field
+                  name={`invoiceItems.${index}.productPrice`}
+                  component={NumberField}
+                  min={0}
+                  max={999999}
+                  onInput={validateDecimalPlaces}
+                  size="small"
+                  required
+                  style={{ width: '100%' }}
+                />
+              )
             )}
             {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}
           </PriceCell>
