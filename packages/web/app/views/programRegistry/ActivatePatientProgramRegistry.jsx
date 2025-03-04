@@ -106,7 +106,16 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
 
   return (
     <Modal
-      title={`Activate ${patientProgramRegistration.programRegistry.name}`}
+      title={
+        <>
+          Activate{' '}
+          <TranslatedReferenceData
+            fallback={patientProgramRegistration.programRegistry.name}
+            value={patientProgramRegistration.programRegistry.id}
+            category="programRegistry"
+          />
+        </>
+      }
       open={open}
       width="md"
       onClose={onClose}

@@ -96,7 +96,17 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <InfoColumn>
           <Info>
             <Label>Program registry</Label>
-            <Value>{patientProgramRegistration.programRegistry?.name || '-'}</Value>
+            <Value>
+              {patientProgramRegistration.programRegistry.id ? (
+                <TranslatedReferenceData
+                  fallback={patientProgramRegistration.programRegistry.name}
+                  value={patientProgramRegistration.programRegistry.id}
+                  category="programRegistry"
+                />
+              ) : (
+                '-'
+              )}
+            </Value>
           </Info>
           <Info>
             <Label>Registered by</Label>
