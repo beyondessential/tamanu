@@ -135,8 +135,8 @@ export const UnsupportedBrowserStatusPage = () => {
   const brandName = getBrandName();
   return (
     <StatusPageWithHeroImage
-      message={`${brandName} is only available on Chrome`}
-      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
+      message={`${brandName} is not available on your browser`}
+      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome or Edge browser.`}
     />
   );
 };
