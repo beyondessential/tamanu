@@ -5,7 +5,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class UserPatientIntentionalView extends Model {
+export class UserPatientView extends Model {
   declare id: string;
   declare viewedById: string;
   declare patientId: string;

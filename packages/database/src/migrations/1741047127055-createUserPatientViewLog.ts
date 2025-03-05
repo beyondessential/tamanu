@@ -1,6 +1,6 @@
 import { DataTypes, Sequelize, QueryInterface } from 'sequelize';
 
-const TABLE = { tableName: 'user_patient_intentional_views', schema: 'logs' };
+const TABLE = { tableName: 'user_patient_views', schema: 'logs' };
 
 export async function up(query: QueryInterface) {
   await query.createTable(TABLE, {
@@ -33,6 +33,10 @@ export async function up(query: QueryInterface) {
         model: { tableName: 'facilities', schema: 'public' },
         key: 'id',
       },
+    },
+    session_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     logged_at: {
       type: DataTypes.STRING,
