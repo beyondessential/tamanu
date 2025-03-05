@@ -21,6 +21,7 @@ import type { Discharge } from './Discharge';
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
+import type { Department } from './Department';
 
 export class Encounter extends Model {
   declare id: string;
@@ -38,6 +39,7 @@ export class Encounter extends Model {
   declare patientBillingTypeId?: string;
   declare referralSourceId?: string;
 
+  declare department?: Department;
   declare location?: Location;
   declare patient?: Patient;
   declare discharge?: Discharge;
