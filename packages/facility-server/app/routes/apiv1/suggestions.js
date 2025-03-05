@@ -551,13 +551,44 @@ createSuggester(
   (search) => ({
     [Op.or]: [
       Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
+        Sequelize.fn(
+          'concat',
+          Sequelize.fn('trim', Sequelize.col('first_name')),
+          ' ',
+          Sequelize.fn('trim', Sequelize.col('last_name')),
+        ),
+        { [Op.iLike]: search },
+      ),
+      Sequelize.where(
+        Sequelize.fn(
+          'concat',
+          Sequelize.fn('trim', Sequelize.col('last_name')),
+          ' ',
+          Sequelize.fn('trim', Sequelize.col('first_name')),
+        ),
         { [Op.iLike]: search },
       ),
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  { mapper: (patient) => patient, searchColumn: 'first_name' },
+  {
+    mapper: (patient) => patient,
+    searchColumn: 'first_name',
+    orderBuilder: (req) => {
+      const searchQuery = (req.query.q || '').trim().toLowerCase();
+      const escapedQuery = req.db.escape(searchQuery);
+      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+      return Sequelize.literal(`
+          CASE
+            WHEN LOWER(display_id) = ${escapedQuery} THEN 0
+            WHEN LOWER(display_id) LIKE ${escapedPartialMatch} THEN 1
+            WHEN LOWER(TRIM(first_name) || ' ' || TRIM(last_name)) LIKE ${escapedPartialMatch} THEN 2
+            WHEN LOWER(TRIM(last_name) || ' ' || TRIM(first_name)) LIKE ${escapedPartialMatch} THEN 3
+            ELSE 4
+          END
+        `);
+    },
+  },
 );
 
 // Specifically fetches lab test categories that have a lab request against a patient
