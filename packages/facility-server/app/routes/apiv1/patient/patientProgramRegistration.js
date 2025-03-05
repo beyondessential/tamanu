@@ -26,6 +26,25 @@ patientProgramRegistration.get(
   }),
 );
 
+/**
+ * Check if the request is valid for patient program registration
+ * Checks if the patient and program registry exist and if the user has the required permissions
+ */
+const validatePatientProgramRegistrationRequest = async (req, patientId, programRegistryId) => {
+  const { checkPermission, models } = req;
+
+  checkPermission('read', 'Patient');
+  checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+
+  const patient = await models.Patient.findByPk(patientId);
+  if (!patient) throw new NotFoundError();
+
+  const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
+  if (!programRegistry) throw new NotFoundError();
+
+  return true;
+};
+
 patientProgramRegistration.post(
   '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
@@ -33,13 +52,7 @@ patientProgramRegistration.post(
     const { patientId } = params;
     const { programRegistryId, registeringFacilityId } = body;
 
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
+    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       where: {
@@ -189,6 +202,7 @@ patientProgramRegistration.get(
     });
   }),
 );
+
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId/history$',
   asyncHandler(async (req, res) => {
@@ -240,13 +254,7 @@ patientProgramRegistration.post(
     const { models, params, body } = req;
     const { patientId, programRegistryId } = params;
 
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
+    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     const conditionExists = await models.PatientProgramRegistrationCondition.count({
@@ -268,6 +276,28 @@ patientProgramRegistration.post(
     });
 
     res.send(condition);
+  }),
+);
+
+patientProgramRegistration.put(
+  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    const { conditionId } = params;
+
+    req.checkPermission('read', 'PatientProgramRegistrationCondition');
+    req.checkPermission('write', 'PatientProgramRegistrationCondition');
+
+    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
+      where: {
+        id: conditionId,
+      },
+    });
+    if (!existingCondition) {
+      throw new NotFoundError('Patient program registration condition not found');
+    }
+    const updatedCondition = await existingCondition.update(body);
+    res.send(updatedCondition);
   }),
 );
 
@@ -300,14 +330,9 @@ patientProgramRegistration.delete(
   '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { patientId, programRegistryId, conditionId } = params;
+    const { conditionId, patientId, programRegistryId } = params;
 
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
+    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
     req.checkPermission('delete', 'PatientProgramRegistrationCondition');
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
-import { ButtonBase, Divider } from '@material-ui/core';
+import { Divider, ButtonBase } from '@material-ui/core';
+import { useParams } from 'react-router-dom';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
@@ -10,6 +11,7 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { useTranslation } from '../../contexts/Translation';
+import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
 
 const Container = styled.div`
   display: flex;
@@ -74,12 +76,12 @@ const getGroupedConditions = conditions => {
   return { openConditions, closedConditions };
 };
 
-const ConditionComponent = ({ condition }) => {
+const ConditionComponent = ({ condition, onClick }) => {
   const { translatedName, translatedCategory } = condition;
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
-      <Condition>
+      <Condition onClick={() => onClick(condition.id)}>
         <ClippedConditionName ref={ref}>
           {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
         </ClippedConditionName>
@@ -88,18 +90,24 @@ const ConditionComponent = ({ condition }) => {
   );
 };
 
-export const ConditionSection = ({ patientProgramRegistration }) => {
+export const ConditionSection = () => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
+  const { patientId, programRegistryId } = useParams();
+  const [selectedConditionId, setSelectedConditionId] = useState(null);
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
+    patientId,
+    programRegistryId,
   );
 
   if (isLoading) {
     return <LoadingIndicator />;
   }
 
-  const translatedData = conditions.data.map(condition => {
+  const onConditionClick = conditionId => {
+    setSelectedConditionId(conditionId);
+  };
+
+  const translatedData = conditions.map(condition => {
     const { programRegistryCondition, conditionCategory } = condition;
     const { id, name } = programRegistryCondition;
     const translatedName = getTranslation(getReferenceDataStringId(id, 'condition'), name);
@@ -113,6 +121,8 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   const sortedData = sortBy(translatedData, c => c.translatedName);
   const { openConditions, closedConditions } = getGroupedConditions(sortedData);
   const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
+  const selectedCondition = conditions.find(({ id }) => id === selectedConditionId);
+  const updateModalIsOpen = Boolean(selectedConditionId) && Boolean(selectedCondition);
 
   return (
     <Container>
@@ -124,13 +134,18 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
       </Heading5>
       <ScrollBody>
         {openConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
         ))}
         {needsDivider && <Divider variant="middle" />}
         {closedConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
         ))}
       </ScrollBody>
+      <UpdateConditionFormModal
+        open={updateModalIsOpen}
+        onClose={() => setSelectedConditionId(null)}
+        condition={selectedCondition}
+      />
     </Container>
   );
 };

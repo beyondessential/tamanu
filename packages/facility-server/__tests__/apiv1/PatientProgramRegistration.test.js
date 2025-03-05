@@ -452,6 +452,74 @@ describe('PatientProgramRegistration', () => {
       });
     });
 
+    describe('PUT patient/:patientId/programRegistration/:programRegistryId/condition/:conditionId', () => {
+      let patient;
+      let programRegistry;
+      let programRegistryCondition;
+      let patientProgramRegistrationCondition;
+
+      beforeEach(async () => {
+        patient = await models.Patient.create(fake(models.Patient));
+        const program1 = await models.Program.create(fake(models.Program));
+        programRegistry = await models.ProgramRegistry.create(
+          fake(models.ProgramRegistry, { programId: program1.id }),
+        );
+        programRegistryCondition = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        patientProgramRegistrationCondition =
+          await models.PatientProgramRegistrationCondition.create(
+            fake(models.PatientProgramRegistrationCondition, {
+              programRegistryId: programRegistry.id,
+              patientId: patient.id,
+              programRegistryConditionId: programRegistryCondition.id,
+            }),
+          );
+      });
+
+      afterEach(async () => {
+        await models.PatientProgramRegistrationCondition.truncate({ cascade: true, force: true });
+        await models.ProgramRegistryCondition.truncate({ cascade: true, force: true });
+        await models.Patient.truncate({ cascade: true, force: true });
+        await models.ProgramRegistry.truncate({ cascade: true, force: true });
+        await models.Program.truncate({ cascade: true, force: true });
+      });
+
+      it('Updates a condition', async () => {
+        const result = await app
+          .put(
+            `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/${patientProgramRegistrationCondition.id}`,
+          )
+          .send({
+            conditionCategory: 'confirmed',
+            reasonForChange: 'Test reason',
+          });
+
+        expect(result).toHaveSucceeded();
+
+        const { conditionCategory, reasonForChange } =
+          await models.PatientProgramRegistrationCondition.findByPk(result.body.id);
+
+        expect({ conditionCategory, reasonForChange }).toMatchObject({
+          conditionCategory: 'confirmed',
+          reasonForChange: 'Test reason',
+        });
+      });
+
+      it('Errors if condition not found', async () => {
+        const result = await app
+          .put(
+            `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/50e7046b-81c3-4c16-90e9-111111111111`,
+          )
+          .send({
+            conditionCategory: 'confirmed',
+            reasonForChange: 'Test reason',
+          });
+
+        expect(result).toHaveStatus(404);
+      });
+    });
+
     describe('GET patient/:patientId/programRegistration/:programRegistryId/condition', () => {
       it.todo('should retrieve current patient program registration conditions');
     });
