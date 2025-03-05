@@ -79,8 +79,8 @@ async function migrateUp(log, sequelize) {
     log.info(`Applied pre-migration steps successfully.`);
 
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
-    const upMigrations = await migrations.up();
-    await createaMigrationAuditLog(sequelize, upMigrations, 'up');
+    const applied = await migrations.up();
+    await createaMigrationAuditLog(sequelize, applied, 'up');
 
     log.info('Applied migrations successfully');
 
