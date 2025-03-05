@@ -39,4 +39,7 @@ export const NON_LOGGED_TABLES = [
 
   // internal configuration
   'local_system_facts',
+
+  // other audit logs
+  'logs.migrations'
 ];

@@ -6,6 +6,19 @@ import { runPostMigration, runPreMigration } from './migrationHooks';
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 
+const createaMigrationAuditLog = async (sequelize, migrations, direction) => {
+  await sequelize.query(
+    `
+      INSERT INTO logs.migrations (logged_at, direction, migrations)
+      VALUES (CURRENT_TIMESTAMP, $1, $2);
+    `,
+    {
+      type: sequelize.QueryTypes.INSERT,
+      bind: [direction, migrations.map((migration) => migration.file).join(',')],
+    },
+  );
+};
+
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
   const migrationsDir = path.join(__dirname, '../..', 'migrations');
@@ -24,7 +37,11 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
+      wrap:
+        (updown) =>
+        (...args) =>
+          sequelize.transaction(async () => updown(...args)),
+
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
         const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
@@ -62,7 +79,9 @@ async function migrateUp(log, sequelize) {
     log.info(`Applied pre-migration steps successfully.`);
 
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
-    await migrations.up();
+    const upMigrations = await migrations.up();
+    await createaMigrationAuditLog(sequelize, upMigrations, 'up');
+
     log.info('Applied migrations successfully');
 
     log.info('Running post-migration steps...');
@@ -82,6 +101,12 @@ async function migrateDown(log, sequelize, options) {
 
   log.info(`Reverting 1 migration...`);
   const reverted = await migrations.down(options);
+  await createaMigrationAuditLog(
+    sequelize,
+    Array.isArray(reverted) ? reverted : [reverted],
+    'down',
+  );
+
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
       log.warn(`No migrations to revert.`);
