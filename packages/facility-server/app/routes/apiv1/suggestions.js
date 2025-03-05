@@ -545,29 +545,22 @@ createSuggester(
   },
 );
 
+// Remove whitespace from the start and end of each string then combine with a space in between
+// E.g. 'William ' + 'Horoto' => 'William Horoto'
+const trimAndConcat = (col1, col2) =>
+  Sequelize.fn(
+    'concat',
+    Sequelize.fn('trim', Sequelize.col(col1)),
+    ' ',
+    Sequelize.fn('trim', Sequelize.col(col2)),
+  );
 createSuggester(
   'patient',
   'Patient',
   (search) => ({
     [Op.or]: [
-      Sequelize.where(
-        Sequelize.fn(
-          'concat',
-          Sequelize.fn('trim', Sequelize.col('first_name')),
-          ' ',
-          Sequelize.fn('trim', Sequelize.col('last_name')),
-        ),
-        { [Op.iLike]: search },
-      ),
-      Sequelize.where(
-        Sequelize.fn(
-          'concat',
-          Sequelize.fn('trim', Sequelize.col('last_name')),
-          ' ',
-          Sequelize.fn('trim', Sequelize.col('first_name')),
-        ),
-        { [Op.iLike]: search },
-      ),
+      Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
+      Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
       { displayId: { [Op.iLike]: search } },
     ],
   }),
