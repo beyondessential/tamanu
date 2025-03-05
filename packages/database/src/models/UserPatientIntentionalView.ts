@@ -10,6 +10,7 @@ export class UserPatientIntentionalView extends Model {
   declare viewedById: string;
   declare patientId: string;
   declare facilityId?: string;
+  declare sessionId: string;
   declare loggedAt: string;
   declare context: string;
 
@@ -20,7 +21,10 @@ export class UserPatientIntentionalView extends Model {
         loggedAt: {
           type: DataTypes.STRING,
         },
-        endpoint: {
+        context: {
+          type: DataTypes.STRING,
+        },
+        sessionId: {
           type: DataTypes.STRING,
         },
       },
