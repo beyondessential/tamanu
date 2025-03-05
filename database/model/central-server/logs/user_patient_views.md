@@ -1,27 +1,31 @@
 {% docs logs__table__user_patient_views %}
-TODO
+An audit log of all intentional patient views by a user
 {% enddocs %}
 
 {% docs logs__user_patient_views__id %}
-TODO
+UUID
 {% enddocs %}
 
 {% docs logs__user_patient_views__viewed_by_id %}
-TODO
+The user logged in when intentionally viewing patient data
 {% enddocs %}
 
 {% docs logs__user_patient_views__patient_id %}
-TODO
+The patient record being accessed
 {% enddocs %}
 
 {% docs logs__user_patient_views__facility_id %}
-TODO
+The facility the user was logged in to when viewing patient
+{% enddocs %}
+
+{% docs logs__user_patient_views__session_id %}
+The user session for this patient view
 {% enddocs %}
 
 {% docs logs__user_patient_views__logged_at %}
-TODO
+The time string for the record
 {% enddocs %}
 
 {% docs logs__user_patient_views__context %}
-TODO
+A string identifier for the context that the user viewed the patient
 {% enddocs %}
