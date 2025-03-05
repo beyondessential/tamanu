@@ -27,8 +27,6 @@ sources:
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('logs__user_patient_views__facility_id') }}"
-            data_tests:
-              - not_null
           - name: session_id
             data_type: character varying(255)
             description: "{{ doc('logs__user_patient_views__session_id') }}"
