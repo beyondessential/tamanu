@@ -1,0 +1,41 @@
+version: 2
+sources:
+  - name: logs__tamanu
+    schema: logs
+    description: "{{ doc('logs__generic__schema') }}"
+    tables:
+      - name: user_patient_views
+        description: "{{ doc('logs__table__user_patient_views') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('logs__user_patient_views__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: viewed_by_id
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__viewed_by_id') }}"
+            data_tests:
+              - not_null
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__patient_id') }}"
+            data_tests:
+              - not_null
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__facility_id') }}"
+            data_tests:
+              - not_null
+          - name: logged_at
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__logged_at') }}"
+            data_tests:
+              - not_null
+          - name: context
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__context') }}"
+            data_tests:
+              - not_null
