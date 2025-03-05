@@ -29,6 +29,11 @@ sources:
             description: "{{ doc('logs__user_patient_views__facility_id') }}"
             data_tests:
               - not_null
+          - name: sessionId
+            data_type: character varying(255)
+            description: "{{ doc('logs__user_patient_views__context') }}"
+            data_tests:
+              - not_null
           - name: logged_at
             data_type: character varying(255)
             description: "{{ doc('logs__user_patient_views__logged_at') }}"
