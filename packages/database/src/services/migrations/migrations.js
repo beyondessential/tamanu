@@ -6,7 +6,7 @@ import { runPostMigration, runPreMigration } from './migrationHooks';
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 
-const createaMigrationAuditLog = async (sequelize, migrations, direction) => {
+const createMigrationAuditLog = async (sequelize, migrations, direction) => {
   await sequelize.query(
     `
       INSERT INTO logs.migrations (logged_at, direction, migrations)
@@ -80,7 +80,7 @@ async function migrateUp(log, sequelize) {
 
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
     const applied = await migrations.up();
-    await createaMigrationAuditLog(sequelize, applied, 'up');
+    await createMigrationAuditLog(sequelize, applied, 'up');
 
     log.info('Applied migrations successfully');
 
@@ -101,7 +101,7 @@ async function migrateDown(log, sequelize, options) {
 
   log.info(`Reverting 1 migration...`);
   const reverted = await migrations.down(options);
-  await createaMigrationAuditLog(
+  await createMigrationAuditLog(
     sequelize,
     Array.isArray(reverted) ? reverted : [reverted],
     'down',
