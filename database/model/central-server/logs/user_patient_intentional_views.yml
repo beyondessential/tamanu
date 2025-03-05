@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: user_patient_intentional_views
-        description: "{{ doc('logs__table__user_patient_intentional_views') }}"
+        description: '{{ doc("logs__table__user_patient_intentional_views") }}'
         tags: []
         columns:
           - name: id
