@@ -15,11 +15,13 @@ interface PatientSyncStatusProps {
 export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
-  const facilityId = readConfig('facilityId', '');
   const [patientFacility, , isLoading] = useBackendEffect(
-    ({ models: m }) =>
+    async ({ models: m }) =>
       m.PatientFacility.findOne({
-        where: { patient: { id: selectedPatient.id }, facility: { id: facilityId } },
+        where: {
+          patient: { id: selectedPatient.id },
+          facility: { id: await readConfig('facilityId', '') },
+        },
       }),
     [refreshCount],
   );

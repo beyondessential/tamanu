@@ -1,7 +1,7 @@
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { Models, Encounter } from '@tamanu/database';
 import { times } from 'lodash';
-const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
+import { fake, chance } from '../../fake';
 
 interface CreateEncounterParams {
   models: Models;
