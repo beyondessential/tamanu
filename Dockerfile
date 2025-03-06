@@ -83,7 +83,7 @@ RUN cargo install bestool --no-default-features \
   -F completions \
   -F crypto \
   -F file \
-  -F tamanu \
+  -F tamanu
 
 FROM ubuntu AS toolbox
 RUN apt update && apt install -y --no-install-recommends \
