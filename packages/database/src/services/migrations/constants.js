@@ -15,5 +15,5 @@ export const NON_SYNCING_TABLES = [
   'sync_lookup',
   'debug_logs',
   'sync_device_ticks',
-  'logs.user_patient_views',
+  'user_patient_views',
 ];
