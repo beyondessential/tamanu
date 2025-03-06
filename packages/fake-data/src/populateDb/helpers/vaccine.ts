@@ -1,4 +1,6 @@
 import type { Models } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake } from '../../fake';
 
 interface CreateAdministeredVaccineParams {
@@ -7,14 +9,15 @@ interface CreateAdministeredVaccineParams {
   encounterId: string;
 }
 export const createAdministeredVaccine = async ({
-  models: { AdministeredVaccine },
+  models,
   scheduledVaccineId,
   encounterId,
 }: CreateAdministeredVaccineParams): Promise<void> => {
+  const { AdministeredVaccine } = models;
   await AdministeredVaccine.create(
     fake(AdministeredVaccine, {
-      scheduledVaccineId,
-      encounterId,
+      scheduledVaccineId: scheduledVaccineId || (await randomRecordId(models, 'ScheduledVaccine')),
+      encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );
 };

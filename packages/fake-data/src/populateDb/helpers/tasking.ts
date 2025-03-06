@@ -8,11 +8,13 @@ interface CreateTaskParams {
   referenceDataId: string;
 }
 export const createTask = async ({
-  models: { Task, TaskDesignation, TaskTemplate, TaskTemplateDesignation, UserDesignation },
+  models,
   encounterId,
   userId,
   referenceDataId,
 }: CreateTaskParams): Promise<void> => {
+  const { Task, TaskDesignation, TaskTemplate, TaskTemplateDesignation, UserDesignation } = models;
+
   const task = await Task.create(
     fake(Task, {
       encounterId,

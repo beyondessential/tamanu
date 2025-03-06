@@ -1,5 +1,7 @@
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { Models, Encounter } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { times } from 'lodash';
 import { fake, chance } from '../../fake';
 
@@ -15,7 +17,7 @@ interface CreateEncounterParams {
   isDischarged?: boolean;
 }
 export const createEncounter = async ({
-  models: { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis },
+  models,
   patientId,
   departmentId,
   locationId,
@@ -25,29 +27,31 @@ export const createEncounter = async ({
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
+  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis } = models;
+
   const encounter = await Encounter.create(
     fake(Encounter, {
-      patientId,
-      departmentId,
-      locationId,
-      examinerId: userId,
+      patientId: patientId || (await randomRecordId(models, 'Patient')),
+      departmentId: departmentId || (await randomRecordId(models, 'Department')),
+      locationId: locationId || (await randomRecordId(models, 'Location')),
+      examinerId: userId || (await randomRecordId(models, 'User')),
       startDate: '2023-12-21T04:59:51.851Z',
     }),
   );
 
   await EncounterHistory.create(
     fake(EncounterHistory, {
-      examinerId: userId,
+      examinerId: userId || (await randomRecordId(models, 'User')),
       encounterId: encounter.id,
-      departmentId,
-      locationId,
+      departmentId: departmentId || (await randomRecordId(models, 'Department')),
+      locationId: locationId || (await randomRecordId(models, 'Location')),
     }),
   );
 
   times(diagnosisCount, async () => {
     await EncounterDiagnosis.create(
       fake(EncounterDiagnosis, {
-        diagnosisId: referenceDataId,
+        diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
         encounterId: encounter.id,
       }),
     );
@@ -58,7 +62,7 @@ export const createEncounter = async ({
       fake(Note, {
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
-        authorId: userId,
+        authorId: userId || (await randomRecordId(models, 'User')),
       }),
     );
   });
@@ -67,7 +71,7 @@ export const createEncounter = async ({
     await Discharge.create(
       fake(Discharge, {
         encounterId: encounter.id,
-        dischargerId: userId,
+        dischargerId: userId || (await randomRecordId(models, 'User')),
       }),
     );
   }
