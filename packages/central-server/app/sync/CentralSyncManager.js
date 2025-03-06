@@ -13,6 +13,7 @@ import {
   createSnapshotTable,
   findSyncSnapshotRecords,
   getModelsForPull,
+  getModelsForPush,
   getSyncTicksOfPendingEdits,
   insertSnapshotRecords,
   removeEchoedChanges,
