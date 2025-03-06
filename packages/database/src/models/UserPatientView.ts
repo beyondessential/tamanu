@@ -29,7 +29,7 @@ export class UserPatientView extends Model {
         },
       },
 
-      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, schema: 'logs' },
     );
   }
 
