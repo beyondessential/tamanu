@@ -20,6 +20,7 @@ const SelectInstructions = () => (
     <p>
       Clinical information such as encounters, allergies, existing conditions and family history
       will be retained from both patient records.
+      Program registry details will be kept for the retained patient only.
     </p>
   </div>
 );

@@ -12,6 +12,8 @@ import {
   mergePatientBirthData,
   mergePatientDeathData,
   mergePatientFieldValues,
+  mergePatientProgramRegistrationConditions,
+  mergePatientProgramRegistrations,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
@@ -34,7 +36,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   checkModelsMissingSpecificUpdateCoverage() {
-    return specificUpdateModels.filter(modelName => {
+    return specificUpdateModels.filter((modelName) => {
       const method = this[`specificUpdate_${modelName}`];
       return !method;
     });
@@ -203,6 +205,47 @@ export class PatientMergeMaintainer extends ScheduledTask {
       records.push(...facilities);
     }
 
+    return records;
+  }
+
+  async specificUpdate_PatientProgramRegistration() {
+    const { PatientProgramRegistration } = this.models;
+    const patientProgramRegistrationMerges = await this.findPendingMergePatients(
+      PatientProgramRegistration,
+    );
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientProgramRegistrationMerges) {
+      const mergedPatientProgramRegistrationData = await mergePatientProgramRegistrations(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientProgramRegistrationData) {
+        records.push(mergedPatientProgramRegistrationData);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientProgramRegistrationCondition() {
+    const { PatientProgramRegistrationCondition } = this.models;
+    const patientProgramRegistrationConditionMerges = await this.findPendingMergePatients(
+      PatientProgramRegistrationCondition,
+    );
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientProgramRegistrationConditionMerges) {
+      const mergedPatientProgramRegistrationConditionData =
+        await mergePatientProgramRegistrationConditions(
+          this.models,
+          keepPatientId,
+          mergedPatientId,
+        );
+      if (mergedPatientProgramRegistrationConditionData) {
+        records.push(mergedPatientProgramRegistrationConditionData);
+      }
+    }
     return records;
   }
 
