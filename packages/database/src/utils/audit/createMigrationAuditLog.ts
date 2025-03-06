@@ -1,6 +1,7 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
-import { CURRENT_SYNC_TIME_KEY } from 'sync';
 import type { Migration } from 'umzug';
+
+import { CURRENT_SYNC_TIME_KEY } from '../../sync/constants';
 
 export const createMigrationAuditLog = async (
   sequelize: Sequelize,
