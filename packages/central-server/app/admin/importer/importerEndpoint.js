@@ -20,6 +20,10 @@ const normMapping = {
   procedure: 'procedureType',
   // This is needed to handle the way we are exporting that data
   patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFININION_CATEGORY,
+  // We need mapping for program registry imports because program registry data is imported in the
+  // worksheet sheets called registry and registryCondition but the full model names
+  // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
+  // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
   registry: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY,
   registryCondition: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
 };
