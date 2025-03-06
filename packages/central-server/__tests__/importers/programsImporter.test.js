@@ -452,8 +452,8 @@ describe('Programs import', () => {
     });
   });
 
-  describe.only('Program Registry', () => {
-    it.only('should import a valid registry', async () => {
+  describe('Program Registry', () => {
+    it('should import a valid registry', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'registry-valid-village',
         xml: true,

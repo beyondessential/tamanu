@@ -95,7 +95,6 @@ export async function importProgramRegistry(context, workbook, programId) {
   await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
 
   log.debug('Importing Program Registry');
-
   let stats = await importRows(context, {
     sheetName: 'Registry',
     rows: [
