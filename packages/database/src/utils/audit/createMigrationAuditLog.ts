@@ -1,0 +1,40 @@
+import { QueryTypes, type Sequelize } from 'sequelize';
+import { CURRENT_SYNC_TIME_KEY } from 'sync';
+import type { Migration } from 'umzug';
+
+export const createMigrationAuditLog = async (
+  sequelize: Sequelize,
+  migrations: Migration[],
+  direction: 'up' | 'down',
+) => {
+  const [tableExists] = await sequelize.query(
+    `
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'logs'
+      AND table_name = 'migrations';
+    `,
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
+  if (!tableExists) return;
+  await sequelize.query(
+    `
+      INSERT INTO logs.migrations (logged_at, direction, migrations, current_sync_tick)
+      VALUES (
+        CURRENT_TIMESTAMP,
+        $1,
+        $2,
+        (
+          SELECT value::bigint AS current_sync_tick
+          FROM local_system_facts
+          WHERE key = '${CURRENT_SYNC_TIME_KEY}'
+        )
+      );
+    `,
+    {
+      type: QueryTypes.INSERT,
+      bind: [direction, migrations.map((migration: Migration) => migration.file).join(',')],
+    },
+  );
+};

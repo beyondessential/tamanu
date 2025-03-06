@@ -2,43 +2,10 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
-import { CURRENT_SYNC_TIME_KEY } from '../../sync';
+import { createMigrationAuditLog } from '../../utils/audit';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
-
-const createMigrationAuditLog = async (sequelize, migrations, direction) => {
-  const [tableExists] = (await sequelize.query(
-    `
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'logs'
-      AND table_name = 'migrations';
-    `,
-    {
-      type: sequelize.QueryTypes.SELECT,
-    },
-  ))
-  if (!tableExists) return;
-  await sequelize.query(
-    `
-      INSERT INTO logs.migrations (logged_at, direction, migrations, current_sync_tick)
-      VALUES (
-        CURRENT_TIMESTAMP,
-        $1,
-        $2,
-        (
-          SELECT value::bigint AS current_sync_tick
-          FROM local_system_facts
-          WHERE key = '${CURRENT_SYNC_TIME_KEY}'
-        )
-      );
-    `,
-    {
-      type: sequelize.QueryTypes.INSERT,
-      bind: [direction, migrations.map((migration) => migration.file).join(',')],
-    },
-  );
-};
 
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
