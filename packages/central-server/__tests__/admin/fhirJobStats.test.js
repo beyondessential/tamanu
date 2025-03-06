@@ -33,13 +33,13 @@ describe('FHIR job stats', () => {
     expect(response.body.data).toEqual([
       { id: 'topic2,Queued', topic: 'topic2', status: 'Queued', count: '3' },
       { id: 'topic3,Queued', topic: 'topic3', status: 'Queued', count: '2' },
-      { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },
       {
         id: 'fhir.refresh.allFromUpstream,Queued',
         topic: 'fhir.refresh.allFromUpstream',
         status: 'Queued',
-        count: '1',
+        count: '2',
       },
+      { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },
     ]);
     expect(response.body.count).toBe(4);
   });
