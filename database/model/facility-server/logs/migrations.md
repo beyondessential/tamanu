@@ -19,5 +19,5 @@ The direction of the migration i.e applied (`up`) or reverted (`down`)
 {% enddocs %}
 
 {% docs logs__migrations__migrations %}
-Comma seperated list of the applied/reverted migrations
+Comma separated list of the applied/reverted migrations
 {% enddocs %}
