@@ -21,7 +21,11 @@ const colorFromEncounterType = {
   default: Colors.blue,
 };
 
-function getColorForEncounter({ $encounterType }) {
+function getPatientStatusColor({ $encounterType, $isPatientDeceased }) {
+  if ($isPatientDeceased) {
+    return Colors.midText;
+  }
+
   return colorFromEncounterType[$encounterType || 'default'] || colorFromEncounterType.default;
 }
 
@@ -91,7 +95,7 @@ const CardListContainer = styled.div`
 const CardTitle = styled(Typography)`
   font-weight: bold;
   font-size: 14px;
-  color: ${getColorForEncounter};
+  color: ${getPatientStatusColor};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -105,13 +109,13 @@ const CapitalizedCardText = styled(CardText)`
   text-transform: capitalize;
 `;
 
-const EncounterTypeIndicator = styled.div`
+const PatientStatusIndicator = styled.div`
   height: 75%;
   border-radius: 10px;
   width: 4px;
   min-width: 4px;
   margin-right: 5px;
-  background-color: ${getColorForEncounter};
+  background-color: ${getPatientStatusColor};
 `;
 
 const Container = styled(ListItem)`
@@ -157,16 +161,25 @@ const SectionTitle = styled.div`
 const PATIENTS_PER_PAGE = 6;
 
 const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
+  const isPatientDeceased = Boolean(patient.dateOfDeath);
+
   return (
     <CardComponent
       onClick={() => handleClick(patient.id)}
       patientPerPage={patientPerPage}
       $isDashboard={isDashboard}
     >
-      <EncounterTypeIndicator $encounterType={patient.encounter_type} />
+      <PatientStatusIndicator
+        $encounterType={patient.encounter_type}
+        $isPatientDeceased={isPatientDeceased}
+      />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
-          <CardTitle $encounterType={patient.encounter_type} $isDashboard={isDashboard}>
+          <CardTitle
+            $encounterType={patient.encounter_type}
+            $isPatientDeceased={isPatientDeceased}
+            $isDashboard={isDashboard}
+          >
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>
