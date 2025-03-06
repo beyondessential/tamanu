@@ -48,7 +48,7 @@ const Divider = styled(MuiDivider)`
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: #f3f5f7;
+    background-color: ${Colors.background};
   }
 `;
 
@@ -151,18 +151,18 @@ const getGroupedData = rows => {
 
   // Process rows
   rows.forEach(({ id, conditionCategory, date, programRegistryCondition, reasonForChange }) => {
-    for (const [group, conditions] of Object.entries(groupMapping)) {
-      if (conditions.includes(conditionCategory)) {
-        groupedData[group].push({
-          id,
-          conditionId: programRegistryCondition.id,
-          name: programRegistryCondition.name,
-          date,
-          conditionCategory,
-          reasonForChange,
-        });
-        break;
-      }
+    const group = Object.entries(groupMapping).find(([, conditions]) =>
+      conditions.includes(conditionCategory),
+    )?.[0];
+    if (group) {
+      groupedData[group].push({
+        id,
+        conditionId: programRegistryCondition.id,
+        name: programRegistryCondition.name,
+        date,
+        conditionCategory,
+        reasonForChange,
+      });
     }
   });
   Object.keys(groupedData).forEach(group => {
@@ -196,19 +196,14 @@ export const PatientProgramRegistryUpdateFormModal = ({
   });
 
   const handleSubmit = async data => {
-    // flatten data for form submission
     const conditions = Object.values(data.conditions)
-      .reduce((acc, group) => acc.concat(group), [])
+      .flatMap(group => group)
       .filter(({ conditionId }) => conditionId);
     await submit({ ...data, conditions });
     onClose();
   };
 
-  if (!patientProgramRegistration) return null;
-
-  if (isLoading) {
-    return null;
-  }
+  if (!patientProgramRegistration || isLoading) return null;
 
   return (
     <Modal
@@ -399,7 +394,14 @@ export const PatientProgramRegistryUpdateFormModal = ({
             {
               key: 'history',
               width: 100,
-              accessor: () => <ViewHistoryButton>View history</ViewHistoryButton>,
+              accessor: () => (
+                <ViewHistoryButton>
+                  <TranslatedText
+                    stringId="patientProgramRegistry.viewHistory"
+                    fallback="View history"
+                  />
+                </ViewHistoryButton>
+              ),
             },
           ];
 
