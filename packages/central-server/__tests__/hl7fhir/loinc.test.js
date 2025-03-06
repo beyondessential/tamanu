@@ -1,4 +1,4 @@
-import { chance } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/fake-data/fake';
 import { labTestTypeToLOINCCode } from '../../dist/hl7fhir/loinc';
 
 describe('HL7 LOINC', () => {
@@ -29,8 +29,7 @@ describe('HL7 LOINC', () => {
       name: chance.pickone(['AgRDT Negative, no further testing needed', 'AgRDT Positive']),
     });
     expect(result).toEqual({
-      text:
-        'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+      text: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
       coding: [
         {
           system: 'http://loinc.org',

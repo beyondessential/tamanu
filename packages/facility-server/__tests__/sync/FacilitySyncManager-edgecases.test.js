@@ -2,7 +2,7 @@
 import config from 'config';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   CURRENT_SYNC_TIME_KEY,
