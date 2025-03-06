@@ -7,7 +7,7 @@ UUID
 {% enddocs %}
 
 {% docs logs__user_patient_views__viewed_by_id %}
-The user logged in when intentionally viewing patient data
+The authenticated user viewing the patient
 {% enddocs %}
 
 {% docs logs__user_patient_views__patient_id %}
