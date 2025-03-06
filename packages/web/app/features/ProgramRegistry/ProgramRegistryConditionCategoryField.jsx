@@ -1,34 +1,35 @@
 import React from 'react';
+import styled from 'styled-components';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedSelectField, FieldWithTooltip } from '../../components';
 
+const StyledTextField = styled(TranslatedSelectField)`
+  .Mui-disabled {
+    background-color: #f3f5f7;
+  }
+`;
+
 export const ProgramRegistryConditionCategoryField = ({
   label,
   name,
-  conditionId,
+  disabled,
+  disabledTooltipText,
   required = false,
   ariaLabelledby = null,
 }) => {
   const { getTranslation } = useTranslation();
   return (
     <FieldWithTooltip
-      disabledTooltipText={
-        !conditionId
-          ? getTranslation(
-              'patientProgramRegistry.relatedConditionsCategory.tooltip',
-              'Select a condition to add related categories',
-            )
-          : ''
-      }
+      disabledTooltipText={disabled ? disabledTooltipText : ''}
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={TranslatedSelectField}
+      component={StyledTextField}
       enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORIES}
-      disabled={!conditionId}
+      disabled={disabled}
       required={required}
-      ariaLabelledby={ariaLabelledby}
+      aria-labelledby={ariaLabelledby}
     />
   );
 };

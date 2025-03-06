@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Colors } from '../../constants';
 
@@ -14,8 +14,14 @@ const Container = styled.div`
 
 const StyledTable = styled(Table)`
   table-layout: fixed;
-  tr:last-child td {
-    border-bottom: none;
+  tr {
+    &:first-child td {
+      padding-top: 20px;
+    }
+    &:last-child td {
+      border-bottom: none;
+      padding-bottom: 20px;
+    }
   }
 `;
 
@@ -33,7 +39,8 @@ const StyledTableHeaderCell = styled(TableCell)`
 `;
 
 const StyledTableDataCell = styled(TableCell)`
-  padding: 30px 5px;
+  padding: 5px;
+  vertical-align: top;
 
   &:last-child {
     padding-right: 0;
@@ -44,7 +51,39 @@ const StyledTableDataCell = styled(TableCell)`
   }
 `;
 
+const StyledTableRow = styled(TableRow)`
+  ${props =>
+    props.$sectionStart &&
+    css`
+      td {
+        padding-top: 20px;
+      }
+    `};
+
+  ${props =>
+    props.$sectionEnd &&
+    css`
+      border-bottom: 1px solid ${Colors.outline};
+      td {
+        padding-bottom: 20px;
+      }
+    `};
+
+  ${props =>
+    props.$hasAddButton &&
+    css`
+      td {
+        padding-bottom: 40px !important;
+      }
+    `};
+}
+
+`;
+
 export const FormTable = React.memo(({ columns, data, className = '' }) => {
+  // Check if data is grouped (object) or ungrouped (array)
+  const isGrouped = !Array.isArray(data);
+
   return (
     <Container className={className}>
       <StyledTable>
@@ -58,13 +97,42 @@ export const FormTable = React.memo(({ columns, data, className = '' }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((rowData, i) => (
-            <TableRow key={rowData.id || i}>
-              {columns.map(({ key, accessor }) => (
-                <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+          {isGrouped
+            ? // Handle grouped data
+              Object.entries(data).map(([groupName, groupData], groupIndex) => (
+                <React.Fragment key={groupName}>
+                  {groupData.map((rowData, i) => {
+                    const isFirst = groupIndex > 0 && i === 0;
+                    // Show a bottom border if it is the end of a section
+                    const isLast =
+                      groupIndex < Object.keys(data).length - 1 && i === groupData.length - 1;
+                    const hasAddButton = i === groupData.length - 1 && groupIndex === 0;
+
+                    return (
+                      <StyledTableRow
+                        key={rowData.id || `${groupName}-${i}`}
+                        $sectionStart={isFirst}
+                        $sectionEnd={isLast}
+                        $hasAddButton={hasAddButton}
+                      >
+                        {columns.map(({ key, accessor }) => (
+                          <StyledTableDataCell key={key}>
+                            {accessor(rowData, groupName, i)}
+                          </StyledTableDataCell>
+                        ))}
+                      </StyledTableRow>
+                    );
+                  })}
+                </React.Fragment>
+              ))
+            : // Handle ungrouped data
+              data.map((rowData, i) => (
+                <TableRow key={rowData.id || i}>
+                  {columns.map(({ key, accessor }) => (
+                    <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
         </TableBody>
       </StyledTable>
     </Container>
@@ -75,10 +143,32 @@ FormTable.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
-      title: PropTypes.node,
-      accessor: PropTypes.func.isRequired,
+      title: PropTypes.string.isRequired,
       width: PropTypes.string,
+      accessor: PropTypes.func.isRequired,
     }),
   ).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  data: PropTypes.oneOfType([
+    // Case 1: Ungrouped data (Array of objects)
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        date: PropTypes.string,
+        conditionCategory: PropTypes.string,
+      }),
+    ),
+    // Case 2: Grouped data (Object where values are arrays of objects)
+    PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string,
+          name: PropTypes.string,
+          date: PropTypes.string,
+          conditionCategory: PropTypes.string,
+        }),
+      ),
+    ),
+  ]).isRequired,
+  className: PropTypes.string,
 };

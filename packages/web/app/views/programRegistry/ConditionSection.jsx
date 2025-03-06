@@ -108,7 +108,7 @@ export const ConditionSection = () => {
   };
 
   const translatedData = conditions.map(condition => {
-    const { programRegistryCondition, conditionCategory } = condition;
+    const { programRegistryCondition = {}, conditionCategory } = condition;
     const { id, name } = programRegistryCondition;
     const translatedName = getTranslation(getReferenceDataStringId(id, 'condition'), name);
 
