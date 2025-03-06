@@ -100,13 +100,17 @@ patientProgramRegistration.put(
     const { db, models, params, body } = req;
     const { programRegistrationId } = params;
     const { conditions = [], ...registrationData } = body;
+    const { PatientProgramRegistration } = models;
 
     if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
+
+      if (conditions.some((condition) => !condition.id)) {
+        throw new Error('All conditions must have an id');
+      }
     }
 
-    const existingRegistration =
-      await models.PatientProgramRegistration.findByPk(programRegistrationId);
+    const existingRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
@@ -114,20 +118,18 @@ patientProgramRegistration.put(
 
     const { patientId, programRegistryId } = existingRegistration;
 
-    const conditionsData = conditions
-      .filter((condition) => condition.id)
-      .map((condition) => ({
-        id: condition.id,
-        patientId,
-        programRegistryId,
-        clinicianId: registrationData.clinicianId,
-        date: condition.date,
-        programRegistryConditionId: condition.conditionId,
-        conditionCategory: condition.conditionCategory,
-        reasonForChange: condition.reasonForChange,
-      }));
+    const conditionsData = conditions.map((condition) => ({
+      id: condition.id,
+      patientId,
+      programRegistryId,
+      clinicianId: registrationData.clinicianId,
+      date: condition.date,
+      programRegistryConditionId: condition.conditionId,
+      conditionCategory: condition.conditionCategory,
+      reasonForChange: condition.reasonForChange,
+    }));
 
-    const [registration, conditionsRecords] = await db.transaction(async () => {
+    const [registration] = await db.transaction(async () => {
       return Promise.all([
         existingRegistration.update(body),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
@@ -136,10 +138,8 @@ patientProgramRegistration.put(
       ]);
     });
 
-    // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...registration.get({ plain: true }),
-      conditions: conditionsRecords,
     };
 
     res.send(responseObject);
