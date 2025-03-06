@@ -39,7 +39,7 @@ async function getValuesFromEncounter(upstream: Encounter, models: Models) {
     class: classification(upstream),
     actualPeriod: period(upstream),
     subject,
-    location: locationRef(upstream),
+    location: await locationRef(upstream, models),
     serviceProvider,
     resolved: subject.isResolved() && (serviceProvider ? serviceProvider.isResolved() : true),
   };
@@ -116,10 +116,27 @@ function subjectRef(encounter: Encounter, models: Models) {
   });
 }
 
-const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
+const { BED, WARD, JURISDICTION } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
 
-function locationRef(encounter: Encounter) {
+async function locationRef(encounter: Encounter, models: Models) {
+  const department = await models.Department.findOne({ where: { id: encounter.departmentId } });
   return [
+    new FhirEncounterLocation({
+      location: new FhirReference({
+        display: department?.name,
+        id: department?.id,
+      }),
+      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+      physicalType: new FhirCodeableConcept({
+        coding: [
+          {
+            system: config.hl7.dataDictionaries.locationPhysicalType,
+            code: JURISDICTION,
+            display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[JURISDICTION],
+          },
+        ],
+      }),
+    }),
     new FhirEncounterLocation({
       location: new FhirReference({
         display: encounter.location?.locationGroup?.name,
