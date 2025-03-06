@@ -1,14 +1,14 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'migrations' };
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE, {
     id: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     logged_at: {
       type: DataTypes.DATE,

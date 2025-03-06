@@ -3,7 +3,7 @@ Contains a full log of all migrations made.
 {% enddocs %}
 
 {% docs logs__migrations__id %}
-The ID of the change log row. This is auto-incremented;
+The ID of the change log row. This is a uuid that is auto-generated
 {% enddocs %}
 
 {% docs logs__migrations__logged_at %}
