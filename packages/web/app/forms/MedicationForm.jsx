@@ -501,7 +501,6 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const onFinalise = async ({ data, isPrinting, submitForm }) => {
     setAwaitingPrint(isPrinting);
     await submitForm(data);
-    await queryClient.invalidateQueries(['encounterMedication', encounterId]);
   };
 
   return (
@@ -509,7 +508,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
       <Form
         suppressErrorDialog
         onSubmit={onSubmit}
-        onSuccess={() => {
+        onSuccess={async () => {
+          await queryClient.invalidateQueries(['encounterMedication', encounterId]);
           if (!awaitingPrint) {
             onSaved();
           }

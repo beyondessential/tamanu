@@ -1,5 +1,5 @@
 import { Box } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
@@ -8,6 +8,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { format, parse } from 'date-fns';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+
+const MEDICATION_CELL_WIDTH = 48;
 
 const Container = styled.div`
   position: relative;
@@ -23,7 +25,10 @@ const MedicationContainer = styled.div`
 // Header row for the time slots
 const HeaderRow = styled.div`
   display: grid;
-  grid-template-columns: minmax(100px, 1fr) repeat(${props => props.columns}, 48px);
+  grid-template-columns: minmax(100px, 1fr) repeat(
+      ${props => props.columns},
+      ${MEDICATION_CELL_WIDTH}px
+    );
   position: sticky;
   top: 0;
   z-index: 10;
@@ -112,16 +117,16 @@ const StatusCell = styled.div`
 
 const MedicationGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(100px, 1fr) repeat(12, 48px);
+  grid-template-columns: minmax(100px, 1fr) repeat(12, ${MEDICATION_CELL_WIDTH}px);
 `;
 
 const CurrentTimeOverlay = styled.div`
   position: absolute;
   top: 0;
-  width: 48px;
+  width: ${MEDICATION_CELL_WIDTH}px;
   height: 100%;
   z-index: 11;
-  right: ${p => (p.$length - p.$index - 1) * 48}px;
+  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH}px;
   border: 1px solid ${Colors.primary};
 `;
 
@@ -130,7 +135,6 @@ const formatTime = time => {
 };
 
 const MedicationCell = ({
-  id,
   isPrn,
   doseAmount,
   units,
@@ -146,32 +150,25 @@ const MedicationCell = ({
     doseAmount
   );
   return (
-    <React.Fragment key={id}>
+    <>
       <MedicationCellContainer discontinued={discontinued}>
         <Box fontWeight={500}>{medication.name}</Box>
         <Box>
-          <span>{doseAmountDisplay}</span>
-          <span> {units}, {frequency}, {DRUG_ROUTE_LABELS[route]</span>
+          {doseAmountDisplay} {units}, {frequency}, {DRUG_ROUTE_LABELS[route]}
         </Box>
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
       {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime }) => (
         <StatusCell key={startTime} />
       ))}
-    </React.Fragment>
+    </>
   );
 };
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime, index, setCurrentTimeSlotIndex }) => {
+const TimeSlotHeader = ({ periodLabel, startTime, endTime }) => {
   const startDate = getDateFromTimeString(startTime).getTime();
   const endDate = getDateFromTimeString(endTime).getTime();
   const isCurrentTimeSlot = startDate <= Date.now() && Date.now() <= endDate;
-
-  useEffect(() => {
-    if (isCurrentTimeSlot) {
-      setCurrentTimeSlotIndex(index);
-    }
-  }, [index, isCurrentTimeSlot, setCurrentTimeSlotIndex]);
 
   return (
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
@@ -185,7 +182,13 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, index, setCurrentTime
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(-1);
+  const currentTimeSlotIndex = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(
+    ({ startTime, endTime }) => {
+      const startDate = getDateFromTimeString(startTime).getTime();
+      const endDate = getDateFromTimeString(endTime).getTime();
+      return startDate <= Date.now() && Date.now() <= endDate;
+    },
+  );
 
   const medications = (
     useEncounterMedicationQuery(encounter?.id, { after: selectedDate }).data?.data || []
@@ -215,7 +218,6 @@ export const MarTable = ({ selectedDate }) => {
             startTime={startTime}
             endTime={endTime}
             index={index}
-            setCurrentTimeSlotIndex={setCurrentTimeSlotIndex}
           />
         ))}
       </HeaderRow>

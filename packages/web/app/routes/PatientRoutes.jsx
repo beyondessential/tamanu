@@ -127,9 +127,7 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 
 const PatientPane = styled.div`
   overflow: auto;
-  ${({ pathname }) => 
-    pathname?.endsWith('/mar/view') ? `background-color: ${Colors.white};` : ''
-  }
+  background-color: ${p => p.$backgroundColor};
 `;
 
 const PATIENT_PANE_WIDTH = '650px';
@@ -142,12 +140,13 @@ const PatientPaneInner = styled.div`
 export const PatientRoutes = React.memo(() => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
+  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
       {/* Using contain:size along with overflow: auto here allows sticky navigation section
       to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <PatientPane pathname={location.pathname}>
+      <PatientPane $backgroundColor={backgroundColor}>
         <PatientPaneInner>
           <PatientNavigation patientRoutes={patientRoutes} />
           <Switch>

@@ -57,10 +57,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
 
   const { loadEncounter } = useEncounter();
 
-  const onMarClick = () => {
-    navigateToMar();
-  };
-
   return (
     <TabPane>
       <TableContainer>
@@ -104,7 +100,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             disabled={readonly}
             variant="outlined"
             color="primary"
-            onClick={onMarClick}
+            onClick={navigateToMar}
           >
             <TranslatedText stringId="medication.action.medicationAdminRecord" fallback="Medication admin record" />
           </StyledButton>
