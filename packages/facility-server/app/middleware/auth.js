@@ -9,6 +9,7 @@ import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
@@ -143,12 +144,8 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      allowedFacilities,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+    const { central, user, localisation, allowedFacilities } =
+      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -252,10 +249,13 @@ export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
     const token = getTokenFromHeaders(req);
+    const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
+    console.log('session id', sessionId);
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
