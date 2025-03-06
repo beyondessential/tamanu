@@ -1,5 +1,5 @@
 import { closeDatabase, initDatabase } from './utilities';
-import { runPostMigration } from '../../src/services/migrations/migrationHooks';
+import { runPostMigration, runPreMigration } from '../../src/services/migrations/migrationHooks';
 import { createMigrationInterface } from '../../src/services/migrations/migrations';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -12,6 +12,7 @@ describe('migrations', () => {
       database = await initDatabase();
       models = database.models;
       umzug = createMigrationInterface(log, database.sequelize);
+      await runPreMigration(log, database.sequelize)
       await umzug.up();
       await runPostMigration(log, database.sequelize);
       await models.LocalSystemFact.set('currentSyncTick', 1);
@@ -33,7 +34,6 @@ describe('migrations', () => {
 
       // act
       await umzug.down({ to: '1692710205000-allowDisablingSyncTrigger' });
-      await models.LocalSystemFact.set('currentSyncTick', 2);
       await umzug.up({ step: 1 });
       await report_definition.reload();
       const tickAfterMigration = await report_definition.updatedAtSyncTick;
