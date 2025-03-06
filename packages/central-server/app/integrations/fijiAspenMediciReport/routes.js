@@ -110,11 +110,25 @@ routes.get(
       throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
     }
 
-    if (!fromDate || !toDate) {
-      throw new InvalidOperationError('Both period.start and period.end are required query parameters');
+    if (!encounters && (!fromDate || !toDate)) {
+      throw new InvalidOperationError(
+        'Must provide either an encounters list or both period.start and period.end query parameters',
+      );
     }
 
-    if (!checkTimePeriod(fromDate, toDate)) {
+    if (fromDate && !toDate) {
+      throw new InvalidOperationError(
+        'Must provide a period.end if proving a period.start query parameter',
+      );
+    }
+
+    if (!fromDate && toDate) {
+      throw new InvalidOperationError(
+        'Must provide a period.start if proving a period.end query parameter',
+      );
+    }
+
+    if (fromDate && toDate && !checkTimePeriod(fromDate, toDate)) {
       throw new InvalidOperationError('The time period must be within 1 hour');
     }
 

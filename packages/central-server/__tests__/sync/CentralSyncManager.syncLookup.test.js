@@ -1,6 +1,6 @@
 import waitForExpect from 'wait-for-expect';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,

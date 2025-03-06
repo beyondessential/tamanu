@@ -17,7 +17,7 @@ import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/database/demoData/vaccines';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -630,7 +630,9 @@ describe('PatientVaccine', () => {
       expect(upcomingVax.scheduledVaccineId).toEqual(scheduledVax3.id);
 
       // Check if due date is correct according to the schedule in scheduled_vaccines
-      expect(upcomingVax.dueDate).toEqual(toDateString(addWeeks(administeredVax2Date, scheduledVax3.weeksFromLastVaccinationDue)));
+      expect(upcomingVax.dueDate).toEqual(
+        toDateString(addWeeks(administeredVax2Date, scheduledVax3.weeksFromLastVaccinationDue)),
+      );
     });
   });
 });

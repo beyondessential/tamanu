@@ -79,7 +79,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
                   <TranslatedText
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
-                    lowercase
+                    casing="lower"
                   />
                 ),
               }}
@@ -91,8 +91,13 @@ export const LabRequestCard = ({ labRequest, actions }) => {
             <TranslatedText stringId="general.department.label" fallback="Department" />:
           </CardLabel>
           <CardValue>
-            {labRequest.department?.name
-              && <TranslatedReferenceData fallback={labRequest.department.name} value={labRequest.department.id} category="department"/>}
+            {labRequest.department?.name && (
+              <TranslatedReferenceData
+                fallback={labRequest.department.name}
+                value={labRequest.department.id}
+                category="department"
+              />
+            )}
           </CardValue>
         </BorderSection>
       </Box>

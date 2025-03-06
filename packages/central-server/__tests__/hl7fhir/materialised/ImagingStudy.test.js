@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 
-import { fake, fakeReferenceData, showError } from '@tamanu/shared/test-helpers';
+import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
+import { showError } from '@tamanu/shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES, FHIR_IMAGING_STUDY_STATUS } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -280,7 +281,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
         // This was failing intermittently, apparently we have to
         // seize control to let the FhirWriteLog create itself the second time
-        await sleepAsync(1);
+        await sleepAsync(50);
 
         // assert
         expect(response.status).not.toBe(201);

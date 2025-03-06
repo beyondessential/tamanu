@@ -13,7 +13,7 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
-import { In } from 'typeorm/browser';
+import { In } from 'typeorm';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 const Screen = (): ReactElement => {
@@ -29,7 +29,7 @@ const Screen = (): ReactElement => {
 
     return models.Program.find({
       where: {
-        id: In(surveys.map(survey => survey.programId)),
+        id: In(surveys.map((survey) => survey.programId)),
       },
       order: {
         name: 'ASC',

@@ -44,8 +44,11 @@ export function App({ sidebar, children }) {
     localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
   const browser = Bowser.getParser(window.navigator.userAgent);
-  const isChrome = browser.satisfies({
-    chrome: '>=88.0.4324.109', // Early 2021 release of chrome. Arbitrarily chosen as recentish.
+  // Early 2022 releases. Arbitrarily chosen as recentish.
+  const isChromish = browser.satisfies({
+    chrome: '>=100',
+    chromium: '>=100',
+    edge: '>=100',
   });
   const platformType = browser.getPlatformType();
   const isDesktop = platformType === 'desktop';
@@ -54,7 +57,7 @@ export function App({ sidebar, children }) {
   if (!isDebugMode) {
     // Skip browser/platform check in debug mode
     if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
-    if (!isChrome) return <UnsupportedBrowserStatusPage />;
+    if (!isChromish) return <UnsupportedBrowserStatusPage />;
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
   if (isLoading) return <LoadingStatusPage />;

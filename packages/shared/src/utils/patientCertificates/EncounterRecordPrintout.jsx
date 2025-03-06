@@ -20,7 +20,7 @@ import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime } from '@tamanu/utils/dateTime';
 
 const borderStyle = '1 solid black';
 
@@ -109,8 +109,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => (
+const Table = (props) => <View style={tableStyles.table} {...props} />;
+const Row = (props) => (
   <View
     style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]}
     {...props}
@@ -196,7 +196,7 @@ const DataTable = ({ data, columns, title, type }) => {
   return (
     <Table>
       <DataTableHeading columns={columns} title={title} width={width} />
-      {data.map(row => (
+      {data.map((row) => (
         <Row key={row.id} wrap={false} width={width}>
           {columns.map(({ key, accessor, style }) => (
             <Cell key={key} style={style}>
@@ -229,7 +229,9 @@ const NoteFooter = ({ note }) => {
         note.author?.displayName,
         note.onBehalfOf &&
           getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            changeOnBehalfOfName: note.onBehalfOf.displayName,
+            replacements: {
+              changeOnBehalfOfName: note.onBehalfOf.displayName,
+            },
           }),
         formatShort(note.date),
         getDisplayDate(note.date, 'h:mma'),
@@ -262,7 +264,7 @@ const NotesSection = ({ notes }) => {
       <View>
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
-          {notes.map(note => (
+          {notes.map((note) => (
             <>
               <View minPresenceAhead={80} />
               <View style={tableStyles.notesRow} key={note.id}>
@@ -337,7 +339,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],
@@ -357,7 +359,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],
@@ -435,9 +437,9 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'areaToBeImaged',
         title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
-        accessor: imagingRequest =>
+        accessor: (imagingRequest) =>
           imagingRequest?.areas?.length
-            ? imagingRequest?.areas.map(area => area.name).join(', ')
+            ? imagingRequest?.areas.map((area) => area.name).join(', ')
             : imagingRequest?.areaNote,
         style: { width: '25%' },
       },
@@ -457,7 +459,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: imagingRequest =>
+        accessor: (imagingRequest) =>
           imagingRequest?.results[0]?.completedAt
             ? formatShort(imagingRequest?.results[0]?.completedAt)
             : '--/--/----',
@@ -503,17 +505,28 @@ const EncounterRecordPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={getTranslation('pdf.encounterRecord.title', 'Patient encounter record')}
+          documentName={
+            discharge
+              ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
+              : getTranslation(
+                  'pdf.encounterProgressRecord.title',
+                  'Patient encounter progress record',
+                )
+          }
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle={getTranslation(
-              'pdf.encounterRecord.title',
-              'Patient encounter record',
-            )}
+            certificateTitle={
+              discharge
+                ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
+                : getTranslation(
+                    'pdf.encounterProgressRecord.title',
+                    'Patient encounter progress record',
+                  )
+            }
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
@@ -579,9 +592,21 @@ const EncounterRecordPrintoutComponent = ({
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (
         <>
-          {[0, 12, 24, 36, 48].map(start => {
+          {[0, 12, 24, 36, 48].map((start) => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
+                <MultiPageHeader
+                  documentName={
+                    discharge
+                      ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
+                      : getTranslation(
+                          'pdf.encounterProgressRecord.title',
+                          'Patient encounter progress record',
+                        )
+                  }
+                  patientId={patientData.displayId}
+                  patientName={getName(patientData)}
+                />
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}

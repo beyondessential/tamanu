@@ -78,3 +78,8 @@ sources:
             description: "{{ doc('fhir__generic__is_live') }} in immunizations."
             data_tests:
               - not_null
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in immunizations."
+            data_tests:
+              - not_null
