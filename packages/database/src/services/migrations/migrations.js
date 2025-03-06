@@ -8,6 +8,17 @@ import { CURRENT_SYNC_TIME_KEY } from '../../sync';
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 
 const createMigrationAuditLog = async (sequelize, migrations, direction) => {
+  const [tableExists] = (await sequelize.query(
+    `
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'logs'
+      AND table_name = 'migrations';
+    `,
+    {
+      type: sequelize.QueryTypes.SELECT,
+    },
+  ))
+  if (!tableExists) return;
   await sequelize.query(
     `
       INSERT INTO logs.migrations (logged_at, direction, migrations, current_sync_tick)
