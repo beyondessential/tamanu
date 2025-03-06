@@ -18,7 +18,7 @@ export class ReferenceDataRelation extends Model {
           type: DataTypes.UUID,
           allowNull: false,
           primaryKey: true,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
         },
         referenceDataId: {
           type: DataTypes.TEXT,
