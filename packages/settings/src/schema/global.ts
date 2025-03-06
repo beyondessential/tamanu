@@ -1396,7 +1396,7 @@ export const globalSettings = {
             },
           },
         },
-        frequenciesAdministrationIdealTimes: {
+        defaultAdministrationTimes: {
           description: '-',
           properties: generateFrequencyProperties(
             Object.values(ADMINISTRATION_FREQUENCIES).filter(
