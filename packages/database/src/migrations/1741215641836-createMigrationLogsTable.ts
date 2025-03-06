@@ -14,6 +14,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    current_sync_tick: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
     direction: {
       type: DataTypes.TEXT,
       allowNull: false,

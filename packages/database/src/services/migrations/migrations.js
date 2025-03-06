@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
+import { CURRENT_SYNC_TIME_KEY } from '../../sync';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -9,8 +10,17 @@ const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 const createMigrationAuditLog = async (sequelize, migrations, direction) => {
   await sequelize.query(
     `
-      INSERT INTO logs.migrations (logged_at, direction, migrations)
-      VALUES (CURRENT_TIMESTAMP, $1, $2);
+      INSERT INTO logs.migrations (logged_at, direction, migrations, current_sync_tick)
+      VALUES (
+        CURRENT_TIMESTAMP,
+        $1,
+        $2,
+        (
+          SELECT value::bigint AS current_sync_tick
+          FROM local_system_facts
+          WHERE key = '${CURRENT_SYNC_TIME_KEY}'
+        )
+      );
     `,
     {
       type: sequelize.QueryTypes.INSERT,
@@ -101,11 +111,7 @@ async function migrateDown(log, sequelize, options) {
 
   log.info(`Reverting 1 migration...`);
   const reverted = await migrations.down(options);
-  await createMigrationAuditLog(
-    sequelize,
-    Array.isArray(reverted) ? reverted : [reverted],
-    'down',
-  );
+  await createMigrationAuditLog(sequelize, Array.isArray(reverted) ? reverted : [reverted], 'down');
 
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
