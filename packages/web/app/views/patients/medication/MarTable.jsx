@@ -151,7 +151,7 @@ const MedicationCell = ({
         <Box fontWeight={500}>{medication.name}</Box>
         <Box>
           <span>{doseAmountDisplay}</span>
-          <span>{` ${units}, ${frequency}, ${DRUG_ROUTE_LABELS[route]}`}</span>
+          <span> {units}, {frequency}, {DRUG_ROUTE_LABELS[route]</span>
         </Box>
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
