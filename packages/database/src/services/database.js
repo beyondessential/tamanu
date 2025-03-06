@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, AUDIT_USERID_KEY } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
@@ -24,6 +24,14 @@ export const namespace = {
   set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
 };
+
+export const setSessionConfigInNamespace = (key, value) => {
+  namespace.run(() => {
+    namespace.set(`${SESSION_CONFIG_PREFIX}${key}`, value);
+  });
+};
+
+export const getSessionConfigInNamespace = (key) => namespace.get(`${SESSION_CONFIG_PREFIX}${key}`);
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS(namespace);
@@ -111,10 +119,20 @@ async function connectToDatabase(dbOptions) {
     pool,
   });
 
+  sequelize.setSessionVar = (key, value) =>
+    sequelize.query(`SELECT set_session_config($key, $value)`, {
+      bind: { key, value },
+    });
+
+  sequelize.setTransactionVar = (key, value) =>
+    sequelize.query(`SELECT set_session_config($key, $value, true)`, {
+      bind: { key, value },
+    });
+
   class QueryWithAditConfig extends sequelize.dialect.Query {
     async run(sql, options) {
-      const userid = namespace.get(AUDIT_USERID_KEY);
-      if (userid) await super.run(`SELECT set_config('${AUDIT_USERID_KEY}', $1, false)`, [userid]);
+      const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
+      if (userid) await super.run('SELECT set_session_config($1, $2)', [AUDIT_USERID_KEY, userid]);
       return super.run(sql, options);
     }
   }

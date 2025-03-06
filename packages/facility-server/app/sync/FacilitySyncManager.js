@@ -1,6 +1,6 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { AUDIT_PAUSE_KEY, SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   createSnapshotTable,
   dropAllSnapshotTables,
@@ -229,6 +229,7 @@ export class FacilitySyncManager {
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
+        await this.sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await saveIncomingChanges(
           this.sequelize,
