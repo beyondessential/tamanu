@@ -20,7 +20,7 @@ export function fromEncounters(
     AdministeredVaccine,
     ScheduledVaccine,
     EncounterDiagnosis,
-    EncounterMedication,
+    Prescription,
 
     Procedure,
     Discharge,
@@ -178,11 +178,11 @@ export function fromEncounters(
         ],
       };
 
-    case EncounterMedication.tableName:
+    case Prescription.tableName:
       return {
         include: [
           {
-            model: EncounterMedication,
+            model: Prescription,
             as: 'medications',
             required: true,
             where: { id },

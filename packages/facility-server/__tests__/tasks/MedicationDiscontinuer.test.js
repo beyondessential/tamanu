@@ -1,6 +1,6 @@
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
+  createDummyPrescription,
   createDummyPatient,
 } from '@tamanu/database/demoData/patients';
 import { addDays, subDays } from 'date-fns';
@@ -80,42 +80,44 @@ describe('Encounter', () => {
 
   afterEach(async () => {
     // Destroy all instances to avoid leftover data
-    await models.EncounterMedication.destroy({ where: {} });
+    await models.Prescription.destroy({ where: {} });
   });
 
   it('should only autodiscontinue medications past their end date (compared to start of today)', async () => {
-    await models.EncounterMedication.bulkCreate([
+    const prescriptions = await models.Prescription.bulkCreate([
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: today,
         endDate: tomorrow,
-        encounterId: encounter.id,
       },
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: yesterday,
         endDate: today,
-        encounterId: encounter.id,
       },
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: twoDaysAgo,
         endDate: yesterday,
-        encounterId: encounter.id,
       },
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: threeDaysAgo,
         endDate: twoDaysAgo,
-        encounterId: encounter.id,
       },
     ]);
+    for (const prescription of prescriptions) {
+      await models.EncounterPrescription.create({
+        encounterId: encounter.id,
+        prescriptionId: prescription.id,
+      });
+    }
 
-    const medications = await models.EncounterMedication.findAndCountAll();
+    const medications = await models.Prescription.findAndCountAll();
     expect(medications.count).toBe(4);
 
     await discontinuer.run();
-    const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
+    const discontinuedMedications = await models.Prescription.findAndCountAll({
       where: {
         discontinued: true,
       },
@@ -124,26 +126,31 @@ describe('Encounter', () => {
   });
 
   it('should not autodiscontinue medications with null end date', async () => {
-    await models.EncounterMedication.bulkCreate([
+    const prescriptions = await models.Prescription.bulkCreate([
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: threeDaysAgo,
         endDate: twoDaysAgo,
-        encounterId: encounter.id,
       },
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: threeDaysAgo,
         endDate: null,
-        encounterId: encounter.id,
       },
     ]);
 
-    const medications = await models.EncounterMedication.findAndCountAll();
+    for (const prescription of prescriptions) {
+      await models.EncounterPrescription.create({
+        encounterId: encounter.id,
+        prescriptionId: prescription.id,
+      });
+    }
+
+    const medications = await models.Prescription.findAndCountAll();
     expect(medications.count).toBe(2);
 
     await discontinuer.run();
-    const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
+    const discontinuedMedications = await models.Prescription.findAndCountAll({
       where: {
         discontinued: true,
       },
@@ -173,26 +180,34 @@ describe('Encounter', () => {
       departmentId: otherDepartment.id,
     });
 
-    await models.EncounterMedication.bulkCreate([
+    const prescriptions = await models.Prescription.bulkCreate([
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: twoDaysAgo,
         endDate: yesterday,
-        encounterId: encounter.id,
       },
       {
-        ...(await createDummyEncounterMedication(models)),
+        ...(await createDummyPrescription(models)),
         date: twoDaysAgo,
         endDate: yesterday,
-        encounterId: encounterTwo.id,
       },
     ]);
 
-    const medications = await models.EncounterMedication.findAndCountAll();
+    await models.EncounterPrescription.create({
+      encounterId: encounter.id,
+      prescriptionId: prescriptions[0].id,
+    });
+
+    await models.EncounterPrescription.create({
+      encounterId: encounterTwo.id,
+      prescriptionId: prescriptions[1].id,
+    });
+
+    const medications = await models.Prescription.findAndCountAll();
     expect(medications.count).toBe(2);
 
     await discontinuer.run();
-    const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
+    const discontinuedMedications = await models.Prescription.findAndCountAll({
       where: {
         discontinued: true,
       },
@@ -201,11 +216,15 @@ describe('Encounter', () => {
   });
 
   it('should update the updated_at column accordingly when autodiscontinuing a medication', async () => {
-    const medication = await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models)),
+    const medication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
       date: threeDaysAgo,
       endDate: twoDaysAgo,
+    });
+
+    await models.EncounterPrescription.create({
       encounterId: encounter.id,
+      prescriptionId: medication.id,
     });
 
     // Get initial time and guarantee a 1s difference (workaround for
@@ -217,7 +236,7 @@ describe('Encounter', () => {
     });
 
     await discontinuer.run();
-    const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
+    const discontinuedMedications = await models.Prescription.findAndCountAll({
       where: {
         discontinued: true,
       },
