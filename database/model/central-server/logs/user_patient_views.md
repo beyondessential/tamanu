@@ -23,7 +23,7 @@ The user session for this patient view
 {% enddocs %}
 
 {% docs logs__user_patient_views__logged_at %}
-The time string for the record
+The time that the log was created
 {% enddocs %}
 
 {% docs logs__user_patient_views__context %}
