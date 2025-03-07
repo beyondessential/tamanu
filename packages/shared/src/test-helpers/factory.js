@@ -5,7 +5,7 @@ import {
   fakeAdministeredVaccine,
   fakeEncounter,
   fakeEncounterDiagnosis,
-  fakeEncounterMedication,
+  fakePrescription,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
@@ -82,11 +82,11 @@ export const buildNestedEncounter = async (models, patientId, optionalEncounterI
   const medication = fakeReferenceData();
   await models.ReferenceData.create(medication);
 
-  const encounterMedication = fakeEncounterMedication();
-  encounterMedication.encounterId = encounter.id;
-  encounterMedication.medicationId = medication.id;
-  encounterMedication.prescriberId = encounter.examinerId;
-  encounter.medications = [encounterMedication];
+  const encounterPrescription = fakePrescription();
+  encounterPrescription.encounterId = encounter.id;
+  encounterPrescription.medicationId = medication.id;
+  encounterPrescription.prescriberId = encounter.examinerId;
+  encounter.medications = [encounterPrescription];
 
   const labRequest = fake(models.LabRequest);
   labRequest.encounterId = encounter.id;

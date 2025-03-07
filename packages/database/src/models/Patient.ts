@@ -110,6 +110,12 @@ export class Patient extends Model {
       as: 'markedForSyncFacilities',
     });
 
+    this.belongsToMany(models.Prescription, {
+      through: models.PatientOngoingPrescription,
+      foreignKey: 'patientId',
+      as: 'ongoingPrescriptions',
+    });
+
     this.hasMany(models.PatientFieldValue, {
       foreignKey: 'patientId',
       as: 'fieldValues',
