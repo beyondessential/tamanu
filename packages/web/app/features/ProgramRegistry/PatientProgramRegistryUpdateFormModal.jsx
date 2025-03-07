@@ -3,6 +3,10 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Add } from '@material-ui/icons';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+} from '@tamanu/constants';
 import MuiDivider from '@material-ui/core/Divider';
 import {
   AutocompleteField,
@@ -137,15 +141,18 @@ const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
 const getGroupedData = rows => {
   const groupMapping = {
     confirmedSection: [
-      'suspected',
-      'underInvestigation',
-      'confirmed',
-      'unknown',
-      'inRemission',
-      'notApplicable',
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNDER_INVESTIGATION,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.IN_REMISSION,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE,
     ],
-    resolvedSection: ['disproven', 'resolved'],
-    recordedInErrorSection: ['recordedInError'],
+    resolvedSection: [
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
+    ],
+    recordedInErrorSection: [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR],
   };
 
   // Initialize result object

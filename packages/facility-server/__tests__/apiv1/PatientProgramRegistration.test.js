@@ -166,7 +166,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             conditionId: programRegistryCondition.id,
-            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
           },
         ],
         registeringFacilityId: facilityId,
@@ -323,7 +323,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition1.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.suspected,
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
           },
         ],
       });
@@ -333,7 +333,7 @@ describe('PatientProgramRegistration', () => {
         condition1.id,
       );
       expect(updatedCondition.conditionCategory).toBe(
-        PROGRAM_REGISTRY_CONDITION_CATEGORIES.suspected,
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
       );
     });
 
@@ -347,7 +347,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition2.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
           },
         ],
       });
@@ -376,11 +376,11 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition1.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.suspected,
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
           },
           {
             id: condition2.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.confirmed,
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
           },
         ],
       });
@@ -651,7 +651,7 @@ describe('PatientProgramRegistration', () => {
             `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/${patientProgramRegistrationCondition.id}`,
           )
           .send({
-            conditionCategory: 'confirmed',
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
             reasonForChange: 'Test reason',
           });
 
@@ -661,7 +661,7 @@ describe('PatientProgramRegistration', () => {
           await models.PatientProgramRegistrationCondition.findByPk(result.body.id);
 
         expect({ conditionCategory, reasonForChange }).toMatchObject({
-          conditionCategory: 'confirmed',
+          conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
           reasonForChange: 'Test reason',
         });
       });
@@ -672,7 +672,7 @@ describe('PatientProgramRegistration', () => {
             `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/condition/50e7046b-81c3-4c16-90e9-111111111111`,
           )
           .send({
-            conditionCategory: 'confirmed',
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
             reasonForChange: 'Test reason',
           });
 
