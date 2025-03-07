@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+} from '@tamanu/constants';
 import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -56,14 +59,14 @@ const getGroupedConditions = conditions => {
   const closedConditions = [];
 
   conditions.forEach(condition => {
-    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.recordedInError) {
+    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
       return;
     }
 
     if (
       [
-        PROGRAM_REGISTRY_CONDITION_CATEGORIES.resolved,
-        PROGRAM_REGISTRY_CONDITION_CATEGORIES.disproven,
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
+        PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
       ].includes(condition.conditionCategory)
     ) {
       closedConditions.push(condition);
@@ -113,7 +116,7 @@ export const ConditionSection = () => {
     const translatedName = getTranslation(getReferenceDataStringId(id, 'condition'), name);
 
     const translatedCategory = getEnumTranslation(
-      PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
       conditionCategory,
     );
     return { ...condition, translatedName, translatedCategory };

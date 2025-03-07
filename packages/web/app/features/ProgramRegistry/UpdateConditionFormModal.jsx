@@ -20,7 +20,7 @@ import { useTranslation } from '../../contexts/Translation';
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: #f3f5f7;
+    background-color: ${Colors.hoverGrey};
   }
 `;
 
@@ -112,7 +112,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="conditionCategory"
-                  conditionId={programRegistryCondition?.id}
+                  disabled={!programRegistryCondition?.id}
+                  disabledTooltipText={getTranslation(
+                    'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                    'Select a condition to add related categories',
+                  )}
                   ariaLabelledby="condition-category-label"
                   required
                 />
@@ -142,7 +146,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
 
           return (
             <>
-              <FormTable columns={columns} data={condition ? [condition] : []} />
+              <FormTable columns={columns} data={[condition]} />
               {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
             </>

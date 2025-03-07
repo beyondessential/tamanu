@@ -229,13 +229,23 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   return (
                     <RelatedConditionFieldsContainer>
                       <ProgramRegistryConditionField
-                        name={fieldName}
+                        name={`${fieldName}.conditionId`}
                         programRegistryId={selectedProgramRegistryId}
                         onClear={onClear}
+                        label={
+                          <TranslatedText
+                            stringId="patientProgramRegistry.relatedConditions.label"
+                            fallback="Related condition"
+                          />
+                        }
                       />
                       <ProgramRegistryConditionCategoryField
                         name={`${fieldName}.category`}
-                        conditionId={conditionValue?.conditionId}
+                        disabled={!conditionValue?.conditionId}
+                        disabledTooltipText={getTranslation(
+                          'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                          'Select a condition to add related categories',
+                        )}
                         required={Boolean(conditionValue?.conditionId)}
                         label={
                           <TranslatedText

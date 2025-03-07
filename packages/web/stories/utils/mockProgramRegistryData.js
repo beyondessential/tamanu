@@ -790,9 +790,76 @@ export const dummyApi = {
       case `patient/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/conditions`:
         return [
           ...programRegistryConditions,
-          ...programRegistryConditions.map((x) => ({ ...x, id: x.id + 1 })),
+          ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
         ];
-
+      case `patient/patient_id/programRegistration/programRegistry-HepatitisBProgramRegistry/condition`:
+        return {
+          data: [
+            {
+              id: 'condition-1',
+              date: '2025-01-11 14:23:39',
+              conditionCategory: 'confirmed',
+              programRegistryCondition: {
+                id: 'prc-2',
+                name: 'Hypertension',
+              },
+            },
+            {
+              id: 'condition-2',
+              date: '2025-02-13 14:23:39',
+              conditionCategory: 'confirmed',
+              programRegistryCondition: {
+                id: 'prc-1',
+                name: 'Diabetes',
+              },
+            },
+            {
+              id: 'condition-3',
+              date: '2024-01-03 14:23:39',
+              conditionCategory: 'underInvestigation',
+              programRegistryCondition: {
+                id: 'prc-3',
+                name: 'Liver cancer',
+              },
+            },
+            {
+              id: 'condition-4',
+              date: '2024-03-02 14:23:39',
+              conditionCategory: 'underInvestigation',
+              programRegistryCondition: {
+                id: 'prc-4',
+                name: 'Tuberculosis of lung',
+              },
+            },
+            {
+              id: 'condition-5',
+              date: '2024-01-09 14:23:39',
+              conditionCategory: 'disproven',
+              programRegistryCondition: {
+                id: 'prc-5',
+                name: 'Tuberculosis of heart',
+              },
+            },
+            {
+              id: 'condition-6',
+              date: '2024-06-11 14:23:39',
+              conditionCategory: 'resolved',
+              programRegistryCondition: {
+                id: 'prc-6',
+                name: 'Malaria',
+              },
+            },
+            {
+              id: 'condition-7',
+              date: '2024-07-11 14:23:39',
+              conditionCategory: 'recordedInError',
+              programRegistryCondition: {
+                id: 'prc-7',
+                name: 'Hayfever',
+              },
+            },
+          ],
+        };
       case 'program/program-samoancdscreening/surveys':
         return programRegistrysurveys;
 
@@ -813,7 +880,7 @@ export const dummyApi = {
 
       case 'suggestions/survey':
         // this needs to be done in the backend
-        return programRegistryFormHistory.map((x) => ({
+        return programRegistryFormHistory.map(x => ({
           id: x.id.toString(),
           name: x.survey.name,
         }));
