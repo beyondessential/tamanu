@@ -71,7 +71,7 @@ const ReferenceDrugTable = new Table({
 
 const ifNotExist = true;
 
-export class addReferenceDrugsTable1736614067055 implements MigrationInterface {
+export class addReferenceDrugsTable1739314067055 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ReferenceDrugTable, ifNotExist);
   }

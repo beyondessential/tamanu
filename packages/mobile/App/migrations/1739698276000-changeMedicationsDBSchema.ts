@@ -135,12 +135,12 @@ const PatientOngoingPrescriptions = new Table({
   ],
 });
 
-export class changeMedicationsDBSchema1736398276000 implements MigrationInterface {
+export class changeMedicationsDBSchema1739698276000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(Prescriptions, true);
     await queryRunner.query(
-      `INSERT INTO prescriptions 
-      SELECT id, date, endDate, note, indication, route, quantity, medicationId, createdAt, updatedAt, updatedAtSyncTick, deletedAt 
+      `INSERT INTO prescriptions
+      SELECT id, date, endDate, note, indication, route, quantity, medicationId, createdAt, updatedAt, updatedAtSyncTick, deletedAt
       FROM encounter_medications;`,
     );
 
@@ -160,20 +160,20 @@ export class changeMedicationsDBSchema1736398276000 implements MigrationInterfac
 
     await queryRunner.query(`
       INSERT INTO encounter_medications (id, encounterId, medicationId, date, endDate, prescription, note, indication, route, quantity, createdAt, updatedAt, updatedAtSyncTick, deletedAt)
-      SELECT 
-        prescriptions.id, 
-        encounter_prescriptions.encounterId, 
-        prescriptions.medicationId, 
-        prescriptions.date, 
-        prescriptions.endDate, 
-        prescriptions.prescription, 
-        prescriptions.note, 
-        prescriptions.indication, 
-        prescriptions.route, 
-        prescriptions.quantity, 
-        prescriptions.createdAt, 
-        prescriptions.updatedAt, 
-        prescriptions.updatedAtSyncTick, 
+      SELECT
+        prescriptions.id,
+        encounter_prescriptions.encounterId,
+        prescriptions.medicationId,
+        prescriptions.date,
+        prescriptions.endDate,
+        prescriptions.prescription,
+        prescriptions.note,
+        prescriptions.indication,
+        prescriptions.route,
+        prescriptions.quantity,
+        prescriptions.createdAt,
+        prescriptions.updatedAt,
+        prescriptions.updatedAtSyncTick,
         prescriptions.deletedAt
       FROM prescriptions
       INNER JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescriptionId;
