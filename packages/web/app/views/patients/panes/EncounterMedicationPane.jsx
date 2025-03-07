@@ -11,6 +11,7 @@ import { Button, ButtonWithPermissionCheck, TextButton } from '../../../componen
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Colors } from '../../../constants';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -52,6 +53,7 @@ const TableContainer = styled.div`
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
+  const { navigateToMar } = usePatientNavigation();
 
   const { loadEncounter } = useEncounter();
 
@@ -98,6 +100,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             disabled={readonly}
             variant="outlined"
             color="primary"
+            onClick={navigateToMar}
           >
             <TranslatedText stringId="medication.action.medicationAdminRecord" fallback="Medication admin record" />
           </StyledButton>

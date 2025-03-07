@@ -178,7 +178,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, after } = query;
 
     req.checkPermission('list', 'Prescription');
 
@@ -193,6 +193,15 @@ encounterRelations.get(
         where: { id: params.id },
       }],
     };
+
+    if (after) {
+      baseQueryOptions.where = {
+        ...baseQueryOptions.where,
+        startDate: {
+          [Op.lte]: new Date(after),
+        },
+      };
+    }
 
     const count = await Prescription.count({
       ...baseQueryOptions,

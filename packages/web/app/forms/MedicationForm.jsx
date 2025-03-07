@@ -44,7 +44,7 @@ import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
 import { getReferenceDataStringId } from '../components/Translation/index.js';
@@ -428,6 +428,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const frequenciesAdministrationIdealTimes = getSetting(
     'medications.defaultAdministrationTimes',
   );
+  const queryClient = useQueryClient();
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -492,12 +493,18 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     setSubmittedMedication(newMedication);
   };
 
+  const onFinalise = async ({ data, isPrinting, submitForm }) => {
+    setAwaitingPrint(isPrinting);
+    await submitForm(data);
+  };
+
   return (
     <>
       <Form
         suppressErrorDialog
         onSubmit={onSubmit}
-        onSuccess={() => {
+        onSuccess={async () => {
+          await queryClient.invalidateQueries(['encounterMedication', encounterId]);
           if (!awaitingPrint) {
             onSaved();
           }
@@ -743,10 +750,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
             <ButtonRow>
               <FormSubmitButton
                 color="primary"
-                onClick={data => {
-                  setAwaitingPrint(true);
-                  submitForm(data);
-                }}
+                onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
                 variant="outlined"
                 startIcon={<PrintIcon />}
               >
@@ -761,10 +765,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
-                  onClick={data => {
-                    setAwaitingPrint(false);
-                    submitForm(data);
-                  }}
+                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
                 >
                   <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
                 </FormSubmitButton>
