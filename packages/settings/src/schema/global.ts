@@ -1406,7 +1406,7 @@ export const globalSettings = {
             },
           },
         },
-        frequenciesAdministrationIdealTimes: {
+        defaultAdministrationTimes: {
           description: '-',
           properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
             frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
