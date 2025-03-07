@@ -69,3 +69,28 @@ export const createPatientCommunication = async ({
     }),
   );
 };
+
+interface CreatePatientViewLogParams {
+  models: Models;
+  facilityId: string;
+  userId: string;
+  patientId: string;
+}
+export const createAccessLog = async ({
+  models: { Access },
+  patientId,
+  userId,
+  facilityId,
+}: CreatePatientViewLogParams) => {
+  await Access.create(
+    fake(Access, {
+      userId: userId,
+      recordId: patientId,
+      facilityId,
+      recordType: 'Patient',
+      isMobile: chance.bool(),
+      frontEndContext: { patientId },
+      backEndContext: { endPoint: '/patient/:id' },
+    }),
+  );
+};
