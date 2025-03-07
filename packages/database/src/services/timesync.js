@@ -4,6 +4,8 @@
  * Time synchronization between peers
  *
  * https://github.com/enmasseio/timesync
+ *
+ * Original by enmasse.io - MIT License
  */
 
 import * as stat from 'timesync/lib/stat.js';
