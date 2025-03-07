@@ -22,6 +22,8 @@ export class Prescription extends Model {
   declare indication?: string;
   declare isPhoneOrder?: boolean;
   declare notes?: string;
+  declare pharmacyNotes?: string;
+  declare displayPharmacyNotesInMar?: boolean;
   declare quantity?: number;
   declare discontinued?: boolean;
   declare discontinuedDate?: string;
@@ -66,6 +68,8 @@ export class Prescription extends Model {
         indication: DataTypes.STRING,
         isPhoneOrder: DataTypes.BOOLEAN,
         notes: DataTypes.STRING,
+        pharmacyNotes: DataTypes.STRING,
+        displayPharmacyNotesInMar: DataTypes.BOOLEAN,
         quantity: DataTypes.INTEGER,
         discontinued: DataTypes.BOOLEAN,
         discontinuedDate: DataTypes.STRING,
