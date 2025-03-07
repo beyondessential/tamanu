@@ -91,12 +91,18 @@ sources:
           - name: units
             data_type: character varying(255)
             description: "{{ doc('prescriptions__units') }}"
+            data_tests:
+              - not_null
           - name: frequency
             data_type: character varying(255)
             description: "{{ doc('prescriptions__frequency') }}"
+            data_tests:
+              - not_null
           - name: start_date
             data_type: character(19)
             description: "{{ doc('prescriptions__start_date') }}"
+            data_tests:
+              - not_null
           - name: duration_value
             data_type: numeric
             description: "{{ doc('prescriptions__duration_value') }}"
@@ -114,3 +120,9 @@ sources:
           - name: ideal_times
             data_type: array
             description: "{{ doc('prescriptions__ideal_times') }}"
+          - name: pharmacy_notes
+            data_type: character varying(255)
+            description: "{{ doc('prescriptions__pharmacy_notes') }}"
+          - name: display_pharmacy_notes_in_mar
+            data_type: boolean
+            description: "{{ doc('prescriptions__display_pharmacy_notes_in_mar') }}"

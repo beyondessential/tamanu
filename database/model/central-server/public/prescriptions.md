@@ -97,3 +97,11 @@ A flag to determine whether or not the current prescription is phone order
 {% docs prescriptions__ideal_times %}
 Ideal times which are specified by prescriber
 {% enddocs %}
+
+{% docs prescriptions__pharmacy_notes %}
+Free-form pharmacy note of the prescription.
+{% enddocs %}
+
+{% docs prescriptions__display_pharmacy_notes_in_mar %}
+A flag to determine whether to display 'Pharmacy notes' on the medication administration record
+{% enddocs %}

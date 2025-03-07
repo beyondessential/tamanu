@@ -59,6 +59,16 @@ export async function up(query: QueryInterface) {
     defaultValue: [],
   });
 
+  await query.addColumn('prescriptions', 'pharmacy_notes', {
+    type: DataTypes.STRING,
+    allowNull: true,
+  });
+
+  await query.addColumn('prescriptions', 'display_pharmacy_notes_in_mar', {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+  });
+
   await query.renameColumn('prescriptions', 'note', 'notes');
 }
 
@@ -74,6 +84,8 @@ export async function down(query: QueryInterface) {
   await query.removeColumn('prescriptions', 'duration_unit');
   await query.removeColumn('prescriptions', 'is_phone_order');
   await query.removeColumn('prescriptions', 'ideal_times');
+  await query.removeColumn('prescriptions', 'pharmacy_notes');
+  await query.removeColumn('prescriptions', 'display_pharmacy_notes_in_mar');
 
   await query.renameColumn('prescriptions', 'notes', 'note');
 }
