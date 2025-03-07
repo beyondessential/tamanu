@@ -25,7 +25,7 @@ const InfoDiv = styled.div`
   flex-direction: row;
   justify-content: center-between;
   width: 100%;
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 22px 30px;
 `;
