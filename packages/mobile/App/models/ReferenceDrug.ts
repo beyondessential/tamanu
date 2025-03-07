@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceData } from './ReferenceData';
