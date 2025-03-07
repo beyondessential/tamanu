@@ -13,6 +13,7 @@ import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdent
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -261,6 +262,17 @@ export const authMiddleware = async (req, res, next) => {
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
+
+    // Auditing middleware
+    req.auditUserPatientView = async (context) => {
+      req.models.UserPatientView.create({
+        viewedById: userId,
+        facilityId,
+        sessionId,
+        context,
+        loggedAt: getCurrentDateTimeString(),
+      });
+    };
 
     const spanAttributes = {};
     if (req.user) {
