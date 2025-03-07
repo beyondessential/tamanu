@@ -1,5 +1,5 @@
 import config from 'config';
-import { create as createTimesync } from 'timesync';
+import { createTimesync } from '@tamanu/database/services/timesync';
 
 import { log } from '@tamanu/shared/services/logging';
 
