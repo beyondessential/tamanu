@@ -91,6 +91,12 @@ const ButtonRow = styled.div`
   height: 40px;
 `;
 
+const StyledFormGrid = styled(FormGrid)`
+  .MuiFormHelperText-root.Mui-error {
+    font-size: 12px;
+  }
+`;
+
 export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) => {
   const api = useApi();
   const { currentUser } = useAuth();
@@ -162,7 +168,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
-          <FormGrid>
+          <StyledFormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
               <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
               <span style={{ fontWeight: 500 }}>
@@ -384,7 +390,7 @@ export const MedicationForm = React.memo(({ encounterId, onCancel, onSaved }) =>
                 </FormSubmitButton>
               </Box>
             </ButtonRow>
-          </FormGrid>
+          </StyledFormGrid>
         )}
       />
       {submittedMedication && (

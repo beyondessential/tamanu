@@ -5,11 +5,10 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
 import { getTranslatedFrequencySynonyms } from '../../utils/medications';
 import { useSettings } from '../../contexts/Settings';
-import { Colors } from '../../constants';
 
 const getFrequencySuggestions = synonyms => {
   return Object.entries(synonyms).map(([key, value]) => ({
-    label: `${key} <span style="color:${Colors.midText}">(${value[0]})</span>`,
+    label: `${key} (${value[0]})`,
     value: key,
     synonyms: value,
   }));
@@ -20,10 +19,7 @@ export const FrequencySearchInput = ({ ...props }) => {
   const { getSetting } = useSettings();
   const frequenciesEnabled = getSetting(`medications.frequenciesEnabled`);
 
-  const translatedFrequencySynonyms = getTranslatedFrequencySynonyms(
-    frequenciesEnabled,
-    getTranslation,
-  );
+  const translatedFrequencySynonyms = getTranslatedFrequencySynonyms(frequenciesEnabled, getTranslation);
 
   const frequencySuggestions = getFrequencySuggestions(translatedFrequencySynonyms);
   const frequencySuggester = new FrequencySuggester(frequencySuggestions);
@@ -33,11 +29,16 @@ export const FrequencySearchInput = ({ ...props }) => {
       {...props}
       label={<TranslatedText stringId="medication.frequency.label" fallback="Frequency" />}
       suggester={frequencySuggester}
-      isHtmlOptionLabel
     />
   );
 };
 
 export const FrequencySearchField = ({ field, ...props }) => {
-  return <FrequencySearchInput name={field.name} onChange={field.onChange} {...props} />;
+  return (
+    <FrequencySearchInput
+      name={field.name}
+      onChange={field.onChange}
+      {...props}
+    />
+  );
 };
