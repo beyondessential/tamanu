@@ -1,0 +1,7 @@
+---
+schema: public
+name: imaging_requests
+transformers:
+  - name: Masking
+    params:
+      column: reason_for_cancellation

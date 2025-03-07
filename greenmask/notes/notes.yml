@@ -1,0 +1,7 @@
+---
+schema: public
+name: notes
+transformers:
+  - name: Masking
+    params:
+      column: content

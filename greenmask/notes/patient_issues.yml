@@ -1,0 +1,7 @@
+---
+schema: public
+name: patient_issues
+transformers:
+  - name: Masking
+    params:
+      column: note

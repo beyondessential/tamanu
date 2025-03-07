@@ -1,0 +1,7 @@
+---
+schema: public
+name: invoice_item_discounts
+transformers:
+  - name: Masking
+    params:
+      column: reason

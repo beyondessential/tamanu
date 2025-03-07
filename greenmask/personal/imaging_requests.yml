@@ -1,0 +1,10 @@
+---
+schema: public
+name: imaging_requests
+transformers:
+  - name: RandomString
+    params:
+      column: display_id
+      min_length: 10
+      max_length: 10
+      symbols: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
