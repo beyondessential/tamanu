@@ -13,7 +13,8 @@ export const medication = express.Router();
 
 medication.get('/:id', simpleGet('Prescription'));
 medication.put('/:id', simplePut('Prescription'));
-medication.post('/$', 
+medication.post(
+  '/$',
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { encounterId, ...rest } = req.body;
@@ -31,6 +32,26 @@ medication.post('/$',
 
     const object = await Prescription.create(rest);
     await EncounterPrescription.create({ encounterId, prescriptionId: object.id });
+    res.send(object);
+  }),
+);
+
+medication.put(
+  '/:id/pharmacy-notes',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Prescription } = models;
+    const { pharmacyNotes, displayPharmacyNotesInMar } = req.body;
+    req.checkPermission('create', 'MedicationPharmacyNote');
+
+    const object = await Prescription.findByPk(params.id);
+    if (object.pharmacyNotes && object.pharmacyNotes !== pharmacyNotes) {
+      req.checkPermission('write', 'MedicationPharmacyNote');
+    }
+
+    object.pharmacyNotes = pharmacyNotes;
+    object.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
+    await object.save();
     res.send(object);
   }),
 );

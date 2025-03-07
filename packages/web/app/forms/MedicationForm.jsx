@@ -15,8 +15,9 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  formatTimeSlot
 } from '@tamanu/shared/utils/medication';
-import { formatTime, formatShort } from '@tamanu/utils/dateTime';
+import { formatShort } from '@tamanu/utils/dateTime';
 import { addDays, format } from 'date-fns';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
@@ -198,12 +199,6 @@ const StyledFormGrid = styled(FormGrid)`
     font-size: 12px;
   }
 `;
-
-const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
-};
 
 const MedicationAdministrationForm = () => {
   const { getSetting } = useSettings();

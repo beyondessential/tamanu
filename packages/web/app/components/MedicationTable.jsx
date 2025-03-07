@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -17,6 +17,7 @@ import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
 import { useTranslation } from '../contexts/Translation';
 import { getTranslatedFrequencySynonym } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { MedicationDetails } from './MedicationDetails';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   border: none;
@@ -164,6 +165,9 @@ const FULL_LISTING_COLUMNS = getTranslation => [
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const { getTranslation } = useTranslation();
+  const [selectedMedication, setSelectedMedication] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
@@ -173,6 +177,13 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
   return (
     <div>
+      {selectedMedication && (
+        <MedicationDetails
+          medication={selectedMedication}
+          onReloadTable={() => setRefreshCount(refreshCount + 1)}
+          onClose={() => setSelectedMedication(null)}
+        />
+      )}
       <StyledDataFetchingTable
         columns={MEDICATION_COLUMNS(getTranslation)}
         endpoint={`encounter/${encounterId}/medications`}
@@ -180,6 +191,8 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         elevated={false}
         allowExport={false}
         disablePagination
+        onRowClick={row => setSelectedMedication(row)}
+        refreshCount={refreshCount}
       />
     </div>
   );

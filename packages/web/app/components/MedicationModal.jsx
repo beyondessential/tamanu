@@ -3,10 +3,17 @@ import React from 'react';
 import { FormModal } from './FormModal';
 import { MedicationForm } from '../forms/MedicationForm';
 import { TranslatedText } from './Translation/TranslatedText';
+import styled from 'styled-components';
+
+const StyledFormModal = styled(FormModal)`
+  .MuiPaper-root {
+    max-width: 670px;
+  }
+`;
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId }) => {
   return (
-    <FormModal
+    <StyledFormModal
       title={
         <TranslatedText
           stringId="medication.modal.newPrescription.title"
@@ -16,11 +23,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId }) => {
       open={open}
       onClose={onClose}
     >
-      <MedicationForm
-        encounterId={encounterId}
-        onCancel={onClose}
-        onSaved={onSaved}
-      />
-    </FormModal>
+      <MedicationForm encounterId={encounterId} onCancel={onClose} onSaved={onSaved} />
+    </StyledFormModal>
   );
 };
