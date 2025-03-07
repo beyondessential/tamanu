@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedSelectField, FieldWithTooltip } from '../../components';
+import { Colors } from '../../constants';
 
 const StyledTextField = styled(TranslatedSelectField)`
   .Mui-disabled {
-    background-color: #f3f5f7;
+    background-color: ${Colors.hoverGrey};
   }
 `;
 

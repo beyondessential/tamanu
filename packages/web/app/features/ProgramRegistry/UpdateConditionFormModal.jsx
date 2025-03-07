@@ -20,7 +20,7 @@ import { useTranslation } from '../../contexts/Translation';
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: #f3f5f7;
+    background-color: ${Colors.hoverGrey};
   }
 `;
 

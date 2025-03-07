@@ -104,10 +104,6 @@ patientProgramRegistration.put(
 
     if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
-
-      if (conditions.some((condition) => !condition.id)) {
-        throw new Error('All conditions must have an id');
-      }
     }
 
     const existingRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);

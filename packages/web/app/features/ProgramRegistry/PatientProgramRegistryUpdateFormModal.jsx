@@ -29,6 +29,7 @@ import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormTable = styled(FormTable)`
+  overflow: auto;
   table tr td {
     border: none;
 
@@ -48,7 +49,7 @@ const Divider = styled(MuiDivider)`
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: ${Colors.background};
+    background-color: ${Colors.hoverGrey};
   }
 `;
 
@@ -59,6 +60,7 @@ const StyledAutocompleteField = styled(AutocompleteField)`
 const AddButton = styled(Button)`
   position: absolute;
   padding-left: 10px;
+  white-space: nowrap;
 
   .MuiSvgIcon-root,
   .MuiButton-startIcon {
@@ -150,7 +152,7 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, conditionCategory, date, programRegistryCondition, reasonForChange }) => {
+  rows.forEach(({ id, conditionCategory, date, programRegistryCondition }) => {
     const group = Object.entries(groupMapping).find(([, conditions]) =>
       conditions.includes(conditionCategory),
     )?.[0];
@@ -161,7 +163,6 @@ const getGroupedData = rows => {
         name: programRegistryCondition.name,
         date,
         conditionCategory,
-        reasonForChange,
       });
     }
   });
@@ -225,6 +226,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
           const columns = [
             {
               key: 'condition',
+              width: 200,
               title: (
                 <span id="condition-label">
                   <TranslatedText
@@ -290,7 +292,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
             },
             {
               key: 'dateAdded',
-              width: 160,
+              width: 135,
               title: (
                 <span id="date-added-label">
                   <TranslatedText
@@ -334,9 +336,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
-              width: 200,
-              accessor: ({ conditionId, conditionCategory }, groupName, index) => {
-                if (conditionCategory === 'recordedInError') {
+              width: 180,
+              accessor: ({ conditionId }, groupName, index) => {
+                const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
+                if (initialValue === 'recordedInError') {
                   return (
                     <ProgramRegistryConditionCategoryField
                       name={`conditions[${groupName}][${index}].conditionCategory`}
@@ -370,7 +373,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              width: 320,
+              width: 250,
               accessor: (row, groupName, index) => {
                 // Check for date as a proxy for whether the row is new
                 const initialValue = initialValues.conditions[groupName][index]?.date;
