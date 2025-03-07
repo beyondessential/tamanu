@@ -6,10 +6,51 @@
  * https://github.com/enmasseio/timesync
  */
 
-import * as util from 'timesync/lib/util.js';
 import * as stat from 'timesync/lib/stat.js';
-import * as request from 'timesync/lib/request/request.js';
+import * as request from 'timesync/lib/request/request.node.js';
 import emitter from 'timesync/lib/emitter.js';
+
+
+function wait(delay) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, delay);
+  });
+}
+
+/**
+ * Repeat an asynchronous callback function whilst
+ * @param {function} condition   A function returning true or false
+ * @param {function} callback    A callback returning a Promise
+ * @returns {Promise}
+ */
+
+
+function whilst(condition, callback) {
+  return new Promise(function (resolve, reject) {
+    function recurse() {
+      if (condition()) {
+        callback().then(function () {
+          return recurse();
+        });
+      } else {
+        resolve();
+      }
+    }
+
+    recurse();
+  });
+}
+/**
+ * Simple id generator
+ * @returns {number} Returns a new id
+ */
+
+
+function nextId() {
+  return _id++;
+}
+
+var _id = 0;
 
 /**
  * Factory function to create a timesync instance
@@ -106,7 +147,7 @@ export function createTimesync(options) {
      * @returns {Promise}
      */
     rpc: function (to, method, params) {
-      var id = util.nextId();
+      var id = nextId();
       var resolve, reject;
       var deferred = new Promise((res, rej) => {
         resolve = res;
@@ -190,7 +231,7 @@ export function createTimesync(options) {
       }
 
       function waitAndSync() {
-        return util.wait(timesync.options.delay).then(sync);
+        return wait(timesync.options.delay).then(sync);
       }
 
       function notDone() {
@@ -199,7 +240,7 @@ export function createTimesync(options) {
 
       return sync()
           .then(function () {
-            return util.whilst(notDone, waitAndSync)
+            return whilst(notDone, waitAndSync)
           })
           .then(function () {
             // filter out null results
