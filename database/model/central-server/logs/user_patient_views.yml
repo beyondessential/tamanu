@@ -28,7 +28,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('logs__user_patient_views__facility_id') }}"
           - name: session_id
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('logs__user_patient_views__session_id') }}"
             data_tests:
               - not_null
@@ -38,7 +38,7 @@ sources:
             data_tests:
               - not_null
           - name: context
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('logs__user_patient_views__context') }}"
             data_tests:
               - not_null
