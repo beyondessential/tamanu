@@ -1,8 +1,8 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { NUM_EXAMINERS, REF_ID_PREFIX } from '../constants';
 
 export default {
-  run: async store => {
+  run: async (store) => {
     const { User } = store.models;
     const examiners = [];
     for (let i = 0; i < NUM_EXAMINERS; i++) {
