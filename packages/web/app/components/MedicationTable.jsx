@@ -15,16 +15,22 @@ import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
-import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../contexts/Translation';
-import { getTranslatedFrequencySynonym } from '../utils/medications';
+import { getTranslatedFrequency } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { ConditionalTooltip } from './Tooltip';
+import { MedicationDetails } from './MedicationDetails';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  max-height: 51vh;
   border: none;
   border-top: 1px solid ${Colors.outline};
   margin-top: 8px;
+  .MuiTableHead-root {
+    position: sticky;
+    top: 0;
+  }
   .MuiTableCell-head {
     background-color: ${Colors.white};
     padding-top: 12px;
@@ -72,6 +78,10 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const NoWrapCell = styled.div`
+  white-space: nowrap;
+`;
+
 const getMedicationName = ({ medication }) => (
   <TranslatedReferenceData
     fallback={medication.name}
@@ -81,7 +91,7 @@ const getMedicationName = ({ medication }) => (
 );
 
 const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) => {
-  if (!doseAmount || !units) return '';
+  if (!units) return '';
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
   return `${doseAmount} ${units}${
     isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
@@ -90,11 +100,7 @@ const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) =
 
 const getFrequency = ({ frequency }, getTranslation) => {
   if (!frequency) return '';
-  return getTranslatedFrequencySynonym(
-    ADMINISTRATION_FREQUENCY_SYNONYMS[frequency],
-    0,
-    getTranslation,
-  );
+  return getTranslatedFrequency(frequency, getTranslation);
 };
 
 const MEDICATION_COLUMNS = getTranslation => [
@@ -107,9 +113,8 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => getDose(data, getTranslation),
+    accessor: data => <NoWrapCell>{getDose(data, getTranslation)}</NoWrapCell>,
     sortable: false,
-    CellComponent: LimitedLinesCell,
   },
   {
     key: 'frequency',
@@ -121,8 +126,7 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    accessor: ({ route }) => DRUG_ROUTE_LABELS[route],
-    CellComponent: LimitedLinesCell,
+    accessor: ({ route }) => <NoWrapCell>{DRUG_ROUTE_LABELS[route]}</NoWrapCell>,
   },
   {
     key: 'date',
@@ -148,15 +152,16 @@ const MEDICATION_COLUMNS = getTranslation => [
         );
       }
       return (
-        <ConditionalTooltip
-          visible={isOngoing || (durationValue && durationUnit)}
-          title={<Box fontWeight={400}>{tooltipTitle}</Box>}
-        >
-          {formatShortest(date)}
-        </ConditionalTooltip>
+        <NoWrapCell>
+          <ConditionalTooltip
+            visible={isOngoing || (durationValue && durationUnit)}
+            title={<Box fontWeight={400}>{tooltipTitle}</Box>}
+          >
+            {formatShortest(date)}
+          </ConditionalTooltip>
+        </NoWrapCell>
       );
     },
-    CellComponent: LimitedLinesCell,
   },
   {
     key: 'prescriber.displayName',
@@ -196,6 +201,9 @@ const FULL_LISTING_COLUMNS = getTranslation => [
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const { getTranslation } = useTranslation();
+  const [selectedMedication, setSelectedMedication] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
@@ -205,6 +213,13 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
   return (
     <div>
+      {selectedMedication && (
+        <MedicationDetails
+          medication={selectedMedication}
+          onReloadTable={() => setRefreshCount(refreshCount + 1)}
+          onClose={() => setSelectedMedication(null)}
+        />
+      )}
       <StyledDataFetchingTable
         columns={MEDICATION_COLUMNS(getTranslation)}
         endpoint={`encounter/${encounterId}/medications`}
@@ -212,6 +227,8 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         elevated={false}
         allowExport={false}
         disablePagination
+        onRowClick={row => setSelectedMedication(row)}
+        refreshCount={refreshCount}
       />
     </div>
   );

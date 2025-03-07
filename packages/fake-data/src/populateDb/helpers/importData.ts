@@ -1,4 +1,4 @@
-const { fake } = require('@tamanu/shared/test-helpers/fake');
+import { fake } from '../../fake';
 
 import type {
   Department,

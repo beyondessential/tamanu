@@ -1,5 +1,4 @@
-import { ManyToOne, RelationId } from 'typeorm';
-import { Entity } from 'typeorm/browser';
+import { ManyToOne, RelationId, Entity } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';

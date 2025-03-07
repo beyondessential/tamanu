@@ -1308,6 +1308,16 @@ export const globalSettings = {
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: 'Settings for the time frame of recent notifications',
+          type: yup.number(),
+          defaultValue: 48,
+        },
+      },
+    },
     medications: {
       description: 'Medication settings',
       properties: {
@@ -1396,27 +1406,11 @@ export const globalSettings = {
             },
           },
         },
-        frequenciesAdministrationIdealTimes: {
+        defaultAdministrationTimes: {
           description: '-',
-          properties: generateFrequencyProperties(
-            Object.values(ADMINISTRATION_FREQUENCIES).filter(
-              (frequency) =>
-                ![
-                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
-                ].includes(frequency),
-            ),
-          ),
-        },
-      },
-    },
-    notifications: {
-      description: 'Notification settings',
-      properties: {
-        recentNotificationsTimeFrame: {
-          description: 'Settings for the time frame of recent notifications',
-          type: yup.number(),
-          defaultValue: 48,
+          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
+            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
+          )),
         },
       },
     },

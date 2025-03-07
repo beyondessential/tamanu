@@ -56,9 +56,6 @@ export async function up(query: QueryInterface) {
   }
 }
 
-/**
- * @param {QueryInterface} query
- */
 export async function down(query: QueryInterface) {
   await query.dropTable('reference_drugs');
 }

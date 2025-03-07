@@ -15,6 +15,7 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  formatTimeSlot
 } from '@tamanu/shared/utils/medication';
 import { formatTime, formatShort } from '@tamanu/utils/dateTime';
 import { addDays, format } from 'date-fns';
@@ -208,7 +209,7 @@ const formatTimeSlot = time => {
 const MedicationAdministrationForm = () => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.frequenciesAdministrationIdealTimes',
+    'medications.defaultAdministrationTimes',
   );
 
   const { values, setValues, errors } = useFormikContext();
@@ -431,9 +432,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.frequenciesAdministrationIdealTimes',
+    'medications.defaultAdministrationTimes',
   );
-  const queryClient = useQueryClient();
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 

@@ -10,3 +10,4 @@ export * from './programRegistry';
 export * from './survey';
 export * from './vaccine';
 export * from './importData';
+export * from './medication';

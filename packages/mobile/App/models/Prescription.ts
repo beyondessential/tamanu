@@ -1,10 +1,9 @@
-import { Column, Entity, RelationId } from 'typeorm/browser';
+import { Column, Entity, RelationId, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IMedication } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
-import { OneToMany } from 'typeorm';
 import { EncounterPrescription } from './EncounterPrescription';
 
 @Entity('prescriptions')

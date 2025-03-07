@@ -1,6 +1,6 @@
 import { exportProgram } from '../../../dist/admin/programExporter';
 import { createTestContext } from '../../utilities';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { Program, Survey, ProgramDataElement, SurveyScreenComponent } from '@tamanu/database';
 
 const surveySheetHeaders = [
@@ -44,7 +44,7 @@ const buildExpectedMetadataSheet = (program, surveys) => [
     'notifiable',
     'notifyEmailAddresses',
   ],
-  ...surveys.map(survey => [
+  ...surveys.map((survey) => [
     survey.code,
     survey.name,
     survey.surveyType,
@@ -58,7 +58,7 @@ const buildExpectedMetadataSheet = (program, surveys) => [
   ]),
 ];
 
-const buildExpectedSurveySheet = surveyScreenComponentAndProgramDataElements => [
+const buildExpectedSurveySheet = (surveyScreenComponentAndProgramDataElements) => [
   surveySheetHeaders,
   ...surveyScreenComponentAndProgramDataElements.map(
     ({ surveyScreenComponent, programDataElement }) => [
@@ -87,7 +87,7 @@ const buildExpectedSurveySheet = surveyScreenComponentAndProgramDataElements => 
 jest.mock('xlsx', () => ({
   utils: {
     book_new: () => ({}),
-    aoa_to_sheet: data => data,
+    aoa_to_sheet: (data) => data,
     book_append_sheet: (book, sheet, name) => {
       book[name] = sheet;
     },
