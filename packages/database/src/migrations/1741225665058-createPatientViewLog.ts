@@ -39,7 +39,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
     },
     logged_at: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     context: {

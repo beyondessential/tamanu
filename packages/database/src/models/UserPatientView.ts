@@ -11,7 +11,7 @@ export class UserPatientView extends Model {
   declare patientId: string;
   declare facilityId?: string;
   declare sessionId: string;
-  declare loggedAt: Date;
+  declare loggedAt: string;
   declare context: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -19,7 +19,7 @@ export class UserPatientView extends Model {
       {
         id: primaryKey,
         loggedAt: {
-          type: DataTypes.DATE,
+          type: DataTypes.DATETIMESTRING,
           allowNull: false,
         },
         context: {
