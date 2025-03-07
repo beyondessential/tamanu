@@ -6,7 +6,7 @@ import { agent as _agent } from 'supertest';
 
 import { attachAuditUserToDbSession } from '@tamanu/database';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fakeUser } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { authMiddleware, buildToken } from '../app/middleware/auth';
