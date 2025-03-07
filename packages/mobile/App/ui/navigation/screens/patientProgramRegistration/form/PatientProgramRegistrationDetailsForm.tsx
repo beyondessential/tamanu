@@ -48,7 +48,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       await models.ProgramRegistryClinicalStatus.find({
         where: {
           visibilityStatus: VisibilityStatus.Current,
-          programRegistry: programRegistry.id,
+          programRegistry: { id: programRegistry.id },
         },
       }),
     [programRegistry.id],
@@ -171,7 +171,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map(x => ({ label: x.name, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({ label: x.name, value: x.id })) || []
                     }
                   />
                 </StyledView>

@@ -19,8 +19,7 @@ export const createStubTheme = () => createTheme({});
 
 const createStubTranslationContext = () => {
   // eslint-disable-next-line no-unused-vars
-  const mockGetTranslation = (_stringId, fallback, _replacements, _uppercase, _lowercase) =>
-    fallback;
+  const mockGetTranslation = (_stringId, fallback, _translationOptions) => fallback;
 
   return {
     getTranslation: vi.fn().mockImplementation(mockGetTranslation),

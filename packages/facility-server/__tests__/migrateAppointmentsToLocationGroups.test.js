@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from './utilities';
 import { migrateAppointments } from '../dist/subCommands';

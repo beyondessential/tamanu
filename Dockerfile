@@ -82,8 +82,8 @@ FROM rust AS build-bestool
 RUN cargo install bestool --no-default-features \
   -F completions \
   -F crypto \
-  -F tamanu \
-  -F walg
+  -F file \
+  -F tamanu
 
 FROM ubuntu AS toolbox
 RUN apt update && apt install -y --no-install-recommends \

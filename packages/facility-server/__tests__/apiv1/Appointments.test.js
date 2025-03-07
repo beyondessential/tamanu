@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
@@ -552,7 +552,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
       expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
@@ -620,7 +620,7 @@ describe('Appointments', () => {
         ],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-02');
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-02');
       expect(updatedExistingSchedule.appointments).toHaveLength(0);
 
       const newScheduleAppointments = await models.Appointment.findAll({
@@ -691,7 +691,7 @@ describe('Appointments', () => {
         },
       });
 
-      expect(updatedSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedSchedule.cancelledAtDate).toEqual('2024-10-09');
     });
     it('should delete just the selected appointment if "this appointment" selected', async () => {
       const [schedule, appointments] = await generateSchedule();

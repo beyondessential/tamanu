@@ -1,7 +1,7 @@
 import { parseISO } from 'date-fns';
 import config from 'config';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
@@ -29,7 +29,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       [
         'INSERT',
         'with a previously deleted patient',
-        async vrsPatient => {
+        async (vrsPatient) => {
           const { Patient } = ctx.store.models;
           await Patient.create({
             ...fake(Patient),
@@ -41,7 +41,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       [
         'UPDATE',
         'with an existing patient',
-        async vrsPatient => {
+        async (vrsPatient) => {
           const { Patient } = ctx.store.models;
           await Patient.create({
             ...fake(Patient),

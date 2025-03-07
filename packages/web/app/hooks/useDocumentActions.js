@@ -47,7 +47,7 @@ export const useDocumentActions = () => {
             'document.notification.downloadStart',
             'Your download has started, please wait.',
           ),
-          { type: 'info' },
+          { replacement: { type: 'info' } },
         );
 
         await saveFile({
