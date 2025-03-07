@@ -26,7 +26,7 @@ function wait(delay) {
 
 
 function whilst(condition, callback) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     function recurse() {
       if (condition()) {
         callback().then(function () {
