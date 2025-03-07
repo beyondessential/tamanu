@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ConfirmCancelRow, FormSeparatorLine, Modal } from '../../components';
+import {
+  ConfirmCancelRow,
+  FormSeparatorLine,
+  Modal,
+  TranslatedReferenceData,
+} from '../../components';
 import { useApi } from '../../api';
 
 const Text = styled.div`
@@ -45,7 +50,13 @@ export const RemoveConditionFormModal = ({
   return (
     <Modal title="Remove related condition" open={open} onClose={onCancel}>
       <Text>
-        {`Are you sure you would like to remove the related condition of ‘${conditionToRemove.programRegistryCondition.name}' from the patients program condition record?`}
+        Are you sure you would like to remove the related condition of{' '}
+        <TranslatedReferenceData
+          fallback={conditionToRemove.programRegistryCondition?.name}
+          value={conditionToRemove.programRegistryCondition?.id}
+          category="programRegistryCondition"
+        />{' '}
+        from the patients program condition record?
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />
