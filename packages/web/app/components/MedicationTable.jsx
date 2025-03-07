@@ -1,11 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
-import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
@@ -83,20 +82,6 @@ const FULL_LISTING_COLUMNS = [
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
-  const [isOpen, setModalOpen] = useState(false);
-  const [encounterMedication, setEncounterMedication] = useState(null);
-  const { loadEncounter } = useEncounter();
-
-  const onClose = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const onSaved = useCallback(async () => {
-    await loadEncounter(encounterId);
-  }, [loadEncounter, encounterId]);
-
-  const onMedicationSelect = useCallback(async medication => {
-    setModalOpen(true);
-    setEncounterMedication(medication);
-  }, []);
-
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
@@ -106,18 +91,9 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
   return (
     <div>
-      <MedicationModal
-        open={isOpen}
-        encounterId={encounterId}
-        onClose={onClose}
-        onSaved={onSaved}
-        medication={encounterMedication}
-        readOnly
-      />
       <DataFetchingTable
         columns={MEDICATION_COLUMNS}
         endpoint={`encounter/${encounterId}/medications`}
-        onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
         elevated={false}
       />
