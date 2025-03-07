@@ -12,6 +12,7 @@ export class Prescription extends Model {
   declare doseAmount: number;
   declare units: string;
   declare frequency: string;
+  declare idealTimes: string[];
   declare route: string;
   declare date: string;
   declare startDate: string;
@@ -49,6 +50,7 @@ export class Prescription extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        idealTimes: DataTypes.ARRAY(DataTypes.STRING),
         route: {
           type: DataTypes.STRING,
           allowNull: false,

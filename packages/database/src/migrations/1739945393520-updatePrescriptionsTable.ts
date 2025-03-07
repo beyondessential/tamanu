@@ -51,6 +51,11 @@ export async function up(query: QueryInterface) {
     allowNull: true,
   });
 
+  await query.addColumn('prescriptions', 'ideal_times', {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
+  });
+
   await query.renameColumn('prescriptions', 'note', 'notes');
 }
 
@@ -65,6 +70,7 @@ export async function down(query: QueryInterface) {
   await query.removeColumn('prescriptions', 'duration_value');
   await query.removeColumn('prescriptions', 'duration_unit');
   await query.removeColumn('prescriptions', 'is_phone_order');
+  await query.removeColumn('prescriptions', 'ideal_times');
 
   await query.renameColumn('prescriptions', 'notes', 'note');
 }

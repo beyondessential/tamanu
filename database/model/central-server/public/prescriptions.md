@@ -93,3 +93,7 @@ The duration unit of the prescription
 {% docs prescriptions__is_phone_order %}
 A flag to determine whether or not the current prescription is phone order
 {% enddocs %}
+
+{% docs prescriptions__ideal_times %}
+Ideal times which are specified by prescriber
+{% enddocs %}
