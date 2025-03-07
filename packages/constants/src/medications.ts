@@ -221,6 +221,13 @@ export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
 };
 
+export const ADMINISTRATION_STATUS = {
+  GIVEN: 'given',
+  NOT_GIVEN: 'not-given',
+  MISSED: 'missed',
+  DUE: 'due',
+};
+
 export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '00:00', endTime: '02:00' },
   { startTime: '02:00', endTime: '04:00' },

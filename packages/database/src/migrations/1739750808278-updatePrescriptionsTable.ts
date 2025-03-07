@@ -35,17 +35,20 @@ export async function up(query: QueryInterface) {
 
   await query.addColumn('prescriptions', 'units', {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
+    defaultValue: '',
   });
 
   await query.addColumn('prescriptions', 'frequency', {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
+    defaultValue: '',
   });
 
   await query.addColumn('prescriptions', 'start_date', {
     type: DataTypes.DATETIMESTRING,
-    allowNull: true,
+    allowNull: false,
+    defaultValue: '',
   });
 
   await query.addColumn('prescriptions', 'duration_value', {

@@ -2,9 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { format, parseISO, add } from 'date-fns';
+import { Box } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
+import { formatShortest } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { reloadPatient } from '../store';
@@ -13,16 +15,22 @@ import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
-import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../contexts/Translation';
-import { getTranslatedFrequencySynonym } from '../utils/medications';
+import { getTranslatedFrequency } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { ConditionalTooltip } from './Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  max-height: 51vh;
   border: none;
   border-top: 1px solid ${Colors.outline};
   margin-top: 8px;
+  .MuiTableHead-root {
+    position: sticky;
+    top: 0;
+  }
   .MuiTableCell-head {
     background-color: ${Colors.white};
     padding-top: 12px;
@@ -70,6 +78,10 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const NoWrapCell = styled.div`
+  white-space: nowrap;
+`;
+
 const getMedicationName = ({ medication }) => (
   <TranslatedReferenceData
     fallback={medication.name}
@@ -79,7 +91,7 @@ const getMedicationName = ({ medication }) => (
 );
 
 const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) => {
-  if (!doseAmount || !units) return '';
+  if (!units) return '';
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
   return `${doseAmount} ${units}${
     isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
@@ -88,11 +100,7 @@ const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) =
 
 const getFrequency = ({ frequency }, getTranslation) => {
   if (!frequency) return '';
-  return getTranslatedFrequencySynonym(
-    ADMINISTRATION_FREQUENCY_SYNONYMS[frequency],
-    0,
-    getTranslation,
-  );
+  return getTranslatedFrequency(frequency, getTranslation);
 };
 
 const MEDICATION_COLUMNS = getTranslation => [
@@ -105,9 +113,8 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => getDose(data, getTranslation),
+    accessor: data => <NoWrapCell>{getDose(data, getTranslation)}</NoWrapCell>,
     sortable: false,
-    CellComponent: LimitedLinesCell,
   },
   {
     key: 'frequency',
@@ -119,13 +126,42 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    CellComponent: LimitedLinesCell,
+    accessor: ({ route }) => <NoWrapCell>{DRUG_ROUTE_LABELS[route]}</NoWrapCell>,
   },
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date }) => <DateDisplay date={date} />,
-    CellComponent: LimitedLinesCell,
+    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
+      const parsedStartDate = parseISO(startDate);
+      const duration = parseInt(durationValue, 10);
+      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+      let tooltipTitle = '';
+      if (durationValue && durationUnit) {
+        tooltipTitle = (
+          <>
+            <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
+            <div>{format(endDate, 'dd/MM/yy h:mma').toLowerCase()}</div>
+          </>
+        );
+      } else if (isOngoing) {
+        tooltipTitle = (
+          <TranslatedText
+            stringId="medication.table.ongoingMedication.label"
+            fallback="Ongoing medication"
+          />
+        );
+      }
+      return (
+        <NoWrapCell>
+          <ConditionalTooltip
+            visible={isOngoing || (durationValue && durationUnit)}
+            title={<Box fontWeight={400}>{tooltipTitle}</Box>}
+          >
+            {formatShortest(date)}
+          </ConditionalTooltip>
+        </NoWrapCell>
+      );
+    },
   },
   {
     key: 'prescriber.displayName',

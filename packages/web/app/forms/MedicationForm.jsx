@@ -203,7 +203,7 @@ const StyledFormGrid = styled(FormGrid)`
 const MedicationAdministrationForm = () => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.frequenciesAdministrationIdealTimes',
+    'medications.defaultAdministrationTimes',
   );
 
   const { values, setValues, errors } = useFormikContext();
@@ -426,7 +426,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.frequenciesAdministrationIdealTimes',
+    'medications.defaultAdministrationTimes',
   );
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');

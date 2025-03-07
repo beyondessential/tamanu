@@ -1,6 +1,6 @@
 import type { Models } from '@tamanu/database';
 import { times } from 'lodash';
-const { fake, chance } = require('@tamanu/shared/test-helpers/fake');
+import { fake, chance } from '../../fake';
 
 interface CreateProgramRegistryParams {
   models: Models;
