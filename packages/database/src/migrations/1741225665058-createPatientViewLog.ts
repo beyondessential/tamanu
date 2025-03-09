@@ -46,6 +46,20 @@ export async function up(query: QueryInterface) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   });
 }
 
