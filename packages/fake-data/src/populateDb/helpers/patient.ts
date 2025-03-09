@@ -69,3 +69,24 @@ export const createPatientCommunication = async ({
     }),
   );
 };
+
+interface CreatePatientViewLogParams {
+  models: Models;
+  facilityId: string;
+  userId: string;
+  patientId: string;
+}
+export const createPatientViewLog = async ({
+  models: { UserPatientView },
+  patientId,
+  userId,
+  facilityId,
+}: CreatePatientViewLogParams) => {
+  await UserPatientView.create(
+    fake(UserPatientView, {
+      viewedById: userId,
+      patientId,
+      facilityId,
+    }),
+  );
+};
