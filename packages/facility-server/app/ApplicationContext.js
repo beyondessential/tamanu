@@ -46,6 +46,7 @@ export class ApplicationContext {
     const database = await initDatabase(databaseOverrides);
     this.sequelize = database.sequelize;
     this.models = database.models;
+
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
