@@ -15,7 +15,7 @@ import {
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { validateDecimalPlaces } from '../../../utils';
+import { PriceField } from '../../Field/PriceField';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -269,7 +269,7 @@ export const InvoiceItemRow = ({
       ...item,
       productPrice: defaultItem?.productPrice,
     });
-  }, []);
+  }, [defaultItem?.productPrice]);
 
   return (
     <>
@@ -376,11 +376,7 @@ export const InvoiceItemRow = ({
               item.productId && (
                 <Field
                   name={`invoiceItems.${index}.productPrice`}
-                  component={NumberField}
-                  min={0}
-                  max={999999}
-                  onInput={validateDecimalPlaces}
-                  size="small"
+                  component={PriceField}
                   required
                   style={{ width: '100%' }}
                 />
