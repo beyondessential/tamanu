@@ -1,12 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Add } from '@material-ui/icons';
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-} from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import MuiDivider from '@material-ui/core/Divider';
 import {
   AutocompleteField,
@@ -31,6 +28,7 @@ import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { useTranslation } from '../../contexts/Translation';
+import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal.jsx';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -191,6 +189,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
     clinicalStatusId,
   } = patientProgramRegistration;
   const { getTranslation } = useTranslation();
+  const [warningOpen, setWarningOpen] = useState(false);
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
     registrationId,
@@ -203,12 +202,26 @@ export const PatientProgramRegistryUpdateFormModal = ({
     baseQueryParameters: { programRegistryId },
   });
 
-  const handleSubmit = async data => {
-    const conditions = Object.values(data.conditions)
+  const handleConfirmedSubmit = async data => {
+    const updatedConditions = Object.values(data.conditions)
       .flatMap(group => group)
       .filter(({ conditionId }) => conditionId);
-    await submit({ ...data, conditions });
+    await submit({ ...data, conditions: updatedConditions });
+    setWarningOpen(false);
     onClose();
+  };
+
+  const handleSubmit = async data => {
+    const isNewRecordedInError = [
+      ...data.conditions.confirmedSection,
+      ...data.conditions.resolvedSection,
+    ].some(({ conditionCategory }) => conditionCategory === 'recordedInError');
+
+    if (isNewRecordedInError) {
+      setWarningOpen(true);
+    } else {
+      await handleConfirmedSubmit(data);
+    }
   };
 
   if (!patientProgramRegistration || isLoading) return null;
@@ -415,6 +428,16 @@ export const PatientProgramRegistryUpdateFormModal = ({
             },
           ];
 
+          const newRecordedInErrorCategories = [
+            ...groupedData.confirmedSection,
+            ...groupedData.resolvedSection,
+          ]
+            .filter(({ conditionCategory }) => conditionCategory === 'recordedInError')
+            .map(condition => condition.name)
+            .join(', ');
+
+          console.log('newRecordedInErrorCategories', newRecordedInErrorCategories);
+
           return (
             <>
               <Field
@@ -432,6 +455,15 @@ export const PatientProgramRegistryUpdateFormModal = ({
               </Heading5>
               <StyledFormTable columns={columns} data={groupedData} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
+              <RecordedInErrorWarningModal
+                open={warningOpen}
+                onClose={() => setWarningOpen(false)}
+                onConfirm={async () => {
+                  // Manually pass the values to the confirmed submit function
+                  await handleConfirmedSubmit(values);
+                }}
+                conditionText={newRecordedInErrorCategories}
+              />
             </>
           );
         }}
