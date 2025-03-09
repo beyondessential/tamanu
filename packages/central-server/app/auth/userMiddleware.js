@@ -7,6 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -57,6 +58,19 @@ export const userMiddleware = ({ secret }) =>
     req.deviceId = deviceId;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
+
+    // Auditing middleware
+    req.audit = {
+      // eslint-disable-line require-atomic-updates
+      patientView: async (patientId, context) =>
+        req.models.UserPatientView.create({
+          viewedById: userId,
+          patientId,
+          sessionId,
+          context,
+          loggedAt: getCurrentDateTimeString(),
+        }),
+    };
 
     const spanAttributes = user
       ? {
