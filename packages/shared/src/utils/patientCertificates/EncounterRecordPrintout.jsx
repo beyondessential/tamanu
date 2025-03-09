@@ -20,7 +20,7 @@ import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime } from '@tamanu/utils/dateTime';
 
 const borderStyle = '1 solid black';
 
@@ -229,7 +229,9 @@ const NoteFooter = ({ note }) => {
         note.author?.displayName,
         note.onBehalfOf &&
           getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            changeOnBehalfOfName: note.onBehalfOf.displayName,
+            replacements: {
+              changeOnBehalfOfName: note.onBehalfOf.displayName,
+            },
           }),
         formatShort(note.date),
         getDisplayDate(note.date, 'h:mma'),
@@ -337,7 +339,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],
@@ -357,7 +359,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],

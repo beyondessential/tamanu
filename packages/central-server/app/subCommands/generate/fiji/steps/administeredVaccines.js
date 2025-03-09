@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { chance } from '../../chance';
 import { insertEncounter } from '../insertEncounter';
 
@@ -6,7 +6,7 @@ export default {
   setup: ['examiners', 'facilitiesDepartmentsAndLocations', 'scheduledVaccines'],
   run: async (store, setupData, patientId) => {
     const { AdministeredVaccine } = store.models;
-    const insertVaccination = async scheduledVaccineId => {
+    const insertVaccination = async (scheduledVaccineId) => {
       const encounter = await insertEncounter(store, setupData, patientId);
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),

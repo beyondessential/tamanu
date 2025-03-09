@@ -6,7 +6,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { useFormikContext } from 'formik';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -131,7 +130,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: dischargeDraft?.dischargerId,
       dispositionId: dischargeDraft?.dispositionId,
-      note: !dischargeDraft ? dischargeNotes.map(n => n.content).join('\n\n') : dischargeDraft.note,
+      note: dischargeNotes.map(n => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -305,7 +304,7 @@ const EncounterOverview = ({
                 <TranslatedText
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
-                  lowercase
+                  casing="lower"
                 />
               ),
             }}
@@ -360,11 +359,7 @@ const DischargeFormScreen = props => {
     currentDiagnoses,
     values,
     onSubmit,
-    setShowWarningScreen,
   } = props;
-  const { dirty } = useFormikContext();
-  const { ability } = useAuth();
-  const canWriteDischarge = ability.can('write', 'Discharge');
   const { getSetting } = useSettings();
 
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
@@ -389,12 +384,7 @@ const DischargeFormScreen = props => {
   };
 
   const handleCancelAttempt = () => {
-    if (dirty) {
-      onStepForward();
-      setShowWarningScreen(true);
-    } else {
-      onCancel();
-    }
+    onCancel();
   };
 
   return (
@@ -431,10 +421,6 @@ const DischargeFormScreen = props => {
             )}
             confirmDisabled={isDiagnosisEmpty}
             cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-            {...(canWriteDischarge && { onBack: () => handleStepForward(true) })}
-            backButtonText={
-              <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
-            }
           />
         }
         {...props}
@@ -620,7 +606,7 @@ export const DischargeForm = ({
           ),
       })}
       formProps={{
-        enableReinitialize: false,
+        enableReinitialize: true,
         showInlineErrorsOnly: true,
         validateOnChange: true,
       }}

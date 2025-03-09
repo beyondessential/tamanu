@@ -86,7 +86,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
           __html: getTranslation(
             'patient.details.reminderContactQr.description',
             'Please ask the contact to scan the QR code using their camera app to register their Telegram account to receive automated reminder messages for :patientName.',
-            { patientName: `<span>${patientName}</span>` },
+            { replacements: { patientName: `<span>${patientName}</span>` } },
           ),
         }}
       ></StyledText>

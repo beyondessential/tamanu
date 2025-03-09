@@ -3,7 +3,8 @@ import { afterAll, beforeAll } from '@jest/globals';
 
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -178,9 +179,8 @@ describe('PatientProgramRegistration', () => {
         date: '2023-09-02 08:00:00',
       });
 
-      const createdRegistrationCondition = await models.PatientProgramRegistrationCondition.findByPk(
-        result.body.conditions[0].id,
-      );
+      const createdRegistrationCondition =
+        await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
 
       expect(createdRegistrationCondition).toMatchObject({
         programRegistryId: programRegistry1.id,
@@ -208,7 +208,7 @@ describe('PatientProgramRegistration', () => {
       );
 
       // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         setTimeout(resolve, 100);
       });
 

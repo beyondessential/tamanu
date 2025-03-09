@@ -10,6 +10,11 @@ import { keyBy, mapValues } from 'lodash';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
 
+type TranslationOptions = {
+  replacements: Record<string, string>;
+  casing: 'uppercase' | 'lowercase' | 'sentence';
+};
+
 export class TranslatedString extends Model {
   declare id: string;
   declare stringId: string;
@@ -153,15 +158,9 @@ export class TranslatedString extends Model {
   static getTranslationFunction = async (language: string, prefixIds: string[] = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (
-      stringId: string,
-      fallback: string,
-      replacements: Record<string, string>,
-      uppercase: boolean,
-      lowercase: boolean,
-    ) => {
+    return (stringId: string, fallback: string, translationOptions: TranslationOptions) => {
       const translationFunc = translationFactory(translations);
-      const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+      const { value } = translationFunc(stringId, fallback, translationOptions);
       return value;
     };
   };
