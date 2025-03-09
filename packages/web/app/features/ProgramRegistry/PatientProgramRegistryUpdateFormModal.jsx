@@ -28,7 +28,7 @@ import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { useTranslation } from '../../contexts/Translation';
-import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal.jsx';
+import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -169,6 +169,12 @@ const getGroupedData = rows => {
   return groupedData;
 };
 
+const getIsNewRecordedInError = conditions => {
+  return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
+    ({ conditionCategory }) => conditionCategory === 'recordedInError',
+  );
+};
+
 export const PatientProgramRegistryUpdateFormModal = ({
   patientProgramRegistration = {},
   onClose,
@@ -204,12 +210,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
   };
 
   const handleSubmit = async data => {
-    const isNewRecordedInError = [
-      ...data.conditions.confirmedSection,
-      ...data.conditions.resolvedSection,
-    ].some(({ conditionCategory }) => conditionCategory === 'recordedInError');
-
-    if (isNewRecordedInError) {
+    if (getIsNewRecordedInError(data.conditions)) {
       setWarningOpen(true);
     } else {
       await handleConfirmedSubmit(data);
@@ -274,6 +275,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
 
                 const isLastRow = index === groupedData.confirmedSection.length - 1;
 
+                const usedValues = groupedData.confirmedSection
+                  .map(condition => condition.conditionId)
+                  .filter(x => x);
+
                 return (
                   <div style={{ position: 'relative' }}>
                     <ProgramRegistryConditionField
@@ -281,6 +286,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                       programRegistryId={programRegistryId}
                       onClear={onClear}
                       ariaLabelledby="condition-label"
+                      optionsFilter={condition => !usedValues.includes(condition.id)}
                     />
                     {isLastRow && (
                       <AddButton
@@ -351,25 +357,27 @@ export const PatientProgramRegistryUpdateFormModal = ({
               width: 180,
               accessor: ({ conditionId }, groupName, index) => {
                 const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
+                const fieldName = `conditions[${groupName}][${index}].conditionCategory`;
+                const ariaLabelledby = 'condition-category-label';
                 if (initialValue === 'recordedInError') {
                   return (
                     <ProgramRegistryConditionCategoryField
-                      name={`conditions[${groupName}][${index}].conditionCategory`}
+                      name={fieldName}
+                      ariaLabelledby={ariaLabelledby}
                       disabled
                       disabledTooltipText={getTranslation(
                         'patientProgramRegistry.recordedInError.tooltip',
                         'Cannot edit entry that has been recorded in error',
                       )}
-                      ariaLabelledby="condition-category-label"
                     />
                   );
                 }
 
                 return (
                   <ProgramRegistryConditionCategoryField
-                    name={`conditions[${groupName}][${index}].conditionCategory`}
+                    name={fieldName}
+                    ariaLabelledby={ariaLabelledby}
                     disabled={!conditionId}
-                    ariaLabelledby="condition-category-label"
                     disabledTooltipText={
                       !conditionId
                         ? getTranslation(
@@ -428,16 +436,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
             },
           ];
 
-          const newRecordedInErrorCategories = [
-            ...groupedData.confirmedSection,
-            ...groupedData.resolvedSection,
-          ]
-            .filter(({ conditionCategory }) => conditionCategory === 'recordedInError')
-            .map(condition => condition.name)
-            .join(', ');
-
-          console.log('newRecordedInErrorCategories', newRecordedInErrorCategories);
-
           return (
             <>
               <Field
@@ -462,7 +460,6 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   // Manually pass the values to the confirmed submit function
                   await handleConfirmedSubmit(values);
                 }}
-                conditionText={newRecordedInErrorCategories}
               />
             </>
           );
