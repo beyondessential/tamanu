@@ -100,6 +100,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   fallback="Condition"
                 />
               ),
+              width: 220,
               accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
             },
             {
@@ -109,6 +110,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   fallback="Date added"
                 />
               ),
+              width: 140,
               accessor: ({ date }) => <DateDisplay date={date} />,
             },
             {
@@ -121,7 +123,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
-              width: 200,
+              width: 180,
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="conditionCategory"
@@ -144,7 +146,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   />
                 </span>
               ),
-              width: 300,
+              width: 240,
               accessor: () => (
                 <Field
                   name="reasonForChange"
@@ -174,9 +176,9 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           );
         }}
         validationSchema={yup.object().shape({
-          conditionCategory: foreignKey()
-            .required()
-            .label(getTranslation('validation.required.inline', '*Required')),
+          conditionCategory: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
         })}
       />
     </Modal>

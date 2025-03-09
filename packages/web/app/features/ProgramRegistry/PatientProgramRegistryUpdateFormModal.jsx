@@ -34,14 +34,6 @@ const StyledFormTable = styled(FormTable)`
   overflow: auto;
   table tr td {
     border: none;
-
-    // This is a hacky workaround to make sure that the cell contents are vertically aligned
-    // If we use vertical-align center, the validation error messages break the table alignment
-    > span,
-    > button {
-      position: relative;
-      top: 10px;
-    }
   }
 `;
 
@@ -378,6 +370,14 @@ export const PatientProgramRegistryUpdateFormModal = ({
                     name={`conditions[${groupName}][${index}].conditionCategory`}
                     disabled={!conditionId}
                     ariaLabelledby="condition-category-label"
+                    disabledTooltipText={
+                      !conditionId
+                        ? getTranslation(
+                            'patientProgramRegistry.conditionCategoryDisabled.tooltip',
+                            'Select a related condition to record category',
+                          )
+                        : null
+                    }
                     required
                   />
                 );
