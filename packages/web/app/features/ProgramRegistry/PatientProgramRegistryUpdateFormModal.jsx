@@ -359,6 +359,27 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
                 const fieldName = `conditions[${groupName}][${index}].conditionCategory`;
                 const ariaLabelledby = 'condition-category-label';
+
+                // other values
+                if (groupName === 'resolvedSection') {
+                  const matchingCondition = values.conditions.confirmedSection.some(
+                    condition => condition.conditionId === conditionId,
+                  );
+                  if (matchingCondition) {
+                    return (
+                      <ProgramRegistryConditionCategoryField
+                        name={fieldName}
+                        ariaLabelledby={ariaLabelledby}
+                        disabled
+                        disabledTooltipText={getTranslation(
+                          'patientProgramRegistry.disprovenCondition.tooltip',
+                          'Please refer to current instance of condition above to update category.',
+                        )}
+                      />
+                    );
+                  }
+                }
+
                 if (initialValue === 'recordedInError') {
                   return (
                     <ProgramRegistryConditionCategoryField
