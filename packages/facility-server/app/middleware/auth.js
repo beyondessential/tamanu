@@ -256,7 +256,6 @@ export const authMiddleware = async (req, res, next) => {
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
     req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
-    console.log('session id', sessionId);
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
@@ -264,14 +263,17 @@ export const authMiddleware = async (req, res, next) => {
       });
 
     // Auditing middleware
-    req.auditUserPatientView = async (context) => {
-      req.models.UserPatientView.create({
-        viewedById: userId,
-        facilityId,
-        sessionId,
-        context,
-        loggedAt: getCurrentDateTimeString(),
-      });
+    req.audit = {
+      // eslint-disable-line require-atomic-updates
+      patientView: async (patientId, context) =>
+        req.models.UserPatientView.create({
+          viewedById: userId,
+          patientId,
+          facilityId,
+          sessionId,
+          context,
+          loggedAt: getCurrentDateTimeString(),
+        }),
     };
 
     const spanAttributes = {};
