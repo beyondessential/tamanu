@@ -1,6 +1,11 @@
 name: Diff Translations
 
 on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
   push:
     tags:
       - 'v*'
@@ -46,59 +51,59 @@ jobs:
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
           | sort --version-sort \
-          | grep -B 1 ${{steps.currentv.outputs.current_version}} \
+          | grep -B 1 2.26.0 \
           | head -n 1 \
           | sed 's/^/previous_version=/' \
           | tee -a $GITHUB_OUTPUT
 
-    - name: get this versions translations
-      run: |
-        translations=$(.github/scripts/scrape-translations.sh)
-        if [ $? -eq 0 ]; then
-         echo "$translations" > current-translations.csv
-        else
-          echo "Scrape translations script failed with exit code $?"
-        fi
+    # - name: get this versions translations
+    #   run: |
+    #     translations=$(.github/scripts/scrape-translations.sh)
+    #     if [ $? -eq 0 ]; then
+    #      echo "$translations" > current-translations.csv
+    #     else
+    #       echo "Scrape translations script failed with exit code $?"
+    #     fi
 
-    - name: Configure AWS Credentials (upload)
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: ap-southeast-2
-        role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-translations-upload
-        role-session-name: GHA@Tamanu=DiffTranslations
+    # - name: Configure AWS Credentials (upload)
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-region: ap-southeast-2
+    #     role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-translations-upload
+    #     role-session-name: GHA@Tamanu=DiffTranslations
 
-    - name: Upload translations to S3
-      env:
-        version: ${{ steps.currentv.outputs.current_version }}
-      run: |
-        aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
+    # - name: Upload translations to S3
+    #   env:
+    #     version: ${{ steps.currentv.outputs.current_version }}
+    #   run: |
+    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
 
-    - name: Download previous versions translations from s3
-      continue-on-error: true
-      env:
-        pversion: ${{ steps.previousv.outputs.previous_version }}
-      run: |
-        aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
+    # - name: Download previous versions translations from s3
+    #   continue-on-error: true
+    #   env:
+    #     pversion: ${{ steps.previousv.outputs.previous_version }}
+    #   run: |
+    #     aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
 
-    - name: Create empty csv if no previous translations
-      if:
-      run: |
-        if [ ! -f previous-translations.csv ]; then
-          echo "stringId,fallback" > previous-translations.csv
-        fi
+    # - name: Create empty csv if no previous translations
+    #   if:
+    #   run: |
+    #     if [ ! -f previous-translations.csv ]; then
+    #       echo "stringId,fallback" > previous-translations.csv
+    #     fi
 
-    - name: Diff translations
-      run: |
-        set -euxo pipefail
-        git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv || true
+    # - name: Diff translations
+    #   run: |
+    #     set -euxo pipefail
+    #     git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv || true
 
-    - uses: softprops/action-gh-release@v2
-      with:
-        tag: ${{ github.ref_name }}
-        append_body: true
-        body: |
-          ## Translation Changes
-          *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
-          \`\`\`diff
-          $(cat translations.diff)
-          \`\`\`
+    # - uses: softprops/action-gh-release@v2
+    #   with:
+    #     tag: ${{ github.ref_name }}
+    #     append_body: true
+    #     body: |
+    #       ## Translation Changes
+    #       *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
+    #       \`\`\`diff
+    #       $(cat translations.diff)
+    #       \`\`\`
