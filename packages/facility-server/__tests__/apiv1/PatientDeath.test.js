@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 
@@ -52,7 +52,7 @@ describe('PatientDeath', () => {
       name: 'Test',
     });
 
-    const makeCommon = condition => {
+    const makeCommon = (condition) => {
       const dataValues = Object.assign({}, condition.dataValues);
       delete dataValues.deletedAt;
       return {
