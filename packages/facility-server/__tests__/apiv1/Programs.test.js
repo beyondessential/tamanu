@@ -116,11 +116,12 @@ describe('Programs', () => {
     });
 
     testProgram = await createDummyProgram();
-    testSurvey = await createDummySurvey(testProgram, 6);
-    testSurvey2 = await createDummySurvey(testProgram, 10);
-    testSurvey3 = await createDummySurvey(testProgram, 10);
+    testSurvey = await createDummySurvey(testProgram, 6, {name: 'testSurvey-1'});
+    testSurvey2 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-2'});
+    testSurvey3 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-3'});
     testReferralSurvey = await createDummySurvey(testProgram, 10, {
       surveyType: SURVEY_TYPES.REFERRAL,
+      name: 'testSurvey-4',
     });
   });
   afterAll(() => ctx.close());
@@ -140,14 +141,12 @@ describe('Programs', () => {
       const result = await app.get(`/api/program/${testProgram.id}/surveys`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(4);
-      expect(result.body.data).toEqual(
-        expect.arrayContaining([
+      expect(result.body.data).toEqual([
           expect.objectContaining({ name: testSurvey.name }),
           expect.objectContaining({ name: testSurvey2.name }),
           expect.objectContaining({ name: testSurvey3.name }),
           expect.objectContaining({ name: testReferralSurvey.name }),
-        ]),
-      );
+        ]);
     });
 
     it('should only suggest relevant surveys', async () => {
