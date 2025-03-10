@@ -15,6 +15,7 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -73,7 +74,13 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
   return (
     <DisplayContainer>
       <Heading5>
-        Select a {patientProgramRegistration.programRegistry.name} form below to complete
+        Select a{' '}
+        <TranslatedReferenceData
+          fallback={patientProgramRegistration.programRegistry.name}
+          value={patientProgramRegistration.programRegistry.id}
+          category="programRegistry"
+        />{' '}
+        form below to complete
       </Heading5>
       <Form
         showInlineErrorsOnly

@@ -115,15 +115,16 @@ export async function importRows(
                   })
                 : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (fkSchema.model === 'ReferenceData'
-              ? await models.ReferenceData.findOne({
-                  where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                })
-              : await models[fkSchema.model].findOne({
-                  where: {
-                    name: { [Op.iLike]: fkFieldValue },
-                  },
-                })
+            const idByRemoteName = (
+              fkSchema.model === 'ReferenceData'
+                ? await models.ReferenceData.findOne({
+                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                  })
+                : await models[fkSchema.model].findOne({
+                    where: {
+                      name: { [Op.iLike]: fkFieldValue },
+                    },
+                  })
             )?.id;
 
             if (hasRemoteId) {
@@ -245,10 +246,11 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType = normaliseSheetName(sheetName);
-      const isValidTable =
-        model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
+      const dataType = normaliseSheetName(sheetName, model);
+
+      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
+
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
           stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
