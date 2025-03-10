@@ -1,10 +1,13 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { getCurrentDateTimeString, calculateEndDate } from '@tamanu/utils/dateTime';
 import type { InitOptions, Models } from '../types/model';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;
@@ -91,14 +94,6 @@ export class EncounterPausePrescription extends Model {
         },
         notes: {
           type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        createdBy: {
-          type: DataTypes.UUID,
-          allowNull: true,
-        },
-        updatedBy: {
-          type: DataTypes.UUID,
           allowNull: true,
         },
       },
@@ -237,6 +232,13 @@ export class EncounterPausePrescription extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this);
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'encounter_prescriptions',
+        'encounters',
+      ]),
+    };
   }
 }

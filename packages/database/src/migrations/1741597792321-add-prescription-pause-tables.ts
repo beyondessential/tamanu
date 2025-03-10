@@ -1,10 +1,10 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 
-export async function up(queryInterface: QueryInterface): Promise<void> {
+export async function up(query: QueryInterface): Promise<void> {
   // Create encounter_pause_prescriptions table
-  await queryInterface.createTable('encounter_pause_prescriptions', {
+  await query.createTable('encounter_pause_prescriptions', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
@@ -40,7 +40,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       allowNull: true,
     },
     pausing_clinician_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: true,
       references: {
         model: 'users',
@@ -50,7 +50,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       onDelete: 'SET NULL',
     },
     created_by: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: true,
       references: {
         model: 'users',
@@ -60,7 +60,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       onDelete: 'SET NULL',
     },
     updated_by: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: true,
       references: {
         model: 'users',
@@ -84,9 +84,9 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   });
 
   // Create encounter_pause_prescription_histories table
-  await queryInterface.createTable('encounter_pause_prescription_histories', {
+  await query.createTable('encounter_pause_prescription_histories', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
@@ -110,7 +110,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       allowNull: false,
     },
     action_user_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: true,
       references: {
         model: 'users',
@@ -146,24 +146,20 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   });
 
   // Create indexes for better query performance
-  await queryInterface.addIndex('encounter_pause_prescriptions', ['encounter_prescription_id']);
-  await queryInterface.addIndex('encounter_pause_prescriptions', ['pause_end_date']);
-  await queryInterface.addIndex('encounter_pause_prescription_histories', [
-    'encounter_prescription_id',
-  ]);
-  await queryInterface.addIndex('encounter_pause_prescription_histories', ['action_date']);
+  await query.addIndex('encounter_pause_prescriptions', ['encounter_prescription_id']);
+  await query.addIndex('encounter_pause_prescriptions', ['pause_end_date']);
+  await query.addIndex('encounter_pause_prescription_histories', ['encounter_prescription_id']);
+  await query.addIndex('encounter_pause_prescription_histories', ['action_date']);
 }
 
-export async function down(queryInterface: QueryInterface): Promise<void> {
+export async function down(query: QueryInterface): Promise<void> {
   // Drop indexes
-  await queryInterface.removeIndex('encounter_pause_prescription_histories', ['action_date']);
-  await queryInterface.removeIndex('encounter_pause_prescription_histories', [
-    'encounter_prescription_id',
-  ]);
-  await queryInterface.removeIndex('encounter_pause_prescriptions', ['pause_end_date']);
-  await queryInterface.removeIndex('encounter_pause_prescriptions', ['encounter_prescription_id']);
+  await query.removeIndex('encounter_pause_prescription_histories', ['action_date']);
+  await query.removeIndex('encounter_pause_prescription_histories', ['encounter_prescription_id']);
+  await query.removeIndex('encounter_pause_prescriptions', ['pause_end_date']);
+  await query.removeIndex('encounter_pause_prescriptions', ['encounter_prescription_id']);
 
   // Drop tables
-  await queryInterface.dropTable('encounter_pause_prescription_histories');
-  await queryInterface.dropTable('encounter_pause_prescriptions');
+  await query.dropTable('encounter_pause_prescription_histories');
+  await query.dropTable('encounter_pause_prescriptions');
 }

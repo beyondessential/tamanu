@@ -1,9 +1,12 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../types/model';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 
 export class EncounterPausePrescriptionHistory extends Model {
   declare id: string;
@@ -69,6 +72,13 @@ export class EncounterPausePrescriptionHistory extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this);
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'encounter_prescriptions',
+        'encounters',
+      ]),
+    };
   }
 }
