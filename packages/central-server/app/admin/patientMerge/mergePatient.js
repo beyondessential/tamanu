@@ -67,6 +67,10 @@ const omittedColumns = [
   'updatedAtByField',
 ];
 
+// This is for cases where we never want to update the patient_id
+// even after merge
+const omittedModels = ['UserPatientView'];
+
 function isNullOrEmptyString(value) {
   return value === null || value === '';
 }
@@ -82,14 +86,14 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = field => field.references?.model === 'patients';
+const fieldReferencesPatient = (field) => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
-  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
+  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels, ...omittedModels];
   const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;
@@ -276,9 +280,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
     patientId: keepPatientId,
     facilityId,
   }));
