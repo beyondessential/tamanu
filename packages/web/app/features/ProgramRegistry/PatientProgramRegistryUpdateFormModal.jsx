@@ -248,7 +248,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ name, conditionCategory }, groupName, index) => {
+              accessor: ({ name, conditionCategory, conditionId }, groupName, index) => {
                 if (name) {
                   return (
                     <span
@@ -276,6 +276,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 const isLastRow = index === groupedData.confirmedSection.length - 1;
 
                 const usedValues = groupedData.confirmedSection
+                  ?.filter(condition => condition.conditionId !== conditionId)
                   .map(condition => condition.conditionId)
                   .filter(x => x);
 
