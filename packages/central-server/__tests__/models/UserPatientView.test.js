@@ -11,9 +11,9 @@ describe('UserPatientView', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
-    models = ctx.models;
+    models = ctx.store.models;
     app = await baseApp.asRole('practitioner');
-    patient = await models.Patient.create(createDummyPatient(models));
+    patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
 
