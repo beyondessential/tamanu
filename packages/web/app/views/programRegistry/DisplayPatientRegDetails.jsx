@@ -1,41 +1,34 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Avatar } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
-import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { MenuButton } from '../../components/MenuButton';
-import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { OutlinedButton } from '../../components';
+import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-const DisplayContainer = styled.div`
+const Row = styled.div`
   display: flex;
-  height: 74px;
-  width: 100%;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  border: 1px solid ${Colors.softOutline};
-  border-radius: 5px;
-  font-size: 11px;
-  padding: 10px;
-  background-color: ${Colors.white};
 `;
-const LogoContainer = styled.div`
-  width: 5%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+const Container = styled(Row)`
+  justify-content: space-between;
+  padding: 6px 0 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid ${Colors.softOutline};
+`;
+
+const TreeIcon = styled.img`
+  width: 30px;
+  height: 30px;
   margin-right: 10px;
-  margin-left: 17px;
 `;
 
 const DividerVertical = styled.div`
@@ -44,11 +37,8 @@ const DividerVertical = styled.div`
   margin-right: 10px;
 `;
 
-const MenuContainer = styled.div`
+const MenuContainer = styled(Row)`
   width: 10%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
   justify-content: space-between;
   margin-right: 10px;
   .menu {
@@ -56,19 +46,18 @@ const MenuContainer = styled.div`
   }
 `;
 
-const TextColumnsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
+const TextColumnsContainer = styled(Row)`
   justify-content: flex-start;
   margin-right: 10px;
 `;
+
 const TextColumns = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   margin-right: 5px;
   font-weight: 400;
-  font-size: 11px;
+  font-size: 14px;
 `;
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
@@ -125,18 +114,13 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
     ];
 
   return (
-    <DisplayContainer>
-      <div
+    <Container>
+      <Row
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
           justifyContent: 'flex-start',
         }}
       >
-        <LogoContainer>
-          <Avatar src={programsIcon} style={{ height: '22px', width: '22px', margin: '5px' }} />
-        </LogoContainer>
+        <TreeIcon src={programsIcon} />
         <TextColumnsContainer>
           <TextColumns>
             <div>Date of registration:</div>
@@ -166,35 +150,30 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             </TextColumnsContainer>
           </>
         )}
-
         <DividerVertical />
         <ClinicalStatusDisplay clinicalStatus={patientProgramRegistration.clinicalStatus} />
-      </div>
-      <div
+      </Row>
+      <Row
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
           justifyContent: 'flex-end',
         }}
       >
         <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
           <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-            Change status
+            <TranslatedText stringId="general.action.update" fallback="Update" />
           </OutlinedButton>
         </ConditionalTooltip>
-        <ChangeStatusFormModal
+        <PatientProgramRegistryUpdateFormModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}
         />
-
         <MenuContainer>
           <div className="menu">
             <MenuButton actions={actions} />
           </div>
         </MenuContainer>
-      </div>
+      </Row>
       <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
@@ -213,6 +192,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           if (success) navigateToPatient(patientProgramRegistration.patientId);
         }}
       />
-    </DisplayContainer>
+    </Container>
   );
 };
