@@ -30,14 +30,14 @@ The time that the log was created
 A string identifier for the context that the user viewed the patient
 {% enddocs %}
 
-{% docs generic__created_at %}
+{% docs logs__user_patient_views__created_at %}
 Timestamp of when record was created
 {% enddocs %}
 
-{% docs generic__updated_at %}
+{% docs logs__user_patient_views__updated_at %}
 Timestamp of when record was last updated
 {% enddocs %}
 
-{% docs generic__deleted_at %}
+{% docs logs__user_patient_views__deleted_at %}
 Timestamp of when record was deleted
 {% enddocs %}
