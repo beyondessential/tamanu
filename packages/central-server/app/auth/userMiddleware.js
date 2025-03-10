@@ -62,7 +62,7 @@ export const userMiddleware = ({ secret }) =>
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      patientView: async (patientId, context) =>
+      patientView: async (patientId) =>
         req.models.UserPatientView.create({
           viewedById: userId,
           patientId,
