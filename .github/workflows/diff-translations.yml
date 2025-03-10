@@ -18,6 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
 
     - uses: actions/setup-node@v4
@@ -40,7 +41,7 @@ jobs:
       id: previousv
       run: |
         set -euxo pipefail
-        git fetch --tags
+        git fetch --tags --force
         git tag --list \
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
