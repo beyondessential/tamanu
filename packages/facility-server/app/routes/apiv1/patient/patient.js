@@ -37,11 +37,12 @@ patientRoute.get(
       query: { facilityId },
     } = req;
     req.checkPermission('read', 'Patient');
-    req.audit.patientView(params.id, 'Basic patient details view');
     const patient = await Patient.findByPk(params.id, {
       include: Patient.getFullReferenceAssociations(),
     });
     if (!patient) throw new NotFoundError();
+
+    req.audit.patientView(params.id, 'Basic patient details view');
 
     res.send(dbRecordToResponse(patient, facilityId));
   }),
