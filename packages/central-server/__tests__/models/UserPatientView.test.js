@@ -18,12 +18,11 @@ describe('UserPatientView', () => {
   afterAll(() => ctx.close());
 
   it('should record a patient view log with appropriate details', async () => {
-    await app.get(`/api/patient/${patient.id}`);
+    await app.get(`/api/admin/lookup/patient/${patient.displayId}`);
     const userPatientViewLogs = await models.UserPatientView.findAll({ raw: true });
 
     expect(userPatientViewLogs).toHaveLength(1);
     const testLog = userPatientViewLogs[0];
-
     expect(testLog).toMatchObject({
       patientId: patient.id,
       viewedById: app.user.id,
