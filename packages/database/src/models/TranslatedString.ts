@@ -1,6 +1,7 @@
 import {
   SYNC_DIRECTIONS,
   ENGLISH_LANGUAGE_CODE,
+  DEFAULT_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
@@ -97,6 +98,11 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
+      where: {
+        language: {
+          [Op.not]: DEFAULT_LANGUAGE_CODE
+        }
+      }
     });
 
     const languageNames = await TranslatedString.findAll({
