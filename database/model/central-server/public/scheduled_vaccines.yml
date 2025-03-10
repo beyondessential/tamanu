@@ -35,7 +35,7 @@ sources:
               - accepted_values:
                   values:
                     - Campaign
-                    - Catch-up
+                    - Catchup
                     - Other
                     - Routine
           - name: label

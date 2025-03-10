@@ -65,6 +65,8 @@ sources:
                   values:
                     - Confirmed
                     - Arrived
+                    - Assessed
+                    - Seen
                     - No-show
                     - Cancelled
           - name: start_time_legacy

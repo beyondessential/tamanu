@@ -109,5 +109,5 @@ sources:
             description: "{{ doc('notes__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: source('tamanu', 'notes')
                   field: id
