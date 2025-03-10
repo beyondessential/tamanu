@@ -18,7 +18,8 @@ describe('UserPatientView', () => {
   afterAll(() => ctx.close());
 
   it('should record a patient view log with appropriate details', async () => {
-    await app.get(`/api/admin/lookup/patient/${patient.displayId}`);
+    const testUrl = `/api/admin/lookup/patient/${patient.displayId}`
+    await app.get(testUrl);
     const userPatientViewLogs = await models.UserPatientView.findAll({ raw: true });
 
     expect(userPatientViewLogs).toHaveLength(1);
@@ -27,6 +28,7 @@ describe('UserPatientView', () => {
       patientId: patient.id,
       viewedById: app.user.id,
       facilityId: null,
+      context: testUrl,
     });
   });
 });
