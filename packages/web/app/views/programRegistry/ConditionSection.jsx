@@ -5,12 +5,13 @@ import { IconButton } from '@material-ui/core';
 import { sortBy } from 'lodash';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { Heading5 } from '../../components/Typography';
+import { Heading5, getReferenceDataStringId } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
   position: absolute;
@@ -80,14 +81,11 @@ const AddConditionButton = styled.button`
 `;
 
 export const ConditionSection = ({ patientProgramRegistration, programRegistryConditions }) => {
-  const {
-    data: patientProgramRegistrationConditions,
-    isLoading,
-  } = usePatientProgramRegistryConditionsQuery(
+  const { data: conditions, isLoading } = usePatientProgramRegistryConditionsQuery(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
-
+  const { getTranslation } = useTranslation();
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
@@ -97,6 +95,19 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
 
   if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
+
+  const translatedData = conditions?.data?.map(condition => {
+    const { programRegistryCondition } = condition;
+    const { id, name } = programRegistryCondition;
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'programRegistryCondition'),
+      name,
+    );
+
+    return { ...condition, translatedName };
+  });
+
+  const sortedData = sortBy(translatedData, c => c.translatedName);
 
   return (
     <Container>
@@ -108,36 +119,32 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
-      {Array.isArray(patientProgramRegistrationConditions?.data) &&
-        sortBy(
-          patientProgramRegistrationConditions.data,
-          c => c?.programRegistryCondition?.name,
-        ).map(x => (
-          <ConditionContainer key={x.id}>
-            <ConditionalTooltip
-              title={x.programRegistryCondition?.name}
-              visible={x.programRegistryCondition?.name?.length > 30}
+      {sortedData.map(condition => (
+        <ConditionContainer key={condition.id}>
+          <ConditionalTooltip
+            title={condition.translatedName}
+            visible={condition.translatedName?.length > 30}
+          >
+            <ClippedConditionName>{condition.translatedName}</ClippedConditionName>
+          </ConditionalTooltip>
+          <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+            <IconButton
+              style={{ padding: 0 }}
+              onClick={() => setConditionToRemove(condition)}
+              disabled={isRemoved}
             >
-              <ClippedConditionName>{x.programRegistryCondition?.name}</ClippedConditionName>
-            </ConditionalTooltip>
-            <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-              <IconButton
-                style={{ padding: 0 }}
-                onClick={() => setConditionToRemove(x)}
-                disabled={isRemoved}
-              >
-                <CloseIcon style={{ fontSize: '14px' }} />
-              </IconButton>
-            </ConditionalTooltip>
-          </ConditionContainer>
-        ))}
+              <CloseIcon style={{ fontSize: '14px' }} />
+            </IconButton>
+          </ConditionalTooltip>
+        </ConditionContainer>
+      ))}
       {openAddCondition && (
         <AddConditionFormModal
           onClose={() => setOpenAddCondition(false)}
           patientProgramRegistration={patientProgramRegistration}
-          patientProgramRegistrationConditions={patientProgramRegistrationConditions.data.map(
-            x => ({ value: x.programRegistryConditionId }),
-          )}
+          patientProgramRegistrationConditions={conditions?.data?.map(x => ({
+            value: x.programRegistryConditionId,
+          }))}
           programRegistryConditions={programRegistryConditions}
           open
         />
