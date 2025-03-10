@@ -43,10 +43,6 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
     throw new BadAuthenticationError('No permission');
   }
 
-  if (req.audit) {
-    req.audit.addPermissionCheck(action, getSubjectName(subject), subject?.id);
-  }
-
   return ability.can(action, subject, field);
 };
 
@@ -61,11 +57,6 @@ export function ensurePermissionCheck(req, res, next) {
       const reason =
         (rule && rule.reason) ||
         `No permission to perform action "${action}" on "${getSubjectName(subject)}"`;
-      if (req.audit) {
-        req.audit.annotate({
-          forbiddenReason: reason,
-        });
-      }
       throw new ForbiddenError(reason);
     }
   };
@@ -75,11 +66,6 @@ export function ensurePermissionCheck(req, res, next) {
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
-      if (req.audit) {
-        req.audit.annotate({
-          forbiddenReason: reason,
-        });
-      }
       throw new ForbiddenError(reason);
     }
   };

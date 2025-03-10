@@ -6,6 +6,8 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -21,6 +23,8 @@ export const userMiddleware = ({ secret }) =>
 
     // verify token
     const [bearer, token] = authorization.split(/\s/);
+    const sessionId = createSessionIdentifier(token);
+
     if (bearer.toLowerCase() !== 'bearer') {
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
@@ -34,7 +38,7 @@ export const userMiddleware = ({ secret }) =>
     } catch (e) {
       const errorMessage = 'Auth error: Invalid token (hG7c)';
       log.debug(errorMessage, { error: e.message });
-       res.status(401).send({
+      res.status(401).send({
         error: { message: errorMessage },
       });
       return;
@@ -52,7 +56,21 @@ export const userMiddleware = ({ secret }) =>
     // and express also guarantees execution order for middlewares
     req.user = user;
     req.deviceId = deviceId;
+    req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
+
+    // Auditing middleware
+    req.audit = {
+      // eslint-disable-line require-atomic-updates
+      patientView: async (patientId, context) =>
+        req.models.UserPatientView.create({
+          viewedById: userId,
+          patientId,
+          sessionId,
+          context,
+          loggedAt: getCurrentDateTimeString(),
+        }),
+    };
 
     const spanAttributes = user
       ? {
