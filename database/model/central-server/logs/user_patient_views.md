@@ -29,3 +29,15 @@ The time that the log was created
 {% docs logs__user_patient_views__context %}
 A string identifier for the context that the user viewed the patient
 {% enddocs %}
+
+{% docs logs__user_patient_views__created_at %}
+When the 
+{% enddocs %}
+
+{% docs logs__user_patient_views__updated_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__user_patient_views__deleted_at %}
+TODO
+{% enddocs %}
