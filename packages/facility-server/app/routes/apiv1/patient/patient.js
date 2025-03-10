@@ -42,7 +42,7 @@ patientRoute.get(
     });
     if (!patient) throw new NotFoundError();
 
-    req.audit.patientView(params.id, 'Basic patient details view');
+    req.audit.patientView(params.id, req.originalUrl);
 
     res.send(dbRecordToResponse(patient, facilityId));
   }),

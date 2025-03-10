@@ -45,7 +45,7 @@ adminRoutes.get(
     });
     if (!patient) throw new NotFoundError(`Could not find patient with display ID ${displayId}.`);
 
-    req.audit.patientView(patient.id, 'Merge patient basic details');
+    req.audit.patientView(patient.id, req.originalUrl);
 
     res.send(patient);
   }),
