@@ -336,3 +336,49 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
+
+/**
+ * Calculates an end date based on a start date, duration, and duration unit
+ * @param {string | Date} startDate - The start date to calculate from
+ * @param {number} duration - The duration value
+ * @param {string} durationUnit - The unit of duration ('hours', 'days', etc.)
+ * @returns {string} The calculated end date as an ISO string
+ */
+export function calculateEndDate(
+  startDate: string | Date,
+  duration: number,
+  durationUnit: string,
+): string {
+  // Convert startDate to Date object if it's a string
+  const startDateObj = typeof startDate === 'string' ? new Date(startDate) : new Date(startDate);
+
+  // Normalize the duration unit to lowercase
+  const normalizedUnit = durationUnit.toLowerCase();
+
+  let endDateObj: Date;
+
+  switch (normalizedUnit) {
+    case 'hour':
+    case 'hours':
+      endDateObj = new Date(startDateObj.getTime() + Number(duration) * 60 * 60 * 1000);
+      break;
+    case 'day':
+    case 'days':
+      endDateObj = new Date(startDateObj.getTime() + Number(duration) * 24 * 60 * 60 * 1000);
+      break;
+    case 'week':
+    case 'weeks':
+      endDateObj = new Date(startDateObj.getTime() + Number(duration) * 7 * 24 * 60 * 60 * 1000);
+      break;
+    case 'month':
+    case 'months':
+      // Handle month addition (more complex due to variable month lengths)
+      endDateObj = new Date(startDateObj);
+      endDateObj.setMonth(endDateObj.getMonth() + Number(duration));
+      break;
+    default:
+      throw new Error(`Unsupported duration unit: ${durationUnit}`);
+  }
+
+  return endDateObj.toISOString();
+}
