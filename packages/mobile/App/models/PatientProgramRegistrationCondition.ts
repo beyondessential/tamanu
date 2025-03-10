@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column } from 'typeorm';
 
 import {
   DateTimeString,

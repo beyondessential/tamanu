@@ -14,10 +14,11 @@ export const ProgramRegistryConditionField = ({
   onClear,
   label,
   ariaLabelledby = null,
+  optionsFilter = () => true,
 }) => {
   const { getTranslation } = useTranslation();
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
-  const options = conditions?.map?.(condition => ({
+  const options = conditions?.filter(optionsFilter).map?.(condition => ({
     label: (
       <TranslatedReferenceData
         fallback={condition.name}
