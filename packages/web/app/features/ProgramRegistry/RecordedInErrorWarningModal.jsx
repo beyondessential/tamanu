@@ -9,10 +9,20 @@ const Text = styled.div`
 
 export const RecordedInErrorWarningModal = ({ onConfirm, onClose, open }) => {
   return (
-    <Modal title="Change status to recorded in error" width="sm" open={open} onClose={onClose}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.recordedInErrorWarning.title"
+          fallback="Change status to recorded in error"
+        />
+      }
+      width="sm"
+      open={open}
+      onClose={onClose}
+    >
       <Text>
         <TranslatedText
-          stringId="patientProgramRegistry.recordedInErrorWarning"
+          stringId="patientProgramRegistry.recordedInErrorWarning.text"
           fallback="Are you sure you would like to change the status to ‘Recorded in error’? This action is irreversible."
         />
       </Text>

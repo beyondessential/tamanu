@@ -231,7 +231,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
                   if (values?.conditions) {
                     usedValues = values?.conditions
-                      ?.filter(condition => condition.conditionId !== conditionValue?.conditionId)
+                      ?.filter(
+                        condition =>
+                          condition.conditionId &&
+                          condition.conditionId !== conditionValue.conditionId,
+                      )
                       ?.map(condition => condition.conditionId)
                       .filter(x => x);
                   }

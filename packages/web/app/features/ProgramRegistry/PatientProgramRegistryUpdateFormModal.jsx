@@ -171,7 +171,8 @@ const getGroupedData = rows => {
 
 const getIsNewRecordedInError = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
-    ({ conditionCategory }) => conditionCategory === 'recordedInError',
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 };
 
@@ -276,9 +277,10 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 const isLastRow = index === groupedData.confirmedSection.length - 1;
 
                 const usedValues = groupedData.confirmedSection
-                  ?.filter(condition => condition.conditionId !== conditionId)
-                  .map(condition => condition.conditionId)
-                  .filter(x => x);
+                  ?.filter(
+                    condition => condition.conditionId && condition.conditionId !== conditionId,
+                  )
+                  .map(condition => condition.conditionId);
 
                 return (
                   <div style={{ position: 'relative' }}>
