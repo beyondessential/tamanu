@@ -55,7 +55,17 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
   return (
     <>
-      <Modal title="Change status" open={open} onClose={onClose} overrideContentPadding>
+      <Modal
+        title={
+          <TranslatedText
+            stringId="patientProgramRegistry.changeStatus.title"
+            fallback="Change status"
+          />
+        }
+        open={open}
+        onClose={onClose}
+        overrideContentPadding
+      >
         <Form
           showInlineErrorsOnly
           onSubmit={changeStatus}

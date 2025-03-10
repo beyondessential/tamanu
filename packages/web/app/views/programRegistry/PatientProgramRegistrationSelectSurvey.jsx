@@ -99,7 +99,15 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           return (
             <StyledFormGrid>
-              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
+              <ConditionalTooltip
+                visible={isRemoved}
+                title={
+                  <TranslatedText
+                    stringId="patientProgramRegistry.patientInactive.tooltip"
+                    fallback="Patient must be active"
+                  />
+                }
+              >
                 <Field
                   name="surveyId"
                   label={
@@ -116,7 +124,19 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
               </ConditionalTooltip>
 
               <ConditionalTooltip
-                title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+                title={
+                  isRemoved ? (
+                    <TranslatedText
+                      stringId="patientProgramRegistry.patientInactive.tooltip"
+                      fallback="Patient must be active"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="patientProgramRegistry.selectForm.tooltip"
+                      fallback="Select form to proceed"
+                    />
+                  )
+                }
                 visible={isRemoved || !values.surveyId}
               >
                 <div>

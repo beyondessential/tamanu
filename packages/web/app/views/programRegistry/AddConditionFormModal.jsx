@@ -53,7 +53,16 @@ export const AddConditionFormModal = ({
     onClose();
   };
   return (
-    <Modal title="Add related condition" open={open} onClose={onClose}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.addConditionForm.title"
+          fallback="Add related condition"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <Form
         showInlineErrorsOnly
         onSubmit={submit}

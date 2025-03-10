@@ -178,7 +178,15 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           justifyContent: 'flex-end',
         }}
       >
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+        <ConditionalTooltip
+          title={
+            <TranslatedText
+              stringId="patientProgramRegistry.patientInactive.tooltip"
+              fallback="Patient must be active"
+            />
+          }
+          visible={isRemoved}
+        >
           <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
             Change status
           </OutlinedButton>

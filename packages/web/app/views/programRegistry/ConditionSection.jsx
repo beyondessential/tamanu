@@ -5,7 +5,7 @@ import { IconButton } from '@material-ui/core';
 import { sortBy } from 'lodash';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { Heading5, getReferenceDataStringId } from '../../components';
+import { Heading5, getReferenceDataStringId, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
@@ -112,10 +112,26 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   return (
     <Container>
       <HeadingContainer>
-        <Heading5>Related conditions</Heading5>
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+        <Heading5>
+          <TranslatedText
+            stringId="patientProgramRegistry.relatedConditions.title"
+            fallback="Related conditions"
+          />
+        </Heading5>
+        <ConditionalTooltip
+          title={
+            <TranslatedText
+              stringId="patientProgramRegistry.patientInactive.tooltip"
+              fallback="Patient must be active"
+            />
+          }
+          visible={isRemoved}
+        >
           <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
-            + Add condition
+            <TranslatedText
+              stringId="patientProgramRegistry.addCondition.button"
+              fallback="+ Add condition"
+            />
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>

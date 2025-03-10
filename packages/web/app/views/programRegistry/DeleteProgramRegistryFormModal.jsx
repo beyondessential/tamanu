@@ -3,12 +3,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  ConfirmCancelRow,
-  FormSeparatorLine,
-  Modal,
-  TranslatedReferenceData,
-} from '../../components';
+import { ConfirmCancelRow, FormSeparatorLine, Modal, TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
@@ -55,17 +50,31 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
   };
 
   return (
-    <Modal title="Delete record" width="sm" open={open} onClose={onClose} overrideContentPadding>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.deleteRegistryForm.title"
+          fallback="Delete record"
+        />
+      }
+      width="sm"
+      open={open}
+      onClose={onClose}
+      overrideContentPadding
+    >
       <Text>
-        <p className="header">Confirm patient registry deletion</p>
-        <p className="desc">
-          Are you sure you would like to delete the patient from the{' '}
-          <TranslatedReferenceData
-            fallback={patientProgramRegistration?.programRegistry?.name}
-            value={patientProgramRegistration?.programRegistry?.id}
-            category="programRegistry"
+        <p className="header">
+          <TranslatedText
+            stringId="patientProgramRegistry.deleteRegistryForm.header"
+            fallback="Confirm patient registry deletion"
           />
-          ? This will delete associated patient registry records. This action is irreversible.
+        </p>
+        <p className="desc">
+          <TranslatedText
+            stringId="patientProgramRegistry.deleteRegistryForm.description"
+            fallback="Are you sure you would like to delete the patient from the :name? This will delete associated patient registry records. This action is irreversible."
+            replacements={{ name: patientProgramRegistration?.programRegistry?.name }}
+          />
         </p>
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />

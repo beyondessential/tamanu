@@ -37,7 +37,14 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
       <Spacer>
         <RowContents style={{ width: '60%' }}>
           <RegistrationStatusIndicator patientProgramRegistration={item} hideText />
-          <NameContainer style={{ width: '90%' }}>{programRegistry?.name}</NameContainer>
+          <NameContainer style={{ width: '90%' }}>
+            {programRegistry?.name}
+            <TranslatedReferenceData
+              value={programRegistry?.id}
+              fallback={programRegistry?.name}
+              category="programRegistry"
+            />
+          </NameContainer>
         </RowContents>
         <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>
           <TranslatedReferenceData
