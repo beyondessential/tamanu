@@ -67,7 +67,7 @@ export const userMiddleware = ({ secret }) =>
           viewedById: userId,
           patientId,
           sessionId,
-          context,
+          context: req.originalUrl,
           loggedAt: getCurrentDateTimeString(),
         }),
     };
