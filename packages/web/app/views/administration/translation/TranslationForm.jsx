@@ -7,7 +7,11 @@ import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
-import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import {
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+  ENGLISH_LANGUAGE_CODE,
+  DEFAULT_LANGUAGE_CODE,
+} from '@tamanu/constants';
 import { useApi } from '../../../api';
 import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
@@ -49,6 +53,22 @@ const SearchArea = styled.div`
 const StyledSearchInput = styled(SearchInput)`
   width: 340px;
 `;
+
+const translationToFormValue = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ({
+  ...rest,
+  // Display default translations in english column
+  [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
+});
+
+const formValuesToTranslation = ({
+  [DEFAULT_LANGUAGE_CODE]: defaultText,
+  [ENGLISH_LANGUAGE_CODE]: enText,
+  ...rest
+}) => ({
+  ...rest,
+  // Remove en translations that are the same as the default text so they are not saved
+  [ENGLISH_LANGUAGE_CODE]: defaultText === enText ? null : enText,
+});
 
 /**
  *
@@ -201,7 +221,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(data[0], ['stringId'])).map(code => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
         accessor: row => <TranslationField code={code} {...row} />,
@@ -269,14 +289,17 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = {};
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = rest;
+      values[stringId] = translationToFormValue(rest);
     }
     return values;
   }, [translations]);
 
   const handleSubmit = async payload => {
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [
+        stringId || key,
+        formValuesToTranslation(rest),
+      ]),
     );
     await saveTranslations(submitData);
   };
