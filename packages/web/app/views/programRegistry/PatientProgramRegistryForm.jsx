@@ -226,12 +226,26 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       ),
                     });
                   };
+
+                  let usedValues = [];
+
+                  if (values?.conditions) {
+                    usedValues = values.conditions
+                      ?.filter(
+                        condition =>
+                          condition.conditionId &&
+                          condition.conditionId !== conditionValue?.conditionId,
+                      )
+                      ?.map(condition => condition.conditionId);
+                  }
+
                   return (
                     <RelatedConditionFieldsContainer>
                       <ProgramRegistryConditionField
                         name={`${fieldName}.conditionId`}
                         programRegistryId={selectedProgramRegistryId}
                         onClear={onClear}
+                        optionsFilter={condition => !usedValues.includes(condition.id)}
                         label={
                           <TranslatedText
                             stringId="patientProgramRegistry.relatedConditions.label"

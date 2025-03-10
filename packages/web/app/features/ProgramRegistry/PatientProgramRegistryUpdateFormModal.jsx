@@ -1,12 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Add } from '@material-ui/icons';
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-} from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import MuiDivider from '@material-ui/core/Divider';
 import {
   AutocompleteField,
@@ -31,19 +28,12 @@ import { FormTable } from './FormTable';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { useTranslation } from '../../contexts/Translation';
+import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
   table tr td {
     border: none;
-
-    // This is a hacky workaround to make sure that the cell contents are vertically aligned
-    // If we use vertical-align center, the validation error messages break the table alignment
-    > span,
-    > button {
-      position: relative;
-      top: 10px;
-    }
   }
 `;
 
@@ -179,6 +169,13 @@ const getGroupedData = rows => {
   return groupedData;
 };
 
+const getIsNewRecordedInError = conditions => {
+  return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  );
+};
+
 export const PatientProgramRegistryUpdateFormModal = ({
   patientProgramRegistration = {},
   onClose,
@@ -191,6 +188,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
     clinicalStatusId,
   } = patientProgramRegistration;
   const { getTranslation } = useTranslation();
+  const [warningOpen, setWarningOpen] = useState(false);
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
     registrationId,
@@ -203,12 +201,21 @@ export const PatientProgramRegistryUpdateFormModal = ({
     baseQueryParameters: { programRegistryId },
   });
 
-  const handleSubmit = async data => {
-    const conditions = Object.values(data.conditions)
+  const handleConfirmedSubmit = async data => {
+    const updatedConditions = Object.values(data.conditions)
       .flatMap(group => group)
       .filter(({ conditionId }) => conditionId);
-    await submit({ ...data, conditions });
+    await submit({ ...data, conditions: updatedConditions });
+    setWarningOpen(false);
     onClose();
+  };
+
+  const handleSubmit = async data => {
+    if (getIsNewRecordedInError(data.conditions)) {
+      setWarningOpen(true);
+    } else {
+      await handleConfirmedSubmit(data);
+    }
   };
 
   if (!patientProgramRegistration || isLoading) return null;
@@ -242,7 +249,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                   />
                 </span>
               ),
-              accessor: ({ name, conditionCategory }, groupName, index) => {
+              accessor: ({ name, conditionCategory, conditionId }, groupName, index) => {
                 if (name) {
                   return (
                     <span
@@ -269,6 +276,12 @@ export const PatientProgramRegistryUpdateFormModal = ({
 
                 const isLastRow = index === groupedData.confirmedSection.length - 1;
 
+                const usedValues = groupedData.confirmedSection
+                  ?.filter(
+                    condition => condition.conditionId && condition.conditionId !== conditionId,
+                  )
+                  .map(condition => condition.conditionId);
+
                 return (
                   <div style={{ position: 'relative' }}>
                     <ProgramRegistryConditionField
@@ -276,6 +289,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                       programRegistryId={programRegistryId}
                       onClear={onClear}
                       ariaLabelledby="condition-label"
+                      optionsFilter={condition => !usedValues.includes(condition.id)}
                     />
                     {isLastRow && (
                       <AddButton
@@ -346,25 +360,56 @@ export const PatientProgramRegistryUpdateFormModal = ({
               width: 180,
               accessor: ({ conditionId }, groupName, index) => {
                 const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
+                const fieldName = `conditions[${groupName}][${index}].conditionCategory`;
+                const ariaLabelledby = 'condition-category-label';
+
+                // other values
+                if (groupName === 'resolvedSection') {
+                  const matchingCondition = values.conditions.confirmedSection.some(
+                    condition => condition.conditionId === conditionId,
+                  );
+                  if (matchingCondition) {
+                    return (
+                      <ProgramRegistryConditionCategoryField
+                        name={fieldName}
+                        ariaLabelledby={ariaLabelledby}
+                        disabled
+                        disabledTooltipText={getTranslation(
+                          'patientProgramRegistry.disprovenCondition.tooltip',
+                          'Please refer to current instance of condition above to update category.',
+                        )}
+                      />
+                    );
+                  }
+                }
+
                 if (initialValue === 'recordedInError') {
                   return (
                     <ProgramRegistryConditionCategoryField
-                      name={`conditions[${groupName}][${index}].conditionCategory`}
+                      name={fieldName}
+                      ariaLabelledby={ariaLabelledby}
                       disabled
                       disabledTooltipText={getTranslation(
                         'patientProgramRegistry.recordedInError.tooltip',
                         'Cannot edit entry that has been recorded in error',
                       )}
-                      ariaLabelledby="condition-category-label"
                     />
                   );
                 }
 
                 return (
                   <ProgramRegistryConditionCategoryField
-                    name={`conditions[${groupName}][${index}].conditionCategory`}
+                    name={fieldName}
+                    ariaLabelledby={ariaLabelledby}
                     disabled={!conditionId}
-                    ariaLabelledby="condition-category-label"
+                    disabledTooltipText={
+                      !conditionId
+                        ? getTranslation(
+                            'patientProgramRegistry.conditionCategoryDisabled.tooltip',
+                            'Select a related condition to record category',
+                          )
+                        : null
+                    }
                     required
                   />
                 );
@@ -432,6 +477,14 @@ export const PatientProgramRegistryUpdateFormModal = ({
               </Heading5>
               <StyledFormTable columns={columns} data={groupedData} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
+              <RecordedInErrorWarningModal
+                open={warningOpen}
+                onClose={() => setWarningOpen(false)}
+                onConfirm={async () => {
+                  // Manually pass the values to the confirmed submit function
+                  await handleConfirmedSubmit(values);
+                }}
+              />
             </>
           );
         }}

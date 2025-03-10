@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   TextField,
@@ -17,6 +18,7 @@ import { Colors, FORM_TYPES } from '../../constants';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { useTranslation } from '../../contexts/Translation';
+import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
@@ -49,6 +51,7 @@ const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) =
 };
 
 export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
+  const [warningOpen, setWarningOpen] = useState(false);
   const { getTranslation } = useTranslation();
   const { id: conditionId, patientId, programRegistryId, conditionCategory } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
@@ -56,9 +59,19 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
     programRegistryId,
     conditionId,
   );
-  const handleSubmit = async values => {
+
+  const handleConfirmedSubmit = async values => {
     await submit(values);
+    setWarningOpen(false);
     onClose();
+  };
+
+  const handleSubmit = async values => {
+    if (values.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
+      setWarningOpen(true);
+    } else {
+      await handleConfirmedSubmit(values);
+    }
   };
 
   return (
@@ -78,7 +91,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
         initialValues={{ conditionCategory: conditionCategory }}
-        render={({ dirty }) => {
+        render={({ dirty, values }) => {
           const columns = [
             {
               title: (
@@ -87,6 +100,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   fallback="Condition"
                 />
               ),
+              width: 220,
               accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
             },
             {
@@ -96,6 +110,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   fallback="Date added"
                 />
               ),
+              width: 140,
               accessor: ({ date }) => <DateDisplay date={date} />,
             },
             {
@@ -108,7 +123,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
-              width: 200,
+              width: 180,
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="conditionCategory"
@@ -131,7 +146,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   />
                 </span>
               ),
-              width: 300,
+              width: 240,
               accessor: () => (
                 <Field
                   name="reasonForChange"
@@ -149,13 +164,21 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               <FormTable columns={columns} data={[condition]} />
               {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
+              <RecordedInErrorWarningModal
+                open={warningOpen}
+                onClose={() => setWarningOpen(false)}
+                onConfirm={async () => {
+                  // Manually pass the values to the confirmed submit function
+                  await handleConfirmedSubmit(values);
+                }}
+              />
             </>
           );
         }}
         validationSchema={yup.object().shape({
-          conditionCategory: foreignKey()
-            .required()
-            .label(getTranslation('validation.required.inline', '*Required')),
+          conditionCategory: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
         })}
       />
     </Modal>
