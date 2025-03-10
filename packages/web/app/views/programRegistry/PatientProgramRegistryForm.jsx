@@ -103,7 +103,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
@@ -157,9 +156,17 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 />
                 <FieldWithTooltip
                   disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
+                    !conditions ? (
+                      <TranslatedText
+                        stringId="patientProgramRegistry.relatedConditions.disabledTooltip"
+                        fallback="Select a program registry to add related conditions"
+                      />
+                    ) : (
+                      <TranslatedText
+                        stringId="patientProgramRegistry.relatedConditions.noConditionsTooltip"
+                        fallback="No conditions have been configured for this program registry"
+                      />
+                    )
                   }
                   name="conditionIds"
                   label={

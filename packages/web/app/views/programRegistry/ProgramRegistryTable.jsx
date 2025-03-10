@@ -63,7 +63,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'homeVillage',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.homeVillage"
+            stringId="patientPatientProgramRegistry.table.column.homeVillage"
             fallback="Home village"
           />
         ),
@@ -73,7 +73,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.currentlyIn"
+            stringId="patientPatientProgramRegistry.table.column.currentlyIn"
             fallback="Currently in"
           />
         ),
@@ -87,7 +87,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'conditions',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.conditions"
+            stringId="patientPatientProgramRegistry.table.column.conditions"
             fallback="Related conditions"
           />
         ),
@@ -105,7 +105,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'registeringFacility',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.registeringFacility"
+            stringId="patientPatientProgramRegistry.table.column.registeringFacility"
             fallback="Registering facility"
           />
         ),

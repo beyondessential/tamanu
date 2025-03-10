@@ -112,7 +112,12 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
       <InfoDiv>
         <InfoColumn>
           <Info>
-            <Label>Program registry</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.programRegistry.label"
+                fallback="Program registry"
+              />
+            </Label>
             <Value>
               <TranslatedReferenceData
                 fallback={patientProgramRegistration.programRegistry?.name}
