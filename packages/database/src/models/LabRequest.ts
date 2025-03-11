@@ -266,7 +266,6 @@ export class LabRequest extends Model {
       'site',
       'collectedBy',
       'specimenType',
-      'encounter',
       { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
@@ -313,5 +312,19 @@ export class LabRequest extends Model {
         replacedById: null,
       },
     });
+  }
+
+  async getPatientId() {
+    if (!this.encounter) {
+      await this.reload({
+        include: [
+          {
+            association: 'encounter',
+            attributes: ['patientId'],
+          },
+        ],
+      });
+    }
+    return this.encounter?.patientId;
   }
 }

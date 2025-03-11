@@ -37,7 +37,7 @@ labRequest.get(
   asyncHandler(async (req, res) => {
     const labRequestRecord = await findRouteObject(req, 'LabRequest');
 
-    const patientId = labRequestRecord?.encounter?.patientId;
+    const patientId = await labRequestRecord.getPatientId();
     if (patientId) req.audit.patientView(patientId);
 
     const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
@@ -373,7 +373,7 @@ labRelations.get(
     const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
 
     const labRequest = await req.models.LabRequest.findByPk(req.params.id);
-    const patientId = labRequest?.encounter?.patientId;
+    const patientId = await labRequest.getPatientId();
     if (patientId) req.audit.patientView(patientId);
 
     res.send(response);
@@ -452,11 +452,17 @@ labTest.get(
 
     const response = await models.LabTest.findByPk(labTestId, {
       include: [
-        { model: models.LabRequest, as: 'labRequest' },
+        {
+          model: models.LabRequest,
+          as: 'labRequest',
+        },
         { model: models.LabTestType, as: 'labTestType' },
         { model: models.ReferenceData, as: 'labTestMethod' },
       ],
     });
+
+    const patientId = await response.labRequest.getPatientId();
+    if (patientId) req.audit.patientView(patientId);
 
     if (response.labTestType.isSensitive === true) {
       req.checkPermission('read', 'SensitiveLabRequest');
