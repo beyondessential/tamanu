@@ -31,6 +31,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_field_values__definition_id') }}"
             data_tests:
+              - unique
               - not_null
               - relationships:
                   to: source('tamanu', 'patient_field_definitions')
@@ -39,6 +40,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_field_values__patient_id') }}"
             data_tests:
+              - unique
               - not_null
               - relationships:
                   to: source('tamanu', 'patients')

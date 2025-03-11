@@ -14,9 +14,6 @@ sources:
           - name: id
             data_type: text
             description: "{{ doc('generic__id') }} in patient_facilities."
-            data_tests:
-              - unique
-              - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in patient_facilities."
@@ -38,6 +35,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_facilities__patient_id') }}"
             data_tests:
+              - unique
               - not_null
               - relationships:
                   to: source('tamanu', 'patients')
