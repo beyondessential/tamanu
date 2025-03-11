@@ -5,7 +5,7 @@ import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
 
 import type * as Facts from '@tamanu/constants/facts';
-export type FactName = keyof typeof Facts;
+export type FactName = typeof Facts[keyof typeof Facts];
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
