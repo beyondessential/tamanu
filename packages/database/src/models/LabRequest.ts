@@ -313,4 +313,18 @@ export class LabRequest extends Model {
       },
     });
   }
+
+  async getPatientId() {
+    if (!this.encounter) {
+      await this.reload({
+        include: [
+          {
+            association: 'encounter',
+            attributes: ['patientId'],
+          },
+        ],
+      });
+    }
+    return this.encounter?.patientId;
+  }
 }
