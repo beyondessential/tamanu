@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from './utilities';
 
@@ -47,11 +48,13 @@ describe('translations', () => {
 
     expect(result.body).toHaveProperty('languageNames');
     expect(result.body.languageNames).toHaveLength(2);
-    expect(result.body.languageNames[0].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH]);
-    expect(result.body.languageNames[1].text).toEqual(LANGUAGE_NAMES[LANGUAGE_CODES.KHMER]);
+    expect(result.body.languageNames.map(({ text }) => text).sort()).toEqual([
+      LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH],
+      LANGUAGE_NAMES[LANGUAGE_CODES.KHMER],
+    ]);
 
     expect(result.body).toHaveProperty('languagesInDb');
-    expect(result.body.languagesInDb).toEqual([
+    expect(sortBy(result.body.languagesInDb, ['language'])).toEqual([
       { language: LANGUAGE_CODES.ENGLISH },
       { language: LANGUAGE_CODES.KHMER },
     ]);
