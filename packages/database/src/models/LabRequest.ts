@@ -266,6 +266,7 @@ export class LabRequest extends Model {
       'site',
       'collectedBy',
       'specimenType',
+      'encounter',
       { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
