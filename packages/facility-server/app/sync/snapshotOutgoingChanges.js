@@ -17,7 +17,7 @@ const snapshotChangesForModel = async (model, since, transaction) => {
     `snapshotChangesForModel: Found ${recordsChanged.length} for model ${model.tableName} since ${since}`,
   );
 
-  return recordsChanged.map(r => ({
+  return recordsChanged.map((r) => ({
     direction: SYNC_SESSION_DIRECTION.OUTGOING,
     isDeleted: !!r.deletedAt,
     recordType: model.tableName,
@@ -29,10 +29,14 @@ const snapshotChangesForModel = async (model, since, transaction) => {
 export const snapshotOutgoingChanges = withConfig(async (sequelize, models, since) => {
   const invalidModelNames = Object.values(models)
     .filter(
-      m =>
-        ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PUSH_TO_CENTRAL].includes(m.syncDirection),
+      (m) =>
+        ![
+          SYNC_DIRECTIONS.BIDIRECTIONAL,
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+        ].includes(m.syncDirection),
     )
-    .map(m => m.tableName);
+    .map((m) => m.tableName);
 
   if (invalidModelNames.length) {
     throw new Error(
@@ -46,7 +50,7 @@ export const snapshotOutgoingChanges = withConfig(async (sequelize, models, sinc
   // as the snapshot only contains read queries, there will be no concurrent update issues :)
   return sequelize.transaction(
     { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
-    async transaction => {
+    async (transaction) => {
       let outgoingChanges = [];
       for (const model of Object.values(models)) {
         const changesForModel = await snapshotChangesForModel(model, since, transaction);
