@@ -37,8 +37,8 @@ import {
 import { Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
-// jest wom't always be defined, in which case we can use a random seed
-export const chance = new Chance(global.jest ? jest.getSeed() : null);
+// jest won't always be defined, in which case we can use a random seed
+export const chance = new Chance(global.jest?.getSeed() ?? null);
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
