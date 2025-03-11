@@ -74,13 +74,16 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
   return (
     <DisplayContainer>
       <Heading5>
-        Select a{' '}
+        <TranslatedText stringId="patientProgramRegistry.selectForm.text1" fallback="Select a " />
         <TranslatedReferenceData
           fallback={patientProgramRegistration.programRegistry.name}
           value={patientProgramRegistration.programRegistry.id}
           category="programRegistry"
-        />{' '}
-        form below to complete
+        />
+        <TranslatedText
+          stringId="patientProgramRegistry.selectForm.text2"
+          fallback=" form below to complete"
+        />
       </Heading5>
       <Form
         showInlineErrorsOnly

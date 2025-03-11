@@ -219,7 +219,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 style={{ paddingLeft: '32px', paddingRight: '32px' }}
                 onCancel={onClose}
                 onConfirm={submitForm}
-                confirmText="Confirm"
               />
             </div>
           );

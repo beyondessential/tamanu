@@ -139,8 +139,20 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         </LogoContainer>
         <TextColumnsContainer>
           <TextColumns>
-            <div>Date of registration:</div>
-            <div>Registered by:</div>
+            <div>
+              <TranslatedText
+                stringId="patientProgramRegistry.date.label"
+                fallback="Date of registration"
+              />
+              :
+            </div>
+            <div>
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registered by"
+              />
+              :
+            </div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
             <DateDisplay date={patientProgramRegistration.registrationDate} />
@@ -156,8 +168,20 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <DividerVertical />
             <TextColumnsContainer>
               <TextColumns>
-                <div>Date removed:</div>
-                <div>Removed by:</div>
+                <div>
+                  <TranslatedText
+                    stringId="patientProgramRegistry.dateRemoved.label"
+                    fallback="Date removed"
+                  />
+                  :
+                </div>
+                <div>
+                  <TranslatedText
+                    stringId="patientProgramRegistry.removedBy.label"
+                    fallback="Removed by"
+                  />
+                  :
+                </div>
               </TextColumns>
               <TextColumns style={{ fontWeight: 500 }}>
                 <DateDisplay date={patientProgramRegistration.dateRemoved} />

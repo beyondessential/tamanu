@@ -212,7 +212,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
-        noDataMessage="No Program registry found"
+        noDataMessage={
+          <TranslatedText
+            stringId="patientPatientProgramRegistry.table.column.noDataMessage"
+            fallback="No Program registry found"
+          />
+        }
         onRowClick={selectRegistration}
         fetchOptions={searchParameters}
         rowStyle={({ patient }) => {

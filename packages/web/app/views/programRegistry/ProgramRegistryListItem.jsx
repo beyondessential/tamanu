@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { TranslatedReferenceData } from '../../components/index.js';
+import { TranslatedReferenceData } from '../../components';
 
 const Spacer = styled.div`
   display: flex;

@@ -8,6 +8,7 @@ import {
   FormSeparatorLine,
   Modal,
   TranslatedReferenceData,
+  TranslatedText,
 } from '../../components';
 import { useApi } from '../../api';
 
@@ -47,16 +48,32 @@ export const RemoveConditionFormModal = ({
       toast.error(`Failed to remove related condition with error: ${e.message}`);
     }
   };
+
   return (
-    <Modal title="Remove related condition" open={open} onClose={onCancel}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.removeRelatedCondition.title"
+          fallback="Remove related condition"
+        />
+      }
+      open={open}
+      onClose={onCancel}
+    >
       <Text>
-        Are you sure you would like to remove the related condition of{' '}
+        <TranslatedText
+          stringId="patientProgramRegistry.removeRelatedCondition.text1"
+          fallback="Are you sure you would like to remove the related condition of "
+        />
         <TranslatedReferenceData
           fallback={conditionToRemove.programRegistryCondition?.name}
           value={conditionToRemove.programRegistryCondition?.id}
           category="programRegistryCondition"
-        />{' '}
-        from the patients program condition record?
+        />
+        <TranslatedText
+          stringId="patientProgramRegistry.removeRelatedCondition.text2"
+          fallback=" from the patient's program registration?"
+        />
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />
