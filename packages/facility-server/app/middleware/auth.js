@@ -265,15 +265,16 @@ export const authMiddleware = async (req, res, next) => {
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      patientView: async (patientId) =>
-        req.models.UserPatientView.create({
+      patientView: async (patientId) => {
+        await req.models.UserPatientView.create({
           viewedById: userId,
           patientId,
           facilityId,
           sessionId,
           context: req.originalUrl,
           loggedAt: getCurrentDateTimeString(),
-        }),
+        });
+      },
     };
 
     const spanAttributes = {};
