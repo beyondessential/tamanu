@@ -233,7 +233,7 @@ export class EncounterPausePrescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, { encounterId: 'encounter_prescriptions.encounterId' }),
+      select: buildSyncLookupSelect(this, { encounterId: 'encounter_prescriptions.encounter_id' }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounter_prescriptions']),
     };
   }
