@@ -227,4 +227,13 @@ export class ImagingRequest extends Model {
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
+
+  async getPatientId() {
+    if (!this.encounter) {
+      await this.reload({
+        include: [{ association: 'encounter', attributes: ['patientId'] }],
+      });
+    }
+    return this.encounter?.patientId;
+  }
 }
