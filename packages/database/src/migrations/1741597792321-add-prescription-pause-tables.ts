@@ -1,11 +1,11 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { QueryInterface, DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // Create encounter_pause_prescriptions table
   await query.createTable('encounter_pause_prescriptions', {
     id: {
       type: DataTypes.STRING,
-      defaultValue: DataTypes.UUIDV4,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
       allowNull: false,
       primaryKey: true,
     },
@@ -87,7 +87,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('encounter_pause_prescription_histories', {
     id: {
       type: DataTypes.STRING,
-      defaultValue: DataTypes.UUIDV4,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
       allowNull: false,
       primaryKey: true,
     },

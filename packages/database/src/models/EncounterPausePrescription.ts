@@ -99,6 +99,7 @@ export class EncounterPausePrescription extends Model {
       },
       {
         ...options,
+        tableName: 'encounter_pause_prescriptions',
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           // Calculate pauseEndDate before creating pause record
