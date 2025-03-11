@@ -6,7 +6,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../types/model';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class EncounterPausePrescriptionHistory extends Model {
   declare id: string;
@@ -66,19 +66,15 @@ export class EncounterPausePrescriptionHistory extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'encounterPrescriptions', 'encounters'],
+      [this.tableName, 'encounter_prescriptions', 'encounters'],
       markedForSyncPatientsTable,
     );
   }
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([
-        this.tableName,
-        'encounter_prescriptions',
-        'encounters',
-      ]),
+      select: buildSyncLookupSelect(this, { encounterId: 'encounter_prescriptions.encounterId' }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounter_prescriptions']),
     };
   }
 }
