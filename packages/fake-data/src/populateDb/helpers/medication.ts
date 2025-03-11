@@ -8,7 +8,13 @@ interface CreateMedicationParams {
   referenceDataId: string;
 }
 export const createMedication = async ({
-  models: { Prescription, EncounterPrescription, PatientOngoingPrescription },
+  models: {
+    Prescription,
+    EncounterPrescription,
+    PatientOngoingPrescription,
+    EncounterPausePrescription,
+    EncounterPausePrescriptionHistory,
+  },
   encounterId,
   patientId,
   referenceDataId,
@@ -28,6 +34,16 @@ export const createMedication = async ({
     fake(PatientOngoingPrescription, {
       patientId: patientId,
       prescriptionId: prescription.id,
+    }),
+  );
+  await EncounterPausePrescription.create(
+    fake(EncounterPausePrescription, {
+      encounterPrescriptionId: prescription.id,
+    }),
+  );
+  await EncounterPausePrescriptionHistory.create(
+    fake(EncounterPausePrescriptionHistory, {
+      encounterPrescriptionId: prescription.id,
     }),
   );
 };
