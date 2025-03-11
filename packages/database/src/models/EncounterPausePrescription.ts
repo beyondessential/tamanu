@@ -7,7 +7,7 @@ import {
 } from '../sync/buildEncounterLinkedSyncFilter';
 import { getCurrentDateTimeString, calculateEndDate } from '@tamanu/utils/dateTime';
 import type { InitOptions, Models } from '../types/model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { buildEncounterPatientIdSelect } from '../sync';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;
@@ -233,8 +233,12 @@ export class EncounterPausePrescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, { encounterId: 'encounter_prescriptions.encounter_id' }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounter_prescriptions']),
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'encounter_prescriptions',
+        'encounters',
+      ]),
     };
   }
 }
