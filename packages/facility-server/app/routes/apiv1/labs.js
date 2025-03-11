@@ -41,7 +41,7 @@ labRequest.get(
       include: ['patient'],
     });
     const patientId = encounter?.patient?.id;
-    req.audit.patientView(patientId);
+    if (patientId) req.audit.patientView(patientId);
 
     const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
