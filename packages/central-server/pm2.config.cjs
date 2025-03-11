@@ -1,15 +1,20 @@
 const os = require('node:os');
+
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
+process.env.NODE_CONFIG_DIR = cwd + '/config/';
 const config = require('config');
 
-const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
+const totalMemoryMB = Math.round(os.totalmem() / 1024 ** 2);
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
 
 const availableThreads = os.availableParallelism();
 const minimumApiScale = totalMemoryMB > 3000 ? 2 : 1;
 const maximumApiScale = 4; // more requires custom caddy config
-const defaultApiScale = Math.min(maximumApiScale, Math.max(minimumApiScale, Math.floor(availableThreads / 2)));
-
-const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+const defaultApiScale = Math.min(
+  maximumApiScale,
+  Math.max(minimumApiScale, Math.floor(availableThreads / 2)),
+);
 
 function task(name, args, instances = 1, env = {}) {
   const base = {
@@ -43,7 +48,10 @@ const apps = [
 
 if (config?.integrations?.fhir?.worker?.enabled) {
   apps.push(
-    task('tamanu-fhir-refresh', 'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream'),
+    task(
+      'tamanu-fhir-refresh',
+      'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream',
+    ),
     task('tamanu-fhir-resolve', 'startFhirWorker --topics=fhir.resolver'),
   );
 }
