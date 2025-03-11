@@ -672,6 +672,8 @@ describe('Sync Lookup data', () => {
 
     const patientLinkedModels = await getPatientLinkedModels(outgoingModels);
     const syncLookupData = await models.SyncLookup.findAll({});
+    console.log({length: syncLookupData.length, });
+    console.log(syncLookupData)
 
     for (const model of Object.values(patientLinkedModels)) {
       const syncLookupRecord = syncLookupData.find(
