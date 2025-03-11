@@ -14,7 +14,7 @@ import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
-import { FACT_CURRENT_SYNC_TIME } from '@tamanu/constants/facts';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -57,7 +57,7 @@ describe('snapshotOutgoingChanges', () => {
       debugInfo: {},
     });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
-    tock = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TIME, 2);
+    tock = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
     facility = await models.Facility.create({
       code: 'test-facility-1',
       name: 'Test Facility 1',

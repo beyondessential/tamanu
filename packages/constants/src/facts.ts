@@ -6,7 +6,7 @@ import {
 } from './materializedView.js';
 
 // Internal sync facts
-export const FACT_CURRENT_SYNC_TIME = 'currentSyncTick';
+export const FACT_CURRENT_SYNC_TICK = 'currentSyncTick';
 export const FACT_LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
 export const FACT_LAST_SUCCESSFUL_SYNC_PUSH = 'lastSuccessfulSyncPush';
 export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';

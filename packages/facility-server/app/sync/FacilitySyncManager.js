@@ -8,7 +8,7 @@ import {
   getModelsForDirection,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
-  FACT_CURRENT_SYNC_TIME,
+  FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/database/sync';
@@ -169,12 +169,12 @@ export class FacilitySyncManager {
 
   async pushChanges(sessionId, newSyncClockTime) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
-    const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TIME);
+    const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
     // use the new unique sync tick for any changes from now on so that any records that are created
     // or updated even mid way through this sync, are marked using the new tick and will be captured
     // in the next push
-    await this.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, newSyncClockTime);
+    await this.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, newSyncClockTime);
     log.debug('FacilitySyncManager.updatedLocalSyncClockTime', { newSyncClockTime });
 
     await waitForPendingEditsUsingSyncTick(this.sequelize, currentSyncClockTime);

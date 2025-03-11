@@ -1,5 +1,5 @@
 import {
-  FACT_CURRENT_SYNC_TIME,
+  FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/constants/facts';
@@ -142,7 +142,7 @@ describe('FacilitySyncManager', () => {
 
     it('pushes outgoing changes with current sessionId', async () => {
       const outgoingChanges = [{ test: 'test' }];
-      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, '10');
+      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
       jest.doMock('../../dist/sync/snapshotOutgoingChanges', () => ({
         ...jest.requireActual('../../dist/sync/snapshotOutgoingChanges'),
@@ -224,7 +224,7 @@ describe('FacilitySyncManager', () => {
     });
 
     it('save changes with current sessionId', async () => {
-      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, '10');
+      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
       jest.doMock('@tamanu/database/sync', () => ({
         ...jest.requireActual('@tamanu/database/sync'),
