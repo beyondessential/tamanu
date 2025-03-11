@@ -171,6 +171,8 @@ patientRoute.get(
       include: Encounter.getFullReferenceAssociations(),
     });
 
+    await req.audit.patientView(params.id);
+
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
   }),
@@ -225,6 +227,8 @@ patientRoute.get(
 
     const { count } = lastEncounterMedications;
     const data = lastEncounterMedications.rows.map((x) => x.forResponse());
+
+    await req.audit.patientView(params.id);
 
     res.send({
       count,
@@ -483,6 +487,8 @@ patientRoute.get(
       certType === 'clearance'
         ? await patient.getCovidClearanceLabTests()
         : await patient.getCovidLabTests();
+
+    await req.audit.patientView(params.id);
 
     res.json({ data: labTests, count: labTests.length });
   }),
