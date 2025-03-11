@@ -5,6 +5,8 @@ import {
   MATERIALIZED_VIEWS,
 } from './materializedView.js';
 
+export const FACT_TIME_OFFSET = 'timeOffset';
+
 // Internal sync facts
 export const FACT_CURRENT_SYNC_TICK = 'currentSyncTick';
 export const FACT_LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
