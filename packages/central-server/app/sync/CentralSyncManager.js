@@ -3,7 +3,7 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
-import { FACT_CURRENT_SYNC_TIME, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
+import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -80,7 +80,7 @@ export class CentralSyncManager {
     // "tick" part to be unique to the requesting client, and any changes made directly on the
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
-    const tock = await this.store.models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TIME, 2);
+    const tock = await this.store.models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
     return { tick: tock - 1, tock };
   }
 

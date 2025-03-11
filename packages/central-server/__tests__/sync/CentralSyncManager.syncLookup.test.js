@@ -8,7 +8,7 @@ import {
   REPORT_DB_SCHEMAS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
-  FACT_CURRENT_SYNC_TIME,
+  FACT_CURRENT_SYNC_TICK,
   FACT_LOOKUP_UP_TO_TICK,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
@@ -597,7 +597,7 @@ describe('Sync Lookup data', () => {
     ({ models } = ctx.store);
     centralSyncManager = new CentralSyncManager(ctx);
 
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 4);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
 
     await prepareData();
     await centralSyncManager.updateLookupTable();
@@ -620,7 +620,7 @@ describe('Sync Lookup data', () => {
       patientId: patient.id,
       facilityId: facility.id,
     });
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 4);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, -1);
     await models.SyncDeviceTick.truncate({ force: true });
 
@@ -786,7 +786,7 @@ describe('Sync Lookup data', () => {
 
   it('Populates updated_at_sync_tick with the current tick when incrementally update the sync_lookup table', async () => {
     const CURRENT_SYNC_TICK = 7;
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, CURRENT_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, 1);
 
     await patient.update({ firstName: 'Test Patient 2' });
@@ -1340,12 +1340,12 @@ describe('Sync Lookup data', () => {
   describe('avoidRepull', () => {
     const snapshotOutgoingRecordsForFacility = async (avoidRepull) => {
       const deviceId = 'facility-a';
-      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 4);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
       // Set new sync time so that it does not match the SyncDeviceTick record
       // in order to have it included in the snapshot.
-      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 5);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 5);
       const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
 
       await models.SyncDeviceTick.create({
@@ -1541,7 +1541,7 @@ describe('Sync Lookup data', () => {
       encounter.patientId = patient2.id;
 
       const newTick = 10;
-      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, newTick);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, newTick);
 
       await encounter.save();
 

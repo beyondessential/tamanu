@@ -5,7 +5,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
-  FACT_CURRENT_SYNC_TIME,
+  FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/constants/facts';
@@ -66,7 +66,7 @@ describe('FacilitySyncManager edge cases', () => {
     syncManager.__testSpyEnabled = true;
 
     // set current sync tick
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, currentSyncTick);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, currentSyncTick);
     await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, LAST_SUCCESSFUL_SYNC_PUSH);
 
     const [facilityId] = selectFacilityIds(config);
@@ -99,7 +99,7 @@ describe('FacilitySyncManager edge cases', () => {
     await syncPromise;
 
     // check that the sync tick has been updated
-    const updatedSyncTick = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TIME);
+    const updatedSyncTick = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
     expect(updatedSyncTick).toBe(newSyncTick);
 
     // check that both patient records have the old sync tick
@@ -191,7 +191,7 @@ describe('FacilitySyncManager edge cases', () => {
       jest.resetModules();
 
       await models.Encounter.truncate({ force: true, cascade: true });
-      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, LAST_SUCCESSFUL_SYNC_PUSH);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, LAST_SUCCESSFUL_SYNC_PULL);
     });
