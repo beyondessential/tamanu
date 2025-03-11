@@ -156,6 +156,7 @@ describe('Sync Lookup data', () => {
       TaskTemplateDesignation,
       UserDesignation,
       Notification,
+      EncounterPausePrescription,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -279,12 +280,23 @@ describe('Sync Lookup data', () => {
         medicationId: referenceData.id,
       }),
     );
-    await EncounterPrescription.create(
+    const encounterPrescription = await EncounterPrescription.create(
       fake(EncounterPrescription, {
         encounterId: encounter1.id,
         prescriptionId: prescription.id,
       }),
     );
+
+    await EncounterPausePrescription.create(
+      fake(EncounterPausePrescription, {
+        encounterPrescriptionId: encounterPrescription.id,
+        pauseDuration: 1,
+        pauseTimeUnit: 'days',
+        pauseStartDate: '2023-12-21T04:59:51.851Z',
+        createdBy: examiner.id,
+      }),
+    );
+
     await PatientOngoingPrescription.create(
       fake(PatientOngoingPrescription, {
         patientId: patient.id,
