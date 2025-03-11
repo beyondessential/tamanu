@@ -135,6 +135,9 @@ imagingRequest.get(
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
+    const patientId = await imagingRequestObject.getPatientId();
+    req.audit.patientView(patientId);
+
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
