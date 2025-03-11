@@ -1,7 +1,7 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Migration } from 'umzug';
 
-import { CURRENT_SYNC_TIME_KEY } from '../../sync/constants';
+import { FACT_CURRENT_SYNC_TIME } from '@tamanu/constants/facts';
 
 export const createMigrationAuditLog = async (
   sequelize: Sequelize,
@@ -29,7 +29,7 @@ export const createMigrationAuditLog = async (
         (
           SELECT value::bigint AS current_sync_tick
           FROM local_system_facts
-          WHERE key = '${CURRENT_SYNC_TIME_KEY}'
+          WHERE key = '${FACT_CURRENT_SYNC_TIME}'
         )
       );
     `,

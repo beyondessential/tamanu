@@ -4,6 +4,9 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
 
+import type * as Facts from '@tamanu/constants/facts';
+export type FactName = keyof typeof Facts;
+
 // stores data written _by the server_
 // e.g. which host did we last connect to?
 export class LocalSystemFact extends Model {
@@ -33,12 +36,12 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: string) {
+  static async get(key: FactName) {
     const result = await this.findOne({ where: { key } });
     return result?.value;
   }
 
-  static async set(key: string, value?: string) {
+  static async set(key: FactName, value?: string) {
     const existing = await this.findOne({ where: { key } });
     if (existing) {
       await this.update({ value }, { where: { key } });
@@ -52,7 +55,7 @@ export class LocalSystemFact extends Model {
     }
   }
 
-  static async incrementValue(key: string, amount: number = 1) {
+  static async incrementValue(key: FactName, amount: number = 1) {
     const [rowsAffected] = await this.sequelize.query(
       `
         UPDATE

@@ -4,6 +4,7 @@ import { createMigrationInterface } from '../../src/services/migrations/migratio
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { FACT_CURRENT_SYNC_TIME } from '@tamanu/constants/facts';
 
 describe('migrations', () => {
   describe('Disabling sync trigger', () => {
@@ -15,7 +16,7 @@ describe('migrations', () => {
       await runPreMigration(log, database.sequelize)
       await umzug.up();
       await runPostMigration(log, database.sequelize);
-      await models.LocalSystemFact.set('currentSyncTick', 1);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 1);
       // setup test data
       const { ReportDefinition } = models;
       report_definition = await ReportDefinition.create(
@@ -48,7 +49,7 @@ describe('migrations', () => {
 
       // act
       await umzug.down({ to: '1692710205000-allowDisablingSyncTrigger' });
-      await models.LocalSystemFact.set('currentSyncTick', 2);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TIME, 2);
       await umzug.up({ step: 1 });
 
       // make sure running migration doesn't affect normal sync tick update
