@@ -46,6 +46,7 @@ export class EncounterPausePrescriptionHistory extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        tableName: 'encounter_pause_prescription_histories',
       },
     );
   }
