@@ -109,6 +109,10 @@ export class Prescription extends Model {
       foreignKey: 'medicationId',
       as: 'Medication',
     });
+    this.hasMany(models.ScheduledPrescription, {
+      foreignKey: 'prescriptionId',
+      as: 'scheduledPrescriptions',
+    });
   }
 
   static getListReferenceAssociations() {
