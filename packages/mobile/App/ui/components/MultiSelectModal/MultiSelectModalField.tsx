@@ -32,7 +32,7 @@ export const MultiSelectModalField = ({
   label: fieldLabel,
   value,
   modalTitle = 'Title',
-  placeholder,
+  placeholder = 'Select',
   onChange,
   suggester,
   modalRoute = Routes.Autocomplete.MultiSelectModal,
@@ -100,7 +100,7 @@ export const MultiSelectModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || 'Select'}
+        buttonText={label || placeholder}
         minHeight={screenPercentageToDP(6.68, Orientation.Height)}
         height={'auto'}
         justifyContent="flex-start"
