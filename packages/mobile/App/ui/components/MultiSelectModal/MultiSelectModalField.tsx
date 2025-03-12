@@ -24,7 +24,7 @@ interface MultiSelectModalFieldProps {
   searchPlaceholder?: string;
 }
 
-const appendLabel = (items: OptionType[]) => {
+const extractLabel = (items: OptionType[]) => {
   return items.map(x => ` ${x.label}`).toString();
 };
 
@@ -47,7 +47,7 @@ export const MultiSelectModalField = ({
 
   const handleSaveCallback = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
-    setLabel(appendLabel(selectedItems));
+    setLabel(extractLabel(selectedItems));
   };
 
   const openModal = (): void =>
@@ -71,7 +71,7 @@ export const MultiSelectModalField = ({
       selectedValues.push(data);
     }
 
-    const updatedLabel = appendLabel(selectedValues);
+    const updatedLabel = extractLabel(selectedValues);
     setLabel(updatedLabel);
   }, [suggester]);
 
