@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ReactElement } from 'react';
+import React, { useEffect, useState, ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
@@ -58,15 +58,16 @@ export const MultiSelectModalField = ({
       value,
       searchPlaceholder,
     });
-  const loadInitialLabel = async (values: string[]) => {
+  const loadInitialLabel = useCallback(async (values: string[]) => {
     const selectedValues: OptionType[] = [];
-    values.forEach(async x => {
+    for (const x of values) {
       const data = await suggester.fetchCurrentOption(x);
       selectedValues.push(data);
-    });
+    }
+
     const updatedLabel = selectedValues.length > 0 ? appendLabel(selectedValues) : placeholder;
     setLabel(updatedLabel);
-  };
+  }, [suggester, placeholder]);
 
   useEffect(() => {
     if (!suggester || !value) return;
