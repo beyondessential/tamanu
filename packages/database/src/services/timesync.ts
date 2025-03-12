@@ -45,7 +45,7 @@ interface TimesyncSettings {
 
 const NO_CONSTRUCTOR_ACCESS = Symbol();
 
-/** Query implemention.
+/** Query implementation.
  * This should be something like an API call to the timesync endpoint.
  * The timeout must be respected: if it is reached, return null.
  */
