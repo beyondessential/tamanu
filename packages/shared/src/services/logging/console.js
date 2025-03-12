@@ -7,7 +7,7 @@ import { COLORS } from './color';
 const { consoleLevel, timeless = false } = config?.log || {};
 
 // detect whether we're running as a systemd service
-const isSystemd =  (Boolean(process.env.JOURNAL_STREAM) && !process.stderr.isTTY) || Boolean(process.env.DEBUG_INVOCATION);
+const isSystemd = (Boolean(process.env.JOURNAL_STREAM) && !process.stderr.isTTY) || Boolean(process.env.DEBUG_INVOCATION);
 
 // additional parameters to log.info etc will be serialised and logged using this formatter
 const additionalDataFormatter = (obj = {}) => {
