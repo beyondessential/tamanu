@@ -78,6 +78,9 @@ export const MultiSelectModalField = ({
   useEffect(() => {
     if (!value) return;
     loadInitialLabel(value);
+  // Disabling the linter because we only want to run this on mount
+  // if the component has an initial value and ignore value updates.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
