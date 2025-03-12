@@ -64,8 +64,8 @@ export const MultiSelectModalField = ({
       const data = await suggester.fetchCurrentOption(x);
       selectedValues.push(data);
     });
-    const updatedLabel = appendLabel(selectedValues);
-    setLabel(selectedValues.length > 0 ? updatedLabel : setLabel(placeholder));
+    const updatedLabel = selectedValues.length > 0 ? appendLabel(selectedValues) : placeholder;
+    setLabel(updatedLabel);
   };
 
   useEffect(() => {
