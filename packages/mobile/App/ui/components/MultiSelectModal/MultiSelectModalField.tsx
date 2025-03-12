@@ -24,6 +24,10 @@ interface MultiSelectModalFieldProps {
   searchPlaceholder?: string;
 }
 
+const appendLabel = (items: OptionType[]) => {
+  return items.map(x => ` ${x.label}`).toString();
+};
+
 export const MultiSelectModalField = ({
   label: fieldLabel,
   value,
@@ -41,9 +45,6 @@ export const MultiSelectModalField = ({
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
 
-  const appendLabel = (items: OptionType[]) => {
-    return items.map(x => ` ${x.label}`).toString();
-  };
   const onPress = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
     setLabel(appendLabel(selectedItems));
