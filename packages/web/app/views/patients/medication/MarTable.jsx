@@ -131,6 +131,9 @@ const CurrentTimeOverlay = styled.div`
 `;
 
 const formatTime = time => {
+  if (time === '24:00') {
+    return '12am';
+  }
   return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
 };
 
