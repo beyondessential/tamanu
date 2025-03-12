@@ -183,7 +183,7 @@ export const saveIncomingChanges = async (
       log.child({
         sessionId,
         table: model.tableName,
-        nthTable: `${i}/${sortedModels.length}`,
+        nthTable: `${i + 1}/${sortedModels.length}`,
       }),
     );
   }
