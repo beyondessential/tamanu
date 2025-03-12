@@ -12,7 +12,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     administered_at: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     dose_amount: {

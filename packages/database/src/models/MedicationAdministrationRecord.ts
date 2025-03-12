@@ -1,11 +1,11 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
-import type { Prescription } from './Prescription';
 import { getEndDate } from '@tamanu/shared/utils/medication';
 import { addDays, endOfDay } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Model } from './Model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { Prescription } from './Prescription';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -88,17 +88,11 @@ export class MedicationAdministrationRecord extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
-    if (patientCount === 0) {
-      return null;
-    }
-    return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'encounters'],
-      markedForSyncPatientsTable,
-    );
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this);
+    return null; // syncs everywhere
   }
 }
