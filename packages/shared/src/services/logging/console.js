@@ -20,13 +20,14 @@ const additionalDataFormatter = (obj = {}) => {
 // formatter for all logging:
 // 2022-03-25T06:52:30.003Z info: My console message! additionalItem=additionalValue
 const logFormat = winston.format.printf(({ level, message, childLabel, timestamp, ...rest }) => {
-  const restString = additionalDataFormatter(rest);
-  if (restString === '') {
-    return `${COLORS.grey(timestamp)} ${level}: ${childLabel ? `${childLabel} - ` : ''}${message}`;
-  }
-
   const isSystemd =  (Boolean(process.env.JOURNAL_STREAM) && !process.stderr.isTTY) || Boolean(process.env.DEBUG_INVOCATION);
   const timefield = (isSystemd || timeless) ? '' : `${COLORS.grey(timestamp)} `;
+
+  const restString = additionalDataFormatter(rest);
+  if (restString === '') {
+    return `${timefield}${level}: ${childLabel ? `${childLabel} - ` : ''}${message}`;
+  }
+
   return `${timefield}${level}: ${message} ${COLORS.grey(restString)}`;
 });
 
