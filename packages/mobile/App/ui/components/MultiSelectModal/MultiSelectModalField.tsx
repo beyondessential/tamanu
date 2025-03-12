@@ -45,32 +45,32 @@ export const MultiSelectModalField = ({
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
 
-  const onPress = (selectedItems: OptionType[]): void => {
+  const handleSaveCallback = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
     setLabel(appendLabel(selectedItems));
   };
 
   const openModal = (): void =>
     navigation.navigate(modalRoute, {
-      callback: onPress,
+      callback: handleSaveCallback,
       suggester,
       modalTitle,
       value,
       searchPlaceholder,
     });
-  const loadDefaultValues = async (values: string[]) => {
-    const _values: OptionType[] = [];
+  const loadInitialLabel = async (values: string[]) => {
+    const selectedValues: OptionType[] = [];
     values.forEach(async x => {
       const data = await suggester.fetchCurrentOption(x);
-      _values.push(data);
+      selectedValues.push(data);
     });
-    const _label = appendLabel(_values);
-    setLabel(_values.length > 0 ? _label : setLabel(placeholder));
+    const updatedLabel = appendLabel(selectedValues);
+    setLabel(selectedValues.length > 0 ? updatedLabel : setLabel(placeholder));
   };
 
   useEffect(() => {
     if (!suggester || !value) return;
-    loadDefaultValues(value);
+    loadInitialLabel(value);
   }, []);
 
   return (
