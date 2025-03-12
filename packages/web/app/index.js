@@ -74,4 +74,4 @@ async function start() {
   });
 }
 
-await start();
+start();
