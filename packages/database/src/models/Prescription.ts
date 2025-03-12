@@ -109,9 +109,9 @@ export class Prescription extends Model {
       foreignKey: 'medicationId',
       as: 'Medication',
     });
-    this.hasMany(models.ScheduledPrescription, {
+    this.hasMany(models.MedicationAdministrationRecord, {
       foreignKey: 'prescriptionId',
-      as: 'scheduledPrescriptions',
+      as: 'medicationAdministrationRecords',
     });
   }
 

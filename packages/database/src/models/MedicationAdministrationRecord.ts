@@ -7,13 +7,11 @@ import type { Prescription } from './Prescription';
 import { getEndDate } from '@tamanu/shared/utils/medication';
 import { addDays, endOfDay } from 'date-fns';
 
-export class ScheduledPrescription extends Model {
+export class MedicationAdministrationRecord extends Model {
   declare id: string;
   declare status: string;
   declare administeredAt: string;
   declare doseAmount?: number;
-  declare isAlert?: boolean;
-  declare isEdited?: boolean;
   declare prescriptionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -25,8 +23,6 @@ export class ScheduledPrescription extends Model {
           allowNull: false,
         }),
         doseAmount: DataTypes.DECIMAL,
-        isAlert: DataTypes.BOOLEAN,
-        isEdited: DataTypes.BOOLEAN,
       },
       {
         ...options,
@@ -35,10 +31,10 @@ export class ScheduledPrescription extends Model {
     );
   }
 
-  static async generateScheduledPrescriptions(prescription: Prescription) {
+  static async generateMedicationAdministrationRecords(prescription: Prescription) {
     const { startDate, durationValue, durationUnit } = prescription;
     let endDate = getEndDate(startDate, durationValue, durationUnit);
-  
+
     const twoDaysLater = endOfDay(addDays(new Date(), 2));
     let lastStartDate = new Date(startDate);
 
@@ -47,18 +43,16 @@ export class ScheduledPrescription extends Model {
       endDate = twoDaysLater;
     }
 
-    const lastScheduledPrescription = await this.findOne({
+    const lastMedicationAdministrationRecord = await this.findOne({
       where: {
         prescriptionId: prescription.id,
       },
       order: [['administeredAt', 'DESC']],
     });
-    console.log(lastScheduledPrescription);
     // Set start date to last scheduled prescription date if it exists
-    if (lastScheduledPrescription) {
-      lastStartDate = new Date(lastScheduledPrescription.administeredAt);
+    if (lastMedicationAdministrationRecord) {
+      lastStartDate = new Date(lastMedicationAdministrationRecord.administeredAt);
     }
-    console.log(lastStartDate);
     while (lastStartDate < endDate) {
       for (const idealTime of prescription.idealTimes) {
         const [hours, minutes] = idealTime.split(':').map(Number);
@@ -73,12 +67,11 @@ export class ScheduledPrescription extends Model {
         if (administrationDate < new Date(startDate) || administrationDate >= endDate) {
           continue;
         }
-        const scheduledPrescription = await this.create({
+        await this.create({
           prescriptionId: prescription.id,
           administeredAt: administrationDate,
           doseAmount: prescription.doseAmount,
         });
-        console.log(scheduledPrescription);
       }
       lastStartDate = addDays(lastStartDate, 1);
     }

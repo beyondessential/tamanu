@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('scheduled_prescriptions', {
+  await query.createTable('medication_administration_records', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -17,14 +17,6 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     dose_amount: {
       type: DataTypes.DECIMAL,
-      allowNull: true,
-    },
-    is_alert: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    is_edited: {
-      type: DataTypes.BOOLEAN,
       allowNull: true,
     },
     prescription_id: {
@@ -51,5 +43,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropTable('scheduled_prescriptions');
+  await query.dropTable('medication_administration_records');
 }
