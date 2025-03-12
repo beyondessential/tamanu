@@ -11,6 +11,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Separator } from '~/ui/components/Separator/index';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const StyledFlatList = styled(FlatList)`
   border-bottom-left-radius: 5px;
@@ -85,7 +86,12 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
   if (accessibleRegistries.length === 0) {
     return (
       <NoRegistriesRow>
-        <RowText>No program registries to display</RowText>
+        <RowText>
+          <TranslatedText
+            stringId="TBD"
+            fallback="No program registries to display"
+          />
+        </RowText>
       </NoRegistriesRow>
     );
   }

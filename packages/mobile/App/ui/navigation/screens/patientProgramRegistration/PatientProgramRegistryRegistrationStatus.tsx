@@ -13,7 +13,7 @@ export const StatusContainer = styled.View`
 `;
 
 export const PatientProgramRegistryRegistrationStatus = ({ registrationStatus }) => {
-  const registrationStatusLabel = PROGRAM_REGISTRATION_STATUS_LABEL[registrationStatus];
+  const registrationStatusLabel = PROGRAM_REGISTRATION_STATUS_LABEL[registrationStatus]; // TBD: Enum
   return (
     <StatusContainer>
       <StyledView
