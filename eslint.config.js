@@ -141,25 +141,23 @@ export default [
     },
   },
   {
-    files: [`packages/web/**/*.${EXTS}`],
-    languageOptions: {
-      globals: {
-        __VERSION__: 'readonly',
-      },
-    },
-  },
-  {
-    files: [`packages/web/**/*.${JS_EXTS}`],
+    files: [`packages/web/!({.storybook,stories})/**/*.${EXTS}`],
     languageOptions: {
       globals: {
         ...globals.browser,
-        CryptoKeyPair: 'readonly',
+        __VERSION__: 'readonly',
+        module: 'readonly',
+
+        // polyfilled by vite
+        Buffer: 'readonly',
+        process: 'readonly',
       },
     },
   },
   {
     files: [
       `packages/!(web)/**/*.${JS_EXTS}`,
+      `packages/web/{.storybook,stories}/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
       `**/*.config.${JS_EXTS}`,
     ],
