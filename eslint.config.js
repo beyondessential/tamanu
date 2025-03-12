@@ -141,7 +141,10 @@ export default [
     },
   },
   {
-    files: [`packages/web/!({.storybook,stories})/**/*.${EXTS}`],
+    files: [
+      `packages/web/!({.storybook,stories})/**/*.${EXTS}`,
+      `packages/web/*.${EXTS}`,
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -194,6 +197,7 @@ export default [
 
       // templates
       '**/.migrationTemplate.ts',
+      '**/serverMigrationTemplate.ts',
 
       // local config
       '**/config/local.*',
