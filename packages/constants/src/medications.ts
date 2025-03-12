@@ -240,5 +240,5 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '16:00', endTime: '18:00' },
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
-  { startTime: '22:00', endTime: '00:00', periodLabel: 'night' },
+  { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ];
