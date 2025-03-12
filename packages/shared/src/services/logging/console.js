@@ -4,7 +4,7 @@ import config from 'config';
 import { COLORS } from './color';
 
 // defensive destructure to allow for testing shared directly
-const { consoleLevel } = config?.log || {};
+const { consoleLevel, timeless = false } = config?.log || {};
 
 // additional parameters to log.info etc will be serialised and logged using this formatter
 const additionalDataFormatter = (obj = {}) => {
@@ -25,7 +25,9 @@ const logFormat = winston.format.printf(({ level, message, childLabel, timestamp
     return `${COLORS.grey(timestamp)} ${level}: ${childLabel ? `${childLabel} - ` : ''}${message}`;
   }
 
-  return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;
+  const isSystemd =  (Boolean(process.env.JOURNAL_STREAM) && !process.stderr.isTTY) || Boolean(process.env.DEBUG_INVOCATION);
+  const timefield = (isSystemd || timeless) ? '' : `${COLORS.grey(timestamp)} `;
+  return `${timefield}${level}: ${message} ${COLORS.grey(restString)}`;
 });
 
 export const localTransport = new winston.transports.Console({
