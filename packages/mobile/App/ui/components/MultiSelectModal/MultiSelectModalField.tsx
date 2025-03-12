@@ -76,7 +76,7 @@ export const MultiSelectModalField = ({
   }, [suggester]);
 
   useEffect(() => {
-    if (!suggester || !value) return;
+    if (!value) return;
     loadInitialLabel(value);
   }, []);
 
