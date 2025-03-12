@@ -58,16 +58,22 @@ export const MultiSelectModalField = ({
       value,
       searchPlaceholder,
     });
+
+  // This function is not in use, however, it's meant to be used when
+  // initial values are set. Pay extra care to the value format it expects.
   const loadInitialLabel = useCallback(async (values: string[]) => {
+    if (values.length === 0) {
+      return;
+    }
     const selectedValues: OptionType[] = [];
     for (const x of values) {
       const data = await suggester.fetchCurrentOption(x);
       selectedValues.push(data);
     }
 
-    const updatedLabel = selectedValues.length > 0 ? appendLabel(selectedValues) : placeholder;
+    const updatedLabel = appendLabel(selectedValues);
     setLabel(updatedLabel);
-  }, [suggester, placeholder]);
+  }, [suggester]);
 
   useEffect(() => {
     if (!suggester || !value) return;
