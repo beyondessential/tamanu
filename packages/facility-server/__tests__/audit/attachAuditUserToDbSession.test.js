@@ -112,7 +112,6 @@ describe('Attach audit user to DB session', () => {
         },
       },
     );
-    console.log(changes)
     expect(changes).toHaveLength(4);
     // Each user should be shown to have updated their own record in the audit log
     expect(changes.every((change) => change.updated_by_user_id === change.record_id)).toBeTruthy();
