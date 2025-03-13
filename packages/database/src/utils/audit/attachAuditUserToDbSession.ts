@@ -10,6 +10,5 @@ export const attachAuditUserToDbSession = async (
   _res: Response,
   next: NextFunction,
 ) => {
-  setSessionConfigInNamespace(AUDIT_USERID_KEY, req.user?.id);
-  next();
+  setSessionConfigInNamespace(AUDIT_USERID_KEY, req.user?.id, next);
 };
