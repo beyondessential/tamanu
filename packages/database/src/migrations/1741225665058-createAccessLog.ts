@@ -58,6 +58,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
+    version: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 }
 
