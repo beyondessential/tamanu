@@ -48,11 +48,11 @@ export async function up(query: QueryInterface) {
     },
     front_end_context: {
       type: DataTypes.JSONB,
-      allowNull: false,
+      allowNull: true,
     },
     back_end_context: {
       type: DataTypes.JSONB,
-      allowNull: false,
+      allowNull: true,
     },
     is_mobile: {
       type: DataTypes.BOOLEAN,

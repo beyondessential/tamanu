@@ -26,11 +26,11 @@ export class Access extends Model {
         },
         frontEndContext: {
           type: DataTypes.JSONB,
-          allowNull: false,
+          allowNull: true,
         },
         backEndContext: {
           type: DataTypes.JSONB,
-          allowNull: false,
+          allowNull: true,
         },
         recordId: {
           type: DataTypes.STRING,

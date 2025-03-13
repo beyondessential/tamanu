@@ -1,1 +1,0 @@
-../../central-server/logs/user_patient_views.md
