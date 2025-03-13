@@ -66,7 +66,7 @@ export const PatientProgramRegistryView = () => {
     return (
       <p>
         <TranslatedText
-          stringId="patientProgramRegistry.registeringNotFoundMessage"
+          stringId="patientProgramRegistry.general.registeringNotFoundMessage"
           fallback="Program registry ':title' not found."
           replacements={{ title: title || 'Unknown' }}
         />

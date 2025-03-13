@@ -114,14 +114,14 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
       <HeadingContainer>
         <Heading5>
           <TranslatedText
-            stringId="patientProgramRegistry.relatedConditions.title"
+            stringId="patientProgramRegistry.general.relatedConditions.title"
             fallback="Related conditions"
           />
         </Heading5>
         <ConditionalTooltip
           title={
             <TranslatedText
-              stringId="patientProgramRegistry.patientInactive.tooltip"
+              stringId="patientProgramRegistry.general.patientInactive.tooltip"
               fallback="Patient must be active"
             />
           }

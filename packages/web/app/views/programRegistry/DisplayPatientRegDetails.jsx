@@ -148,7 +148,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             </div>
             <div>
               <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
+                stringId="patientProgramRegistry.general.registeredBy.label"
                 fallback="Registered by"
               />
               :
@@ -177,7 +177,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                 </div>
                 <div>
                   <TranslatedText
-                    stringId="patientProgramRegistry.removedBy.label"
+                    stringId="patientProgramRegistry.general.removedBy.label"
                     fallback="Removed by"
                   />
                   :
@@ -205,7 +205,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         <ConditionalTooltip
           title={
             <TranslatedText
-              stringId="patientProgramRegistry.patientInactive.tooltip"
+              stringId="patientProgramRegistry.general.patientInactive.tooltip"
               fallback="Patient must be active"
             />
           }

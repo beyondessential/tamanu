@@ -68,7 +68,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="registeringFacilityId"
             label={
               <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
+                stringId="patientProgramRegistry.general.registeringFacility.label"
                 fallback="Registering facility"
               />
             }
@@ -179,7 +179,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.relatedCondition.label"
+            stringId="patientProgramRegistry.general.relatedCondition.label"
             fallback="Related condition"
           />
         }
