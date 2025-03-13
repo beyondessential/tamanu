@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, type CreateOptions } from 'sequelize';
 import { SYNC_DIRECTIONS, NOTIFICATION_TYPES, NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
@@ -84,6 +84,7 @@ export class Notification extends Model {
   static async pushNotification(
     type: (typeof NOTIFICATION_TYPE_VALUES)[number],
     metadata: Record<string, any>,
+    options?: CreateOptions<any>,
   ) {
     try {
       const { models } = this.sequelize;
@@ -103,6 +104,12 @@ export class Notification extends Model {
           patientId = encounter?.patientId;
           break;
         }
+        case NOTIFICATION_TYPES.PHARMACY_NOTE: {
+          userId = metadata.prescriberId;
+          const encounter = await models.Encounter.findByPk(metadata.encounterId);
+          patientId = encounter?.patientId;
+          break;
+        }
         default:
           return;
       }
@@ -111,13 +118,16 @@ export class Notification extends Model {
         return;
       }
 
-      await this.create({
-        type,
-        metadata,
-        userId,
-        patientId,
-        createdTime: getCurrentDateTimeString(),
-      });
+      await this.create(
+        {
+          type,
+          metadata,
+          userId,
+          patientId,
+          createdTime: getCurrentDateTimeString(),
+        },
+        options,
+      );
     } catch (error) {
       log.error('Error pushing notification', error);
     }
