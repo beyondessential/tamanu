@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import defineExpress from 'express';
+import asyncHandler from 'express-async-handler';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -18,14 +19,19 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 import { createServer } from 'http';
-import timesyncServer from 'timesync/server';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+import { TimeRequestValidator } from '@tamanu/database/services/timesync';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
+  apiRoutes.post('/timesync', asyncHandler(async (req, res) => {
+    const timeReq = await TimeRequestValidator.validate(req.body);
+    const timeRes = ctx.timesync.respond(timeReq);
+    res.send(timeRes);
+  }));
   apiRoutes.use(authModule);
   apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);
@@ -85,8 +91,6 @@ export async function createApi(ctx) {
       index: true,
     });
   });
-
-  express.use('/timesync', timesyncServer.requestHandler)
 
   // API
   express.use('/api', api(ctx));
