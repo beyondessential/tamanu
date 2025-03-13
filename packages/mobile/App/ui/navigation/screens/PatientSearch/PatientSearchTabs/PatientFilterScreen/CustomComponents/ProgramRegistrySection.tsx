@@ -14,6 +14,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const REGISTRY_COUNT_THRESHOLD = 10;
 
@@ -21,6 +22,7 @@ export const ProgramRegistrySection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
   const { ability } = useAuth();
+  const { getTranslation } = useTranslation();
 
   const ProgramRegistrySuggester = new Suggester(
     models.ProgramRegistry,
@@ -62,7 +64,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           labelFontSize={screenPercentageToDP(2, Orientation.Height)}
           fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={AutocompleteModalField}
-          placeholder="Search"
+          placeholder={getTranslation('general.action.search', 'Search')}
           suggester={ProgramRegistrySuggester}
           navigation={navigation}
           name="programRegistryId"
@@ -79,7 +81,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           labelFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={Dropdown}
           options={programRegistries}
-          selectPlaceholderText="Select"
+          selectPlaceholderText={getTranslation('general.action.select', 'Select')}
           navigation={navigation}
           name="programRegistryId"
         />
