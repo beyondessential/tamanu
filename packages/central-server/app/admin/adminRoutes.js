@@ -45,7 +45,11 @@ adminRoutes.get(
     });
     if (!patient) throw new NotFoundError(`Could not find patient with display ID ${displayId}.`);
 
-    await req.audit.patientView(patient.id, req.params);
+    await req.audit.access({
+      recordId: patient.id,
+      params: req.params,
+      recordType: 'Patient',
+    });
 
     res.send(patient);
   }),

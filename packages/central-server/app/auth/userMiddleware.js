@@ -62,14 +62,14 @@ export const userMiddleware = ({ secret }) =>
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      patientView: async (patientId, frontEndContext) =>
+      access: async ({ recordId, params, recordType }) =>
         req.models.Access.create({
           userId: userId,
-          recordId: patientId,
-          recordType: 'Patient',
+          recordId,
+          recordType,
           sessionId,
           isMobile: false,
-          frontEndContext,
+          frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: getCurrentDateTimeString(),
         }),
