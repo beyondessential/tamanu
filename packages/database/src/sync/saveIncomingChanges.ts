@@ -1,5 +1,6 @@
 import config from 'config';
 import { Sequelize } from 'sequelize';
+import type { Logger } from 'winston';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging/log';
 
@@ -18,6 +19,7 @@ export const saveChangesForModel = async (
   model: typeof Model,
   changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
   isCentralServer: boolean,
+  log: Logger,
 ) => {
   const sanitizeData = (d: ModelSanitizeArgs) =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
@@ -86,19 +88,28 @@ export const saveChangesForModel = async (
     });
 
   // run each import process
-  log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
+  log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });
   if (recordsForCreate.length > 0) {
     await saveCreates(model, recordsForCreate);
   }
-  log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
+
+  log.debug('Sync: saveIncomingChanges: Updating existing records', {
+    count: recordsForUpdate.length,
+  });
   if (recordsForUpdate.length > 0) {
     await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
   }
-  log.debug(`saveIncomingChanges: Soft deleting ${recordsForDelete.length} old records`);
+
+  log.debug('Sync: saveIncomingChanges: Soft deleting old records', {
+    count: recordsForDelete.length,
+  });
   if (recordsForDelete.length > 0) {
     await saveDeletes(model, recordsForDelete);
   }
-  log.debug(`saveIncomingChanges: Restoring ${recordsForRestore.length} deleted records`);
+
+  log.debug('Sync: saveIncomingChanges: Restoring deleted records', {
+    count: recordsForRestore.length,
+  });
   if (recordsForRestore.length > 0) {
     await saveRestores(model, recordsForRestore);
   }
@@ -110,6 +121,7 @@ const saveChangesForModelInBatches = async (
   sessionId: string,
   recordType: RecordType,
   isCentralServer: boolean,
+  log: Logger,
 ) => {
   const syncRecordsCount = await countSyncSnapshotRecords(
     sequelize,
@@ -117,11 +129,15 @@ const saveChangesForModelInBatches = async (
     SYNC_SESSION_DIRECTION.INCOMING,
     model.tableName,
   );
-  log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
-  let fromId;
+  log.debug('Sync: saveIncomingChanges', {
+    total: syncRecordsCount,
+    batch: batchCount,
+    pauseMs: pauseBetweenPersistedCacheBatchesInMilliseconds,
+  });
 
+  let fromId;
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
     const batchRecords = await findSyncSnapshotRecords(
       sequelize,
@@ -135,15 +151,15 @@ const saveChangesForModelInBatches = async (
 
     try {
       log.info('Sync: Persisting cache to table', {
-        table: model.tableName,
         count: batchRecords.length,
+        total: syncRecordsCount,
       });
 
-      await saveChangesForModel(model, batchRecords, isCentralServer);
+      await saveChangesForModel(model, batchRecords, isCentralServer, log);
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
     } catch (error) {
-      log.error(`Failed to save changes for ${model.name}`);
+      log.error('Failed to save changes');
       throw error;
     }
   }
@@ -157,13 +173,18 @@ export const saveIncomingChanges = async (
 ) => {
   const sortedModels = sortInDependencyOrder(pulledModels);
 
-  for (const model of sortedModels) {
+  for (const [i, model] of sortedModels.entries()) {
     await saveChangesForModelInBatches(
       model,
       sequelize,
       sessionId,
       model.tableName,
       isCentralServer,
+      log.child({
+        sessionId,
+        table: model.tableName,
+        nthTable: `${i + 1}/${sortedModels.length}`,
+      }),
     );
   }
 };

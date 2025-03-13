@@ -1,6 +1,6 @@
 import type { Models } from '../types/model';
 
-export function sortInDependencyOrder(models: Models) {
+export function sortInDependencyOrder(models: Models): Array<Models[keyof Models]> {
   const sorted: Array<Models[keyof Models]> = [];
   const stillToSort = new Map(Object.entries(models).sort((a, b) => a[0].localeCompare(b[0])));
 
