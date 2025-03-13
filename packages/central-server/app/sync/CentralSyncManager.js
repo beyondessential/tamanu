@@ -3,6 +3,7 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -20,8 +21,6 @@ import {
   SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-  CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY,
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
 } from '@tamanu/database/sync';
@@ -81,7 +80,7 @@ export class CentralSyncManager {
     // "tick" part to be unique to the requesting client, and any changes made directly on the
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
-    const tock = await this.store.models.LocalSystemFact.incrementValue(CURRENT_SYNC_TIME_KEY, 2);
+    const tock = await this.store.models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
     return { tick: tock - 1, tock };
   }
 
@@ -253,7 +252,7 @@ export class CentralSyncManager {
       await this.waitForPendingEdits(currentTick);
 
       const previouslyUpToTick =
-        (await store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
+        (await store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK)) || -1;
 
       await debugObject.addInfo({ since: previouslyUpToTick });
 
@@ -294,7 +293,7 @@ export class CentralSyncManager {
         log.debug('CentralSyncManager.updateLookupTable()', {
           lastSuccessfulLookupTableUpdate: currentTick,
         });
-        await store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
+        await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
       });
     } catch (error) {
       log.error('CentralSyncManager.updateLookupTable encountered an error', {

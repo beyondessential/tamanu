@@ -6,9 +6,9 @@ import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/database/sync';
 
 import { DataImportError, DryRun } from '../errors';
 import { coalesceStats } from '../stats';
@@ -73,7 +73,7 @@ export async function importerTransaction({
         // this import, but aren't visible in the db to be snapshot until the transaction commits,
         // so would otherwise be completely skipped over by that sync client
         await models.LocalSystemFact.findAll({
-          where: { key: CURRENT_SYNC_TIME_KEY },
+          where: { key: FACT_CURRENT_SYNC_TICK },
           lock: transaction.LOCK.UPDATE,
         });
 
