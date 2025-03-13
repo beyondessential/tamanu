@@ -108,7 +108,12 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         }
       />
       <DataRow
-        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.clinicalStatus.label"
+            fallback="Status"
+          />
+        }
         value={
           <TranslatedReferenceData
             fallback={patientProgramRegistration.clinicalStatus?.name}
