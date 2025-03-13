@@ -2,6 +2,8 @@ const os = require('node:os');
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 
+// NOTE: We also explicitly set this value in the Dockerfile for when running in containers
+// but the two values should resolve to the same path
 process.env.NODE_CONFIG_DIR = cwd + '/config/';
 const config = require('config');
 
