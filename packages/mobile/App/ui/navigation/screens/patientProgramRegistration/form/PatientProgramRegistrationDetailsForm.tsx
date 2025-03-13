@@ -187,7 +187,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />/* double check this stringId as it's actually clinical status and NOT registry status */}
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     labelFontSize={14}
                     component={Dropdown}
                     name="clinicalStatusId"
