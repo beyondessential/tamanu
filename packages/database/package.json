@@ -106,7 +106,6 @@
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
-    "timesync": "^1.0.11",
     "bcrypt": "^5.1.1",
     "config": "^3.3.9",
     "date-fns": "^2.19.0",
