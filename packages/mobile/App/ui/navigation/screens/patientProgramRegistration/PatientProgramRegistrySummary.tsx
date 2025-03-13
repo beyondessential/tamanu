@@ -54,7 +54,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
       <Row>
         <SectionHeader h1 fontSize={14} fontWeight={500} color={theme.colors.TEXT_SUPER_DARK}>
           <TranslatedText
-            stringId="TBD"
+            stringId="general.localisedField.programRegistry.label"
             fallback="Program registry"
           />
         </SectionHeader>

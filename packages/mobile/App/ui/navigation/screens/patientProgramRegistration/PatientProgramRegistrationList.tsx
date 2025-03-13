@@ -88,7 +88,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
       <NoRegistriesRow>
         <RowText>
           <TranslatedText
-            stringId="TBD"
+            stringId="patientprogramRegistry.list.noData"
             fallback="No program registries to display"
           />
         </RowText>

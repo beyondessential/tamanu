@@ -206,13 +206,20 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
-                    modalTitle={getTranslation('patientProgramRegistry.conditions.label', 'Conditions')}
+                    modalTitle={
+                      getTranslation('patientProgramRegistry.conditions.label', 'Conditions')
+                    }
                     suggester={conditionSuggester}
                     placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     name="conditions"
                     value={values.conditions}
-                    searchPlaceholder={getTranslation('TBD', 'Search conditions...')}
+                    searchPlaceholder={
+                      getTranslation(
+                        'patientProgramRegistry.search.conditions',
+                        'Search conditions...',
+                      )
+                    }
                   />
                 </StyledView>
                 <Button

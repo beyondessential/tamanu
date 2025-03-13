@@ -65,7 +65,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       <EmptyStackHeader
         title={
           <TranslatedText
-            stringId="TBD"
+            stringId="general.localisedField.programRegistry.label"
             fallback="Program registry"
           />
         }
@@ -86,7 +86,12 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
         <SearchInput
           value={searchValue}
           onChange={(text: string) => setSearchValue(text)}
-          placeholder={getTranslation('TBD', 'Search program registry...')}
+          placeholder={
+            getTranslation(
+              'patientProgramRegistry.search.programRegistry',
+              'Search program registry...',
+            )
+          }
         />
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
