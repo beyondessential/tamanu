@@ -58,6 +58,7 @@ programRelations.get(
         programId: params.id,
         visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
       },
+      order: [['name', 'ASC']],
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
     const data = filteredRecords.map(x => x.forResponse());

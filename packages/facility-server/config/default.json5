@@ -6,7 +6,8 @@
     "path": "",
     "consoleLevel": "http",
     "color": true,
-    "enableAuditLog": false
+    "enableAuditLog": false,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
@@ -51,10 +52,6 @@
       "optimalTimePerPageMs": 2000, // aim for 2 seconds per page
       "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
     }
-  },
-  "timesync": {
-    "enabled": true,
-    "interval": 60000 // ms interval for synchronising
   },
   "port": 4000,
   "db": {

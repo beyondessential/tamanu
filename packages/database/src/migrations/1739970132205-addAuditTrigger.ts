@@ -29,7 +29,7 @@ export async function up(query: QueryInterface): Promise<void> {
       TG_RELID,                 -- table_oid
       TG_TABLE_SCHEMA,          -- table_schema
       TG_TABLE_NAME,            -- table_name
-      CURRENT_TIMESTAMP,        -- logged_at
+      adjusted_timestamp(),     -- logged_at
       NEW.created_at,           -- created_at
       NEW.updated_at,           -- updated_at
       NEW.deleted_at,           -- deleted_at
