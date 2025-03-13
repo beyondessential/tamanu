@@ -21,6 +21,7 @@ import { getTranslatedFrequency } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { ConditionalTooltip } from './Tooltip';
 import { MedicationDetails } from './MedicationDetails';
+import { getEndDate } from '@tamanu/shared/utils/medication';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 51vh;
@@ -132,9 +133,7 @@ const MEDICATION_COLUMNS = getTranslation => [
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
-      const parsedStartDate = parseISO(startDate);
-      const duration = parseInt(durationValue, 10);
-      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+      const endDate = getEndDate(startDate, durationValue, durationUnit);
       let tooltipTitle = '';
       if (durationValue && durationUnit) {
         tooltipTitle = (

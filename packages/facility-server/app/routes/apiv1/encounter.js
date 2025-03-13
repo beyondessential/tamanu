@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
@@ -178,7 +178,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, after } = query;
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');
 
@@ -191,15 +191,32 @@ encounterRelations.get(
         as: 'encounters',
         through: { attributes: [] },
         where: { id: params.id },
-      }],
+      }, 'medicationAdministrationRecords'],
     };
 
-    if (after) {
+    // Add medicationAdministrationRecords with condition for same day
+    if (marDate) {
+      baseQueryOptions.include.push({
+        model: models.MedicationAdministrationRecord,
+        as: 'medicationAdministrationRecords',
+        where: {
+          administeredAt: {
+            [Op.gte]: `${marDate} 00:00:00`,
+            [Op.lt]: `${marDate} 23:59:59`
+          }
+        },
+        required: false,
+      });
+
       baseQueryOptions.where = {
         ...baseQueryOptions.where,
         startDate: {
-          [Op.lte]: new Date(after),
+          [Op.lte]: `${marDate} 23:59:59`,
         },
+        [Op.or]: [
+          { discontinuedDate: null },
+          { discontinuedDate: { [Op.gte]: `${toDateString(marDate)} 00:00:00` } }
+        ],
       };
     }
 
@@ -219,6 +236,7 @@ encounterRelations.get(
     res.send({ count, data });
   }),
 );
+
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',

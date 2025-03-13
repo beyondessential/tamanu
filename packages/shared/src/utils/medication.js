@@ -37,3 +37,13 @@ export const getEndDate = (startDate, durationValue, durationUnit) => {
   const duration = parseInt(durationValue, 10);
   return add(parsedStartDate, { [durationUnit]: duration });
 };
+
+export const getTimeSlotFromDate = (date = new Date()) => {
+  const time = date.getTime();
+  const timeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(({ startTime, endTime }) => {
+    const startDate = getDateFromTimeString(startTime).getTime();
+    const endDate = getDateFromTimeString(endTime).getTime();
+    return startDate <= time && time <= endDate;
+  });
+  return timeSlot;
+};
