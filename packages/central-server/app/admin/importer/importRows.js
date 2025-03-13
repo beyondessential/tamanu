@@ -268,8 +268,8 @@ export async function importRows(
       `
         INSERT INTO translated_strings (string_id, text, language)
         VALUES ${translationData.map(() => '(?)').join(',')}
-        ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-    `,
+          ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+      `,
       {
         replacements: translationData,
         type: models.TranslatedString.sequelize.QueryTypes.INSERT,

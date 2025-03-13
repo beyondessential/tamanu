@@ -11,10 +11,8 @@ import { readTwoModelTypeSheet } from './readMetadata';
 
 function readProgramRegistryData(workbook) {
   log.debug('Reading Registry data');
-  const {
-    primaryRecord: registryRecord,
-    secondaryRecords: clinicalStatuses,
-  } = readTwoModelTypeSheet(workbook.Sheets.Registry, 'Registry');
+  const { primaryRecord: registryRecord, secondaryRecords: clinicalStatuses } =
+    readTwoModelTypeSheet(workbook.Sheets.Registry, 'Registry');
 
   if (!registryRecord.registryCode) {
     throw new DataImportError('Registry', -2, 'A registry must have a code');
@@ -118,7 +116,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   log.debug('Importing Patient Registry Clinical statuses');
   stats = await importRows(context, {
     sheetName: 'Registry',
-    rows: clinicalStatuses.map(row => ({
+    rows: clinicalStatuses.map((row) => ({
       model: 'ProgramRegistryClinicalStatus',
       // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
       // -1 as it'll have 2 added to it later but it's only 1 off
@@ -137,7 +135,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   log.debug('Importing Patient Registry Conditions');
   return importRows(context, {
     sheetName: 'Registry Conditions',
-    rows: programRegistryConditions.map(row => ({
+    rows: programRegistryConditions.map((row) => ({
       model: 'ProgramRegistryCondition',
       // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
       // -1 as it'll have 2 added to it later but it's only 1 off

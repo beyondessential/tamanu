@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { TranslatedReferenceData } from '../../components/index.js';
 
 const Spacer = styled.div`
   display: flex;
@@ -38,7 +39,13 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
           <RegistrationStatusIndicator patientProgramRegistration={item} hideText />
           <NameContainer style={{ width: '90%' }}>{programRegistry?.name}</NameContainer>
         </RowContents>
-        <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>{clinicalStatus?.name}</NameContainer>
+        <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>
+          <TranslatedReferenceData
+            fallback={clinicalStatus?.name}
+            value={clinicalStatus?.id}
+            category="programRegistryClinicalStatus"
+          />
+        </NameContainer>
       </Spacer>
     </ListItem>
   );
