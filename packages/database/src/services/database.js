@@ -25,9 +25,10 @@ export const namespace = {
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
 };
 
-export const setSessionConfigInNamespace = (key, value) => {
+export const setSessionConfigInNamespace = (key, value, callback) => {
   namespace.run(() => {
     namespace.set(`${SESSION_CONFIG_PREFIX}${key}`, value);
+    callback()
   });
 };
 
