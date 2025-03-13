@@ -19,7 +19,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         key: 'date',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.formHistory.date"
+            stringId="patientProgramRegistry.modal.formHistory.date"
             fallback="Date submitted"
           />
         ),
@@ -30,7 +30,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         key: 'userId',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.formHistory.submittedBy"
+            stringId="patientProgramRegistry.modal.formHistory.submittedBy"
             fallback="Submitted By"
           />
         ),
@@ -40,7 +40,10 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       {
         key: 'surveyName',
         title: (
-          <TranslatedText stringId="patientProgramRegistry.formHistory.form" fallback="Form" />
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.form"
+            fallback="Form"
+          />
         ),
         accessor: row => row.surveyName,
         sortable: false,
@@ -48,7 +51,10 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       {
         key: 'result',
         title: (
-          <TranslatedText stringId="patientProgramRegistry.formHistory.result" fallback="Result" />
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.result"
+            fallback="Result"
+          />
         ),
         accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
         sortable: false,
@@ -110,7 +116,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         onRowClick={onSelectResponse}
         noDataMessage={
           <TranslatedText
-            stringId="patientProgramRegistry.formHistory.noDataMessage"
+            stringId="patientProgramRegistry.modal.formHistory.noDataMessage"
             fallback="No Program registry responses found"
           />
         }

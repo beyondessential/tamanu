@@ -58,7 +58,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
       <Modal
         title={
           <TranslatedText
-            stringId="patientProgramRegistry.changeStatus.title"
+            stringId="patientProgramRegistry.modal.changeStatus.title"
             fallback="Change status"
           />
         }

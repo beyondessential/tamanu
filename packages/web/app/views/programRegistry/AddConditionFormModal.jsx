@@ -56,7 +56,7 @@ export const AddConditionFormModal = ({
     <Modal
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.addConditionForm.title"
+          stringId="patientProgramRegistry.modal.addCondition.title"
           fallback="Add related condition"
         />
       }
@@ -76,7 +76,7 @@ export const AddConditionFormModal = ({
                   name="programRegistryConditionId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.relatedCondition.label"
+                      stringId="patientProgramRegistry.modal.relatedCondition.label"
                       fallback="Related condition"
                     />
                   }
@@ -94,14 +94,9 @@ export const AddConditionFormModal = ({
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="conditions.validation.conditionName.path"
-                fallback="Condition"
-              />,
-            ),
+          programRegistryConditionId: foreignKey().required(
+            <TranslatedText stringId="general.required" fallback="Required" />,
+          ),
         })}
       />
     </Modal>

@@ -133,7 +133,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.date.label"
+                        stringId="patientProgramRegistry.modal.date.label"
                         fallback="Date of registration"
                       />
                     }
@@ -145,7 +145,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="clinicianId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="patientProgramRegistry.modal.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
@@ -159,7 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeringFacility.label"
+                        stringId="patientProgramRegistry.modal.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -184,7 +184,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="conditionIds"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.relatedConditions.label"
+                        stringId="patientProgramRegistry.modal.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
@@ -235,29 +235,13 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           clinicalStatusId: optionalForeignKey().nullable(),
           date: yup
             .date()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.date.label"
-                fallback="Date of registration"
-              />,
-            ),
-          clinicianId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
-                fallback="Registered by"
-              />,
-            ),
-          registeringFacilityId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
-                fallback="Registering facility"
-              />,
-            ),
+            .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          clinicianId: foreignKey().required(
+            <TranslatedText stringId="general.required" fallback="Required" />,
+          ),
+          registeringFacilityId: foreignKey().required(
+            <TranslatedText stringId="general.required" fallback="Required" />,
+          ),
         })}
       />
     </Modal>
