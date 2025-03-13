@@ -6,7 +6,8 @@
     "path": "",
     "consoleLevel": "http",
     "color": true,
-    "enableAuditLog": false
+    "enableAuditLog": false,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
