@@ -75,6 +75,7 @@ async function connectToDatabase(dbOptions) {
     pool,
     alwaysCreateConnection = true,
     loggingOverride = null, // used in tests for migration determinism
+    disableChangesAudit = false,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -130,18 +131,20 @@ async function connectToDatabase(dbOptions) {
       bind: { key, value },
     });
 
-  class QueryWithAuditConfig extends sequelize.dialect.Query {
-    async run(sql, options) {
-      const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
-      if (userid)
-        await super.run(
-          'SELECT set_session_config($1, $2)',
-          [AUDIT_USERID_KEY, userid],
-        );
-      return super.run(sql, options);
+  if (!disableChangesAudit) {
+    class QueryWithAuditConfig extends sequelize.dialect.Query {
+      async run(sql, options) {
+        const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
+        if (userid)
+          await super.run(
+            'SELECT set_session_config($1, $2)',
+            [AUDIT_USERID_KEY, userid],
+          );
+        return super.run(sql, options);
+      }
     }
+    sequelize.dialect.Query = QueryWithAuditConfig;
   }
-  sequelize.dialect.Query = QueryWithAuditConfig;
 
   setupQuote(sequelize);
   await sequelize.authenticate();
