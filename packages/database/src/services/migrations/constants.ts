@@ -15,6 +15,7 @@ export const NON_SYNCING_TABLES = [
   'sync_lookup',
   'debug_logs',
   'sync_device_ticks',
+  'accesses',
 ];
 
 export const NON_LOGGED_TABLES = [
@@ -39,4 +40,6 @@ export const NON_LOGGED_TABLES = [
 
   // internal configuration
   'local_system_facts',
+
+  'accesses',
 ];
