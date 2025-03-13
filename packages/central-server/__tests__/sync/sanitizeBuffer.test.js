@@ -11,6 +11,7 @@ import {
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('sanitize binary data', () => {
   let ctx;
@@ -37,7 +38,7 @@ describe('sanitize binary data', () => {
               startTime,
               lastConnectionTime: startTime,
             });
-            const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
+            const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
 
             const asset = await Asset.create(
               fake(Asset, {
