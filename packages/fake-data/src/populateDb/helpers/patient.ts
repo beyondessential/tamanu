@@ -82,15 +82,13 @@ export const createAccessLog = async ({
   userId,
   facilityId,
 }: CreatePatientViewLogParams) => {
-  await Access.create(
-    fake(Access, {
-      userId: userId,
-      recordId: patientId,
-      facilityId,
-      recordType: 'Patient',
-      isMobile: chance.bool(),
-      frontEndContext: { patientId },
-      backEndContext: { endPoint: '/patient/:id' },
-    }),
-  );
+  await Access.create({
+    userId: userId,
+    recordId: patientId,
+    facilityId,
+    recordType: 'Patient',
+    isMobile: chance.bool(),
+    frontEndContext: { patientId },
+    backEndContext: { endPoint: '/patient/:id' },
+  });
 };
