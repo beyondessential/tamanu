@@ -52,6 +52,10 @@ export class Access extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
+        version: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
       },
 
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, schema: 'logs' },
