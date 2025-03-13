@@ -194,7 +194,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
-                    modalTitle="Conditions"
+                    modalTitle={getTranslation('patientProgramRegistry.conditions.label', 'Conditions')}
                     suggester={conditionSuggester}
                     placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
