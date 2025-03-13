@@ -76,12 +76,14 @@ interface CreatePatientViewLogParams {
   userId: string;
   patientId: string;
   version?: string;
+  deviceId?: string;
 }
 export const createAccessLog = async ({
   models: { Access },
   patientId,
   userId,
   facilityId,
+  deviceId = chance.string(),
   version = '2.x.x',
 }: CreatePatientViewLogParams) => {
   await Access.create({
@@ -93,5 +95,6 @@ export const createAccessLog = async ({
     frontEndContext: { patientId },
     backEndContext: { endPoint: '/patient/:id' },
     version,
+    deviceId,
   });
 };
