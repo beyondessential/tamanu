@@ -31,7 +31,7 @@ export const MultiSelectModalField = ({
   placeholder,
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.MultiSelectModal,
+  modalRoute = Routes.Forms.MultiSelectModal,
   error,
   required,
   marginTop = 0,
@@ -42,7 +42,7 @@ export const MultiSelectModalField = ({
   const [label, setLabel] = useState(null);
 
   const appendLabel = (items: OptionType[]) => {
-    return items.map(x => ` ${x.label}`).toString();
+    return items.map((x) => ` ${x.label}`).toString();
   };
   const onPress = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
@@ -59,7 +59,7 @@ export const MultiSelectModalField = ({
     });
   const loadDefaultValues = async (values: string[]) => {
     const _values: OptionType[] = [];
-    values.forEach(async x => {
+    values.forEach(async (x) => {
       const data = await suggester.fetchCurrentOption(x);
       _values.push(data);
     });

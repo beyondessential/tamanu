@@ -65,7 +65,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
 
   const openCategoryScreen = useCallback(
     (newCondition) => {
-      navigation.navigate(Routes.Autocomplete.SelectModal, {
+      navigation.navigate(Routes.Forms.SelectModal, {
         callback: (newValue: FieldValue) => {
           // Submit values
           setCategory(newValue);
@@ -85,7 +85,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   );
 
   const openConditionScreen = useCallback(() => {
-    navigation.navigate(Routes.Autocomplete.Modal, {
+    navigation.navigate(Routes.Forms.AutocompleteModal, {
       callback: (newValue: FieldValue) => {
         setCondition(newValue);
         openCategoryScreen(newValue);

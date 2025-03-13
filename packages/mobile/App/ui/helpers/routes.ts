@@ -8,9 +8,9 @@
 // string is fine).
 
 export const Routes = {
-  Autocomplete: {
+  Forms: {
     Index: '',
-    Modal: '',
+    AutocompleteModal: '',
     MultiSelectModal: '',
     SelectModal: '',
   },
