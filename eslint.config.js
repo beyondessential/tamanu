@@ -76,15 +76,6 @@ export default [
     // mobile rule exclusions (as warnings, until we fix them)
     files: [`packages/mobile/**/*.${TS_EXTS}`],
     rules: {
-      'no-unused-vars': 'off',
-      "@typescript-eslint/no-unused-vars": [
-        'error',
-        {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
-        },
-      ],
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',
@@ -97,6 +88,17 @@ export default [
     rules: {
       // Disable rules that are incompatible with or better handled by TypeScript
       ...typescriptPlugin.configs['eslint-recommended'].overrides[0].rules,
+      'no-unused-vars': 'off',
+
+      // support _unusedVar pattern
+      "@typescript-eslint/no-unused-vars": [
+        'error',
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_",
+        },
+      ],
 
       // for ts multiple dispatch
       'no-dupe-class-members': 'off',
@@ -139,25 +141,26 @@ export default [
     },
   },
   {
-    files: [`packages/web/**/*.${EXTS}`],
-    languageOptions: {
-      globals: {
-        __VERSION__: 'readonly',
-      },
-    },
-  },
-  {
-    files: [`packages/web/**/*.${JS_EXTS}`, 'packages/qr-tester/www/**/*.js'],
+    files: [
+      `packages/web/!({.storybook,stories})/**/*.${EXTS}`,
+      `packages/web/*.${EXTS}`,
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,
-        CryptoKeyPair: 'readonly',
+        __VERSION__: 'readonly',
+        module: 'readonly',
+
+        // polyfilled by vite
+        Buffer: 'readonly',
+        process: 'readonly',
       },
     },
   },
   {
     files: [
-      `packages/!({web,qr-tester})/**/*.${JS_EXTS}`,
+      `packages/!(web)/**/*.${JS_EXTS}`,
+      `packages/web/{.storybook,stories}/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
       `**/*.config.${JS_EXTS}`,
     ],
@@ -165,15 +168,6 @@ export default [
       globals: {
         ...globals.node,
         CryptoKeyPair: 'readonly',
-      },
-    },
-  },
-  {
-    files: ['packages/qr-tester/www/js/**/*.js'],
-    languageOptions: {
-      globals: {
-        X509: 'readonly',
-        KEYUTIL: 'readonly',
       },
     },
   },
@@ -203,6 +197,7 @@ export default [
 
       // templates
       '**/.migrationTemplate.ts',
+      '**/serverMigrationTemplate.ts',
 
       // local config
       '**/config/local.*',
