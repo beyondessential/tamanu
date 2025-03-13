@@ -175,6 +175,12 @@ patientRoute.get(
       include: Encounter.getFullReferenceAssociations(),
     });
 
+    await req.audit.access({
+      recordId: params.id,
+      params,
+      recordType: 'Patient',
+    });
+
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
   }),
