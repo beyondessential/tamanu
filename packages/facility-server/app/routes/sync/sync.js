@@ -2,9 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import {
-  LAST_SUCCESSFUL_SYNC_PULL_KEY,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/database/sync';
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
+  FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+} from '@tamanu/constants/facts';
 
 export const sync = express.Router();
 
@@ -42,7 +42,7 @@ sync.get(
 
     const [lastCompletedPull, lastCompletedPush] = (
       await Promise.all(
-        [LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PUSH_KEY].map(key =>
+        [FACT_LAST_SUCCESSFUL_SYNC_PULL, FACT_LAST_SUCCESSFUL_SYNC_PUSH].map(key =>
           models.LocalSystemFact.get(key),
         ),
       )
