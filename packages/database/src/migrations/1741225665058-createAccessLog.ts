@@ -10,8 +10,20 @@ export async function up(query: QueryInterface) {
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     user_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       references: {
         model: { tableName: 'users', schema: 'public' },
@@ -19,15 +31,15 @@ export async function up(query: QueryInterface) {
       },
     },
     record_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     record_type: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     facility_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
       references: {
         model: { tableName: 'facilities', schema: 'public' },
@@ -43,7 +55,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
     },
     logged_at: {
-      type: DataTypes.DATETIMESTRING,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     front_end_context: {
@@ -56,6 +68,10 @@ export async function up(query: QueryInterface) {
     },
     is_mobile: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    version: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   });

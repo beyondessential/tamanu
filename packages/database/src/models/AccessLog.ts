@@ -5,7 +5,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class Access extends Model {
+export class AccessLog extends Model {
   declare id: string;
   declare userId: string;
   declare recordId: string;
@@ -21,7 +21,7 @@ export class Access extends Model {
       {
         id: primaryKey,
         loggedAt: {
-          type: DataTypes.DATETIMESTRING,
+          type: DataTypes.DATE,
           allowNull: false,
         },
         frontEndContext: {
@@ -33,11 +33,11 @@ export class Access extends Model {
           allowNull: false,
         },
         recordId: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         recordType: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         sessionId: {
@@ -52,9 +52,18 @@ export class Access extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
+        version: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
       },
 
-      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, schema: 'logs' },
+      {
+        ...options,
+        tableName: 'accesses',
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        schema: 'logs',
+      },
     );
   }
 
