@@ -130,7 +130,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           <Info>
             <Label>
               <TranslatedText
-                stringId="patientProgramRegistry.modal.removeProgram.registeredByLabel"
+                stringId="patientProgramRegistry.general.registeredBy.label"
                 fallback="Registered by"
               />
             </Label>
@@ -138,10 +138,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           </Info>
           <Info>
             <Label>
-              <TranslatedText
-                stringId="patientProgramRegistry.modal.removeProgram.statusLabel"
-                fallback="Status"
-              />
+              <TranslatedText stringId="general.status.label" fallback="Status" />
             </Label>
             <Value>
               <TranslatedReferenceData
@@ -158,7 +155,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           <Info>
             <Label>
               <TranslatedText
-                stringId="patientProgramRegistry.modal.removeProgram.dateLabel"
+                stringId="patientProgramRegistry.general.registrationDate.label"
                 fallback="Date of registration"
               />
             </Label>
@@ -169,7 +166,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           <Info>
             <Label>
               <TranslatedText
-                stringId="patientProgramRegistry.modal.removeProgram.facilityLabel"
+                stringId="patientProgramRegistry.general.registeringFacility.label"
                 fallback="Registering facility"
               />
             </Label>

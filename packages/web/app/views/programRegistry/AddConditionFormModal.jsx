@@ -76,7 +76,7 @@ export const AddConditionFormModal = ({
                   name="programRegistryConditionId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.modal.relatedCondition.label"
+                      stringId="patientProgramRegistry.general.relatedCondition.label"
                       fallback="Related condition"
                     />
                   }

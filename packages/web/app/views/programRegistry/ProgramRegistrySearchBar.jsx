@@ -153,7 +153,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.homeVillage.label"
+            stringId="patientProgramRegistry.general.homeVillage.label"
             fallback="Home village"
           />
         }
@@ -164,7 +164,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.currentlyIn.label"
+            stringId="patientProgramRegistry.general.currentlyIn.label"
             fallback="Currently in"
           />
         }

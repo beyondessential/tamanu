@@ -63,7 +63,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'homeVillage',
         title: (
           <TranslatedText
-            stringId="patientPatientProgramRegistry.registrytable.column.homeVillage"
+            stringId="patientProgramRegistry.general.homeVillage.label"
             fallback="Home village"
           />
         ),
@@ -73,7 +73,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: (
           <TranslatedText
-            stringId="patientPatientProgramRegistry.registrytable.column.currentlyIn"
+            stringId="patientProgramRegistry.registrytable.column.currentlyIn"
             fallback="Currently in"
           />
         ),
@@ -87,7 +87,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'conditions',
         title: (
           <TranslatedText
-            stringId="patientPatientProgramRegistry.registrytable.column.conditions"
+            stringId="patientProgramRegistry.general.relatedConditions.label"
             fallback="Related conditions"
           />
         ),
@@ -105,7 +105,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'registeringFacility',
         title: (
           <TranslatedText
-            stringId="patientPatientProgramRegistry.registrytable.column.registeringFacility"
+            stringId="patientProgramRegistry.general.registeringFacility.label"
             fallback="Registering facility"
           />
         ),
@@ -214,7 +214,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         columns={columns}
         noDataMessage={
           <TranslatedText
-            stringId="patientPatientProgramRegistry.registrytable.column.noDataMessage"
+            stringId="patientProgramRegistry.registrytable.column.noDataMessage"
             fallback="No Program registry found"
           />
         }

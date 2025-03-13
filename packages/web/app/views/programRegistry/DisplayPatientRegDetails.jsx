@@ -141,7 +141,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           <TextColumns>
             <div>
               <TranslatedText
-                stringId="patientProgramRegistry.date.label"
+                stringId="patientProgramRegistry.general.registrationDate.label"
                 fallback="Date of registration"
               />
               :
@@ -170,7 +170,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
               <TextColumns>
                 <div>
                   <TranslatedText
-                    stringId="patientProgramRegistry.dateRemoved.label"
+                    stringId="patientProgramRegistry.general.dateRemoved.label"
                     fallback="Date removed"
                   />
                   :

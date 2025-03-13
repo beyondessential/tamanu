@@ -48,12 +48,7 @@ export const ProgramRegistryStatusHistory = ({
     return [
       {
         key: 'clinicalStatusId',
-        title: (
-          <TranslatedText
-            stringId="patientProgramRegistry.statusHistory.status"
-            fallback="Status"
-          />
-        ),
+        title: <TranslatedText stringId="general.status.label" fallback="Status" />,
         sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
@@ -87,7 +82,7 @@ export const ProgramRegistryStatusHistory = ({
               key: 'registrationDate',
               title: (
                 <TranslatedText
-                  stringId="patientProgramRegistry.statusHistory.registrationDate"
+                  stringId="patientProgramRegistry.general.registrationDate.label"
                   fallback="Date of registration"
                 />
               ),
