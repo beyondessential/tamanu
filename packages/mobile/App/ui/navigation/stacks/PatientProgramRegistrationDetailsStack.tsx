@@ -43,8 +43,8 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
         <EmptyStackHeader
           title={
             <TranslatedReferenceData
-              fallback={registration?.programRegistry?.name}
-              value={registration?.programRegistry?.id}
+              fallback={registration.programRegistry?.name}
+              value={registration.programRegistry?.id}
               category="programRegistry"
             />
           }
