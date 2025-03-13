@@ -9,11 +9,11 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { fakeUser } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { authMiddleware, buildToken } from '../app/middleware/auth';
-import { createTestContext } from './utilities';
+import { authMiddleware, buildToken } from '../../app/middleware/auth';
+import { createTestContext } from '../utilities';
 import bodyParser from 'body-parser';
 
-describe('Audit changes', () => {
+describe('Attach audit user to DB session', () => {
   let ctx;
   let user1;
   let user2;
@@ -112,6 +112,7 @@ describe('Audit changes', () => {
         },
       },
     );
+    console.log(changes)
     expect(changes).toHaveLength(4);
     // Each user should be shown to have updated their own record in the audit log
     expect(changes.every((change) => change.updated_by_user_id === change.record_id)).toBeTruthy();
