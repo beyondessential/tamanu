@@ -13,6 +13,7 @@ export async function up(query: QueryInterface): Promise<void> {
     logged_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('adjusted_timestamp'),
     },
     current_sync_tick: {
       type: DataTypes.BIGINT,

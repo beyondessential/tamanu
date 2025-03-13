@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'changes' };
 
@@ -27,6 +27,7 @@ export async function up(query: QueryInterface): Promise<void> {
       logged_at: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: Sequelize.fn('adjusted_timestamp'),
       },
       created_at: {
         type: DataTypes.DATE,
