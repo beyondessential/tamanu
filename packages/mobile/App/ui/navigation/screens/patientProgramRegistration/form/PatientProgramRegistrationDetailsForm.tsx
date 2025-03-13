@@ -23,7 +23,7 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
@@ -47,13 +47,25 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   });
 
   const [clinicalStatusOptions] = useBackendEffect(
-    async ({ models }) =>
-      await models.ProgramRegistryClinicalStatus.find({
+    async ({ models }) => {
+      const statuses = await models.ProgramRegistryClinicalStatus.find({
         where: {
           visibilityStatus: VisibilityStatus.Current,
           programRegistry: { id: programRegistry.id },
         },
-      }),
+      });
+
+      return statuses.map(status => {
+        const translatedName = getTranslation(
+          getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
+          status.name,
+        );
+        return {
+            ...status,
+          translatedName,
+        };
+      });
+    },
     [programRegistry.id],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
@@ -180,7 +192,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.name, value: x.id })) || [] // TBD
+                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
                     }
                   />
                 </StyledView>
