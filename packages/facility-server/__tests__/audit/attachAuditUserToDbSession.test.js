@@ -9,11 +9,11 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { fakeUser } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { authMiddleware, buildToken } from '../app/middleware/auth';
-import { createTestContext } from './utilities';
+import { authMiddleware, buildToken } from '../../app/middleware/auth';
+import { createTestContext } from '../utilities';
 import bodyParser from 'body-parser';
 
-describe('Audit changes', () => {
+describe('Attach audit user to DB session', () => {
   let ctx;
   let user1;
   let user2;

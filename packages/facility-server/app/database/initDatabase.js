@@ -27,6 +27,7 @@ async function initReportStore(schemaName, credentials) {
   const overrides = {
     alwaysCreateConnection: false,
     migrateOnStartup: false,
+    disableChangesAudit: true,
     pool,
     username,
     password,
