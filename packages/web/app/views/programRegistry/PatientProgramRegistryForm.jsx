@@ -88,7 +88,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="programRegistryId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registryForm.programRegistry.label"
+                      stringId="patientProgramRegistry.general.programRegistry.label"
                       fallback="Program registry"
                     />
                   }
@@ -221,7 +221,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registryForm.programRegistry.label"
+            stringId="patientProgramRegistry.general.programRegistry.label"
             fallback="Program registry"
           />,
         ),
