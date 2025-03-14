@@ -171,6 +171,13 @@ const getIsNewRecordedInError = conditions => {
   );
 };
 
+const getNewRecordedInErrorList = conditions => {
+  return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  );
+};
+
 export const PatientProgramRegistryUpdateFormModal = ({
   patientProgramRegistration = {},
   onClose,
@@ -483,6 +490,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               <RecordedInErrorWarningModal
                 open={warningOpen}
                 onClose={() => setWarningOpen(false)}
+                items={getNewRecordedInErrorList(values.conditions)}
                 onConfirm={async () => {
                   // Manually pass the values to the confirmed submit function
                   await handleConfirmedSubmit(values);
