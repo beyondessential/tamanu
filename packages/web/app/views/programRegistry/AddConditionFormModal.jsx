@@ -53,7 +53,16 @@ export const AddConditionFormModal = ({
     onClose();
   };
   return (
-    <Modal title="Add related condition" open={open} onClose={onClose}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.modal.addCondition.title"
+          fallback="Add related condition"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <Form
         showInlineErrorsOnly
         onSubmit={submit}
@@ -85,14 +94,9 @@ export const AddConditionFormModal = ({
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="conditions.validation.conditionName.path"
-                fallback="Condition"
-              />,
-            ),
+          programRegistryConditionId: foreignKey().required(
+            <TranslatedText stringId="general.required" fallback="Required" />,
+          ),
         })}
       />
     </Modal>

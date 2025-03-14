@@ -6,10 +6,12 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ConfirmCancelRow,
   FormSeparatorLine,
+  getReferenceDataStringId,
   Modal,
-  TranslatedReferenceData,
+  TranslatedText,
 } from '../../components';
 import { useApi } from '../../api';
+import { useTranslation } from '../../contexts/Translation';
 
 const Text = styled.div`
   display: flex;
@@ -29,6 +31,7 @@ export const RemoveConditionFormModal = ({
   open,
 }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const removeCondition = async () => {
     try {
@@ -47,16 +50,31 @@ export const RemoveConditionFormModal = ({
       toast.error(`Failed to remove related condition with error: ${e.message}`);
     }
   };
+
+  const { programRegistryCondition } = conditionToRemove;
+
   return (
-    <Modal title="Remove related condition" open={open} onClose={onCancel}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.modal.removeCondition.title"
+          fallback="Remove related condition"
+        />
+      }
+      open={open}
+      onClose={onCancel}
+    >
       <Text>
-        Are you sure you would like to remove the related condition of{' '}
-        <TranslatedReferenceData
-          fallback={conditionToRemove.programRegistryCondition?.name}
-          value={conditionToRemove.programRegistryCondition?.id}
-          category="programRegistryCondition"
-        />{' '}
-        from the patients program condition record?
+        <TranslatedText
+          stringId="patientProgramRegistry.modal.removeCondition.text"
+          fallback="Are you sure you would like to remove the related condition of :condition from the patient's program registration?"
+          replacements={{
+            condition: getTranslation(
+              getReferenceDataStringId(programRegistryCondition?.id, 'programRegistryCondition'),
+              programRegistryCondition?.name,
+            ),
+          }}
+        />
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />

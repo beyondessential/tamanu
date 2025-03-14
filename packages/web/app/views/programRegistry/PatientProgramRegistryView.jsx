@@ -12,7 +12,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { TranslatedReferenceData } from '../../components';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -44,6 +44,7 @@ const ProgramStatusAndConditionContainer = styled.div`
   width: 100%;
   position: relative;
 `;
+
 export const PatientProgramRegistryView = () => {
   const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
@@ -62,7 +63,15 @@ export const PatientProgramRegistryView = () => {
   }
 
   if (isError) {
-    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+    return (
+      <p>
+        <TranslatedText
+          stringId="patientProgramRegistry.registeringNotFoundMessage"
+          fallback="Program registry ':title' not found."
+          replacements={{ title: title || 'Unknown' }}
+        />
+      </p>
+    );
   }
 
   const conditionOptions = programRegistryConditions.map(x => ({
@@ -99,7 +108,6 @@ export const PatientProgramRegistryView = () => {
             programRegistryConditions={conditionOptions}
           />
         </ProgramStatusAndConditionContainer>
-
         <Row>
           <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>

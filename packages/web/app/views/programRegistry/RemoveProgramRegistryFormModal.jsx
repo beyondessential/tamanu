@@ -3,7 +3,13 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../components';
+import {
+  ConfirmCancelRow,
+  DateDisplay,
+  FormSeparatorLine,
+  Modal,
+  TranslatedText,
+} from '../../components';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { TranslatedReferenceData } from '../../components/Translation';
@@ -83,19 +89,35 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   };
 
   return (
-    <Modal width="md" title="Remove patient" open={open} onClose={onClose}>
-      {/* <div> */}
+    <Modal
+      width="md"
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.modal.removeProgram.title"
+          fallback="Remove patient"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <WarningDiv>
         <p>
-          Please confirm you would like to remove the patient from the below program registry. Once
-          a patient is removed, you will not be able to update the status or complete program forms.
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.removeProgram.body"
+            fallback="Please confirm you would like to remove the patient from the below program registry. Once
+          a patient is removed, you will not be able to update the status or complete program forms."
+          />
         </p>
       </WarningDiv>
-
       <InfoDiv>
         <InfoColumn>
           <Info>
-            <Label>Program registry</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.programRegistry.label"
+                fallback="Program registry"
+              />
+            </Label>
             <Value>
               <TranslatedReferenceData
                 fallback={patientProgramRegistration.programRegistry?.name}
@@ -106,11 +128,21 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             </Value>
           </Info>
           <Info>
-            <Label>Registered by</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registered by"
+              />
+            </Label>
             <Value>{patientProgramRegistration?.clinician?.displayName || '-'}</Value>
           </Info>
           <Info>
-            <Label>Status</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.clinicalStatus.label"
+                fallback="Status"
+              />
+            </Label>
             <Value>
               <TranslatedReferenceData
                 fallback={patientProgramRegistration.clinicalStatus?.name}
@@ -124,13 +156,23 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <FormSeparatorVerticalLine />
         <InfoColumn>
           <Info>
-            <Label>Date of registration</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.registrationDate.label"
+                fallback="Date of registration"
+              />
+            </Label>
             <Value>
               <DateDisplay date={patientProgramRegistration.date} />
             </Value>
           </Info>
           <Info>
-            <Label>Registering facility</Label>
+            <Label>
+              <TranslatedText
+                stringId="patientProgramRegistry.registeringFacility.label"
+                fallback="Registering facility"
+              />
+            </Label>
             <Value>
               {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility?.name
@@ -147,7 +189,6 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
       </InfoDiv>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
-      {/* </div> */}
     </Modal>
   );
 };

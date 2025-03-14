@@ -17,25 +17,45 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     () => [
       {
         key: 'date',
-        title: 'Date submitted',
-        accessor: (row) => <DateDisplay date={row.endTime} />,
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.date"
+            fallback="Date submitted"
+          />
+        ),
+        accessor: row => <DateDisplay date={row.endTime} />,
         sortable: true,
       },
       {
         key: 'userId',
-        title: 'Submitted By',
-        accessor: (row) => row.submittedBy,
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.submittedBy"
+            fallback="Submitted By"
+          />
+        ),
+        accessor: row => row.submittedBy,
         sortable: false,
       },
       {
         key: 'surveyName',
-        title: 'Form',
-        accessor: (row) => row.surveyName,
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.form"
+            fallback="Form"
+          />
+        ),
+        accessor: row => row.surveyName,
         sortable: false,
       },
       {
         key: 'result',
-        title: 'Result',
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.result"
+            fallback="Result"
+          />
+        ),
         accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
         sortable: false,
       },
@@ -63,7 +83,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     [],
   );
 
-  const onSelectResponse = (surveyResponse) => {
+  const onSelectResponse = surveyResponse => {
     setSelectedResponseId(surveyResponse?.id);
     setSelectedResponse(surveyResponse);
   };
@@ -94,7 +114,12 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         }}
         fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
         onRowClick={onSelectResponse}
-        noDataMessage="No Program registry responses found"
+        noDataMessage={
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.formHistory.noDataMessage"
+            fallback="No Program registry responses found"
+          />
+        }
       />
     </>
   );

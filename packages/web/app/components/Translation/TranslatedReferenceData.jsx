@@ -19,5 +19,5 @@ TranslatedReferenceData.propTypes = {
   category: PropTypes.string.isRequired,
   value: PropTypes.string,
   fallback: PropTypes.string.isRequired,
-  placeholder: PropTypes.element,
+  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
 };
