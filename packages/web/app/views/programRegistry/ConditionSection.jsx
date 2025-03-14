@@ -114,7 +114,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
       <HeadingContainer>
         <Heading5>
           <TranslatedText
-            stringId="patientProgramRegistry.general.relatedConditions.label"
+            stringId="patientProgramRegistry.relatedConditions.label"
             fallback="Related conditions"
           />
         </Heading5>

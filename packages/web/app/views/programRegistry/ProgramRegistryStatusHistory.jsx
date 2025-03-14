@@ -82,7 +82,7 @@ export const ProgramRegistryStatusHistory = ({
               key: 'registrationDate',
               title: (
                 <TranslatedText
-                  stringId="patientProgramRegistry.general.registrationDate.label"
+                  stringId="patientProgramRegistry.registrationDate.label"
                   fallback="Date of registration"
                 />
               ),

@@ -133,7 +133,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.general.registrationDate.label"
+                        stringId="patientProgramRegistry.registrationDate.label"
                         fallback="Date of registration"
                       />
                     }
@@ -145,7 +145,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="clinicianId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.general.registeredBy.label"
+                        stringId="patientProgramRegistry.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
@@ -159,7 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.general.registeringFacility.label"
+                        stringId="patientProgramRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -184,7 +184,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="conditionIds"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.general.relatedConditions.label"
+                        stringId="patientProgramRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }

@@ -68,7 +68,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="registeringFacilityId"
             label={
               <TranslatedText
-                stringId="patientProgramRegistry.general.registeringFacility.label"
+                stringId="patientProgramRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />
             }
@@ -153,7 +153,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.general.homeVillage.label"
+            stringId="patientProgramRegistry.homeVillage.label"
             fallback="Home village"
           />
         }
@@ -164,7 +164,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.general.currentlyIn.label"
+            stringId="patientProgramRegistry.currentlyIn.label"
             fallback="Currently in"
           />
         }
@@ -179,7 +179,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.general.relatedCondition.label"
+            stringId="patientProgramRegistry.relatedCondition.label"
             fallback="Related condition"
           />
         }
