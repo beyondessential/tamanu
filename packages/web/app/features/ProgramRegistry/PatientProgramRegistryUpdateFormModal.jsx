@@ -32,6 +32,8 @@ import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
+  margin-bottom: 2rem;
+
   table tr td {
     border: none;
   }
