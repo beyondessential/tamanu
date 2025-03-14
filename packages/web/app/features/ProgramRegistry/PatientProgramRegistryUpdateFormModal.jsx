@@ -81,14 +81,7 @@ const getConditionShape = getTranslation =>
       .nullable()
       .when('conditionId', {
         is: value => Boolean(value),
-        then: yup
-          .string()
-          .required(
-            getTranslation(
-              'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-              'Select a related condition to record category',
-            ),
-          ),
+        then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
       }),
     date: yup
       .date()
@@ -102,7 +95,7 @@ const getConditionShape = getTranslation =>
 
 const getValidationSchema = getTranslation => {
   return yup.object().shape({
-    clinicalStatusId: optionalForeignKey(),
+    clinicalStatusId: optionalForeignKey().nullable(),
     conditions: yup.object().shape({
       confirmedSection: yup.array().of(getConditionShape(getTranslation)),
       resolvedSection: yup.array().of(getConditionShape(getTranslation)),
@@ -320,6 +313,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                     stringId="patientProgramRegistry.updateConditionModal.dateAdded"
                     fallback="Date added"
                   />
+                  <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
               accessor: ({ date, conditionCategory }, groupName, index) => {
@@ -449,14 +443,21 @@ export const PatientProgramRegistryUpdateFormModal = ({
             {
               key: 'history',
               width: 100,
-              accessor: () => (
-                <ViewHistoryButton>
-                  <TranslatedText
-                    stringId="patientProgramRegistry.viewHistory"
-                    fallback="View history"
-                  />
-                </ViewHistoryButton>
-              ),
+              accessor: (row, groupName, index) => {
+                // Check for date as a proxy for whether the row is new
+                const initialValue = initialValues.conditions[groupName][index]?.date;
+                if (!initialValue) {
+                  return null;
+                }
+                return (
+                  <ViewHistoryButton>
+                    <TranslatedText
+                      stringId="patientProgramRegistry.viewHistory"
+                      fallback="View history"
+                    />
+                  </ViewHistoryButton>
+                );
+              },
             },
           ];
 
