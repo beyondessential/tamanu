@@ -113,7 +113,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           ...data,
           conditions: data.conditions
             ? // Filter out empty conditions
-              data.conditions.filter(condition => condition.conditionId)
+              data.conditions.filter(condition => condition?.conditionId)
             : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
@@ -228,8 +228,8 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     usedValues = values.conditions
                       ?.filter(
                         condition =>
-                          condition.conditionId &&
-                          condition.conditionId !== conditionValue?.conditionId,
+                          condition?.conditionId &&
+                          condition?.conditionId !== conditionValue?.conditionId,
                       )
                       ?.map(condition => condition.conditionId);
                   }
