@@ -123,8 +123,12 @@ sources:
             data_tests:
               - accepted_values:
                   values:
+                    - clinical
                     - duplicate
                     - entered-in-error
+                    - other
+                    - patient-discharged
+                    - patient-refused
           - name: published_date
             data_type: character(19)
             description: "{{ doc('lab_requests__published_date') }}"

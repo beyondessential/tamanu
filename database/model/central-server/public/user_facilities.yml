@@ -27,13 +27,9 @@ sources:
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('user_facilities__facility_id') }}"
-            data_tests:
-              - unique
           - name: user_id
             data_type: character varying(255)
             description: "{{ doc('user_facilities__user_id') }}"
-            data_tests:
-              - unique
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_facilities."

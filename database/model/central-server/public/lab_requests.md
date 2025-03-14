@@ -95,8 +95,12 @@ laboratory fulfilling this request.
 Why this request was cancelled.
 
 One of:
+- `clinical`
 - `duplicate`
 - `entered-in-error`
+- `other`
+- `patient-discharged`
+- `patient-refused`
 {% enddocs %}
 
 {% docs lab_requests__department_id %}

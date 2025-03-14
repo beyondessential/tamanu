@@ -33,5 +33,5 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) who wrote this not
 {% enddocs %}
 
 {% docs notes__revised_by_id %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who revised this note.
+Reference to the [note](#!/source/source.tamanu.tamanu.notes) that is being revised.
 {% enddocs %}
