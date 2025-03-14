@@ -69,7 +69,7 @@ const omittedColumns = [
 
 // This is for cases where we never want to update the patient_id
 // even after merge
-const omittedModels = ['Access'];
+const omittedModels = ['AccessLog'];
 
 function isNullOrEmptyString(value) {
   return value === null || value === '';

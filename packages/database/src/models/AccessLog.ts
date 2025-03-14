@@ -5,7 +5,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class Access extends Model {
+export class AccessLog extends Model {
   declare id: string;
   declare userId: string;
   declare recordId: string;
@@ -58,7 +58,12 @@ export class Access extends Model {
         },
       },
 
-      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, schema: 'logs' },
+      {
+        ...options,
+        tableName: 'accesses',
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        schema: 'logs',
+      },
     );
   }
 
