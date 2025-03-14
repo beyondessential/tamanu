@@ -8,7 +8,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     logged_at: {
       type: DataTypes.DATE,
