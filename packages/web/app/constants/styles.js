@@ -5,9 +5,9 @@ export const MUI_SPACING_UNIT = 8;
 export const Colors = {
   primary: '#326699',
   primaryBlue: {
-    '100': '#326699',
-    '30': '#C2D2E1',
-    '10': '#EBF0F5',
+    100: '#326699',
+    30: '#C2D2E1',
+    10: '#EBF0F5',
   },
   primaryDark: '#2f4358',
   secondary: '#ffcc24',

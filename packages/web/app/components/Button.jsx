@@ -67,7 +67,7 @@ const StyledButton = styled(({ ...props }) => {
   &.Mui-disabled {
     color: ${Colors.white};
     box-shadow: none;
-    background-color: ${Colors.primaryBlue['30']};
+    background-color: ${Colors.primaryBlue[30]};
   }
 
   ${props => props.confirmStyle ?? ''}
