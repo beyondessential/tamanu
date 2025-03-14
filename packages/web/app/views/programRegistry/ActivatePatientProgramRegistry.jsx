@@ -169,7 +169,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                   />
                   <Field
                     name="clinicalStatusId"
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />

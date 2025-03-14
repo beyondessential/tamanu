@@ -188,7 +188,12 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         suggester={programRegistryConditionSuggester}
       />
       <Field
-        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.clinicalStatus.label"
+            fallback="Status"
+          />
+        }
         name="clinicalStatus"
         component={MultiAutocompleteField}
         suggester={programRegistryStatusSuggester}

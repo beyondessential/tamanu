@@ -148,7 +148,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <FieldWithTooltip
                   disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
-                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.clinicalStatus.label"
+                      fallback="Status"
+                    />
+                  }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
