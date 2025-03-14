@@ -75,8 +75,6 @@ interface CreatePatientViewLogParams {
   facilityId: string;
   userId: string;
   patientId: string;
-  version?: string;
-  deviceId?: string;
 }
 export const createAccessLog = async ({
   models: { AccessLog },
@@ -84,14 +82,6 @@ export const createAccessLog = async ({
   userId,
   facilityId,
 }: CreatePatientViewLogParams) => {
-  await AccessLog.create({
-    userId,
-    recordId: patientId,
-    facilityId,
-    recordType: 'Patient',
-    frontEndContext: { patientId },
-    backEndContext: { endPoint: '/patient/:id' },
-  });
   await AccessLog.create(
     fake(AccessLog, {
       userId,
