@@ -95,6 +95,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
         onRowClick={onSelectResponse}
         noDataMessage="No Program registry responses found"
+        elevated={false}
       />
     </>
   );
