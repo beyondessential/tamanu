@@ -57,6 +57,9 @@ ENV PORT=3000
 EXPOSE 3000
 
 # read configuration from source and from /config
+#
+# NOTE: We also explicitly set this value in central-server/pm2.config.cjs for when running in production
+# but the two values should resolve to the same path
 ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
