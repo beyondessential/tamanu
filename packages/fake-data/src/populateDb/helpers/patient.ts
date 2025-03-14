@@ -88,7 +88,7 @@ export const createAccessLog = async ({
   deviceId = chance.string(),
 }: CreatePatientViewLogParams) => {
   await AccessLog.create({
-    userId: userId,
+    userId,
     recordId: patientId,
     facilityId,
     recordType: 'Patient',
