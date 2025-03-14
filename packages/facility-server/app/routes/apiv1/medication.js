@@ -18,21 +18,22 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { encounterId, ...rest } = req.body;
-    const { Prescription, EncounterPrescription } = models;
+    const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
     req.checkPermission('create', 'Prescription');
 
-    const existingObject = await Prescription.findByPk(req.body.id, {
+    const existingPrescription = await Prescription.findByPk(req.body.id, {
       paranoid: false,
     });
-    if (existingObject) {
+    if (existingPrescription) {
       throw new InvalidOperationError(
         `Cannot create object with id (${req.body.id}), it already exists`,
       );
     }
 
-    const object = await Prescription.create(rest);
-    await EncounterPrescription.create({ encounterId, prescriptionId: object.id });
-    res.send(object);
+    const prescription = await Prescription.create(rest);
+    await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
+    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+    res.send(prescription);
   }),
 );
 

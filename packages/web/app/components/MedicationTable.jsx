@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format, parseISO, add } from 'date-fns';
+import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
@@ -131,10 +131,7 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
-      const parsedStartDate = parseISO(startDate);
-      const duration = parseInt(durationValue, 10);
-      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+    accessor: ({ date, durationValue, durationUnit, isOngoing, endDate }) => {
       let tooltipTitle = '';
       if (durationValue && durationUnit) {
         tooltipTitle = (
