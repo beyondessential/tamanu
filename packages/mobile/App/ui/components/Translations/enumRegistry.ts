@@ -1,4 +1,4 @@
-import { PROGRAM_REGISTRATION_STATUS_LABEL } from '~/constants/programRegistries';
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from '~/constants/programRegistries';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -9,11 +9,11 @@ type EnumEntries = [EnumKeys, EnumValues][];
 // Whenever adding a new supported enum ensure that the mobile
 // version matches 100% the constants package version.
 const registeredEnums = {
-  PROGRAM_REGISTRATION_STATUS_LABEL,
+  PROGRAM_REGISTRATION_STATUS_LABELS,
 };
 
 const translationPrefixes: Record<EnumKeys, string> = {
-  PROGRAM_REGISTRATION_STATUS_LABEL: 'programRegistry.property.registrationStatus',
+  PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
 };
 
 const prefixMap = new Map(

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { PROGRAM_REGISTRATION_STATUS_LABEL } from '~/constants/programRegistries';
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from '~/constants/programRegistries';
 import { TranslatedEnum } from '~/ui/components/Translations/TranslatedEnum';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
@@ -29,7 +29,7 @@ export const PatientProgramRegistryRegistrationStatus = ({ registrationStatus })
       <StyledText fontSize={16} fontWeight={500}>
         <TranslatedEnum
           value={registrationStatus}
-          enumValues={PROGRAM_REGISTRATION_STATUS_LABEL}
+          enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
         />
       </StyledText>
     </StatusContainer>
