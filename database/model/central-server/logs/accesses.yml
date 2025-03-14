@@ -14,6 +14,19 @@ sources:
             data_tests:
               - unique
               - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__created_at') }}"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__updated_at') }}"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__deleted_at') }}"
           - name: user_id
             data_type: character varying(255)
             description: "{{ doc('logs__accesses__user_id') }}"
@@ -22,6 +35,11 @@ sources:
           - name: record_id
             data_type: character varying(255)
             description: "{{ doc('logs__accesses__record_id') }}"
+            data_tests:
+              - not_null
+          - name: record_type
+            data_type: character varying(255)
+            description: "{{ doc('logs__accesses__record_type') }}"
             data_tests:
               - not_null
           - name: facility_id
@@ -45,15 +63,16 @@ sources:
           - name: front_end_context
             data_type: jsonb
             description: "{{ doc('logs__accesses__front_end_context') }}"
-            data_tests:
-              - not_null
           - name: back_end_context
             data_type: jsonb
             description: "{{ doc('logs__accesses__back_end_context') }}"
-            data_tests:
-              - not_null
           - name: is_mobile
             data_type: boolean
             description: "{{ doc('logs__accesses__is_mobile') }}"
+            data_tests:
+              - not_null
+          - name: version
+            data_type: character varying(255)
+            description: "{{ doc('logs__accesses__version') }}"
             data_tests:
               - not_null
