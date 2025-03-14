@@ -2,8 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format, parseISO, add } from 'date-fns';
+import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
+import { getEndDate } from '@tamanu/shared/utils/medication';
 
 import { DataFetchingTable } from './Table';
 import { formatShortest } from './DateDisplay';
@@ -21,7 +22,6 @@ import { getTranslatedFrequency } from '../utils/medications';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { ConditionalTooltip } from './Tooltip';
 import { MedicationDetails } from './MedicationDetails';
-import { getEndDate } from '@tamanu/shared/utils/medication';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 51vh;

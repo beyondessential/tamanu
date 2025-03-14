@@ -6,11 +6,10 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { Colors } from '../../constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
-import { Box } from '@material-ui/core';
 
 const StatusContainer = styled.div`
   position: relative;

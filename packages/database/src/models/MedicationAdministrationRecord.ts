@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getEndDate } from '@tamanu/shared/utils/medication';
 import { addDays, endOfDay } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';

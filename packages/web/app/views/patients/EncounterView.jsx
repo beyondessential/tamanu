@@ -47,7 +47,7 @@ const TABS = [
         <TasksPane {...props} />
       </EncounterPaneWithPermissionCheck>
     ),
-    condition: getSetting => true,
+    condition: getSetting => getSetting('features.enableTasking'),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
