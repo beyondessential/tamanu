@@ -369,7 +369,7 @@ export const UserFacility = yup.object().shape({
 
 export const InvoiceProduct = yup.object().shape({
   name: yup.string().required(),
-  price: yup.number().required(),
+  price: yup.number().optional(),
   discountable: yup.boolean().required(),
   visibilityStatus,
 });
