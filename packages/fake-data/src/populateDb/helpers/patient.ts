@@ -69,3 +69,32 @@ export const createPatientCommunication = async ({
     }),
   );
 };
+
+interface CreatePatientViewLogParams {
+  models: Models;
+  facilityId: string;
+  userId: string;
+  patientId: string;
+  version?: string;
+  deviceId?: string;
+}
+export const createAccessLog = async ({
+  models: { AccessLog },
+  patientId,
+  userId,
+  facilityId,
+  deviceId = chance.string(),
+  version = '2.x.x',
+}: CreatePatientViewLogParams) => {
+  await AccessLog.create({
+    userId,
+    recordId: patientId,
+    facilityId,
+    recordType: 'Patient',
+    isMobile: chance.bool(),
+    frontEndContext: { patientId },
+    backEndContext: { endPoint: '/patient/:id' },
+    version,
+    deviceId,
+  });
+};
