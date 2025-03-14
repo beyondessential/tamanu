@@ -10,7 +10,7 @@ export enum RegistrationStatus {
 }
 
 // Please keep in sync with packages/web/app/constants/index.js
-export const PROGRAM_REGISTRATION_STATUS_LABEL = {
+export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [RegistrationStatus.Active]: 'Active',
   [RegistrationStatus.Inactive]: 'Removed',
   [RegistrationStatus.RecordedInError]: 'Delete',
