@@ -79,14 +79,14 @@ interface CreatePatientViewLogParams {
   deviceId?: string;
 }
 export const createAccessLog = async ({
-  models: { Access },
+  models: { AccessLog },
   patientId,
   userId,
   facilityId,
   deviceId = chance.string(),
   version = '2.x.x',
 }: CreatePatientViewLogParams) => {
-  await Access.create({
+  await AccessLog.create({
     userId,
     recordId: patientId,
     facilityId,
