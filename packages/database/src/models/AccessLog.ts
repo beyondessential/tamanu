@@ -21,7 +21,7 @@ export class AccessLog extends Model {
       {
         id: primaryKey,
         loggedAt: {
-          type: DataTypes.DATETIMESTRING,
+          type: DataTypes.DATE,
           allowNull: false,
         },
         frontEndContext: {
@@ -33,11 +33,11 @@ export class AccessLog extends Model {
           allowNull: false,
         },
         recordId: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         recordType: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         sessionId: {
@@ -53,7 +53,7 @@ export class AccessLog extends Model {
           allowNull: false,
         },
         version: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
