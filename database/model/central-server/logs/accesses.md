@@ -6,18 +6,6 @@ Audit logs for users accessing records
 UUID
 {% enddocs %}
 
-{% docs logs__accesses__created_at %}
-TODO
-{% enddocs %}
-
-{% docs logs__accesses__updated_at %}
-TODO
-{% enddocs %}
-
-{% docs logs__accesses__deleted_at %}
-TODO
-{% enddocs %}
-
 {% docs logs__accesses__user_id %}
 The user that accessed the records
 {% enddocs %}
