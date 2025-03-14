@@ -421,3 +421,29 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 
   return rows;
 }
+
+export async function drugLoader(item, { models }) {
+  const { id: drugId, route, units, notes } = item;
+  const rows = [];
+
+  let existingDrug;
+  if (drugId) {
+    existingDrug = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: drugId },
+    });
+  }
+
+  const newDrug = {
+    id: existingDrug?.id || uuidv4(),
+    referenceDataId: drugId,
+    route,
+    units,
+    notes,
+  };
+  rows.push({
+    model: 'ReferenceDrug',
+    values: newDrug,
+  });
+
+  return rows;
+}
