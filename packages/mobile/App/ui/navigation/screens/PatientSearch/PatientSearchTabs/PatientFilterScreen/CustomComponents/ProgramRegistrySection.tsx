@@ -56,7 +56,7 @@ export const ProgramRegistrySection = (): ReactElement => {
         <LocalisedField
           label={
             <TranslatedText
-              stringId="general.localisedField.programRegistry.label"
+              stringId="patientProgramRegistry.programRegistry.label"
               fallback="Program registry"
             />
           }
@@ -73,7 +73,7 @@ export const ProgramRegistrySection = (): ReactElement => {
         <LocalisedField
           label={
             <TranslatedText
-              stringId="general.localisedField.programRegistry.label"
+              stringId="patientProgramRegistry.programRegistry.label"
               fallback="Program registry"
             />
           }

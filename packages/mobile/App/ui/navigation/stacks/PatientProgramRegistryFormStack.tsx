@@ -23,7 +23,7 @@ const PatientProgramRegistryForm_ = ({ navigation }: PatientProgramRegistryProps
         <EmptyStackHeader
           title={
             <TranslatedText
-              stringId="general.localisedField.programRegistry.label"
+              stringId="patientProgramRegistry.programRegistry.label"
               fallback="Program registry"
             />
           }

@@ -65,7 +65,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       <EmptyStackHeader
         title={
           <TranslatedText
-            stringId="general.localisedField.programRegistry.label"
+            stringId="patientProgramRegistry.programRegistry.label"
             fallback="Program registry"
           />
         }
