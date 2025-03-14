@@ -14,6 +14,8 @@ import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const ProgramRegistryListItem = ({ item }) => {
   const navigation = useNavigation();
@@ -39,6 +41,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const { selectedPatient } = route.params;
   const [searchValue, setSearchValue] = useState('');
   const { ability } = useAuth();
+  const { getTranslation } = useTranslation();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
@@ -60,7 +63,12 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   return (
     <FullView background={theme.colors.WHITE}>
       <EmptyStackHeader
-        title="Program registry"
+        title={
+          <TranslatedText
+            stringId="patientProgramRegistry.programRegistry.label"
+            fallback="Program registry"
+          />
+        }
         onGoBack={() => {
           navigation.goBack();
         }}
@@ -78,7 +86,12 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
         <SearchInput
           value={searchValue}
           onChange={(text: string) => setSearchValue(text)}
-          placeholder={'Search program registry...'}
+          placeholder={
+            getTranslation(
+              'patientProgramRegistry.search.programRegistry',
+              'Search program registry...',
+            )
+          }
         />
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
