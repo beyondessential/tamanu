@@ -242,7 +242,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
           const columns = [
             {
               key: 'condition',
-              width: 200,
+              width: 220,
               title: (
                 <span id="condition-label">
                   <TranslatedText
