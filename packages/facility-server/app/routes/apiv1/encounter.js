@@ -196,13 +196,15 @@ encounterRelations.get(
 
     // Add medicationAdministrationRecords with condition for same day
     if (marDate) {
+      const startOfMarDate = `${marDate} 00:00:00`;
+      const endOfMarDate = `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
         where: {
           administeredAt: {
-            [Op.gte]: `${marDate} 00:00:00`,
-            [Op.lt]: `${marDate} 23:59:59`
+            [Op.gte]: startOfMarDate,
+            [Op.lt]: endOfMarDate
           }
         },
         required: false,
@@ -211,12 +213,16 @@ encounterRelations.get(
       baseQueryOptions.where = {
         ...baseQueryOptions.where,
         startDate: {
-          [Op.lte]: `${marDate} 23:59:59`,
+          [Op.lte]: endOfMarDate,
         },
         [Op.or]: [
           { discontinuedDate: null },
-          { discontinuedDate: { [Op.gte]: `${toDateString(marDate)} 00:00:00` } }
+          { discontinuedDate: { [Op.gte]: startOfMarDate } }
         ],
+        [Op.or]: [
+          { endDate: null },
+          { endDate: { [Op.gte]: startOfMarDate } }
+        ]
       };
     }
 

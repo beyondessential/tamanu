@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { getEndDate } from '@tamanu/shared/utils/medication';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, addHours, endOfDay, startOfDay } from 'date-fns';
+import config from 'config';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
@@ -31,15 +31,26 @@ export class MedicationAdministrationRecord extends Model {
   }
 
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
-    const { startDate, durationValue, durationUnit } = prescription;
-    let endDate = getEndDate(startDate, durationValue, durationUnit);
+    const upcomingRecordsShouldBeGeneratedTimeFrame =
+      config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
 
-    const twoDaysLater = endOfDay(addDays(new Date(), 2));
-    let lastStartDate = new Date(startDate);
+    const upcomingEndDate = endOfDay(
+      addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame),
+    );
 
-    // Set end date to 2 days later if endDate is greater than 2 days later
-    if (endDate > twoDaysLater) {
-      endDate = twoDaysLater;
+    // Set default end date
+    let endDate = upcomingEndDate;
+
+    // Override with prescription end date if it's earlier
+    if (prescription.endDate && new Date(prescription.endDate) < upcomingEndDate) {
+      endDate = new Date(prescription.endDate);
+    }
+
+    let lastStartDate = new Date(prescription.startDate);
+
+    // Set end date to upcoming end date if it is before the calculated end date
+    if (endDate > upcomingEndDate) {
+      endDate = upcomingEndDate;
     }
 
     const lastMedicationAdministrationRecord = await this.findOne({
@@ -63,7 +74,10 @@ export class MedicationAdministrationRecord extends Model {
           minutes,
         );
         // Skip if administration date is before start date or after end date
-        if (administrationDate < new Date(startDate) || administrationDate >= endDate) {
+        if (
+          administrationDate < new Date(prescription.startDate) ||
+          administrationDate >= endDate
+        ) {
           continue;
         }
         await this.create({
@@ -72,7 +86,7 @@ export class MedicationAdministrationRecord extends Model {
           doseAmount: prescription.doseAmount,
         });
       }
-      lastStartDate = addDays(lastStartDate, 1);
+      lastStartDate = startOfDay(addDays(lastStartDate, 1));
     }
   }
 

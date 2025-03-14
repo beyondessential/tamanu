@@ -7,7 +7,7 @@ import { TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { format, isSameDay, parse } from 'date-fns';
-import { getTimeSlotFromDate, getDateFromTimeString, getEndDate } from '@tamanu/shared/utils/medication';
+import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { MARStatus } from '../../../components/Medication/MarStatus';
 import { toDateString } from '@tamanu/utils/dateTime';
 
@@ -162,9 +162,7 @@ const MedicationCell = ({
   discontinuedDate,
   medicationAdministrationRecords,
   selectedDate,
-  startDate,
-  durationValue,
-  durationUnit,
+  endDate,
 }) => {
   const doseAmountDisplay = isPrn ? (
     <TranslatedText stringId="medication.table.variable" fallback="Variable" />
@@ -192,7 +190,7 @@ const MedicationCell = ({
             selectedDate={selectedDate}
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             discontinuedDate={discontinuedDate}
-            endDate={getEndDate(startDate, durationValue, durationUnit)}
+            endDate={endDate}
           />
         );
       })}

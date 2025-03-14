@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { getEndDate } from '@tamanu/shared/utils/medication';
 
 import { DataFetchingTable } from './Table';
 import { formatShortest } from './DateDisplay';
@@ -132,8 +131,7 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
-      const endDate = getEndDate(startDate, durationValue, durationUnit);
+    accessor: ({ date, durationValue, durationUnit, isOngoing, endDate }) => {
       let tooltipTitle = '';
       if (durationValue && durationUnit) {
         tooltipTitle = (

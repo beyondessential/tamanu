@@ -94,7 +94,6 @@ const getIsFuture = (hasRecord, timeSlot, selectedDate) => {
 };
 
 const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
-  console.log('endDate', endDate);
   if (administeredAt) {
     return new Date(endDate) < new Date(administeredAt);
   }
@@ -121,7 +120,6 @@ export const MARStatus = ({
   const isFuture = getIsFuture(!!administeredAt, timeSlot, selectedDate);
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
-  console.log('isEnd', isEnd);
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -193,7 +191,7 @@ export const MARStatus = ({
       fallback="Ends on"
     />
     <div>
-      {format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}
+      {endDate && format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}
     </div>
   </div>
 
