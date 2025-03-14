@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ReactElement } from 'react';
+import React, { useEffect, useState, ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
@@ -24,11 +24,15 @@ interface MultiSelectModalFieldProps {
   searchPlaceholder?: string;
 }
 
+const extractLabel = (items: OptionType[]) => {
+  return items.map(x => x.label).join(', ');
+};
+
 export const MultiSelectModalField = ({
   label: fieldLabel,
   value,
   modalTitle = 'Title',
-  placeholder,
+  placeholder = 'Select',
   onChange,
   suggester,
   modalRoute = Routes.Autocomplete.MultiSelectModal,
@@ -41,35 +45,42 @@ export const MultiSelectModalField = ({
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
 
-  const appendLabel = (items: OptionType[]) => {
-    return items.map(x => ` ${x.label}`).toString();
-  };
-  const onPress = (selectedItems: OptionType[]): void => {
+  const handleSaveCallback = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
-    setLabel(appendLabel(selectedItems));
+    setLabel(extractLabel(selectedItems));
   };
 
   const openModal = (): void =>
     navigation.navigate(modalRoute, {
-      callback: onPress,
+      callback: handleSaveCallback,
       suggester,
       modalTitle,
       value,
       searchPlaceholder,
     });
-  const loadDefaultValues = async (values: string[]) => {
-    const _values: OptionType[] = [];
-    values.forEach(async x => {
+
+  // This function is not in use, however, it's meant to be used when
+  // initial values are set. Pay extra care to the value format it expects.
+  const loadInitialLabel = useCallback(async (values: string[]) => {
+    if (values.length === 0) {
+      return;
+    }
+    const selectedValues: OptionType[] = [];
+    for (const x of values) {
       const data = await suggester.fetchCurrentOption(x);
-      _values.push(data);
-    });
-    const _label = appendLabel(_values);
-    setLabel(_values.length > 0 ? _label : setLabel(placeholder));
-  };
+      selectedValues.push(data);
+    }
+
+    const updatedLabel = extractLabel(selectedValues);
+    setLabel(updatedLabel);
+  }, [suggester]);
 
   useEffect(() => {
-    if (!suggester || !value) return;
-    loadDefaultValues(value);
+    if (!value) return;
+    loadInitialLabel(value);
+  // Disabling the linter because we only want to run this on mount
+  // if the component has an initial value and ignore value updates.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -89,7 +100,7 @@ export const MultiSelectModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || 'Select'}
+        buttonText={label || placeholder}
         minHeight={screenPercentageToDP(6.68, Orientation.Height)}
         height={'auto'}
         justifyContent="flex-start"
