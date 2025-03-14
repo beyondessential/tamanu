@@ -34,7 +34,7 @@ const PatientSummary = ({
       <StackHeader
         title={
           <TranslatedText
-            stringId="patient.action.viewProgramRegistries"
+            stringId="patientProgramRegistry.header.title"
             fallback="Program registries"
           />
         }
