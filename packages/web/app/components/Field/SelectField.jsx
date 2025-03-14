@@ -46,6 +46,11 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
+const ExpandIcon = styled(ExpandMoreIcon)`
+  position: absolute;
+  right: 12px;
+`;
+
 const Option = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
@@ -128,7 +133,7 @@ export const SelectInput = ({
         paddingTop: '11px',
         paddingBottom: '9px',
         paddingLeft: '5px',
-        paddingRight: '13px',
+        paddingRight: '42px',
         fontSize,
       };
     },
@@ -216,7 +221,7 @@ export const SelectInput = ({
             ClearIndicator: innerProps => (
               <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
             ),
-            DropdownIndicator: () => <ExpandMoreIcon />,
+            DropdownIndicator: () => <ExpandIcon />,
           }}
           {...props}
         />

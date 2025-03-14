@@ -76,12 +76,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   is: value => Boolean(value),
                   then: yup
                     .string()
-                    .required(
-                      getTranslation(
-                        'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-                        'Category is required when a Related condition is set',
-                      ),
-                    ),
+                    .required(getTranslation('validation.required.inline', '*Required')),
                 }),
             }),
           )
@@ -118,7 +113,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           ...data,
           conditions: data.conditions
             ? // Filter out empty conditions
-              data.conditions.filter(condition => condition.conditionId)
+              data.conditions.filter(condition => condition?.conditionId)
             : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
@@ -233,8 +228,8 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     usedValues = values.conditions
                       ?.filter(
                         condition =>
-                          condition.conditionId &&
-                          condition.conditionId !== conditionValue?.conditionId,
+                          condition?.conditionId &&
+                          condition?.conditionId !== conditionValue?.conditionId,
                       )
                       ?.map(condition => condition.conditionId);
                   }

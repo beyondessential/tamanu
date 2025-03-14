@@ -7,7 +7,18 @@ const Text = styled.div`
   line-height: 1.5;
 `;
 
-export const RecordedInErrorWarningModal = ({ onConfirm, onClose, open }) => {
+export const RecordedInErrorWarningModal = ({ onConfirm, onClose, open, items }) => {
+  // const { getTranslation } = useTranslation();
+  // const names = items.map(
+  //   item => `'${getTranslation(getReferenceDataStringId(item.id, 'programRegistryCondition'), item.name)}'`,
+  // );
+  // Todo: Uncomment the above code and remove the below code after adding the translations for the programRegistryConditions
+  const names = items.map(item => `'${item.name}'`);
+  const text =
+    names.length > 1
+      ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+      : names[0] || '';
+
   return (
     <Modal
       title={
@@ -23,7 +34,8 @@ export const RecordedInErrorWarningModal = ({ onConfirm, onClose, open }) => {
       <Text>
         <TranslatedText
           stringId="patientProgramRegistry.recordedInErrorWarning.text"
-          fallback="Are you sure you would like to change the status to ‘Recorded in error’? This action is irreversible."
+          fallback="Are you sure you would like to change the status of :text to 'Recorded in error'? This action is irreversible."
+          replacements={{ text }}
         />
       </Text>
       <ModalCancelRow onConfirm={onConfirm} onCancel={onClose} />
