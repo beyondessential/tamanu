@@ -25,6 +25,6 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.sequelize.query('DROP FUNCTION get_session_config');
-  await query.sequelize.query('DROP FUNCTION set_session_config');
+  await query.sequelize.query('DROP FUNCTION get_session_config CASCADE');
+  await query.sequelize.query('DROP FUNCTION set_session_config CASCADE');
 }
