@@ -7,15 +7,31 @@ These triggers are applied by Tamanu rather than being hardcoded in migrations.
 
 Some tables are excluded from logging. These are listed in the `NON_LOGGED_TABLES`
 constant in the database package, and include the sync subsystem and other
-internal system tables. However, notably, the `SequelizeMeta` table _is_ logged,
-which provides a permanent record of when schema migrations were done.
+internal system tables.
 
 Note that changes before this table was put in service will of course not have
 been logged.
 {% enddocs %}
 
 {% docs logs__changes__id %}
-The ID of the change log row. This is auto incremented
+The ID of the change log row. UUID.
+{% enddocs %}
+
+{% docs logs__changes__logged_at %}
+The timestamp this change was logged.
+
+This is an adjusted timestamp with microsecond precision: the adjustment offset
+ensures that all Tamanu servers are reasonably in sync. However, it's rare that
+servers have a dedicated high precision clock source, so the offset is computed
+over the network; typically we expect better than 100ms synchronisation.
+{% enddocs %}
+
+{% docs logs__changes__device_id %}
+The ID of the device this change was made on.
+{% enddocs %}
+
+{% docs logs__changes__version %}
+The Tamanu version.
 {% enddocs %}
 
 {% docs logs__changes__table_oid %}
@@ -38,10 +54,6 @@ automatically logged.
 The name of the table this change is from.
 {% enddocs %}
 
-{% docs logs__changes__logged_at %}
-The timestamp this change was logged.
-{% enddocs %}
-
 {% docs logs__changes__created_at %}
 The value of the `created_at` field of the change data.
 
@@ -60,16 +72,9 @@ The value of the `deleted_at` field of the change data.
 This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
-{% docs logs__changes__updated_at_sync_tick %}
-The value of the `updated_at_sync_tick` field of the change data.
 
-This is extracted from the data to make it easier to query on.
-{% enddocs %}
-
-{% docs logs__changes__updated_by_user_id %}
-The value of the `updated_by_user_id` field of the change data.
-
-This is extracted from the data to make it easier to query on.
+{% docs logs__changes__author_id %}
+The user who made the change.
 {% enddocs %}
 
 {% docs logs__changes__record_id %}
@@ -87,6 +92,12 @@ In some cases it can be that `UPDATE` records from the same `record_id` _predate
 the `INSERT` log. Software reading the log should also tolerate the presence of
 multiple `INSERT` entries for a single `record_id`, even if those should be
 absent under normal conditions.
+{% enddocs %}
+
+{% docs logs__changes__record_sync_tick %}
+The value of the `updated_at_sync_tick` field of the change data.
+
+This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
 {% docs logs__changes__record_data %}

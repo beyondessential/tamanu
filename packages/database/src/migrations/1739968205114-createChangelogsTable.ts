@@ -1,3 +1,4 @@
+import { FACT_DEVICE_ID, FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'changes' };
@@ -26,6 +27,16 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn('adjusted_timestamp'),
+    },
+    device_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: Sequelize.fn('local_system_fact', FACT_DEVICE_ID, 'unknown'),
+    },
+    version: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_VERSION, 'unknown'),
     },
     created_at: {
       type: DataTypes.DATE,
@@ -79,9 +90,10 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
+  await query.addIndex(TABLE, ['device_id'], { using: 'hash' });
   await query.addIndex(TABLE, ['table_oid'], { using: 'hash' });
+  await query.addIndex(TABLE, ['author_id'], { using: 'hash' });
   await query.addIndex(TABLE, ['record_id'], { using: 'hash' });
-  await query.addIndex(TABLE, ['updated_by_user_id'], { using: 'hash' });
 
   await query.addIndex(TABLE, ['logged_at'], { using: 'btree' });
   await query.addIndex(TABLE, ['record_created_at'], { using: 'btree' });
@@ -93,7 +105,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE, ['record_data'], { using: 'gin' });
 
   await query.sequelize.query(
-    `CREATE INDEX changes_table_name ON logs.changes USING HASH ((table_schema || '.' || table_name))`,
+    `CREATE INDEX changes_table_full_name ON logs.changes USING HASH ((table_schema || '.' || table_name))`,
   );
 }
 

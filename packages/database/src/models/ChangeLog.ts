@@ -41,6 +41,14 @@ export class ChangeLog extends Model {
           allowNull: false,
           defaultValue: Sequelize.fn('adjusted_timestamp'),
         },
+        deviceId: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        version: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
         updatedByUserId: {
           type: DataTypes.TEXT,
           allowNull: false,
