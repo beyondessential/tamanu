@@ -8,6 +8,8 @@ import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 
+import { version } from '../../package.json';
+
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
@@ -73,6 +75,7 @@ export const userMiddleware = ({ secret }) =>
           loggedAt: new Date(),
           facilityId: null,
           deviceId,
+          version,
         }),
     };
 

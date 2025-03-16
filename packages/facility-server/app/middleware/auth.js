@@ -4,6 +4,7 @@ import { compare } from 'bcrypt';
 import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
+import { version } from '../../package.json';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
@@ -276,6 +277,7 @@ export const authMiddleware = async (req, res, next) => {
           loggedAt: new Date(),
           facilityId,
           deviceId: req.deviceId,
+          version,
         }),
     };
 
