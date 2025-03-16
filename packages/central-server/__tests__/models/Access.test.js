@@ -26,8 +26,9 @@ describe('AccessLog', () => {
     const testLog = AccessLogs[0];
 
     expect(testLog).toMatchObject({
-      patientId: patient.id,
-      viewedById: app.user.id,
+      recordId: patient.id,
+      recordType: 'Patient',
+      userId: app.user.id,
       facilityId: null,
     });
   });
