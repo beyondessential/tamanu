@@ -53,10 +53,6 @@
       "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
     }
   },
-  "timesync": {
-    "enabled": true,
-    "interval": 60000 // ms interval for synchronising
-  },
   "port": 4000,
   "db": {
     "name": "tamanu-facility",
