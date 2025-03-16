@@ -29,7 +29,6 @@ describe('AccessLog', () => {
       patientId: patient.id,
       viewedById: app.user.id,
       facilityId: null,
-      context: testUrl,
     });
   });
 });
