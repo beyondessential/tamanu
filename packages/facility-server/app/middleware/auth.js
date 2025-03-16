@@ -275,6 +275,7 @@ export const authMiddleware = async (req, res, next) => {
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
           facilityId,
+          deviceId: req.deviceId,
         }),
     };
 
