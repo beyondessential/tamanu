@@ -71,7 +71,7 @@ export const userMiddleware = ({ secret }) =>
           isMobile: false,
           frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
-          loggedAt: getCurrentDateTimeString(),
+          loggedAt: new Date(),
         }),
     };
 
