@@ -63,7 +63,7 @@ export const userMiddleware = ({ secret }) =>
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
       access: async ({ recordId, params, recordType }) =>
-        req.models.Access.create({
+        req.models.AccessLog.create({
           userId: userId,
           recordId,
           recordType,
@@ -72,6 +72,7 @@ export const userMiddleware = ({ secret }) =>
           frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
+          facilityId: null,
         }),
     };
 

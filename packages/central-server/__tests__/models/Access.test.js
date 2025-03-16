@@ -1,7 +1,7 @@
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 
-describe('UserPatientView', () => {
+describe('AccessLog', () => {
   let patient = null;
   let app = null;
   let baseApp = null;
@@ -20,10 +20,10 @@ describe('UserPatientView', () => {
   it('should record a patient view log with appropriate details', async () => {
     const testUrl = `/api/admin/lookup/patient/${patient.displayId}`;
     await app.get(testUrl);
-    const userPatientViewLogs = await models.UserPatientView.findAll({ raw: true });
+    const AccessLogs = await models.AccessLog.findAll({ raw: true });
 
-    expect(userPatientViewLogs).toHaveLength(1);
-    const testLog = userPatientViewLogs[0];
+    expect(AccessLogs).toHaveLength(1);
+    const testLog = AccessLogs[0];
 
     expect(testLog).toMatchObject({
       patientId: patient.id,
