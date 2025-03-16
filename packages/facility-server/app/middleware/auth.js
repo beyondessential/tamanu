@@ -274,7 +274,7 @@ export const authMiddleware = async (req, res, next) => {
           isMobile: false,
           frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
-          loggedAt: getCurrentDateTimeString(),
+          loggedAt: new Date(),
         }),
     };
 
