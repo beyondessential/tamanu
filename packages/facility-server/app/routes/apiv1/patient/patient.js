@@ -46,6 +46,7 @@ patientRoute.get(
       recordId: params.id,
       params,
       recordType: 'Patient',
+      facilityId,
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
