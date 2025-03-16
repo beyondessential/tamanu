@@ -7,7 +7,6 @@ import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {

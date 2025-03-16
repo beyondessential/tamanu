@@ -13,7 +13,6 @@ import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdent
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const { tokenDuration, secret } = config.auth;
 
