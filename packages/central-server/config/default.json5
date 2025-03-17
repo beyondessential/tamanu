@@ -254,6 +254,12 @@
       "batchSize": 50,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "generateMedicationAdministrationRecords": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
+      "batchSize": 50,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "generateRepeatingAppointments": {
       // every day at 1 AM
       "schedule": "0 1 * * *",

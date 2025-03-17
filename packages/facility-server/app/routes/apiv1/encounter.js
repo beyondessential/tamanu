@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString, toDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
@@ -186,12 +186,16 @@ encounterRelations.get(
 
     const baseQueryOptions = {
       order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: [...associations, {
-        model: models.Encounter,
-        as: 'encounters',
-        through: { attributes: [] },
-        where: { id: params.id },
-      }, 'medicationAdministrationRecords'],
+      include: [
+        ...associations,
+        {
+          model: models.Encounter,
+          as: 'encounters',
+          through: { attributes: [] },
+          where: { id: params.id },
+        },
+        'medicationAdministrationRecords',
+      ],
     };
 
     // Add medicationAdministrationRecords with condition for same day
@@ -204,8 +208,8 @@ encounterRelations.get(
         where: {
           administeredAt: {
             [Op.gte]: startOfMarDate,
-            [Op.lt]: endOfMarDate
-          }
+            [Op.lt]: endOfMarDate,
+          },
         },
         required: false,
       });
@@ -215,13 +219,19 @@ encounterRelations.get(
         startDate: {
           [Op.lte]: endOfMarDate,
         },
-        [Op.or]: [
-          { discontinuedDate: null },
-          { discontinuedDate: { [Op.gte]: startOfMarDate } }
-        ],
-        [Op.or]: [
-          { endDate: null },
-          { endDate: { [Op.gte]: startOfMarDate } }
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { discontinuedDate: { [Op.is]: null } },
+              { discontinuedDate: { [Op.gte]: startOfMarDate } },
+            ]
+          },
+          {
+            [Op.or]: [
+              { endDate: { [Op.is]: null } }, 
+              { endDate: { [Op.gte]: startOfMarDate } }
+            ]
+          }
         ]
       };
     }
