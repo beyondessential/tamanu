@@ -75,7 +75,6 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           append_body: true
-          # TODO: use proper url
           body: |
             ## DBT Documentation
             The DBT documentation for this release is available at:
