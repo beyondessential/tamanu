@@ -1,1 +1,0 @@
-../../central-server/public/patient_facilities.md
