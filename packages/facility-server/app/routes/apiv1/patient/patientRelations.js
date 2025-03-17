@@ -119,12 +119,14 @@ patientRelations.get(
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
 
-    await req.audit.access({
-      recordId: additionalDataRecord.id,
-      params,
-      model: models.PatientAdditionalData,
-      facilityId,
-    });
+    if (additionalDataRecord) {
+      await req.audit.access({
+        recordId: additionalDataRecord.id,
+        params,
+        model: models.PatientAdditionalData,
+        facilityId,
+      });
+    }
 
     res.send(recordData);
   }),

@@ -20,12 +20,14 @@ patientBirthData.get(
 
     const recordData = birthDataRecord ? birthDataRecord.toJSON() : {};
 
-    await req.audit.access({
-      recordId: birthDataRecord.id,
-      params,
-      model: models.PatientBirthData,
-      facilityId,
-    });
+    if (birthDataRecord) {
+      await req.audit.access({
+        recordId: birthDataRecord.id,
+        params,
+        model: models.PatientBirthData,
+        facilityId,
+      });
+    }
 
     res.send({ ...recordData });
   }),
