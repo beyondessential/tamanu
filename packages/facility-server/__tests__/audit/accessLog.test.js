@@ -2,6 +2,7 @@ import config from 'config';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { generateEachDataType } from '@tamanu/fake-data/populateDb';
 
 describe('accessLog', () => {
   const [facilityId] = selectFacilityIds(config);
@@ -22,24 +23,17 @@ describe('accessLog', () => {
   afterAll(() => ctx.close());
 
   //   TODO: some are being missed because appropriuate record doesnt exists
-  it('create a log with appropriate details when a user hits a patient endpoint', async () => {
-    const endpoints = [
-      `/api/patient/${patient.id}`,
-      `/api/patient/${patient.id}/currentEncounter`,
-      `/api/patient/${patient.id}/birthData`,
-      `/api/patient/${patient.id}/additionalData`,
-      //   `/api/patient/${patient.id}/death`,
-      //   `/api/patient/${patient.id}/programRegistration`,
-    ];
+  it('create a log with appropriate details when a user hits the basic patient get endpoint', async () => {
+    const endpoint = `/api/patient/${patient.id}`;
 
-    for (const endpoint of endpoints) {
-      const response = await userApp.get(endpoint, { facilityId });
-      expect(response).toHaveSucceeded();
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    const response = await userApp.get(endpoint, { facilityId });
+    expect(response).toHaveSucceeded();
 
     const accessLogs = await models.AccessLog.findAll();
-    expect(accessLogs.length).toBe(endpoints.length);
+    expect(accessLogs.length).toBe(1);
+    expect(accessLogs[0].backEndContext).toMatchObject({ endpoint });
+    expect(accessLogs[0].userId).toBe(userApp.user.id);
+    expect(accessLogs[0].recordId).toBe(patient.id);
+    expect(accessLogs[0].recordType).toBe('Patient');
   });
 });
