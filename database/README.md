@@ -3,7 +3,7 @@
 
 > [!NOTE]
 > If you're looking at this in Slab, go instead here:
-> <url to deployed dbt site>
+> <https://data.bes.au/tamanu/main/>
 
 ## Types of data
 
