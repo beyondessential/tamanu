@@ -267,7 +267,7 @@ export const authMiddleware = async (req, res, next) => {
     req.audit = {
       access: async ({ recordId, params, model, facilityId }) =>
         req.models.AccessLog.create({
-          userId: userId,
+          userId,
           recordId,
           recordType: model.name,
           sessionId,
