@@ -61,7 +61,7 @@ jobs:
 
       - name: Upload docs to S3
         run: |
-          aws s3 sync database/docs/target s3://bes-tamanu-dbt-docs/${{ env.BRANCH_NAME }}/ \
+          aws s3 sync database/docs/target s3://bes-data-docs/tamanu/${{ env.BRANCH_NAME }}/ \
             --delete \
             --cache-control "max-age=3600" \
             --exclude "*" \
