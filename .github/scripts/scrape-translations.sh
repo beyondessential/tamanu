@@ -10,8 +10,12 @@ gtregex="getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)"
 # running git diff main..<branch> --unified=0 | grep '^+ ' > branch-diffs.txt
 directory=${1-./packages}
 
-# Get all translated string data from registered enums, TranslatedText and getTranslatedString.
-teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
+# Get all registered enums if no directory is specified
+if [[ "$directory" == "./packages" ]]; then
+  teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
+fi
+
+# Get all translated string data from TranslatedText and getTranslatedString.
 ttoutput=$(rg -PINU --multiline-dotall "$ttregex" -or '"$1","$2"' -g "*.{ts,tsx,js,jsx}" "$directory" \
     | rg --multiline-dotall --passthru -U '\n\s*\b' -r '' )
 gtoutput=$(rg -PINU --multiline-dotall "$gtregex" -or '"$1","$2"' -g "*.{ts,tsx,js,jsx}" "$directory")
