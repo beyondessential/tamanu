@@ -95,8 +95,8 @@ export const createAccessLog = async ({
     isMobile: chance.bool(),
     frontEndContext: { patientId },
     backEndContext: { endPoint: '/patient/:id' },
-    version,
     sessionId,
+    version,
     deviceId,
     loggedAt: new Date(),
   });
