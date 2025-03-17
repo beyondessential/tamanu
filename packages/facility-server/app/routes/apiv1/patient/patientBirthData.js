@@ -6,7 +6,11 @@ export const patientBirthData = express.Router();
 patientBirthData.get(
   '/:id/birthData',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
 
     req.checkPermission('read', 'Patient');
 
@@ -15,6 +19,13 @@ patientBirthData.get(
     });
 
     const recordData = birthDataRecord ? birthDataRecord.toJSON() : {};
+
+    await req.audit.access({
+      recordId: birthDataRecord.id,
+      params,
+      model: models.PatientBirthData,
+      facilityId,
+    });
 
     res.send({ ...recordData });
   }),

@@ -119,8 +119,6 @@ patientRelations.get(
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
 
-    console.log(facilityId);
-
     await req.audit.access({
       recordId: additionalDataRecord.id,
       params,
@@ -440,4 +438,5 @@ patientRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyR
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
+// TODO: ?
 patientRelations.use(patientSecondaryIdRoutes);
