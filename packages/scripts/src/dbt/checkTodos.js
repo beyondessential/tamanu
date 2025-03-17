@@ -10,11 +10,11 @@ const { readTablesFromDbt, readTableDoc } = require('./generateModel.js');
 async function getSchemas(packageName) {
   const packagePath = path.join('database/model', packageName);
   return (await fs.readdir(packagePath))
+    .filter((filename) => filename === 'overview.md')
     .map((schemaName) => ({
       name: schemaName,
       path: path.join(packagePath, schemaName),
-    }))
-    .filter(({ path }) => path.endsWith('overview.md'));
+    }));
 }
 
 async function detectTodoItemsInTable(schema, dbtSrc) {
