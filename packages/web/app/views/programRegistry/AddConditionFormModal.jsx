@@ -17,7 +17,7 @@ import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import {} from '../../contexts/Translation';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
