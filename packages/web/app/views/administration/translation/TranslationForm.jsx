@@ -202,16 +202,23 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           </Box>
         ),
         accessor: ({ stringId }) => {
-          if (stringId === 'languageName')
+          if (stringId === 'languageName' || stringId === 'countryCode')
             return (
               <Box display="flex" alignItems="center">
                 <ReservedText>{stringId}</ReservedText>
                 <Tooltip
                   title={
-                    <TranslatedText
-                      stringId="admin.translation.table.languageName.toolTip"
-                      fallback="Language name is a reserved translation ID used for displaying language in selector"
-                    />
+                    stringId === 'languageName' ? (
+                      <TranslatedText
+                        stringId="admin.translation.table.languageName.toolTip"
+                        fallback="Language name is a reserved translation ID used for displaying language in selector"
+                      />
+                    ) : (
+                      <TranslatedText
+                        stringId="admin.translation.table.countryCode.toolTip"
+                        fallback="Country code is a reserved translation ID used for displaying the country flag in selector"
+                      />
+                    )
                   }
                 >
                   <HelpIcon style={{ color: Colors.primary }} />
@@ -318,7 +325,10 @@ export const TranslationForm = () => {
       />
     );
 
-  const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
+  const sortedTranslations = sortBy(
+    translations,
+    obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
+  ); // Ensure languageName key stays on top
 
   return (
     <Container>

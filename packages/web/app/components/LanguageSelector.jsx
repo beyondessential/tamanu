@@ -6,7 +6,7 @@ import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
-import { LanguageFlag } from './LanguageFlag.jsx';
+import { ReactCountryFlag } from 'react-country-flag';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -62,14 +62,19 @@ export const LanguageSelector = () => {
   const { updateStoredLanguage, storedLanguage } = useTranslation();
   const { data = {}, error } = useTranslationLanguagesQuery();
 
-  const { languageNames = [], languagesInDb = [] } = data;
+  const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
 
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
   const languageOptions = languagesInDb.map(({ language }) => {
     return {
       label: (
         <LanguageOptionLabel>
-          <LanguageFlag languageCode={language} />
+          <ReactCountryFlag
+            countryCode={languageCountryCodes[language]}
+            style={{ width: '22px', height: '22px' }}
+            svg
+          />
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
       ),

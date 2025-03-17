@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import kmFlag from '../assets/images/languageflags/km.svg';
 import fjFlag from '../assets/images/languageflags/fj.svg';
 import gbFlag from '../assets/images/languageflags/gb.svg';
+import { ReactCountryFlag } from 'react-country-flag';
 
 const LanguageFlagImage = styled.img`
   display: inline-block;
@@ -10,16 +11,14 @@ const LanguageFlagImage = styled.img`
   height: ${props => props.height || 'auto'};
 `;
 
-export const LanguageFlag = ({ languageCode, size = "22px" }) => {
+export const LanguageFlag = ({ languageCode, size = '22px' }) => {
   const flags = {
     km: kmFlag,
     fj: fjFlag,
-    en: gbFlag
+    en: gbFlag,
   };
 
   if (!flags[languageCode]) return null;
 
-  return (
-    <LanguageFlagImage size={size} src={flags[languageCode]} alt={`${languageCode} flag`} />
-  );
+  return <ReactCountryFlag countryCode={languageCode} size={size} svg />;
 };
