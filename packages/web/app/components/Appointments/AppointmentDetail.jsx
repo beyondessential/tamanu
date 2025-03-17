@@ -66,13 +66,7 @@ const PatientInfo = ({ patient }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { id, displayId, sex, dateOfBirth, village } = patient;
-  const [additionalData, setAdditionalData] = useState();
-  useEffect(() => {
-    (async () => {
-      const data = await api.get(`/patient/${id}/additionalData`);
-      setAdditionalData(data);
-    })();
-  }, [id, api]);
+  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const handlePatientInfoContainerClick = useCallback(async () => {
     await dispatch(reloadPatient(id));
@@ -234,9 +228,8 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     isLoading: currentEncounterLoading,
   } = usePatientCurrentEncounterQuery(patient.id);
 
-  const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${patient.id}/additionalData`),
+  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
+    patient.id,
   );
   const [statusOption, setStatusOption] = useState(
     APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status),
