@@ -35,11 +35,9 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('user_recently_viewed_patients__user_id') }}"
             data_tests:
-              - unique
               - not_null
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('user_recently_viewed_patients__patient_id') }}"
             data_tests:
-              - unique
               - not_null
