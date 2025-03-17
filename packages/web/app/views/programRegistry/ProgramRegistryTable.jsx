@@ -63,7 +63,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'homeVillage',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.homeVillage"
+            stringId="patientProgramRegistry.homeVillage.label"
             fallback="Home village"
           />
         ),
@@ -73,7 +73,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.currentlyIn"
+            stringId="patientProgramRegistry.currentlyIn.label"
             fallback="Currently in"
           />
         ),
@@ -87,7 +87,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'conditions',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.conditions"
+            stringId="patientProgramRegistry.relatedConditions.label"
             fallback="Related conditions"
           />
         ),
@@ -105,7 +105,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'registeringFacility',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.registeringFacility"
+            stringId="patientProgramRegistry.registeringFacility.label"
             fallback="Registering facility"
           />
         ),
@@ -130,7 +130,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'clinicalStatus',
-        title: <TranslatedText stringId="general.status.label" fallback="Status" />,
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.clinicalStatus.label"
+            fallback="Status"
+          />
+        ),
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
@@ -212,7 +217,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
-        noDataMessage="No Program registry found"
+        noDataMessage={
+          <TranslatedText
+            stringId="patientProgramRegistry.registryTable.noDataMessage"
+            fallback="No program registry found"
+          />
+        }
         onRowClick={selectRegistration}
         fetchOptions={searchParameters}
         rowStyle={({ patient }) => {

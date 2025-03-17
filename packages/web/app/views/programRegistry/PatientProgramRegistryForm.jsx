@@ -103,12 +103,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.date.label"
+                      stringId="patientProgramRegistry.registrationDate.label"
                       fallback="Date of registration"
                     />
                   }
@@ -149,7 +148,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <FieldWithTooltip
                   disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
-                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.clinicalStatus.label"
+                      fallback="Status"
+                    />
+                  }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
@@ -157,9 +161,17 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 />
                 <FieldWithTooltip
                   disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
+                    !conditions ? (
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registryForm.relatedConditions.disabledTooltip"
+                        fallback="Select a program registry to add related conditions"
+                      />
+                    ) : (
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registryForm.relatedConditions.noConditionsTooltip"
+                        fallback="No conditions have been configured for this program registry"
+                      />
+                    )
                   }
                   name="conditionIds"
                   label={

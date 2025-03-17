@@ -5,13 +5,15 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ConfirmCancelRow,
-  FormSeparatorLine,
   Modal,
-  TranslatedReferenceData,
+  FormSeparatorLine,
+  TranslatedText,
+  getReferenceDataStringId,
 } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { useTranslation } from '../../contexts/Translation';
 
 const Text = styled.div`
   display: flex;
@@ -33,6 +35,7 @@ const Text = styled.div`
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getTranslation } = useTranslation();
 
   if (!patientProgramRegistration) return <></>;
 
@@ -54,18 +57,39 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     onClose({ success: true });
   };
 
+  const { programRegistry } = patientProgramRegistration;
+
   return (
-    <Modal title="Delete record" width="sm" open={open} onClose={onClose} overrideContentPadding>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patientProgramRegistry.modal.deleteRegistry.title"
+          fallback="Delete record"
+        />
+      }
+      width="sm"
+      open={open}
+      onClose={onClose}
+      overrideContentPadding
+    >
       <Text>
-        <p className="header">Confirm patient registry deletion</p>
-        <p className="desc">
-          Are you sure you would like to delete the patient from the{' '}
-          <TranslatedReferenceData
-            fallback={patientProgramRegistration?.programRegistry?.name}
-            value={patientProgramRegistration?.programRegistry?.id}
-            category="programRegistry"
+        <p className="header">
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.deleteRegistry.header"
+            fallback="Confirm patient registry deletion"
           />
-          ? This will delete associated patient registry records. This action is irreversible.
+        </p>
+        <p className="desc">
+          <TranslatedText
+            stringId="patientProgramRegistry.modal.deleteRegistry.description"
+            fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
+            replacements={{
+              programRegistry: getTranslation(
+                getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                programRegistry?.name,
+              ),
+            }}
+          />
         </p>
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />

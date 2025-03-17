@@ -133,7 +133,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.date.label"
+                        stringId="patientProgramRegistry.registrationDate.label"
                         fallback="Date of registration"
                       />
                     }
@@ -169,7 +169,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                   />
                   <Field
                     name="clinicalStatusId"
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />
@@ -219,7 +224,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 style={{ paddingLeft: '32px', paddingRight: '32px' }}
                 onCancel={onClose}
                 onConfirm={submitForm}
-                confirmText="Confirm"
               />
             </div>
           );
@@ -234,31 +238,13 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
-          date: yup
-            .date()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.date.label"
-                fallback="Date of registration"
-              />,
-            ),
-          clinicianId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
-                fallback="Registered by"
-              />,
-            ),
-          registeringFacilityId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
-                fallback="Registering facility"
-              />,
-            ),
+          date: yup.date().required(getTranslation('validation.required.inline', '*Required')),
+          clinicianId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
+          registeringFacilityId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
         })}
       />
     </Modal>

@@ -8,6 +8,7 @@ import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
+import { TranslatedText } from '../../components';
 
 const Container = styled.div`
   width: ${p => (p.fullWidth ? '100%' : '70%')};
@@ -47,7 +48,12 @@ export const ProgramRegistryStatusHistory = ({
     return [
       {
         key: 'clinicalStatusId',
-        title: 'Status',
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.clinicalStatus.label"
+            fallback="Status"
+          />
+        ),
         sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
@@ -55,13 +61,23 @@ export const ProgramRegistryStatusHistory = ({
       },
       {
         key: 'clinicianId',
-        title: 'Recorded By',
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.statusHistory.recordedBy"
+            fallback="Recorded By"
+          />
+        ),
         sortable: false,
         accessor: row => row.clinician.displayName,
       },
       {
         key: 'date',
-        title: 'Date recorded',
+        title: (
+          <TranslatedText
+            stringId="patientProgramRegistry.statusHistory.dateRecorded"
+            fallback="Date recorded"
+          />
+        ),
         sortable: true,
         accessor: row => <DateDisplay date={row.date} />,
       },
@@ -69,7 +85,12 @@ export const ProgramRegistryStatusHistory = ({
         ? [
             {
               key: 'registrationDate',
-              title: 'Date of registration',
+              title: (
+                <TranslatedText
+                  stringId="patientProgramRegistry.registrationDate.label"
+                  fallback="Date of registration"
+                />
+              ),
               sortable: false,
               accessor: row => <DateDisplay date={row?.registrationDate} />,
             },
@@ -80,7 +101,12 @@ export const ProgramRegistryStatusHistory = ({
 
   return (
     <Container fullWidth={programRegistryConditions?.length === 0}>
-      <Heading5 style={{ marginBottom: '13px' }}>Program status history</Heading5>
+      <Heading5 style={{ marginBottom: '13px' }}>
+        <TranslatedText
+          stringId="patientProgramRegistry.statusHistory.title"
+          fallback="Program status history"
+        />
+      </Heading5>
       <Table
         isBodyScrollable
         initialSort={{
@@ -93,7 +119,12 @@ export const ProgramRegistryStatusHistory = ({
         rowStyle={() => `height: 50px; padding: 0px;`}
         containerStyle="max-height: 290px;"
         allowExport={false}
-        noDataMessage="No Program registry clinical status found"
+        noDataMessage={
+          <TranslatedText
+            stringId="patientProgramRegistry.statusHistory.noDataMessage"
+            fallback="No Program registry clinical status found"
+          />
+        }
         elevated={false}
         isLoading={isLoading}
         onChangeOrderBy={onChangeOrderBy}

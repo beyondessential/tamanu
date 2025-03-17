@@ -5,7 +5,7 @@ import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegis
 import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem';
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
-import { TranslatedReferenceData } from '../../components';
+import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
