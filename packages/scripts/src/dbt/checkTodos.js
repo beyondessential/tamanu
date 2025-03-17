@@ -7,13 +7,13 @@ const path = require('node:path');
 const { exit } = require('node:process');
 const { readTablesFromDbt, readTableDoc } = require('./generateModel.js');
 
-async function getSchemas(packageName) {
-  const packagePath = path.join('database/model', packageName);
-  return (await fs.readdir(packagePath))
+async function getSchemas() {
+  const modelPath = path.join('database', 'model');
+  return (await fs.readdir(modelPath))
     .filter((filename) => filename === 'overview.md')
     .map((schemaName) => ({
       name: schemaName,
-      path: path.join(packagePath, schemaName),
+      path: path.join(modelPath, schemaName),
     }));
 }
 
@@ -55,14 +55,12 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
 
 async function run() {
   let sum = 0;
-  for (const packageName of ['central-server', 'facility-server']) {
-    const schemas = await getSchemas(packageName);
-    for (const schema of schemas) {
-      if (schema.path.endsWith('.md')) continue;
-      const tables = await readTablesFromDbt(schema.path, true);
-      for (const table of tables) {
-        sum += await detectTodoItemsInTable(schema, table);
-      }
+  const schemas = await getSchemas();
+  for (const schema of schemas) {
+    if (schema.path.endsWith('.md')) continue;
+    const tables = await readTablesFromDbt(schema.path, true);
+    for (const table of tables) {
+      sum += await detectTodoItemsInTable(schema, table);
     }
   }
   return sum;

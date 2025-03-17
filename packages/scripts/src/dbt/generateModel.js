@@ -534,8 +534,8 @@ async function handleTables(schema, dbtSrcs, sqlTables) {
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
 
-async function handleSchema(client, packageName, schemaName) {
-  const schemaPath = path.join('database/model', packageName, schemaName);
+async function handleSchema(client, schemaName) {
+  const schemaPath = path.join('database/model', schemaName);
   await fs.mkdir(schemaPath, { recursive: true });
   const oldTablesPromise = readTablesFromDbt(schemaPath);
   const sqlTablesPromise = readTablesFromDB(client, schemaName);
@@ -543,7 +543,7 @@ async function handleSchema(client, packageName, schemaName) {
 
   const fhirLogsIndex = sqlTables.findIndex(
     ({ name }) =>
-      packageName === 'facility-server' && schemaName === 'logs' && name === 'fhir_writes',
+      schemaName === 'logs' && name === 'fhir_writes',
   );
   if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
@@ -557,16 +557,16 @@ async function handleSchema(client, packageName, schemaName) {
   );
 }
 
-async function run(packageName, opts) {
-  console.log('-+', packageName);
+async function run(opts) {
+  console.log('-+');
   let client;
   try {
     console.log(' | connecting to database');
-    ({ client } = await dbConfig(packageName));
+    ({ client } = await dbConfig('central-server'));
   } catch (err) {
     console.error(err);
     if (opts.failOnMissingConfig) {
-      throw `Invalid database config for ${packageName}, cannot proceed.`;
+      throw `Invalid database config, cannot proceed.`;
     }
 
     return false;
@@ -576,45 +576,14 @@ async function run(packageName, opts) {
 
   const schemas = await getSchemas(client);
   for (const schema of schemas) {
-    if (packageName === 'facility-server' && ['fhir'].includes(schema)) continue;
-
     console.log(' | updating source models for', schema);
-    await handleSchema(client, packageName, schema);
+    await handleSchema(client, schema);
   }
 
   console.log(' + done, disconnecting');
   await client.end();
   console.log();
   return true;
-}
-
-async function symlinkIdenticals() {
-  const allFacilityFiles = await fs.readdir(path.join('database', 'model', 'facility-server'), {
-    recursive: true,
-    withFileTypes: true,
-  });
-
-  for (const entry of allFacilityFiles) {
-    if (!entry.isFile() || entry.isSymbolicLink()) continue;
-    const facilityPath = path.join(entry.path, entry.name);
-    const centralPath = path.join(
-      entry.path.replace('/facility-server/', '/central-server/'),
-      entry.name,
-    );
-    const facilityFile = await fs.readFile(facilityPath);
-
-    try {
-      const centralFile = await fs.readFile(centralPath);
-      if (facilityFile.equals(centralFile)) {
-        console.warn(`dedupe ${facilityPath}`);
-        await fs.unlink(facilityPath);
-        await fs.symlink(centralPath.replace('database/model/', '../../'), facilityPath);
-      }
-    } catch (err) {
-      if (err.code === 'ENOENT') continue;
-      throw err;
-    }
-  }
 }
 
 function checkClean() {
@@ -627,12 +596,8 @@ async function runAll() {
   const { exit } = require('node:process');
 
   program
-    .description('Generate dbt models from the current database')
+    .description('Generate dbt models from the current (central) database')
     .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
-    .option(
-      '--no-depupe',
-      "Don't create symlinks from facility models that are identical to central ones",
-    )
     .option(
       '--allow-dirty',
       'Proceed even if there are uncommitted changed in the database/ folder',
@@ -648,13 +613,7 @@ async function runAll() {
     exit(1);
   }
 
-  if (
-    (await run('central-server', opts)) &&
-    (await run('facility-server', opts)) &&
-    !opts.noDedupe
-  ) {
-    await symlinkIdenticals();
-  }
+  await run(opts);
 }
 
 module.exports = {
