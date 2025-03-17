@@ -27,6 +27,7 @@ patientDeath.get(
     const {
       models: { ContributingDeathCause, Patient, PatientDeathData, User, Facility, ReferenceData },
       params: { id: patientId },
+      query: { facilityId },
     } = req;
 
     const patient = await Patient.findByPk(patientId);
@@ -74,6 +75,13 @@ patientDeath.get(
           include: ['condition'],
         },
       ],
+    });
+
+    await req.audit.access({
+      recordId: deathData.id,
+      params,
+      model: PatientDeathData,
+      facilityId,
     });
 
     res.send({
