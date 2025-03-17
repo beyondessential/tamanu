@@ -8,8 +8,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { useQuery } from '@tanstack/react-query';
-import { PatientNameDisplay } from '../PatientNameDisplay';
+=import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors } from '../../constants';
@@ -18,7 +17,7 @@ import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
-import { usePatientCurrentEncounterQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
@@ -63,7 +62,6 @@ const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(statu
 }));
 
 const PatientInfo = ({ patient }) => {
-  const api = useApi();
   const dispatch = useDispatch();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
