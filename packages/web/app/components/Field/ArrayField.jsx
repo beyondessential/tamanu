@@ -7,7 +7,7 @@ import { generate } from 'shortid';
 
 import { Button } from '../Button';
 
-const AddButton = styled(Button)`
+const AddButton = styled(props => <Button {...props} />)`
   justify-self: start;
   padding-left: 10px;
   margin-top: -10px;
