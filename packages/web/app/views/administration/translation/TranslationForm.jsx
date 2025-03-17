@@ -208,17 +208,20 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                 <ReservedText>{stringId}</ReservedText>
                 <Tooltip
                   title={
-                    stringId === 'languageName' ? (
-                      <TranslatedText
-                        stringId="admin.translation.table.languageName.toolTip"
-                        fallback="Language name is a reserved translation ID used for displaying language in selector"
-                      />
-                    ) : (
-                      <TranslatedText
-                        stringId="admin.translation.table.countryCode.toolTip"
-                        fallback="Country code is a reserved translation ID used for displaying the country flag in selector"
-                      />
-                    )
+                    <>
+                      {stringId === 'languageName' && (
+                        <TranslatedText
+                          stringId="admin.translation.table.languageName.toolTip"
+                          fallback="Language name is a reserved translation ID used for displaying language in selector"
+                        />
+                      )}
+                      {stringId === 'countryCode' && (
+                        <TranslatedText
+                          stringId="admin.translation.table.countryCode.toolTip"
+                          fallback="Country code is a reserved translation ID used for displaying the country flag in selector"
+                        />
+                      )}
+                    </>
                   }
                 >
                   <HelpIcon style={{ color: Colors.primary }} />
