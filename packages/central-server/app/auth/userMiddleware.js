@@ -74,7 +74,7 @@ export const userMiddleware = ({ secret }) =>
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
           facilityId: null,
-          deviceId,
+          deviceId: req.deviceId || 'unknown-device',
           version,
         }),
     };
