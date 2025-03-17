@@ -10,7 +10,6 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { TranslatedReferenceData, TranslatedText } from '../../components';
 
@@ -46,8 +45,6 @@ const ProgramStatusAndConditionContainer = styled.div`
 `;
 
 export const PatientProgramRegistryView = () => {
-  const queryParams = useUrlSearchParams();
-  const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
     patientId,
@@ -66,9 +63,8 @@ export const PatientProgramRegistryView = () => {
     return (
       <p>
         <TranslatedText
-          stringId="patientProgramRegistry.registeringNotFoundMessage"
-          fallback="Program registry ':title' not found."
-          replacements={{ title: title || 'Unknown' }}
+          stringId="patientProgramRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
         />
       </p>
     );

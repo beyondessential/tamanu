@@ -3,7 +3,13 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ConfirmCancelRow, Modal, FormSeparatorLine, TranslatedText } from '../../components';
+import {
+  ConfirmCancelRow,
+  Modal,
+  FormSeparatorLine,
+  TranslatedText,
+  getReferenceDataStringId,
+} from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
@@ -29,7 +35,7 @@ const Text = styled.div`
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { getTranslation, getReferenceDataStringId } = useTranslation();
+  const { getTranslation } = useTranslation();
 
   if (!patientProgramRegistration) return <></>;
 
