@@ -103,7 +103,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   const { data: birthData, isLoading: isBirthDataLoading } = useQuery(
     ['birthData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`, { facilityId }),
   );
 
   const { data: deathData, isLoading: isDeathDataLoading } = useQuery(
