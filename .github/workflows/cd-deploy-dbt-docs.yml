@@ -57,7 +57,7 @@ jobs:
           role-session-name: GHA@Tamanu=DBT
 
       - shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" | tee -a $GITHUB_ENV
 
       - name: Upload docs to S3
         run: |
