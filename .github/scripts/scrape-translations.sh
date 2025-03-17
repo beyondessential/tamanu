@@ -29,4 +29,4 @@ if [ -z "$data" ]; then
 fi
 
 # Append csv header and print data
-printf "stringId,en\n"languageName","English"\n%s" "$data"
+printf "stringId,en\n"languageName","English"\n"countryCode","gb"\n%s" "$data"
