@@ -238,14 +238,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
-          date: yup
-            .date()
-            .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          date: yup.date().required(getTranslation('validation.required.inline', '*Required')),
           clinicianId: foreignKey().required(
-            <TranslatedText stringId="general.required" fallback="Required" />,
+            getTranslation('validation.required.inline', '*Required'),
           ),
           registeringFacilityId: foreignKey().required(
-            <TranslatedText stringId="general.required" fallback="Required" />,
+            getTranslation('validation.required.inline', '*Required'),
           ),
         })}
       />

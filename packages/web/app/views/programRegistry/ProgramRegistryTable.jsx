@@ -73,7 +73,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.registrytable.column.currentlyIn"
+            stringId="patientProgramRegistry.currentlyIn.label"
             fallback="Currently in"
           />
         ),
@@ -219,8 +219,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         columns={columns}
         noDataMessage={
           <TranslatedText
-            stringId="patientProgramRegistry.registrytable.column.noDataMessage"
-            fallback="No Program registry found"
+            stringId="patientProgramRegistry.registryTable.noDataMessage"
+            fallback="No program registry found"
           />
         }
         onRowClick={selectRegistration}

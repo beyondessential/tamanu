@@ -17,6 +17,7 @@ import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
+import {} from '../../contexts/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -35,6 +36,7 @@ export const AddConditionFormModal = ({
 }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
 
   const submit = async data => {
@@ -95,7 +97,7 @@ export const AddConditionFormModal = ({
         }}
         validationSchema={yup.object().shape({
           programRegistryConditionId: foreignKey().required(
-            <TranslatedText stringId="general.required" fallback="Required" />,
+            getTranslation('validation.required.inline', '*Required'),
           ),
         })}
       />

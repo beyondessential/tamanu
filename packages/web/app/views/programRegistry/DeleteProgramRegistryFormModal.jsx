@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ConfirmCancelRow, FormSeparatorLine, Modal, TranslatedText } from '../../components';
+import { ConfirmCancelRow, Modal, FormSeparatorLine, TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { useTranslation } from '../../contexts/Translation';
 
 const Text = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ const Text = styled.div`
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getTranslation, getReferenceDataStringId } = useTranslation();
 
   if (!patientProgramRegistration) return <></>;
 
@@ -48,6 +50,8 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose({ success: true });
   };
+
+  const { programRegistry } = patientProgramRegistration;
 
   return (
     <Modal
@@ -72,8 +76,13 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <p className="desc">
           <TranslatedText
             stringId="patientProgramRegistry.modal.deleteRegistry.description"
-            fallback="Are you sure you would like to delete the patient from the :name? This will delete associated patient registry records. This action is irreversible."
-            replacements={{ name: patientProgramRegistration?.programRegistry?.name }}
+            fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
+            replacements={{
+              programRegistry: getTranslation(
+                getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                programRegistry?.name,
+              ),
+            }}
           />
         </p>
       </Text>
