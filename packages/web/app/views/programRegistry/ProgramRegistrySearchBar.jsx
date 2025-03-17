@@ -68,7 +68,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="registeringFacilityId"
             label={
               <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
+                stringId="programRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />
             }
@@ -152,10 +152,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
 
       <Field
         label={
-          <TranslatedText
-            stringId="patientProgramRegistry.homeVillage.label"
-            fallback="Home village"
-          />
+          <TranslatedText stringId="programRegistry.homeVillage.label" fallback="Home village" />
         }
         name="homeVillage"
         component={AutocompleteField}
@@ -163,10 +160,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       />
       <Field
         label={
-          <TranslatedText
-            stringId="patientProgramRegistry.currentlyIn.label"
-            fallback="Currently in"
-          />
+          <TranslatedText stringId="programRegistry.currentlyIn.label" fallback="Currently in" />
         }
         name="currentlyIn"
         component={AutocompleteField}
@@ -179,7 +173,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.relatedCondition.label"
+            stringId="programRegistry.relatedCondition.label"
             fallback="Related condition"
           />
         }
@@ -188,12 +182,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         suggester={programRegistryConditionSuggester}
       />
       <Field
-        label={
-          <TranslatedText
-            stringId="patientProgramRegistry.clinicalStatus.label"
-            fallback="Status"
-          />
-        }
+        label={<TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />}
         name="clinicalStatus"
         component={MultiAutocompleteField}
         suggester={programRegistryStatusSuggester}

@@ -57,7 +57,7 @@ export const RemoveConditionFormModal = ({
     <Modal
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.modal.removeCondition.title"
+          stringId="programRegistry.modal.removeCondition.title"
           fallback="Remove related condition"
         />
       }
@@ -66,7 +66,7 @@ export const RemoveConditionFormModal = ({
     >
       <Text>
         <TranslatedText
-          stringId="patientProgramRegistry.modal.removeCondition.text"
+          stringId="programRegistry.modal.removeCondition.text"
           fallback="Are you sure you would like to remove the related condition of :condition from the patient's program registration?"
           replacements={{
             condition: getTranslation(

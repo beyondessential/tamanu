@@ -73,7 +73,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     <DisplayContainer>
       <Heading5>
         <TranslatedText
-          stringId="patientProgramRegistry.selectSurveyForm.heading"
+          stringId="programRegistry.selectSurveyForm.heading"
           fallback="Select a :programRegistry form below to complete"
           replacements={{
             programRegistry: getTranslation(
@@ -104,7 +104,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 visible={isRemoved}
                 title={
                   <TranslatedText
-                    stringId="patientProgramRegistry.selectSurveyForm.patientInactive.tooltip"
+                    stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
                     fallback="Patient must be active"
                   />
                 }
@@ -113,7 +113,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   name="surveyId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.selectSurveyForm.surveyId.label"
+                      stringId="programRegistry.selectSurveyForm.surveyId.label"
                       fallback="Select form"
                     />
                   }
@@ -128,12 +128,12 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 title={
                   isRemoved ? (
                     <TranslatedText
-                      stringId="patientProgramRegistry.selectSurveyForm.patientInactive.tooltip"
+                      stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
                       fallback="Patient must be active"
                     />
                   ) : (
                     <TranslatedText
-                      stringId="patientProgramRegistry.selectSurveyForm.proceed.tooltip"
+                      stringId="programRegistry.selectSurveyForm.proceed.tooltip"
                       fallback="Select form to proceed"
                     />
                   )
@@ -148,7 +148,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     isSubmitting={false}
                   >
                     <TranslatedText
-                      stringId="patientProgramRegistry.selectSurveyForm.action.beginForm"
+                      stringId="programRegistry.selectSurveyForm.action.beginForm"
                       fallback="Begin form"
                     />
                   </StyledButton>

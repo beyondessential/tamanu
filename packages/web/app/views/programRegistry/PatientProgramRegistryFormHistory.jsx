@@ -19,7 +19,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         key: 'date',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.modal.formHistory.date"
+            stringId="programRegistry.modal.formHistory.date"
             fallback="Date submitted"
           />
         ),
@@ -30,7 +30,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         key: 'userId',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.modal.formHistory.submittedBy"
+            stringId="programRegistry.modal.formHistory.submittedBy"
             fallback="Submitted By"
           />
         ),
@@ -39,22 +39,14 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       },
       {
         key: 'surveyName',
-        title: (
-          <TranslatedText
-            stringId="patientProgramRegistry.modal.formHistory.form"
-            fallback="Form"
-          />
-        ),
+        title: <TranslatedText stringId="programRegistry.modal.formHistory.form" fallback="Form" />,
         accessor: row => row.surveyName,
         sortable: false,
       },
       {
         key: 'result',
         title: (
-          <TranslatedText
-            stringId="patientProgramRegistry.modal.formHistory.result"
-            fallback="Result"
-          />
+          <TranslatedText stringId="programRegistry.modal.formHistory.result" fallback="Result" />
         ),
         accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
         sortable: false,
@@ -116,7 +108,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         onRowClick={onSelectResponse}
         noDataMessage={
           <TranslatedText
-            stringId="patientProgramRegistry.modal.formHistory.noDataMessage"
+            stringId="programRegistry.modal.formHistory.noDataMessage"
             fallback="No Program registry responses found"
           />
         }

@@ -133,7 +133,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registrationDate.label"
+                        stringId="programRegistry.registrationDate.label"
                         fallback="Date of registration"
                       />
                     }
@@ -145,7 +145,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="clinicianId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="programRegistry.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
@@ -159,7 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeringFacility.label"
+                        stringId="programRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -171,7 +171,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="clinicalStatusId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
                       />
                     }
@@ -189,7 +189,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="conditionIds"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.relatedConditions.label"
+                        stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
