@@ -9,10 +9,12 @@ const { readTablesFromDbt, readTableDoc } = require('./generateModel.js');
 
 async function getSchemas(packageName) {
   const packagePath = path.join('database/model', packageName);
-  return (await fs.readdir(packagePath)).map(schemaName => ({
-    name: schemaName,
-    path: path.join(packagePath, schemaName),
-  }));
+  return (await fs.readdir(packagePath))
+    .map((schemaName) => ({
+      name: schemaName,
+      path: path.join(packagePath, schemaName),
+    }))
+    .filter(({ path }) => path.endsWith('overview.md'));
 }
 
 async function detectTodoItemsInTable(schema, dbtSrc) {
@@ -41,7 +43,7 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
     );
   }
 
-  const todoColumnDocs = doc.columns.filter(c => c.description === 'TODO');
+  const todoColumnDocs = doc.columns.filter((c) => c.description === 'TODO');
   for (const column of todoColumnDocs) {
     console.log(
       `TODO: column documentation for ${schema.name}.${table.name}:${column.name}, in ${schema.path}/${table.name}.md`,
@@ -65,7 +67,7 @@ async function run() {
   return sum;
 }
 
-(async function() {
+(async function () {
   const todos = await run();
   if (todos) {
     console.log(`${todos} items remaining to document`);
