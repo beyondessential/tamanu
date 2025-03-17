@@ -22,5 +22,5 @@ rows with `type = diagnosis`.
 {% enddocs %}
 
 {% docs reference_data__name %}
-Actual data.
+Actual data
 {% enddocs %}
