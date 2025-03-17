@@ -48,7 +48,7 @@ adminRoutes.get(
     await req.audit.access({
       recordId: patient.id,
       params: req.params,
-      recordType: 'Patient',
+      model: Patient,
     });
 
     res.send(patient);

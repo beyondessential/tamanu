@@ -45,7 +45,7 @@ patientRoute.get(
     await req.audit.access({
       recordId: params.id,
       params,
-      recordType: 'Patient',
+      model: Patient,
       facilityId,
     });
 

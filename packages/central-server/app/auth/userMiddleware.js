@@ -63,11 +63,11 @@ export const userMiddleware = ({ secret }) =>
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: async ({ recordId, params, recordType }) =>
+      access: async ({ recordId, params, model }) =>
         req.models.AccessLog.create({
           userId: userId,
           recordId,
-          recordType,
+          recordType: model.name,
           sessionId,
           isMobile: false,
           frontEndContext: params,
