@@ -111,7 +111,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     () =>
       api.get(
         `patient/${encodeURIComponent(patient.id)}/death`,
-        {},
+        { facilityId },
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
   );
