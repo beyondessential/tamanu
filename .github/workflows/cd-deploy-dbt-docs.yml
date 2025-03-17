@@ -57,7 +57,7 @@ jobs:
           role-session-name: GHA@Tamanu=DBT
 
       - shell: bash
-        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" >> $GITHUB_ENV
 
       - name: Upload docs to S3
         run: |
@@ -79,5 +79,5 @@ jobs:
           body: |
             ## DBT Documentation
             The DBT documentation for this release is available at:
-            - [DBT Docs](https://example.com/dbt-docs/${{ github.ref_name }})
+            - [DBT Docs](https://docs.data.bes.au/tamanu/${{ github.ref_name }})
 
