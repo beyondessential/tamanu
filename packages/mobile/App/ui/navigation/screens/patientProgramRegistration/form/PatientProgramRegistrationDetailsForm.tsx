@@ -23,9 +23,12 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
+  const { getTranslation } = useTranslation();
   const { models } = useBackend();
   const practitionerSuggester = new Suggester(
     models.User,
@@ -44,13 +47,25 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   });
 
   const [clinicalStatusOptions] = useBackendEffect(
-    async ({ models }) =>
-      await models.ProgramRegistryClinicalStatus.find({
+    async ({ models }) => {
+      const statuses = await models.ProgramRegistryClinicalStatus.find({
         where: {
           visibilityStatus: VisibilityStatus.Current,
           programRegistry: { id: programRegistry.id },
         },
-      }),
+      });
+
+      return statuses.map(status => {
+        const translatedName = getTranslation(
+          getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
+          status.name,
+        );
+        return {
+            ...status,
+          translatedName,
+        };
+      });
+    },
     [programRegistry.id],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
@@ -86,7 +101,13 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     <FullView>
       <StyledScrollView>
         <EmptyStackHeader
-          title={programRegistry.name}
+          title={
+            <TranslatedReferenceData
+              fallback={programRegistry.name}
+              value={programRegistry.id}
+              category="programRegistry"
+            />
+          }
           onGoBack={() => {
             navigation.goBack();
           }}
@@ -142,7 +163,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={AutocompleteModalField}
-                    placeholder={`Search`}
+                    placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     suggester={practitionerSuggester}
                     name="clinicianId"
@@ -158,7 +179,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={AutocompleteModalField}
-                    placeholder={`Search`}
+                    placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     suggester={facilitySuggester}
                     name="registeringFacilityId"
@@ -166,12 +187,17 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     labelFontSize={14}
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.name, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
                     }
                   />
                 </StyledView>
@@ -185,13 +211,20 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
-                    modalTitle="Conditions"
+                    modalTitle={
+                      getTranslation('patientProgramRegistry.conditions.label', 'Conditions')
+                    }
                     suggester={conditionSuggester}
-                    placeholder={`Search`}
+                    placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     name="conditions"
                     value={values.conditions}
-                    searchPlaceholder="Search conditions..."
+                    searchPlaceholder={
+                      getTranslation(
+                        'patientProgramRegistry.search.conditions',
+                        'Search conditions...',
+                      )
+                    }
                   />
                 </StyledView>
                 <Button
