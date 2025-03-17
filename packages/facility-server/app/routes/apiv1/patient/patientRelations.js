@@ -440,5 +440,4 @@ patientRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyR
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
-// TODO: ?
 patientRelations.use(patientSecondaryIdRoutes);
