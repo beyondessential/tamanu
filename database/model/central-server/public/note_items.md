@@ -13,7 +13,7 @@ The [note page](#!/source/source.tamanu.tamanu.note_pages) this item belongs to.
 {% enddocs %}
 
 {% docs note_items__revised_by_id %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who revised this note item.
+Reference to the [note_item](#!/source/source.tamanu.tamanu.note_items) that is revised.
 {% enddocs %}
 
 {% docs note_items__author_id %}
