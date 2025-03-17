@@ -163,6 +163,7 @@ patientRoute.get(
     const {
       models: { Encounter },
       params,
+      query: { facilityId },
     } = req;
 
     req.checkPermission('read', 'Patient');
