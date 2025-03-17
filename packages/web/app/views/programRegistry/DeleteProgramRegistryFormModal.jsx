@@ -63,7 +63,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     <Modal
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.modal.deleteRegistry.title"
+          stringId="programRegistry.modal.deleteRegistry.title"
           fallback="Delete record"
         />
       }
@@ -75,13 +75,13 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       <Text>
         <p className="header">
           <TranslatedText
-            stringId="patientProgramRegistry.modal.deleteRegistry.header"
+            stringId="programRegistry.modal.deleteRegistry.header"
             fallback="Confirm patient registry deletion"
           />
         </p>
         <p className="desc">
           <TranslatedText
-            stringId="patientProgramRegistry.modal.deleteRegistry.description"
+            stringId="programRegistry.modal.deleteRegistry.description"
             fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
             replacements={{
               programRegistry: getTranslation(

@@ -58,7 +58,7 @@ export const ProgramRegistrySurveyView = () => {
     return (
       <p>
         <TranslatedText
-          stringId="patientProgramRegistry.registryNotFoundMessage"
+          stringId="programRegistry.registryNotFoundMessage"
           fallback="Program registry not found."
         />
       </p>

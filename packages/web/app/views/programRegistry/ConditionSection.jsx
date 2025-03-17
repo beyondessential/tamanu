@@ -114,14 +114,14 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
       <HeadingContainer>
         <Heading5>
           <TranslatedText
-            stringId="patientProgramRegistry.relatedConditions.label"
+            stringId="programRegistry.relatedConditions.label"
             fallback="Related conditions"
           />
         </Heading5>
         <ConditionalTooltip
           title={
             <TranslatedText
-              stringId="patientProgramRegistry.conditions.patientInactive.tooltip"
+              stringId="programRegistry.conditions.patientInactive.tooltip"
               fallback="Patient must be active"
             />
           }
@@ -129,7 +129,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
         >
           <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
             <TranslatedText
-              stringId="patientProgramRegistry.conditions.addCondition.button"
+              stringId="programRegistry.conditions.addCondition.button"
               fallback="+ Add condition"
             />
           </AddConditionButton>

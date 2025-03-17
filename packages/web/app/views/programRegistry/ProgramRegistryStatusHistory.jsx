@@ -48,12 +48,7 @@ export const ProgramRegistryStatusHistory = ({
     return [
       {
         key: 'clinicalStatusId',
-        title: (
-          <TranslatedText
-            stringId="patientProgramRegistry.clinicalStatus.label"
-            fallback="Status"
-          />
-        ),
+        title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
         sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
@@ -63,7 +58,7 @@ export const ProgramRegistryStatusHistory = ({
         key: 'clinicianId',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.statusHistory.recordedBy"
+            stringId="programRegistry.statusHistory.recordedBy"
             fallback="Recorded By"
           />
         ),
@@ -74,7 +69,7 @@ export const ProgramRegistryStatusHistory = ({
         key: 'date',
         title: (
           <TranslatedText
-            stringId="patientProgramRegistry.statusHistory.dateRecorded"
+            stringId="programRegistry.statusHistory.dateRecorded"
             fallback="Date recorded"
           />
         ),
@@ -87,7 +82,7 @@ export const ProgramRegistryStatusHistory = ({
               key: 'registrationDate',
               title: (
                 <TranslatedText
-                  stringId="patientProgramRegistry.registrationDate.label"
+                  stringId="programRegistry.registrationDate.label"
                   fallback="Date of registration"
                 />
               ),
@@ -103,7 +98,7 @@ export const ProgramRegistryStatusHistory = ({
     <Container fullWidth={programRegistryConditions?.length === 0}>
       <Heading5 style={{ marginBottom: '13px' }}>
         <TranslatedText
-          stringId="patientProgramRegistry.statusHistory.title"
+          stringId="programRegistry.statusHistory.title"
           fallback="Program status history"
         />
       </Heading5>
@@ -121,7 +116,7 @@ export const ProgramRegistryStatusHistory = ({
         allowExport={false}
         noDataMessage={
           <TranslatedText
-            stringId="patientProgramRegistry.statusHistory.noDataMessage"
+            stringId="programRegistry.statusHistory.noDataMessage"
             fallback="No Program registry clinical status found"
           />
         }

@@ -88,7 +88,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="programRegistryId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.programRegistry.label"
+                      stringId="programRegistry.programRegistry.label"
                       fallback="Program registry"
                     />
                   }
@@ -107,7 +107,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="date"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registrationDate.label"
+                      stringId="programRegistry.registrationDate.label"
                       fallback="Date of registration"
                     />
                   }
@@ -121,7 +121,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="clinicianId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeredBy.label"
+                      stringId="programRegistry.registeredBy.label"
                       fallback="Registered by"
                     />
                   }
@@ -134,7 +134,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeringFacility.label"
+                      stringId="programRegistry.registeringFacility.label"
                       fallback="Registering facility"
                     />
                   }
@@ -150,7 +150,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="clinicalStatusId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.clinicalStatus.label"
+                      stringId="programRegistry.clinicalStatus.label"
                       fallback="Status"
                     />
                   }
@@ -163,12 +163,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabledTooltipText={
                     !conditions ? (
                       <TranslatedText
-                        stringId="patientProgramRegistry.registryForm.relatedConditions.disabledTooltip"
+                        stringId="programRegistry.registryForm.relatedConditions.disabledTooltip"
                         fallback="Select a program registry to add related conditions"
                       />
                     ) : (
                       <TranslatedText
-                        stringId="patientProgramRegistry.registryForm.relatedConditions.noConditionsTooltip"
+                        stringId="programRegistry.registryForm.relatedConditions.noConditionsTooltip"
                         fallback="No conditions have been configured for this program registry"
                       />
                     )
@@ -176,7 +176,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="conditionIds"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.relatedConditions.label"
+                      stringId="programRegistry.relatedConditions.label"
                       fallback="Related conditions"
                     />
                   }
@@ -226,21 +226,18 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
+            stringId="programRegistry.programRegistry.label"
             fallback="Program registry"
           />,
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
         clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
+          <TranslatedText stringId="programRegistry.registeredBy.label" fallback="Registered by" />,
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
+            stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
           />,
         ),

@@ -11,7 +11,7 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
       visible
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.currentStatus.tooltip"
+          stringId="programRegistry.currentStatus.tooltip"
           fallback="Current status"
         />
       }
