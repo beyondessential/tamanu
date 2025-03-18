@@ -448,7 +448,11 @@ export const labTest = express.Router();
 labTest.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
     const labTestId = params.id;
 
     req.checkPermission('read', 'LabTest');
@@ -464,6 +468,13 @@ labTest.get(
     if (response.labTestType.isSensitive === true) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
+
+    await req.audit.access({
+      recordId: response.id,
+      params: req.params,
+      model: models.LabTest,
+      facilityId,
+    });
 
     res.send(response);
   }),
