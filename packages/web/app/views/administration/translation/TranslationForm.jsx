@@ -218,7 +218,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                       {stringId === 'countryCode' && (
                         <TranslatedText
                           stringId="admin.translation.table.countryCode.toolTip"
-                          fallback="Country code is a reserved translation ID used for displaying the country flag in selector"
+                          fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
                         />
                       )}
                     </>
