@@ -61,7 +61,6 @@ export const simpleGet = (modelName, options = {}) =>
   asyncHandler(async (req, res) => {
     const { auditAccess = false } = options;
     const { models, params, query } = req;
-
     const object = await findRouteObject(req, modelName);
 
     if (auditAccess) {
