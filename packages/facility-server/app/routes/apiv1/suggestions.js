@@ -707,21 +707,24 @@ createSuggester(
 
     return {
       ...baseWhere,
-      // Only suggest program registries this patient isn't already part of
-      id: {
-        [Op.notIn]: Sequelize.literal(
-          `(
-          SELECT DISTINCT(pr.id)
-          FROM program_registries pr
-          INNER JOIN patient_program_registrations ppr
-          ON ppr.program_registry_id = pr.id
-          WHERE
-            ppr.patient_id = :patient_id
-          AND
-            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
-        )`,
-        ),
-      },
+      // Wrap inside AND to avoid overwriting the translation ID selection (suggestedIds)
+      [Op.and]: {
+        // Only suggest program registries this patient isn't already part of
+        id: {
+          [Op.notIn]: Sequelize.literal(
+            `(
+            SELECT DISTINCT(pr.id)
+            FROM program_registries pr
+            INNER JOIN patient_program_registrations ppr
+            ON ppr.program_registry_id = pr.id
+            WHERE
+              ppr.patient_id = :patient_id
+            AND
+              ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+          )`,
+          ),
+        },
+      }
     };
   },
   {
