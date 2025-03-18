@@ -30,17 +30,12 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
 
   async generateMedicationAdministrationRecords() {
     const { Prescription, MedicationAdministrationRecord } = this.models;
-
     const baseQueryOptions = {
       where: {
-        [Op.and]: [
-          { [Op.or]: [{ endDate: { [Op.gt]: getCurrentDateTimeString() } }, { endDate: null }] },
-          {
-            [Op.or]: [
-              { discontinuedDate: { [Op.gt]: getCurrentDateTimeString() } },
-              { discontinuedDate: null },
-            ],
-          },
+        endDate: { [Op.gt]: getCurrentDateTimeString() },
+        [Op.or]: [
+          { discontinuedDate: { [Op.gt]: getCurrentDateTimeString() } },
+          { discontinuedDate: null },
         ],
       },
     };

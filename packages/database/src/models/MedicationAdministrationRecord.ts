@@ -33,9 +33,14 @@ export class MedicationAdministrationRecord extends Model {
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
     const upcomingRecordsShouldBeGeneratedTimeFrame =
       config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
+    const upcomingRecordsTimeFrame =
+      config?.medicationAdministrationRecord?.upcomingRecordsTimeFrame || 48;
 
     const upcomingEndDate = endOfDay(
-      addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame),
+      addHours(
+        new Date(),
+        prescription.endDate ? upcomingRecordsShouldBeGeneratedTimeFrame : upcomingRecordsTimeFrame,
+      ),
     );
 
     // Set default end date
