@@ -84,7 +84,10 @@ function createSuggesterRoute(
         [Op.or]: [
           whereQuery,
           {
-            id: { [Op.in]: suggestedIds },
+            // Wrap inside AND block to avoid being overwritten by whereQuery results
+            [Op.and]: {
+              id: { [Op.in]: suggestedIds },
+            },
             ...omit(whereQuery, 'name'),
           },
         ],
