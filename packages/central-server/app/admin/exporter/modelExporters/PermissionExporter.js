@@ -33,6 +33,9 @@ export class PermissionExporter extends ModelExporter {
   }
 
   getHeadersFromData(data) {
-    return Object.keys(data[0]);
+    const heads = ['verb', 'noun', 'objectId'];
+    const cols = Object.keys(data[0]).filter((col) => !heads.includes(col));
+    cols.sort();
+    return heads.concat(cols);
   }
 }
