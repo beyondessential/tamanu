@@ -216,9 +216,9 @@ describe('Patient', () => {
       expect(updateResult.body).toHaveProperty('villageId', newVillage);
       expect(updateResult.body).toHaveProperty('middleName', 'MiddleName');
 
-      const additionalDataResult = await app.get(`/api/patient/${result.body.id}/additionalData`, {
-        facilityId,
-      });
+      const additionalDataResult = await app.get(
+        `/api/patient/${result.body.id}/additionalData?facilityId=${facilityId}`,
+      );
 
       expect(additionalDataResult).toHaveSucceeded();
       expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
