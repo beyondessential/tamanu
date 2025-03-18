@@ -52,8 +52,14 @@ describe('Sheet name normaliser', () => {
       expect(normaliseSheetName(input)).toEqual('scheduledVaccine');
     }
   });
+
   it('should normalise special case for procedureTypes', () => {
     const name = normaliseSheetName('Procedures');
     expect(name).toEqual('procedureType');
+  });
+
+  it('should normalise special case for programRegistryClinicalStatus', () => {
+    const name = normaliseSheetName('Registry', 'ProgramRegistryClinicalStatus');
+    expect(name).toEqual('programRegistryClinicalStatus');
   });
 });
