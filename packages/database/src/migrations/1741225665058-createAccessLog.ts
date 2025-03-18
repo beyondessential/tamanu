@@ -10,6 +10,18 @@ export async function up(query: QueryInterface) {
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     user_id: {
       type: DataTypes.STRING,
       allowNull: false,
