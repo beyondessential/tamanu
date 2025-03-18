@@ -84,7 +84,10 @@ function createSuggesterRoute(
         [Op.or]: [
           whereQuery,
           {
-            id: { [Op.in]: suggestedIds },
+            // Wrap inside AND block to avoid being overwritten by whereQuery results
+            [Op.and]: {
+              id: { [Op.in]: suggestedIds },
+            },
             ...omit(whereQuery, 'name'),
           },
         ],
@@ -707,24 +710,21 @@ createSuggester(
 
     return {
       ...baseWhere,
-      // Wrap inside AND to avoid overwriting the translation ID selection (suggestedIds)
-      [Op.and]: {
-        // Only suggest program registries this patient isn't already part of
-        id: {
-          [Op.notIn]: Sequelize.literal(
-            `(
-            SELECT DISTINCT(pr.id)
-            FROM program_registries pr
-            INNER JOIN patient_program_registrations ppr
-            ON ppr.program_registry_id = pr.id
-            WHERE
-              ppr.patient_id = :patient_id
-            AND
-              ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
-          )`,
-          ),
-        },
-      }
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
+          SELECT DISTINCT(pr.id)
+          FROM program_registries pr
+          INNER JOIN patient_program_registrations ppr
+          ON ppr.program_registry_id = pr.id
+          WHERE
+            ppr.patient_id = :patient_id
+          AND
+            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+        )`,
+        ),
+      },
     };
   },
   {
