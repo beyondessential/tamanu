@@ -72,7 +72,7 @@ export const LanguageSelector = () => {
         <LanguageOptionLabel>
           <ReactCountryFlag
             countryCode={languageCountryCodes[language]}
-            style={{ width: '22px', height: '22px' }}
+            style={{ width: '22px' }}
             svg
           />
           {languageDisplayNames[language]}

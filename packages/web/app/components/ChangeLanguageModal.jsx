@@ -73,7 +73,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
         <LanguageOptionLabel>
           <ReactCountryFlag
             countryCode={languageCountryCodes[language]}
-            style={{ width: '22px', height: '22px' }}
+            style={{ width: '22px' }}
             svg
           />
           {languageDisplayNames[language]}
