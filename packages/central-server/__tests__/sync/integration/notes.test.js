@@ -1,4 +1,4 @@
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/database/sync';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -120,7 +120,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
     await models.Note.truncate({ cascade: true, force: true });
     await models.PatientFacility.truncate({ force: true });
   });
@@ -132,11 +132,11 @@ describe('CentralSyncManager', () => {
   });
 
   it('returns all notes of record types associated with encounters of marked-for-sync patients', async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
 
     const encounters = await createEncounters(patient.id, 3);
 
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     const [triageNote, labRequestNote, imagingNote] =
       await createNotesOfRecordsWithPatientViaEncounter(encounters);
@@ -168,11 +168,11 @@ describe('CentralSyncManager', () => {
   });
 
   it('returns all notes of encounters of marked-for-sync patients', async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
 
     const [encounter1, encounter2, encounter3] = await createEncounters(patient.id, 3);
 
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     const encounter1Note = await encounter1.createNote({
       noteType: NOTE_TYPES.OTHER,
@@ -220,7 +220,7 @@ describe('CentralSyncManager', () => {
   });
 
   it("does not return notes created before 'since' sync tick", async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
 
     const encounters = await createEncounters(patient.id, 3);
     const [encounter1] = encounters;
@@ -232,7 +232,7 @@ describe('CentralSyncManager', () => {
     });
     await createNotesOfRecordsWithPatientViaEncounter(encounters);
 
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);

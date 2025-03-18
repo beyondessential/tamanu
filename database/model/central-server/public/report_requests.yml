@@ -78,7 +78,7 @@ sources:
               - not_null
               - accepted_values:
                   values:
-                    - xslx
+                    - xlsx
                     - csv
           - name: report_definition_version_id
             data_type: character varying(255)
