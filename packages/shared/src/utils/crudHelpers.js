@@ -67,7 +67,7 @@ export const simpleGet = (modelName, options) =>
       await req.audit.access({
         recordId: object.id,
         params,
-        model: modelName,
+        model: models[modelName],
         facilityId: query.facilityId,
       });
     }
