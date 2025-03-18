@@ -4,6 +4,6 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 
 export const ongoingCondition = express.Router();
 
-ongoingCondition.get('/:id', simpleGet('PatientCondition'));
+ongoingCondition.get('/:id', simpleGet('PatientCondition', { auditAccess: true }));
 ongoingCondition.put('/:id', simplePut('PatientCondition'));
 ongoingCondition.post('/$', simplePost('PatientCondition'));
