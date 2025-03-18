@@ -5,7 +5,7 @@
 set -euxmo pipefail
 
 # Create tamanu database and user for testing the facility server working offline
-integration_test_setup_postgres() {
+integration_test_setup_setup_postgres() {
     createuser --superuser tamanu
     psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
 
@@ -14,7 +14,7 @@ integration_test_setup_postgres() {
 }
 
 # Build both the facility and central servers.
-integration_test_setup_build() {
+integration_test_setup_setup_build() {
     npm install
     npm run build-shared
     npm run build --workspace @tamanu/central-server
@@ -22,7 +22,7 @@ integration_test_setup_build() {
 }
 
 # Start the central server.
-integration_test_setup_central_start() {
+integration_test_setup_setup_central_start() {
     cat <<- EOF > packages/central-server/config/local.json5
     {
         "port": "3000",
@@ -66,7 +66,7 @@ EOF
 }
 
 # Start the facility server, to initialise it.
-integration_test_setup_facility_start() {
+integration_test_setup_setup_facility_start() {
 
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
