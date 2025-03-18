@@ -119,7 +119,8 @@ export const InvoiceItemRow = ({
   const hidePriceInput =
     item?.product?.price ||
     item?.product?.price === 0 ||
-    !item?.productId?.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT);
+    !item?.productId?.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT) ||
+    !editable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({
