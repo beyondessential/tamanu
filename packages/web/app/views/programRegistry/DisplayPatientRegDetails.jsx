@@ -212,7 +212,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           visible={isRemoved}
         >
           <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-            Change status
+            <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
           </OutlinedButton>
         </ConditionalTooltip>
         <ChangeStatusFormModal
@@ -220,7 +220,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}
         />
-
         <MenuContainer>
           <div className="menu">
             <MenuButton actions={actions} />

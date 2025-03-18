@@ -97,12 +97,9 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
 
   const translatedData = conditions?.data?.map(condition => {
-    const { programRegistryCondition } = condition;
+    const { programRegistryCondition = {} } = condition;
     const { id, name } = programRegistryCondition;
-    const translatedName = getTranslation(
-      getReferenceDataStringId(id, 'programRegistryCondition'),
-      name,
-    );
+    const translatedName = getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
 
     return { ...condition, translatedName };
   });
