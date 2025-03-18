@@ -62,6 +62,8 @@ export const simpleGet = (modelName, options = {}) =>
     const { auditAccess = false } = options;
     const { models, params, query } = req;
 
+    const object = await findRouteObject(req, modelName);
+
     if (auditAccess) {
       await req.audit.access({
         recordId: object.id,
@@ -70,8 +72,6 @@ export const simpleGet = (modelName, options = {}) =>
         facilityId: query.facilityId,
       });
     }
-
-    const object = await findRouteObject(req, modelName);
     res.send(object);
   });
 
