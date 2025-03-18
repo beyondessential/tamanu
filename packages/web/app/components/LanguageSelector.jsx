@@ -7,6 +7,7 @@ import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
 import { ReactCountryFlag } from 'react-country-flag';
+import { isISO31661Alpha2 } from 'validator';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -67,14 +68,13 @@ export const LanguageSelector = () => {
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
   const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
   const languageOptions = languagesInDb.map(({ language }) => {
+    const countryCode = languageCountryCodes[language];
     return {
       label: (
         <LanguageOptionLabel>
-          <ReactCountryFlag
-            countryCode={languageCountryCodes[language]}
-            style={{ width: '22px' }}
-            svg
-          />
+          {countryCode && isISO31661Alpha2(countryCode) && (
+            <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
+          )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
       ),
