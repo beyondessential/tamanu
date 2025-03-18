@@ -1,6 +1,7 @@
 import type { Models, Patient } from '@tamanu/database';
 import { times } from 'lodash';
 import { fake, chance } from '../../fake';
+import { version } from '../../../package.json';
 
 interface CreatePatientParams {
   models: Models;
@@ -75,14 +76,18 @@ interface CreatePatientViewLogParams {
   facilityId: string;
   userId: string;
   patientId: string;
+  sessionId?: string;
+  deviceId?: string;
 }
 export const createAccessLog = async ({
-  models: { Access },
+  models: { AccessLog },
   patientId,
   userId,
   facilityId,
+  sessionId = chance.string(),
+  deviceId = chance.string(),
 }: CreatePatientViewLogParams) => {
-  await Access.create({
+  await AccessLog.create({
     userId: userId,
     recordId: patientId,
     facilityId,
@@ -90,5 +95,9 @@ export const createAccessLog = async ({
     isMobile: chance.bool(),
     frontEndContext: { patientId },
     backEndContext: { endPoint: '/patient/:id' },
+    version,
+    sessionId,
+    deviceId,
+    loggedAt: new Date(),
   });
 };
