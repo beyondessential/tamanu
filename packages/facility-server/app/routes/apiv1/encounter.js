@@ -41,7 +41,7 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
-encounter.get('/:id', simpleGet('Encounter'));
+encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
