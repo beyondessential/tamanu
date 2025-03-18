@@ -43,11 +43,22 @@ export const RemoveConditionFormModal = ({
         )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
         { deletionDate: getCurrentDateTimeString() },
       );
-      toast.success('Related condition removed successfully');
+      toast.success(
+        <TranslatedText
+          stringId="programRegistry.action.removeCondition.success"
+          fallback="Related condition removed successfully'"
+        />,
+      );
       queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
       onSubmit();
     } catch (e) {
-      toast.error(`Failed to remove related condition with error: ${e.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="programRegistry.action.removeCondition.error"
+          fallback="Failed to remove related condition with error: :errorMessage"
+          replacements={{ errorMessage: e.message }}
+        />,
+      );
     }
   };
 

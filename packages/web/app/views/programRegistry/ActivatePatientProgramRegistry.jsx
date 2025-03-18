@@ -200,12 +200,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         <TranslatedReferenceData
                           fallback={condition.name}
                           value={condition.id}
-                          category="condition"
+                          category="prCondition"
                         />
                       ),
                       value: condition.id,
                       searchString: getTranslation(
-                        getReferenceDataStringId(condition.id, 'condition'),
+                        getReferenceDataStringId(condition.id, 'prCondition'),
                         condition.name,
                       ),
                     }))}
