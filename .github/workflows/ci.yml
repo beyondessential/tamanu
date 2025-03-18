@@ -390,10 +390,16 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-       - name: Install and start postgres
+      - name: Install and start postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
-          .github/scripts/setup-postgres-for-one-package.sh "@tamanu/e2e-tests"
+          .github/scripts/integration-test-setup.sh setup-postgres
+      - name: Build central and facility servers
+        run: .github/scripts/integration-test-setup.sh build
+      - name: Start a central server
+        run: .github/scripts/integration-test-setup.sh central-start
+      - name: Start a facility server
+        run: .github/scripts/integration-test-setup.sh facility-start
       
       - name: Run Playwright tests
         run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
