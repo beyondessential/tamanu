@@ -41,6 +41,8 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
+// TODO: hard file
+
 encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
@@ -270,6 +272,7 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
+// TODO: ?
 encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
 
 const PROGRAM_RESPONSE_SORT_KEYS = {

@@ -35,10 +35,12 @@ noteRoute.post(
   }),
 );
 
+// TODO: not used?
+
 noteRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     const noteId = params.id;
     const note = await models.Note.findOne({
       include: [
