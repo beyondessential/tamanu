@@ -128,7 +128,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
               .required()
               .translatedLabel(
                 <TranslatedText
-                  stringId="patientProgramRegistry.registeredBy.label"
+                  stringId="programRegistry.registeredBy.label"
                   fallback="Registered by"
                 />,
               ),
@@ -143,7 +143,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.date.label"
+                        stringId="programRegistry.date.label"
                         fallback="Date of registration"
                       />
                     }
@@ -157,7 +157,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="programRegistry.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
@@ -173,7 +173,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeringFacility.label"
+                        stringId="programRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -189,7 +189,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.clinicalStatus.label"
+                        stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
                       />
                     }
@@ -205,14 +205,14 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.relatedConditions.label"
+                        stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
                     modalTitle={
-                      getTranslation('patientProgramRegistry.conditions.label', 'Conditions')
+                      getTranslation('programRegistry.conditions.label', 'Conditions')
                     }
                     suggester={conditionSuggester}
                     placeholder={getTranslation('general.placeholder.search', 'Search')}
@@ -221,7 +221,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     value={values.conditions}
                     searchPlaceholder={
                       getTranslation(
-                        'patientProgramRegistry.search.conditions',
+                        'programRegistry.search.conditions',
                         'Search conditions...',
                       )
                     }
