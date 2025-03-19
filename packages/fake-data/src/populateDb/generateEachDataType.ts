@@ -98,8 +98,8 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     await createPatientCommunication({ models, patientId: patient.id }),
     await createAccessLog({
       models,
-      patientId: patient.id,
       userId: user.id,
+      patientId: patient.id,
       facilityId: facility.id,
     }),
   ]);
