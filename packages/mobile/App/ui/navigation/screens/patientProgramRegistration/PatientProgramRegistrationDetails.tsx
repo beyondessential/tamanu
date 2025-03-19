@@ -77,7 +77,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.date.label"
+            stringId="programRegistry.registrationDate.label"
             fallback="Date of registration"
           />
         }
@@ -86,7 +86,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
+            stringId="programRegistry.registeredBy.label"
             fallback="Registered by"
           />
         }
@@ -95,7 +95,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
+            stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
           />
         }
@@ -110,7 +110,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.clinicalStatus.label"
+            stringId="programRegistry.clinicalStatus.label"
             fallback="Status"
           />
         }
@@ -126,7 +126,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.conditions.label"
+            stringId="programRegistry.conditions.label"
             fallback="Conditions"
           />
         }
