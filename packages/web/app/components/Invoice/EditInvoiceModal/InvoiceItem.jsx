@@ -14,11 +14,12 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
-import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
 
 const PriceText = styled.span`
   margin-right: 16px;
+  padding-left: 15px;
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
@@ -101,7 +102,6 @@ export const InvoiceItemHeader = () => {
 export const InvoiceItemRow = ({
   index,
   item,
-  defaultItem,
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
@@ -109,7 +109,6 @@ export const InvoiceItemRow = ({
 }) => {
   const isItemEditable = !item.sourceId && editable;
   const { getTranslation } = useTranslation();
-
   const nonDiscountableTranslation = getTranslation(
     'invoice.table.details.nonDiscountable',
     'Non-discountable',
@@ -117,7 +116,10 @@ export const InvoiceItemRow = ({
       casing: 'lower',
     },
   );
-  const hidePriceInput = item.product?.price || item.product?.price === 0;
+  const hidePriceInput =
+    item?.product?.price ||
+    item?.product?.price === 0 ||
+    !item?.productId?.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT);
 
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({
@@ -263,13 +265,6 @@ export const InvoiceItemRow = ({
       product: { ...item.product, price: value.price },
     });
   };
-
-  useEffect(() => {
-    formArrayMethods.replace(index, {
-      ...item,
-      productPrice: defaultItem?.productPrice,
-    });
-  }, [defaultItem?.productPrice]);
 
   return (
     <>
