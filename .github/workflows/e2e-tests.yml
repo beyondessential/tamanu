@@ -32,6 +32,8 @@ jobs:
             core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
 
   node_modules_cache:
+    needs: check-e2e-request
+    if: needs.check-e2e-request.outputs.should_run == 'true'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -53,8 +55,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   e2e:
-    needs: check-e2e-request
-    if: needs.check-e2e-request.outputs.should_run == 'true'
+    needs: node_modules_cache
     name: E2E Tests (Shard ${{ matrix.shard }})
     strategy:
       fail-fast: false 
