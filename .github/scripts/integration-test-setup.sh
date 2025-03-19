@@ -60,9 +60,9 @@ EOF
     # specify ports for consistency
     npm run --workspace @tamanu/central-server start migrate
     npm run --workspace @tamanu/central-server start provision provisioning.json5
-    nohup npm run --workspace @tamanu/central-server start > central-server.out &
-    echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-    curl --retry 8 --retry-all-errors localhost:3000
+    # nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    # echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
+    # curl --retry 8 --retry-all-errors localhost:3000
 }
 
 # Start the facility server, to initialise it.
@@ -88,9 +88,9 @@ integration_test_setup_facility_start() {
 	    }
 	}
 	EOF
-	nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
-	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-all-errors localhost:4000
+	# nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+	# echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
+	# curl --retry 8 --retry-all-errors localhost:4000
 }
 
 integration_test_setup_$( echo $1 | sed "s/-/_/g" )
