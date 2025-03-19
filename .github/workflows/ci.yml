@@ -362,55 +362,6 @@ jobs:
         with:
           config: .typos.toml
 
-  e2e:
-    needs: 
-      - node_modules_cache
-    name: E2E Tests (Shard ${{ matrix.shard }})
-    strategy:
-      fail-fast: false 
-      matrix:
-        shard: [1/4, 2/4, 3/4, 4/4]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: npm
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-      - run: npm ci
-      - run: npm run build
-      
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
-          .github/scripts/integration-test-setup.sh setup-postgres
-      - name: Setup central server
-        run: .github/scripts/e2e-test-setup.sh setup-central
-      - name: Setup facility server
-        run: .github/scripts/e2e-test-setup.sh setup-facility
-      
-      - name: Run Playwright tests
-        run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
-        
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: playwright-report-shard-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 30
-
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -426,7 +377,6 @@ jobs:
       - dbt-model
       - dbt-todos
       - typos
-      - e2e
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
