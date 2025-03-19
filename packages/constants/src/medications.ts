@@ -69,8 +69,8 @@ export const DRUG_UNITS = {
 
 export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
 
-export const DRUG_UNIT_LABELS = Object.entries(DRUG_UNITS).reduce((prev, curr) => {
-  prev[curr[1]] = curr[1];
+export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce((prev, curr) => {
+  prev[curr] = curr;
   return prev;
 }, {} as any);
 
@@ -207,7 +207,7 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 };
 
-const MEDICATION_DURATION_UNITS = {
+const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',
@@ -215,10 +215,10 @@ const MEDICATION_DURATION_UNITS = {
 };
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS]: 'Hours',
-  [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
-  [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
-  [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
+  [MEDICATION_DURATION_UNITS.HOURS!]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS!]: 'Days',
+  [MEDICATION_DURATION_UNITS.WEEKS!]: 'Weeks',
+  [MEDICATION_DURATION_UNITS.MONTHS!]: 'Months',
 };
 
 export const ADMINISTRATION_STATUS = {
