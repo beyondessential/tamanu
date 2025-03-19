@@ -116,20 +116,17 @@ export const EditInvoiceModal = ({
             is: (productId, orderedByUserId) => productId || orderedByUserId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+              .required(
+                <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+              ),
             otherwise: yup.string(),
           }),
           productId: yup.string().when(['orderDate', 'orderedByUserId'], {
             is: (orderDate, orderedByUserId) => orderDate || orderedByUserId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.details.label"
-                  fallback="Details"
-                />,
+              .required(
+                <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
               ),
             otherwise: yup.string(),
           }),
@@ -137,14 +134,20 @@ export const EditInvoiceModal = ({
             is: (orderDate, productId) => orderDate || productId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.orderedBy.label"
-                  fallback="Ordered by"
-                />,
+              .required(
+                <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
               ),
             otherwise: yup.string(),
+          }),
+          quantity: yup
+            .number()
+            .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          productPrice: yup.number().when(['productId'], {
+            is: productId => !!productId,
+            then: yup
+              .number()
+              .required(<TranslatedText stringId="general.required" fallback="Required" />),
+            otherwise: yup.number(),
           }),
         },
         [
