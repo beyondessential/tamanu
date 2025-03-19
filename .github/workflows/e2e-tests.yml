@@ -61,7 +61,7 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-facility
       
       - name: Run Playwright tests
-        run: npm run e2e-test -- -- --shard ${{ matrix.shard }}/4
+        run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
         
       - name: Upload test results
         if: failure()
