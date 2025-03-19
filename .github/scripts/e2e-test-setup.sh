@@ -6,8 +6,8 @@ set -euxmo pipefail
 
 # Create tamanu database and user for e2e tests.
 e2e_test_setup_setup_postgres() {
-    createdb -O tamanu central
-    createdb -O tamanu facility
+    createdb -h localhost -p 5432 -O tamanu central
+    createdb -h localhost -p 5432 -O tamanu facility
 }
 
 e2e_test_setup_setup_central() {
