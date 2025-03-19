@@ -48,9 +48,6 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Setup postgres dbs
         run: |
@@ -60,6 +57,9 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-central
       - name: Setup facility server
         run: .github/scripts/e2e-test-setup.sh setup-facility
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
       
       - name: Run Playwright tests
         run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
