@@ -21,7 +21,9 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
           fallback={clinicalStatus?.name}
           value={clinicalStatus?.id}
           category="programRegistryClinicalStatus"
-          placeholder="n/a"
+          placeholder={
+            <TranslatedText stringId="programRegistry.currentStatus.placeholder" fallback="n/a" />
+          }
         />
       </TableCellTag>
     </ThemedTooltip>

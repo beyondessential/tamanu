@@ -146,7 +146,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
-                  disabledTooltipText="Select a program registry to set the status"
+                  disabledTooltipText={
+                    <TranslatedText
+                      stringId="programRegistry.registryForm.clinicalStatus.disabledTooltip"
+                      fallback="Select a program registry to set the status"
+                    />
+                  }
                   name="clinicalStatusId"
                   label={
                     <TranslatedText
