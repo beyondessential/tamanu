@@ -110,7 +110,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
                 name="removed"
                 label={
                   <TranslatedText
-                    stringId="programRegistry.searchBar.includeRemovedPatients.lable"
+                    stringId="programRegistry.searchBar.includeRemovedPatients.label"
                     fallback="Include removed patients"
                   />
                 }
