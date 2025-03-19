@@ -74,6 +74,8 @@ e2e_test_setup_setup_facility() {
 	    }
 	}
 	EOF
+
+    npm run --workspace @tamanu/facility-server start migrate
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )

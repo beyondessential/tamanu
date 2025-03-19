@@ -70,6 +70,6 @@ jobs:
         with:
           name: playwright-report-shard-${{ matrix.shard }}
           path: |
-            playwright-report/
-            test-results/
+            packages/e2e-tests/playwright-report/
+            packages/e2e-tests/test-results/
           retention-days: 30
