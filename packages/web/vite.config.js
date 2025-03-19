@@ -56,6 +56,9 @@ export default async () => {
       https: true,
     },
     build: {
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
       rollupOptions: {
         output: {
           generatedCode: 'es2015',
