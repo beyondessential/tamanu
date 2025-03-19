@@ -32,6 +32,21 @@ jobs:
       matrix:
         shard: [1/4, 2/4, 3/4, 4/4]
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tamanu
+          POSTGRES_PASSWORD: tamanu
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U tamanu"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,10 +66,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
-          .github/scripts/e2e-test-setup.sh setup-postgres
+      - name: Setup postgres dbs
+        run: .github/scripts/e2e-test-setup.sh setup-postgres
       - name: Setup central server
         run: .github/scripts/e2e-test-setup.sh setup-central
       - name: Setup facility server
@@ -72,16 +85,3 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 30
-
-      - name: Comment on PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            const status = '${{ job.status }}';
-            const shard = '${{ matrix.shard }}';
-            const message = status === 'success' 
-              ? `✅ E2E tests passed for **shard ${shard}**`
-              : `❌ E2E tests failed for **shard ${shard}**. [View details](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-            github.rest.issues.createComment({ owner, repo, issue_number, body: message });

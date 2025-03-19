@@ -6,9 +6,6 @@ set -euxmo pipefail
 
 # Create tamanu database and user for e2e tests.
 e2e_test_setup_setup_postgres() {
-    createuser --superuser tamanu
-    psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
-
     createdb -O tamanu central
     createdb -O tamanu facility
 }
