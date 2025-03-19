@@ -106,7 +106,16 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             }}
           >
             <FacilityCheckbox marginTop="6px">
-              <Field name="removed" label="Include removed patients" component={CheckField} />
+              <Field
+                name="removed"
+                label={
+                  <TranslatedText
+                    stringId="programRegistry.searchBar.includeRemovedPatients.label"
+                    fallback="Include removed patients"
+                  />
+                }
+                component={CheckField}
+              />
             </FacilityCheckbox>
             <FacilityCheckbox marginTop="15px">
               <Field name="deceased" label="Include deceased patients" component={CheckField} />

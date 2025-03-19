@@ -121,7 +121,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Value>
               <TranslatedReferenceData
                 fallback={patientProgramRegistration.programRegistry?.name}
-                value={patientProgramRegistration.programRegistry?.id}
+                value={patientProgramRegistration.programRegistryId}
                 category="programRegistry"
                 placeholder="-"
               />

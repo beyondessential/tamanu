@@ -57,7 +57,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
     onClose({ success: true });
   };
 
-  const { programRegistry } = patientProgramRegistration;
+  const { programRegistry, programRegistryId } = patientProgramRegistration;
 
   return (
     <Modal
@@ -85,7 +85,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
             fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
             replacements={{
               programRegistry: getTranslation(
-                getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                getReferenceDataStringId(programRegistryId, 'programRegistry'),
                 programRegistry?.name,
               ),
             }}

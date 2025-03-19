@@ -108,7 +108,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     <Modal
       title={
         <>
-          Activate{' '}
+          <TranslatedText stringId="programRegistry.activate.title" fallback="Activate" />{' '}
           <TranslatedReferenceData
             fallback={patientProgramRegistration.programRegistry.name}
             value={patientProgramRegistration.programRegistry.id}

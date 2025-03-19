@@ -7,7 +7,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ProgramRegistrySearchBar } from './ProgramRegistrySearchBar';
 import { ProgramRegistryTable } from './ProgramRegistryTable';
-import { TranslatedReferenceData } from '../../components';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -53,7 +53,12 @@ export const ProgramRegistryView = () => {
           </h1>
         </ViewHeader>
         <Container>
-          <span>Program patient search</span>
+          <span>
+            <TranslatedText
+              stringId="programRegistry.patientSearch.title"
+              fallback="Program patient search"
+            />
+          </span>
           <ProgramRegistrySearchBar
             searchParameters={searchParameters}
             setSearchParameters={setSearchParameters}
