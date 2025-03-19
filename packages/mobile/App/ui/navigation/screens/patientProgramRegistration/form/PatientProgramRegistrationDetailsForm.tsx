@@ -143,7 +143,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="programRegistry.date.label"
+                        stringId="programRegistry.registrationDate.label"
                         fallback="Date of registration"
                       />
                     }
