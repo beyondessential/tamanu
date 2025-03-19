@@ -55,7 +55,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     setAdditionalDataLoading(true);
     (async () => {
       if (encounter.patientId) {
-        const res = await api.get(`patient/${encounter.patientId}/additionalData`);
+        const res = await api.get(`patient/${encounter.patientId}/additionalData`, { facilityId });
         setAdditionalData(res);
       }
       setAdditionalDataLoading(false);

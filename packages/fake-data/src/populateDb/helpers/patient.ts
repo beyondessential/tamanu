@@ -1,6 +1,7 @@
 import type { Models, Patient } from '@tamanu/database';
 import { times } from 'lodash';
 import { fake, chance } from '../../fake';
+import { version } from '../../../package.json';
 
 interface CreatePatientParams {
   models: Models;

@@ -2,7 +2,12 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  PATIENT_STATUS,
+  PATIENT_STATUS_COLORS,
+} from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
@@ -11,6 +16,7 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -101,9 +107,10 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
+  const { facilityId } = useAuth();
 
   const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
+    api.get(`patient/${patient.id}/death`, { facilityId }, { showUnknownErrorToast: false }),
   );
 
   if (isLoading) {

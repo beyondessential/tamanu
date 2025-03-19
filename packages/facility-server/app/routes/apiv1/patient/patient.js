@@ -163,6 +163,7 @@ patientRoute.get(
     const {
       models: { Encounter },
       params,
+      query: { facilityId },
     } = req;
 
     req.checkPermission('read', 'Patient');
@@ -174,6 +175,13 @@ patientRoute.get(
         endDate: null,
       },
       include: Encounter.getFullReferenceAssociations(),
+    });
+
+    await req.audit.access({
+      recordId: params.id,
+      params,
+      model: Encounter,
+      facilityId,
     });
 
     // explicitly send as json (as it might be null)

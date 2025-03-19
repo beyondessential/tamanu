@@ -19,11 +19,10 @@ const useParent = (api, enabled, parentId) => {
     { enabled },
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', parentId],
-    () => api.get(`patient/${encodeURIComponent(parentId)}/additionalData`),
-    { enabled },
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(parentId);
 
   const { data: village, isLoading: isVillageLoading } = useQuery(
     ['village', parentData?.villageId],
@@ -104,7 +103,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   const { data: birthData, isLoading: isBirthDataLoading } = useQuery(
     ['birthData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`, { facilityId }),
   );
 
   const { data: deathData, isLoading: isDeathDataLoading } = useQuery(
@@ -112,7 +111,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     () =>
       api.get(
         `patient/${encodeURIComponent(patient.id)}/death`,
-        {},
+        { facilityId },
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
   );
