@@ -394,24 +394,22 @@ jobs:
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
           .github/scripts/integration-test-setup.sh setup-postgres
-      - name: Build central and facility servers
-        run: .github/scripts/integration-test-setup.sh build
-      - name: Start a central server
-        run: .github/scripts/integration-test-setup.sh central-start
-      - name: Start a facility server
-        run: .github/scripts/integration-test-setup.sh facility-start
+      - name: Setup central server
+        run: .github/scripts/e2e-test-setup.sh setup-central
+      - name: Setup facility server
+        run: .github/scripts/e2e-test-setup.sh setup-facility
       
       - name: Run Playwright tests
         run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
         
-      #   if: failure()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: playwright-report-shard-${{ matrix.shard }}
-      #     path: |
-      #       playwright-report/
-      #       test-results/
-      #     retention-days: 30
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:

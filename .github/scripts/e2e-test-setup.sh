@@ -4,8 +4,8 @@
 # (Commands will have different process group ids from the process for this shell script itself.)
 set -euxmo pipefail
 
-# Create tamanu database and user for testing the facility server working offline
-integration_test_setup_setup_postgres() {
+# Create tamanu database and user for e2e tests.
+e2e_test_setup_setup_postgres() {
     createuser --superuser tamanu
     psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
 
@@ -13,16 +13,7 @@ integration_test_setup_setup_postgres() {
     createdb -O tamanu facility
 }
 
-# Build both the facility and central servers.
-integration_test_setup_build() {
-    npm install
-    npm run build-shared
-    npm run build --workspace @tamanu/central-server
-    npm run build --workspace @tamanu/facility-server
-}
-
-# Start the central server.
-integration_test_setup_central_start() {
+e2e_test_setup_setup_central() {
     cat <<- EOF > packages/central-server/config/local.json5
     {
         "port": "3000",
@@ -57,16 +48,11 @@ EOF
     }
 EOF
 
-    # specify ports for consistency
     npm run --workspace @tamanu/central-server start migrate
     npm run --workspace @tamanu/central-server start provision provisioning.json5
-    # nohup npm run --workspace @tamanu/central-server start > central-server.out &
-    # echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-    # curl --retry 8 --retry-all-errors localhost:3000
 }
 
-# Start the facility server, to initialise it.
-integration_test_setup_facility_start() {
+e2e_test_setup_setup_facility() {
 
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
@@ -88,9 +74,6 @@ integration_test_setup_facility_start() {
 	    }
 	}
 	EOF
-	# nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
-	# echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
-	# curl --retry 8 --retry-all-errors localhost:4000
 }
 
-integration_test_setup_$( echo $1 | sed "s/-/_/g" )
+e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
