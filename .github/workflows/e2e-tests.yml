@@ -49,7 +49,7 @@ jobs:
       - run: npm run build
       
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: Install and start postgres
         run: |
@@ -61,7 +61,7 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-facility
       
       - name: Run Playwright tests
-        run: npm run e2e-test -- -- --shard ${{ matrix.shard }}
+        run: npm run e2e-test -- -- --shard ${{ matrix.shard }}/4
         
       - name: Upload test results
         if: failure()
@@ -77,15 +77,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const status = context.job.status;
-            const shard = context.job.matrix.shard;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const status = '${{ job.status }}';
+            const shard = '${{ matrix.shard }}';
             const message = status === 'success' 
-              ? `✅ E2E tests passed for shard ${shard}`
-              : `❌ E2E tests failed for shard ${shard}. Check the [test results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            }); 
+              ? `✅ E2E tests passed for **shard ${shard}**`
+              : `❌ E2E tests failed for **shard ${shard}**. [View details](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            github.rest.issues.createComment({ owner, repo, issue_number, body: message });
