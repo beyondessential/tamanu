@@ -98,7 +98,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard | replace('/', '-') }}
+          name: playwright-report-shard-${{ replace(matrix.shard, '/', '-') }}
           path: |
             packages/e2e-tests/playwright-report/
             packages/e2e-tests/test-results/
