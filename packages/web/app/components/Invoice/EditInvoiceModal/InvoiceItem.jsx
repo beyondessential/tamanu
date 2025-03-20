@@ -260,9 +260,9 @@ export const InvoiceItemRow = ({
       ...item,
       productName: value.productName,
       productCode: value.code,
-      productPrice: value.price,
       productDiscountable: value.discountable,
       product: { ...item.product, price: value.price },
+      ...(value.price !== null && { productPrice: value.price }),
     });
   };
 
