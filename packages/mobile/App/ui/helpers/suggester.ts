@@ -13,6 +13,7 @@ export type BaseModelSubclass = typeof BaseModel;
 interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
+  relations?: Array<string>;
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
