@@ -1,5 +1,9 @@
+import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function getAbsolutePath(packageName) {
   return dirname(resolve(__dirname, join('../..', packageName, 'package.json')));
