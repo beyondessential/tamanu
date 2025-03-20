@@ -1,17 +1,29 @@
-import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// This file needs to support both ESM and CJS, so we can't use `import.meta` or `__dirname` without checking
+let dir;
+try {
+  dir = __dirname;
+} catch (e) {
+  dir = import.meta.dirname;
+}
 
-function getAbsolutePath(packageName) {
-  return dirname(resolve(__dirname, join('../..', packageName, 'package.json')));
+function getNodeModulePath(workspace, packageName) {
+  return dirname(resolve(dir, join(workspace, 'node_modules/', packageName, 'package.json')));
+}
+
+function getRootNodeModulePath(packageName) {
+  return getNodeModulePath('../../../', packageName);
+}
+
+function getWorkspaceNodeModulePath(packageName) {
+  return getNodeModulePath('../', packageName);
 }
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 export default {
-  framework: getAbsolutePath('@storybook/react-vite'),
+  framework: getRootNodeModulePath('@storybook/react-vite'),
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   typescript: {
     reactDocgen: false,
@@ -21,7 +33,7 @@ export default {
   },
   addons: [
     {
-      name: getAbsolutePath('@storybook/addon-links'),
+      name: getWorkspaceNodeModulePath('@storybook/addon-links'),
       options: { docs: false }, // no mdx
     },
     '@storybook/addon-links',
