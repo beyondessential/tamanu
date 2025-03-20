@@ -13,7 +13,7 @@ interface CreateLabRequestParams {
   testCount?: number;
 }
 export const createLabRequest = async ({
-  models: { LabRequest, LabRequestLog, LabTest, CertificateNotification },
+  models,
   departmentId,
   userId,
   encounterId,
@@ -22,6 +22,7 @@ export const createLabRequest = async ({
   labTestTypeId,
   testCount = chance.integer({ min: 1, max: 10 }),
 }: CreateLabRequestParams): Promise<void> => {
+  const { LabRequest, LabRequestLog, LabTest, CertificateNotification } = models;
   const labRequest = await LabRequest.create(
     fake(LabRequest, {
       departmentId,

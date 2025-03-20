@@ -42,7 +42,7 @@ sources:
             description: "{{ doc('note_items__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: source('tamanu', 'note_items')
                   field: id
           - name: author_id
             data_type: character varying(255)
