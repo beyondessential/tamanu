@@ -91,7 +91,7 @@ export const Dropdown = React.memo(
     labelFontSize,
     fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
     fixedHeight = false,
-    searchPlaceholderText = 'Search Items...',
+    searchPlaceholderText,
     selectPlaceholderText,
     value = [],
     error,
@@ -107,6 +107,7 @@ export const Dropdown = React.memo(
       return Array.isArray(value) ? value : [value];
     });
     const componentRef = useRef(null);
+    const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
       items => {
         setSelectedItems(items);
@@ -116,6 +117,9 @@ export const Dropdown = React.memo(
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
+    const searchInputPlaceholderText = filterable
+      ? searchPlaceholderText || getTranslation('general.placeholder.search...', 'Search...')
+      : label?.props?.fallback || label;
 
     return (
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
@@ -139,9 +143,7 @@ export const Dropdown = React.memo(
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
           selectText={selectPlaceholderText || label?.props?.fallback || label}
-          searchInputPlaceholderText={
-            filterable ? searchPlaceholderText : label?.props?.fallback || label
-          }
+          searchInputPlaceholderText={searchInputPlaceholderText}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
@@ -153,7 +155,7 @@ export const Dropdown = React.memo(
           itemFontSize={fontSize}
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN, fontSize, paddingLeft: 0 }}
           submitButtonColor={theme.colors.SAFE}
-          submitButtonText="Confirm selection"
+          submitButtonText={getTranslation('general.action.confirmSelection', 'Confirm selection')}
           styleMainWrapper={{ zIndex: 999 }}
           fixedHeight={fixedHeight}
           styleDropdownMenu={{
