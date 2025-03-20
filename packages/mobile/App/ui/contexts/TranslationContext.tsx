@@ -82,7 +82,16 @@ const applyCasing = (text: string, casing: Casing) => {
   throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
-const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
+const TranslationContext = createContext<TranslationContextData>({
+  debugMode: false,
+  language: 'en',
+  languageOptions: null,
+  setLanguageOptions: () => {},
+  getTranslation: () => { return '' },
+  setLanguage: () => {},
+  host: null,
+  setHost: () => {},
+} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const DEFAULT_LANGUAGE = 'en';
