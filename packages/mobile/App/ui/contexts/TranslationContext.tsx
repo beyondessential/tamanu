@@ -6,6 +6,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
@@ -102,12 +103,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [language, setLanguage] = useState(null);
   const [host, setHost] = useState(null);
 
-  const getLanguageOptions = async () => {
+  const getLanguageOptions = useCallback(async () => {
     const languageOptionArray = await models.TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
-  };
+  }, [models.TranslatedString]);
 
-  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+  const setLanguageState = useCallback(async (languageCode: string = DEFAULT_LANGUAGE) => {
     await writeLanguage(languageCode);
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
@@ -119,7 +120,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     } else {
       setTranslations(translations);
     }
-  };
+  }, [getLanguageOptions, host, languageOptions, models.TranslatedString]);
 
   const getTranslation = (
     stringId: string,
@@ -147,12 +148,15 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     setLanguageState(language);
-  }, [language, host]);
+  }, [language, setLanguageState, host]);
 
   useEffect(() => {
     restoreLanguage();
     if (!__DEV__) return;
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
+    DevSettings.addMenuItem(
+      'Toggle translation highlighting',
+      () => setIsDebugMode(oldDebugValue => !oldDebugValue),
+    );
   }, []);
 
   return (
