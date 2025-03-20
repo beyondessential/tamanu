@@ -27,7 +27,7 @@ export interface DropdownProps extends BaseInputProps {
   labelColor?: string;
   labelFontSize?: string | number;
   fieldFontSize?: number;
-  fixedHeight: boolean;
+  fixedHeight?: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
   value?: string | string[];
@@ -36,6 +36,8 @@ export interface DropdownProps extends BaseInputProps {
   // - non-filterable
   disabled?: boolean;
   clearable?: boolean;
+  required?: boolean;
+  error?: any;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -110,7 +112,7 @@ export const Dropdown = React.memo(
         setSelectedItems(items);
         onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
       },
-      [selectedItems],
+      [multiselect, onChange],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
@@ -215,6 +217,8 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
       });
       setOptions(translatedResults);
     })();
+  // Only run once
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <Dropdown {...props} options={options} />;
