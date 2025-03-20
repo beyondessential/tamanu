@@ -1,6 +1,6 @@
 import React from 'react';
 import { ContentPane, PageContainer, TopBar } from '../components';
-import { DataFetchingMedicationTable } from '../components/MedicationTable';
+import { DataFetchingMedicationTable } from '../components/Medication/MedicationTable';
 
 export const MedicationListingView = React.memo(() => (
   <PageContainer>

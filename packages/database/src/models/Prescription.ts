@@ -107,12 +107,12 @@ export class Prescription extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
-      as: 'Medication',
+      as: 'medication',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
+    return ['medication', 'encounters', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildSyncFilter() {

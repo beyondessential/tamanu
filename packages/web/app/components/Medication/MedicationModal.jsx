@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { FormModal } from './FormModal';
-import { MedicationForm } from '../forms/MedicationForm';
-import { TranslatedText } from './Translation/TranslatedText';
+import { FormModal } from '../FormModal';
+import { MedicationForm } from '../../forms/MedicationForm';
+import { TranslatedText } from '../Translation/TranslatedText';
 import styled from 'styled-components';
 
 const StyledFormModal = styled(FormModal)`
