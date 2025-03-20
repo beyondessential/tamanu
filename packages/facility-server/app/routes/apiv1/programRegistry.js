@@ -2,7 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { subject } from '@casl/ability';
-import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REGISTRATION_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
@@ -72,10 +76,10 @@ programRegistry.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const filteredObjects = objects.filter(programRegistry =>
+    const filteredObjects = objects.filter((programRegistry) =>
       req.ability.can('list', programRegistry),
     );
-    const filteredData = filteredObjects.map(x => x.forResponse());
+    const filteredData = filteredObjects.map((x) => x.forResponse());
     const filteredCount =
       objects.length !== filteredObjects.length ? filteredObjects.length : count;
 
@@ -160,12 +164,12 @@ programRegistry.get(
           active_status: REGISTRATION_STATUSES.ACTIVE,
         }),
       ),
-    ].filter(f => f);
+    ].filter((f) => f);
 
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const whereClauses = filters.map((f) => f.sql).join(' AND ');
 
     const filterReplacements = filters
-      .filter(f => f.transform)
+      .filter((f) => f.transform)
       .reduce(
         (current, { transform }) => ({
           ...current,
@@ -192,7 +196,11 @@ programRegistry.get(
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id
-          WHERE pprc.program_registry_id = :programRegistryId AND pprc.deleted_at IS NULL
+          WHERE pprc.program_registry_id = :programRegistryId
+          AND pprc.deleted_at IS NULL
+          AND pprc.condition_category NOT IN ('disproven', 'recordedInError', 'resolved')
+          AND prc.category NOT IN (:conditionCategories)
+
           GROUP BY patient_id
         )
     `;
