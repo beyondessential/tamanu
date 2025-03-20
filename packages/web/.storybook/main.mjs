@@ -53,11 +53,11 @@ export default {
       },
       resolve: {
         alias: {
-          buffer: resolve(__dirname, './__mocks__/buffer.js'),
-          sequelize: resolve(__dirname, './__mocks__/sequelize.js'),
-          config: resolve(__dirname, './__mocks__/config.js'),
-          yargs: resolve(__dirname, './__mocks__/module.js'),
-          child_process: resolve(__dirname, './__mocks__/module.js'),
+          buffer: resolve(dir, './__mocks__/buffer.js'),
+          sequelize: resolve(dir, './__mocks__/sequelize.js'),
+          config: resolve(dir, './__mocks__/config.js'),
+          yargs: resolve(dir, './__mocks__/module.js'),
+          child_process: resolve(dir, './__mocks__/module.js'),
         },
       },
     });
