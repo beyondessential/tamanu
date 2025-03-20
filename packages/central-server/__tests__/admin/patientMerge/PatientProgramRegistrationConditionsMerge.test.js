@@ -47,7 +47,6 @@ describe('Merging Patient Program Registration Conditions', () => {
     );
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
-    console.log('updates', updates);
     expect(updates).toEqual({
       Patient: 2,
       PatientProgramRegistrationCondition: 2,
