@@ -20,6 +20,9 @@ const MODEL_TO_REFERENCE_DATA_TYPE = {
   Facility: 'facility',
   Department: 'department',
   Location: 'location',
+  ProgramRegistry: 'programRegistry',
+  ProgramRegistryClinicalStatus: 'programRegistryClinicalStatus',
+  ProgramRegistryCondition: 'programRegistryCondition',
 };
 
 const TRANSLATABLE_MODELS = ['ReferenceData', ...Object.keys(MODEL_TO_REFERENCE_DATA_TYPE)];
