@@ -32,6 +32,8 @@ import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
+  margin-bottom: 2rem;
+
   table tr td {
     border: none;
   }
@@ -81,14 +83,7 @@ const getConditionShape = getTranslation =>
       .nullable()
       .when('conditionId', {
         is: value => Boolean(value),
-        then: yup
-          .string()
-          .required(
-            getTranslation(
-              'patientProgramRegistry.validation.rule.categoryRequiredWhenRelatedCondition',
-              'Select a related condition to record category',
-            ),
-          ),
+        then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
       }),
     date: yup
       .date()
@@ -102,7 +97,7 @@ const getConditionShape = getTranslation =>
 
 const getValidationSchema = getTranslation => {
   return yup.object().shape({
-    clinicalStatusId: optionalForeignKey(),
+    clinicalStatusId: optionalForeignKey().nullable(),
     conditions: yup.object().shape({
       confirmedSection: yup.array().of(getConditionShape(getTranslation)),
       resolvedSection: yup.array().of(getConditionShape(getTranslation)),
@@ -176,6 +171,13 @@ const getIsNewRecordedInError = conditions => {
   );
 };
 
+const getNewRecordedInErrorList = conditions => {
+  return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  );
+};
+
 export const PatientProgramRegistryUpdateFormModal = ({
   patientProgramRegistration = {},
   onClose,
@@ -240,7 +242,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
           const columns = [
             {
               key: 'condition',
-              width: 200,
+              width: 220,
               title: (
                 <span id="condition-label">
                   <TranslatedText
@@ -320,6 +322,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                     stringId="patientProgramRegistry.updateConditionModal.dateAdded"
                     fallback="Date added"
                   />
+                  <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
               accessor: ({ date, conditionCategory }, groupName, index) => {
@@ -449,14 +452,21 @@ export const PatientProgramRegistryUpdateFormModal = ({
             {
               key: 'history',
               width: 100,
-              accessor: () => (
-                <ViewHistoryButton>
-                  <TranslatedText
-                    stringId="patientProgramRegistry.viewHistory"
-                    fallback="View history"
-                  />
-                </ViewHistoryButton>
-              ),
+              accessor: (row, groupName, index) => {
+                // Check for date as a proxy for whether the row is new
+                const initialValue = initialValues.conditions[groupName][index]?.date;
+                if (!initialValue) {
+                  return null;
+                }
+                return (
+                  <ViewHistoryButton>
+                    <TranslatedText
+                      stringId="patientProgramRegistry.viewHistory"
+                      fallback="View history"
+                    />
+                  </ViewHistoryButton>
+                );
+              },
             },
           ];
 
@@ -480,6 +490,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               <RecordedInErrorWarningModal
                 open={warningOpen}
                 onClose={() => setWarningOpen(false)}
+                items={getNewRecordedInErrorList(values.conditions)}
                 onConfirm={async () => {
                   // Manually pass the values to the confirmed submit function
                   await handleConfirmedSubmit(values);
