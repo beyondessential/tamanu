@@ -3,11 +3,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { format, parse } from 'date-fns';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { getDose, getTranslatedFrequency } from '../../../utils/medications';
+import { useTranslation } from '../../../contexts/Translation';
 
 const MEDICATION_CELL_WIDTH = 48;
 
@@ -137,27 +139,24 @@ const formatTime = time => {
   return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
 };
 
-const MedicationCell = ({
-  isPrn,
-  doseAmount,
-  units,
-  frequency,
-  route,
-  notes,
-  medication,
-  discontinued,
-}) => {
-  const doseAmountDisplay = isPrn ? (
-    <TranslatedText stringId="medication.table.variable" fallback="Variable" />
-  ) : (
-    doseAmount
-  );
+const MedicationCell = ({ medication }) => {
+  const { frequency, route, notes, medication: medicationRef, discontinued } = medication;
+  const { getTranslation, getEnumTranslation } = useTranslation();
+
   return (
     <>
       <MedicationCellContainer discontinued={discontinued}>
-        <Box fontWeight={500}>{medication.name}</Box>
+        <Box fontWeight={500}>
+          <TranslatedReferenceData
+            fallback={medicationRef.name}
+            value={medicationRef.id}
+            category={medicationRef.type}
+          />
+        </Box>
         <Box>
-          {doseAmountDisplay} {units}, {frequency}, {DRUG_ROUTE_LABELS[route]}
+          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+          {getTranslatedFrequency(frequency, getTranslation)},{' '}
+          {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
@@ -235,7 +234,7 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {scheduledMedications.length ? (
               scheduledMedications.map(medication => (
-                <MedicationCell key={medication?.id} {...medication} />
+                <MedicationCell key={medication?.id} medication={medication} />
               ))
             ) : (
               <EmptyMessage>
@@ -258,7 +257,7 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {prnMedications.length ? (
               prnMedications.map(medication => (
-                <MedicationCell key={medication?.id} {...medication} />
+                <MedicationCell key={medication?.id} medication={medication} />
               ))
             ) : (
               <EmptyMessage>
