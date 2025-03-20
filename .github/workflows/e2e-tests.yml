@@ -8,14 +8,6 @@ permissions:
   contents: read
   pull-requests: write
 
-env:
-  NODE_OPTIONS: "--max-old-space-size=6144"
-  NODE_ENV: test
-  NODE_MODULES_PATHS: |
-    node_modules
-    packages/*/node_modules
-    !packages/mobile/node_modules
-
 jobs:
   check-e2e-request:
     runs-on: ubuntu-latest
@@ -31,31 +23,9 @@ jobs:
             const e2eMatch = body.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
             core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
 
-  node_modules_cache:
+  e2e:
     needs: check-e2e-request
     if: needs.check-e2e-request.outputs.should_run == 'true'
-    name: Cache node modules
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: npm
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-  e2e:
-    needs: node_modules_cache
     name: E2E Tests (Shard ${{ matrix.shard }})
     strategy:
       fail-fast: false 
