@@ -11,6 +11,9 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
+import { StatusPopper } from './StatusPopper';
+import { WarningModal } from './WarningModal';
+import { MAR_WARNING_MODAL } from '../../constants/medication';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -31,7 +34,7 @@ const StatusContainer = styled.div`
     background-size: 100% 5px;
     background-position: 0 2.5px;`}
   ${p =>
-    p.isFuture || p.isDiscontinued || p.isEnd
+    p.isDisabled || p.isDiscontinued || p.isEnd
       ? `background-color: ${Colors.background}; color: ${Colors.softText};`
       : `&:hover {
     background-color: ${Colors.veryLightBlue};
@@ -77,16 +80,21 @@ const SelectedOverlay = styled.div`
   width: 100%;
   height: 100%;
   transition: all 0.2s;
-  opacity: ${p => (p.isSelected && !p.isFuture ? 1 : 0)};
+  opacity: ${p => (p.isSelected && !p.isDisabled ? 1 : 0)};
   border: 1px solid ${Colors.primary};
 `;
 
-const getIsMissed = (timeSlot, selectedDate) => {
+const getIsPast = (timeSlot, selectedDate) => {
   const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return new Date() > endDate;
 };
 
-const getIsFuture = (hasRecord, timeSlot, selectedDate) => {
+const getIsFuture = (timeSlot, selectedDate) => {
+  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  return startDate > new Date();
+};
+
+const getIsDisabled = (hasRecord, timeSlot, selectedDate) => {
   const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord) {
     return startDate > new Date();
@@ -114,11 +122,21 @@ export const MarStatus = ({
   timeSlot,
   discontinuedDate,
   endDate,
+  marId,
+  reasonNotGiven,
+  prescriptionId,
 }) => {
   const [isSelected, setIsSelected] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [showWarningModal, setShowWarningModal] = useState('');
+  const [selectedElement, setSelectedElement] = useState(null);
+
   const containerRef = useRef(null);
-  const isMissed = getIsMissed(timeSlot, selectedDate);
-  const isFuture = getIsFuture(!!administeredAt, timeSlot, selectedDate);
+
+  const isPast = getIsPast(timeSlot, selectedDate);
+  const isFuture = getIsFuture(timeSlot, selectedDate);
+
+  const isDisabled = getIsDisabled(!!administeredAt, timeSlot, selectedDate);
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
 
@@ -136,10 +154,34 @@ export const MarStatus = ({
     };
   }, []);
 
-  const onSelected = () => {
-    if (!isDiscontinued) {
+  const onSelected = event => {
+    if (isDiscontinued || isDisabled) return;
+    if ([ADMINISTRATION_STATUS.NOT_GIVEN, ADMINISTRATION_STATUS.GIVEN].includes(status)) {
       setIsSelected(true);
+      return;
     }
+    if (isPast) {
+      setSelectedElement(event.currentTarget);
+      setShowWarningModal(MAR_WARNING_MODAL.PAST);
+      return;
+    }
+    if (isFuture) {
+      setSelectedElement(event.currentTarget);
+      setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
+      return;
+    }
+    handleStatusPopperOpen(event);
+  };
+
+  const handleStatusPopperOpen = eventOrElement => {
+    setIsSelected(true);
+    const element = eventOrElement.currentTarget || eventOrElement;
+    setAnchorEl(element);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setIsSelected(false);
   };
 
   const renderStatus = () => {
@@ -162,7 +204,7 @@ export const MarStatus = ({
           </IconWrapper>
         );
       default: {
-        if (isMissed) {
+        if (isPast) {
           color = Colors.darkOrange;
           return (
             <IconWrapper $color={color}>
@@ -206,60 +248,96 @@ export const MarStatus = ({
       );
     }
     if (!administeredAt) return;
-    if (isFuture) {
-      return (
-        <Box maxWidth={73}>
-          <TranslatedText
-            stringId="medication.mar.future.tooltip"
-            fallback="Cannot record future dose. Due at :dueAt."
-            replacements={{
-              dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
-            }}
-          />
-        </Box>
-      );
+
+    switch (status) {
+      case ADMINISTRATION_STATUS.NOT_GIVEN:
+        return (
+          <>
+            <TranslatedText stringId="medication.mar.notGiven.tooltip" fallback="Not given." />
+            <div>{reasonNotGiven?.name}</div>
+          </>
+        );
+      default:
+        if (isDisabled) {
+          return (
+            <Box maxWidth={73}>
+              <TranslatedText
+                stringId="medication.mar.future.tooltip"
+                fallback="Cannot record future dose. Due at :dueAt."
+                replacements={{
+                  dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
+                }}
+              />
+            </Box>
+          );
+        }
+        if (isPast) {
+          return (
+            <Box maxWidth={69}>
+              <TranslatedText
+                stringId="medication.mar.missed.tooltip"
+                fallback="Missed. Due at :dueAt"
+                replacements={{
+                  dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+                }}
+              />
+            </Box>
+          );
+        }
+        return (
+          <Box maxWidth={69}>
+            <TranslatedText
+              stringId="medication.mar.dueAt.tooltip"
+              fallback="Due at :dueAt"
+              replacements={{
+                dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+              }}
+            />
+          </Box>
+        );
     }
-    if (isMissed) {
-      return (
-        <Box maxWidth={69}>
-          <TranslatedText
-            stringId="medication.mar.missed.tooltip"
-            fallback="Missed. Due at :dueAt"
-            replacements={{
-              dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
-            }}
-          />
-        </Box>
-      );
+  };
+
+  const handleConfirm = () => {
+    setShowWarningModal('');
+    if (selectedElement) {
+      handleStatusPopperOpen({ currentTarget: selectedElement });
     }
-    return (
-      <Box maxWidth={69}>
-        <TranslatedText
-          stringId="medication.mar.dueAt.tooltip"
-          fallback="Due at :dueAt"
-          replacements={{
-            dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
-          }}
-        />
-      </Box>
-    );
   };
 
   return (
-    <ConditionalTooltip
-      visible={isDiscontinued || isEnd || administeredAt}
-      title={<Box fontWeight={400}>{getTooltipText()}</Box>}
-    >
-      <StatusContainer
-        ref={containerRef}
-        onClick={onSelected}
-        isFuture={isFuture}
-        isDiscontinued={isDiscontinued}
-        isEnd={isEnd}
+    <>
+      <ConditionalTooltip
+        visible={isDiscontinued || isEnd || administeredAt}
+        title={<Box fontWeight={400}>{getTooltipText()}</Box>}
       >
-        {administeredAt && !isDiscontinued && renderStatus()}
-        <SelectedOverlay isSelected={isSelected} isFuture={isFuture} />
-      </StatusContainer>
-    </ConditionalTooltip>
+        <StatusContainer
+          ref={containerRef}
+          onClick={onSelected}
+          isDisabled={isDisabled}
+          isDiscontinued={isDiscontinued}
+          isEnd={isEnd}
+        >
+          {administeredAt && !isDiscontinued && renderStatus()}
+          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled} />
+        </StatusContainer>
+      </ConditionalTooltip>
+
+      <StatusPopper
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        marId={marId}
+        administeredAt={
+          administeredAt ? administeredAt : getDateFromTimeString(timeSlot.startTime, selectedDate)
+        }
+        prescriptionId={prescriptionId}
+      />
+      <WarningModal
+        modal={showWarningModal}
+        onClose={() => setShowWarningModal('')}
+        onConfirm={handleConfirm}
+      />
+    </>
   );
 };

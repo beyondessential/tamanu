@@ -12,6 +12,7 @@ export class MedicationAdministrationRecord extends Model {
   declare administeredAt: string;
   declare doseAmount?: number;
   declare prescriptionId?: string;
+  declare reasonNotGivenId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -103,6 +104,10 @@ export class MedicationAdministrationRecord extends Model {
     this.belongsTo(models.Prescription, {
       foreignKey: 'prescriptionId',
       as: 'prescription',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'reasonNotGivenId',
+      as: 'reasonNotGiven',
     });
   }
 

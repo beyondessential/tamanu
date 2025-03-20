@@ -151,6 +151,7 @@ const formatTime = time => {
 };
 
 const MedicationCell = ({
+  id: prescriptionId,
   isPrn,
   doseAmount,
   units,
@@ -191,6 +192,9 @@ const MedicationCell = ({
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             discontinuedDate={discontinuedDate}
             endDate={endDate}
+            marId={id}
+            reasonNotGiven={record?.reasonNotGiven}
+            prescriptionId={prescriptionId}
           />
         );
       })}
