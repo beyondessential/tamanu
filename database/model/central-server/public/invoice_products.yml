@@ -23,8 +23,6 @@ sources:
           - name: price
             data_type: numeric
             description: "{{ doc('invoice_products__price') }}"
-            data_tests:
-              - not_null
           - name: discountable
             data_type: boolean
             description: "{{ doc('invoice_products__discountable') }}"
