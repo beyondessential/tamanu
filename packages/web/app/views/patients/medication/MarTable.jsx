@@ -8,7 +8,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { format, isSameDay, parse } from 'date-fns';
 import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { MARStatus } from '../../../components/Medication/MarStatus';
+import { MarStatus } from '../../../components/Medication/MarStatus';
 import { toDateString } from '@tamanu/utils/dateTime';
 
 const MEDICATION_CELL_WIDTH = 48;
@@ -181,7 +181,7 @@ const MedicationCell = ({
       {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
         const { id, administeredAt, status, doseAmount } = record || {};
         return (
-          <MARStatus
+          <MarStatus
             key={id || index}
             administeredAt={administeredAt}
             status={status}
@@ -198,10 +198,10 @@ const MedicationCell = ({
   );
 };
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime }) => {
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
   const startDate = getDateFromTimeString(startTime).getTime();
   const endDate = getDateFromTimeString(endTime).getTime();
-  const isCurrentTimeSlot = startDate <= Date.now() && Date.now() <= endDate;
+  const isCurrentTimeSlot = startDate <= Date.now() && Date.now() <= endDate && isSameDay(selectedDate, new Date());
 
   return (
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
@@ -245,6 +245,7 @@ export const MarTable = ({ selectedDate }) => {
             startTime={startTime}
             endTime={endTime}
             index={index}
+            selectedDate={selectedDate}
           />
         ))}
       </HeaderRow>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { addHours, format } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -101,7 +102,7 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
   return new Date(endDate) < startDate;
 };
 
-export const MARStatus = ({
+export const MarStatus = ({
   administeredAt,
   status,
   doseAmount,
@@ -185,29 +186,69 @@ export const MARStatus = ({
     }
   };
 
-  let tooltipText = <div>
-    <TranslatedText
-      stringId="medication.mar.endsOn.tooltip"
-      fallback="Ends on"
-    />
-    <div>
-      {endDate && format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}
-    </div>
-  </div>
-
-  if (isDiscontinued) {
-    tooltipText = (
-      <TranslatedText
-        stringId="medication.mar.medicationDiscontinued.tooltip"
-        fallback="Medication discontinued"
-      />
+  const getTooltipText = () => {
+    if (isDiscontinued) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationDiscontinued.tooltip"
+            fallback="Medication discontinued"
+          />
+        </Box>
+      );
+    }
+    if (isEnd) {
+      return (
+        <Box maxWidth={105}>
+          <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
+          <div>{format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}</div>
+        </Box>
+      );
+    }
+    if (!administeredAt) return;
+    if (isFuture) {
+      return (
+        <Box maxWidth={73}>
+          <TranslatedText
+            stringId="medication.mar.future.tooltip"
+            fallback="Cannot record future dose. Due at :dueAt."
+            replacements={{
+              dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
+            }}
+          />
+        </Box>
+      );
+    }
+    if (isMissed) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.missed.tooltip"
+            fallback="Missed. Due at :dueAt"
+            replacements={{
+              dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+            }}
+          />
+        </Box>
+      );
+    }
+    return (
+      <Box maxWidth={69}>
+        <TranslatedText
+          stringId="medication.mar.dueAt.tooltip"
+          fallback="Due at :dueAt"
+          replacements={{
+            dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+          }}
+        />
+      </Box>
     );
-  }
+  };
 
   return (
     <ConditionalTooltip
-      visible={isDiscontinued || isEnd}
-      title={tooltipText}
+      visible={isDiscontinued || isEnd || administeredAt}
+      title={<Box fontWeight={400}>{getTooltipText()}</Box>}
     >
       <StatusContainer
         ref={containerRef}
