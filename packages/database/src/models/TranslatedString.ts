@@ -100,16 +100,20 @@ export class TranslatedString extends Model {
       group: 'language',
       where: {
         language: {
-          [Op.not]: DEFAULT_LANGUAGE_CODE
-        }
-      }
+          [Op.not]: DEFAULT_LANGUAGE_CODE,
+        },
+      },
     });
 
     const languageNames = await TranslatedString.findAll({
       where: { stringId: 'languageName' },
     });
 
-    return { languagesInDb, languageNames };
+    const countryCodes = await TranslatedString.findAll({
+      where: { stringId: 'countryCode' },
+    });
+
+    return { languagesInDb, languageNames, countryCodes };
   };
 
   static getReferenceDataTranslationsByDataType = async ({
