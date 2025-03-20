@@ -86,7 +86,7 @@ export const Dropdown = React.memo(
     options,
     onChange,
     multiselect = false,
-    label = 'Select',
+    label,
     labelColor,
     labelFontSize,
     fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
