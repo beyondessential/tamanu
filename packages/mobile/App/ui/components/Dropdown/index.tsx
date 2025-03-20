@@ -138,8 +138,10 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={selectPlaceholderText || label}
-          searchInputPlaceholderText={filterable ? searchPlaceholderText : label}
+          selectText={selectPlaceholderText || label?.props?.fallback || label}
+          searchInputPlaceholderText={
+            filterable ? searchPlaceholderText : label?.props?.fallback || label
+          }
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
