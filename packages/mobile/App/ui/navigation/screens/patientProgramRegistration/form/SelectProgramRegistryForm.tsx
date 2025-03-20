@@ -16,6 +16,7 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const ProgramRegistryListItem = ({ item }) => {
   const navigation = useNavigation();
@@ -30,7 +31,7 @@ const ProgramRegistryListItem = ({ item }) => {
     >
       <StyledView marginRight={20} marginLeft={20} paddingTop={10} paddingBottom={10}>
         <StyledText fontSize={14} fontWeight={400}>
-          {item.name}
+          {item.translatedName}
         </StyledText>
       </StyledView>
     </StyledTouchableOpacity>
@@ -59,6 +60,14 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const accessibleRegistries = programRegistries.filter(registry =>
     ability.can('read', subject('ProgramRegistry', { id: registry.id })),
   );
+
+  const translatedRegistries = accessibleRegistries.map(registry => ({
+    ...registry,
+    translatedName: getTranslation(
+      getReferenceDataStringId(registry.id, 'programRegistry'),
+      registry.name,
+    ),
+  }));
 
   return (
     <FullView background={theme.colors.WHITE}>
@@ -96,7 +105,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>
         <FlatList
-          data={accessibleRegistries?.filter(x => {
+          data={translatedRegistries?.filter(x => {
             if (!searchValue) return true;
             return x.name.toLowerCase().includes(searchValue.toLowerCase());
           })}

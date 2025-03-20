@@ -12,6 +12,7 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Separator } from '~/ui/components/Separator/index';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const StyledFlatList = styled(FlatList)`
   border-bottom-left-radius: 5px;
@@ -112,8 +113,21 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
           <Row>
             <StatusDot $registrationStatus={item.registrationStatus} />
             <RowTextContainer>
-              <LeftRowText numberOfLines={1}>{item.programRegistry.name}</LeftRowText>
-              <RightRowText numberOfLines={1}>{item.clinicalStatus?.name}</RightRowText>
+              <LeftRowText numberOfLines={1}>
+                <TranslatedReferenceData
+                  fallback={item.programRegistry.name}
+                  value={item.programRegistry.id}
+                  category="programRegistry"
+                />
+              </LeftRowText>
+              <RightRowText numberOfLines={1}>
+                <TranslatedReferenceData
+                  fallback={item.clinicalStatus?.name}
+                  value={item.clinicalStatus?.id}
+                  category="programRegistryClinicalStatus"
+                />
+                {item.clinicalStatus?.name}
+              </RightRowText>
             </RowTextContainer>
           </Row>
         </ItemWrapper>
