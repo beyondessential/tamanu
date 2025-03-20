@@ -198,9 +198,7 @@ programRegistry.get(
               ON pprc.program_registry_condition_id = prc.id
           WHERE pprc.program_registry_id = :programRegistryId
           AND pprc.deleted_at IS NULL
-          AND pprc.condition_category NOT IN ('disproven', 'recordedInError', 'resolved')
-          AND prc.category NOT IN (:conditionCategories)
-
+          AND pprc.condition_category NOT IN (:excludedCategories)
           GROUP BY patient_id
         )
     `;
@@ -233,10 +231,17 @@ programRegistry.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
+    const excludedCategories = [
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
+    ];
+
     const countResult = await req.db.query(`${withClause} SELECT COUNT(1) AS count ${from}`, {
       replacements: {
         ...filterReplacements,
         programRegistryId,
+        excludedCategories,
       },
       type: QueryTypes.SELECT,
     });
@@ -308,6 +313,7 @@ programRegistry.get(
       {
         replacements: {
           ...filterReplacements,
+          excludedCategories,
           programRegistryId,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
