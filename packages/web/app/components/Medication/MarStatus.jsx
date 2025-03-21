@@ -11,6 +11,8 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
+import { getDose } from '../../utils/medications';
+import { useTranslation } from '../../contexts/Translation';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -122,6 +124,8 @@ export const MarStatus = ({
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
 
+  const { getTranslation, getEnumTranslation } = useTranslation();
+
   useEffect(() => {
     const handleClickOutside = event => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -163,6 +167,7 @@ export const MarStatus = ({
         );
       default: {
         if (isMissed) {
+          if (isPrn) return null;
           color = Colors.darkOrange;
           return (
             <IconWrapper $color={color}>
@@ -171,15 +176,9 @@ export const MarStatus = ({
           );
         }
         if (!units) return null;
-        const doseAmountDisplay = isPrn ? (
-          <TranslatedText stringId="medication.table.variable" fallback="Variable" />
-        ) : (
-          doseAmount
-        );
         return (
           <DoseInfo>
-            <div>{doseAmountDisplay}</div>
-            <div>{units}</div>
+            {getDose({ doseAmount, units, isPrn }, getTranslation, getEnumTranslation)}
           </DoseInfo>
         );
       }

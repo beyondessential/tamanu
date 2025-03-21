@@ -2,14 +2,15 @@ import { Box } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { format, isSameDay, parse } from 'date-fns';
+import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { toDateString } from '@tamanu/utils/dateTime';
+
 import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
-import { format, isSameDay, parse } from 'date-fns';
-import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { MarStatus } from '../../../components/Medication/MarStatus';
-import { toDateString } from '@tamanu/utils/dateTime';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 
@@ -163,6 +164,7 @@ const MedicationCell = ({ medication, selectedDate }) => {
     discontinuedDate,
     medicationAdministrationRecords,
     endDate,
+    isPrn,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -196,6 +198,7 @@ const MedicationCell = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             discontinuedDate={discontinuedDate}
             endDate={endDate}
+            isPrn={isPrn}
           />
         );
       })}
