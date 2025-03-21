@@ -4,7 +4,7 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
+  createDummyPrescription,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
@@ -95,13 +95,21 @@ describe('Patient', () => {
     });
 
     // Create two medications for encounterTwo (the one we should get)
-    const dischargedMedication = await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models, { isDischarge: true })),
-      encounterId: encounterTwo.id,
+    const dischargedMedication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
     });
-    await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models)),
+    await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
+      prescriptionId: dischargedMedication.id,
+      isDischarge: true,
+    });
+    const medication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
+    });
+    await models.EncounterPrescription.create({
+      encounterId: encounterTwo.id,
+      prescriptionId: medication.id,
+      isDischarge: false,
     });
 
     // Edit the first two encounters to simulate a discharge
@@ -111,7 +119,7 @@ describe('Patient', () => {
       encounterOne.update({ endDate }),
       encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
     ]);
-
+    
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
     const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
@@ -120,12 +128,15 @@ describe('Patient', () => {
       count: 1,
       data: expect.any(Array),
     });
+    
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
-      encounter: {
-        location: expect.any(Object),
-      },
+      encounters: expect.arrayContaining([
+        expect.objectContaining({
+          location: expect.any(Object),
+        }),
+      ]),
     });
   });
 
