@@ -14,6 +14,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PermissionErrorScreen } from '~/ui/components/PermissionErrorScreen';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const Stack = createStackNavigator();
 export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: BaseAppProps) => {
@@ -40,7 +41,13 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
     <ErrorBoundary>
       <FullView>
         <EmptyStackHeader
-          title={registration?.programRegistry?.name}
+          title={
+            <TranslatedReferenceData
+              fallback={registration.programRegistry?.name}
+              value={registration.programRegistry?.id}
+              category="programRegistry"
+            />
+          }
           onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
           status={
             <PatientProgramRegistryRegistrationStatus
