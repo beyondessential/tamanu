@@ -1,6 +1,7 @@
 import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
 
+const __dirname = import.meta.dirname;
 function getAbsolutePath(packageName) {
   return dirname(require.resolve(join(packageName, 'package.json')));
 }
