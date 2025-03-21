@@ -72,6 +72,16 @@ jobs:
       run: |
         aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
 
+    - name: Post to meta
+      continue-on-error: true
+      uses: ./.github/actions/meta-api
+      with:
+        url: ${{ vars.META_URL }}
+        crt: ${{ secrets.META_CERT }}
+        key: ${{ secrets.META_KEY }}
+        api: /artifacts/${{ steps.currentv.outputs.current_version }}/any/translations
+        arg: --data-binary 'https://translations.ops.tamanu.io/v${{ steps.currentv.outputs.current_version }}.csv'
+
     - name: Download previous versions translations from s3
       continue-on-error: true
       env:
@@ -93,7 +103,7 @@ jobs:
 
     - uses: softprops/action-gh-release@v2
       with:
-        tag: ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
         append_body: true
         body: |
           ## Translation Changes
