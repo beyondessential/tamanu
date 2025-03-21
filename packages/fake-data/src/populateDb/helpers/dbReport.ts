@@ -1,5 +1,7 @@
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES } from '@tamanu/constants';
 import type { Models } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake } from '../../fake';
 
 interface CreateDbReportParams {
@@ -29,15 +31,16 @@ interface UpdateDbReportParams extends CreateDbReportParams {
   reportDefinitionId: string;
 }
 export const updateDbReport = async ({
-  models: { ReportDefinitionVersion },
+  models,
   userId,
   reportDefinitionId,
 }: UpdateDbReportParams): Promise<void> => {
+  const { ReportDefinitionVersion } = models;
   await ReportDefinitionVersion.create(
     fake(ReportDefinitionVersion, {
       status: REPORT_STATUSES.DRAFT,
       queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      reportDefinitionId,
+      reportDefinitionId: reportDefinitionId || (await randomRecordId(models, 'ReportDefinition')),
       userId,
     }),
   );

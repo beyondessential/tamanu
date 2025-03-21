@@ -87,14 +87,24 @@ async function getColumnsInRelation(client, schemaName, tableName) {
  * @returns A list of constrains exist for the given column
  */
 async function getConstraintsForColumn(client, schemaName, tableName, columnName) {
-  return (
+  const constraints = (
     await client.query(
-      `SELECT constraint_type
+      `SELECT constraint_name, constraint_type, json_agg(column_name) AS column_names
       FROM information_schema.table_constraints NATURAL JOIN information_schema.constraint_column_usage
-      WHERE table_schema = $1 and table_name = $2 and column_name = $3`,
-      [schemaName, tableName, columnName],
+      WHERE table_schema = $1 and table_name = $2
+      GROUP BY constraint_name, constraint_type`,
+      [schemaName, tableName],
     )
   ).rows;
+
+  return constraints
+    .filter(cons => cons.column_names.includes(columnName))
+    // ignore multi-column constraints, e.g. composite UNIQUE
+    .filter(cons => cons.column_names.length === 1)
+    .flatMap(cons => cons.column_names.map(col => ({
+      column_name: col,
+      constraint_type: cons.constraint_type,
+    })));
 }
 
 /**
