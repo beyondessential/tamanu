@@ -111,6 +111,6 @@ jobs:
         ${{ secrets.META_KEY }}
         EOF
 
-        curl -X POST https://meta-dev.internal.tamanu.io/versions/${{ steps.tagged.outputs.current_version }} \
+        curl -X POST "${{ vars.META_URL }}/versions/${{ steps.tagged.outputs.current_version }}" \
           -E meta.crt --key meta.key \
           --data-binary @RELEASE_NOTES.md
