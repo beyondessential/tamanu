@@ -149,7 +149,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
     },
     {
-      key: 'actions',
+      key: '',
       sortable: false,
       accessor: row =>
         !hideRecordPaymentForm &&
