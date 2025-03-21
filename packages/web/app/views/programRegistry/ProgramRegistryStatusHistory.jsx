@@ -1,16 +1,12 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Table } from '../../components/Table/Table';
-import { DateDisplay } from '../../components/DateDisplay';
-import { Heading5 } from '../../components/Typography';
+import { useParams } from 'react-router-dom';
+import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../../components';
-import { useParams } from 'react-router-dom';
-import { TranslatedText } from '../../components';
 
 const Container = styled.div`
   display: flex;
@@ -86,7 +82,6 @@ export const ProgramRegistryStatusHistory = () => {
       },
       {
         key: 'date',
-        title: 'Date recorded',
         sortable: false,
         title: (
           <TranslatedText
@@ -94,7 +89,6 @@ export const ProgramRegistryStatusHistory = () => {
             fallback="Date recorded"
           />
         ),
-        sortable: true,
         accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce

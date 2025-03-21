@@ -226,7 +226,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
     <Modal
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.updateModal.title"
+          stringId="programRegistry.updateModal.title"
           fallback="Update program registry"
         />
       }
@@ -246,7 +246,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               title: (
                 <span id="condition-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.condition"
+                    stringId="programRegistry.updateConditionModal.condition"
                     fallback="Condition"
                   />
                 </span>
@@ -319,7 +319,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               title: (
                 <span id="date-added-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.dateAdded"
+                    stringId="programRegistry.updateConditionModal.dateAdded"
                     fallback="Date added"
                   />
                   <span style={{ color: Colors.alert }}> *</span>
@@ -354,7 +354,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               title: (
                 <span id="condition-category-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.category"
+                    stringId="programRegistry.updateConditionModal.category"
                     fallback="Category"
                   />
                   <span style={{ color: Colors.alert }}> *</span>
@@ -378,7 +378,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                         ariaLabelledby={ariaLabelledby}
                         disabled
                         disabledTooltipText={getTranslation(
-                          'patientProgramRegistry.disprovenCondition.tooltip',
+                          'programRegistry.disprovenCondition.tooltip',
                           'Please refer to current instance of condition above to update category.',
                         )}
                       />
@@ -393,7 +393,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                       ariaLabelledby={ariaLabelledby}
                       disabled
                       disabledTooltipText={getTranslation(
-                        'patientProgramRegistry.recordedInError.tooltip',
+                        'programRegistry.recordedInError.tooltip',
                         'Cannot edit entry that has been recorded in error',
                       )}
                     />
@@ -408,7 +408,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                     disabledTooltipText={
                       !conditionId
                         ? getTranslation(
-                            'patientProgramRegistry.conditionCategoryDisabled.tooltip',
+                            'programRegistry.conditionCategoryDisabled.tooltip',
                             'Select a related condition to record category',
                           )
                         : null
@@ -423,7 +423,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
               title: (
                 <span id="condition-category-change-reason-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.reasonForChange"
+                    stringId="programRegistry.updateConditionModal.reasonForChange"
                     fallback="Reason for change (if applicable)"
                   />
                 </span>
@@ -461,7 +461,7 @@ export const PatientProgramRegistryUpdateFormModal = ({
                 return (
                   <ViewHistoryButton>
                     <TranslatedText
-                      stringId="patientProgramRegistry.viewHistory"
+                      stringId="programRegistry.viewHistory"
                       fallback="View history"
                     />
                   </ViewHistoryButton>
