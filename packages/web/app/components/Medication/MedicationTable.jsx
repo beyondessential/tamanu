@@ -105,7 +105,12 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => <NoWrapCell>{getDose(data, getTranslation, getEnumTranslation)}</NoWrapCell>,
+    accessor: data => (
+      <NoWrapCell>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+      </NoWrapCell>
+    ),
     sortable: false,
   },
   {
