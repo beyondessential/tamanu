@@ -57,13 +57,8 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const base = 's3://bes-tamanu-release-servers';
-            if (context.ref == 'refs/heads/main') {
-              return `${base}/main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
-            } else if (context.ref.startsWith('refs/tags/v')) {
-              return `${base}/${context.ref.replace('refs/tags/v', '')}`;
-            } else if (context.ref.startsWith('refs/heads/release/')) {
-              return `${base}/${context.ref.replace('refs/tags/', '')}-rc`;
+            if (context.ref.startsWith('refs/tags/v')) {
+              return `${context.ref.replace('refs/tags/v', '')}`;
             } else {
               return 'nowhere';
             }
@@ -83,7 +78,7 @@ jobs:
         run: |
           set -x
           for file in *.tar.zst*; do
-            aws s3 cp $file $target/$file --no-progress
+            aws s3 cp $file s3://bes-tamanu-release-servers/$target/$file --no-progress
           done
 
       - name: Upload to release
