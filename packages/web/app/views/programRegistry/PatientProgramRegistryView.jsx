@@ -9,8 +9,8 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -61,8 +61,6 @@ const Grid = styled.div`
 `;
 
 export const PatientProgramRegistryView = () => {
-  const queryParams = useUrlSearchParams();
-  const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
     patientId,
@@ -74,13 +72,26 @@ export const PatientProgramRegistryView = () => {
   }
 
   if (isError) {
-    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+    return (
+      <p>
+        <TranslatedText
+          stringId="programRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
+        />
+      </p>
+    );
   }
 
   return (
     <>
       <ViewHeader>
-        <h1>{data.programRegistry.name}</h1>
+        <h1>
+          <TranslatedReferenceData
+            fallback={data.programRegistry.name}
+            value={data.programRegistry.id}
+            category="programRegistry"
+          />
+        </h1>
         <RegistrationStatusIndicator
           style={{ height: '10px', width: '10px' }}
           patientProgramRegistration={data}

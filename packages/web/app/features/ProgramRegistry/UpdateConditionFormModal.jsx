@@ -79,7 +79,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
       width="lg"
       title={
         <TranslatedText
-          stringId="patientProgramRegistry.updateConditionModal.title"
+          stringId="programRegistry.updateConditionModal.title"
           fallback="Update condition"
         />
       }
@@ -96,7 +96,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
             {
               title: (
                 <TranslatedText
-                  stringId="patientProgramRegistry.updateConditionModal.condition"
+                  stringId="programRegistry.updateConditionModal.condition"
                   fallback="Condition"
                 />
               ),
@@ -106,7 +106,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
             {
               title: (
                 <TranslatedText
-                  stringId="patientProgramRegistry.updateConditionModal.dateAdded"
+                  stringId="programRegistry.updateConditionModal.dateAdded"
                   fallback="Date added"
                 />
               ),
@@ -117,7 +117,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               title: (
                 <span id="condition-category-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.category"
+                    stringId="programRegistry.updateConditionModal.category"
                     fallback="Category"
                   />
                   <span style={{ color: Colors.alert }}> *</span>
@@ -129,7 +129,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   name="conditionCategory"
                   disabled={!programRegistryCondition?.id}
                   disabledTooltipText={getTranslation(
-                    'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                    'programRegistry.relatedConditionsCategory.tooltip',
                     'Select a condition to add related categories',
                   )}
                   ariaLabelledby="condition-category-label"
@@ -141,7 +141,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               title: (
                 <span id="condition-category-change-reason-label">
                   <TranslatedText
-                    stringId="patientProgramRegistry.updateConditionModal.reasonForChange"
+                    stringId="programRegistry.updateConditionModal.reasonForChange"
                     fallback="Reason for change (if applicable)"
                   />
                 </span>
@@ -167,6 +167,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               <RecordedInErrorWarningModal
                 open={warningOpen}
                 onClose={() => setWarningOpen(false)}
+                items={[{ id: conditionId, name: condition.programRegistryCondition?.name }]}
                 onConfirm={async () => {
                   // Manually pass the values to the confirmed submit function
                   await handleConfirmedSubmit(values);

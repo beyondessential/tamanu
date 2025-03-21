@@ -46,11 +46,11 @@ export const ProgramRegistryConditionField = ({
       disabledTooltipText={
         !conditions
           ? getTranslation(
-              'patientProgramRegistry.relatedConditions.tooltip',
+              'programRegistry.relatedConditions.tooltip',
               'Select a program registry to add related conditions',
             )
           : getTranslation(
-              'patientProgramRegistry.relatedConditions.noConditionsTooltip',
+              'programRegistry.relatedConditions.noConditionsTooltip',
               'No conditions have been configured for this program registry',
             )
       }

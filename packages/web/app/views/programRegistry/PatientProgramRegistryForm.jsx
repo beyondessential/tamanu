@@ -81,25 +81,16 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
             }),
           )
           .nullable(),
-        programRegistryId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
-            fallback="Program registry"
-          />,
+        programRegistryId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
+        clinicianId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
-        registeringFacilityId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
-            fallback="Registering facility"
-          />,
+        registeringFacilityId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
       }),
     [getTranslation],
@@ -138,7 +129,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="programRegistryId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.programRegistry.label"
+                      stringId="programRegistry.programRegistry.label"
                       fallback="Program registry"
                     />
                   }
@@ -157,7 +148,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="date"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.date.label"
+                      stringId="programRegistry.registrationDate.label"
                       fallback="Date of registration"
                     />
                   }
@@ -171,7 +162,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="clinicianId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeredBy.label"
+                      stringId="programRegistry.registeredBy.label"
                       fallback="Registered by"
                     />
                   }
@@ -184,7 +175,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeringFacility.label"
+                      stringId="programRegistry.registeringFacility.label"
                       fallback="Registering facility"
                     />
                   }
@@ -196,77 +187,87 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
-                  disabledTooltipText="Select a program registry to set the status"
+                  disabledTooltipText={
+                    <TranslatedText
+                      stringId="programRegistry.registryForm.clinicalStatus.disabledTooltip"
+                      fallback="Select a program registry to set the status"
+                    />
+                  }
                   name="clinicalStatusId"
-                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.clinicalStatus.label"
+                      fallback="Status"
+                    />
+                  }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
                 />
+                <Field
+                  name="conditions"
+                  component={ArrayField}
+                  renderField={index => {
+                    const fieldName = `conditions[${index}]`;
+                    const conditionValue = values?.conditions ? values?.conditions[index] : null;
+                    const onClear = () => {
+                      setValues({
+                        ...values,
+                        // Clear the condition and category fields. Set to an empty object rather than
+                        // removing from the array keep the order of the conditions consistent with the fields
+                        conditions: values.conditions.map((condition, i) =>
+                          i === index ? {} : condition,
+                        ),
+                      });
+                    };
+
+                    let usedValues = [];
+
+                    if (values?.conditions) {
+                      usedValues = values.conditions
+                        ?.filter(
+                          condition =>
+                            condition?.conditionId &&
+                            condition?.conditionId !== conditionValue?.conditionId,
+                        )
+                        ?.map(condition => condition.conditionId);
+                    }
+
+                    return (
+                      <RelatedConditionFieldsContainer>
+                        <ProgramRegistryConditionField
+                          name={`${fieldName}.conditionId`}
+                          programRegistryId={selectedProgramRegistryId}
+                          onClear={onClear}
+                          optionsFilter={condition => !usedValues.includes(condition.id)}
+                          label={
+                            <TranslatedText
+                              stringId="programRegistry.relatedConditions.label"
+                              fallback="Related condition"
+                            />
+                          }
+                        />
+                        <ProgramRegistryConditionCategoryField
+                          name={`${fieldName}.category`}
+                          disabled={!conditionValue?.conditionId}
+                          disabledTooltipText={getTranslation(
+                            'programRegistry.relatedConditionsCategory.tooltip',
+                            'Select a condition to add related categories',
+                          )}
+                          required={Boolean(conditionValue?.conditionId)}
+                          label={
+                            <TranslatedText
+                              stringId="programRegistry.relatedConditionsCategory.label"
+                              fallback="Category"
+                            />
+                          }
+                        />
+                      </RelatedConditionFieldsContainer>
+                    );
+                  }}
+                />
               </FormGrid>
-              <Field
-                name="conditions"
-                component={ArrayField}
-                renderField={index => {
-                  const fieldName = `conditions[${index}]`;
-                  const conditionValue = values?.conditions ? values?.conditions[index] : null;
-                  const onClear = () => {
-                    setValues({
-                      ...values,
-                      // Clear the condition and category fields. Set to an empty object rather than
-                      // removing from the array keep the order of the conditions consistent with the fields
-                      conditions: values.conditions.map((condition, i) =>
-                        i === index ? {} : condition,
-                      ),
-                    });
-                  };
-
-                  let usedValues = [];
-
-                  if (values?.conditions) {
-                    usedValues = values.conditions
-                      ?.filter(
-                        condition =>
-                          condition?.conditionId &&
-                          condition?.conditionId !== conditionValue?.conditionId,
-                      )
-                      ?.map(condition => condition.conditionId);
-                  }
-
-                  return (
-                    <RelatedConditionFieldsContainer>
-                      <ProgramRegistryConditionField
-                        name={`${fieldName}.conditionId`}
-                        programRegistryId={selectedProgramRegistryId}
-                        onClear={onClear}
-                        optionsFilter={condition => !usedValues.includes(condition.id)}
-                        label={
-                          <TranslatedText
-                            stringId="patientProgramRegistry.relatedConditions.label"
-                            fallback="Related condition"
-                          />
-                        }
-                      />
-                      <ProgramRegistryConditionCategoryField
-                        name={`${fieldName}.category`}
-                        disabled={!conditionValue?.conditionId}
-                        disabledTooltipText={getTranslation(
-                          'patientProgramRegistry.relatedConditionsCategory.tooltip',
-                          'Select a condition to add related categories',
-                        )}
-                        required={Boolean(conditionValue?.conditionId)}
-                        label={
-                          <TranslatedText
-                            stringId="patientProgramRegistry.relatedConditionsCategory.label"
-                            fallback="Category"
-                          />
-                        }
-                      />
-                    </RelatedConditionFieldsContainer>
-                  );
-                }}
-              />
             </FormGrid>
             <ModalFormActionRow
               confirmText={buttonText}
