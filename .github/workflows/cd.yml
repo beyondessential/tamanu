@@ -399,7 +399,7 @@ jobs:
 
           version=$(echo "${{ github.ref_name }}" | sed -E 's/^v//')
 
-          for image in "central facility frontend"; do
+          for image in central facility frontend; do
             set -x
             curl -v "${{ vars.META_URL }}/artifacts/$version/container/$image" \
               -E meta.crt --key meta.key \
