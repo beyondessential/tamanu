@@ -61,8 +61,6 @@ const Grid = styled.div`
 `;
 
 export const PatientProgramRegistryView = () => {
-  const queryParams = useUrlSearchParams();
-  const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
     patientId,
@@ -74,7 +72,14 @@ export const PatientProgramRegistryView = () => {
   }
 
   if (isError) {
-    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+    return (
+      <p>
+        <TranslatedText
+          stringId="programRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
+        />
+      </p>
+    );
   }
 
   return (

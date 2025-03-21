@@ -81,25 +81,16 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
             }),
           )
           .nullable(),
-        programRegistryId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
-            fallback="Program registry"
-          />,
+        programRegistryId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
+        clinicianId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
-        registeringFacilityId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
-            fallback="Registering facility"
-          />,
+        registeringFacilityId: foreignKey().required(
+          getTranslation('validation.required.inline', '*Required'),
         ),
       }),
     [getTranslation],
@@ -235,12 +226,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
                     if (values?.conditions) {
                       usedValues = values.conditions
-                      ?.filter(
-                        condition =>
-                          condition?.conditionId &&
-                          condition?.conditionId !== conditionValue?.conditionId,
-                      )
-                      ?.map(condition => condition.conditionId);
+                        ?.filter(
+                          condition =>
+                            condition?.conditionId &&
+                            condition?.conditionId !== conditionValue?.conditionId,
+                        )
+                        ?.map(condition => condition.conditionId);
                     }
 
                     return (
@@ -252,7 +243,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           optionsFilter={condition => !usedValues.includes(condition.id)}
                           label={
                             <TranslatedText
-                              stringId="patientProgramRegistry.relatedConditions.label"
+                              stringId="programRegistry.relatedConditions.label"
                               fallback="Related condition"
                             />
                           }
@@ -261,13 +252,13 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           name={`${fieldName}.category`}
                           disabled={!conditionValue?.conditionId}
                           disabledTooltipText={getTranslation(
-                            'patientProgramRegistry.relatedConditionsCategory.tooltip',
+                            'programRegistry.relatedConditionsCategory.tooltip',
                             'Select a condition to add related categories',
                           )}
                           required={Boolean(conditionValue?.conditionId)}
                           label={
                             <TranslatedText
-                              stringId="patientProgramRegistry.relatedConditionsCategory.label"
+                              stringId="programRegistry.relatedConditionsCategory.label"
                               fallback="Category"
                             />
                           }

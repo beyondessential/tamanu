@@ -131,7 +131,7 @@ export const ConditionSection = () => {
     <Container>
       <Heading5 mt={0} mb={1}>
         <TranslatedText
-          stringId="patientProgramRegistry.relatedConditions.title"
+          stringId="programRegistry.relatedConditions.title"
           fallback="Related conditions"
         />
       </Heading5>

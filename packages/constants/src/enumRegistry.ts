@@ -20,12 +20,6 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
-} from './statuses.js';
-import {
-  VACCINE_STATUS_LABELS,
-  INJECTION_SITE_LABELS,
-  VACCINE_CATEGORY_LABELS,
-} from './vaccines.js';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
@@ -52,7 +46,10 @@ import {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRATION_STATUS_LABELS,
+} from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];

@@ -64,21 +64,8 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
 
   return (
     <DisplayContainer>
-      <Heading5>
-        <TranslatedText
-          stringId="programRegistry.selectSurveyForm.heading"
-          fallback="Select a :programRegistry form below to complete"
-          replacements={{
-            programRegistry: getTranslation(
-              getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
-              programRegistry?.name,
-            ),
-          }}
-        />
-      </Heading5>
       <Form
         showInlineErrorsOnly
-        style={{ width: '100%', marginTop: '5px' }}
         onSubmit={async values => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
@@ -99,11 +86,13 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   label={
                     <Heading5 mt={1} mb={1}>
                       <TranslatedText
-                        stringId="patientProgramRegistry.selectSurvey.label"
-                        fallback={`Select a :programName form below to
-                      complete`}
+                        stringId="programRegistry.selectSurveyForm.heading"
+                        fallback="Select a :programRegistry form below to complete"
                         replacements={{
-                          programName: patientProgramRegistration.programRegistry.name,
+                          programRegistry: getTranslation(
+                            getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                            programRegistry?.name,
+                          ),
                         }}
                       />
                     </Heading5>
