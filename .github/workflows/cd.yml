@@ -397,7 +397,7 @@ jobs:
           ${{ secrets.META_KEY }}
           EOF
 
-          version="${{ github.ref_name }} | sed -E 's/^v//'"
+          version=$(echo "${{ github.ref_name }}" | sed -E 's/^v//')
 
           for image in "central facility frontend"; do
             set -x
