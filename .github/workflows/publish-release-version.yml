@@ -113,4 +113,4 @@ jobs:
 
         curl -X POST https://meta-dev.internal.tamanu.io/versions/${{ steps.tagged.outputs.current_version }} \
           -E meta.crt --key meta.key \
-          -d @RELEASE_NOTES.md
+          --data-binary @RELEASE_NOTES.md
