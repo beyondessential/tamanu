@@ -21,7 +21,7 @@ export async function programImporter({
   checkPermission('create', 'Program');
   checkPermission('write', 'Program');
 
-  const createContext = sheetName => ({
+  const createContext = (sheetName) => ({
     errors,
     log: log.child({
       file,
@@ -61,7 +61,7 @@ export async function programImporter({
       return true;
     }
 
-    return whitelist.some(x => x === name || x === code);
+    return whitelist.some((x) => x === name || x === code);
   });
 
   log.debug('Importing surveys', {
