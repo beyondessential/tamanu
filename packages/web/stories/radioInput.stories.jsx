@@ -33,13 +33,13 @@ export default {
       control: 'text',
     },
   },
-  title: 'FormControls/RadioInput',
+  title: 'Form Fields/RadioInput',
   component: RadioInput,
 };
 
-const Template = args => {
+const Template = (args) => {
   const [value, setValue] = useState(null);
-  const handleChange = e => {
+  const handleChange = (e) => {
     setValue(e.target.value);
   };
   return (
@@ -73,7 +73,7 @@ WithError.args = {
 
 export const WithDescriptions = Template.bind({});
 WithDescriptions.args = {
-  options: FRUITS.slice(0, 2).map(option => ({
+  options: FRUITS.slice(0, 2).map((option) => ({
     ...option,
     description: `Some descriptive information about the ${option.label}`,
   })),
