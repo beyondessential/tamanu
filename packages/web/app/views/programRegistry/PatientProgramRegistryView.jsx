@@ -9,8 +9,8 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -80,7 +80,13 @@ export const PatientProgramRegistryView = () => {
   return (
     <>
       <ViewHeader>
-        <h1>{data.programRegistry.name}</h1>
+        <h1>
+          <TranslatedReferenceData
+            fallback={data.programRegistry.name}
+            value={data.programRegistry.id}
+            category="programRegistry"
+          />
+        </h1>
         <RegistrationStatusIndicator
           style={{ height: '10px', width: '10px' }}
           patientProgramRegistration={data}

@@ -10,6 +10,7 @@ import { useTableSorting } from '../../components/Table/useTableSorting';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
 import { useParams } from 'react-router-dom';
+import { TranslatedText } from '../../components';
 
 const Container = styled.div`
   display: flex;
@@ -66,7 +67,7 @@ export const ProgramRegistryStatusHistory = () => {
     return [
       {
         key: 'clinicalStatusId',
-        title: 'Status',
+        title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
         sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
@@ -74,7 +75,12 @@ export const ProgramRegistryStatusHistory = () => {
       },
       {
         key: 'clinicianId',
-        title: 'Recorded By',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.statusHistory.recordedBy"
+            fallback="Recorded By"
+          />
+        ),
         sortable: false,
         accessor: row => row.clinician.displayName,
       },
@@ -82,13 +88,25 @@ export const ProgramRegistryStatusHistory = () => {
         key: 'date',
         title: 'Date recorded',
         sortable: false,
+        title: (
+          <TranslatedText
+            stringId="programRegistry.statusHistory.dateRecorded"
+            fallback="Date recorded"
+          />
+        ),
+        sortable: true,
         accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
         ? [
             {
               key: 'registrationDate',
-              title: 'Date of registration',
+              title: (
+                <TranslatedText
+                  stringId="programRegistry.registrationDate.label"
+                  fallback="Date of registration"
+                />
+              ),
               sortable: false,
               accessor: row => <DateDisplay date={row?.registrationDate} />,
             },
@@ -101,7 +119,7 @@ export const ProgramRegistryStatusHistory = () => {
     <Container>
       <Heading5 mt={0} mb={1}>
         <TranslatedText
-          stringId="patientProgramRegistry.statusHistory.title"
+          stringId="programRegistry.statusHistory.title"
           fallback="Program status history"
         />
       </Heading5>
@@ -115,7 +133,12 @@ export const ProgramRegistryStatusHistory = () => {
         columns={columns}
         rowsPerPage={4}
         allowExport={false}
-        noDataMessage="No Program registry clinical status found"
+        noDataMessage={
+          <TranslatedText
+            stringId="programRegistry.statusHistory.noDataMessage"
+            fallback="No Program registry clinical status found"
+          />
+        }
         elevated={false}
         isLoading={isLoading}
         onChangeOrderBy={onChangeOrderBy}

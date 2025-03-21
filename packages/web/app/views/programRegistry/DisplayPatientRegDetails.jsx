@@ -123,8 +123,20 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         <TreeIcon src={programsIcon} />
         <TextColumnsContainer>
           <TextColumns>
-            <div>Date of registration:</div>
-            <div>Registered by:</div>
+            <div>
+              <TranslatedText
+                stringId="programRegistry.registrationDate.label"
+                fallback="Date of registration"
+              />
+              :
+            </div>
+            <div>
+              <TranslatedText
+                stringId="programRegistry.registeredBy.label"
+                fallback="Registered by"
+              />
+              :
+            </div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
             <DateDisplay date={patientProgramRegistration.registrationDate} />
@@ -140,8 +152,20 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <DividerVertical />
             <TextColumnsContainer>
               <TextColumns>
-                <div>Date removed:</div>
-                <div>Removed by:</div>
+                <div>
+                  <TranslatedText
+                    stringId="programRegistry.dateRemoved.label"
+                    fallback="Date removed"
+                  />
+                  :
+                </div>
+                <div>
+                  <TranslatedText
+                    stringId="programRegistry.removedBy.label"
+                    fallback="Removed by"
+                  />
+                  :
+                </div>
               </TextColumns>
               <TextColumns style={{ fontWeight: 500 }}>
                 <DateDisplay date={patientProgramRegistration.dateRemoved} />
@@ -158,7 +182,15 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           justifyContent: 'flex-end',
         }}
       >
-        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+        <ConditionalTooltip
+          title={
+            <TranslatedText
+              stringId="programRegistry.patientInactive.tooltip"
+              fallback="Patient must be active"
+            />
+          }
+          visible={isRemoved}
+        >
           <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
             <TranslatedText stringId="general.action.update" fallback="Update" />
           </OutlinedButton>

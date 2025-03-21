@@ -131,7 +131,7 @@ export class TranslatedString extends Model {
       where: {
         language,
         stringId: {
-          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
+          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}.`,
         },
         ...(queryString ? { text: { [Op.iLike]: `%${queryString}%` } } : {}),
       },
