@@ -1,5 +1,6 @@
 import RNFS from 'react-native-fs';
 import { chunk } from 'lodash';
+import { In } from 'typeorm';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -36,7 +37,8 @@ export const saveChangesForModel = async (
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-    const batchOfExisting = await model.findByIds(batchOfIds, {
+    const batchOfExisting = await model.find({
+      where: { id: In(batchOfIds) },
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });

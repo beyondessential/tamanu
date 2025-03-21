@@ -15,6 +15,7 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const REGISTRY_COUNT_THRESHOLD = 10;
 
@@ -39,7 +40,7 @@ export const ProgramRegistrySection = (): ReactElement => {
     async ({ models }) => {
       const rawData = await models.ProgramRegistry.getAllProgramRegistries();
       return rawData.map(({ name, id }) => ({
-        label: name,
+        label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
         value: id,
       }));
     },
