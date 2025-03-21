@@ -2,6 +2,11 @@ name: CD Package Frontend
 
 on:
   workflow_call:
+    secrets:
+      META_CERT:
+        required: true
+      META_KEY:
+        required: true
 
 permissions:
   packages: read # to pull image
