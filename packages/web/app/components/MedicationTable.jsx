@@ -2,8 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format, parseISO, add } from 'date-fns';
+import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
+
 import { DataFetchingTable } from './Table';
 import { formatShortest } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
@@ -104,7 +105,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => <NoWrapCell>{getDose(data, getTranslation, getEnumTranslation)}</NoWrapCell>,
+    accessor: data => <NoWrapCell>{getDose(data, getTranslation, getEnumTranslation, true)}</NoWrapCell>,
     sortable: false,
   },
   {
@@ -126,10 +127,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
-      const parsedStartDate = parseISO(startDate);
-      const duration = parseInt(durationValue, 10);
-      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+    accessor: ({ date, durationValue, durationUnit, isOngoing, endDate }) => {
       let tooltipTitle = '';
       if (durationValue && durationUnit) {
         tooltipTitle = (
