@@ -368,7 +368,7 @@ jobs:
     steps:
       - uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           append_body: true
           body: |
             ## Container images 🚢
@@ -378,3 +378,21 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
+
+      - name: Post to meta
+        continue-on-error: true
+        run: |
+          cat << EOF > ./meta.crt
+          ${{ secrets.META_CERT }}
+          EOF
+          cat << EOF > ./meta.key
+          ${{ secrets.META_KEY }}
+          EOF
+
+          version="${{ github.ref_name }} | sed -E 's/^v//'"
+
+          for image in "central facility frontend"; do
+            curl "${{ vars.META_URL }}/artifacts/$version/container/$image" \
+              -E meta.crt --key meta.key \
+              --data-binary "oci://ghcr.io/beyondessential/tamanu-$image:${{ github.ref_name }}"
+          done
