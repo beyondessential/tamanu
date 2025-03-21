@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { addDays, addHours, endOfDay, startOfDay } from 'date-fns';
 import config from 'config';
 import { Model } from './Model';
@@ -91,7 +91,21 @@ export class MedicationAdministrationRecord extends Model {
           doseAmount: prescription.doseAmount,
         });
       }
-      lastStartDate = startOfDay(addDays(lastStartDate, 1));
+      // Get next administration date based on frequency
+      switch (prescription.frequency) {
+        case ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY:
+          lastStartDate = startOfDay(addDays(lastStartDate, 2));
+          break;
+        case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
+          lastStartDate = startOfDay(addDays(lastStartDate, 7));
+          break;
+        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH:
+          lastStartDate = startOfDay(addDays(lastStartDate, 30));
+          break;
+        default:
+          lastStartDate = startOfDay(addDays(lastStartDate, 1));
+          break;
+      }
     }
   }
 
