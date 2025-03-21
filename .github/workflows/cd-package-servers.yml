@@ -123,7 +123,7 @@ jobs:
           url: ${{ vars.META_URL }}
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.version.outputs.version }}/linux-amd64/${{ matrix.package }}
+          api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/linux-amd64
           arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar.zst'
 
       # the action doesn't work on windows because of ecdsa cryptography :(
@@ -135,7 +135,7 @@ jobs:
           url: ${{ vars.META_URL }}
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.version.outputs.version }}/windows-amd64/${{ matrix.package }}
+          api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/windows-amd64
           arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/${{ matrix.package }}-${{ steps.version.outputs.version }}-windows.tar.zst'
 
     outputs:

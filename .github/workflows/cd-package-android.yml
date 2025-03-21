@@ -217,5 +217,5 @@ jobs:
           url: ${{ vars.META_URL }}
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.destination.outputs.result }}/android/apk
+          api: /artifacts/${{ steps.destination.outputs.result }}/mobile/android
           arg: --data-binary 'https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk'
