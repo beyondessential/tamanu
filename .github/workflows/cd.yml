@@ -416,7 +416,8 @@ jobs:
           version="${{ github.ref_name }} | sed -E 's/^v//'"
 
           for image in "central facility frontend"; do
-            curl "${{ vars.META_URL }}/artifacts/$version/container/$image" \
+            set -x
+            curl -v "${{ vars.META_URL }}/artifacts/$version/container/$image" \
               -E meta.crt --key meta.key \
               --data-binary "oci://ghcr.io/beyondessential/tamanu-$image:${{ github.ref_name }}"
           done
