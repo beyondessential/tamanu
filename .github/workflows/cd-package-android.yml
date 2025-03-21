@@ -23,6 +23,13 @@ on:
         required: true
       ANDROID_SIGNING_STORE_PASSWORD:
         required: true
+
+      # only required for release
+      META_CERT:
+        required: false
+      META_KEY:
+        required: false
+
   workflow_dispatch:
     inputs:
       branding:
@@ -159,7 +166,6 @@ jobs:
                 body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`,
               });
             }
-
 
       - name: Set S3 destination
         id: destination
