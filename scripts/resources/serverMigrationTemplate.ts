@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {

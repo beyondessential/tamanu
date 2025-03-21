@@ -1,4 +1,4 @@
-import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
@@ -23,8 +23,17 @@ export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslatio
 export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
   const frequency = synonyms[index];
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
-}
+};
 
 export const getTranslatedFrequency = (frequency, getTranslation) => {
   return getTranslation(`medication.frequency.${camelCase(frequency)}.label`, frequency);
+};
+
+export const getDose = (medication, getTranslation, getEnumTranslation, showPrn = false) => {
+  let { doseAmount, units, isVariableDose, isPrn } = medication;
+  if (!units) return '';
+  if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
+  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_LABELS, units)}${
+    showPrn && isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
+  }`;
 };

@@ -42,7 +42,8 @@
   "log": {
     "path": "",
     "consoleLevel": "http",
-    "color": true
+    "color": true,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
