@@ -5,6 +5,7 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
   simpleGet,
+  simplePost,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError } from '@tamanu/shared/errors';
@@ -56,6 +57,9 @@ medication.put(
     res.send(object);
   }),
 );
+
+medication.put('/mar/:id', simplePut('MedicationAdministrationRecord'));
+medication.post('/mar', simplePost('MedicationAdministrationRecord'));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>

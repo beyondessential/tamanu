@@ -165,6 +165,7 @@ const MedicationCell = ({ medication, selectedDate }) => {
     medicationAdministrationRecords,
     endDate,
     isPrn,
+    id: prescriptionId,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -198,6 +199,9 @@ const MedicationCell = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             discontinuedDate={discontinuedDate}
             endDate={endDate}
+            marId={id}
+            reasonNotGiven={record?.reasonNotGiven}
+            prescriptionId={prescriptionId}
             isPrn={isPrn}
           />
         );
