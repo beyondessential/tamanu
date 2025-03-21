@@ -16,6 +16,7 @@ const CATEGORY_PATH = `/patients/:category(${Object.values(PATIENT_CATEGORIES).j
 const PATIENT_PATH = `${CATEGORY_PATH}/:patientId`;
 const ENCOUNTER_PATH = `${PATIENT_PATH}/encounter/:encounterId`;
 const SUMMARY_PATH = `${ENCOUNTER_PATH}/summary`;
+const MAR_PATH = `${ENCOUNTER_PATH}/mar`;
 const LAB_REQUEST_PATH = `${ENCOUNTER_PATH}/lab-request/:labRequestId`;
 const IMAGING_REQUEST_PATH = `${ENCOUNTER_PATH}/imaging-request/:imagingRequestId`;
 const PROGRAM_REGISTRY_PATH = `${PATIENT_PATH}/program-registry/:programRegistryId`;
@@ -26,6 +27,7 @@ export const PATIENT_PATHS = {
   PATIENT: PATIENT_PATH,
   ENCOUNTER: ENCOUNTER_PATH,
   SUMMARY: SUMMARY_PATH,
+  MAR: MAR_PATH,
   LAB_REQUEST: LAB_REQUEST_PATH,
   IMAGING_REQUEST: IMAGING_REQUEST_PATH,
   PROGRAM_REGISTRY: PROGRAM_REGISTRY_PATH,
