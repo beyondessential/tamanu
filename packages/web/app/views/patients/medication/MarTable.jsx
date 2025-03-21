@@ -3,13 +3,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { format, isSameDay, parse } from 'date-fns';
 import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { MarStatus } from '../../../components/Medication/MarStatus';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { getDose, getTranslatedFrequency } from '../../../utils/medications';
+import { useTranslation } from '../../../contexts/Translation';
 
 const MEDICATION_CELL_WIDTH = 48;
 
@@ -123,7 +125,7 @@ const CurrentTimeOverlay = styled.div`
   width: ${MEDICATION_CELL_WIDTH - 1}px;
   height: 100%;
   z-index: 11;
-  right: ${p => (p.$length - p.$index - 1) * (MEDICATION_CELL_WIDTH)}px;
+  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH}px;
   border: 1px solid ${Colors.primary};
   pointer-events: none;
 `;
@@ -150,31 +152,34 @@ const formatTime = time => {
   return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
 };
 
-const MedicationCell = ({
-  isPrn,
-  doseAmount,
-  units,
-  frequency,
-  route,
-  notes,
-  medication,
-  discontinued,
-  discontinuedDate,
-  medicationAdministrationRecords,
-  selectedDate,
-  endDate,
-}) => {
-  const doseAmountDisplay = isPrn ? (
-    <TranslatedText stringId="medication.table.variable" fallback="Variable" />
-  ) : (
-    doseAmount
-  );
+const MedicationCell = ({ medication, selectedDate }) => {
+  const {
+    medication: medicationRef,
+    units,
+    frequency,
+    route,
+    notes,
+    discontinued,
+    discontinuedDate,
+    medicationAdministrationRecords,
+    endDate,
+  } = medication;
+  const { getTranslation, getEnumTranslation } = useTranslation();
+
   return (
     <>
       <MedicationCellContainer discontinued={discontinued}>
-        <Box fontWeight={500}>{medication.name}</Box>
+        <Box fontWeight={500}>
+          <TranslatedReferenceData
+            fallback={medicationRef.name}
+            value={medicationRef.id}
+            category={medicationRef.type}
+          />
+        </Box>
         <Box>
-          {doseAmountDisplay} {units}, {frequency}, {DRUG_ROUTE_LABELS[route]}
+          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+          {getTranslatedFrequency(frequency, getTranslation)},{' '}
+          {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
@@ -201,7 +206,8 @@ const MedicationCell = ({
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
   const startDate = getDateFromTimeString(startTime).getTime();
   const endDate = getDateFromTimeString(endTime).getTime();
-  const isCurrentTimeSlot = startDate <= Date.now() && Date.now() <= endDate && isSameDay(selectedDate, new Date());
+  const isCurrentTimeSlot =
+    startDate <= Date.now() && Date.now() <= endDate && isSameDay(selectedDate, new Date());
 
   return (
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
@@ -230,10 +236,12 @@ export const MarTable = ({ selectedDate }) => {
 
   return (
     <Container>
-      {isSameDay(selectedDate, new Date()) && <CurrentTimeOverlay
-        $index={MEDICATION_ADMINISTRATION_TIME_SLOTS.indexOf(getTimeSlotFromDate())}
-        $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
-      />}
+      {isSameDay(selectedDate, new Date()) && (
+        <CurrentTimeOverlay
+          $index={MEDICATION_ADMINISTRATION_TIME_SLOTS.indexOf(getTimeSlotFromDate())}
+          $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
+        />
+      )}
       <HeaderRow columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
         <HeadingCell>
           <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
@@ -260,7 +268,11 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {scheduledMedications.length ? (
               scheduledMedications.map(medication => (
-                <MedicationCell key={medication?.id} {...medication} selectedDate={selectedDate} />
+                <MedicationCell
+                  key={medication?.id}
+                  medication={medication}
+                  selectedDate={selectedDate}
+                />
               ))
             ) : (
               <EmptyMessage>
@@ -283,7 +295,11 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {prnMedications.length ? (
               prnMedications.map(medication => (
-                <MedicationCell key={medication?.id} {...medication} selectedDate={selectedDate} />
+                <MedicationCell
+                  key={medication?.id}
+                  medication={medication}
+                  selectedDate={selectedDate}
+                />
               ))
             ) : (
               <EmptyMessage>
