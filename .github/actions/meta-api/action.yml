@@ -21,12 +21,11 @@ runs:
     - shell: bash
       run: |
         cat << EOF > ./meta.crt
-        ${{ inputs.meta-crt }}
+        ${{ inputs.crt }}
         EOF
         cat << EOF > ./meta.key
-        ${{ inputs.meta-key }}
+        ${{ inputs.key }}
         EOF
 
-        curl "${{ inputs.meta-url }}${{ inputs.endpoint }}" \
-          -E meta.crt --key meta.key \
-          ${{ inputs.args }}
+        set -x
+        curl "${{ inputs.url }}${{ inputs.api }}" -E meta.crt --key meta.key ${{ inputs.arg }}
