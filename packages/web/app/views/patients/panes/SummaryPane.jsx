@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
+import { Box } from '@material-ui/core';
 
-import { ContentPane } from '../../../components';
+import { CompactContentPane as ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
@@ -41,6 +42,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
 
   return (
     <>
+      <Box height={5} />
       <ContentPane>
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
@@ -55,9 +57,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         </ContentPane>
       )}
       {showLocationBookings && (
-        <ContentPane>
-          <LocationBookingsTable patient={patient} />
-        </ContentPane>
+        <LocationBookingsTable patient={patient} />
       )}
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />
