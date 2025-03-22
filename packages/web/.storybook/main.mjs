@@ -2,7 +2,7 @@ import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
 
 function getAbsolutePath(packageName) {
-  return dirname(require.resolve(join(packageName, 'package.json')));
+  return dirname(resolve(__dirname, join('../..', packageName, 'package.json')));
 }
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
