@@ -30,10 +30,8 @@ export const getTranslatedFrequency = (frequency, getTranslation) => {
 };
 
 export const getDose = (medication, getTranslation, getEnumTranslation) => {
-  let { doseAmount, units, isVariableDose, isPrn } = medication;
+  let { doseAmount, units, isVariableDose } = medication;
   if (!units) return '';
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
-  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_LABELS, units)}${
-    isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
-  }`;
+  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_LABELS, units)}`;
 };

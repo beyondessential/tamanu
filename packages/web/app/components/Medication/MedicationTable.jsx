@@ -4,21 +4,22 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format, parseISO, add } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { DataFetchingTable } from './Table';
-import { formatShortest } from './DateDisplay';
-import { useEncounter } from '../contexts/Encounter';
-import { useAuth } from '../contexts/Auth';
-import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
-import { Colors } from '../constants';
-import { getFullLocationName } from '../utils/location';
-import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from './Translation';
-import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
+
+import { DataFetchingTable } from '../Table';
+import { formatShortest } from '../DateDisplay';
+import { useEncounter } from '../../contexts/Encounter';
+import { useAuth } from '../../contexts/Auth';
+import { reloadPatient } from '../../store';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { Colors } from '../../constants';
+import { getFullLocationName } from '../../utils/location';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
+import { DataFetchingTableWithPermissionCheck } from '../Table/DataFetchingTable';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { useTranslation } from '../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '../utils/medications';
-import { LimitedLinesCell } from './FormattedTableCell';
-import { ConditionalTooltip } from './Tooltip';
+import { useTranslation } from '../../contexts/Translation';
+import { getDose, getTranslatedFrequency } from '../../utils/medications';
+import { LimitedLinesCell } from '../FormattedTableCell';
+import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -104,7 +105,12 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => <NoWrapCell>{getDose(data, getTranslation, getEnumTranslation)}</NoWrapCell>,
+    accessor: data => (
+      <NoWrapCell>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+      </NoWrapCell>
+    ),
     sortable: false,
   },
   {
@@ -210,7 +216,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     <div>
       {selectedMedication && (
         <MedicationDetails
-          medication={selectedMedication}
+          initialMedication={selectedMedication}
           onReloadTable={() => setRefreshCount(refreshCount + 1)}
           onClose={() => setSelectedMedication(null)}
         />
