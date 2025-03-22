@@ -15,10 +15,10 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  formatTimeSlot
+  formatTimeSlot,
 } from '@tamanu/shared/utils/medication';
 import { formatShort } from '@tamanu/utils/dateTime';
-import { addDays, format } from 'date-fns';
+import { addDays, format, subSeconds } from 'date-fns';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -37,7 +37,6 @@ import {
   NumberField,
   SelectField,
   TextField,
-  TimeInput,
   TranslatedSelectField,
 } from '../components';
 import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
@@ -56,6 +55,7 @@ import { useFormikContext } from 'formik';
 import { ConditionalTooltip } from '../components/Tooltip.jsx';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils.jsx';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -67,8 +67,9 @@ const validationSchema = yup.object().shape({
     .number()
     .positive()
     .when('isVariableDose', {
-      is: false,
-      then: schema =>
+      is: true,
+      then: schema => schema.optional(),
+      otherwise: schema =>
         schema.required(
           <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
         ),
@@ -79,28 +80,6 @@ const validationSchema = yup.object().shape({
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
-  timeSlots: yup.array().of(
-    yup.object().shape({
-      index: yup.number(),
-      value: foreignKey()
-        .translatedLabel(
-          <TranslatedText
-            stringId="medication.medicationAdministrationSchedule.scheduleTime"
-            fallback="Schedule time"
-          />,
-        )
-        .test((value, context) => {
-          const selectedDate = getDateFromTimeString(value).getTime();
-          const startDate = getDateFromTimeString(context.parent.timeSlot.startTime).getTime();
-          const endDate = getDateFromTimeString(context.parent.timeSlot.endTime).getTime();
-
-          if (selectedDate >= startDate && selectedDate < endDate) {
-            return true;
-          }
-          return false;
-        }),
-    }),
-  ),
   route: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_ROUTE_VALUES),
@@ -110,6 +89,19 @@ const validationSchema = yup.object().shape({
   startDate: yup
     .date()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  durationValue: yup
+    .number()
+    .positive()
+    .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
+  durationUnit: yup
+    .string()
+    .when('durationValue', (durationValue, schema) =>
+      durationValue
+        ? schema.required(
+            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+          )
+        : schema.optional(),
+    ),
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -142,7 +134,7 @@ const FieldLabel = styled(Box)`
   font-size: 14px;
 `;
 
-const FieldContent = styled.div`
+const FieldContent = styled(Box)`
   color: ${Colors.darkText};
   font-weight: 400;
   font-size: 14px;
@@ -200,13 +192,49 @@ const StyledFormGrid = styled(FormGrid)`
   }
 `;
 
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  max-width: 200px;
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+  }
+`;
+
+const StyledTimePicker = styled(TimePicker)`
+  .MuiInputBase-root {
+    font-size: 14px;
+    color: ${Colors.darkestText};
+    background-color: ${Colors.white};
+    &.Mui-disabled {
+      background-color: inherit;
+    }
+    &.Mui-disabled .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.outline};
+    }
+    .MuiSvgIcon-root {
+      font-size: 22px;
+    }
+    .MuiInputBase-input {
+      padding-top: 11.85px;
+      padding-bottom: 11.85px;
+      text-transform: lowercase;
+    }
+    .MuiOutlinedInput-notchedOutline {
+      border-width: 1px !important;
+    }
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.primary} !important;
+    }
+    :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.softText};
+    }
+  }
+`;
+
 const MedicationAdministrationForm = () => {
   const { getSetting } = useSettings();
-  const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.defaultAdministrationTimes',
-  );
+  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
-  const { values, setValues, errors } = useFormikContext();
+  const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
   const firstAdministrationTime = useMemo(() => {
@@ -269,11 +297,12 @@ const MedicationAdministrationForm = () => {
     });
   };
 
-  const handleChangeTime = (value, index) => {
+  const handleChangeTime = (value, index, context) => {
+    if (context.validationError) return;
     setValues({
       ...values,
       timeSlots: selectedTimeSlots.map(s =>
-        s.index === index ? { ...s, value: format(new Date(value), 'HH:mm') } : s,
+        s.index === index ? { ...s, value: format(value, 'HH:mm') } : s,
       ),
     });
   };
@@ -301,7 +330,7 @@ const MedicationAdministrationForm = () => {
         <ChevronIcon width={12} height={12} className="expanded-icon" />
       </StyledAccordionSummary>
       <StyledAccordionDetails>
-        <FieldContent>
+        <FieldContent lineHeight={'18px'}>
           <TranslatedText
             stringId="medication.medicationAdministrationSchedule.description"
             fallback="Administration times have been preset based on the frequency selected above. These times can be adjusted by deselecting and selecting the desired administration times. You can also set an ideal administration time within each administration window. The first administration time is displayed below, and can be adjusted by changing the start date & time above."
@@ -339,7 +368,6 @@ const MedicationAdministrationForm = () => {
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
               : null;
-            const error = errors?.timeSlots?.find((e, i) => index === values.timeSlots[i]?.index);
 
             return (
               <Box
@@ -360,24 +388,28 @@ const MedicationAdministrationForm = () => {
                   </FieldLabel>
                 )}
                 <Box display="flex" ml={slot.periodLabel ? 0 : 1}>
-                  <ConditionalTooltip
+                  <StyledConditionalTooltip
                     visible={isDisabled}
                     title={
-                      <TranslatedText
-                        stringId="medication.medicationAdministrationSchedule.disabledTooltip"
-                        fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
-                        replacements={{
-                          slots:
-                            values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
-                              ? 1
-                              : frequenciesAdministrationIdealTimes?.[values.frequency]?.length ||
-                                '0',
-                        }}
-                      />
+                      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED ? (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltipAsDirected"
+                          fallback="Medication administration schedule not applicable for selected frequency."
+                        />
+                      ) : (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltip"
+                          fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
+                          replacements={{
+                            slots:
+                              values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
+                                ? 1
+                                : frequenciesAdministrationIdealTimes?.[values.frequency]?.length ||
+                                  '0',
+                          }}
+                        />
+                      )
                     }
-                    PopperProps={{
-                      style: { maxWidth: '200px' },
-                    }}
                   >
                     <Box
                       px={1.5}
@@ -400,14 +432,36 @@ const MedicationAdministrationForm = () => {
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
                       />
                     </Box>
-                  </ConditionalTooltip>
+                  </StyledConditionalTooltip>
                   <Box ml={1} width="187px">
-                    <TimeInput
+                    <StyledTimePicker
                       disabled={isDisabled || !checked}
                       value={selectedTime}
-                      onChange={e => handleChangeTime(e.target.value, index)}
-                      error={!!error}
-                      helperText={error?.value}
+                      onChange={(value, context) => handleChangeTime(value, index, context)}
+                      format="hh:mmaa"
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                          InputProps: {
+                            placeholder: '--:-- --',
+                          },
+                        },
+                        layout: {
+                          sx: {
+                            '.MuiList-root:nth-child(3) :not(.Mui-selected)': {
+                              pointerEvents: 'none',
+                              opacity: 0.38,
+                            },
+                          },
+                        },
+                        digitalClockSectionItem: {
+                          sx: { fontSize: '14px' },
+                        },
+                      }}
+                      placeholder="--:-- --"
+                      timeSteps={{ minutes: 1 }}
+                      minTime={startTime}
+                      maxTime={subSeconds(endTime, 1)}
                     />
                   </Box>
                 </Box>
@@ -425,9 +479,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const frequenciesAdministrationIdealTimes = getSetting(
-    'medications.defaultAdministrationTimes',
-  );
+  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
@@ -474,7 +526,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (
       data.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
-      data.timeSlots.length < defaultIdealTimes?.length
+      (data.timeSlots.length < defaultIdealTimes?.length ||
+        (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY && data.timeSlots.length < 1))
     ) {
       setIdealTimesErrorOpen(true);
       return Promise.reject({ message: 'Administration times discrepancy error' });
@@ -484,6 +537,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     const medicationSubmission = await api.post('medication', {
       ...data,
       doseAmount: data.doseAmount || null,
+      durationValue: data.durationValue || null,
       idealTimes,
       encounterId,
     });
@@ -513,6 +567,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
           date: new Date(),
           prescriberId: currentUser.id,
           timeSlots: [],
+          isVariableDose: false,
         }}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
@@ -800,12 +855,15 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
           }
           disableDevWarning
           contentText={
-            <Box pt={2} pb={4}>
-              <TranslatedText
-                stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
-                fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
-              />
-            </Box>
+            <>
+              <FieldContent pt={3} pb={4}>
+                <TranslatedText
+                  stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
+                  fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+                />
+              </FieldContent>
+              <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />
+            </>
           }
           okText={
             <TranslatedText

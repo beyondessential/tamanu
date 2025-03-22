@@ -53,8 +53,6 @@ sources:
           - name: quantity
             data_type: integer
             description: "{{ doc('prescriptions__quantity') }}"
-            data_tests:
-              - not_null
           - name: discontinued
             data_type: boolean
             description: "{{ doc('prescriptions__discontinued') }}"

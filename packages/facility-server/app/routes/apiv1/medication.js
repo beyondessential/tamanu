@@ -9,7 +9,7 @@ import {
   simpleGet,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const medication = express.Router();
 
@@ -61,23 +61,66 @@ medication.post(
   }),
 );
 
+const updatePharmacyNotesInputSchema = z.object({
+  pharmacyNotes: z.string().optional(),
+  displayPharmacyNotesInMar: z.boolean().optional(),
+});
 medication.put(
   '/:id/pharmacy-notes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { Prescription } = models;
-    const { pharmacyNotes, displayPharmacyNotesInMar } = req.body;
+
+    const { pharmacyNotes, displayPharmacyNotesInMar } =
+      await updatePharmacyNotesInputSchema.parseAsync(req.body);
+
     req.checkPermission('create', 'MedicationPharmacyNote');
 
     const object = await Prescription.findByPk(params.id);
+    if (!object) {
+      throw new NotFoundError('Prescription not found');
+    }
+
     if (object.pharmacyNotes && object.pharmacyNotes !== pharmacyNotes) {
       req.checkPermission('write', 'MedicationPharmacyNote');
     }
-
     object.pharmacyNotes = pharmacyNotes;
     object.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
     await object.save();
     res.send(object);
+  }),
+);
+
+const discontinueInputSchema = z.object({
+  discontinuingClinicianId: z.string(),
+  discontinuedDate: z.string(),
+  discontinuingReason: z.string().optional(),
+});
+medication.put(
+  '/:id/discontinue',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Prescription } = models;
+
+    const data = await discontinueInputSchema.parseAsync(req.body);
+
+    req.checkPermission('write', 'Prescription');
+
+    const object = await Prescription.findByPk(params.id);
+    if (!object) {
+      throw new NotFoundError('Prescription not found');
+    }
+    if (object.discontinued) {
+      throw new ResourceConflictError('Prescription already discontinued');
+    }
+
+    Object.assign(object, { ...data, discontinued: true });
+    await object.save();
+
+    const updatedObject = await Prescription.findByPk(params.id, {
+      include: Prescription.getListReferenceAssociations(),
+    });
+    res.send(updatedObject);
   }),
 );
 
@@ -341,4 +384,5 @@ globalMedicationRequests.get('/$', (req, res, next) =>
     ],
   })(req, res, next),
 );
+
 medication.use(globalMedicationRequests);

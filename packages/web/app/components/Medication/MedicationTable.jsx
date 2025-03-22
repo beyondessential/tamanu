@@ -5,21 +5,21 @@ import styled from 'styled-components';
 import { format, parseISO, add } from 'date-fns';
 import { Box } from '@material-ui/core';
 
-import { DataFetchingTable } from './Table';
-import { formatShortest } from './DateDisplay';
-import { useEncounter } from '../contexts/Encounter';
-import { useAuth } from '../contexts/Auth';
-import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
-import { Colors } from '../constants';
-import { getFullLocationName } from '../utils/location';
-import { TranslatedText, TranslatedReferenceData } from './Translation';
-import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
+import { DataFetchingTable } from '../Table';
+import { formatShortest } from '../DateDisplay';
+import { useEncounter } from '../../contexts/Encounter';
+import { useAuth } from '../../contexts/Auth';
+import { reloadPatient } from '../../store';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { Colors } from '../../constants';
+import { getFullLocationName } from '../../utils/location';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
+import { DataFetchingTableWithPermissionCheck } from '../Table/DataFetchingTable';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { useTranslation } from '../contexts/Translation';
-import { getTranslatedFrequency } from '../utils/medications';
-import { LimitedLinesCell } from './FormattedTableCell';
-import { ConditionalTooltip } from './Tooltip';
+import { useTranslation } from '../../contexts/Translation';
+import { getDose, getTranslatedFrequency } from '../../utils/medications';
+import { LimitedLinesCell } from '../FormattedTableCell';
+import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -90,20 +90,12 @@ const getMedicationName = ({ medication }) => (
   />
 );
 
-const getDose = ({ doseAmount, units, isVariableDose, isPrn }, getTranslation) => {
-  if (!units) return '';
-  if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
-  return `${doseAmount} ${units}${
-    isPrn ? ` ${getTranslation('medication.table.prn', 'PRN')}` : ''
-  }`;
-};
-
 const getFrequency = ({ frequency }, getTranslation) => {
   if (!frequency) return '';
   return getTranslatedFrequency(frequency, getTranslation);
 };
 
-const MEDICATION_COLUMNS = getTranslation => [
+const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'Medication.name',
     title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
@@ -113,7 +105,12 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => <NoWrapCell>{getDose(data, getTranslation)}</NoWrapCell>,
+    accessor: data => (
+      <NoWrapCell>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+      </NoWrapCell>
+    ),
     sortable: false,
   },
   {
@@ -126,7 +123,11 @@ const MEDICATION_COLUMNS = getTranslation => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    accessor: ({ route }) => <NoWrapCell>{DRUG_ROUTE_LABELS[route]}</NoWrapCell>,
+    accessor: ({ route }) => (
+      <NoWrapCell>
+        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
+      </NoWrapCell>
+    ),
   },
   {
     key: 'date',
@@ -171,7 +172,7 @@ const MEDICATION_COLUMNS = getTranslation => [
   },
 ];
 
-const FULL_LISTING_COLUMNS = getTranslation => [
+const FULL_LISTING_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'name',
     title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
@@ -196,11 +197,11 @@ const FULL_LISTING_COLUMNS = getTranslation => [
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
-  ...MEDICATION_COLUMNS(getTranslation),
+  ...MEDICATION_COLUMNS(getTranslation, getEnumTranslation),
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -215,13 +216,13 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     <div>
       {selectedMedication && (
         <MedicationDetails
-          medication={selectedMedication}
+          initialMedication={selectedMedication}
           onReloadTable={() => setRefreshCount(refreshCount + 1)}
           onClose={() => setSelectedMedication(null)}
         />
       )}
       <StyledDataFetchingTable
-        columns={MEDICATION_COLUMNS(getTranslation)}
+        columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
         endpoint={`encounter/${encounterId}/medications`}
         rowStyle={rowStyle}
         elevated={false}
