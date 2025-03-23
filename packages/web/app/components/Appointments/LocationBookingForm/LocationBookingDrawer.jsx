@@ -280,7 +280,11 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             component={CheckField}
             onChange={() => resetFields(['endDate', 'endTime'])}
           />
-          <DateTimeRangeField required separate={values.overnight} />
+          <DateTimeRangeField
+            onChangeStartDate={() => resetFields(['startTime'])}
+            required
+            separate={values.overnight}
+          />
           <Field
             component={AutocompleteField}
             label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
