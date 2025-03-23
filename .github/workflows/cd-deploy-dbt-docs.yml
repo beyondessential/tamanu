@@ -82,9 +82,9 @@ jobs:
           npm run --workspace @tamanu/central-server start migrate up
 
       - name: Generate DBT docs
-        env:
-          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
-        run: npm run dbt-generate-docs
+        run: |
+          pip3 install dbt-core dbt-postgres
+          npm run dbt-generate-docs
 
       - name: Save dbt docs artifacts
         uses: actions/upload-artifact@v4
