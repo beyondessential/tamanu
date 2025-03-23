@@ -60,7 +60,6 @@ jobs:
 
       - run: npm ci
 
-
       - name: Install and start postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
@@ -83,7 +82,18 @@ jobs:
           npm run --workspace @tamanu/central-server start migrate up
 
       - name: Generate DBT docs
+        env:
+          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
         run: npm run dbt-generate-docs
+
+      - name: Save dbt docs artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-docs
+          path: |
+            database/docs/target/
+            database/docs/logs/
+          retention-days: 7
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
