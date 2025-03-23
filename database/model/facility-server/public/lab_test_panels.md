@@ -1,1 +1,0 @@
-../../central-server/public/lab_test_panels.md
