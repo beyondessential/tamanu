@@ -7,6 +7,14 @@ on:
       - synchronize
       - reopened
       - edited
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
 
     # tags: ['v*.*.*']
     # branches:
@@ -54,12 +62,21 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 17
-          .github/scripts/setup-postgres-for-one-package.sh fake
+          source .github/scripts/install-postgres-ubuntu.sh 16
+
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+
+      - name: Configure Tamanu
+        run: |
+          echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+
+      - name: Run Migrations
+        run: |
+          npm run --workspace @tamanu/central-server start migrate up
 
       - name: Generate DBT docs
-        env:
-          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
         run: npm run dbt-generate-docs
 
       - uses: aws-actions/configure-aws-credentials@v4
