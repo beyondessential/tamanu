@@ -1,11 +1,17 @@
 name: CD DBT docs
 
 on:
-  push:
-    tags: ['v*.*.*']
-    branches:
-      - main
-      - release/*
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+    # tags: ['v*.*.*']
+    # branches:
+    #   - main
+    #   - release/*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -58,24 +64,24 @@ jobs:
       - shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" | tee -a $GITHUB_ENV
 
-      - name: Upload docs to S3
-        run: |
-          aws s3 sync database/docs/target s3://bes-data-docs/tamanu/${{ env.BRANCH_NAME }}/ \
-            --delete \
-            --cache-control "max-age=3600" \
-            --exclude "*" \
-            --include "catalog.json" \
-            --include "index.html" \
-            --include "manifest.json"
+      # - name: Upload docs to S3
+      #   run: |
+      #     aws s3 sync database/docs/target s3://bes-data-docs/tamanu/${{ env.BRANCH_NAME }}/ \
+      #       --delete \
+      #       --cache-control "max-age=3600" \
+      #       --exclude "*" \
+      #       --include "catalog.json" \
+      #       --include "index.html" \
+      #       --include "manifest.json"
 
-      - name: Update GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          append_body: true
-          body: |
-            ## DBT Documentation
-            The DBT documentation for this release is available at:
-            - [DBT Docs](https://docs.data.bes.au/tamanu/${{ github.ref_name }})
+      # - name: Update GitHub Release
+      #   if: startsWith(github.ref, 'refs/tags/v')
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     tag_name: ${{ github.ref_name }}
+      #     append_body: true
+      #     body: |
+      #       ## DBT Documentation
+      #       The DBT documentation for this release is available at:
+      #       - [DBT Docs](https://docs.data.bes.au/tamanu/${{ github.ref_name }})
 
