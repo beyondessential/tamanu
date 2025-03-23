@@ -11,12 +11,9 @@ const Text = styled.div`
 export const RecordedInErrorWarningModal = ({ onConfirm, onClose, open, items = [] }) => {
   const { getTranslation } = useTranslation();
   const names = items.map(
-    item =>
-      `'${getTranslation(
-        getReferenceDataStringId(item.id, 'programRegistryCondition'),
-        item.name,
-      )}'`,
+    item => `'${getTranslation(getReferenceDataStringId(item.id, 'prCondition'), item.name)}'`,
   );
+
   const text =
     names.length > 1
       ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]

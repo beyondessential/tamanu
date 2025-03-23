@@ -167,7 +167,12 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               <RecordedInErrorWarningModal
                 open={warningOpen}
                 onClose={() => setWarningOpen(false)}
-                items={[{ id: conditionId, name: condition.programRegistryCondition?.name }]}
+                items={[
+                  {
+                    id: condition.programRegistryConditionId,
+                    name: condition.programRegistryCondition?.name,
+                  },
+                ]}
                 onConfirm={async () => {
                   // Manually pass the values to the confirmed submit function
                   await handleConfirmedSubmit(values);
