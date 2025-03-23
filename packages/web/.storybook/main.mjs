@@ -7,7 +7,7 @@ function getAbsolutePath(packageName) {
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 export default {
-  framework: getAbsolutePath('@storybook/react-vite'),
+  framework: '@storybook/react-vite',
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   typescript: {
     reactDocgen: false,
@@ -17,7 +17,7 @@ export default {
   },
   addons: [
     {
-      name: getAbsolutePath('@storybook/addon-links'),
+      name: '@storybook/addon-links',
       options: { docs: false }, // no mdx
     },
     '@storybook/addon-links',
