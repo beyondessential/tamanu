@@ -71,7 +71,7 @@ export const PatientProgramRegistryView = () => {
 
   const patientRoutes = usePatientRoutes();
 
-  if (isLoading || conditionsLoading) {
+  if (isLoading) {
     return <LoadingIndicator />;
   }
 

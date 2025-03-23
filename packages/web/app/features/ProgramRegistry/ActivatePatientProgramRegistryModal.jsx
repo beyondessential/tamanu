@@ -13,8 +13,13 @@ import {
   Form,
   MultiselectField,
 } from '../../components/Field';
-import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
+import {
+  getReferenceDataStringId,
+  TranslatedReferenceData,
+  ConfirmCancelRow,
+  TranslatedText,
+  FormGrid,
+} from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -24,13 +29,15 @@ import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections'
 import {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
-} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+} from '../../api/queries';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { getReferenceDataStringId, TranslatedReferenceData } from '../../components';
 
-export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
+export const ActivatePatientProgramRegistryModal = ({
+  onClose,
+  patientProgramRegistration,
+  open,
+}) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { currentUser, facilityId } = useAuth();

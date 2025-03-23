@@ -4,8 +4,10 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
-import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry';
-import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
+import {
+  ActivatePatientProgramRegistryModal,
+  PatientProgramRegistryUpdateFormModal,
+} from '../../features/ProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
@@ -206,7 +208,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           </div>
         </MenuContainer>
       </Row>
-      <ActivatePatientProgramRegistry
+      <ActivatePatientProgramRegistryModal
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={() => setOpenActivateProgramRegistryFormModal(false)}

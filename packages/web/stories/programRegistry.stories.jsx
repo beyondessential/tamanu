@@ -11,7 +11,7 @@ import { PatientProgramRegistryFormHistory } from '../app/views/programRegistry/
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
-import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
+import { ActivatePatientProgramRegistryModal } from '../app/features/ProgramRegistry/ActivatePatientProgramRegistryModal.jsx';
 import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
 import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
@@ -199,7 +199,7 @@ export const ProgramRegistryDeleteModalStory = {
 export const ActivatePatientProgramRegistryStory = {
   name: 'Activate Patient Program Registry',
   render: () => (
-    <ActivatePatientProgramRegistry
+    <ActivatePatientProgramRegistryModal
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       patientProgramRegistration={patientProgramRegistration}

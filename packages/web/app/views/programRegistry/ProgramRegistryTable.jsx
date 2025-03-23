@@ -7,13 +7,15 @@ import { reloadPatient } from '../../store';
 import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry/PatientProgramRegistryUpdateFormModal.jsx';
+import {
+  PatientProgramRegistryUpdateFormModal,
+  ActivatePatientProgramRegistryModal,
+} from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
@@ -235,7 +237,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       )}
 
       {openModal && openModal?.data && openModal?.action === 'Activate' && (
-        <ActivatePatientProgramRegistry
+        <ActivatePatientProgramRegistryModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();
