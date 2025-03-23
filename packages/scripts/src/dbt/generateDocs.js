@@ -40,8 +40,6 @@ async function run() {
     }),
   );
 
-  console.log(await sourceFolders())
-
   console.log(' | generate packages.yml');
   await fs.writeFile(
     join(base, 'packages.yml'),
