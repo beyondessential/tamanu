@@ -52,7 +52,14 @@ jobs:
 
       - run: npm ci
 
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 17
+          .github/scripts/setup-postgres-for-one-package.sh fake
+
       - name: Generate DBT docs
+        env:
+          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
         run: npm run dbt-generate-docs
 
       - uses: aws-actions/configure-aws-credentials@v4
