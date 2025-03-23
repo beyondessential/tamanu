@@ -33,7 +33,7 @@ import {
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 
-export const ActivatePatientProgramRegistryModal = ({
+export const PatientProgramRegistryActivateModal = ({
   onClose,
   patientProgramRegistration,
   open,

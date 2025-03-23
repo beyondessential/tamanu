@@ -9,7 +9,7 @@ import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   PatientProgramRegistryUpdateFormModal,
-  ActivatePatientProgramRegistryModal,
+  PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
@@ -237,7 +237,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       )}
 
       {openModal && openModal?.data && openModal?.action === 'Activate' && (
-        <ActivatePatientProgramRegistryModal
+        <PatientProgramRegistryActivateModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();

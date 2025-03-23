@@ -5,7 +5,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
 import {
-  ActivatePatientProgramRegistryModal,
+  PatientProgramRegistryActivateModal,
   PatientProgramRegistryUpdateFormModal,
 } from '../../features/ProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
@@ -208,7 +208,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           </div>
         </MenuContainer>
       </Row>
-      <ActivatePatientProgramRegistryModal
+      <PatientProgramRegistryActivateModal
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={() => setOpenActivateProgramRegistryFormModal(false)}
