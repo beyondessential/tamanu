@@ -9,6 +9,7 @@ export interface IPatientProgramRegistrationCondition {
   date: DateTimeString;
   deletionDate?: DateTimeString;
   conditionCategory: string;
+  reasonForChange?: string;
 
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
