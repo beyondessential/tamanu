@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
+import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5, TranslatedText } from '../../components';
+import { useParams } from 'react-router-dom';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+} from '@tamanu/constants';
+import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
-import {
-  useTranslatedPatientProgramRegistryConditions,
-  UpdateConditionFormModal,
-} from '../../features/ProgramRegistry';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
+import { useTranslation } from '../../contexts/Translation';
+import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
 
 const Container = styled.div`
   display: flex;
@@ -92,13 +94,14 @@ const ConditionComponent = ({ condition, onClick }) => {
 };
 
 export const ConditionSection = () => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { patientId, programRegistryId } = useParams();
   const [selectedConditionId, setSelectedConditionId] = useState(null);
-  const { data: conditionsData = [], isLoading } = usePatientProgramRegistryConditionsQuery(
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     patientId,
     programRegistryId,
   );
-  const translatedData = useTranslatedPatientProgramRegistryConditions(conditionsData);
+
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -107,9 +110,21 @@ export const ConditionSection = () => {
     setSelectedConditionId(conditionId);
   };
 
-  const { openConditions, closedConditions } = getGroupedConditions(translatedData);
+  const translatedData = conditions.map(condition => {
+    const { programRegistryCondition, conditionCategory } = condition;
+    const { id, name } = programRegistryCondition;
+    const translatedName = getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
+
+    const translatedCategory = getEnumTranslation(
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+      conditionCategory,
+    );
+    return { ...condition, translatedName, translatedCategory };
+  });
+  const sortedData = sortBy(translatedData, c => c.translatedName);
+  const { openConditions, closedConditions } = getGroupedConditions(sortedData);
   const needsDivider = openConditions.length > 0 && closedConditions.length > 0;
-  const selectedCondition = translatedData.find(({ id }) => id === selectedConditionId);
+  const selectedCondition = conditions.find(({ id }) => id === selectedConditionId);
   const updateModalIsOpen = Boolean(selectedConditionId) && Boolean(selectedCondition);
 
   return (

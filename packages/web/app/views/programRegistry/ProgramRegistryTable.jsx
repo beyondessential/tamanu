@@ -4,13 +4,12 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
-  useTranslatedPatientProgramRegistryConditions,
 } from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
@@ -18,11 +17,17 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { TranslatedText } from '../../components/Translation';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const ConditionsCell = ({ conditions }) => {
-  console.log('conditions', conditions);
-  const translatedCondition = useTranslatedPatientProgramRegistryConditions(conditions);
-  return translatedCondition.map(condition => condition.translatedName).join(', ');
+  const { getTranslation } = useTranslation();
+  return conditions
+    ?.map(condition => {
+      const { id, name } = condition;
+      return getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
+    })
+    .sort((a, b) => b.localeCompare(a))
+    .join(', ');
 };
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
