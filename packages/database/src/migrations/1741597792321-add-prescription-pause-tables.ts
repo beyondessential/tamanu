@@ -28,11 +28,11 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     pause_start_date: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     pause_end_date: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     notes: {
@@ -72,10 +72,12 @@ export async function up(query: QueryInterface): Promise<void> {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -106,7 +108,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     action_date: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     action_user_id: {
@@ -134,10 +136,12 @@ export async function up(query: QueryInterface): Promise<void> {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     deleted_at: {
       type: DataTypes.DATE,

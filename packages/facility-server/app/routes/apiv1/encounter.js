@@ -186,12 +186,28 @@ encounterRelations.get(
 
     const baseQueryOptions = {
       order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: [...associations, {
-        model: models.Encounter,
-        as: 'encounters',
-        through: { attributes: [] },
-        where: { id: params.id },
-      }],
+      include: [
+        ...associations,
+        {
+          model: models.Encounter,
+          as: 'encounters',
+          through: { attributes: [] },
+          where: { id: params.id },
+        },
+        {
+          model: models.EncounterPausePrescription,
+          as: 'pausePrescriptions',
+          where: {
+            pauseEndDate: {
+              [Op.gt]: getCurrentDateTimeString(),
+            },
+          },
+          order: [['createdAt', 'DESC']],
+          through: { attributes: [] },
+          attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
+          required: false,
+        },
+      ],
     };
 
     if (after) {

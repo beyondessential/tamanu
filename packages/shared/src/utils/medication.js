@@ -1,5 +1,4 @@
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { formatTime } from '@tamanu/utils/dateTime';
 import { set } from 'date-fns';
 
 export const findAdministrationTimeSlotFromIdealTime = (idealTime) => {
@@ -26,10 +25,4 @@ export const getDateFromTimeString = (time, initialDate = new Date()) => {
   const hour = parseInt(parsedTime[0]);
   const minute = parseInt(parsedTime[1]) || 0;
   return set(initialDate, { hours: hour, minutes: minute, seconds: 0 });
-};
-
-export const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
 };

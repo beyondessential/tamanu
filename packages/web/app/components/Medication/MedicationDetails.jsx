@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
 
-import { TranslatedText } from '../Translation/TranslatedText';
 import styled from 'styled-components';
-import { Colors, FORM_TYPES } from '../../constants';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
-import { CheckField, Field, Form, TextField } from '../Field';
-import { FormModal } from '../FormModal';
-import { FormGrid } from '../FormGrid';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  formatTimeSlot,
 } from '@tamanu/shared/utils/medication';
+
+import { TranslatedText } from '../Translation/TranslatedText';
+import { Colors, FORM_TYPES } from '../../constants';
+import { CheckField, Field, Form, TextField } from '../Field';
+import { FormModal } from '../FormModal';
+import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { add } from 'date-fns';
-import { getDose, getTranslatedFrequency } from '../../utils/medications';
+import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
+import { MedicationPauseModal } from './MedicationPauseModal';
+import { usePausePrescriptionQuery } from '../../api/queries/usePrescriptionQuery';
+import { useEncounter } from '../../contexts/Encounter';
+import { MedicationResumeModal } from './MedicationResumeModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -60,7 +63,15 @@ const DiscontinuedText = styled(Box)`
   color: ${Colors.alert};
 `;
 
+const PausedText = styled(Box)`
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 500;
+  color: ${Colors.primary};
+`;
+
 export const MedicationDetails = ({ initialMedication, onClose, onReloadTable }) => {
+  const { encounter } = useEncounter();
   const { ability } = useAuth();
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -68,7 +79,16 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
   const canUpdateMedicationPharmacyNote = ability?.can('write', 'MedicationPharmacyNote');
 
   const [openDiscontinueModal, setOpenDiscontinueModal] = useState(false);
+  const [openPauseModal, setOpenPauseModal] = useState(false);
+  const [openResumeModal, setOpenResumeModal] = useState(false);
   const [medication, setMedication] = useState(initialMedication);
+
+  const { data, refetch: refetchPauseData } = usePausePrescriptionQuery(
+    medication.id,
+    encounter.id,
+  );
+  const pauseData = data?.pauseRecord;
+  const isPausing = !!pauseData && !medication.discontinued;
 
   const leftDetails = [
     {
@@ -92,7 +112,7 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
             label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
             value: medication.durationValue
               ? `${medication.durationValue} ${getTranslation(
-                  'medication.details.duration.unit',
+                  'medication.duration.unit',
                   `${medication.durationUnit.slice(0, -1)}(s)`,
                 )}`
               : '-',
@@ -129,19 +149,14 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
       ),
       value: `${formatShortest(medication.date)}`,
     },
-    ...(medication.isOngoing || medication.discontinued || !medication.durationValue
+    ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
           {
             label: (
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             ),
-            value: (function() {
-              const endDate = add(new Date(medication.startDate), {
-                [medication.durationUnit]: medication.durationValue,
-              });
-              return `${formatShortest(endDate)} ${formatTimeSlot(endDate)}`;
-            })(),
+            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
           },
         ]),
     {
@@ -174,6 +189,11 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
 
   const onDiscontinue = async updatedMedication => {
     setMedication(updatedMedication);
+    onReloadTable();
+  };
+
+  const onPause = async () => {
+    refetchPauseData();
     onReloadTable();
   };
 
@@ -210,7 +230,9 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                           fallback="Discontinued by"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{medication.discontinuingClinician?.displayName}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        {medication.discontinuingClinician?.displayName}
+                      </DarkestText>
                       <MidText mt={2}>
                         <TranslatedText
                           stringId="medication.details.discontinueReason"
@@ -229,6 +251,43 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                       <DarkestText mt={0.5}>{`${formatShortest(
                         new Date(medication.discontinuedDate),
                       )} ${formatTimeSlot(new Date(medication.discontinuedDate))}`}</DarkestText>
+                    </Box>
+                  </DetailsContainer>
+                  <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
+                </>
+              )}
+              {isPausing && (
+                <>
+                  <PausedText>
+                    <TranslatedText
+                      stringId="medication.details.medicationPaused"
+                      fallback="Medication paused"
+                    />
+                  </PausedText>
+                  <DetailsContainer mt={0.5} display={'flex'} justifyContent={'space-between'}>
+                    <Box flex={1.1}>
+                      <MidText>
+                        <TranslatedText
+                          stringId="medication.details.duration"
+                          fallback="Duration"
+                        />
+                      </MidText>
+                      <DarkestText mt={0.5}>
+                        {`${pauseData.pauseDuration} ${getTranslation(
+                          'medication.duration.unit',
+                          `${pauseData.pauseTimeUnit.slice(0, -1)}(s)`,
+                        )}`}{' '}
+                        - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
+                        {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(
+                          pauseData.pauseEndDate,
+                        )}`}
+                      </DarkestText>
+                    </Box>
+                    <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+                      <MidText>
+                        <TranslatedText stringId="medication.details.notes" fallback="Notes" />
+                      </MidText>
+                      <DarkestText mt={0.5}>{pauseData.notes || '-'}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -316,11 +375,11 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                       !canCreateMedicationPharmacyNote ||
                       (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
                       medication.discontinued ||
-                      medication.discontinued
+                      isPausing
                     }
                   />
                 </div>
-                {!medication.discontinued && (
+                {!medication.discontinued && !isPausing && (
                   <div style={{ gridColumn: '1/-1', marginTop: '-12px' }}>
                     <Field
                       name="displayPharmacyNotesInMar"
@@ -393,18 +452,30 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         fallback="Discontinue"
                       />
                     </OutlinedButton>
-                    <OutlinedButton>
-                      <TranslatedText stringId="medication.details.pause" fallback="Pause" />
-                    </OutlinedButton>
+                    {isPausing ? (
+                      <OutlinedButton onClick={() => setOpenResumeModal(true)}>
+                        <TranslatedText stringId="medication.details.resume" fallback="Resume" />
+                      </OutlinedButton>
+                    ) : (
+                      <OutlinedButton onClick={() => setOpenPauseModal(true)}>
+                        <TranslatedText stringId="medication.details.pause" fallback="Pause" />
+                      </OutlinedButton>
+                    )}
                   </Box>
-                  <Box display={'flex'} style={{ gap: '10px' }}>
-                    <OutlinedButton onClick={onClose}>
-                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                    </OutlinedButton>
-                    <Button type="submit">
-                      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                  {isPausing ? (
+                    <Button onClick={onClose}>
+                      <TranslatedText stringId="general.action.close" fallback="Close" />
                     </Button>
-                  </Box>
+                  ) : (
+                    <Box display={'flex'} style={{ gap: '10px' }}>
+                      <OutlinedButton onClick={onClose}>
+                        <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                      </OutlinedButton>
+                      <Button type="submit">
+                        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                      </Button>
+                    </Box>
+                  )}
                 </>
               )}
             </Box>
@@ -414,6 +485,22 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                 medication={medication}
                 onDiscontinue={onDiscontinue}
                 onClose={() => setOpenDiscontinueModal(false)}
+              />
+            )}
+
+            {openPauseModal && (
+              <MedicationPauseModal
+                medication={medication}
+                onPause={onPause}
+                onClose={() => setOpenPauseModal(false)}
+              />
+            )}
+
+            {openResumeModal && (
+              <MedicationResumeModal
+                medication={medication}
+                onResume={onPause}
+                onClose={() => setOpenResumeModal(false)}
               />
             )}
           </>

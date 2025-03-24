@@ -27,7 +27,7 @@ export class EncounterPausePrescriptionHistory extends Model {
           allowNull: false,
         },
         actionDate: {
-          type: DataTypes.STRING,
+          type: DataTypes.DATETIMESTRING,
           allowNull: false,
         },
         notes: {
