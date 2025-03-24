@@ -1,23 +1,15 @@
-import React, { useCallback, useState } from 'react';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { format, parseISO, add } from 'date-fns';
+import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
-import { useEncounter } from '../../contexts/Encounter';
-import { useAuth } from '../../contexts/Auth';
-import { reloadPatient } from '../../store';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { Colors } from '../../constants';
-import { getFullLocationName } from '../../utils/location';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
-import { DataFetchingTableWithPermissionCheck } from '../Table/DataFetchingTable';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '../../utils/medications';
+import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
@@ -78,21 +70,52 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const NoWrapCell = styled.div`
+const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
-const getMedicationName = ({ medication }) => (
-  <TranslatedReferenceData
-    fallback={medication.name}
-    value={medication.id}
-    category={medication.type}
-  />
-);
+const getMedicationName = ({ medication, encounterPrescription, discontinued }) => {
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+  const isPausing = !!pauseData && !discontinued;
 
-const getFrequency = ({ frequency }, getTranslation) => {
+  return (
+    <Box
+      color={isPausing ? Colors.softText : 'inherit'}
+      fontStyle={isPausing ? 'italic' : 'normal'}
+    >
+      <TranslatedReferenceData
+        fallback={medication.name}
+        value={medication.id}
+        category={medication.type}
+      />
+      {isPausing && (
+        <Box fontSize={'12px'}>
+          (<TranslatedText stringId="medication.table.pausing" fallback="Paused" />,{' '}
+          {pauseData.pauseDuration}{' '}
+          <TranslatedText
+            stringId="medication.table.pausingTimeUnit"
+            fallback={`${pauseData.pauseTimeUnit.slice(0, -1)}(s)`}
+          />{' '}
+          - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
+          {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTranslation) => {
   if (!frequency) return '';
-  return getTranslatedFrequency(frequency, getTranslation);
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+  const isPausing = !!pauseData && !discontinued;
+  return (
+    <Box
+      color={isPausing ? Colors.softText : 'inherit'}
+      fontStyle={isPausing ? 'italic' : 'normal'}
+    >
+      {getTranslatedFrequency(frequency, getTranslation)}
+    </Box>
+  );
 };
 
 const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
@@ -105,12 +128,19 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => (
-      <NoWrapCell>
-        {getDose(data, getTranslation, getEnumTranslation)}
-        {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
-      </NoWrapCell>
-    ),
+    accessor: data => {
+      const pauseData = data.encounterPrescription?.pausePrescriptions?.[0];
+      const isPausing = !!pauseData && !data.discontinued;
+      return (
+        <NoWrapCell
+          color={isPausing ? Colors.softText : 'inherit'}
+          fontStyle={isPausing ? 'italic' : 'normal'}
+        >
+          {getDose(data, getTranslation, getEnumTranslation)}
+          {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+        </NoWrapCell>
+      );
+    },
     sortable: false,
   },
   {
@@ -123,25 +153,33 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    accessor: ({ route }) => (
-      <NoWrapCell>
-        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
-      </NoWrapCell>
-    ),
+    accessor: ({ route, encounterPrescription, discontinued }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+      const isPausing = !!pauseData && !discontinued;
+
+      return (
+        <NoWrapCell
+          color={isPausing ? Colors.softText : 'inherit'}
+          fontStyle={isPausing ? 'italic' : 'normal'}
+        >
+          <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
+        </NoWrapCell>
+      );
+    },
   },
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, startDate, durationValue, durationUnit, isOngoing }) => {
-      const parsedStartDate = parseISO(startDate);
-      const duration = parseInt(durationValue, 10);
-      const endDate = add(parsedStartDate, { [durationUnit]: duration });
+    accessor: ({ date, endDate, isOngoing, discontinued, encounterPrescription }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+      const isPausing = !!pauseData && !discontinued;
+
       let tooltipTitle = '';
-      if (durationValue && durationUnit) {
+      if (endDate) {
         tooltipTitle = (
           <>
             <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-            <div>{format(endDate, 'dd/MM/yy h:mma').toLowerCase()}</div>
+            <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
           </>
         );
       } else if (isOngoing) {
@@ -153,9 +191,12 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
         );
       }
       return (
-        <NoWrapCell>
+        <NoWrapCell
+          color={isPausing ? Colors.softText : 'inherit'}
+          fontStyle={isPausing ? 'italic' : 'normal'}
+        >
           <ConditionalTooltip
-            visible={isOngoing || (durationValue && durationUnit)}
+            visible={!discontinued || tooltipTitle}
             title={<Box fontWeight={400}>{tooltipTitle}</Box>}
           >
             {formatShortest(date)}
@@ -167,37 +208,20 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'prescriber.displayName',
     title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
-    accessor: data => data?.prescriber?.displayName ?? '',
+    accessor: ({ prescriber, encounterPrescription, discontinued }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+      const isPausing = !!pauseData && !discontinued;
+      return (
+        <Box
+          color={isPausing ? Colors.softText : 'inherit'}
+          fontStyle={isPausing ? 'italic' : 'normal'}
+        >
+          {prescriber?.displayName ?? ''}
+        </Box>
+      );
+    },
     CellComponent: LimitedLinesCell,
   },
-];
-
-const FULL_LISTING_COLUMNS = (getTranslation, getEnumTranslation) => [
-  {
-    key: 'name',
-    title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
-    accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
-    sortable: false,
-  },
-  {
-    key: 'department',
-    title: <TranslatedText stringId="general.department.label" fallback="Department" />,
-    accessor: ({ encounter }) => (
-      <TranslatedReferenceData
-        fallback={encounter.department.name}
-        value={encounter.department.id}
-        category="department"
-      />
-    ),
-    sortable: false,
-  },
-  {
-    key: 'location',
-    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
-    accessor: ({ encounter }) => getFullLocationName(encounter.location),
-    sortable: false,
-  },
-  ...MEDICATION_COLUMNS(getTranslation, getEnumTranslation),
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
@@ -234,40 +258,3 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     </div>
   );
 });
-
-export const DataFetchingMedicationTable = () => {
-  const { getTranslation } = useTranslation();
-  const { loadEncounter } = useEncounter();
-  const { facilityId } = useAuth();
-  const dispatch = useDispatch();
-  const onMedicationSelect = useCallback(
-    async medication => {
-      await loadEncounter(medication.encounter.id);
-      await dispatch(reloadPatient(medication.encounter.patientId));
-      dispatch(
-        push(
-          `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
-        ),
-      );
-    },
-    [loadEncounter, dispatch],
-  );
-
-  return (
-    <DataFetchingTableWithPermissionCheck
-      verb="list"
-      noun="Prescription"
-      endpoint="medication"
-      fetchOptions={{ facilityId }}
-      columns={FULL_LISTING_COLUMNS(getTranslation)}
-      noDataMessage={
-        <TranslatedText
-          stringId="medication.table.noData"
-          fallback="No medication requests found"
-        />
-      }
-      initialSort={{ order: 'desc', orderBy: 'date' }}
-      onRowClick={onMedicationSelect}
-    />
-  );
-};
