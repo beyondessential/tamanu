@@ -8,13 +8,13 @@ const respondWithError = (res, error) => {
   res.status(400).json({ error });
 };
 
-function getUpdateInformation(req) {
+function getUpdateInformation(req, minVersion) {
   if (!config.updateUrls) return {};
 
   const clientType = req.header('X-Tamanu-Client') || '';
   if (clientType.includes('Tamanu Mobile')) {
     return {
-      updateUrl: config.updateUrls.mobile,
+      updateUrl: config.updateUrls.mobile.replaceAll('{minVersion}', minVersion),
     };
   }
 
@@ -42,7 +42,7 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
     respondWithError(res, {
       message: VERSION_COMPATIBILITY_ERRORS.LOW,
       name: 'InvalidClientVersion',
-      ...getUpdateInformation(req),
+      ...getUpdateInformation(req, min),
     });
     return;
   }
