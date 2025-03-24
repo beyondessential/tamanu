@@ -1,3 +1,5 @@
+import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
+
 export { DataMigration } from './DataMigration';
 export { CursorDataMigration } from './CursorDataMigration';
 
@@ -8,12 +10,12 @@ export { CursorDataMigration } from './CursorDataMigration';
  */
 export const disableSyncTrigger = async (sequelize, callback) => {
   const { LocalSystemFact } = sequelize.models;
-  await LocalSystemFact.set('syncTrigger', 'disabled');
+  await LocalSystemFact.set(FACT_SYNC_TRIGGER_CONTROL, 'disabled');
   await callback();
-  await LocalSystemFact.set('syncTrigger', 'enabled');
+  await LocalSystemFact.set(FACT_SYNC_TRIGGER_CONTROL, 'enabled');
 };
 
 export const isSyncTriggerDisabled = async (sequelize) => {
-  const state = await sequelize.models.LocalSystemFact.get('syncTrigger');
+  const state = await sequelize.models.LocalSystemFact.get(FACT_SYNC_TRIGGER_CONTROL);
   return state === 'disabled';
 };

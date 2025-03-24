@@ -1,1 +1,0 @@
-../../central-server/public/encounter_prescriptions.md

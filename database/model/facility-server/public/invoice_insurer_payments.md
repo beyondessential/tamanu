@@ -1,1 +1,0 @@
-../../central-server/public/invoice_insurer_payments.md

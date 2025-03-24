@@ -104,6 +104,11 @@ export class Prescription extends Model {
       as: 'discontinuingClinician',
     });
 
+    this.hasOne(models.EncounterPrescription, {
+      foreignKey: 'prescriptionId',
+      as: 'encounterPrescription',
+    });
+
     this.belongsToMany(models.Encounter, {
       through: models.EncounterPrescription,
       foreignKey: 'prescriptionId',
@@ -118,12 +123,12 @@ export class Prescription extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
-      as: 'Medication',
+      as: 'medication',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
+    return ['medication', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildSyncFilter() {
