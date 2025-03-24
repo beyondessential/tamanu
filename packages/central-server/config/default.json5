@@ -36,6 +36,9 @@
       }
     }
   },
+  "meta-server": {
+    "host": "http://localhost:3001"
+  },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
   },
@@ -259,6 +262,10 @@
       // every day at 1 AM
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
+    },
+    "postStatusToMetaServer": {
+      // every minute
+      "schedule": "* * * * *"
     }
   },
   "integrations": {
