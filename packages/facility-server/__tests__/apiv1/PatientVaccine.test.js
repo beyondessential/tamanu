@@ -73,6 +73,9 @@ describe('PatientVaccine', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    for (const [name, attribute] of Object.entries(models.User.getAttributes())) {
+      console.log(name, attribute)
+    }
     clinician = await models.User.create(fake(models.User));
     const [facilityId] = selectFacilityIds(config);
     [facility] = await models.Facility.upsert({
