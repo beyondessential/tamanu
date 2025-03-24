@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
-export class addPatientProgramRegistrationConditionCategoryColumn1739395962000
+export class addPatientProgramRegistrationReasonForChange1740342611000
   implements MigrationInterface
 {
   async up(queryRunner: QueryRunner): Promise<void> {

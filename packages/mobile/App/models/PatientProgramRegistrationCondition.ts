@@ -34,6 +34,9 @@ export class PatientProgramRegistrationCondition
   @Column({ nullable: false, default: 'Unknown' })
   conditionCategory: string;
 
+  @Column({ nullable: true })
+  reasonForChange: string;
+
   // Relations
   @ManyToOne(() => ProgramRegistry)
   programRegistry: IProgramRegistry;
