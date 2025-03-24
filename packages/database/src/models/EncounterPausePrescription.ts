@@ -126,8 +126,6 @@ export class EncounterPausePrescription extends Model {
     this.belongsToMany(models.Prescription, {
       through: models.EncounterPrescription,
       foreignKey: 'id',
-      sourceKey: 'encounterPrescriptionId',
-      targetKey: 'id',
       as: 'prescription',
     });
   }
