@@ -89,10 +89,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         ),
         sortable: false,
         accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
+          return Array.isArray(conditions)
+            ? conditions
+                .map(x => ` ${x}`)
+                .sort((a, b) => a.localeCompare(b))
+                .toString()
             : '';
-          return conditionsText;
         },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
