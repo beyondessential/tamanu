@@ -37,7 +37,7 @@
     }
   },
   "meta-server": {
-    "host": "http://localhost:3001"
+    "host": "http://localhost:8000"
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
