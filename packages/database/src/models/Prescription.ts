@@ -117,7 +117,7 @@ export class Prescription extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['medication', 'encounters', 'prescriber', 'discontinuingClinician'];
+    return ['medication', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildSyncFilter() {

@@ -193,6 +193,7 @@ encounterRelations.get(
           as: 'encounters',
           through: { attributes: [] },
           where: { id: params.id },
+          attributes: ['id'],
         },
         {
           model: models.EncounterPrescription,
