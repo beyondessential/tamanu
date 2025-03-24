@@ -13,7 +13,13 @@ const dayAfter = dateStr => {
   return addDays(date, 1);
 };
 
-export const DateTimeRangeField = ({ disabled, required, separate = false, ...props }) => {
+export const DateTimeRangeField = ({
+  disabled,
+  onChangeStartDate,
+  required,
+  separate = false,
+  ...props
+}) => {
   const {
     values: { locationId, startDate },
   } = useFormikContext();
@@ -22,7 +28,7 @@ export const DateTimeRangeField = ({ disabled, required, separate = false, ...pr
     const isEndPickerDisabled = disabled || !locationId || !startDate;
     return (
       <>
-        <StartDateTimePicker disabled={disabled} required={required} />
+        <StartDateTimePicker disabled={disabled} onChange={onChangeStartDate} required={required} />
         <EndDateTimePicker
           disabled={isEndPickerDisabled}
           minDate={isEndPickerDisabled ? null : toDateString(dayAfter(startDate))}

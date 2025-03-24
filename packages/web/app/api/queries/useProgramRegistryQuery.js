@@ -3,8 +3,12 @@ import { useApi } from '../useApi';
 
 export const useProgramRegistryQuery = (programRegistryId, fetchOptions) => {
   const api = useApi();
-  return useQuery(['ProgramRegistry', programRegistryId], () =>
-    api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
+  return useQuery(
+    ['ProgramRegistry', programRegistryId],
+    () => api.get(`programRegistry/${encodeURIComponent(programRegistryId)}`, fetchOptions),
+    {
+      enabled: !!programRegistryId,
+    },
   );
 };
 
