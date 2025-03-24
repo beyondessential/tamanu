@@ -10,6 +10,7 @@ import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal
 import {
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
+  useTranslatedPatientProgramRegistryConditions,
 } from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
@@ -17,6 +18,12 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { TranslatedText } from '../../components/Translation';
+
+const ConditionsCell = ({ conditions }) => {
+  console.log('conditions', conditions);
+  const translatedCondition = useTranslatedPatientProgramRegistryConditions(conditions);
+  return translatedCondition.map(condition => condition.translatedName).join(', ');
+};
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -88,12 +95,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
-            : '';
-          return conditionsText;
-        },
+        accessor: ConditionsCell,
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
