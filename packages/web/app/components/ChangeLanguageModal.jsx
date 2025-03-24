@@ -7,7 +7,8 @@ import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
-import { LanguageFlag } from './LanguageFlag.jsx';
+import { ReactCountryFlag } from 'react-country-flag';
+import { isISO31661Alpha2 } from 'validator';
 
 const LanguageSelectorContainer = styled.div`
   margin: 10px auto 50px;
@@ -24,7 +25,6 @@ const LanguageOptionLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-
 `;
 
 const customStyles = {
@@ -38,7 +38,7 @@ const customStyles = {
     boxShadow: 'none',
     cursor: 'pointer',
     fontSize: '14px',
-    ...(state.isSelected && { borderColor: Colors.primary })
+    ...(state.isSelected && { borderColor: Colors.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
   menu: provided => ({
@@ -63,15 +63,19 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
   const [language, setLanguage] = useState(storedLanguage);
   const { data = {}, error } = useTranslationLanguagesQuery();
 
-  const { languageNames = [], languagesInDb = [] } = data;
+  const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
 
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
 
   const languageOptions = languagesInDb.map(({ language }) => {
+    const countryCode = languageCountryCodes[language];
     return {
       label: (
         <LanguageOptionLabel>
-          <LanguageFlag languageCode={language} />
+          {countryCode && isISO31661Alpha2(countryCode) && (
+            <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
+          )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
       ),
@@ -88,25 +92,31 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     onClose();
   };
 
-  return <Modal
-    title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
-    open={open}
-    onClose={onClose}
-    {...props}
-  >
-    <LanguageSelectorContainer>
-      <SelectInput
-        options={languageOptions}
-        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
-        isClearable={false}
-        error={!!error}
-        customStyleObject={customStyles}
-        name="Language"
-        value={language}
-        onChange={handleLanguageChange}
+  return (
+    <Modal
+      title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
+      open={open}
+      onClose={onClose}
+      {...props}
+    >
+      <LanguageSelectorContainer>
+        <SelectInput
+          options={languageOptions}
+          label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+          isClearable={false}
+          error={!!error}
+          customStyleObject={customStyles}
+          name="Language"
+          value={language}
+          onChange={handleLanguageChange}
+        />
+      </LanguageSelectorContainer>
+      <ModalActionRow
+        confirmText="Confirm"
+        onConfirm={onConfirmLanguageChange}
+        onCancel={onClose}
+        cancelText="Cancel"
       />
-    </LanguageSelectorContainer>
-    <ModalActionRow confirmText="Confirm" onConfirm={onConfirmLanguageChange} onCancel={onClose} cancelText="Cancel" />
-  </Modal>;
-
+    </Modal>
+  );
 };
