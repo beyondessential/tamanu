@@ -36,6 +36,15 @@ const DarkText = styled(Box)`
   color: ${Colors.darkText};
 `;
 
+const StyledFormActions = styled(Box)`
+  margin: 0 -32px -12px;
+  padding: 20px 40px 0;
+  border-top: 1px solid ${Colors.outline};
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+`;
+
 const validationSchema = yup.object().shape({
   pauseDuration: yup
     .number()
@@ -136,16 +145,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                 />
               </FormGrid>
             </Box>
-            <Box
-              mx={-4}
-              mb={-1.5}
-              px={5}
-              pt={2.5}
-              borderTop={`1px solid ${Colors.outline}`}
-              display={'flex'}
-              justifyContent={'flex-end'}
-              gap={2}
-            >
+            <StyledFormActions>
               <FormCancelButton onClick={onClose}>
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
@@ -157,7 +157,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
               >
                 <TranslatedText stringId="medication.details.pause" fallback="Pause" />
               </FormSubmitButton>
-            </Box>
+            </StyledFormActions>
           </>
         )}
       />

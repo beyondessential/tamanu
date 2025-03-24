@@ -20,6 +20,15 @@ const DarkText = styled(Box)`
   color: ${Colors.darkText};
 `;
 
+const StyledFormActions = styled(Box)`
+  margin: 0 -32px -12px;
+  padding: 20px 40px 0;
+  border-top: 1px solid ${Colors.outline};
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+`;
+
 export const MedicationResumeModal = ({ medication, onResume, onClose }) => {
   const { encounter } = useEncounter();
   const api = useApi();
@@ -34,7 +43,9 @@ export const MedicationResumeModal = ({ medication, onResume, onClose }) => {
     <StyledBaseModal
       open
       onClose={onClose}
-      title={<TranslatedText stringId="medication.pauseModal.title" fallback="Pause medication" />}
+      title={
+        <TranslatedText stringId="medication.resumeModal.title" fallback="Resume medication" />
+      }
     >
       <Form
         suppressErrorDialog
@@ -55,16 +66,7 @@ export const MedicationResumeModal = ({ medication, onResume, onClose }) => {
               </DarkText>
               <MedicationSummary medication={medication} />
             </Box>
-            <Box
-              mx={-4}
-              mb={-1.5}
-              px={5}
-              pt={2.5}
-              borderTop={`1px solid ${Colors.outline}`}
-              display={'flex'}
-              justifyContent={'flex-end'}
-              gap={2}
-            >
+            <StyledFormActions>
               <FormCancelButton onClick={onClose}>
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
@@ -76,7 +78,7 @@ export const MedicationResumeModal = ({ medication, onResume, onClose }) => {
               >
                 <TranslatedText stringId="medication.details.resume" fallback="Resume" />
               </FormSubmitButton>
-            </Box>
+            </StyledFormActions>
           </>
         )}
       />
