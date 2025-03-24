@@ -123,11 +123,6 @@ export class EncounterPausePrescription extends Model {
       foreignKey: 'updatedBy',
       as: 'updatedByUser',
     });
-    this.belongsToMany(models.Prescription, {
-      through: models.EncounterPrescription,
-      foreignKey: 'id',
-      as: 'prescription',
-    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
