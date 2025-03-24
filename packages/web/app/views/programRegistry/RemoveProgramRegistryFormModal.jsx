@@ -71,20 +71,18 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
-    const { ...rest } = patientProgramRegistration;
+    const { patientId, ...rest } = patientProgramRegistration;
     delete rest.id;
     delete rest.date;
 
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      {
-        ...rest,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: getCurrentDateTimeString(),
-      },
-    );
+    await api.post(`patient/${patientId}/programRegistration`, {
+      ...rest,
+      registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+      date: getCurrentDateTimeString(),
+    });
 
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries(['patient', patientId]);
     onClose();
   };
 
