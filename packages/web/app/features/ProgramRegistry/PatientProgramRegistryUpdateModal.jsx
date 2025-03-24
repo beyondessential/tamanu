@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Modal,
   TranslatedText,
@@ -8,30 +7,13 @@ import {
   AutocompleteField,
   ModalFormActionRow,
 } from '../../components';
-import { useApi, useSuggester } from '../../api';
-import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { useSuggester } from '../../api';
+import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
 
 const StyledAutocompleteField = styled(AutocompleteField)`
   width: 300px;
 `;
-
-const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-
-  return useMutation(
-    data => {
-      return api.put(`patient/programRegistration/${registrationId}`, data);
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-        queryClient.invalidateQueries(['patient', patientId]);
-      },
-    },
-  );
-};
 
 export const PatientProgramRegistryUpdateModal = ({
   patientProgramRegistration = {},

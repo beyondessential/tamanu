@@ -1,40 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { AutocompleteField, DateField, Field } from '../../components/Field';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { ModalFormActionRow, TranslatedReferenceData, TranslatedText } from '../../components';
 import { useSuggester } from '../../api';
 import { Modal } from '../../components/Modal';
-import { useApi } from '../../api/useApi';
-import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
+import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 
-export const FormGrid = styled.div`
+const FormGrid = styled.div`
   display: flex;
   gap: 1rem;
 `;
-
-const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-
-  return useMutation(
-    data => {
-      return api.put(`patient/programRegistration/${registrationId}`, data);
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-        queryClient.invalidateQueries(['patient', patientId]);
-      },
-    },
-  );
-};
 
 export const PatientProgramRegistryActivateModal = ({
   patientProgramRegistration = {},
