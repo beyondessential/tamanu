@@ -600,7 +600,6 @@ createSuggester(
     return {
       ...baseWhere,
       type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      ...VISIBILITY_CRITERIA,
       id: {
         [Op.in]: Sequelize.literal(
           `(
@@ -622,7 +621,6 @@ createSuggester(
     return {
       ...baseWhere,
       type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      ...VISIBILITY_CRITERIA,
       id: {
         [Op.in]: Sequelize.literal(
           `(
