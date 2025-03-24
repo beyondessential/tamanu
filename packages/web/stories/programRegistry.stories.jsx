@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { PatientProgramRegistryUpdateFormModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateFormModal.jsx';
+import { PatientProgramRegistryUpdateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateModal.jsx';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
@@ -175,7 +175,7 @@ export const PatientProgramRegistryFormHistoryStory = {
 export const ProgramRegistryStatusChangeStory = {
   name: 'Patient Program Registry Update Form Modal',
   render: () => (
-    <PatientProgramRegistryUpdateFormModal
+    <PatientProgramRegistryUpdateModal
       patientProgramRegistration={patientProgramRegistration}
       onSubmit={action('submit')}
       onCancel={action('cancel')}

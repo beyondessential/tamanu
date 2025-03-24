@@ -6,7 +6,7 @@ import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
 import {
   PatientProgramRegistryActivateModal,
-  PatientProgramRegistryUpdateFormModal,
+  PatientProgramRegistryUpdateModal,
 } from '../../features/ProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
@@ -197,7 +197,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <TranslatedText stringId="general.action.update" fallback="Update" />
           </OutlinedButton>
         </ConditionalTooltip>
-        <PatientProgramRegistryUpdateFormModal
+        <PatientProgramRegistryUpdateModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}

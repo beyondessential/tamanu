@@ -8,7 +8,7 @@ import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
-  PatientProgramRegistryUpdateFormModal,
+  PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
@@ -226,7 +226,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       />
 
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
-        <PatientProgramRegistryUpdateFormModal
+        <PatientProgramRegistryUpdateModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();
