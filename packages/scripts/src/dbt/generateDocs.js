@@ -33,7 +33,7 @@ async function run() {
       version,
       'config-version': 2,
       profile: 'tamanu',
-      'model-paths': (await sourceFolders()).map(path => join('..', '..', '..', path)),
+      'model-paths': (await sourceFolders()).map(path => join( '..', '..', path)),
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
       sources: { tamanu: { '+enabled': true } },
