@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 import MuiDivider from '@material-ui/core/Divider';
 import { Add } from '@material-ui/icons';
 import { Colors, FORM_TYPES } from '../../constants';
@@ -20,10 +21,9 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { FormTable } from './FormTable';
 import { useTranslation } from '../../contexts/Translation';
-import * as yup from 'yup';
-import { optionalForeignKey } from '../../utils/validation.js';
+import { optionalForeignKey } from '../../utils/validation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries/index.js';
+import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -86,17 +86,6 @@ const getConditionShape = getTranslation =>
     reasonForChange: yup.string(),
   });
 
-const getValidationSchema = getTranslation => {
-  return yup.object().shape({
-    clinicalStatusId: optionalForeignKey().nullable(),
-    conditions: yup.object().shape({
-      confirmedSection: yup.array().of(getConditionShape(getTranslation)),
-      resolvedSection: yup.array().of(getConditionShape(getTranslation)),
-      recordedInErrorSection: yup.array().of(getConditionShape(getTranslation)),
-    }),
-  });
-};
-
 const getGroupedData = rows => {
   const groupMapping = {
     confirmedSection: [
@@ -153,11 +142,13 @@ const getNewRecordedInErrorList = conditions => {
 };
 
 export const RelatedConditionsForm = ({
-  patientProgramRegistration,
+  patientProgramRegistration = {},
   children,
   onClose,
   onSubmit,
-  isSubmitting,
+  isSubmitting = false,
+  initialValues = {},
+  validationSchema = {},
 }) => {
   const [warningOpen, setWarningOpen] = useState(false);
   const { getTranslation } = useTranslation();
@@ -188,13 +179,27 @@ export const RelatedConditionsForm = ({
 
   if (!patientProgramRegistration || isLoading) return null;
 
+  const totalInitialValues = {
+    clinicalStatusId,
+    conditions: getGroupedData(conditions),
+    date: patientProgramRegistration.date,
+    ...initialValues,
+  };
+
+  const totalValidationSchema = yup.object().shape({
+    ...validationSchema,
+    clinicalStatusId: optionalForeignKey().nullable(),
+    conditions: yup.object().shape({
+      confirmedSection: yup.array().of(getConditionShape(getTranslation)),
+      resolvedSection: yup.array().of(getConditionShape(getTranslation)),
+      recordedInErrorSection: yup.array().of(getConditionShape(getTranslation)),
+    }),
+  });
+
   return (
     <Form
-      validationSchema={getValidationSchema(getTranslation)}
-      initialValues={{
-        clinicalStatusId: clinicalStatusId,
-        conditions: getGroupedData(conditions),
-      }}
+      validationSchema={totalValidationSchema}
+      initialValues={totalInitialValues}
       formType={FORM_TYPES.EDIT_FORM}
       showInlineErrorsOnly
       onSubmit={handleSubmit}
