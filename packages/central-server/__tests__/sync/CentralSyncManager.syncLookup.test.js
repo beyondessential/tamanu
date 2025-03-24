@@ -157,6 +157,7 @@ describe('Sync Lookup data', () => {
       UserDesignation,
       Notification,
       EncounterPausePrescription,
+      EncounterPausePrescriptionHistory,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -290,10 +291,12 @@ describe('Sync Lookup data', () => {
     await EncounterPausePrescription.create(
       fake(EncounterPausePrescription, {
         encounterPrescriptionId: encounterPrescription.id,
-        pauseDuration: 1,
-        pauseTimeUnit: 'days',
-        pauseStartDate: '2023-12-21T04:59:51.851Z',
-        createdBy: examiner.id,
+      }),
+    );
+
+    await EncounterPausePrescriptionHistory.create(
+      fake(EncounterPausePrescriptionHistory, {
+        encounterPrescriptionId: encounterPrescription.id,
       }),
     );
 
