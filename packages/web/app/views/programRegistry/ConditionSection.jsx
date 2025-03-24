@@ -113,7 +113,10 @@ export const ConditionSection = () => {
   const translatedData = conditions.map(condition => {
     const { programRegistryCondition, conditionCategory } = condition;
     const { id, name } = programRegistryCondition;
-    const translatedName = getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'programRegistryCondition'),
+      name,
+    );
 
     const translatedCategory = getEnumTranslation(
       PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
