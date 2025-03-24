@@ -10,7 +10,6 @@ import {
   DateField,
   Field,
   Heading5,
-  ModalFormActionRow,
   TextButton,
   TextField,
   TranslatedText,
@@ -146,7 +145,7 @@ export const RelatedConditionsForm = ({
   children,
   onClose,
   onSubmit,
-  isSubmitting = false,
+  FormActions,
   initialValues = {},
   validationSchema = {},
 }) => {
@@ -452,7 +451,7 @@ export const RelatedConditionsForm = ({
                 await handleConfirmedSubmit(values);
               }}
             />
-            <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
+            <FormActions isDirty={dirty} />
           </>
         );
       }}

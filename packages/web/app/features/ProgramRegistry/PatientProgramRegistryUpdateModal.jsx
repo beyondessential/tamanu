@@ -1,7 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Modal, TranslatedText, Field, AutocompleteField } from '../../components';
+import {
+  Modal,
+  TranslatedText,
+  Field,
+  AutocompleteField,
+  ModalFormActionRow,
+} from '../../components';
 import { useApi, useSuggester } from '../../api';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
@@ -57,7 +63,9 @@ export const PatientProgramRegistryUpdateModal = ({
       <RelatedConditionsForm
         patientProgramRegistration={patientProgramRegistration}
         onSubmit={submit}
-        isSubmitting={isSubmitting}
+        FormActions={({ isDirty }) => (
+          <ModalFormActionRow confirmDisabled={!isDirty || isSubmitting} />
+        )}
         onClose={onClose}
       >
         <Field

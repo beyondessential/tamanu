@@ -1,18 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { difference } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { AutocompleteField, DateField, Field } from '../../components/Field';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
-import { TranslatedReferenceData, TranslatedText } from '../../components';
+import { ModalFormActionRow, TranslatedReferenceData, TranslatedText } from '../../components';
 import { useSuggester } from '../../api';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
-import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
@@ -22,81 +19,41 @@ export const FormGrid = styled.div`
   gap: 1rem;
 `;
 
-export const PatientProgramRegistryActivateModal = ({
-  onClose,
-  patientProgramRegistration,
-  open,
-}) => {
+const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
   const api = useApi();
   const queryClient = useQueryClient();
+
+  return useMutation(
+    data => {
+      return api.put(`patient/programRegistration/${registrationId}`, data);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+        queryClient.invalidateQueries(['patient', patientId]);
+      },
+    },
+  );
+};
+
+export const PatientProgramRegistryActivateModal = ({
+  patientProgramRegistration = {},
+  onClose,
+  open,
+}) => {
+  const { id: registrationId, patientId } = patientProgramRegistration;
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
+  const { mutateAsync: onSubmit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
+    patientId,
+    registrationId,
+  );
+
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const {
-    data: registrationConditions,
-    isLoading: isPatientConditionsLoading,
-  } = usePatientProgramRegistryConditionsQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
-  );
-
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
-
-  const activate = async data => {
-    const { ...rest } = data;
-    delete rest.id;
-    delete rest.date;
-
-    // Extract condition IDs from registrationConditions.data and data
-    const existingConditionIds = registrationConditions.map(
-      condition => condition.programRegistryConditionId,
-    );
-    const incomingConditionIds =
-      typeof data.conditionIds === 'string' ? JSON.parse(data.conditionIds) : data.conditionIds;
-
-    // Identify conditions to remove and their corresponding objects
-    const conditionsToRemove = difference(existingConditionIds, incomingConditionIds);
-    const conditionsToRemoveObjects = registrationConditions.filter(condition =>
-      conditionsToRemove.includes(condition.programRegistryConditionId),
-    );
-
-    // Remove conditions
-    const deletionDate = getCurrentDateTimeString();
-    for (const conditionToRemove of conditionsToRemoveObjects) {
-      await api.delete(
-        `patient/${encodeURIComponent(
-          patientProgramRegistration.patientId,
-        )}/programRegistration/${encodeURIComponent(
-          patientProgramRegistration.programRegistryId,
-        )}/condition/${encodeURIComponent(conditionToRemove.id)}`,
-        { deletionDate },
-      );
-    }
-
-    // Identify new condition IDs
-    const newConditionIds = difference(incomingConditionIds, existingConditionIds);
-
-    // Activate program registration with updated conditions
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      {
-        ...rest,
-        date: getCurrentDateTimeString(),
-        conditionIds: newConditionIds,
-        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-      },
-    );
-
-    // Invalidate queries and close modal
-    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-    queryClient.invalidateQueries(['patient', patientProgramRegistration.patientId]);
-    onClose();
-  };
-
-  if (isPatientConditionsLoading) return null;
 
   return (
     <Modal
@@ -116,13 +73,14 @@ export const PatientProgramRegistryActivateModal = ({
     >
       <RelatedConditionsForm
         patientProgramRegistration={patientProgramRegistration}
-        onSubmit={activate}
-        isSubmitting={false}
+        onSubmit={onSubmit}
         onClose={onClose}
+        FormActions={() => <ModalFormActionRow confirmDisabled={isSubmitting} />}
         initialValues={{
           registeringFacilityId: facilityId,
           clinicianId: currentUser?.id,
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         }}
         validationSchema={{
           clinicalStatusId: optionalForeignKey().nullable(),
