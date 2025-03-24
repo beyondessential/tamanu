@@ -4,10 +4,8 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
-import {
-  PatientProgramRegistryActivateModal,
-  PatientProgramRegistryUpdateModal,
-} from '../../features/ProgramRegistry';
+import { PatientProgramRegistryUpdateFormModal } from '../../features/ProgramRegistry';
+import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
@@ -197,7 +195,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <TranslatedText stringId="general.action.update" fallback="Update" />
           </OutlinedButton>
         </ConditionalTooltip>
-        <PatientProgramRegistryUpdateModal
+        <PatientProgramRegistryUpdateFormModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}
@@ -208,7 +206,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           </div>
         </MenuContainer>
       </Row>
-      <PatientProgramRegistryActivateModal
+      <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={() => setOpenActivateProgramRegistryFormModal(false)}
