@@ -74,8 +74,8 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
-const getMedicationName = ({ medication, pausePrescriptions, discontinued }) => {
-  const pauseData = pausePrescriptions?.[0];
+const getMedicationName = ({ medication, encounterPrescription, discontinued }) => {
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
 
   return (
@@ -104,9 +104,9 @@ const getMedicationName = ({ medication, pausePrescriptions, discontinued }) => 
   );
 };
 
-const getFrequency = ({ frequency, pausePrescriptions, discontinued }, getTranslation) => {
+const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTranslation) => {
   if (!frequency) return '';
-  const pauseData = pausePrescriptions?.[0];
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
   return (
     <Box
@@ -129,7 +129,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'dose',
     title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
     accessor: data => {
-      const pauseData = data.pausePrescriptions?.[0];
+      const pauseData = data.encounterPrescription?.pausePrescriptions?.[0];
       const isPausing = !!pauseData && !data.discontinued;
       return (
         <NoWrapCell
@@ -153,8 +153,8 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'route',
     title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    accessor: ({ route, pausePrescriptions, discontinued }) => {
-      const pauseData = pausePrescriptions?.[0];
+    accessor: ({ route, encounterPrescription, discontinued }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
       const isPausing = !!pauseData && !discontinued;
 
       return (
@@ -170,8 +170,8 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, endDate, isOngoing, discontinued, pausePrescriptions }) => {
-      const pauseData = pausePrescriptions?.[0];
+    accessor: ({ date, endDate, isOngoing, discontinued, encounterPrescription }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
       const isPausing = !!pauseData && !discontinued;
 
       let tooltipTitle = '';
@@ -208,8 +208,8 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'prescriber.displayName',
     title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
-    accessor: ({ prescriber, pausePrescriptions, discontinued }) => {
-      const pauseData = pausePrescriptions?.[0];
+    accessor: ({ prescriber, encounterPrescription, discontinued }) => {
+      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
       const isPausing = !!pauseData && !discontinued;
       return (
         <Box

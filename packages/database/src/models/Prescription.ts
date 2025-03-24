@@ -93,6 +93,11 @@ export class Prescription extends Model {
       as: 'discontinuingClinician',
     });
 
+    this.hasOne(models.EncounterPrescription, {
+      foreignKey: 'prescriptionId',
+      as: 'encounterPrescription',
+    });
+
     this.belongsToMany(models.Encounter, {
       through: models.EncounterPrescription,
       foreignKey: 'prescriptionId',
@@ -104,12 +109,6 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'patients',
     });
-
-    this.belongsToMany(models.EncounterPausePrescription, {
-      through: models.EncounterPrescription,
-      foreignKey: 'prescriptionId',
-      as: 'pausePrescriptions',
-    })
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',

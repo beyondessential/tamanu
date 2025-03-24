@@ -195,17 +195,19 @@ encounterRelations.get(
           where: { id: params.id },
         },
         {
-          model: models.EncounterPausePrescription,
-          as: 'pausePrescriptions',
-          where: {
-            pauseEndDate: {
-              [Op.gt]: getCurrentDateTimeString(),
+          model: models.EncounterPrescription,
+          as: 'encounterPrescription',
+          include: {
+            model: models.EncounterPausePrescription,
+            as: 'pausePrescriptions',
+            attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
+            where: {
+              pauseEndDate: {
+                [Op.gt]: getCurrentDateTimeString(),
+              },
             },
           },
-          order: [['createdAt', 'DESC']],
-          through: { attributes: [] },
-          attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
-          required: false,
+          attributes: ['id'],
         },
       ],
     };
