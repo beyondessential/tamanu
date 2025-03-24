@@ -24,7 +24,7 @@ const ConditionsCell = ({ conditions }) => {
   return conditions
     ?.map(condition => {
       const { id, name } = condition;
-      return getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
+      return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
     })
     .sort((a, b) => b.localeCompare(a))
     .join(', ');
