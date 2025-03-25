@@ -20,10 +20,10 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async run() {
     const mockServerId = '00000000-0000-0000-0000-000000000000';
-    const { version, serverType } = serviceContext();
-    console.log(version, SERVER_TYPES.CENTRAL); // this is empty weird
+    const serviceCOntext = serviceContext();
+    console.log(serviceCOntext);
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
-    const timezone = config.countryTimezone;
+
     const response = await fetchWithTimeout(`${this.metaserverHost}/status/${mockServerId}`, {
       method: 'POST',
       headers: {
@@ -34,7 +34,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       },
       body: JSON.stringify({
         currentSyncTick,
-        timezone,
+        timezone: config.countryTimeZone,
       }),
       timeout: 20000,
     });
