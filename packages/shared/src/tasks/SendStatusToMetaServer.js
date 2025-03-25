@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { SERVER_TYPES, FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { fetchWithTimeout } from '../utils/fetchWithTimeout';
@@ -26,7 +26,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'X-Tamanu-Client': SERVER_TYPES[serverType.toUpperCase()],
+        'X-Tamanu-Client': serverType,
         'X-Version': version,
         'Content-Type': 'application/json',
       },
