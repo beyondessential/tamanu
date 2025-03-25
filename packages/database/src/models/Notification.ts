@@ -87,6 +87,7 @@ export class Notification extends Model {
     options?: CreateOptions<any>,
   ) {
     try {
+      const additionalMetadata: Record<string, any> = {};
       const { models } = this.sequelize;
 
       let patientId;
@@ -106,8 +107,12 @@ export class Notification extends Model {
         }
         case NOTIFICATION_TYPES.PHARMACY_NOTE: {
           userId = metadata.prescriberId;
-          const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter?.patientId;
+          const encounterPrescription = await models.EncounterPrescription.findOne({
+            where: { prescriptionId: metadata.id },
+            include: ['encounter'],
+          });
+          patientId = encounterPrescription!.encounter!.patientId;
+          additionalMetadata.encounterId = encounterPrescription!.encounterId;
           break;
         }
         default:
@@ -121,7 +126,7 @@ export class Notification extends Model {
       await this.create(
         {
           type,
-          metadata,
+          metadata: { ...metadata, ...additionalMetadata },
           userId,
           patientId,
           createdTime: getCurrentDateTimeString(),

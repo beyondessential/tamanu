@@ -6,7 +6,7 @@ import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../../components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
@@ -133,10 +133,7 @@ const CurrentTimeOverlay = styled.div`
 `;
 
 const formatTime = time => {
-  if (time === '24:00') {
-    return '12am';
-  }
-  return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
+  return format(time, 'ha').toLowerCase();
 };
 
 const MedicationCell = ({ medication }) => {
@@ -176,7 +173,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime }) => {
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
-        <div>{`${formatTime(startTime)} - ${formatTime(endTime)}`}</div>
+        <div>{`${formatTime(startDate)} - ${formatTime(endDate)}`}</div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
   );

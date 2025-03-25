@@ -6,6 +6,7 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Box } from '@mui/material';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { Colors } from '../../constants';
@@ -191,14 +192,14 @@ const Card = ({ notification }) => {
     <CardContainer onClick={onNotificationClick}>
       {status === NOTIFICATION_STATUSES.UNREAD && <CardIndicator />}
       <img src={NOTIFICATION_ICONS[type]} />
-      <div>
+      <Box flex={1}>
         <BodyText
           dangerouslySetInnerHTML={{
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
         />
         <CardDatetime>{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
-      </div>
+      </Box>
     </CardContainer>
   );
 };

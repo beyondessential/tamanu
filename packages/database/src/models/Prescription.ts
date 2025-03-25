@@ -1,11 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Prescription extends Model {
   declare id: string;
+  declare displayId: string;
   declare isOngoing?: boolean;
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
@@ -33,10 +35,16 @@ export class Prescription extends Model {
   declare discontinuingClinicianId?: string;
   declare medicationId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
+        displayId: {
+          type: DataTypes.STRING,
+          defaultValue() {
+            return generateDisplayId();
+          },
+        },
         isOngoing: DataTypes.BOOLEAN,
         isPrn: DataTypes.BOOLEAN,
         isVariableDose: DataTypes.BOOLEAN,
@@ -82,7 +90,7 @@ export class Prescription extends Model {
         hooks: {
           afterUpdate: async (prescription: Prescription, options) => {
             if (prescription.changed('pharmacyNotes')) {
-              await prescription.sequelize.models.Notification.pushNotification(
+              await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.PHARMACY_NOTE,
                 prescription.dataValues,
                 { transaction: options.transaction },

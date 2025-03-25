@@ -4,12 +4,15 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
+import type { Encounter } from './Encounter';
 
 export class EncounterPrescription extends Model {
   declare id: string;
   declare encounterId?: string;
   declare prescriptionId?: string;
   declare isDischarge: boolean;
+
+  declare encounter: Encounter;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
