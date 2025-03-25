@@ -193,8 +193,24 @@ encounterRelations.get(
           as: 'encounters',
           through: { attributes: [] },
           where: { id: params.id },
+          attributes: ['id'],
         },
         'medicationAdministrationRecords',
+        {
+          model: models.EncounterPrescription,
+          as: 'encounterPrescription',
+          include: {
+            model: models.EncounterPausePrescription,
+            as: 'pausePrescriptions',
+            attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
+            where: {
+              pauseEndDate: {
+                [Op.gt]: getCurrentDateTimeString(),
+              },
+            },
+          },
+          attributes: ['id'],
+        },
       ],
     };
 

@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { MedicationModal } from '../../../components/MedicationModal';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
 
 const Wrapper = styled.div`
   display: flex;

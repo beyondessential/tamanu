@@ -66,7 +66,7 @@ export class TranslatedString extends BaseModel {
     const referenceDataTranslations = await this.getRepository().find({
       where: {
         language,
-        stringId: Like(`refData.${refDataType}%`),
+        stringId: Like(`refData.${refDataType}.%`),
         text: Like(`%${queryString}%`),
       },
       select: ['stringId', 'text'],

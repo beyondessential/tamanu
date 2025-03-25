@@ -1,1 +1,0 @@
-../../central-server/public/patients.md
