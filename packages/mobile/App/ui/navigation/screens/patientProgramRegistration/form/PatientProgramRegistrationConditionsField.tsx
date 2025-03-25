@@ -11,6 +11,10 @@ import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '~/constants/programRegistries';
 
 interface FieldValue {
   label: string;
@@ -32,6 +36,15 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   disabled?: boolean;
   openConditionScreenImmediately?: boolean;
 }
+
+const EXCLUDED_CONDITION_CATEGORIES = [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR];
+
+const CONDITION_CATEGORY_OPTIONS = Object.values(PROGRAM_REGISTRY_CONDITION_CATEGORIES)
+  .filter((category) => !EXCLUDED_CONDITION_CATEGORIES.includes(category))
+  .map((category) => ({
+    value: category,
+    label: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[category],
+  }));
 
 const PatientProgramRegistrationConditionsFieldItem = ({
   value,
@@ -71,13 +84,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
           setCategory(newValue);
           onChange({ condition: newCondition, category: newValue });
         },
-        options: [
-          { value: 'confirmed', label: 'Confirmed' },
-          { value: 'suspected', label: 'Suspected' },
-          { value: 'under_investigation', label: 'Under investigation' },
-          { value: 'disproved', label: 'Disproved' },
-          { value: 'resolved', label: 'Resolved' },
-        ],
+        options: CONDITION_CATEGORY_OPTIONS,
         modalTitle: getTranslation('programRegistry.category.label', 'Category'),
       });
     },
