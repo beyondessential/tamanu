@@ -20,16 +20,15 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async run() {
     const mockServerId = '00000000-0000-0000-0000-000000000000';
-    const serviceCOntext = serviceContext();
-    console.log(serviceCOntext);
+    const serverInfo = serviceContext();
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
     const response = await fetchWithTimeout(`${this.metaserverHost}/status/${mockServerId}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'X-Tamanu-Client': SERVER_TYPES.CENTRAL,
-        'X-Version': '10.1.1',
+        'X-Tamanu-Client': SERVER_TYPES[serverInfo['server.type'].toUpperCase()],
+        'X-Version': serverInfo['service.version'],
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
