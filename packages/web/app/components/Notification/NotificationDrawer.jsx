@@ -58,7 +58,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
-      { replacements: { displayId, patientName } },
+      { replacements: { displayId: patient.displayId, patientName } },
     );
   }
 };
