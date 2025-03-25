@@ -198,7 +198,9 @@ const Card = ({ notification }) => {
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
         />
-        <CardDatetime>{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
+        <CardDatetime>{`${formatTime(createdTime).replace(' ', '')} ${formatShortest(
+          createdTime,
+        )}`}</CardDatetime>
       </Box>
     </CardContainer>
   );
