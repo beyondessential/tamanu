@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 // Paths to transform
-const paths = ['packages/web/app/components', 'packages/web/app/views'];
+const paths = ['packages/web/app/components', 'packages/web/app/views', 'package/web/app/forms'];
 
 // Check if --dry flag is passed
 const isDryRun = process.argv.includes('--dry');

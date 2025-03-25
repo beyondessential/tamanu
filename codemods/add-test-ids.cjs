@@ -1,50 +1,20 @@
 module.exports = function transformer(file, api) {
   const j = api.jscodeshift;
   const root = j(file.source);
-  let elementCounts = new Map();
+  const usedTestIds = new Set();
 
-  // Helper function to generate a test ID based on component name and element type
-  function generateTestId(componentName, elementName, elementIndex) {
-    const sanitizedComponentName = componentName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-    const sanitizedElementName = elementName.toLowerCase();
-
-    // Get count for this element type within this component
-    const key = `${componentName}-${elementName}`;
-    const count = elementCounts.get(key) || 0;
-    elementCounts.set(key, count + 1);
-
-    // Add index if there are multiple of the same element type
-    const indexSuffix = count > 0 ? `-${count}` : '';
-    return `${sanitizedComponentName}-${sanitizedElementName}${indexSuffix}`;
+  function generateRandomSuffix() {
+    return Math.random().toString(36).substring(2, 6);
   }
 
-  // Find the component name from the closest function or variable declaration
-  function findComponentName(path) {
-    let componentName = 'unknown';
-
-    // Try to find the component name from the closest function or variable declaration
-    let scope = path.scope;
-    while (scope) {
-      if (scope.node.type === 'FunctionDeclaration' && scope.node.id) {
-        componentName = scope.node.id.name;
-        break;
-      }
-      if (scope.node.type === 'VariableDeclarator' && scope.node.id) {
-        componentName = scope.node.id.name;
-        break;
-      }
-      if (
-        scope.node.type === 'ArrowFunctionExpression' &&
-        scope.parent &&
-        scope.parent.node.type === 'VariableDeclarator'
-      ) {
-        componentName = scope.parent.node.id.name;
-        break;
-      }
-      scope = scope.parent;
-    }
-
-    return componentName;
+  // Helper function to generate a test ID based on component name and element type
+  function generateTestId(elementName) {
+    let testId;
+    do {
+      testId = `${elementName.toLowerCase()}-${generateRandomSuffix()}`;
+    } while (usedTestIds.has(testId));
+    usedTestIds.add(testId);
+    return testId;
   }
 
   // Process each JSX element
@@ -78,7 +48,11 @@ module.exports = function transformer(file, api) {
       );
 
       if (stringIdAttr && stringIdAttr.value.type === 'StringLiteral') {
-        const testId = stringIdAttr.value.value;
+        const testId = `translatedtext-${stringIdAttr.value.value}`;
+        if (usedTestIds.has(testId)) {
+          console.warn(`Warning: Duplicate TranslatedText testId found: ${testId}`);
+        }
+        usedTestIds.add(testId);
         console.log(`Adding data-testid="${testId}" to TranslatedText (using stringId)`);
         openingElement.attributes.push(
           j.jsxAttribute(j.jsxIdentifier('data-testid'), j.stringLiteral(testId)),
@@ -93,10 +67,9 @@ module.exports = function transformer(file, api) {
     const shouldAddTestId = isComponent || interactiveElements.includes(elementName.toLowerCase());
 
     if (shouldAddTestId) {
-      const componentName = findComponentName(path);
-      const testId = generateTestId(componentName, elementName);
+      const testId = generateTestId(elementName);
 
-      console.log(`Adding data-testid="${testId}" to ${elementName} in ${componentName}`);
+      console.log(`Adding data-testid="${testId}" to ${elementName}`);
 
       openingElement.attributes.push(
         j.jsxAttribute(j.jsxIdentifier('data-testid'), j.stringLiteral(testId)),
