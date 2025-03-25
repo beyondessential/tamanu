@@ -98,16 +98,16 @@ jobs:
 
     - name: Diff translations
       run: |
-        set -euxo pipefail
-        git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv || true
+        cat <<EOF | tee RELEASE_NOTES.md
+        ## Translation Changes
+        *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
+        ```diff
+        $(git diff --no-index previous-translations.csv current-translations.csv || true)
+        ```
+        EOF
 
     - uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ github.ref_name }}
         append_body: true
-        body: |
-          ## Translation Changes
-          *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
-          \`\`\`diff
-          $(cat translations.diff)
-          \`\`\`
+        body_path: RELEASE_NOTES.md
