@@ -14,10 +14,6 @@ One of:
 The date and time when the medication was administered or marked as not given. This represents the actual time of administration, which may differ from the scheduled time.
 {% enddocs %}
 
-{% docs medication_administration_records__dose_amount %}
-The quantity of medication administered to the patient. Used in conjunction with the unit specified in the prescription.
-{% enddocs %}
-
 {% docs medication_administration_records__prescription_id %}
 Reference to the [prescription](#!/source/source.tamanu.tamanu.prescriptions) that this administration record is associated with. Links this administration event to the specific medication order it fulfills.
 {% enddocs %}

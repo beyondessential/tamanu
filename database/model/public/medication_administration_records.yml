@@ -22,9 +22,6 @@ sources:
             description: "{{ doc('medication_administration_records__administered_at') }}"
             data_tests:
               - not_null
-          - name: dose_amount
-            data_type: numeric
-            description: "{{ doc('medication_administration_records__dose_amount') }}"
           - name: prescription_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__prescription_id') }}"

@@ -10,7 +10,6 @@ export class MedicationAdministrationRecord extends Model {
   declare id: string;
   declare status: string;
   declare administeredAt: string;
-  declare doseAmount?: number;
   declare prescriptionId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -21,7 +20,6 @@ export class MedicationAdministrationRecord extends Model {
         administeredAt: dateTimeType('administeredAt', {
           allowNull: false,
         }),
-        doseAmount: DataTypes.DECIMAL,
       },
       {
         ...options,
