@@ -6,6 +6,10 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 export class SendStatusToMetaServer extends ScheduledTask {
+
+  getName() {
+    return 'SendStatusToMetaServer';
+  }
   constructor(context, overrideConfig = null) {
     const { schedule, jitterTime, enabled } =
       overrideConfig || config.schedules.sendStatusToMetaServer;
@@ -18,10 +22,11 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async run() {
     const mockServerId = '00000000-0000-0000-0000-000000000000';
     const { version, serverType } = serviceContext()
-    const currentSyncTick = await this.models.LocalSystemFacts.get(FACT_CURRENT_SYNC_TICK)
+    console.log(version, serverType)
+    const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)
     const timezone = config.countryTimezone
     const response = await fetchWithTimeout(
-      `${this.metaserverHost}/statuses/${mockServerId}`,
+      `${this.metaserverHost}/status/${mockServerId}`,
       {
         method: 'POST',
         headers: {
@@ -37,5 +42,6 @@ export class SendStatusToMetaServer extends ScheduledTask {
         timeout: 20000
       }
     );
+    console.log(response,  `${this.metaserverHost}/statuses/${mockServerId}`)
   }
 }

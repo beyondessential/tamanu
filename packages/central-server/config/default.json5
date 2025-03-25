@@ -263,7 +263,7 @@
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
     },
-    "postStatusToMetaServer": {
+    "sendStatusToMetaServer": {
       // every minute
       "schedule": "* * * * *"
     }
