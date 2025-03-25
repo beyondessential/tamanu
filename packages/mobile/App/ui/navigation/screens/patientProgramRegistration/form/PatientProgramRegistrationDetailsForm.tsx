@@ -84,7 +84,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           date: formData.date,
           programRegistry: programRegistry.id,
           patient: selectedPatient.id,
-          programRegistryCondition: condition.value,
+          programRegistryCondition: condition.condition.value,
+          conditionCategory: condition.category.value,
           clinician: formData.clinicianId,
         });
       }
