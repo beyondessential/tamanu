@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { useLocation } from 'react-router-dom';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
@@ -13,6 +14,7 @@ import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/med
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
+import { useApi } from '../../api';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 51vh;
@@ -225,9 +227,24 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
+  const location = useLocation();
+  const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const openMedicationId = searchParams.get('openMedicationId');
+    if (openMedicationId) {
+      handleInitialMedication(openMedicationId);
+    }
+  }, []);
+
+  const handleInitialMedication = async id => {
+    const medication = await api.get(`medication/${id}`);
+    setSelectedMedication(medication);
+  };
 
   const rowStyle = ({ discontinued }) =>
     discontinued

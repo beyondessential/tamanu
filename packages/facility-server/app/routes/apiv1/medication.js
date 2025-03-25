@@ -47,7 +47,11 @@ medication.post(
 
 const updatePharmacyNotesInputSchema = z
   .object({
-    pharmacyNotes: z.string().optional(),
+    pharmacyNotes: z
+      .string()
+      .optional()
+      .nullable()
+      .transform((v) => (!v ? null : v)),
     displayPharmacyNotesInMar: z.boolean().optional(),
   })
   .strip();
@@ -70,6 +74,7 @@ medication.put(
     if (prescription.pharmacyNotes && prescription.pharmacyNotes !== pharmacyNotes) {
       req.checkPermission('write', 'MedicationPharmacyNote');
     }
+
     prescription.pharmacyNotes = pharmacyNotes;
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
     await prescription.save();
