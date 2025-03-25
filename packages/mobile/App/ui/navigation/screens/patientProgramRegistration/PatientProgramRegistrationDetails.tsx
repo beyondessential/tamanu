@@ -3,7 +3,10 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '~/constants/programRegistries';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
@@ -11,6 +14,7 @@ import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks';
 import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const DataRow = ({
   label,
@@ -92,15 +96,33 @@ const CONDITION_CATEGORY_GROUPS = {
 };
 
 const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
+  const { getTranslation } = useTranslation();
   let conditionComponents;
   if (!Array.isArray(conditions) || conditions.length < 1) {
     conditionComponents = <StyledText>—</StyledText>;
   } else {
-    const allCategories = Object.values(CONDITION_CATEGORY_GROUPS).flat();
-    const orderedConditions = [...conditions].sort(
-      (a, b) =>
-        allCategories.indexOf(a.conditionCategory) - allCategories.indexOf(b.conditionCategory),
-    );
+    const groups = Object.values(CONDITION_CATEGORY_GROUPS);
+    // Sort alphabetically by condition name, then by category group
+    const orderedConditions = [...conditions]
+      .sort((a, b) => {
+        const aStringId = getReferenceDataStringId(
+          'programRegistryCondition',
+          a.programRegistryCondition.id,
+        );
+        const aName = getTranslation(aStringId, a.programRegistryCondition.name);
+
+        const bStringId = getReferenceDataStringId(
+          'programRegistryCondition',
+          b.programRegistryCondition.id,
+        );
+        const bName = getTranslation(bStringId, b.programRegistryCondition.name);
+        return aName.localeCompare(bName);
+      })
+      .sort(
+        (a, b) =>
+          groups.findIndex((group) => group.includes(a.conditionCategory)) -
+          groups.findIndex((group) => group.includes(b.conditionCategory)),
+      );
 
     conditionComponents = orderedConditions.map(
       ({ programRegistryCondition, conditionCategory }) => (
