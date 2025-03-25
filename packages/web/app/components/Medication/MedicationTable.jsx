@@ -234,8 +234,8 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
-    const searParams = new URLSearchParams(location.search);
-    const openMedicationId = searParams.get('openMedicationId');
+    const searchParams = new URLSearchParams(location.search);
+    const openMedicationId = searchParams.get('openMedicationId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
     }
