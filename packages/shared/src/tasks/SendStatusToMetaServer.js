@@ -40,8 +40,14 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (!this.metaServerId) {
+      // TODO: what do here
       const response = await this.fetch('server', {
         method: 'POST',
+        body: JSON.stringify({
+          host: '',
+          name: '',
+          rank: 0
+        })
       });
       this.metaServerId = response.id;
       await this.models.LocalSystemFact.set(FACT_META_SERVER_ID, this.metaServerId);
