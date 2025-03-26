@@ -16,7 +16,8 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { Separator } from '~/ui/components/Separator';
-import { FlagIcon } from '~/ui/components/Icons/FlagIcons/FlagIcon';
+import { isISO31661Alpha2 } from 'validator';
+import CountryFlag from 'react-native-country-flag';
 
 const StyledSeparator = () => (
   <Separator
@@ -27,7 +28,7 @@ const StyledSeparator = () => (
 
 interface LanguageOptionButtonProps {
   label: string;
-  value: string;
+  value: { languageCode: string; countryCode: string | null };
   onPress: (value: string) => void;
 }
 
@@ -37,7 +38,7 @@ const LanguageOptionButton = ({
   onPress,
 }: LanguageOptionButtonProps): React.ReactElement => {
   const handlePress = () => {
-    onPress(value);
+    onPress(value?.languageCode);
   };
 
   return (
@@ -49,7 +50,9 @@ const LanguageOptionButton = ({
         alignItems="center"
       >
         <StyledView marginRight={screenPercentageToDP(3.4, Orientation.Width)}>
-          <FlagIcon languageCode={value} size={34} />
+          {value?.countryCode && isISO31661Alpha2(value?.countryCode) && (
+            <CountryFlag isoCode={value?.countryCode} size={34} />
+          )}
         </StyledView>
         <RowView flex={1}>
           <StyledText
@@ -68,6 +71,7 @@ export default LanguageOptionButton;
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const { languageOptions, setLanguage } = useTranslation();
+  console.log('language options', languageOptions);
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);

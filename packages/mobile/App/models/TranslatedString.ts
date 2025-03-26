@@ -2,6 +2,14 @@ import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column, Like } from 
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
+export type LanguageOption = {
+  label: string;
+  value: {
+    languageCode: string;
+    countryCode: string | null;
+  };
+};
+
 @Entity('translated_strings')
 export class TranslatedString extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -36,12 +44,26 @@ export class TranslatedString extends BaseModel {
     }
   }
 
-  static async getLanguageOptions() {
+  static async getLanguageOptions(): Promise<LanguageOption[]> {
     const languageNameKeys = await this.getRepository().find({
       where: { stringId: 'languageName' },
       select: ['language', 'text'],
     });
-    return languageNameKeys.map(({ language, text }) => ({ label: text, value: language }));
+
+    const countryCodeKeys = await this.getRepository().find({
+      where: { stringId: 'countryCode' },
+      select: ['language', 'text'],
+    });
+
+    return languageNameKeys.map(
+      ({ language, text }): LanguageOption => ({
+        label: text,
+        value: {
+          languageCode: language,
+          countryCode: countryCodeKeys.find((o) => o.language === language)?.text ?? null,
+        },
+      }),
+    );
   }
 
   static async getForLanguage(language: string): Promise<{ [key: string]: string }> {
