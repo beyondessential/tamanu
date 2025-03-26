@@ -7,8 +7,6 @@ import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { fetchWithTimeout } from '../utils/fetchWithTimeout';
-
-// TODO put in @tamanu/database
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
     return 'SendStatusToMetaServer';
