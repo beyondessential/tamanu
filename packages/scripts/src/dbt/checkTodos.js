@@ -7,12 +7,14 @@ const path = require('node:path');
 const { exit } = require('node:process');
 const { readTablesFromDbt, readTableDoc } = require('./generateModel.js');
 
-async function getSchemas(packageName) {
-  const packagePath = path.join('database/model', packageName);
-  return (await fs.readdir(packagePath)).map(schemaName => ({
-    name: schemaName,
-    path: path.join(packagePath, schemaName),
-  }));
+async function getSchemas() {
+  const modelPath = path.join('database', 'model');
+  return (await fs.readdir(modelPath))
+    .filter((filename) => filename === 'overview.md')
+    .map((schemaName) => ({
+      name: schemaName,
+      path: path.join(modelPath, schemaName),
+    }));
 }
 
 async function detectTodoItemsInTable(schema, dbtSrc) {
@@ -41,7 +43,7 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
     );
   }
 
-  const todoColumnDocs = doc.columns.filter(c => c.description === 'TODO');
+  const todoColumnDocs = doc.columns.filter((c) => c.description === 'TODO');
   for (const column of todoColumnDocs) {
     console.log(
       `TODO: column documentation for ${schema.name}.${table.name}:${column.name}, in ${schema.path}/${table.name}.md`,
@@ -53,19 +55,18 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
 
 async function run() {
   let sum = 0;
-  for (const packageName of ['central-server', 'facility-server']) {
-    const schemas = await getSchemas(packageName);
-    for (const schema of schemas) {
-      const tables = await readTablesFromDbt(schema.path, true);
-      for (const table of tables) {
-        sum += await detectTodoItemsInTable(schema, table);
-      }
+  const schemas = await getSchemas();
+  for (const schema of schemas) {
+    if (schema.path.endsWith('.md')) continue;
+    const tables = await readTablesFromDbt(schema.path, true);
+    for (const table of tables) {
+      sum += await detectTodoItemsInTable(schema, table);
     }
   }
   return sum;
 }
 
-(async function() {
+(async function () {
   const todos = await run();
   if (todos) {
     console.log(`${todos} items remaining to document`);

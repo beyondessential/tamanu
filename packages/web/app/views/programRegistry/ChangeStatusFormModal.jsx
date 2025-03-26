@@ -55,7 +55,17 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
   return (
     <>
-      <Modal title="Change status" open={open} onClose={onClose} overrideContentPadding>
+      <Modal
+        title={
+          <TranslatedText
+            stringId="programRegistry.modal.changeStatus.title"
+            fallback="Change status"
+          />
+        }
+        open={open}
+        onClose={onClose}
+        overrideContentPadding
+      >
         <Form
           showInlineErrorsOnly
           onSubmit={changeStatus}
@@ -65,7 +75,12 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
                 <StyledFormGrid columns={1}>
                   <Field
                     name="clinicalStatusId"
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                    label={
+                      <TranslatedText
+                        stringId="programRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />

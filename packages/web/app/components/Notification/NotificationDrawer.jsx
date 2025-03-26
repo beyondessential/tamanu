@@ -6,8 +6,9 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Box } from '@mui/material';
 
-import { labsIcon, radiologyIcon } from '../../constants/images';
+import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
@@ -22,6 +23,7 @@ import { reloadImagingRequest, reloadPatient } from '../../store';
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
   [NOTIFICATION_TYPES.IMAGING_REQUEST]: radiologyIcon,
+  [NOTIFICATION_TYPES.PHARMACY_NOTE]: medicationIcon,
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
@@ -52,6 +54,12 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
+  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+    return getTranslation(
+      'notification.content.pharmacyNote',
+      'Pharmacy note for :patientName (:displayId)',
+      { replacements: { displayId: patient.displayId, patientName } },
+    );
   }
 };
 
@@ -172,20 +180,28 @@ const Card = ({ notification }) => {
     await loadEncounter(encounterId);
     if (patient?.id) await dispatch(reloadPatient(patient.id));
 
-    history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+      history.push(
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=medication&openMedicationId=${id}`,
+      );
+    } else {
+      history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    }
   };
   return (
     <CardContainer onClick={onNotificationClick}>
       {status === NOTIFICATION_STATUSES.UNREAD && <CardIndicator />}
       <img src={NOTIFICATION_ICONS[type]} />
-      <div>
+      <Box flex={1}>
         <BodyText
           dangerouslySetInnerHTML={{
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
         />
-        <CardDatetime>{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
-      </div>
+        <CardDatetime>{`${formatTime(createdTime).replace(' ', '')} ${formatShortest(
+          createdTime,
+        )}`}</CardDatetime>
+      </Box>
     </CardContainer>
   );
 };
