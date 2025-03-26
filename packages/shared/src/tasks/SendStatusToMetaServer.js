@@ -1,10 +1,15 @@
 import config from 'config';
+import { Agent } from 'undici';
+import { EndpointKey } from 'mushi';
+
 import { log } from '@tamanu/shared/services/logging';
-import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID, FACT_DEVICE_KEY } from '@tamanu/constants';
+
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 
+// TODO put in @tamanu/database
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
     return 'SendStatusToMetaServer';
@@ -20,6 +25,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async fetch(url, options) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
+    const deviceKey = await this.getDeviceKey();
     const response = await fetchWithTimeout(`${this.metaServerConfig.host}/${url}`, {
       ...options,
       headers: {
@@ -30,6 +36,12 @@ export class SendStatusToMetaServer extends ScheduledTask {
         ...options.headers,
       },
       timeout: this.metaServerConfig.timeoutMs,
+      dispatcher: new Agent({
+        connect: {
+          cert: deviceKey.makeCertificate(),
+          key: deviceKey.toString()
+        },
+      }),
     });
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
@@ -37,29 +49,34 @@ export class SendStatusToMetaServer extends ScheduledTask {
     return response.json();
   }
 
+  // Make static add to LocalSystemFact model
+  async getDeviceKey() {
+    const deviceKey = await this.models.LocalSystemFact.get(FACT_DEVICE_KEY);
+    if (deviceKey) {
+      return new EndpointKey(deviceKey);
+    }
+    const newDeviceKey = EndpointKey.generate();
+    await this.models.LocalSystemFact.set(FACT_DEVICE_KEY, newDeviceKey.toString());
+    return newDeviceKey;
+  }
+
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
-    if (!this.metaServerId) {
-      // TODO: what do here
-      const response = await this.fetch('server', {
-        method: 'POST',
-        body: JSON.stringify({
-          host: '',
-          name: '',
-          rank: 0
-        })
-      });
-      this.metaServerId = response.id;
-      await this.models.LocalSystemFact.set(FACT_META_SERVER_ID, this.metaServerId);
-    }
+    if (this.metaServerId) return this.metaServerId;
+    const response = await this.fetch('server', {
+      method: 'POST',
+      body: JSON.stringify({
+        host: config.canonicalHostName,
+      }),
+    });
+    this.metaServerId = response.id;
+    await this.models.LocalSystemFact.set(FACT_META_SERVER_ID, this.metaServerId);
     return this.metaServerId;
   }
 
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
-    const metaServerId = this.metaServerId || (await this.getMetaServerId());
-
-    await this.fetch(`status/${metaServerId}`, {
+    await this.fetch(`status/${await this.getMetaServerId()}`, {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
