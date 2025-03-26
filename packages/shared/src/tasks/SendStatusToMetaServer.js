@@ -21,12 +21,14 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async fetch(url, options) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
     const response = await fetchWithTimeout(`${this.metaserverHost}/${url}`, {
+      ...options,
       headers: {
+        Accept: 'application/json',
         'X-Tamanu-Client': serverType,
         'X-Version': version,
         'Content-Type': 'application/json',
+        ...options.headers,
       },
-      ...options,
     });
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
@@ -39,6 +41,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
     if (!this.metaServerId) {
       const response = await this.fetch('server', {
         method: 'POST',
+        timeout: 20000,
       });
       this.metaServerId = response.id;
       await this.models.LocalSystemFact.set(FACT_META_SERVER_ID, this.metaServerId);
