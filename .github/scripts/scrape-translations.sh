@@ -11,6 +11,7 @@ gtregex="getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)"
 directory=${1-./packages}
 
 # Get all registered enums if no directory is specified
+teoutput=""
 if [[ "$directory" == "./packages" ]]; then
   teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
 fi
