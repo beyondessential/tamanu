@@ -17,7 +17,7 @@ export const isTranslatedText = element => {
     TranslatedReferenceData,
     TranslatedEnum,
     TranslatedSex,
-    // Workaround so that custom table cells that have translations work table export
+    // Workaround so that custom table cells that have translations work with table exports
     LocationCell,
     SexCell,
     ClinicalStatusCell,
