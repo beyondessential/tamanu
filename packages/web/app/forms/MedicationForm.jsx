@@ -15,11 +15,12 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  formatTimeSlot,
   getEndDate
 } from '@tamanu/shared/utils/medication';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { addDays, format, subSeconds } from 'date-fns';
+import { useFormikContext } from 'formik';
+
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -35,6 +36,7 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
+  getReferenceDataStringId,
   NumberField,
   SelectField,
   TextField,
@@ -47,16 +49,15 @@ import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
-import { getReferenceDataStringId } from '../components/Translation/index.js';
-import { FrequencySearchField } from '../components/Medication/FrequencySearchInput.jsx';
-import { useAuth } from '../contexts/Auth.js';
-import { useSettings } from '../contexts/Settings.jsx';
-import { ChevronIcon } from '../components/Icons/ChevronIcon.jsx';
-import { useFormikContext } from 'formik';
-import { ConditionalTooltip } from '../components/Tooltip.jsx';
+import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { useAuth } from '../contexts/Auth';
+import { useSettings } from '../contexts/Settings';
+import { ChevronIcon } from '../components/Icons/ChevronIcon';
+import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils.jsx';
+import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { formatTimeSlot } from '../utils/medications';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(

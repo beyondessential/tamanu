@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -33,7 +33,7 @@ export class Prescription extends Model {
   declare discontinuingClinicianId?: string;
   declare medicationId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
@@ -79,6 +79,17 @@ export class Prescription extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterUpdate: async (prescription: Prescription, options) => {
+            if (prescription.changed('pharmacyNotes')) {
+              await models.Notification.pushNotification(
+                NOTIFICATION_TYPES.PHARMACY_NOTE,
+                prescription.dataValues,
+                { transaction: options.transaction },
+              );
+            }
+          },
+        },
       },
     );
   }
@@ -91,6 +102,11 @@ export class Prescription extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'discontinuingClinicianId',
       as: 'discontinuingClinician',
+    });
+
+    this.hasOne(models.EncounterPrescription, {
+      foreignKey: 'prescriptionId',
+      as: 'encounterPrescription',
     });
 
     this.belongsToMany(models.Encounter, {
@@ -107,7 +123,7 @@ export class Prescription extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
-      as: 'Medication',
+      as: 'medication',
     });
     this.hasMany(models.MedicationAdministrationRecord, {
       foreignKey: 'prescriptionId',
@@ -116,7 +132,7 @@ export class Prescription extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounters', 'prescriber', 'discontinuingClinician'];
+    return ['medication', 'prescriber', 'discontinuingClinician'];
   }
 
   static buildSyncFilter() {

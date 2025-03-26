@@ -69,11 +69,16 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
       });
 
       for (const prescription of prescriptions) {
-        const abc =
+        try {
           await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
             prescription,
           );
-        console.log('abc', abc);
+        } catch (error) {
+          log.error('Failed to generate medication administration records', {
+            prescriptionId: prescription.id,
+            error: error.message,
+          });
+        }
       }
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
