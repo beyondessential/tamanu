@@ -73,26 +73,28 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToProgramRegistry = (programRegistryId, title) => {
+  const navigateToProgramRegistry = programRegistryId => {
     if (programRegistryId) {
-      const programRegistryRoute = `${generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
+      const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
         ...params,
         programRegistryId,
-      })}?title=${encodeURIComponent(title)}`;
+      });
       navigate(programRegistryRoute);
     } else {
       const existingParams = getParams(PATIENT_PATHS.PROGRAM_REGISTRY);
-      const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, { ...existingParams })}?${location.search}`
+      const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, { ...existingParams })}?${
+        location.search
+      }`;
       navigate(path);
     }
   };
 
-  const navigateToProgramRegistrySurvey = (programRegistryId, surveyId, title) => {
-    const programRegistryRoute = `${generatePath(PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY, {
+  const navigateToProgramRegistrySurvey = (programRegistryId, surveyId) => {
+    const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY, {
       ...params,
       programRegistryId,
       surveyId,
-    })}?title=${encodeURIComponent(title)}`;
+    });
     navigate(programRegistryRoute);
   };
   return {

@@ -11,6 +11,13 @@ export const REGISTRATION_STATUSES = {
   RECORDED_IN_ERROR: 'recordedInError',
 };
 
+// Please keep in sync with packages/mobile/App/constants/programRegistries.ts
+export const PROGRAM_REGISTRATION_STATUS_LABELS = {
+  [REGISTRATION_STATUSES.ACTIVE]: 'Active',
+  [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
+  [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
+};
+
 export const STATUS_COLOR = {
   purple: COLORS.purple,
   pink: COLORS.pink,

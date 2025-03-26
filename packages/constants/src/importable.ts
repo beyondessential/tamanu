@@ -60,6 +60,7 @@ export const REFERENCE_TYPES = {
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // Reference data stored in its own table (not in 'reference_data' table)
+
 export const OTHER_REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   FACILITY: 'facility',
@@ -71,7 +72,11 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+  PROGRAM_REGISTRY: 'programRegistry',
+  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
 };
+
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 
 export const TRANSLATABLE_REFERENCE_TYPES = [
