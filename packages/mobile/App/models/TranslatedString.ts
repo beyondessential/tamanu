@@ -4,10 +4,8 @@ import { SYNC_DIRECTIONS } from './types';
 
 export type LanguageOption = {
   label: string;
-  value: {
-    languageCode: string;
-    countryCode: string | null;
-  };
+  languageCode: string;
+  countryCode: string;
 };
 
 @Entity('translated_strings')
@@ -58,10 +56,8 @@ export class TranslatedString extends BaseModel {
     return languageNameKeys.map(
       ({ language, text }): LanguageOption => ({
         label: text,
-        value: {
-          languageCode: language,
-          countryCode: countryCodeKeys.find((o) => o.language === language)?.text ?? null,
-        },
+        languageCode: language,
+        countryCode: countryCodeKeys.find((o) => o.language === language)?.text ?? null,
       }),
     );
   }

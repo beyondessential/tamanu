@@ -28,17 +28,19 @@ const StyledSeparator = () => (
 
 interface LanguageOptionButtonProps {
   label: string;
-  value: { languageCode: string; countryCode: string | null };
+  languageCode: string;
+  countryCode: string | null;
   onPress: (value: string) => void;
 }
 
 const LanguageOptionButton = ({
   label,
-  value,
+  languageCode,
+  countryCode,
   onPress,
 }: LanguageOptionButtonProps): React.ReactElement => {
   const handlePress = () => {
-    onPress(value?.languageCode);
+    onPress(languageCode);
   };
 
   return (
@@ -50,8 +52,8 @@ const LanguageOptionButton = ({
         alignItems="center"
       >
         <StyledView marginRight={screenPercentageToDP(3.4, Orientation.Width)}>
-          {value?.countryCode && isISO31661Alpha2(value?.countryCode) && (
-            <CountryFlag isoCode={value?.countryCode} size={34} />
+          {countryCode && isISO31661Alpha2(countryCode) && (
+            <CountryFlag isoCode={countryCode} size={34} />
           )}
         </StyledView>
         <RowView flex={1}>
@@ -122,7 +124,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
           >
             <FlatList
               data={languageOptions}
-              keyExtractor={(item): string => item.value}
+              keyExtractor={(item): string => item.languageCode}
               renderItem={({ item }): ReactElement => (
                 <LanguageOptionButton onPress={handleChangeLanguage} {...item} />
               )}

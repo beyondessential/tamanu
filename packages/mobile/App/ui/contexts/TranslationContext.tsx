@@ -36,7 +36,7 @@ interface TranslationContextData {
   debugMode: boolean;
   language: string;
   languageOptions: LanguageOption[];
-  setLanguageOptions: (languageOptions: []) => void;
+  setLanguageOptions: (languageOptions: LanguageOption[]) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;

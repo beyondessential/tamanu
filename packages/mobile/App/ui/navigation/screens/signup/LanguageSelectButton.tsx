@@ -8,7 +8,8 @@ import { Routes } from '~/ui/helpers/routes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { NavigationProp } from '@react-navigation/native';
-import { FlagIcon } from '~/ui/components/Icons/FlagIcons/FlagIcon';
+import { isISO31661Alpha2 } from 'validator';
+import CountryFlag from 'react-native-country-flag';
 
 const ButtonContainer = styled(StyledView)`
   display: flex;
@@ -28,12 +29,11 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
     navigation.navigate(Routes.SignUpStack.LanguageSelect);
   }, []);
 
-  const getLabel = (language: string) =>
-    languageOptions.find(({ value }) => value === language)?.label;
-
   if (!languageOptions || languageOptions.length <= 1) {
     return null;
   }
+
+  const languageOption = languageOptions.find((o) => o.languageCode === language);
 
   return (
     <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
@@ -48,8 +48,10 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
         </StyledText>
 
         <ButtonContainer>
-          <FlagIcon languageCode={language} size={22} />
-          <StyledText color={theme.colors.WHITE}>{getLabel(language)}</StyledText>
+          {languageOption?.countryCode && isISO31661Alpha2(languageOption.countryCode) && (
+            <CountryFlag isoCode={languageOption.countryCode} size={22} />
+          )}
+          <StyledText color={theme.colors.WHITE}>{languageOption.label}</StyledText>
           <Icon color={theme.colors.WHITE} name="chevron-down" size={20} />
         </ButtonContainer>
       </StyledView>
