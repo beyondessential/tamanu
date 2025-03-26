@@ -11,7 +11,7 @@ import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
@@ -125,9 +125,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'clinicalStatus',
         title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
-        accessor: row => {
-          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
-        },
+        CellComponent: ClinicalStatusCell,
         maxWidth: 200,
       },
       {
