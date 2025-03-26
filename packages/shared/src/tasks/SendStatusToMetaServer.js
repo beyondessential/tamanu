@@ -29,7 +29,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         'Content-Type': 'application/json',
         ...options.headers,
       },
-      timeout: this.metaServerConfig.requestTimeoutMs,
+      timeout: this.metaServerConfig.timeoutMs,
     });
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);

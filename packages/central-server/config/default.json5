@@ -38,7 +38,7 @@
   },
   "metaServer": {
     "host": "http://localhost:8000",
-    "requestTimeoutMs": 20000
+    "timeoutMs": 20000
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
