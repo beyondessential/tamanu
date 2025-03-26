@@ -41,26 +41,6 @@ module.exports = function transformer(file, api) {
 
     if (hasTestId) return;
 
-    // Special handling for TranslatedText components
-    if (elementName === 'TranslatedText') {
-      const stringIdAttr = openingElement.attributes.find(
-        (attr) => attr.type === 'JSXAttribute' && attr.name.name === 'stringId',
-      );
-
-      if (stringIdAttr && stringIdAttr.value.type === 'StringLiteral') {
-        const testId = `translatedtext-${stringIdAttr.value.value}`;
-        if (usedTestIds.has(testId)) {
-          console.warn(`Warning: Duplicate TranslatedText testId found: ${testId}`);
-        }
-        usedTestIds.add(testId);
-        console.log(`Adding data-testid="${testId}" to TranslatedText (using stringId)`);
-        openingElement.attributes.push(
-          j.jsxAttribute(j.jsxIdentifier('data-testid'), j.stringLiteral(testId)),
-        );
-      }
-      return;
-    }
-
     // Handle other components and interactive elements
     const isComponent = elementName[0] === elementName[0].toUpperCase();
     const interactiveElements = ['button', 'input', 'select', 'textarea', 'a'];
