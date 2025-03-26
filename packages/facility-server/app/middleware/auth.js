@@ -8,10 +8,12 @@ import crypto from 'crypto';
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
+import { version } from '../../package.json';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -143,12 +145,8 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      allowedFacilities,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+    const { central, user, localisation, allowedFacilities } =
+      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -252,15 +250,36 @@ export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
     const token = getTokenFromHeaders(req);
+    const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
+
+    // Auditing middleware
+    // eslint-disable-next-line require-atomic-updates
+    req.audit = {
+      access: async ({ recordId, params, model, facilityId }) =>
+        req.models.AccessLog.create({
+          userId,
+          recordId,
+          recordType: model.name,
+          sessionId,
+          isMobile: false,
+          frontEndContext: params,
+          backEndContext: { endpoint: req.originalUrl },
+          loggedAt: new Date(),
+          facilityId,
+          deviceId: req.deviceId || 'unknown-device',
+          version,
+        }),
+    };
 
     const spanAttributes = {};
     if (req.user) {
