@@ -12,8 +12,6 @@ import { ClinicalStatusCell } from '../../views/programRegistry/ClinicalStatusDi
 export const isTranslatedText = element => {
   if (!isValidElement(element)) return false;
 
-  // log out the name of the type of the element
-  console.log(element.type.name);
   return [
     TranslatedText,
     TranslatedReferenceData,
