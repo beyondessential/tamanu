@@ -90,7 +90,6 @@ export const createAccessLog = async ({
       recordId: patientId,
       facilityId,
       recordType: 'Patient',
-      isMobile: chance.bool(),
       frontEndContext: { patientId },
       backEndContext: { endPoint: '/patient/:id' },
     }),
