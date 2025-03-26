@@ -75,8 +75,6 @@ interface CreatePatientViewLogParams {
   facilityId: string;
   userId: string;
   patientId: string;
-  version?: string;
-  deviceId?: string;
 }
 export const createAccessLog = async ({
   models: { AccessLog },
