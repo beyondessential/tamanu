@@ -36,8 +36,9 @@
       }
     }
   },
-  "meta-server": {
-    "host": "http://localhost:8000"
+  "metaServer": {
+    "host": "http://localhost:8000",
+    "requestTimeoutMs": 20000
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
@@ -265,7 +266,7 @@
     },
     "sendStatusToMetaServer": {
       // every minute
-      "schedule": "* * * * *"
+      "schedule": "* * * * *",
     }
   },
   "integrations": {
