@@ -15,8 +15,8 @@ export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
 export const FACT_DEVICE_ID = 'deviceId';
-export const FACT_FACILITY_IDS = 'facilityIds';
 export const FACT_DEVICE_KEY = 'deviceKey';
+export const FACT_FACILITY_IDS = 'facilityIds';
 export const FACT_META_SERVER_ID = 'metaServerId';
 
 // Materialised views

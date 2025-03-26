@@ -1,9 +1,8 @@
 import config from 'config';
 import { Agent } from 'undici';
-import { EndpointKey } from 'mushi';
 
 import { log } from '@tamanu/shared/services/logging';
-import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID, FACT_DEVICE_KEY } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
@@ -25,7 +24,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async fetch(url, options) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
-    const deviceKey = await this.getDeviceKey();
+    const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
     const response = await fetchWithTimeout(`${this.metaServerConfig.host}/${url}`, {
       ...options,
       headers: {
@@ -47,17 +46,6 @@ export class SendStatusToMetaServer extends ScheduledTask {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
     }
     return response.json();
-  }
-
-  // Make static add to LocalSystemFact model
-  async getDeviceKey() {
-    const deviceKey = await this.models.LocalSystemFact.get(FACT_DEVICE_KEY);
-    if (deviceKey) {
-      return new EndpointKey(deviceKey);
-    }
-    const newDeviceKey = EndpointKey.generate();
-    await this.models.LocalSystemFact.set(FACT_DEVICE_KEY, newDeviceKey.toString());
-    return newDeviceKey;
   }
 
   async getMetaServerId() {
