@@ -17,6 +17,7 @@ import { useBackendEffect } from '~/ui/hooks';
 import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedEnum } from '~/ui/components/Translations/TranslatedEnum';
 
 const Row = styled(StyledView)`
   margin-left: 20px;
@@ -114,7 +115,12 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
         value={condition.programRegistryCondition.id}
         category="programRegistryCondition"
       />
-      {` (${PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[condition.conditionCategory]})`}
+      {` (`}
+      <TranslatedEnum
+        value={condition.conditionCategory}
+        enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+      />
+      {`)`}
     </RowValue>
   );
 

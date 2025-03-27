@@ -15,6 +15,8 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '~/constants/programRegistries';
+import { TranslatedEnum, getEnumStringId } from '~/ui/components/Translations/TranslatedEnum';
+import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 
 interface FieldValue {
   label: string;
@@ -43,7 +45,9 @@ const CONDITION_CATEGORY_OPTIONS = Object.values(PROGRAM_REGISTRY_CONDITION_CATE
   .filter((category) => !EXCLUDED_CONDITION_CATEGORIES.includes(category))
   .map((category) => ({
     value: category,
-    label: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[category],
+    label: (
+      <TranslatedEnum value={category} enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS} />
+    ),
   }));
 
 const PatientProgramRegistrationConditionsFieldItem = ({
@@ -67,7 +71,18 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   const buildLabel = useCallback(() => {
     if (!condition || !category) return '';
 
-    return `${condition.label} (${category.label})`;
+    const conditionStringId = getReferenceDataStringId('programRegistryCondition', condition.value);
+    const conditionLabel = getTranslation(conditionStringId, condition.label);
+    const categoryStringId = getEnumStringId(
+      category.value,
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+    );
+    const categoryLabel = getTranslation(
+      categoryStringId,
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[category.value],
+    );
+
+    return `${conditionLabel} (${categoryLabel})`;
   }, [condition, category]);
 
   const [label, setLabel] = useState(buildLabel());
