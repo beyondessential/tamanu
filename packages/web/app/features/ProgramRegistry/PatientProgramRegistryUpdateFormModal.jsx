@@ -123,7 +123,6 @@ const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
   );
 };
 
-// Keep in sync with @tamanu/mobile PatientProgramRegistrationDetails
 const getGroupedData = rows => {
   const groupMapping = {
     confirmedSection: [

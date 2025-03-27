@@ -1,4 +1,5 @@
 import React from 'react';
+import { sortBy, groupBy } from 'lodash';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
@@ -78,112 +79,52 @@ const HorizontalLine = ({ marginTop = 0, marginBottom = 0 }) => (
   />
 );
 
-// Keep in sync with @tamanu/web PatientProgramRegistryUpdateFormModal
-const CONDITION_CATEGORY_GROUPS = {
-  confirmedSection: [
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNDER_INVESTIGATION,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.IN_REMISSION,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE,
-  ],
-  resolvedSection: [
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
-    PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
-  ],
-  recordedInErrorSection: [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR],
-};
-
 const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const { getTranslation } = useTranslation();
-  let conditionComponents;
-  if (!Array.isArray(conditions) || conditions.length < 1) {
-    conditionComponents = <StyledText>—</StyledText>;
-  } else {
-    const groups = Object.values(CONDITION_CATEGORY_GROUPS);
-    // Sort alphabetically by condition name, then by category group
-    const orderedConditions = [...conditions]
-      .sort((a, b) => {
-        const aStringId = getReferenceDataStringId(
-          'programRegistryCondition',
-          a.programRegistryCondition.id,
-        );
-        const aName = getTranslation(aStringId, a.programRegistryCondition.name);
 
-        const bStringId = getReferenceDataStringId(
-          'programRegistryCondition',
-          b.programRegistryCondition.id,
-        );
-        const bName = getTranslation(bStringId, b.programRegistryCondition.name);
-        return aName.localeCompare(bName);
-      })
-      .sort(
-        (a, b) =>
-          groups.findIndex((group) => group.includes(a.conditionCategory)) -
-          groups.findIndex((group) => group.includes(b.conditionCategory)),
-      );
+  const initConditions = Array.isArray(conditions) ? conditions : [];
+  // We hide recorded in error conditions
+  const filteredConditions = initConditions.filter(
+    ({ conditionCategory }) =>
+      conditionCategory !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  );
 
-    conditionComponents = orderedConditions.map(
-      ({ programRegistryCondition, conditionCategory }) => (
-        <>
-          <StyledText
-            marginBottom={10}
-            marginLeft={20}
-            fontSize={14}
-            color={theme.colors.TEXT_SUPER_DARK}
-            fontWeight={500}
-          >
-            <TranslatedReferenceData
-              key={programRegistryCondition.id}
-              fallback={programRegistryCondition.name}
-              value={programRegistryCondition.id}
-              category="programRegistryCondition"
-            />
-            {` (${PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[conditionCategory]})`}
-          </StyledText>
-        </>
-      ),
+  // Sort alphabetically by condition name
+  const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {
+    const stringId = getReferenceDataStringId(
+      'programRegistryCondition',
+      programRegistryCondition.id,
     );
+    return getTranslation(stringId, programRegistryCondition.name);
+  });
 
-    // Add a horizontal line between confirmed or resolved and recordedInErrorSection conditions
-    if (
-      orderedConditions.some(
-        ({ conditionCategory }) =>
-          CONDITION_CATEGORY_GROUPS.confirmedSection.includes(conditionCategory) ||
-          CONDITION_CATEGORY_GROUPS.resolvedSection.includes(conditionCategory),
-      ) &&
-      orderedConditions.some(({ conditionCategory }) =>
-        CONDITION_CATEGORY_GROUPS.recordedInErrorSection.includes(conditionCategory),
-      )
-    ) {
-      conditionComponents.splice(
-        orderedConditions.findIndex(({ conditionCategory }) =>
-          CONDITION_CATEGORY_GROUPS.recordedInErrorSection.includes(conditionCategory),
-        ),
-        0,
-        <HorizontalLine marginBottom={10} />,
-      );
-    }
+  const groupedConditions = groupBy(sortedConditions, ({ conditionCategory }) =>
+    [
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
+    ].includes(conditionCategory)
+      ? 'closed'
+      : 'open',
+  );
+  const needsDivider = groupedConditions.closed && groupedConditions.open;
 
-    // Add a horizontal line between confirmed and resolved conditions
-    if (
-      orderedConditions.some(({ conditionCategory }) =>
-        CONDITION_CATEGORY_GROUPS.confirmedSection.includes(conditionCategory),
-      ) &&
-      orderedConditions.some(({ conditionCategory }) =>
-        CONDITION_CATEGORY_GROUPS.resolvedSection.includes(conditionCategory),
-      )
-    ) {
-      conditionComponents.splice(
-        orderedConditions.findIndex(({ conditionCategory }) =>
-          CONDITION_CATEGORY_GROUPS.resolvedSection.includes(conditionCategory),
-        ),
-        0,
-        <HorizontalLine marginBottom={10} />,
-      );
-    }
-  }
+  const TranslatedCondition = ({ condition }) => (
+    <StyledText
+      marginBottom={10}
+      marginLeft={20}
+      fontSize={14}
+      color={theme.colors.TEXT_SUPER_DARK}
+      fontWeight={500}
+    >
+      <TranslatedReferenceData
+        key={condition.programRegistryCondition.id}
+        fallback={condition.programRegistryCondition.name}
+        value={condition.programRegistryCondition.id}
+        category="programRegistryCondition"
+      />
+      {` (${PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[condition.conditionCategory]})`}
+    </StyledText>
+  );
 
   return (
     <StyledView
@@ -200,7 +141,18 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
           <TranslatedText stringId="programRegistry.conditions.label" fallback="Conditions" />
         </StyledText>
       </StyledView>
-      <StyledView width="60%">{conditionComponents}</StyledView>
+      <StyledView width="60%">
+        {initConditions.length === 0 && <StyledText>—</StyledText>}
+        {groupedConditions.open &&
+          groupedConditions.open.map((condition, i) => (
+            <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
+          ))}
+        {needsDivider && <HorizontalLine marginBottom={10} />}
+        {groupedConditions.closed &&
+          groupedConditions.closed.map((condition, i) => (
+            <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
+          ))}
+      </StyledView>
     </StyledView>
   );
 };
