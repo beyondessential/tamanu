@@ -10,7 +10,7 @@ import {
   simplePost,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
-import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { add, isAfter } from 'date-fns';
 
@@ -374,8 +374,101 @@ medication.get(
   }),
 );
 
-medication.put('/mar/:id', simplePut('MedicationAdministrationRecord'));
-medication.post('/mar', simplePost('MedicationAdministrationRecord'));
+medication.put(
+  '/mar/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose } = models;
+    
+    // Start a transaction
+    const transaction = await req.db.transaction();
+    
+    try {
+      // Get the MAR
+      const mar = await MedicationAdministrationRecord.findByPk(params.id);
+      if (!mar) throw new NotFoundError();
+      req.checkPermission('write', mar);
+      
+      // Update basic fields
+      const { doses, ...marData } = req.body;
+      await mar.update(marData, { transaction });
+      
+      // Handle doses using bulkCreate
+      if (doses && Array.isArray(doses) && doses.length > 0) {
+        // Prepare the doses with the MAR ID
+        const dosesWithMarId = doses.map(dose => ({
+          ...dose,
+          medicationAdministrationRecordId: mar.id
+        }));
+        
+        // Use bulkCreate for better performance
+        await MedicationAdministrationRecordDose.bulkCreate(dosesWithMarId, { transaction });
+      }
+      
+      await transaction.commit();
+      
+      // Reload with associations to return the full object
+      await mar.reload({ include: ['doses'] });
+      res.send(mar);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  })
+);
+
+medication.post(
+  '/mar',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose } = models;
+    
+    req.checkPermission('create', 'MedicationAdministrationRecord');
+    
+    // Start a transaction
+    const transaction = await req.db.transaction();
+    
+    try {
+      // Extract doses from the request body
+      const { doses, ...marData } = req.body;
+      
+      // Check if record with this ID already exists
+      const existingObject = await MedicationAdministrationRecord.findByPk(marData.id, {
+        paranoid: false,
+      });
+      
+      if (existingObject) {
+        throw new InvalidOperationError(
+          `Cannot create object with id (${marData.id}), it already exists`,
+        );
+      }
+      
+      // Create the MAR
+      const mar = await MedicationAdministrationRecord.create(marData, { transaction });
+      
+      // Handle doses using bulkCreate
+      if (doses && Array.isArray(doses) && doses.length > 0) {
+        // Prepare the doses with the MAR ID
+        const dosesWithMarId = doses.map(dose => ({
+          ...dose,
+          medicationAdministrationRecordId: mar.id
+        }));
+        
+        // Use bulkCreate for better performance
+        await MedicationAdministrationRecordDose.bulkCreate(dosesWithMarId, { transaction });
+      }
+      
+      await transaction.commit();
+      
+      // Reload with associations to return the full object
+      await mar.reload({ include: ['doses'] });
+      res.send(mar);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  })
+);
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>

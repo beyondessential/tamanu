@@ -165,6 +165,7 @@ const MedicationCell = ({ medication, selectedDate }) => {
     medicationAdministrationRecords,
     endDate,
     isPrn,
+    doseAmount,
     id: prescriptionId,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -187,22 +188,13 @@ const MedicationCell = ({ medication, selectedDate }) => {
         <Box color={Colors.midText}>{notes}</Box>
       </MedicationCellContainer>
       {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
-        const { id, administeredAt, status, doseAmount } = record || {};
         return (
           <MarStatus
-            key={id || index}
-            administeredAt={administeredAt}
-            status={status}
-            doseAmount={doseAmount}
-            units={units}
+            key={record?.id || index}
             selectedDate={selectedDate}
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
-            discontinuedDate={discontinuedDate}
-            endDate={endDate}
-            marId={id}
-            reasonNotGiven={record?.reasonNotGiven}
-            prescriptionId={prescriptionId}
-            isPrn={isPrn}
+            medication={medication}
+            marInfo={record}
           />
         );
       })}

@@ -198,7 +198,13 @@ encounterRelations.get(
         {
           model: models.MedicationAdministrationRecord,
           as: 'medicationAdministrationRecords',
-          include: 'reasonNotGiven',
+          include: [
+            'reasonNotGiven', 
+            {
+              association: 'doses',
+              order: [['createdAt', 'ASC']]  // Order doses by oldest first
+            }
+          ],
         },
         {
           model: models.EncounterPrescription,
