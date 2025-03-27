@@ -73,7 +73,6 @@ export default LanguageOptionButton;
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const { languageOptions, setLanguage } = useTranslation();
-  console.log('language options', languageOptions);
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
