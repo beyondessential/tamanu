@@ -1,0 +1,74 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: '{{ doc("generic__schema") }}'
+    tables:
+      - name: sync_lookup
+        description: '{{ doc("table__sync_lookup") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: bigint
+            description: "{{ doc('generic__id') }} in sync_lookup."
+            data_tests:
+              - unique
+              - not_null
+          - name: record_id
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__record_id') }}"
+            data_tests:
+              - not_null
+          - name: record_type
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__record_type') }}"
+            data_tests:
+              - not_null
+          - name: data
+            data_type: json
+            description: "{{ doc('sync_lookup__data') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in sync_lookup."
+            data_tests:
+              - not_null
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__patient_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__encounter_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'encounters')
+                  field: id
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__facility_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'facilities')
+                  field: id
+          - name: is_lab_request
+            data_type: boolean
+            description: "{{ doc('sync_lookup__is_lab_request') }}"
+            data_tests:
+              - not_null
+          - name: is_deleted
+            data_type: boolean
+            description: "{{ doc('sync_lookup__is_deleted') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_by_field_sum
+            data_type: bigint
+            description: "{{ doc('sync_lookup__updated_at_by_field_sum') }}"
+          - name: pushed_by_device_id
+            data_type: text
+            description: "{{ doc('sync_lookup__pushed_by_device_id') }}"

@@ -10,12 +10,14 @@ interface CreateProgramRegistryParams {
   conditionCount?: number;
 }
 export const createProgramRegistry = async ({
-  models: { PatientProgramRegistration, PatientProgramRegistrationCondition },
+  models,
   userId,
   patientId,
   programRegistryId,
   conditionCount = chance.integer({ min: 1, max: 5 }),
 }: CreateProgramRegistryParams): Promise<void> => {
+  const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
+
   await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
       clinicianId: userId,
