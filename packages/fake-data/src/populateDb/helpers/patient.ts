@@ -4,7 +4,6 @@ import type { Models, Patient } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake, chance } from '../../fake';
-import { version } from '../../../package.json';
 
 interface CreatePatientParams {
   models: Models;
