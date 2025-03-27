@@ -37,12 +37,13 @@
     }
   },
   "updateUrls": {
-    "mobile": ""
+    "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
   },
   "log": {
     "path": "",
     "consoleLevel": "http",
-    "color": true
+    "color": true,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
@@ -73,7 +74,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": false,
+      "enabled": true,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }

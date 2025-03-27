@@ -1,0 +1,37 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: user_facilities
+        description: '{{ doc("table__user_facilities") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in user_facilities."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in user_facilities."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in user_facilities."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in user_facilities."
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('user_facilities__facility_id') }}"
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('user_facilities__user_id') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in user_facilities."
+            data_tests:
+              - not_null

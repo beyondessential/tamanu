@@ -1,4 +1,9 @@
-# Database schemas and tooling
+{% docs __overview__ %}
+# Database schemas
+
+> [!NOTE]
+> If you're looking at this in Slab, go instead here:
+> <https://data.bes.au/tamanu/main/>
 
 ## Types of data
 
@@ -38,3 +43,5 @@ Sometimes sensitive (eg a queued email to a patient notifying them of a test res
 Entire tables that are deprecated.
 
 This is an additional tag and should be accompanied by one of the above tags.
+
+{% enddocs %}

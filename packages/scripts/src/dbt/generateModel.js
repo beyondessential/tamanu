@@ -13,11 +13,11 @@ const { dbConfig } = require('./dbConfig.js');
  */
 async function readTablesFromDbt(schemaPath, noSymlinks = false) {
   const tablePromises = (await fs.readdir(schemaPath, { withFileTypes: true }))
-    .filter(entry => (noSymlinks ? !entry.isSymbolicLink() : true))
-    .map(entry => entry.name)
-    .filter(tablePath => tablePath.endsWith('.yml'))
+    .filter((entry) => (noSymlinks ? !entry.isSymbolicLink() : true))
+    .map((entry) => entry.name)
+    .filter((tablePath) => tablePath.endsWith('.yml'))
     .sort()
-    .map(async tablePath => {
+    .map(async (tablePath) => {
       const table = await fs.readFile(path.join(schemaPath, tablePath), { encoding: 'utf-8' });
       return YAML.parse(table);
     });
@@ -36,7 +36,7 @@ async function getSchemas(client) {
       WHERE schema_name not similar to 'pg%|information_schema|sync_snapshots|reporting'
       ORDER BY schema_name`,
     )
-  ).rows.map(table => table.schema_name);
+  ).rows.map((table) => table.schema_name);
 }
 
 /**
@@ -53,7 +53,7 @@ async function getTablesInSchema(client, schemaName) {
       ORDER BY table_name`,
       [schemaName],
     )
-  ).rows.map(table => table.table_name);
+  ).rows.map((table) => table.table_name);
 }
 
 /**
@@ -70,7 +70,7 @@ async function getColumnsInRelation(client, schemaName, tableName) {
       WHERE table_schema = $1 and table_name = $2`,
       [schemaName, tableName],
     )
-  ).rows.map(row => ({
+  ).rows.map((row) => ({
     name: row.column_name,
     is_nullable: row.is_nullable === 'YES' ? true : false,
     data_type: row.character_maximum_length
@@ -87,14 +87,24 @@ async function getColumnsInRelation(client, schemaName, tableName) {
  * @returns A list of constrains exist for the given column
  */
 async function getConstraintsForColumn(client, schemaName, tableName, columnName) {
-  return (
+  const constraints = (
     await client.query(
-      `SELECT constraint_type
+      `SELECT constraint_name, constraint_type, json_agg(column_name) AS column_names
       FROM information_schema.table_constraints NATURAL JOIN information_schema.constraint_column_usage
-      WHERE table_schema = $1 and table_name = $2 and column_name = $3`,
-      [schemaName, tableName, columnName],
+      WHERE table_schema = $1 and table_name = $2
+      GROUP BY constraint_name, constraint_type`,
+      [schemaName, tableName],
     )
   ).rows;
+
+  return constraints
+    .filter(cons => cons.column_names.includes(columnName))
+    // ignore multi-column constraints, e.g. composite UNIQUE
+    .filter(cons => cons.column_names.length === 1)
+    .flatMap(cons => cons.column_names.map(col => ({
+      column_name: col,
+      constraint_type: cons.constraint_type,
+    })));
 }
 
 /**
@@ -103,10 +113,10 @@ async function getConstraintsForColumn(client, schemaName, tableName, columnName
  * @returns A list of tables read from the DB as JS objects
  */
 async function readTablesFromDB(client, schemaName) {
-  const tablePromises = (await getTablesInSchema(client, schemaName)).map(async table => {
+  const tablePromises = (await getTablesInSchema(client, schemaName)).map(async (table) => {
     return {
       name: table,
-      columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
+      columns: (await getColumnsInRelation(client, schemaName, table)).map((column) => {
         // Lazily evaluate constraints as it's only occasionally needed.
         column.getConstraints = () =>
           getConstraintsForColumn(client, schemaName, table, column.name);
@@ -209,7 +219,7 @@ async function readTableDoc(schema, tableName) {
 async function generateDataTests(column) {
   const dataTests = [];
   const isUnique = (await column.getConstraints()).some(
-    c => c.constraint_type === 'UNIQUE' || c.constraint_type === 'PRIMARY KEY',
+    (c) => c.constraint_type === 'UNIQUE' || c.constraint_type === 'PRIMARY KEY',
   );
   if (isUnique) dataTests.push('unique');
   if (!column.is_nullable) dataTests.push('not_null');
@@ -287,7 +297,7 @@ async function generateTableModel(schema, table, genericColNames) {
             description: `{{ doc('${docPrefix(schema, 'table')}__${table.name}') }}`,
             tags: [],
             columns: await Promise.all(
-              table.columns.map(c =>
+              table.columns.map((c) =>
                 generateColumnModel(schema, table.name, c, genericColNames.includes(c.name)),
               ),
             ),
@@ -308,7 +318,7 @@ function generateTableDoc(table, genericColNames) {
   return {
     name: table.name,
     description: 'TODO',
-    columns: table.columns.filter(c => !genericColNames.includes(c.name)).map(generateColumnDoc),
+    columns: table.columns.filter((c) => !genericColNames.includes(c.name)).map(generateColumnDoc),
   };
 }
 
@@ -318,7 +328,7 @@ function generateTableDoc(table, genericColNames) {
  * @returns A string form of the given table doc
  */
 function stringifyTableDoc(schema, doc) {
-  const stringifyColumn = column => {
+  const stringifyColumn = (column) => {
     return `
 {% docs ${docPrefix(schema, doc.name)}__${column.name} %}
 ${column.description}
@@ -341,7 +351,7 @@ ${doc.columns.map(stringifyColumn).join('')}`;
  * @returns
  */
 function fillMissingDocColumn(index, column, hasGenericDoc, doc) {
-  if (doc.columns.some(c => c.name === column.name) || hasGenericDoc) return;
+  if (doc.columns.some((c) => c.name === column.name) || hasGenericDoc) return;
 
   doc.columns.splice(index, 0, generateColumnDoc(column));
 }
@@ -359,7 +369,7 @@ async function fillMissingDoc(schema, table, genericColNames = []) {
   // delete empty files
   if (
     (await fs.stat(docPath).then(
-      stat => stat.size,
+      (stat) => stat.size,
       () => 1,
     )) === 0
   ) {
@@ -384,8 +394,8 @@ async function fillMissingDoc(schema, table, genericColNames = []) {
  */
 async function handleRemovedColumn(tableName, column, out) {
   console.warn(` | removing ${column.name} in ${tableName}`);
-  remove(out.dbtColumns, c => c.name === column.name);
-  remove(out.doc.columns, c => c.name === column.name);
+  remove(out.dbtColumns, (c) => c.name === column.name);
+  remove(out.doc.columns, (c) => c.name === column.name);
 }
 
 /**
@@ -445,7 +455,7 @@ async function handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericD
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
 
   // Instead of computing differences while ignoring non-trivial data tests, simply replace them by the generated one.
-  remove(dbtColumn.data_tests, t => t === 'unique' || t === 'not_null');
+  remove(dbtColumn.data_tests, (t) => t === 'unique' || t === 'not_null');
   dbtColumn.data_tests.splice(0, 0, ...sqlDataTests);
 
   if (dbtColumn.data_tests.length === 0) delete dbtColumn.data_tests;
@@ -460,10 +470,10 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
   // This is expensive yet the most straightforward implementation to detect changes.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
   // May be able to use Map, but it doesn't have convenient set operations.
-  differenceBy(out.dbtColumns, sqlColumns, 'name').forEach(column =>
+  differenceBy(out.dbtColumns, sqlColumns, 'name').forEach((column) =>
     handleRemovedColumn(tableName, column, out),
   );
-  differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
+  differenceBy(sqlColumns, out.dbtColumns, 'name').forEach((column) =>
     handleMissingColumn(
       schema,
       tableName,
@@ -475,8 +485,8 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
   );
 
   const intersectionPromises = intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
-    async dbtColumn => {
-      const sqlColumnIndex = sqlColumns.findIndex(c => c.name === dbtColumn.name);
+    async (dbtColumn) => {
+      const sqlColumnIndex = sqlColumns.findIndex((c) => c.name === dbtColumn.name);
       const sqlColumn = sqlColumns[sqlColumnIndex];
 
       const hasGenericDoc = genericColNames.includes(dbtColumn.name);
@@ -506,36 +516,30 @@ async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
 }
 
 async function handleTables(schema, dbtSrcs, sqlTables) {
-  const genericColNames = (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
+  const genericColNames = (await readTableDoc(schema, 'generic'))?.columns.map((c) => c.name) ?? [];
 
-  const getName = srcOrTable =>
+  const getName = (srcOrTable) =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
-  const removedPromises = differenceBy(dbtSrcs, sqlTables, getName).map(src =>
+  const removedPromises = differenceBy(dbtSrcs, sqlTables, getName).map((src) =>
     handleRemovedTable(schema, src.sources[0].tables[0]),
   );
-  const missingPromises = differenceBy(sqlTables, dbtSrcs, getName).map(table =>
+  const missingPromises = differenceBy(sqlTables, dbtSrcs, getName).map((table) =>
     handleMissingTable(schema, table, genericColNames),
   );
 
-  const intersectionPromises = intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
-    const sqlTable = sqlTables.find(t => t.name === dbtSrc.sources[0].tables[0].name);
+  const intersectionPromises = intersectionBy(dbtSrcs, sqlTables, getName).map(async (dbtSrc) => {
+    const sqlTable = sqlTables.find((t) => t.name === dbtSrc.sources[0].tables[0].name);
     await handleTable(schema, dbtSrc, sqlTable, genericColNames);
   });
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
 
-async function handleSchema(client, packageName, schemaName) {
-  const schemaPath = path.join('database/model', packageName, schemaName);
+async function handleSchema(client, schemaName) {
+  const schemaPath = path.join('database/model', schemaName);
   await fs.mkdir(schemaPath, { recursive: true });
   const oldTablesPromise = readTablesFromDbt(schemaPath);
   const sqlTablesPromise = readTablesFromDB(client, schemaName);
   const [oldTables, sqlTables] = await Promise.all([oldTablesPromise, sqlTablesPromise]);
-
-  const fhirLogsIndex = sqlTables.findIndex(
-    ({ name }) =>
-      packageName === 'facility-server' && schemaName === 'logs' && name === 'fhir_writes',
-  );
-  if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
   await handleTables(
     {
@@ -547,16 +551,16 @@ async function handleSchema(client, packageName, schemaName) {
   );
 }
 
-async function run(packageName, opts) {
-  console.log('-+', packageName);
+async function run(opts) {
+  console.log('-+');
   let client;
   try {
     console.log(' | connecting to database');
-    ({ client } = await dbConfig(packageName));
+    ({ client } = await dbConfig('central-server'));
   } catch (err) {
     console.error(err);
     if (opts.failOnMissingConfig) {
-      throw `Invalid database config for ${packageName}, cannot proceed.`;
+      throw `Invalid database config, cannot proceed.`;
     }
 
     return false;
@@ -566,45 +570,14 @@ async function run(packageName, opts) {
 
   const schemas = await getSchemas(client);
   for (const schema of schemas) {
-    if (packageName === 'facility-server' && ['fhir'].includes(schema)) continue;
-
     console.log(' | updating source models for', schema);
-    await handleSchema(client, packageName, schema);
+    await handleSchema(client, schema);
   }
 
   console.log(' + done, disconnecting');
   await client.end();
   console.log();
   return true;
-}
-
-async function symlinkIdenticals() {
-  const allFacilityFiles = await fs.readdir(path.join('database', 'model', 'facility-server'), {
-    recursive: true,
-    withFileTypes: true,
-  });
-
-  for (const entry of allFacilityFiles) {
-    if (!entry.isFile() || entry.isSymbolicLink()) continue;
-    const facilityPath = path.join(entry.path, entry.name);
-    const centralPath = path.join(
-      entry.path.replace('/facility-server/', '/central-server/'),
-      entry.name,
-    );
-    const facilityFile = await fs.readFile(facilityPath);
-
-    try {
-      const centralFile = await fs.readFile(centralPath);
-      if (facilityFile.equals(centralFile)) {
-        console.warn(`dedupe ${facilityPath}`);
-        await fs.unlink(facilityPath);
-        await fs.symlink(centralPath.replace('database/model/', '../../'), facilityPath);
-      }
-    } catch (err) {
-      if (err.code === 'ENOENT') continue;
-      throw err;
-    }
-  }
 }
 
 function checkClean() {
@@ -617,12 +590,8 @@ async function runAll() {
   const { exit } = require('node:process');
 
   program
-    .description('Generate dbt models from the current database')
+    .description('Generate dbt models from the current (central) database')
     .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
-    .option(
-      '--no-depupe',
-      "Don't create symlinks from facility models that are identical to central ones",
-    )
     .option(
       '--allow-dirty',
       'Proceed even if there are uncommitted changed in the database/ folder',
@@ -638,13 +607,7 @@ async function runAll() {
     exit(1);
   }
 
-  if (
-    (await run('central-server', opts)) &&
-    (await run('facility-server', opts)) &&
-    !opts.noDedupe
-  ) {
-    await symlinkIdenticals();
-  }
+  await run(opts);
 }
 
 module.exports = {

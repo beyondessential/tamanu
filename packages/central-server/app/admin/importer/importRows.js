@@ -4,8 +4,8 @@ import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
-  ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
 
@@ -115,15 +115,16 @@ export async function importRows(
                   })
                 : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (fkSchema.model === 'ReferenceData'
-              ? await models.ReferenceData.findOne({
-                  where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                })
-              : await models[fkSchema.model].findOne({
-                  where: {
-                    name: { [Op.iLike]: fkFieldValue },
-                  },
-                })
+            const idByRemoteName = (
+              fkSchema.model === 'ReferenceData'
+                ? await models.ReferenceData.findOne({
+                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                  })
+                : await models[fkSchema.model].findOne({
+                    where: {
+                      name: { [Op.iLike]: fkFieldValue },
+                    },
+                  })
             )?.id;
 
             if (hasRemoteId) {
@@ -214,7 +215,7 @@ export async function importRows(
   await validateTableRows(models, validRows, pushErrorFn);
 
   log.debug('Upserting database rows', { rows: validRows.length });
-  const translationRecordsForSheet = [];
+  const translationData = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -245,16 +246,15 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType = normaliseSheetName(sheetName);
-      const isValidTable =
-        model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
+      const dataType = normaliseSheetName(sheetName, model);
+      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        translationRecordsForSheet.push({
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          text: extractRecordName(values, dataType) ?? '',
-          language: ENGLISH_LANGUAGE_CODE,
-        });
+        translationData.push([
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
+          extractRecordName(values, dataType) ?? '',
+          DEFAULT_LANGUAGE_CODE,
+        ]);
       }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -262,11 +262,20 @@ export async function importRows(
     }
   }
 
-  // Ensure we have a translation record for each row of translatable reference data
-  await models.TranslatedString.bulkCreate(translationRecordsForSheet, {
-    fields: ['stringId', 'text', 'language'],
-    ignoreDuplicates: true,
-  });
+  // Bulk upsert translation defaults
+  if (translationData.length > 0) {
+    await models.TranslatedString.sequelize.query(
+      `
+        INSERT INTO translated_strings (string_id, text, language)
+        VALUES ${translationData.map(() => '(?)').join(',')}
+          ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+      `,
+      {
+        replacements: translationData,
+        type: models.TranslatedString.sequelize.QueryTypes.INSERT,
+      },
+    );
+  }
 
   log.debug('Done with these rows');
   return stats;
