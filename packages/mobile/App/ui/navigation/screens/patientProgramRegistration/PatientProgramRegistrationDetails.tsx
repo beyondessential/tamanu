@@ -17,54 +17,40 @@ import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
+const HEADING_WIDTH = '32%';
+const VALUE_WIDTH = '68%';
+
 const DataRow = ({
   label,
   value,
 }: {
   label: TranslatedTextElement;
-  value: TranslatedTextElement | TranslatedTextElement[];
+  value: TranslatedTextElement;
 }) => {
   return (
     <StyledView
-      margin={20}
-      marginTop={0}
+      marginLeft={20}
+      paddingTop={20}
       paddingBottom={20}
       flexDirection="row"
       justifyContent="flex-start"
       borderBottomWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
     >
-      <StyledView width="40%">
+      <StyledView width={HEADING_WIDTH}>
         <StyledText fontSize={14} color={theme.colors.TEXT_MID} fontWeight={400}>
           {label}
         </StyledText>
       </StyledView>
-      <StyledView width="60%">
-        {Array.isArray(value) ? (
-          value.map((x, i) => (
-            <StyledText
-              key={i}
-              width="50%"
-              marginBottom={10}
-              marginLeft={20}
-              fontSize={14}
-              color={theme.colors.TEXT_SUPER_DARK}
-              fontWeight={500}
-            >
-              {x}
-            </StyledText>
-          ))
-        ) : (
-          <StyledText
-            width="50%"
-            marginLeft={20}
-            fontSize={14}
-            color={theme.colors.TEXT_SUPER_DARK}
-            fontWeight={500}
-          >
-            {value}
-          </StyledText>
-        )}
+      <StyledView width={VALUE_WIDTH}>
+        <StyledText
+          marginLeft={10}
+          fontSize={14}
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontWeight={500}
+        >
+          {value}
+        </StyledText>
       </StyledView>
     </StyledView>
   );
@@ -111,7 +97,7 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const TranslatedCondition = ({ condition }) => (
     <StyledText
       marginBottom={10}
-      marginLeft={20}
+      marginLeft={10}
       fontSize={14}
       color={theme.colors.TEXT_SUPER_DARK}
       fontWeight={500}
@@ -128,21 +114,31 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
 
   return (
     <StyledView
-      margin={20}
-      marginTop={0}
+      marginLeft={20}
+      paddingTop={20}
       paddingBottom={20}
       flexDirection="row"
       justifyContent="flex-start"
       borderBottomWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
     >
-      <StyledView width="40%">
+      <StyledView width={HEADING_WIDTH}>
         <StyledText fontSize={14} color={theme.colors.TEXT_MID} fontWeight={400}>
           <TranslatedText stringId="programRegistry.conditions.label" fallback="Conditions" />
         </StyledText>
       </StyledView>
-      <StyledView width="60%">
-        {initConditions.length === 0 && <StyledText>—</StyledText>}
+      <StyledView width={VALUE_WIDTH}>
+        {initConditions.length === 0 && (
+          <StyledText
+            marginBottom={10}
+            marginLeft={10}
+            fontSize={14}
+            color={theme.colors.TEXT_SUPER_DARK}
+            fontWeight={500}
+          >
+            —
+          </StyledText>
+        )}
         {groupedConditions.open &&
           groupedConditions.open.map((condition, i) => (
             <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
@@ -169,7 +165,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   );
   return (
     <StyledScrollView background={theme.colors.WHITE}>
-      <HorizontalLine marginBottom={20} />
+      <HorizontalLine />
       <DataRow
         label={
           <TranslatedText
