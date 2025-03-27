@@ -37,7 +37,7 @@
     }
   },
   "updateUrls": {
-    "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
+    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
   "log": {
     "path": "",
