@@ -85,7 +85,7 @@ export class LocalSystemFact extends Model {
     if (deviceKey) {
       return new EndpointKey(deviceKey);
     }
-    const newDeviceKey = EndpointKey.generate();
+    const newDeviceKey = EndpointKey.generateFor('ecdsa256')
     await this.set(FACT_DEVICE_KEY, newDeviceKey.toString());
     return newDeviceKey;
   }
