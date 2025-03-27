@@ -205,7 +205,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       ),
                       value: condition.id,
                       searchString: getTranslation(
-                        getReferenceDataStringId(condition.id, 'prCondition'),
+                        getReferenceDataStringId(condition.id, 'programRegistryCondition'),
                         condition.name,
                       ),
                     }))}

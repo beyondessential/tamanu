@@ -99,7 +99,10 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   const translatedData = conditions?.data?.map(condition => {
     const { programRegistryCondition = {} } = condition;
     const { id, name } = programRegistryCondition;
-    const translatedName = getTranslation(getReferenceDataStringId(id, 'prCondition'), name);
+    const translatedName = getTranslation(
+      getReferenceDataStringId(id, 'programRegistryCondition'),
+      name,
+    );
 
     return { ...condition, translatedName };
   });
