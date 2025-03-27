@@ -119,3 +119,9 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in tasks."
             data_tests:
               - not_null
+          - name: duration_value
+            data_type: numeric
+            description: "{{ doc('tasks__duration_value') }}"
+          - name: duration_unit
+            data_type: character varying(255)
+            description: "{{ doc('tasks__duration_unit') }}"
