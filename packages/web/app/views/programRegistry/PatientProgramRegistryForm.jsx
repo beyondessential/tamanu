@@ -197,7 +197,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     ),
                     value: condition.id,
                     searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'prCondition'),
+                      getReferenceDataStringId(condition.id, 'programRegistryCondition'),
                       condition.name,
                     ),
                   }))}
