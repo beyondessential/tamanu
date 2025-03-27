@@ -20,10 +20,10 @@ export class SendStatusToMetaServer extends ScheduledTask {
     this.metaServerConfig = config.metaServer;
   }
 
-  async fetch(url, options) {
+  async fetch(path, options) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
-    const response = await fetchWithTimeout(`${this.metaServerConfig.host}/${url}`, {
+    const response = await fetchWithTimeout(`${this.metaServerConfig.host}/${path}`, {
       ...options,
       headers: {
         Accept: 'application/json',
