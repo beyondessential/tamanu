@@ -25,4 +25,6 @@ export const SUGGESTER_ENDPOINTS = [
   'programRegistryClinicalStatus',
   'programRegistryCondition',
   'survey',
+  'sensitiveLabTestCategory',
+  'nonSensitiveLabTestCategory',
 ];

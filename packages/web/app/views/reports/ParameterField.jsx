@@ -23,6 +23,7 @@ import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
 import { FacilityField } from './FacilityField';
 import { useField } from 'formik';
+import { LabTestCategorySensitiveField } from './LabTestCategorySensitiveField';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
@@ -104,6 +105,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   ParameterMultiselectField,
   ImagingTypeField,
   LabTestCategoryField,
+  LabTestCategorySensitiveField,
   ParameterSuggesterSelectField,
   LabTestTypeField,
 };
