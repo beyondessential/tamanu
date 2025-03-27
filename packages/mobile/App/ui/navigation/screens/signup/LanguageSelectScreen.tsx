@@ -16,7 +16,8 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { Separator } from '~/ui/components/Separator';
-import { FlagIcon } from '~/ui/components/Icons/FlagIcons/FlagIcon';
+import { isISO31661Alpha2 } from 'validator';
+import CountryFlag from 'react-native-country-flag';
 
 const StyledSeparator = () => (
   <Separator
@@ -27,17 +28,19 @@ const StyledSeparator = () => (
 
 interface LanguageOptionButtonProps {
   label: string;
-  value: string;
+  languageCode: string;
+  countryCode: string | null;
   onPress: (value: string) => void;
 }
 
 const LanguageOptionButton = ({
   label,
-  value,
+  languageCode,
+  countryCode,
   onPress,
 }: LanguageOptionButtonProps): React.ReactElement => {
   const handlePress = () => {
-    onPress(value);
+    onPress(languageCode);
   };
 
   return (
@@ -49,7 +52,9 @@ const LanguageOptionButton = ({
         alignItems="center"
       >
         <StyledView marginRight={screenPercentageToDP(3.4, Orientation.Width)}>
-          <FlagIcon languageCode={value} size={34} />
+          {countryCode && isISO31661Alpha2(countryCode) && (
+            <CountryFlag isoCode={countryCode} size={34} />
+          )}
         </StyledView>
         <RowView flex={1}>
           <StyledText
@@ -118,7 +123,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
           >
             <FlatList
               data={languageOptions}
-              keyExtractor={(item): string => item.value}
+              keyExtractor={(item): string => item.languageCode}
               renderItem={({ item }): ReactElement => (
                 <LanguageOptionButton onPress={handleChangeLanguage} {...item} />
               )}

@@ -28,13 +28,15 @@ describe('TranslatedString', () => {
       const translatedStrings = [
         { language: 'en', stringId: 'languageName', text: 'English' },
         { language: 'km', stringId: 'languageName', text: 'Khmer' },
+        { language: 'en', stringId: 'countryCode', text: 'gb' },
+        { language: 'km', stringId: 'countryCode', text: 'km' },
       ];
       await Database.models.TranslatedString.insert(translatedStrings);
 
       const result = await Database.models.TranslatedString.getLanguageOptions();
       expect(result).toEqual([
-        { value: 'en', label: 'English' },
-        { value: 'km', label: 'Khmer' },
+        { languageCode: 'en', label: 'English', countryCode: 'gb' },
+        { languageCode: 'km', label: 'Khmer', countryCode: 'km' },
       ]);
     });
   });
