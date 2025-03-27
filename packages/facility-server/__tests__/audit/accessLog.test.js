@@ -4,7 +4,7 @@ import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { version } from '../../package.json';
 
-describe('accessLog', () => {
+describe('AccessLog', () => {
   const [facilityId] = selectFacilityIds(config);
   let baseApp;
   let models;
@@ -17,28 +17,48 @@ describe('accessLog', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
+  });
+
+  beforeEach(async () => {
+    // Clean up access logs before each test
+    await models.AccessLog.truncate({ cascade: true });
+    // Create a fresh patient for each test
     patient = await models.Patient.create(fake(models.Patient));
   });
 
   afterAll(() => ctx.close());
 
-  it('create an AccessLog with appropriate details when a user hits the basic patient get endpoint', async () => {
-    const endpoint = `/api/patient/${patient.id}?facilityId=${facilityId}`;
+  describe('GET /api/patient/:id', () => {
+    it('should create an AccessLog with appropriate details when accessing a patient', async () => {
+      const endpoint = `/api/patient/${patient.id}?facilityId=${facilityId}`;
 
-    const response = await userApp.get(endpoint);
-    expect(response).toHaveSucceeded();
+      const response = await userApp.get(endpoint);
+      expect(response).toHaveSucceeded();
 
-    const accessLogs = await models.AccessLog.findAll();
-    expect(accessLogs.length).toBe(1);
-    const log = accessLogs[0];
-    expect(log.frontEndContext).toMatchObject({ id: patient.id });
-    expect(log.backEndContext).toMatchObject({ endpoint });
-    expect(log.userId).toBe(userApp.user.id);
-    expect(log.recordId).toBe(patient.id);
-    expect(log.recordType).toBe('Patient');
-    expect(log.facilityId).toBe(facilityId);
-    expect(log.isMobile).toBe(false);
-    expect(log.version).toBe(version);
-    expect(log.sessionId).toBeDefined();
+      const accessLogs = await models.AccessLog.findAll();
+      expect(accessLogs.length).toBe(1);
+      const log = accessLogs[0];
+      expect(log).toMatchObject({
+        frontEndContext: { id: patient.id },
+        backEndContext: { endpoint },
+        userId: userApp.user.id,
+        recordId: patient.id,
+        recordType: 'Patient',
+        facilityId,
+        isMobile: false,
+        version,
+        sessionId: expect.any(String),
+      });
+    });
+
+    it('should not create an AccessLog when the request fails', async () => {
+      const endpoint = `/api/patient/invalid-id?facilityId=${facilityId}`;
+
+      const response = await userApp.get(endpoint);
+      expect(response).toHaveRequestError();
+
+      const accessLogs = await models.AccessLog.findAll();
+      expect(accessLogs.length).toBe(0);
+    });
   });
 });
