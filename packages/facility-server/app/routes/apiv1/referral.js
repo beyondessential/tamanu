@@ -5,7 +5,7 @@ import { permissionCheckingRouter, simpleGet, simplePut } from '@tamanu/shared/u
 
 export const referral = express.Router();
 
-referral.get('/:id', simpleGet('Referral'));
+referral.get('/:id', simpleGet('Referral', { auditAccess: true }));
 referral.put('/:id', simplePut('Referral'));
 referral.post(
   '/$',
@@ -18,7 +18,7 @@ referral.post(
     } = req;
     req.checkPermission('create', 'Referral');
 
-    const getDefaultId = async type =>
+    const getDefaultId = async (type) =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),

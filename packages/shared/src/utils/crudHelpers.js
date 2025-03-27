@@ -19,7 +19,7 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
-export const softDeletionCheckingRouter = tableName => {
+export const softDeletionCheckingRouter = (tableName) => {
   const router = express.Router();
 
   router.use(async (req, res, next) => {
@@ -57,8 +57,20 @@ export const findRouteObject = async (req, modelName, options = {}) => {
   return object;
 };
 
-export const simpleGet = modelName =>
+export const simpleGet = (modelName, options = {}) =>
   asyncHandler(async (req, res) => {
+    const { auditAccess = false } = options;
+    const { models, params, query } = req;
+
+    if (auditAccess) {
+      await req.audit.access({
+        recordId: object.id,
+        params,
+        model: models[modelName],
+        facilityId: query.facilityId,
+      });
+    }
+
     const object = await findRouteObject(req, modelName);
     res.send(object);
   });
@@ -78,7 +90,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     res.send(transform ? transform(object) : object);
   });
 
-export const simplePut = modelName =>
+export const simplePut = (modelName) =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', modelName);
@@ -150,7 +162,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
     offset: page && rowsPerPage ? page * rowsPerPage : undefined,
   });
 
-  const data = objects.map(x => x.forResponse());
+  const data = objects.map((x) => x.forResponse());
 
   return { count, data };
 };
@@ -202,7 +214,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
       offset,
     });
 
-    const data = objects.map(x => x.forResponse());
+    const data = objects.map((x) => x.forResponse());
 
     res.send({
       count: resultsToCount.length,
@@ -238,7 +250,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     mapToModel: true,
   });
 
-  const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+  const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
   return {
     count,
     data: forResponse,
