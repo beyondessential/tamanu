@@ -265,6 +265,7 @@
       "generateOffsetDays": 7,
     },
     "sendStatusToMetaServer": {
+      "enabled": true,
       // every minute
       "schedule": "* * * * *",
     }

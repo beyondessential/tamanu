@@ -111,6 +111,11 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
+    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
