@@ -22,18 +22,6 @@ export async function up(query: QueryInterface) {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     user_id: {
       type: DataTypes.TEXT,
       allowNull: false,
