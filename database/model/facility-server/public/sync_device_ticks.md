@@ -1,1 +1,0 @@
-../../central-server/public/sync_device_ticks.md

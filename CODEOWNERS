@@ -13,18 +13,19 @@
 /packages/facility-server/app/sync/                     @edmofro @chris-bes
 /packages/central-server/app/sync/                      @edmofro @chris-bes
 /packages/mobile/App/services/sync/                     @edmofro @chris-bes
+/packages/database/src/sync/                            @edmofro @chris-bes
 
 #
 # The deployment team are code owner of the default config files to make sure
 # that they're across any changes that might need to be made to any particular
 # server.
 #
-/packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
+/packages/central-server/config/default.json5   @beyondessential/tamanu-deployment-team
 /packages/facility-server/config/default.json5  @beyondessential/tamanu-deployment-team
-/packages/settings/schema/facility.ts  @beyondessential/tamanu-deployment-team
-/packages/settings/schema/central.ts  @beyondessential/tamanu-deployment-team
-/packages/settings/schema/global.ts  @beyondessential/tamanu-deployment-team
-/packages/settings/schema/definitions/*/*.ts @beyondessential/tamanu-deployment-team
+/packages/settings/schema/facility.ts           @beyondessential/tamanu-deployment-team
+/packages/settings/schema/central.ts            @beyondessential/tamanu-deployment-team
+/packages/settings/schema/global.ts             @beyondessential/tamanu-deployment-team
+/packages/settings/schema/definitions/*/*.ts    @beyondessential/tamanu-deployment-team
 
 #
 # Kamaka needs to be across changes to the PM2 config files, as they're critical

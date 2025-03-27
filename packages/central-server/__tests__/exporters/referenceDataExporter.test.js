@@ -822,13 +822,13 @@ describe('Permission and Roles exporter', () => {
       [
         {
           data: [
-            ['verb', 'noun', 'objectId', 'reception', 'admin'],
+            ['verb', 'noun', 'objectId', 'admin', 'reception'],
             ['list', 'User', null, 'y', 'y'],
             ['list', 'ReferenceData', null, 'y', 'y'],
-            ['read', 'ReferenceData', null, 'n', ''],
-            ['write', 'User', null, '', 'y'],
-            ['write', 'ReferenceData', null, '', 'y'],
-            ['read', 'Report', 'new-patients', '', 'y'],
+            ['read', 'ReferenceData', null, '', 'n'],
+            ['write', 'User', null, 'y', ''],
+            ['write', 'ReferenceData', null, 'y', ''],
+            ['read', 'Report', 'new-patients', 'y', ''],
           ],
           name: 'Permission',
         },

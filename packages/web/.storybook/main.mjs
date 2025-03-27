@@ -1,13 +1,29 @@
 import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
 
-function getAbsolutePath(packageName) {
-  return dirname(require.resolve(join(packageName, 'package.json')));
+// This file needs to support both ESM and CJS, so we can't use `import.meta` or `__dirname` without checking
+let dir;
+try {
+  dir = __dirname;
+} catch (e) {
+  dir = import.meta.dirname;
+}
+
+function getNodeModulePath(workspace, packageName) {
+  return dirname(resolve(dir, join(workspace, 'node_modules/', packageName, 'package.json')));
+}
+
+function getRootNodeModulePath(packageName) {
+  return getNodeModulePath('../../../', packageName);
+}
+
+function getWorkspaceNodeModulePath(packageName) {
+  return getNodeModulePath('../', packageName);
 }
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 export default {
-  framework: getAbsolutePath('@storybook/react-vite'),
+  framework: getRootNodeModulePath('@storybook/react-vite'),
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   typescript: {
     reactDocgen: false,
@@ -17,7 +33,7 @@ export default {
   },
   addons: [
     {
-      name: getAbsolutePath('@storybook/addon-links'),
+      name: getWorkspaceNodeModulePath('@storybook/addon-links'),
       options: { docs: false }, // no mdx
     },
     '@storybook/addon-links',
@@ -37,11 +53,11 @@ export default {
       },
       resolve: {
         alias: {
-          buffer: resolve(__dirname, './__mocks__/buffer.js'),
-          sequelize: resolve(__dirname, './__mocks__/sequelize.js'),
-          config: resolve(__dirname, './__mocks__/config.js'),
-          yargs: resolve(__dirname, './__mocks__/module.js'),
-          child_process: resolve(__dirname, './__mocks__/module.js'),
+          buffer: resolve(dir, './__mocks__/buffer.js'),
+          sequelize: resolve(dir, './__mocks__/sequelize.js'),
+          config: resolve(dir, './__mocks__/config.js'),
+          yargs: resolve(dir, './__mocks__/module.js'),
+          child_process: resolve(dir, './__mocks__/module.js'),
         },
       },
     });
