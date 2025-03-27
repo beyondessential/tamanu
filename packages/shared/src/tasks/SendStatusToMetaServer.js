@@ -68,7 +68,6 @@ export class SendStatusToMetaServer extends ScheduledTask {
         currentSyncTick,
         timezone: config.countryTimeZone,
       }),
-      timeout: 20000,
     });
   }
 }
