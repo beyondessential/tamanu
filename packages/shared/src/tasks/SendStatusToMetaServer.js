@@ -62,7 +62,8 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
-    await this.fetch(`status/${await this.getMetaServerId()}`, {
+    const metaServerId = await this.getMetaServerId();
+    await this.fetch(`status/${metaServerId}`, {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
