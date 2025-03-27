@@ -78,12 +78,14 @@ patientDeath.get(
       ],
     });
 
-    await req.audit.access({
-      recordId: deathData.id,
-      params,
-      model: PatientDeathData,
-      facilityId,
-    });
+    if (deathData) {
+      await req.audit.access({
+        recordId: deathData.id,
+        params,
+        model: PatientDeathData,
+        facilityId,
+      });
+    }
 
     res.send({
       patientId: patient.id,
