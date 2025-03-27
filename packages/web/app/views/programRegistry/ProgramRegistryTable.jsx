@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
@@ -15,6 +15,18 @@ import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
+import { useTranslation } from '../../contexts/Translation';
+
+const ConditionsCell = ({ conditions }) => {
+  const { getTranslation } = useTranslation();
+  return conditions
+    ?.map(condition => {
+      const { id, name } = condition;
+      return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+    })
+    .sort((a, b) => b.localeCompare(a))
+    .join(', ');
+};
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -86,12 +98,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
-            : '';
-          return conditionsText;
-        },
+        accessor: ConditionsCell,
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },

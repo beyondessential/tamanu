@@ -72,10 +72,10 @@ programRegistry.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const filteredObjects = objects.filter(programRegistry =>
+    const filteredObjects = objects.filter((programRegistry) =>
       req.ability.can('list', programRegistry),
     );
-    const filteredData = filteredObjects.map(x => x.forResponse());
+    const filteredData = filteredObjects.map((x) => x.forResponse());
     const filteredCount =
       objects.length !== filteredObjects.length ? filteredObjects.length : count;
 
@@ -160,12 +160,12 @@ programRegistry.get(
           active_status: REGISTRATION_STATUSES.ACTIVE,
         }),
       ),
-    ].filter(f => f);
+    ].filter((f) => f);
 
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const whereClauses = filters.map((f) => f.sql).join(' AND ');
 
     const filterReplacements = filters
-      .filter(f => f.transform)
+      .filter((f) => f.transform)
       .reduce(
         (current, { transform }) => ({
           ...current,
@@ -188,7 +188,7 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, array_agg(prc."name") condition_list
+          SELECT patient_id, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_list
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id
