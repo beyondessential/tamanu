@@ -49,7 +49,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
-    const response = await this.fetch('server', {
+    const response = await this.fetch('servers', {
       method: 'POST',
       body: JSON.stringify({
         host: config.canonicalHostName,
