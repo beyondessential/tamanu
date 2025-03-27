@@ -1,5 +1,6 @@
 import React from 'react';
 import { sortBy, groupBy } from 'lodash';
+import styled from 'styled-components';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
@@ -17,8 +18,36 @@ import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-const HEADING_WIDTH = '32%';
-const VALUE_WIDTH = '68%';
+const Row = styled(StyledView)`
+  margin-left: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  flex-direction: row;
+  justify-content: flex-start;
+  border-bottom-width: 1px;
+  border-color: ${theme.colors.BOX_OUTLINE};
+`;
+
+const RowLabelContainer = styled(StyledView)`
+  width: 32%;
+`;
+
+const RowValueContainer = styled(StyledView)`
+  width: 68%;
+`;
+
+const RowLabel = styled(StyledText)`
+  font-size: 14px;
+  color: ${theme.colors.TEXT_MID};
+  font-weight: 400;
+`;
+
+const RowValue = styled(StyledText)`
+  margin-left: 10;
+  font-size: 14px;
+  color: ${theme.colors.TEXT_SUPER_DARK};
+  font-weight: 500;
+`;
 
 const DataRow = ({
   label,
@@ -28,31 +57,14 @@ const DataRow = ({
   value: TranslatedTextElement;
 }) => {
   return (
-    <StyledView
-      marginLeft={20}
-      paddingTop={20}
-      paddingBottom={20}
-      flexDirection="row"
-      justifyContent="flex-start"
-      borderBottomWidth={1}
-      borderColor={theme.colors.BOX_OUTLINE}
-    >
-      <StyledView width={HEADING_WIDTH}>
-        <StyledText fontSize={14} color={theme.colors.TEXT_MID} fontWeight={400}>
-          {label}
-        </StyledText>
-      </StyledView>
-      <StyledView width={VALUE_WIDTH}>
-        <StyledText
-          marginLeft={10}
-          fontSize={14}
-          color={theme.colors.TEXT_SUPER_DARK}
-          fontWeight={500}
-        >
-          {value}
-        </StyledText>
-      </StyledView>
-    </StyledView>
+    <Row>
+      <RowLabelContainer>
+        <RowLabel>{label}</RowLabel>
+      </RowLabelContainer>
+      <RowValueContainer>
+        <RowValue>{value}</RowValue>
+      </RowValueContainer>
+    </Row>
   );
 };
 
@@ -95,13 +107,7 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const needsDivider = groupedConditions.closed && groupedConditions.open;
 
   const TranslatedCondition = ({ condition }) => (
-    <StyledText
-      marginBottom={10}
-      marginLeft={10}
-      fontSize={14}
-      color={theme.colors.TEXT_SUPER_DARK}
-      fontWeight={500}
-    >
+    <RowValue marginBottom={10}>
       <TranslatedReferenceData
         key={condition.programRegistryCondition.id}
         fallback={condition.programRegistryCondition.name}
@@ -109,36 +115,18 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
         category="programRegistryCondition"
       />
       {` (${PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[condition.conditionCategory]})`}
-    </StyledText>
+    </RowValue>
   );
 
   return (
-    <StyledView
-      marginLeft={20}
-      paddingTop={20}
-      paddingBottom={20}
-      flexDirection="row"
-      justifyContent="flex-start"
-      borderBottomWidth={1}
-      borderColor={theme.colors.BOX_OUTLINE}
-    >
-      <StyledView width={HEADING_WIDTH}>
-        <StyledText fontSize={14} color={theme.colors.TEXT_MID} fontWeight={400}>
+    <Row>
+      <RowLabelContainer>
+        <RowLabel>
           <TranslatedText stringId="programRegistry.conditions.label" fallback="Conditions" />
-        </StyledText>
-      </StyledView>
-      <StyledView width={VALUE_WIDTH}>
-        {initConditions.length === 0 && (
-          <StyledText
-            marginBottom={10}
-            marginLeft={10}
-            fontSize={14}
-            color={theme.colors.TEXT_SUPER_DARK}
-            fontWeight={500}
-          >
-            —
-          </StyledText>
-        )}
+        </RowLabel>
+      </RowLabelContainer>
+      <RowValueContainer>
+        {initConditions.length === 0 && <RowValue>—</RowValue>}
         {groupedConditions.open &&
           groupedConditions.open.map((condition, i) => (
             <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
@@ -148,8 +136,8 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
           groupedConditions.closed.map((condition, i) => (
             <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
           ))}
-      </StyledView>
-    </StyledView>
+      </RowValueContainer>
+    </Row>
   );
 };
 
