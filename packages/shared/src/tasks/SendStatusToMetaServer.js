@@ -1,5 +1,6 @@
 import config from 'config';
-import { Agent } from 'undici';
+import { QueryTypes } from 'sequelize'
+import { Agent, fetch } from 'undici';
 
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
@@ -16,14 +17,15 @@ export class SendStatusToMetaServer extends ScheduledTask {
       overrideConfig || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
-    this.models = context.models || context.store.models;
+    this.models = context.store.models;
+    this.sequelize = context.store.sequelize;
     this.metaServerConfig = config.metaServer;
   }
 
   async fetch(path, options) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
-    const response = await fetchWithTimeout(`${this.metaServerConfig.host}/${path}`, {
+    const response = await fetch(`${this.metaServerConfig.host}/${path}`, {
       ...options,
       headers: {
         Accept: 'application/json',
@@ -36,7 +38,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       dispatcher: new Agent({
         connect: {
           cert: deviceKey.makeCertificate(),
-          key: deviceKey.toString()
+          key: deviceKey.privateKeyPem()
         },
       }),
     });
@@ -62,12 +64,16 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
+    const versionQueryResult = await this.sequelize.query(`SELECT version()`, {
+      type: QueryTypes.SELECT
+    })
     const metaServerId = await this.getMetaServerId();
     await this.fetch(`status/${metaServerId}`, {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
         timezone: config.countryTimeZone,
+        version: versionQueryResult[0].version,
       }),
     });
   }
