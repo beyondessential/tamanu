@@ -17,20 +17,10 @@ import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry
 import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
 
-const ConditionsCell = ({ conditions }) => {
-  const { getTranslation } = useTranslation();
-  return conditions
-    ?.map(condition => {
-      const { id, name } = condition;
-      return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
-    })
-    .sort((a, b) => b.localeCompare(a))
-    .join(', ');
-};
-
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const { getTranslation } = useTranslation();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
@@ -98,7 +88,15 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ConditionsCell,
+        accessor: ({ conditions }) => {
+          return conditions
+            ?.map(condition => {
+              const { id, name } = condition;
+              return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+            })
+            .sort((a, b) => b.localeCompare(a))
+            .join(', ');
+        },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
