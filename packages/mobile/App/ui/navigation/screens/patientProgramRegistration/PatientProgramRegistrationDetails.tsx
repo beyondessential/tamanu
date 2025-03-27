@@ -78,6 +78,23 @@ const HorizontalLine = ({ marginTop = 0, marginBottom = 0 }) => (
   />
 );
 
+const TranslatedCondition = ({ condition }) => (
+  <RowValue marginBottom={10}>
+    <TranslatedReferenceData
+      key={condition.programRegistryCondition.id}
+      fallback={condition.programRegistryCondition.name}
+      value={condition.programRegistryCondition.id}
+      category="programRegistryCondition"
+    />
+    {` `}(
+    <TranslatedEnum
+      value={condition.conditionCategory}
+      enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+    />
+    )
+  </RowValue>
+);
+
 const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const { getTranslation } = useTranslation();
 
@@ -106,23 +123,6 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
       : 'open',
   );
   const needsDivider = groupedConditions.closed && groupedConditions.open;
-
-  const TranslatedCondition = ({ condition }) => (
-    <RowValue marginBottom={10}>
-      <TranslatedReferenceData
-        key={condition.programRegistryCondition.id}
-        fallback={condition.programRegistryCondition.name}
-        value={condition.programRegistryCondition.id}
-        category="programRegistryCondition"
-      />
-      {` (`}
-      <TranslatedEnum
-        value={condition.conditionCategory}
-        enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
-      />
-      {`)`}
-    </RowValue>
-  );
 
   return (
     <Row>
