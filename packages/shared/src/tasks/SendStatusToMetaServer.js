@@ -16,7 +16,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       overrideConfig || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
-    this.models = context.store.models;
+    this.models = context.models || context.store.models;
     this.metaServerConfig = config.metaServer;
   }
 
