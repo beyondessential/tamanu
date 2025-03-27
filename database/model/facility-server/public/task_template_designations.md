@@ -1,1 +1,0 @@
-../../central-server/public/task_template_designations.md

@@ -11,14 +11,14 @@ const YAML = require('yaml');
 const { dbConfig } = require('./dbConfig.js');
 const { version } = require('../../../../package.json');
 
-async function run(packageName) {
-  console.log('-+', packageName);
+async function run() {
+  console.log('-+');
   console.log(' | check database config');
-  const db = await dbConfig(packageName);
+  const db = await dbConfig('central-server');
   await db.client.end();
 
   console.log(' | delete old docs if any');
-  const base = join('database', 'docs', packageName);
+  const base = join('database', 'docs');
   await rimraf(base);
 
   console.log(' | make new docs dir');
@@ -33,7 +33,7 @@ async function run(packageName) {
       version,
       'config-version': 2,
       profile: 'tamanu',
-      'model-paths': (await sourceFolders(packageName)).map(path => join('..', '..', '..', path)),
+      'model-paths': (await sourceFolders()).map(path => join( '..', '..', path)),
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
       sources: { tamanu: { '+enabled': true } },
@@ -94,9 +94,9 @@ async function run(packageName) {
   console.log();
 }
 
-async function sourceFolders(packageName) {
+async function sourceFolders() {
   const folders = [];
-  const source = join('database', 'model', packageName);
+  const source = join('database', 'model');
   const schemaDirs = await fs.readdir(source, { withFileTypes: true });
   for (const schemaDir of schemaDirs) {
     if (!schemaDir.isDirectory()) continue;
@@ -105,10 +105,7 @@ async function sourceFolders(packageName) {
   return folders;
 }
 
-(async () => {
-  await run('central-server');
-  await run('facility-server');
-})().catch(err => {
+run().catch(err => {
   console.error(err);
   process.exit(1);
 });

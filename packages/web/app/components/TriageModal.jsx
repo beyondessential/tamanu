@@ -49,10 +49,10 @@ const DetailValue = styled.span`
 `;
 
 const DETAILS_FIELD_DEFINITIONS = [
-  ['firstName'],
-  ['lastName'],
-  ['sex', ({ sex }) => <TranslatedSex sex={sex} />],
-  ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
+  ['firstName', 'First name'],
+  ['lastName', 'Last name'],
+  ['sex', 'Sex', ({ sex }) => <TranslatedSex sex={sex} />],
+  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
 export const TriageModal = React.memo(
@@ -62,10 +62,10 @@ export const TriageModal = React.memo(
 
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
       ([name]) => getSetting(`fields.${name}.hidden`) !== true,
-    ).map(([name, accessor]) => (
+    ).map(([name, label, accessor]) => (
       <React.Fragment key={name}>
         <DetailLabel>
-          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={name} />:
+          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={label} />:
         </DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
