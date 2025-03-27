@@ -111,3 +111,16 @@ The reason ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) why
 {% docs tasks__deleted_reason_for_sync_id %}
 The reason ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) why this task is deleted if it is deleted by the system.
 {% enddocs %}
+
+{% docs tasks__duration_value %}
+Numeric value specifying the expected duration of the task, must be used in conjunction with duration_unit.
+{% enddocs %}
+
+{% docs tasks__duration_unit %}
+Unit of time for the task duration.
+
+One of:
+- `hours`
+- `days`
+- `occurrences`
+{% enddocs %}

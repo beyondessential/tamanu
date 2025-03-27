@@ -307,11 +307,14 @@ const tasksCreationSchema = z.object({
       name: z.string(),
       frequencyValue: z.number().optional(),
       frequencyUnit: z.string().optional(),
+      durationValue: z.number().optional(),
+      durationUnit: z.string().optional(),
       designationIds: z
         .string()
         .array()
         .optional(),
       highPriority: z.boolean(),
+      endTime: datetimeCustomValidation.optional(),
     })
     .array(),
 });

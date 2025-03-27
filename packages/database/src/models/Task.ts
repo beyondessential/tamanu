@@ -29,6 +29,8 @@ export class Task extends Model {
   declare note?: string;
   declare frequencyValue?: number;
   declare frequencyUnit?: string;
+  declare durationValue?: number;
+  declare durationUnit?: string;
   declare highPriority?: boolean;
   declare parentTaskId?: string;
   declare completedTime?: string;
@@ -79,6 +81,14 @@ export class Task extends Model {
           allowNull: true,
         },
         frequencyUnit: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        durationValue: {
+          type: DataTypes.DECIMAL,
+          allowNull: true,
+        },
+        durationUnit: {
           type: DataTypes.STRING,
           allowNull: true,
         },
@@ -251,7 +261,12 @@ export class Task extends Model {
     const allGeneratedTasks = [];
     const allClonedDesignations = [];
 
-    const repeatingTasks = tasks.filter((task) => task.frequencyValue && task.frequencyUnit);
+    const repeatingTasks = tasks.filter(
+      (task) =>
+        task.frequencyValue &&
+        task.frequencyUnit &&
+        (!task.endTime || new Date(task.endTime) > new Date()),
+    );
 
     for (const task of repeatingTasks) {
       let lastGeneratedTask = await this.findOne({
@@ -267,7 +282,7 @@ export class Task extends Model {
 
       const upcomingTasksShouldBeGeneratedTimeFrame =
         config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
-      const { frequencyValue, frequencyUnit } = task;
+      const { frequencyValue, frequencyUnit, endTime } = task;
       const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
 
       const maxDueTime = addMilliseconds(
@@ -277,9 +292,12 @@ export class Task extends Model {
       let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
       const generatedTasks = [];
 
+      // Check for both maxDueTime and endDate (if present)
+      const endDateTime = endTime ? new Date(endTime).getTime() : Infinity;
+
       for (
         ;
-        nextDueTime.getTime() <= maxDueTime.getTime();
+        nextDueTime.getTime() <= maxDueTime.getTime() && nextDueTime.getTime() <= endDateTime;
         nextDueTime = addMilliseconds(nextDueTime, frequency)
       ) {
         const nextTask = {
@@ -293,6 +311,9 @@ export class Task extends Model {
           note: task.note,
           frequencyValue: task.frequencyValue,
           frequencyUnit: task.frequencyUnit,
+          durationValue: task.durationValue,
+          durationUnit: task.durationUnit,
+          endTime: task.endTime,
           highPriority: task.highPriority,
           parentTaskId: task.id,
         };

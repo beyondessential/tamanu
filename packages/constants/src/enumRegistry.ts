@@ -43,7 +43,7 @@ import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
-import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
+import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks.js';
 import { IMAGING_TYPES } from './imaging.js';
 import {
   REPEAT_FREQUENCY_LABELS,
@@ -99,6 +99,7 @@ export const registeredEnums = {
   REPORT_STATUS_LABELS,
   SEX_LABELS,
   TASK_FREQUENCY_UNIT_LABELS,
+  TASK_DURATION_UNIT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TEMPLATE_TYPE_LABELS,
   TITLE_LABELS,
@@ -150,6 +151,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
   TASK_FREQUENCY_UNIT_LABELS: 'task.property.frequencyUnit',
+  TASK_DURATION_UNIT_LABELS: 'task.property.durationUnit',
   SOCIAL_MEDIA_LABELS: 'patient.property.socialMedia',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
   TITLE_LABELS: 'patient.property.title',
