@@ -69,11 +69,12 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
       const { languageNames, languagesInDb, countryCodes } = await response.json();
       if (languageNames.length > 0) {
         const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+        const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
         const foundLanguageOptions = languagesInDb.map(({ language }): LanguageOption => {
           return {
             label: languageDisplayNames[language],
             languageCode: language,
-            countryCode: countryCodes.find((o) => o.language === language)?.countryCode ?? null,
+            countryCode: languageCountryCodes[language] ?? null,
           };
         });
         // Check if a language is already selected, or the found language options differ
