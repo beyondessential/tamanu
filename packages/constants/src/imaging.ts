@@ -12,6 +12,8 @@ export const IMAGING_AREA_TYPES = {
   ORTHOPANTOMOGRAPHY_IMAGING_AREA: 'orthopantomographyImagingArea',
   MRI_IMAGING_AREA: 'mriImagingArea',
   MAMMOGRAM_IMAGING_AREA: 'mammogramImagingArea',
+  MAMMOGRAM_SCREEN_IMAGING_AREA: 'mammogramScreenImagingArea',
+  MAMMOGRAM_DIAG_IMAGING_AREA: 'mammogramDiagImagingArea',
   STRESS_TEST_IMAGING_AREA: 'stressTestImagingArea',
   ULTRASOUND_IMAGING_AREA: 'ultrasoundImagingArea',
   VASCULAR_STUDY_IMAGING_AREA: 'vascularStudyImagingArea',
@@ -28,6 +30,8 @@ export const IMAGING_TYPES = {
   FLUROSCOPY: 'fluroscopy',
   HOLTER_MONITOR: 'holterMonitor',
   MAMMOGRAM: 'mammogram',
+  MAMMOGRAM_SCREEN: 'mammogramScreen',
+  MAMMOGRAM_DIAG: 'mammogramDiag', // Awkwardly truncating here to avoid max char limit on reference data import
   ORTHOPANTOMOGRAPHY: 'orthopantomography',
   MRI: 'mri',
   STRESS_TEST: 'stressTest',
@@ -48,6 +52,8 @@ export const AREA_TYPE_TO_IMAGING_TYPE = {
   [IMAGING_AREA_TYPES.HOLTER_MONITOR_IMAGING_AREA]: IMAGING_TYPES.HOLTER_MONITOR,
   [IMAGING_AREA_TYPES.ECHOCARDIOGRAM_IMAGING_AREA]: IMAGING_TYPES.ECHOCARDIOGRAM,
   [IMAGING_AREA_TYPES.MAMMOGRAM_IMAGING_AREA]: IMAGING_TYPES.MAMMOGRAM,
+  [IMAGING_AREA_TYPES.MAMMOGRAM_SCREEN_IMAGING_AREA]: IMAGING_TYPES.MAMMOGRAM_SCREEN,
+  [IMAGING_AREA_TYPES.MAMMOGRAM_DIAG_IMAGING_AREA]: IMAGING_TYPES.MAMMOGRAM_DIAG,
   [IMAGING_AREA_TYPES.ENDOSCOPY_IMAGING_AREA]: IMAGING_TYPES.ENDOSCOPY,
   [IMAGING_AREA_TYPES.FLUROSCOPY_IMAGING_AREA]: IMAGING_TYPES.FLUROSCOPY,
   [IMAGING_AREA_TYPES.ANGIOGRAM_IMAGING_AREA]: IMAGING_TYPES.ANGIOGRAM,
@@ -73,7 +79,7 @@ export interface ImagingTableVersion {
   statuses: string[];
 }
 export const IMAGING_TABLE_VERSIONS: { [key: string]: ImagingTableVersion } = Object.fromEntries(
-  Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).map(key => {
+  Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).map((key) => {
     const statuses =
       IMAGING_TABLE_STATUS_GROUPINGS[key as keyof typeof IMAGING_TABLE_STATUS_GROUPINGS];
     return [

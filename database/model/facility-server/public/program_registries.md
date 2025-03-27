@@ -1,1 +1,0 @@
-../../central-server/public/program_registries.md

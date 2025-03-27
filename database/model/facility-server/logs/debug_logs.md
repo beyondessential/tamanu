@@ -1,1 +1,0 @@
-../../central-server/logs/debug_logs.md
