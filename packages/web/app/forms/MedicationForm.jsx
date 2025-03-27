@@ -16,7 +16,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
 } from '@tamanu/shared/utils/medication';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort, getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { addDays, format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 
@@ -530,8 +530,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     const idealTimes = data.timeSlots.map(slot => slot.value);
     const medicationSubmission = await api.post('medication', {
       ...data,
-      doseAmount: data.doseAmount || null,
-      durationValue: data.durationValue || null,
+      doseAmount: data.doseAmount || undefined,
+      durationValue: data.durationValue || undefined,
       idealTimes,
       encounterId,
     });
@@ -558,11 +558,11 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
           }
         }}
         initialValues={{
-          date: new Date(),
+          date: getCurrentDateString(),
           prescriberId: currentUser.id,
           timeSlots: [],
           isVariableDose: false,
-          startDate: new Date(),
+          startDate: getCurrentDateTimeString(),
         }}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
