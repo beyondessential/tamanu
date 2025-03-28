@@ -80,7 +80,6 @@ export class LocalSystemFact extends Model {
   }
 
   static async getDeviceKey() {
-     // Make static add to LocalSystemFact model
     const deviceKey = await this.get(FACT_DEVICE_KEY);
     if (deviceKey) {
       return new EndpointKey(deviceKey);
