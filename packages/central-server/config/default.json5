@@ -38,6 +38,7 @@
   },
   "metaServer": {
     "host": "http://localhost:8000",
+    "serverId": null,
     "timeoutMs": 20000
   },
   "updateUrls": {
@@ -265,7 +266,7 @@
       "generateOffsetDays": 7,
     },
     "sendStatusToMetaServer": {
-      "enabled": true,
+      "enabled": false,
       // every minute
       "schedule": "* * * * *",
     }
