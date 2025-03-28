@@ -28,7 +28,7 @@ export const ProgramRegistryConditionField = ({
     ),
     value: condition.id,
     searchString: getTranslation(
-      getReferenceDataStringId(condition.id, 'prCondition'),
+      getReferenceDataStringId(condition.id, 'programRegistryCondition'),
       condition.name,
     ),
   }));
