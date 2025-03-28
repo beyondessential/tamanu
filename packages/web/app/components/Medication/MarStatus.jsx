@@ -105,18 +105,16 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
 };
 
 export const MarStatus = ({
-  administeredAt,
-  status,
-  doseAmount,
-  isPrn,
-  units,
   isAlert = false,
   isEdited = false,
   selectedDate,
   timeSlot,
-  discontinuedDate,
-  endDate,
+  marInfo,
+  medication,
 }) => {
+  const { administeredAt, status } = marInfo || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate } = medication || {};
+
   const [isSelected, setIsSelected] = useState(false);
   const containerRef = useRef(null);
   const isMissed = getIsMissed(timeSlot, selectedDate);
