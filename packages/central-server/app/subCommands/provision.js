@@ -1,5 +1,7 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { Command } from 'commander';
+import { defaultsDeep } from 'lodash';
+import { Op } from 'sequelize';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -15,11 +17,15 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
-import { defaultsDeep } from 'lodash';
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
-  const userCount = await store.models.User.count();
+  const userCount = await store.models.User.count({
+    where: {
+      id: { [Op.ne]: SYSTEM_USER_UUID },
+    }
+  });
+
   if (userCount > 0) {
     if (skipIfNotNeeded) {
       log.info(
@@ -180,14 +186,6 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       });
     }
   }
-
-  log.info('Creating system user');
-  await store.models.User.create({
-    id: SYSTEM_USER_UUID,
-    email: 'system@tamanu.io',
-    role: 'system',
-    displayName: 'System',
-  });
 
   /// ////////
   /// PROGRAMS

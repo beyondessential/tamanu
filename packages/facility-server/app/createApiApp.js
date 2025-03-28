@@ -5,8 +5,6 @@ import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
-import { getAuditMiddleware } from './middleware/auditLog';
-
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
@@ -59,8 +57,6 @@ export async function createApiApp({
   });
 
   express.use(versionCompatibility);
-
-  express.use(getAuditMiddleware());
 
   express.use(settingsReaderMiddleware);
 
