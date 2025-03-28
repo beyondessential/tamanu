@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation } from 'react-router-dom';
 
 import { DataFetchingTable } from '../Table';
@@ -15,6 +15,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
+import { singularize } from '../../utils';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 51vh;
@@ -76,7 +77,10 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
-const getMedicationName = ({ medication, encounterPrescription, discontinued }) => {
+const getMedicationName = (
+  { medication, encounterPrescription, discontinued },
+  getEnumTranslation,
+) => {
   const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
 
@@ -94,10 +98,10 @@ const getMedicationName = ({ medication, encounterPrescription, discontinued }) 
         <Box fontSize={'12px'}>
           (<TranslatedText stringId="medication.table.pausing" fallback="Paused" />,{' '}
           {pauseData.pauseDuration}{' '}
-          <TranslatedText
-            stringId="medication.table.pausingTimeUnit"
-            fallback={`${pauseData.pauseTimeUnit.slice(0, -1)}(s)`}
-          />{' '}
+          {singularize(
+            getEnumTranslation(MEDICATION_PAUSE_DURATION_UNITS_LABELS, pauseData.pauseTimeUnit),
+            pauseData.pauseDuration,
+          )}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
           {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
         </Box>
@@ -122,9 +126,9 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
 
 const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
-    key: 'Medication.name',
+    key: 'medication.name',
     title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
-    accessor: getMedicationName,
+    accessor: data => getMedicationName(data, getEnumTranslation),
     CellComponent: LimitedLinesCell,
   },
   {
@@ -198,7 +202,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
           fontStyle={isPausing ? 'italic' : 'normal'}
         >
           <ConditionalTooltip
-            visible={!discontinued || tooltipTitle}
+            visible={tooltipTitle}
             title={<Box fontWeight={400}>{tooltipTitle}</Box>}
           >
             {formatShortest(date)}
@@ -249,7 +253,6 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
-        color: ${Colors.alert};
         text-decoration: line-through;`
       : '';
 
@@ -271,6 +274,10 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         disablePagination
         onRowClick={row => setSelectedMedication(row)}
         refreshCount={refreshCount}
+        initialSort={{
+          orderBy: 'discontinued',
+          order: 'desc',
+        }}
       />
     </div>
   );
