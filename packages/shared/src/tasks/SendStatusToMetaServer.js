@@ -52,14 +52,17 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
-    const response = await this.fetch('servers', {
-      method: 'POST',
-      body: JSON.stringify({
-        host: config.canonicalHostName,
-        kind: this.serverType,
-      }),
-    });
-    this.metaServerId = response.id;
+    this.metaServerId =
+      config.metaServer.serverId ||
+      (
+        await this.fetch('servers', {
+          method: 'POST',
+          body: JSON.stringify({
+            host: config.canonicalHostName,
+            kind: this.serverType,
+          }),
+        })
+      )?.id;
     await this.models.LocalSystemFact.set(FACT_META_SERVER_ID, this.metaServerId);
     return this.metaServerId;
   }
