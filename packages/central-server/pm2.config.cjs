@@ -29,8 +29,9 @@ function task(name, args, instances = 1, env = {}) {
     exec_mode: 'fork',
     restart_delay: 5000,
     env: {
-      NODE_ENV: 'production',
       ...env,
+      NODE_ENV: 'production',
+      NODE_CONFIG_DIR: 'config/',
     },
   };
 
