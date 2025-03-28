@@ -6,6 +6,10 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 - [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
 
+### Tests
+
+- [ ] **Run E2E Tests** <!-- #e2e -->
+
 ### Remember to...
 
 - ...write or update tests
