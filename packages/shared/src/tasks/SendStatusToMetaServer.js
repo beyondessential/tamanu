@@ -35,6 +35,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         'X-Tamanu-Client': this.serverType,
         'X-Version': this.version,
         'Content-Type': 'application/json',
+        'User-Agent': `Tamanu/${this.version} Node.js/${process.version.replace(/^v/, '')}`,
         ...options.headers,
       },
       timeout: config.metaServer.timeoutMs,
@@ -57,6 +58,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
+    console.log( path.join('http://', os.hostname()))
     this.metaServerId =
       config.metaServer.serverId ||
       (
