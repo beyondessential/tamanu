@@ -35,12 +35,14 @@ noteRoute.post(
   }),
 );
 
-// TODO: not used?
-
 noteRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
     const noteId = params.id;
     const note = await models.Note.findOne({
       include: [
@@ -57,6 +59,13 @@ noteRoute.get(
     });
 
     await checkNotePermission(req, note, 'read');
+
+    await req.audit.access({
+      recordId: noteId,
+      params,
+      model: models.Note,
+      facilityId,
+    });
 
     res.send(note);
   }),
