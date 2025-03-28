@@ -15,6 +15,7 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getEndDate
 } from '@tamanu/shared/utils/medication';
 import { formatShort, getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { addDays, format, subSeconds } from 'date-fns';
@@ -521,6 +522,10 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
   }, [awaitingPrint, submittedMedication]);
 
   const onSubmit = async data => {
+    const { startDate, durationValue, durationUnit } = data;
+    if (durationValue && durationUnit && startDate) {
+      data.endDate = getEndDate(startDate, durationValue, durationUnit);
+    }
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);

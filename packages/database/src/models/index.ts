@@ -137,3 +137,4 @@ export * from './DebugLog';
 export * from './SyncDeviceTick';
 
 export * from './ReferenceDrug';
+export * from './MedicationAdministrationRecord';

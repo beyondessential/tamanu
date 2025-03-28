@@ -25,6 +25,7 @@ import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierPro
 import { SyncLookupRefresher } from './SyncLookupRefresher';
 import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
+import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -48,6 +49,7 @@ export async function startScheduledTasks(context) {
     SyncLookupRefresher,
     GenerateRepeatingTasks,
     GenerateRepeatingAppointments,
+    GenerateMedicationAdministrationRecords,
   ];
 
   if (config.integrations.fijiVrs.enabled) {
