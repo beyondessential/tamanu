@@ -192,7 +192,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       <TranslatedReferenceData
                         fallback={condition.name}
                         value={condition.id}
-                        category="prCondition"
+                        category="programRegistryCondition"
                       />
                     ),
                     value: condition.id,
