@@ -215,13 +215,12 @@ export const PatientInfoPane = () => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getSetting } = useSettings();
-  const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const api = useApi();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
-    () => api.get(`patient/${patient.id}/death`, { facilityId }, { showUnknownErrorToast: false }),
+    () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
     { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
   );
 

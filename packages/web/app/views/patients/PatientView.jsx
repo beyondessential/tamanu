@@ -127,7 +127,6 @@ export const PatientView = () => {
   const disabled = !!patient.dateOfDeath;
   const api = useApi();
   const syncState = useSyncState();
-  const { facilityId } = useAuth();
   const isSyncing = syncState.isPatientSyncing(patient.id);
   const {
     data: additionalData,
@@ -135,7 +134,7 @@ export const PatientView = () => {
   } = usePatientAdditionalDataQuery(patient.id);
   const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
     ['birthData', patient.id],
-    () => api.get(`patient/${patient.id}/birthData`, { facilityId }),
+    () => api.get(`patient/${patient.id}/birthData`),
   );
 
   useEffect(() => {
