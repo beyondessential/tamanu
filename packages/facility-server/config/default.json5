@@ -80,6 +80,11 @@
       }
     }
   },
+  "metaServer": {
+    "host": "http://localhost:8000",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "senaite": {
     "enabled": false,
     "server": "https://192.168.33.100",
@@ -112,7 +117,7 @@
       },
     },
     "sendStatusToMetaServer": {
-      "enabled": true,
+      "enabled": false,
       // every minute
       "schedule": "* * * * *",
     }
