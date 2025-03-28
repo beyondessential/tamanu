@@ -7,7 +7,6 @@ import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
-import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
     return 'SendStatusToMetaServer';
@@ -16,25 +15,27 @@ export class SendStatusToMetaServer extends ScheduledTask {
     const { schedule, jitterTime, enabled } =
       overrideConfig || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
+    const { 'service.type': serverType, 'service.version': version } = this.serviceContext
     this.context = context;
     this.models = context.store.models;
     this.sequelize = context.store.sequelize;
-    this.metaServerConfig = config.metaServer;
+    this.serverType = serverType;
+    this.version = version;
   }
 
   async fetch(path, options) {
-    const { 'service.type': serverType, 'service.version': version } = serviceContext();
+    const { 'service.type': serverType, 'service.version': version } = this.serviceContext
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
-    const response = await fetch(`${this.metaServerConfig.host}/${path}`, {
+    const response = await fetch(`${config.metaServer.host}/${path}`, {
       ...options,
       headers: {
         Accept: 'application/json',
-        'X-Tamanu-Client': serverType,
-        'X-Version': version,
+        'X-Tamanu-Client': this.serverType,
+        'X-Version': this.version,
         'Content-Type': 'application/json',
         ...options.headers,
       },
-      timeout: this.metaServerConfig.timeoutMs,
+      timeout: config.metaServer.timeoutMs,
       dispatcher: new Agent({
         connect: {
           cert: deviceKey.makeCertificate(),
@@ -49,12 +50,14 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async getMetaServerId() {
+    const {}
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
     const response = await this.fetch('servers', {
       method: 'POST',
       body: JSON.stringify({
         host: config.canonicalHostName,
+        kind: this.serverType
       }),
     });
     this.metaServerId = response.id;
