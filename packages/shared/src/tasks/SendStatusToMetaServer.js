@@ -1,4 +1,5 @@
 import config from 'config';
+import os from 'node:os'
 import { QueryTypes } from 'sequelize';
 import { Agent, fetch } from 'undici';
 
@@ -18,8 +19,8 @@ export class SendStatusToMetaServer extends ScheduledTask {
       overrideConfig || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
-    this.models = context.store.models;
-    this.sequelize = context.store.sequelize;
+    this.models = context.models || context.store.models;
+    this.sequelize = context.sequelize || context.store.sequelize;
     this.serverType = serverType;
     this.version = version;
   }
@@ -58,7 +59,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         await this.fetch('servers', {
           method: 'POST',
           body: JSON.stringify({
-            host: config.canonicalHostName,
+            host: config.canonicalHostName || os.hostname(),
             kind: this.serverType,
           }),
         })
