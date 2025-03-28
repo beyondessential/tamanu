@@ -1,5 +1,8 @@
-import type { Models, Patient } from '@tamanu/database';
 import { times } from 'lodash';
+
+import type { Models, Patient } from '@tamanu/database';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
+
 import { fake, chance } from '../../fake';
 
 interface CreatePatientParams {
@@ -12,7 +15,7 @@ interface CreatePatientParams {
   allergyCount?: number;
 }
 export const createPatient = async ({
-  models: { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData },
+  models,
   facilityId,
   userId,
   isBirth = chance.bool(),
@@ -20,13 +23,16 @@ export const createPatient = async ({
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
+  const { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData } =
+    models;
+
   const patient = await Patient.create(fake(Patient));
 
   if (isBirth) {
     await PatientBirthData.create(
       fake(PatientBirthData, {
         patientId: patient.id,
-        facilityId,
+        facilityId: facilityId || (await randomRecordId(models, 'Facility')),
       }),
     );
   }
@@ -43,7 +49,7 @@ export const createPatient = async ({
     await PatientDeathData.create(
       fake(PatientDeathData, {
         patientId: patient.id,
-        clinicianId: userId,
+        clinicianId: userId || (await randomRecordId(models, 'User')),
       }),
     );
   }
@@ -75,30 +81,21 @@ interface CreatePatientViewLogParams {
   facilityId: string;
   userId: string;
   patientId: string;
-  version?: string;
-  deviceId?: string;
-  sessionId?: string;
 }
 export const createAccessLog = async ({
   models: { AccessLog },
   patientId,
   userId,
   facilityId,
-  deviceId = chance.string(),
-  version = '2.x.x',
-  sessionId = chance.string(),
 }: CreatePatientViewLogParams) => {
-  await AccessLog.create({
-    userId,
-    recordId: patientId,
-    facilityId,
-    recordType: 'Patient',
-    isMobile: chance.bool(),
-    frontEndContext: { patientId },
-    backEndContext: { endPoint: '/patient/:id' },
-    version,
-    sessionId,
-    deviceId,
-    loggedAt: new Date(),
-  });
+  await AccessLog.create(
+    fake(AccessLog, {
+      userId,
+      recordId: patientId,
+      facilityId,
+      recordType: 'Patient',
+      frontEndContext: { patientId },
+      backEndContext: { endPoint: '/patient/:id' },
+    }),
+  );
 };

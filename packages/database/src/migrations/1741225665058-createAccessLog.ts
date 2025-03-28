@@ -8,7 +8,19 @@ export async function up(query: QueryInterface) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
