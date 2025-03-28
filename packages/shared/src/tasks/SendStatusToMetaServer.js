@@ -45,7 +45,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       }),
     });
     if (response.status === 403) {
-      log.info(`Meta server request unauthorised:\n${deviceKey.publicKeyPem()}`)
+      log.info(`Post of server to meta server unathorised:\n${deviceKey.publicKeyPem()}`)
     }
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
@@ -62,7 +62,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         await this.fetch('servers', {
           method: 'POST',
           body: JSON.stringify({
-            host: config.canonicalHostName || os.hostname(),
+            host: config.canonicalHostName || `http://${os.hostname()}`,
             kind: this.serverType,
           }),
         })
