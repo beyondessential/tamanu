@@ -44,6 +44,9 @@ export class SendStatusToMetaServer extends ScheduledTask {
         },
       }),
     });
+    if (response.status === 403) {
+      log.info(deviceKey.publicKeyPem())
+    }
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
     }
