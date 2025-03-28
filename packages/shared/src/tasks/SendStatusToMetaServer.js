@@ -1,5 +1,5 @@
 import config from 'config';
-import { QueryTypes } from 'sequelize'
+import { QueryTypes } from 'sequelize';
 import { Agent, fetch } from 'undici';
 
 import { log } from '@tamanu/shared/services/logging';
@@ -7,15 +7,16 @@ import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
+
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
     return 'SendStatusToMetaServer';
   }
   constructor(context, overrideConfig = null) {
+    const { 'service.type': serverType, 'service.version': version } = serviceContext();
     const { schedule, jitterTime, enabled } =
       overrideConfig || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
-    const { 'service.type': serverType, 'service.version': version } = this.serviceContext
     this.context = context;
     this.models = context.store.models;
     this.sequelize = context.store.sequelize;
@@ -24,7 +25,6 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async fetch(path, options) {
-    const { 'service.type': serverType, 'service.version': version } = this.serviceContext
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
     const response = await fetch(`${config.metaServer.host}/${path}`, {
       ...options,
@@ -39,7 +39,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       dispatcher: new Agent({
         connect: {
           cert: deviceKey.makeCertificate(),
-          key: deviceKey.privateKeyPem()
+          key: deviceKey.privateKeyPem(),
         },
       }),
     });
@@ -50,14 +50,13 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async getMetaServerId() {
-    const {}
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
     const response = await this.fetch('servers', {
       method: 'POST',
       body: JSON.stringify({
         host: config.canonicalHostName,
-        kind: this.serverType
+        kind: this.serverType,
       }),
     });
     this.metaServerId = response.id;
@@ -68,8 +67,8 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
     const versionQueryResult = await this.sequelize.query(`SELECT version()`, {
-      type: QueryTypes.SELECT
-    })
+      type: QueryTypes.SELECT,
+    });
     const metaServerId = await this.getMetaServerId();
     await this.fetch(`status/${metaServerId}`, {
       method: 'POST',
