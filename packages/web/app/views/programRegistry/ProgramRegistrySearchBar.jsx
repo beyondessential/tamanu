@@ -68,7 +68,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="registeringFacilityId"
             label={
               <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
+                stringId="programRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />
             }
@@ -106,10 +106,28 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             }}
           >
             <FacilityCheckbox marginTop="6px">
-              <Field name="removed" label="Include removed patients" component={CheckField} />
+              <Field
+                name="removed"
+                label={
+                  <TranslatedText
+                    stringId="programRegistry.searchBar.includeRemovedPatients.label"
+                    fallback="Include removed patients"
+                  />
+                }
+                component={CheckField}
+              />
             </FacilityCheckbox>
             <FacilityCheckbox marginTop="15px">
-              <Field name="deceased" label="Include deceased patients" component={CheckField} />
+              <Field
+                name="deceased"
+                label={
+                  <TranslatedText
+                    stringId="patientList.table.includeDeceasedCheckbox.label"
+                    fallback="Include deceased patients"
+                  />
+                }
+                component={CheckField}
+              />
             </FacilityCheckbox>
           </div>
         </>
@@ -152,10 +170,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
 
       <Field
         label={
-          <TranslatedText
-            stringId="patientProgramRegistry.homeVillage.label"
-            fallback="Home village"
-          />
+          <TranslatedText stringId="programRegistry.homeVillage.label" fallback="Home village" />
         }
         name="homeVillage"
         component={AutocompleteField}
@@ -163,10 +178,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       />
       <Field
         label={
-          <TranslatedText
-            stringId="patientProgramRegistry.currentlyIn.label"
-            fallback="Currently in"
-          />
+          <TranslatedText stringId="programRegistry.currentlyIn.label" fallback="Currently in" />
         }
         name="currentlyIn"
         component={AutocompleteField}
@@ -179,7 +191,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Field
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.relatedCondition.label"
+            stringId="programRegistry.relatedCondition.label"
             fallback="Related condition"
           />
         }
@@ -188,7 +200,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         suggester={programRegistryConditionSuggester}
       />
       <Field
-        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+        label={<TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />}
         name="clinicalStatus"
         component={MultiAutocompleteField}
         suggester={programRegistryStatusSuggester}
