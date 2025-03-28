@@ -37,7 +37,7 @@
     }
   },
   "metaServer": {
-    "host": "http://localhost:8000",
+    "host": "https://meta.tamanu.app",
     "serverId": null,
     "timeoutMs": 20000
   },
@@ -266,7 +266,7 @@
       "generateOffsetDays": 7,
     },
     "sendStatusToMetaServer": {
-      "enabled": false,
+      "enabled": true,
       // every minute
       "schedule": "* * * * *",
     }
