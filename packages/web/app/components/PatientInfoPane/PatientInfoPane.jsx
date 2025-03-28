@@ -23,7 +23,6 @@ import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { useSettings } from '../../contexts/Settings';
-import { useAuth } from '../../contexts/Auth';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList

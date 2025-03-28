@@ -16,7 +16,6 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
-import { useAuth } from '../../../contexts/Auth';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
