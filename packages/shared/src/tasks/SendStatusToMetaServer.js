@@ -45,7 +45,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       }),
     });
     if (response.status === 403) {
-      log.info(deviceKey.publicKeyPem())
+      log.info(`Meta server request unauthorised:\n${deviceKey.publicKeyPem()}`)
     }
     if (response.status !== 200) {
       throw new Error(`Failed to fetch from meta server: ${response.statusText}`);
