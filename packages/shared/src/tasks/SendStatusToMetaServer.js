@@ -1,4 +1,5 @@
 import config from 'config';
+import path from 'node:path';
 import os from 'node:os'
 import { QueryTypes } from 'sequelize';
 import { Agent, fetch } from 'undici';
@@ -62,7 +63,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         await this.fetch('servers', {
           method: 'POST',
           body: JSON.stringify({
-            host: config.canonicalHostName || `http://${os.hostname()}`,
+            host: config.canonicalHostName || path.join('http://', os.hostname()),
             kind: this.serverType,
           }),
         })
@@ -73,7 +74,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
 
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
-    const versionQueryResult = await this.sequelize.query(`SELECT version()`, {
+    const pgVersionResult = await this.sequelize.query(`SELECT version()`, {
       type: QueryTypes.SELECT,
     });
     const metaServerId = await this.getMetaServerId();
@@ -82,7 +83,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       body: JSON.stringify({
         currentSyncTick,
         timezone: config.countryTimeZone,
-        version: versionQueryResult[0].version,
+        pgVersion: pgVersionResult[0].version,
       }),
     });
   }
