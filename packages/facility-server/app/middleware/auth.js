@@ -265,7 +265,7 @@ export const authMiddleware = async (req, res, next) => {
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: async ({ recordId, params, model, facilityId }) =>
+      access: async ({ recordId, params, model }) =>
         req.models.AccessLog.create({
           userId,
           recordId,
@@ -275,7 +275,7 @@ export const authMiddleware = async (req, res, next) => {
           frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
-          facilityId,
+          facilityId: req.facilityId,
           deviceId: req.deviceId || 'unknown-device',
           version,
         }),
