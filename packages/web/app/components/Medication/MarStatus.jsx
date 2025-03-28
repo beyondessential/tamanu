@@ -120,7 +120,7 @@ export const MarStatus = ({
   marInfo,
   medication,
 }) => {
-  const { administeredAt, status, id: marId, reasonNotGiven, prescriptionId, doses } = marInfo || {};
+  const { administeredAt, status, reasonNotGiven, doses } = marInfo || {};
   const { doseAmount, isPrn, units, discontinuedDate, endDate } = medication || {};
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);

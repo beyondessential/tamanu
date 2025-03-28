@@ -156,17 +156,11 @@ const formatTime = time => {
 const MedicationCell = ({ medication, selectedDate }) => {
   const {
     medication: medicationRef,
-    units,
     frequency,
     route,
     notes,
     discontinued,
-    discontinuedDate,
     medicationAdministrationRecords,
-    endDate,
-    isPrn,
-    doseAmount,
-    id: prescriptionId,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
 

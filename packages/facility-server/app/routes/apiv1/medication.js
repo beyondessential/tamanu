@@ -7,8 +7,6 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
   simpleGet,
-  simplePost,
-  simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
