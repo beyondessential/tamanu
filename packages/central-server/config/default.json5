@@ -36,6 +36,11 @@
       }
     }
   },
+  "metaServer": {
+    "host": "https://meta.tamanu.app",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
@@ -259,6 +264,11 @@
       // every day at 1 AM
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
+    },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
     }
   },
   "integrations": {
