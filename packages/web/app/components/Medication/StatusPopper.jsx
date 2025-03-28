@@ -403,8 +403,6 @@ export const StatusPopper = ({
       reasonNotGivenId,
       ...(marId && { administeredAt }),
       ...(marId && { prescriptionId }),
-    });
-
     setShowReasonScreen(false);
     onClose();
   };
