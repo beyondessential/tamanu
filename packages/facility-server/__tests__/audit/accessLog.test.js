@@ -30,7 +30,7 @@ describe('AccessLog', () => {
 
   describe('GET /api/patient/:id', () => {
     it('should create an AccessLog with appropriate details when accessing a patient', async () => {
-      const endpoint = `/api/patient/${patient.id}?facilityId=${facilityId}`;
+      const endpoint = `/api/patient/${patient.id}`;
 
       const response = await userApp.get(endpoint);
       expect(response).toHaveSucceeded();
@@ -52,7 +52,7 @@ describe('AccessLog', () => {
     });
 
     it('should not create an AccessLog when the request fails', async () => {
-      const endpoint = `/api/patient/invalid-id?facilityId=${facilityId}`;
+      const endpoint = `/api/patient/invalid-id`;
 
       const response = await userApp.get(endpoint);
       expect(response).toHaveRequestError();
