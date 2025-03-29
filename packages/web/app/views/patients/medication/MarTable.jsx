@@ -2,7 +2,7 @@ import { Box } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { format, isSameDay, parse } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
 
@@ -147,10 +147,7 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 };
 
 const formatTime = time => {
-  if (time === '24:00') {
-    return '12am';
-  }
-  return format(parse(time, 'HH:mm', new Date()), 'ha').toLowerCase();
+  return format(time, 'ha').toLowerCase();
 };
 
 const MedicationCell = ({ medication, selectedDate }) => {
@@ -206,7 +203,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
-        <div>{`${formatTime(startTime)} - ${formatTime(endTime)}`}</div>
+        <div>{`${formatTime(startDate)} - ${formatTime(endDate)}`}</div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
   );

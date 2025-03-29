@@ -376,8 +376,8 @@ export const StatusPopper = ({
   marInfo,
   medication,
 }) => {
-  const { id: marId, prescriptionId, administeredAt: marAdministeredAt } = marInfo || {};
-  const { doseAmount, units } = medication || {};
+  const { id: marId, administeredAt: marAdministeredAt } = marInfo || {};
+  const { doseAmount, units, id: prescriptionId } = medication || {};
   const administeredAt =
     marAdministeredAt || getDateFromTimeString(timeSlot.startTime, selectedDate);
 

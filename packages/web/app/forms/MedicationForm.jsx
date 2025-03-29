@@ -17,7 +17,7 @@ import {
   getDateFromTimeString,
   getEndDate
 } from '@tamanu/shared/utils/medication';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort, getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { addDays, format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 
@@ -232,6 +232,11 @@ const StyledTimePicker = styled(TimePicker)`
   }
 `;
 
+const isOneTimeFrequency = frequency =>
+  [ADMINISTRATION_FREQUENCIES.AS_DIRECTED, ADMINISTRATION_FREQUENCIES.IMMEDIATELY].includes(
+    frequency,
+  );
+
 const MedicationAdministrationForm = () => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -270,11 +275,7 @@ const MedicationAdministrationForm = () => {
   }, [values.frequency]);
 
   const handleResetToDefault = () => {
-    if (
-      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED ||
-      values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
-    )
-      return setValues({ ...values, timeSlots: [] });
+    if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
 
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     setValues({
@@ -310,9 +311,6 @@ const MedicationAdministrationForm = () => {
   };
 
   const getDefaultIdealTimeFromTimeSlot = (slot, index) => {
-    if (values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
-      return slot.startTime;
-    }
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     const correspondingSlot = defaultIdealTimes
       ?.map(findAdministrationTimeSlotFromIdealTime)
@@ -321,7 +319,7 @@ const MedicationAdministrationForm = () => {
   };
 
   return (
-    <StyledAccordion defaultExpanded={values.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED}>
+    <StyledAccordion defaultExpanded={!isOneTimeFrequency(values.frequency)}>
       <StyledAccordionSummary>
         <FieldLabel>
           <TranslatedText
@@ -362,11 +360,9 @@ const MedicationAdministrationForm = () => {
             const checked = !!selectedTimeSlot;
             const isDisabled =
               (!checked &&
-                (frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length ||
-                  (values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-                    selectedTimeSlots.length === 1))) ||
-              values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED;
+                frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
+                  selectedTimeSlots?.length) ||
+              isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
               : null;
@@ -398,16 +394,17 @@ const MedicationAdministrationForm = () => {
                           stringId="medication.medicationAdministrationSchedule.disabledTooltipAsDirected"
                           fallback="Medication administration schedule not applicable for selected frequency."
                         />
+                      ) : values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ? (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltipImmediately"
+                          fallback="Medication administration schedule is not applicable for selected frequency. Dose will be due immediately."
+                        />
                       ) : (
                         <TranslatedText
                           stringId="medication.medicationAdministrationSchedule.disabledTooltip"
                           fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
                           replacements={{
-                            slots:
-                              values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
-                                ? 1
-                                : frequenciesAdministrationIdealTimes?.[values.frequency]?.length ||
-                                  '0',
+                            slots: frequenciesAdministrationIdealTimes?.[values.frequency]?.length,
                           }}
                         />
                       )
@@ -530,11 +527,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
       data.endDate = getEndDate(startDate, durationValue, durationUnit);
     }
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
-    if (
-      data.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
-      (data.timeSlots.length < defaultIdealTimes?.length ||
-        (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY && data.timeSlots.length < 1))
-    ) {
+    if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);
       return Promise.reject({ message: 'Administration times discrepancy error' });
     }
@@ -542,8 +535,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     const idealTimes = data.timeSlots.map(slot => slot.value);
     const medicationSubmission = await api.post('medication', {
       ...data,
-      doseAmount: data.doseAmount || null,
-      durationValue: data.durationValue || null,
+      doseAmount: data.doseAmount || undefined,
+      durationValue: data.durationValue || undefined,
       idealTimes,
       encounterId,
     });
@@ -570,10 +563,11 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
           }
         }}
         initialValues={{
-          date: new Date(),
+          date: getCurrentDateString(),
           prescriberId: currentUser.id,
           timeSlots: [],
           isVariableDose: false,
+          startDate: getCurrentDateTimeString(),
         }}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
@@ -667,7 +661,16 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               enumValues={DRUG_UNIT_LABELS}
               required
             />
-            <Field name="frequency" component={FrequencySearchField} required />
+            <Field
+              name="frequency"
+              component={FrequencySearchField}
+              required
+              onChange={e => {
+                if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+                  setValues({ ...values, durationValue: '', durationUnit: '' });
+                }
+              }}
+            />
             <Field
               name="route"
               label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
@@ -703,6 +706,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 component={NumberField}
                 min={0}
                 onInput={preventInvalidNumber}
+                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
               />
               <Field
                 name="durationUnit"
@@ -712,6 +716,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                   value,
                   label,
                 }))}
+                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
               />
             </FormGrid>
             <div />

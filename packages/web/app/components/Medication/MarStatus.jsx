@@ -122,6 +122,7 @@ export const MarStatus = ({
 }) => {
   const { administeredAt, status, reasonNotGiven, doses } = marInfo || {};
   const { doseAmount, isPrn, units, discontinuedDate, endDate } = medication || {};
+
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
