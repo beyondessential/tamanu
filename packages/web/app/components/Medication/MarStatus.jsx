@@ -113,21 +113,16 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
 };
 
 export const MarStatus = ({
-  administeredAt,
-  status,
-  doseAmount,
-  isPrn,
-  units,
   isAlert = false,
   isEdited = false,
   selectedDate,
   timeSlot,
-  discontinuedDate,
-  endDate,
-  marId,
-  reasonNotGiven,
-  prescriptionId,
+  marInfo,
+  medication,
 }) => {
+  const { administeredAt, status, reasonNotGiven, id: marId } = marInfo || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId } = medication || {};
+
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
