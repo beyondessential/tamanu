@@ -1,16 +1,12 @@
 import * as fc from 'fast-check';
 import { SYNC_DIRECTIONS, SYNC_DIRECTIONS_VALUES } from '@tamanu/constants';
-import { getModelsForDirection } from '../../src/sync/getModelsForDirection';
+import { getModelsForPush, getModelsForPull } from '../../src/sync/getModelsForDirection';
 import { describe, expect, it } from 'vitest';
 
 import { Model } from '../../src/models/Model';
 import type { InitOptions } from '../../src/types/model';
 
 const arbitrarySyncDirection = fc.oneof(...SYNC_DIRECTIONS_VALUES.map((dir) => fc.constant(dir)));
-const directionalSyncDirection = fc.oneof(
-  fc.constant(SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-  fc.constant(SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-);
 
 function modelFromDirection(syncDirection) {
   return class extends Model {
@@ -34,85 +30,93 @@ function modelsFromDirections(directions) {
   );
 }
 
-describe('getModelsForDirection', () => {
-  it('includes models with bidirectional sync direction', () => {
-    fc.assert(
-      fc.property(
-        directionalSyncDirection,
-        fc.array(arbitrarySyncDirection),
-        (given, modelDirections) => {
-          const models = modelsFromDirections(modelDirections);
-
-          const filteredDirections = Object.entries(getModelsForDirection(models, given)).map(
-            ([, model]) => model.syncDirection,
-          );
-
-          if (
-            filteredDirections.length &&
-            modelDirections.includes(SYNC_DIRECTIONS.BIDIRECTIONAL)
-          ) {
-            expect(filteredDirections).toContain(SYNC_DIRECTIONS.BIDIRECTIONAL);
-          }
-        },
-      ),
-    );
-  });
-
-  it('includes models with the given direction', () => {
-    fc.assert(
-      fc.property(
-        directionalSyncDirection,
-        fc.array(arbitrarySyncDirection),
-        (given, modelDirections) => {
-          const models = modelsFromDirections(modelDirections);
-
-          const filteredDirections = Object.entries(getModelsForDirection(models, given)).map(
-            ([, model]) => model.syncDirection,
-          );
-
-          if (filteredDirections.length && modelDirections.includes(given)) {
-            expect(filteredDirections).toContain(given);
-          }
-        },
-      ),
-    );
-  });
-
-  it('excludes models with a differing direction from given', () => {
+describe('getModelsForPull', () => {
+  it('includes models with pull sync directions', () => {
     fc.assert(
       fc.property(fc.array(arbitrarySyncDirection), (modelDirections) => {
         const models = modelsFromDirections(modelDirections);
 
-        expect(
-          Object.entries(getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL)).map(
-            ([, model]) => model.syncDirection,
-          ),
-        ).not.toContain(SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+        const filteredDirections = Object.entries(getModelsForPull(models)).map(
+          ([, model]) => model.syncDirection,
+        );
 
-        expect(
-          Object.entries(getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)).map(
-            ([, model]) => model.syncDirection,
-          ),
-        ).not.toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+        if (
+          filteredDirections.length &&
+          modelDirections.includes(SYNC_DIRECTIONS.PULL_FROM_CENTRAL)
+        ) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+        }
+
+        if (filteredDirections.length && modelDirections.includes(SYNC_DIRECTIONS.BIDIRECTIONAL)) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.BIDIRECTIONAL);
+        }
       }),
     );
   });
 
-  it('excludes models with DO_NOT_SYNC', () => {
+  it('excludes models with a non-pull direction', () => {
     fc.assert(
-      fc.property(
-        directionalSyncDirection,
-        fc.array(arbitrarySyncDirection),
-        (given, modelDirections) => {
-          const models = modelsFromDirections(modelDirections);
+      fc.property(fc.array(arbitrarySyncDirection), (modelDirections) => {
+        const models = modelsFromDirections(modelDirections);
 
-          expect(
-            Object.entries(getModelsForDirection(models, given)).map(
-              ([, model]) => model.syncDirection,
-            ),
-          ).not.toContain(SYNC_DIRECTIONS.DO_NOT_SYNC);
-        },
-      ),
+        const syncDirections = Object.entries(getModelsForPull(models)).map(
+          ([, model]) => model.syncDirection,
+        );
+
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE);
+
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.DO_NOT_SYNC);
+      }),
+    );
+  });
+});
+
+describe('getModelsForPush', () => {
+  it('includes models with push sync directions', () => {
+    fc.assert(
+      fc.property(fc.array(arbitrarySyncDirection), (modelDirections) => {
+        const models = modelsFromDirections(modelDirections);
+
+        const filteredDirections = Object.entries(getModelsForPush(models)).map(
+          ([, model]) => model.syncDirection,
+        );
+
+        if (
+          filteredDirections.length &&
+          modelDirections.includes(SYNC_DIRECTIONS.PUSH_TO_CENTRAL)
+        ) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+        }
+
+        if (
+          filteredDirections.length &&
+          modelDirections.includes(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE)
+        ) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE);
+        }
+
+        if (filteredDirections.length && modelDirections.includes(SYNC_DIRECTIONS.BIDIRECTIONAL)) {
+          expect(filteredDirections).toContain(SYNC_DIRECTIONS.BIDIRECTIONAL);
+        }
+      }),
+    );
+  });
+
+  it('excludes models with a non-push direction', () => {
+    fc.assert(
+      fc.property(fc.array(arbitrarySyncDirection), (modelDirections) => {
+        const models = modelsFromDirections(modelDirections);
+
+        const syncDirections = Object.entries(getModelsForPull(models)).map(
+          ([, model]) => model.syncDirection,
+        );
+
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+
+        expect(syncDirections).not.toContain(SYNC_DIRECTIONS.DO_NOT_SYNC);
+      }),
     );
   });
 });

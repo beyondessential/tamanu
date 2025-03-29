@@ -8,7 +8,7 @@ import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   createSnapshotTable,
   findSyncSnapshotRecords,
-  getModelsForDirection,
+  getModelsForPull,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -32,7 +32,7 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    outgoingModels = getModelsForPull(models);
   });
 
   afterAll(() => ctx.close());
