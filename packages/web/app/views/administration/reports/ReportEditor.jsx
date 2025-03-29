@@ -7,7 +7,6 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMAS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_DB_SCHEMA_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
@@ -63,10 +62,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
     api.get(`admin/reports/dbSchemaOptions`),
   );
 
-  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
-  const showDataSourceField =
-    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
-
   return (
     <>
       <Grid container spacing={2}>
@@ -107,18 +102,16 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             />
           </Grid>
         )}
-        {showDataSourceField && (
-          <Grid item xs={4}>
-            <StyledField
-              label={
-                <TranslatedText stringId="admin.report.canBeRunOn.label" fallback="Can be run on" />
-              }
-              name="dataSources"
-              component={TranslatedMultiSelectField}
-              enumValues={REPORT_DATA_SOURCE_LABELS}
-            />
-          </Grid>
-        )}
+        <Grid item xs={4}>
+          <StyledField
+            label={
+              <TranslatedText stringId="admin.report.canBeRunOn.label" fallback="Can be run on" />
+            }
+            name="dataSources"
+            component={TranslatedMultiSelectField}
+            enumValues={REPORT_DATA_SOURCE_LABELS}
+          />
+        </Grid>
         <Grid item xs={12}>
           <StyledField
             label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
