@@ -195,7 +195,11 @@ encounterRelations.get(
           where: { id: params.id },
           attributes: ['id'],
         },
-        'medicationAdministrationRecords',
+        {
+          model: models.MedicationAdministrationRecord,
+          as: 'medicationAdministrationRecords',
+          include: 'reasonNotGiven'
+        },
         {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',

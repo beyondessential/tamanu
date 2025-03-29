@@ -7,6 +7,8 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
   simpleGet,
+  simplePost,
+  simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
@@ -371,6 +373,9 @@ medication.get(
     });
   }),
 );
+
+medication.put('/mar/:id', simplePut('MedicationAdministrationRecord'));
+medication.post('/mar', simplePost('MedicationAdministrationRecord'));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>
