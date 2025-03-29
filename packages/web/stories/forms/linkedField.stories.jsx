@@ -57,10 +57,10 @@ const mockHealthFacilitySuggester = createDummySuggester(
 );
 
 export default {
-  title: 'Forms/LinkedField',
+  title: 'Form Fields/LinkedField',
   component: LinkedField,
   decorators: [
-    Story => (
+    (Story) => (
       <Container>
         <TranslationProvider>
           <Story />

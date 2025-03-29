@@ -58,7 +58,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     delete rest.date;
 
     // Extract condition IDs from registrationConditions.data and data
-    const existingConditionIds = registrationConditions.data.map(
+    const existingConditionIds = registrationConditions.map(
       condition => condition.programRegistryConditionId,
     );
     const incomingConditionIds =
@@ -66,7 +66,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
 
     // Identify conditions to remove and their corresponding objects
     const conditionsToRemove = difference(existingConditionIds, incomingConditionIds);
-    const conditionsToRemoveObjects = registrationConditions.data.filter(condition =>
+    const conditionsToRemoveObjects = registrationConditions.filter(condition =>
       conditionsToRemove.includes(condition.programRegistryConditionId),
     );
 
@@ -99,6 +99,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
 
     // Invalidate queries and close modal
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+    queryClient.invalidateQueries(['patient', patientProgramRegistration.patientId]);
     onClose();
   };
 
@@ -200,12 +201,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         <TranslatedReferenceData
                           fallback={condition.name}
                           value={condition.id}
-                          category="prCondition"
+                          category="programRegistryCondition"
                         />
                       ),
                       value: condition.id,
                       searchString: getTranslation(
-                        getReferenceDataStringId(condition.id, 'prCondition'),
+                        getReferenceDataStringId(condition.id, 'programRegistryCondition'),
                         condition.name,
                       ),
                     }))}
@@ -232,7 +233,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           ...patientProgramRegistration,
           registeringFacilityId: facilityId,
           clinicianId: currentUser?.id,
-          conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
+          conditionIds: registrationConditions?.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
         }}
         formType={FORM_TYPES.EDIT_FORM}
