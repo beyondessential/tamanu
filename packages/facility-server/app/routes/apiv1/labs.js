@@ -42,13 +42,11 @@ labRequest.get(
     }
 
     const { LabRequest } = req.models;
-    const { facilityId } = req.query;
 
     await req.audit.access({
       recordId: labRequestRecord.id,
       params: req.params,
       model: LabRequest,
-      facilityId,
     });
 
     const latestAttachment = await labRequestRecord.getLatestAttachment();
