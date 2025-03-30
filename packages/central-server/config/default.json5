@@ -74,7 +74,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": true,
+      "enabled": false,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
