@@ -45,7 +45,7 @@ export const LabRequestProvider = ({ children }) => {
   });
 
   const api = useApi();
-  
+
   const loadLabRequest = useCallback(
     async labRequestId => {
       setIsLoading(true);
