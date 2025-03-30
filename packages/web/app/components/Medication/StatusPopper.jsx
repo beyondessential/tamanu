@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@material-ui/core';
@@ -219,11 +219,11 @@ const GivenScreen = ({
   const doseInputRef = useRef(null);
 
   // Measure the DoseContainer width when component mounts
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (doseInputRef.current) {
       setContainerWidth(doseInputRef.current.offsetWidth + 62);
     }
-  }, [doseInputRef.current]);
+  }, []);
 
   const { mutateAsync: updateMar } = useMarMutation(marId, {
     onSuccess: () => {
