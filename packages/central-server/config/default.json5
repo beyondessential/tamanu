@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io"
+  // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-central",
@@ -36,8 +36,13 @@
       }
     }
   },
+  "metaServer": {
+    "host": "https://meta.tamanu.app",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "updateUrls": {
-    "mobile": "https://meta.tamanu.app/versions/^{minVersion}/mobile",
+    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
   "log": {
     "path": "",
@@ -259,6 +264,11 @@
       // every day at 1 AM
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
+    },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
     }
   },
   "integrations": {
@@ -477,7 +487,7 @@
   "telegramBot": {
     apiToken: "",
     webhook: {
-      // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io/api/public/telegram-webhook"
+      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
       url: "",
       secret: ""
     }

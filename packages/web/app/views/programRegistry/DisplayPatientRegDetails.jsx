@@ -124,7 +124,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       >
         <TreeIcon src={programsIcon} />
         <TextColumnsContainer>
-          <TextColumns>
+          <TextColumns style={{ color: Colors.midText }}>
             <div>
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"
