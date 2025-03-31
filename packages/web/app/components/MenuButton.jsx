@@ -87,12 +87,12 @@ export const MenuButton = React.memo(
             <Paper id="menu-list-grow" variant="outlined" data-testid='paper-f59g'>
               <ClickAwayListener onClickAway={handleClose} data-testid='clickawaylistener-dxm1'>
                 <List data-testid='list-i0ae'>
-                  {actions.filter(Boolean).map(({ action, label }) => (
+                  {actions.filter(Boolean).map(({ action, label }, index) => (
                     <Item
                       disabled={!action}
                       key={label.props.fallback}
                       onClick={event => handleClick(event, action)}
-                      data-testid='item-8ybn'>
+                      data-testid={`item-8ybn-${index}`}>
                       {label}
                     </Item>
                   ))}

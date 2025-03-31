@@ -44,11 +44,11 @@ export const NoteChangeLogs = ({ note = {} }) => {
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
         data-testid='styledbox-vgh1'>
-        {changeLogNotes.map(changeLogNote => (
+        {changeLogNotes.map((changeLogNote, index) => (
           <NoteChangeLog
             key={changeLogNote.id}
             note={changeLogNote}
-            data-testid='notechangelog-4wb2' />
+            data-testid={`notechangelog-4wb2-${index}`} />
         ))}
       </StyledBox>
     </OuterLabelFieldWrapper>

@@ -270,14 +270,14 @@ export const RecentlyViewedPatientsList = ({
           <CardList data-testid='cardlist-zxcl'>
             {recentlyViewedPatients
               .slice(pageIndex * patientPerPage, (pageIndex + 1) * patientPerPage)
-              .map(patient => (
+              .map((patient, index) => (
                 <Card
                   key={patient.id}
                   patient={patient}
                   handleClick={cardOnClick}
                   isDashboard={isDashboard}
                   patientPerPage={patientPerPage}
-                  data-testid='card-m3ff' />
+                  data-testid={`card-m3ff-${index}`} />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (

@@ -71,13 +71,13 @@ export const LanguageSelector = () => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel data-testid='languageoptionlabel-lxsu'>
+        <LanguageOptionLabel data-testid={`languageoptionlabel-lxsu-${language}`}>
           {countryCode && isISO31661Alpha2(countryCode) && (
             <ReactCountryFlag
               countryCode={countryCode}
               style={{ width: '22px' }}
               svg
-              data-testid='reactcountryflag-4sfm' />
+   />
           )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
