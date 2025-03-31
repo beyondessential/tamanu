@@ -8,10 +8,9 @@ import type { Prescription } from './Prescription';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
-  declare status: string;
+  declare status?: string;
   declare administeredAt: string;
   declare prescriptionId?: string;
-  declare reasonNotGivenId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -32,14 +31,9 @@ export class MedicationAdministrationRecord extends Model {
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
     const upcomingRecordsShouldBeGeneratedTimeFrame =
       config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
-    const upcomingRecordsTimeFrame =
-      config?.medicationAdministrationRecord?.upcomingRecordsTimeFrame || 48;
 
     const upcomingEndDate = endOfDay(
-      addHours(
-        new Date(),
-        prescription.endDate ? upcomingRecordsShouldBeGeneratedTimeFrame : upcomingRecordsTimeFrame,
-      ),
+      addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame),
     );
 
     // Set default end date
@@ -51,11 +45,6 @@ export class MedicationAdministrationRecord extends Model {
     }
 
     let lastStartDate = new Date(prescription.startDate);
-
-    // Set end date to upcoming end date if it is before the calculated end date
-    if (endDate > upcomingEndDate) {
-      endDate = upcomingEndDate;
-    }
 
     const lastMedicationAdministrationRecord = await this.findOne({
       where: {
@@ -116,10 +105,6 @@ export class MedicationAdministrationRecord extends Model {
     this.belongsTo(models.Prescription, {
       foreignKey: 'prescriptionId',
       as: 'prescription',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'reasonNotGivenId',
-      as: 'reasonNotGiven',
     });
   }
 

@@ -5,13 +5,13 @@ import {
   ButtonWithPermissionCheck,
   Heading3,
   TranslatedText,
-} from '../../../components';
+} from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
-import { ConditionalTooltip } from '../../../components/Tooltip';
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { ConditionalTooltip } from '../../Tooltip';
+import { MedicationModal } from '../MedicationModal';
 
 const Wrapper = styled.div`
   display: flex;

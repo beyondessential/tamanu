@@ -21,7 +21,7 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { encounterId, ...data } = req.body;
-    const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
+    const { Prescription, EncounterPrescription } = models;
     req.checkPermission('create', 'Prescription');
 
     const existingPrescription = await Prescription.findByPk(req.body.id, {
@@ -33,7 +33,7 @@ medication.post(
       );
     }
 
-    if (!data.isOngoing && data.durationValue && data.durationUnit) {
+    if (data.durationValue && data.durationUnit) {
       data.endDate = add(new Date(data.startDate), {
         [data.durationUnit]: data.durationValue,
       });
@@ -41,7 +41,7 @@ medication.post(
 
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+
     res.send(prescription.forResponse());
   }),
 );
