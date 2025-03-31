@@ -63,14 +63,14 @@ export const TriageModal = React.memo(
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
       ([name]) => getSetting(`fields.${name}.hidden`) !== true,
     ).map(([name, label, accessor]) => (
-      <React.Fragment key={name} data-testid='fragment-oz4x'>
-        <DetailLabel data-testid='detaillabel-l4mb'>
+      <React.Fragment key={name}>
+        <DetailLabel data-testid={`detaillabel-l4mb-${name}`}>
           <TranslatedText
             stringId={`general.localisedFields.${name}.label`}
             fallback={label}
-            data-testid='translatedtext-ef2v' />:
+            data-testid={`translatedtext-ef2v-${name}`} />:
         </DetailLabel>
-        <DetailValue data-testid='detailvalue-lsjb'>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+        <DetailValue data-testid={`detailvalue-lsjb-${name}`}>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));
 

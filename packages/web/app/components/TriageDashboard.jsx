@@ -112,8 +112,9 @@ export const TriageDashboard = () => {
 
   return (
     <StatisticsCardContainer data-testid='statisticscardcontainer-4vpu'>
-      {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
+      {data.map(({ averageWaitTime, numberOfPatients, level, color }, index) => (
         <StatisticsCard
+          data-testid={`statisticscard-9fuo-${index}`}
           key={level}
           color={color}
           title={
@@ -121,14 +122,14 @@ export const TriageDashboard = () => {
               stringId="patientList.triage.card.patientLevel"
               fallback="Level :level patient"
               replacements={{ level }}
-              data-testid='translatedtext-wgbf' />
+              data-testid={`translatedtext-wgbf-${index}`} />
           }
           value={numberOfPatients}
           Footer={<CardFooter
             color={color}
             averageWaitTime={averageWaitTime}
-            data-testid='cardfooter-awa6' />}
-          data-testid='statisticscard-9fuo' />
+            data-testid={`cardfooter-awa6-${index}`} />}
+        />
       ))}
     </StatisticsCardContainer>
   );
