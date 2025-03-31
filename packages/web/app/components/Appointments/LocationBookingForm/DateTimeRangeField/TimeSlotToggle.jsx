@@ -113,7 +113,7 @@ const tooltipStyles = css`
     cursor: not-allowed;
   }
 
-  // Prevent tooltip’s div from affecting interpretation of justify-self: auto on children.
+  // Prevent tooltip's div from affecting interpretation of justify-self: auto on children.
   // :not() clause is a workaround: ThemedTooltip passes its classes onto the tooltip popper
   &:not(.MuiTooltip-popper) {
     display: grid;
@@ -211,7 +211,7 @@ const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
 `;
 
 const SkeletonTimeSlotToggles = ({ count = 16 }) => {
-  return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} data-testid='styledskeleton-rh16' />);
+  return Array.from({ length: count }).map((_, index) => <StyledSkeleton key={index} data-testid={`styledskeleton-${index}`} />);
 };
 
 /**
@@ -221,9 +221,9 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
 export const PlaceholderTimeSlotToggles = memo(() => {
   const { isPending, slots } = useBookingSlots(startOfToday());
   if (isPending) return <SkeletonTimeSlotToggles data-testid='skeletontimeslottoggles-9a22' />;
-  return slots?.map(slot => <TimeSlotToggle
+  return slots?.map((slot, index) => <TimeSlotToggle
     disabled
     key={idOfTimeSlot(slot)}
     timeSlot={slot}
-    data-testid='timeslottoggle-63lw' />);
+    data-testid={`timeslottoggle-${index}`} />);
 });

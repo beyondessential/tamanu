@@ -73,7 +73,7 @@ export const ThreeDotMenu = ({ items }) => {
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
-                data-testid='threedotmenuitem-lj9o'>
+                data-testid={`menuitem-${index}`}>
                 {item.label}
               </ThreeDotMenuItem>
             ),

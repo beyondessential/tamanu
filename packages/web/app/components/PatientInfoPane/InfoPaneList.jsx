@@ -155,7 +155,7 @@ export const InfoPaneList = ({
       <DataList data-testid='datalist-073t'>
         {error && error.message}
         {!error &&
-          items.map(item => {
+          items.map((item, index) => {
             const { id } = item;
             const name = getName(item);
             if (behavior === 'collapse') {
@@ -167,9 +167,9 @@ export const InfoPaneList = ({
                         item={item}
                         handleRowClick={handleRowClick}
                         ListItem={ListItem}
-                        data-testid='listitemcomponent-5xs4' />
+                        data-testid={`listitemcomponent-${index}`} />
                     ) : (
-                      <ListItem onClick={() => handleRowClick(id)} data-testid='listitem-adip'>{name}</ListItem>
+                      <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-${index}`}>{name}</ListItem>
                     )}
                   </Collapse>
                   <Collapse in={editKey === id} data-testid='collapse-0a33'>
@@ -193,9 +193,9 @@ export const InfoPaneList = ({
                     item={item}
                     handleRowClick={handleRowClick}
                     ListItem={ListItem}
-                    data-testid='listitemcomponent-p5xe' />
+                    data-testid={`listitemcomponent-${index}`} />
                 ) : (
-                  <ListItem onClick={() => handleRowClick(id)} data-testid='listitem-fx30'>{name}</ListItem>
+                  <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-${index}`}>{name}</ListItem>
                 )}
                 <FormModal
                   width="md"
