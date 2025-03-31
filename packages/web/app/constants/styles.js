@@ -4,6 +4,8 @@ export const MUI_SPACING_UNIT = 8;
 // (with the exception of searchTintColor)
 export const Colors = {
   primary: '#326699',
+  primary30: '#C2D2E1',
+  primary10: '#EBF0F5',
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
@@ -61,5 +63,5 @@ export const denseTableStyle = {
     &.MuiTableCell-body {
       padding: 12px 0px; text-align: left;
     }
-  `
+  `,
 };
