@@ -31,7 +31,7 @@ const PlaceholderStatusSelector = () => (
         disabled
         key={status}
         selected={false}
-        data-testid='appointmentstatuschip-2imj' />
+        data-testid={`appointmentstatuschip-2imj-${status}`} />
     ))}
   </ChipGroup>
 );
@@ -81,7 +81,7 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
             key={status}
             selected={isSelected}
             value={status}
-            data-testid='appointmentstatuschip-05sr' />
+            data-testid={`appointmentstatuschip-05sr-${status}`} />
         );
       })}
     </ChipGroup>

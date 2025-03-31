@@ -165,7 +165,7 @@ export const getChartsTableColumns = (
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: <DateHeadCell value={date} data-testid='dateheadcell-ucdw' />,
+        title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
         accessor: cells => {
@@ -186,7 +186,7 @@ export const getChartsTableColumns = (
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
               ValueWrapper={VitalsLimitedLinesCell}
-              data-testid='rangevalidatedcell-3biv' />
+              data-testid={`rangevalidatedcell-${date}`} />
           );
         },
         exportOverrides: {

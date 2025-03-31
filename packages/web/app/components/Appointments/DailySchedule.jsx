@@ -26,12 +26,12 @@ const Column = ({ header, appointments, onAppointmentUpdated }) => {
         {header}
       </ColumnHeader>
       <ColumnBody className="appointments" data-testid='columnbody-h38k'>
-        {appointmentsByStartTime.map(appt => (
+        {appointmentsByStartTime.map((appt, index) => (
           <Appointment
             key={appt.id}
             appointment={appt}
             onUpdated={onAppointmentUpdated}
-            data-testid='appointment-lse5' />
+            data-testid={`appointment-lse5-${index}`} />
         ))}
       </ColumnBody>
     </>
@@ -90,7 +90,7 @@ export const DailySchedule = ({
           key={props.key}
           onAppointmentUpdated={onAppointmentUpdated}
           {...props}
-          data-testid='column-zgt6' />
+          data-testid={`column-zgt6-${props.key}`} />
       ))}
     </Container>
   );

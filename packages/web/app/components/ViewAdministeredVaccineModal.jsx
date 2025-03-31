@@ -64,10 +64,10 @@ const FieldGroup = styled.div`
 const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
   <Container $editMode={editMode} data-testid='container-p4ga'>
     {labelValueFieldGroups.map(({ key, fields }) => (
-      <FieldGroup key={key} data-testid='fieldgroup-noro'>
+      <FieldGroup key={key} data-testid={`fieldgroup-noro-${key}`}>
         {fields.map(({ label, value }) => (
-          <DisplayField key={label} $editMode={editMode} data-testid='displayfield-jkpx'>
-            <Label data-testid='label-4tcx'>{label}</Label>
+          <DisplayField key={label} $editMode={editMode} data-testid={`displayfield-jkpx-${key}-${label}`}>
+            <Label data-testid={`label-4tcx-${key}-${label}`}>{label}</Label>
             {value}
           </DisplayField>
         ))}
