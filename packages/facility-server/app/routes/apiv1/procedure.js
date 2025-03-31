@@ -4,6 +4,6 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 
 export const procedure = express.Router();
 
-procedure.get('/:id', simpleGet('Procedure'));
+procedure.get('/:id', simpleGet('Procedure', { auditAccess: true }));
 procedure.put('/:id', simplePut('Procedure'));
 procedure.post('/$', simplePost('Procedure'));
