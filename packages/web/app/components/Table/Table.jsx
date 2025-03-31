@@ -329,7 +329,12 @@ const StatusRow = React.memo(({ className, colSpan, children, textColor, statusC
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
-    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
+    if (isLoading) return (
+      <TranslatedText
+        stringId="general.table.loading"
+        fallback="Loading..."
+        data-testid='translatedtext-z0hv' />
+    );
     if (errorMessage) return errorMessage;
     if (isEmpty || !data.length) return noDataMessage;
     return null;
@@ -616,7 +621,10 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
+  noDataMessage: <TranslatedText
+    stringId="general.table.noDataMessage"
+    fallback="No data found"
+    data-testid='translatedtext-9z6g' />,
   count: 0,
   hideHeader: false,
   isLoading: false,

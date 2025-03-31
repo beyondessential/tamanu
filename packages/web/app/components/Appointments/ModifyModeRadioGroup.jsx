@@ -44,9 +44,9 @@ export const ModifyModeRadioGroup = ({ onChange, value }) => (
         <TranslatedText
           stringId="outpatientAppointment.repeating.modifyMode.option.thisAppointment"
           fallback="This appointment"
-        />
+          data-testid='translatedtext-qccw' />
       }
-    />
+      data-testid='styledformcontrollabel-uqqx' />
     <StyledFormControlLabel
       control={
         <StyledRadio value={MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS} />
@@ -55,8 +55,8 @@ export const ModifyModeRadioGroup = ({ onChange, value }) => (
         <TranslatedText
           stringId="outpatientAppointment.repeating.modifyMode.option.thisAndFutureAppointments"
           fallback="This and future appointments"
-        />
+          data-testid='translatedtext-wihz' />
       }
-    />
+      data-testid='styledformcontrollabel-bfan' />
   </StyledRadioGroup>
 );

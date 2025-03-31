@@ -52,7 +52,10 @@ export const ScopeSelectorFields = React.memo(
       <>
         <ScopeSelectInput
           name="scope"
-          label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
+          label={<TranslatedText
+            stringId="admin.settings.scope.label"
+            fallback="Scope"
+            data-testid='translatedtext-gidj' />}
           options={SCOPE_OPTIONS}
           value={scope}
           onChange={onScopeChange}
@@ -63,7 +66,10 @@ export const ScopeSelectorFields = React.memo(
           <ScopeDynamicSelectInput
             name="facilityId"
             options={facilityOptions}
-            label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
+            label={<TranslatedText
+              stringId="general.facility.label"
+              fallback="Facility"
+              data-testid='translatedtext-qvsm' />}
             value={facilityId}
             onChange={onFacilityChange}
             required

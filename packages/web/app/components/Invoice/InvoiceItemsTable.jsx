@@ -51,7 +51,7 @@ const getInvoiceItemDetails = row => {
       <TranslatedText
         stringId="invoice.table.details.nonDiscountable"
         fallback="Non-discountable"
-      />
+        data-testid='translatedtext-soer' />
       {')'}
     </>
   );
@@ -60,40 +60,58 @@ const getInvoiceItemDetails = row => {
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'orderDate',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+    title: <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid='translatedtext-c0gy' />,
     sortable: false,
-    accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
+    accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-oqq8' />,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'details',
-    title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.details"
+      fallback="Details"
+      data-testid='translatedtext-5kbg' />,
     sortable: false,
     accessor: getInvoiceItemDetails,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'productCode',
-    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.code"
+      fallback="Code"
+      data-testid='translatedtext-64xy' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'quantity',
-    title: <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.quantity"
+      fallback="Quantity"
+      data-testid='translatedtext-opva' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'orderedBy',
-    title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.orderedBy"
+      fallback="Ordered by"
+      data-testid='translatedtext-amlq' />,
     sortable: false,
     accessor: ({ orderedByUser }) => orderedByUser?.displayName,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'price',
-    title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.price"
+      fallback="Price"
+      data-testid='translatedtext-qbco' />,
     sortable: false,
     accessor: getPrice,
     TitleCellComponent: StyledTitleCell,
@@ -109,7 +127,7 @@ export const InvoiceItemsTable = ({ invoice }) => {
         <TranslatedText
           stringId="invoice.invoiceItemsTable.noData"
           fallback="No invoice items found"
-        />
+          data-testid='translatedtext-9dbw' />
       }
       allowExport={false}
       elevated={false}
@@ -123,6 +141,6 @@ export const InvoiceItemsTable = ({ invoice }) => {
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
       data={invoice.items}
-    />
+      data-testid='datafetchingtable-srcl' />
   );
 };

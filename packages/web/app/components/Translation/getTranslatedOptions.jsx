@@ -15,7 +15,7 @@ export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) 
                 .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`}
               fallback={label}
               {...TranslatedTextProps}
-            />
+              data-testid='translatedtext-3i1j' />
           ),
           ...rest,
         }

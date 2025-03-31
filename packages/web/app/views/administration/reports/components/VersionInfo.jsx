@@ -7,25 +7,40 @@ import { TranslatedText } from '../../../../components/Translation/TranslatedTex
 export const VersionInfo = ({ version }) => (
   <InfoCard inlineValues>
     <InfoCardItem
-      label={<TranslatedText stringId="general.name.label" fallback="Name" />}
+      label={<TranslatedText
+        stringId="general.name.label"
+        fallback="Name"
+        data-testid='translatedtext-1g94' />}
       value={version.reportDefinition.name}
     />
     <InfoCardItem
-      label={<TranslatedText stringId="admin.report.version.label" fallback="Version" />}
+      label={<TranslatedText
+        stringId="admin.report.version.label"
+        fallback="Version"
+        data-testid='translatedtext-qdhv' />}
       value={version.versionNumber}
     />
     <InfoCardItem
-      label={<TranslatedText stringId="admin.report.reportId.label" fallback="Report ID" />}
+      label={<TranslatedText
+        stringId="admin.report.reportId.label"
+        fallback="Report ID"
+        data-testid='translatedtext-uorq' />}
       value={version.reportDefinition.id}
     />
     <InfoCardItem
-      label={<TranslatedText stringId="admin.report.created.label" fallback="Created" />}
+      label={<TranslatedText
+        stringId="admin.report.created.label"
+        fallback="Created"
+        data-testid='translatedtext-5pps' />}
       value={`${DateDisplay.stringFormat(version.createdAt, formatShortest)} ${formatTime(
         version.createdAt,
       )}`}
     />
     <InfoCardItem
-      label={<TranslatedText stringId="admin.report.createdBy.label" fallback="Created by" />}
+      label={<TranslatedText
+        stringId="admin.report.createdBy.label"
+        fallback="Created by"
+        data-testid='translatedtext-2jah' />}
       value={version.createdBy?.displayName}
     />
   </InfoCard>

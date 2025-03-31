@@ -22,7 +22,10 @@ export const PatientLetterModal = React.memo(
       <FormModal
         width="sm"
         title={
-          <TranslatedText stringId="patient.modal.patientLetter.title" fallback="Patient letter" />
+          <TranslatedText
+            stringId="patient.modal.patientLetter.title"
+            fallback="Patient letter"
+            data-testid='translatedtext-v0kl' />
         }
         open={open}
         onClose={onClose}

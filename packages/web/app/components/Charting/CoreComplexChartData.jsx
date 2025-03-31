@@ -50,7 +50,10 @@ export const CoreComplexChartData = ({
   );
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+      label: <TranslatedText
+        stringId="general.action.delete"
+        fallback="Delete"
+        data-testid='translatedtext-mzck' />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Charting');
@@ -77,7 +80,7 @@ export const CoreComplexChartData = ({
               <TranslatedText
                 stringId="complexChartInstance.date"
                 fallback="Date & time of onset:"
-              />
+                data-testid='translatedtext-tzks' />
             </CoreComplexChartInfoHeader>
             <>{date}</>
           </CoreComplexChartSingleInfoWrapper>
@@ -85,7 +88,10 @@ export const CoreComplexChartData = ({
           {isTypeVisible ? (
             <CoreComplexChartSingleInfoWrapper>
               <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+                <TranslatedText
+                  stringId="complexChartInstance.type"
+                  fallback="Type:"
+                  data-testid='translatedtext-dcxj' />
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -95,13 +101,16 @@ export const CoreComplexChartData = ({
           {isSubtypeVisible ? (
             <CoreComplexChartSingleInfoWrapper>
               <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.subtype" fallback="Sub type:" />
+                <TranslatedText
+                  stringId="complexChartInstance.subtype"
+                  fallback="Sub type:"
+                  data-testid='translatedtext-ay09' />
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        { data.length === 0 ? <MenuButton actions={actions} /> : null}
+        { data.length === 0 ? <MenuButton actions={actions} data-testid='menubutton-30ah' /> : null}
       </CoreComplexChartDataRow>
     </>
   );

@@ -39,11 +39,14 @@ export const ImportExportView = memo(
 
     const importTab = useMemo(
       () => ({
-        label: <TranslatedText stringId="admin.import.title" fallback="Import" />,
+        label: <TranslatedText
+          stringId="admin.import.title"
+          fallback="Import"
+          data-testid='translatedtext-c0fo' />,
         key: 'import',
         icon: 'fa fa-file-import',
         render: () => (
-          <TabContainer>
+          <TabContainer data-testid='tabcontainer-xuzy'>
             <ImporterView
               endpoint={endpoint}
               dataTypes={dataTypes}
@@ -59,11 +62,14 @@ export const ImportExportView = memo(
 
     const exportTab = useMemo(
       () => ({
-        label: <TranslatedText stringId="admin.export.title" fallback="Export" />,
+        label: <TranslatedText
+          stringId="admin.export.title"
+          fallback="Export"
+          data-testid='translatedtext-r8gs' />,
         key: 'export',
         icon: 'fa fa-file-export',
         render: () => (
-          <TabContainer>
+          <TabContainer data-testid='tabcontainer-qs74'>
             <ExporterView
               title={title}
               endpoint={endpoint}
@@ -87,7 +93,7 @@ export const ImportExportView = memo(
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           scrollable={false}
-        />
+          data-testid='styledtabdisplay-gnp9' />
       </AdminViewContainer>
     );
   },

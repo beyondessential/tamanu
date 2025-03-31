@@ -38,12 +38,12 @@ export const ReminderContactSection = () => {
         color="primary"
         size="small"
         onClick={handleOpenRemindersModal}
-      >
+        data-testid='styledbutton-qjma'>
         <StyledNotificationsNoneIcon />
         <TranslatedText
           stringId="patient.details.reminderContacts.title"
           fallback="Reminder contacts"
-        />
+          data-testid='translatedtext-r8es' />
       </StyledButton>
       <ReminderContactModal
         open={openReminderModal}

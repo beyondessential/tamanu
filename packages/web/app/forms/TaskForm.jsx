@@ -173,7 +173,10 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="taskId"
-                  label={<TranslatedText stringId="encounter.task.task.label" fallback="Task" />}
+                  label={<TranslatedText
+                    stringId="encounter.task.task.label"
+                    fallback="Task"
+                    data-testid='translatedtext-lab0' />}
                   component={AutocompleteField}
                   suggester={combinedTaskSuggester}
                   multiSection
@@ -182,20 +185,20 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   required
                   onChange={e => handleTaskChange(e, { setFieldValue })}
-                />
+                  data-testid='field-uxad' />
                 <Field
                   name="startTime"
                   label={
                     <TranslatedText
                       stringId="encounter.task.startTime.label"
                       fallback="Start date & time"
-                    />
+                      data-testid='translatedtext-mmlw' />
                   }
                   saveDateAsString
                   required
                   component={DateTimeField}
                   min={getCurrentDateTimeString().slice(0, -3)}
-                />
+                  data-testid='field-sc8c' />
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
@@ -204,33 +207,36 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.requestedBy.label"
                       fallback="Requested by"
-                    />
+                      data-testid='translatedtext-oonz' />
                   }
                   required
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
-                />
+                  data-testid='field-xiwj' />
                 <Field
                   name="requestTime"
                   label={
                     <TranslatedText
                       stringId="encounter.task.requestTime.label"
                       fallback="Request date & time"
-                    />
+                      data-testid='translatedtext-psme' />
                   }
                   saveDateAsString
                   required
                   component={DateTimeField}
-                />
+                  data-testid='field-f3x4' />
               </FormGrid>
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+                label={<TranslatedText
+                  stringId="general.notes.label"
+                  fallback="Notes"
+                  data-testid='translatedtext-qkzg' />}
                 component={TextField}
                 multiline
                 minRows={4}
                 style={{ gridColumn: 'span 2' }}
-              />
+                data-testid='field-9tai' />
             </FormGrid>
             {selectedTask?.value && <Divider style={{ margin: '20px 0 20px 0' }} />}
             {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
@@ -241,12 +247,12 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="general.localisedField.assignedTo.label"
                       fallback="Assigned to"
-                    />
+                      data-testid='translatedtext-a383' />
                   }
                   component={SuggesterSelectField}
                   endpoint="designation"
                   isMulti
-                />
+                  data-testid='field-3yna' />
                 <NestedFormGrid>
                   <Field
                     name="frequencyValue"
@@ -254,18 +260,18 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="task.frequency.label"
                         fallback="Frequency (if repeating task)"
-                      />
+                        data-testid='translatedtext-2vk2' />
                     }
                     min={0}
                     component={NumberField}
                     onInput={preventInvalidNumber}
-                  />
+                    data-testid='field-2x3x' />
                   <Field
                     name="frequencyUnit"
                     label={<InvisibleTitle>.</InvisibleTitle>}
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
-                  />
+                    data-testid='field-beam' />
                 </NestedFormGrid>
                 <StyledCheckField
                   name="highPriority"
@@ -275,7 +281,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="encounter.task.highPriority.label"
                         fallback="High priority task"
-                      />
+                        data-testid='translatedtext-hrgk' />
                     </span>
                   }
                   component={CheckField}
@@ -285,14 +291,16 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             {selectedTask.type === REFERENCE_TYPES.TASK_SET && (
               <TaskSetTable tasks={selectedTask.children} />
             )}
-
             <Divider style={{ margin: '28px -32px 20px -32px' }} />
             <FormSubmitCancelRow
               onCancel={onClose}
               onConfirm={submitForm}
-              confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+              confirmText={<TranslatedText
+                stringId="general.action.confirm"
+                fallback="Confirm"
+                data-testid='translatedtext-suri' />}
               confirmDisabled={isCreatingTasks}
-            />
+              data-testid='formsubmitcancelrow-qcoh' />
           </div>
         );
       }}

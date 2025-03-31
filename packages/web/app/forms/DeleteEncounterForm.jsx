@@ -70,7 +70,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                 <GridContent>
                   <Label>Date</Label>
                   <Value>
-                    <DateDisplay date={startDate} /> - <DateDisplay date={endDate} />
+                    <DateDisplay date={startDate} data-testid='datedisplay-4mv8' /> - <DateDisplay date={endDate} data-testid='datedisplay-zz4k' />
                   </Value>
                   <Label>Type</Label>
                   <Value>{currentType}</Value>

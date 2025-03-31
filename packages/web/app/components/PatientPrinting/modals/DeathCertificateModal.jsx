@@ -35,7 +35,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <TranslatedText
             stringId="death.modal.deathCertificate.title"
             fallback="Cause of death certificate"
-          />
+            data-testid='translatedtext-qsqf' />
         }
         open={isOpen}
         onClose={() => setIsOpen(false)}
@@ -53,11 +53,15 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           />
         </PDFLoader>
       </Modal>
-      <Button variant="contained" color="primary" onClick={() => setIsOpen(true)}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setIsOpen(true)}
+        data-testid='button-06hc'>
         <TranslatedText
           stringId="death.action.viewDeathCertificate"
           fallback="View death certificate"
-        />
+          data-testid='translatedtext-vgn0' />
       </Button>
     </>
   );

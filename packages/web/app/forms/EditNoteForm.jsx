@@ -26,23 +26,38 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={<TranslatedEnum
+          value={note.noteType}
+          enumValues={NOTE_TYPE_LABELS}
+          data-testid='translatedenum-dua1' />}
         date={note.revisedBy ? note.revisedBy.date : note.date}
         writtenByLabel={
-          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+          <TranslatedText
+            stringId="note.writtenBy.label"
+            fallback="Written by (or on behalf of)"
+            data-testid='translatedtext-3s0b' />
         }
         writtenBy={writtenBy}
-        dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
+        dateLabel={<TranslatedText
+          stringId="note.dateTime.label"
+          fallback="Date & time"
+          data-testid='translatedtext-c8be' />}
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        confirmText={<TranslatedText
+          stringId="general.action.save"
+          fallback="Save"
+          data-testid='translatedtext-ps84' />}
+        cancelText={<TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid='translatedtext-g65y' />}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-hjhr' />
     </>
   );
 };

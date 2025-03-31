@@ -135,7 +135,6 @@ export const SearchMultiSelectInput = ({
       >
         {label} {value.length > 0 ? `(${value.length})` : ''}
       </StyledInputButton>
-
       <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <SearchContainer>
           {shouldShowSearch && (
@@ -155,7 +154,10 @@ export const SearchMultiSelectInput = ({
             />
           )}
           <StyledTextButton onClick={handleClear}>
-            <TranslatedText stringId="general.action.clear" fallback="Clear" />
+            <TranslatedText
+              stringId="general.action.clear"
+              fallback="Clear"
+              data-testid='translatedtext-ig1g' />
           </StyledTextButton>
         </SearchContainer>
 
@@ -179,8 +181,11 @@ export const SearchMultiSelectInput = ({
                 </StyledMenuItem>
               ))
           ) : (
-            <MenuItem disabled>
-              <TranslatedText stringId="general.search.noDataMessage" fallback="No options found" />
+            <MenuItem disabled data-testid='menuitem-x7hs'>
+              <TranslatedText
+                stringId="general.search.noDataMessage"
+                fallback="No options found"
+                data-testid='translatedtext-1qc0' />
             </MenuItem>
           )}
         </OptionsContainer>

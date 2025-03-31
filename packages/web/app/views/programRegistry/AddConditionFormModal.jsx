@@ -60,7 +60,7 @@ export const AddConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.modal.addCondition.title"
           fallback="Add related condition"
-        />
+          data-testid='translatedtext-2lkt' />
       }
       open={open}
       onClose={onClose}
@@ -80,7 +80,7 @@ export const AddConditionFormModal = ({
                     <TranslatedText
                       stringId="programRegistry.relatedCondition.label"
                       fallback="Related condition"
-                    />
+                      data-testid='translatedtext-4hbo' />
                   }
                   component={AutocompleteField}
                   options={differenceBy(
@@ -88,7 +88,7 @@ export const AddConditionFormModal = ({
                     patientProgramRegistrationConditions,
                     'value',
                   )}
-                />
+                  data-testid='field-wglb' />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
               <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />

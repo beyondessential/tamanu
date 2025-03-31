@@ -230,17 +230,23 @@ export const TestSelectorInput = ({
                   onChange: handleChangeSearchQuery,
                 }}
                 label={
-                  <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />
+                  <TranslatedText
+                    stringId="lab.testCategory.label"
+                    fallback="Test category"
+                    data-testid='translatedtext-yytl' />
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
                 baseOptions={[
                   {
-                    label: <TranslatedText stringId="general.select.all" fallback="All" />,
+                    label: <TranslatedText
+                      stringId="general.select.all"
+                      fallback="All"
+                      data-testid='translatedtext-08id' />,
                     value: '',
                   },
                 ]}
-              />
+                data-testid='suggesterselectfield-e7m1' />
               <FormSeparatorLine />
             </>
           )}
@@ -278,7 +284,7 @@ export const TestSelectorInput = ({
                         }
                         fallback={selectable.name}
                         value={selectable.id}
-                      />
+                        data-testid='translatedreferencedata-gege' />
                     }
                     name={selectable.id}
                     category={
@@ -287,7 +293,7 @@ export const TestSelectorInput = ({
                           fallback={selectable.category.name}
                           value={selectable.category.id}
                           category={selectable.category.type}
-                        />
+                          data-testid='translatedreferencedata-i3ot' />
                       )
                     }
                     checked={isSelected(selectable)}
@@ -304,8 +310,11 @@ export const TestSelectorInput = ({
           <Box display="flex" justifyContent="space-between">
             <SectionHeader>Selected {selectableName}s</SectionHeader>
             {value.length > 0 && (
-              <ClearAllButton onClick={handleClear}>
-                <TranslatedText stringId="general.action.clearAll" fallback="Clear all" />
+              <ClearAllButton onClick={handleClear} data-testid='clearallbutton-xcgx'>
+                <TranslatedText
+                  stringId="general.action.clearAll"
+                  fallback="Clear all"
+                  data-testid='translatedtext-tqfg' />
               </ClearAllButton>
             )}
           </Box>
@@ -324,7 +333,7 @@ export const TestSelectorInput = ({
                       }
                       fallback={option.name}
                       value={option.id}
-                    />
+                      data-testid='translatedreferencedata-owt3' />
                   }
                   name={option.id}
                   category={
@@ -333,7 +342,7 @@ export const TestSelectorInput = ({
                         fallback={option.category.name}
                         value={option.category.id}
                         category={option.category.type}
-                      />
+                        data-testid='translatedreferencedata-jy86' />
                     )
                   }
                   onRemove={handleSelect}

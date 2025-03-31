@@ -15,17 +15,23 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
-        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+        label={<TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid='translatedtext-eml7' />}
         name="departmentId"
         component={AutocompleteField}
         suggester={departmentSuggester}
         required
-      />
+        data-testid='field-avb7' />
       <FormSubmitCancelRow
         onConfirm={submitForm}
-        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        confirmText={<TranslatedText
+          stringId="general.action.save"
+          fallback="Save"
+          data-testid='translatedtext-msmh' />}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-78bi' />
     </FormGrid>
   );
 
@@ -42,7 +48,10 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="general.department.label" fallback="Department" />,
+            <TranslatedText
+              stringId="general.department.label"
+              fallback="Department"
+              data-testid='translatedtext-ipuc' />,
           ),
       })}
       render={renderForm}

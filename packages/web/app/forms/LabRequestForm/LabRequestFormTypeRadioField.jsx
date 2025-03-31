@@ -11,32 +11,41 @@ import { useSettings } from '../../contexts/Settings';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: <TranslatedText stringId="lab.formType.option.individual.label" fallback="Individual" />,
+    label: <TranslatedText
+      stringId="lab.formType.option.individual.label"
+      fallback="Individual"
+      data-testid='translatedtext-bjs4' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.individual.description"
         fallback="Select an individual or multiple individual tests"
-      />
+        data-testid='translatedtext-bw6t' />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: <TranslatedText stringId="lab.formType.option.panel.label" fallback="Panel" />,
+    label: <TranslatedText
+      stringId="lab.formType.option.panel.label"
+      fallback="Panel"
+      data-testid='translatedtext-fsax' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.panel.description"
         fallback="Select from a list of test panels"
-      />
+        data-testid='translatedtext-wfc8' />
     ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: <TranslatedText stringId="lab.formType.option.superset.label" fallback="Superset" />,
+    label: <TranslatedText
+      stringId="lab.formType.option.superset.label"
+      fallback="Superset"
+      data-testid='translatedtext-u0uh' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.superset.description"
         fallback="Select from a list of supersets"
-      />
+        data-testid='translatedtext-ysmr' />
     ),
     value: LAB_REQUEST_FORM_TYPES.SUPERSET,
   },
@@ -101,13 +110,21 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
   return (
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="lab.formType.label" fallback="Select your request type" />}
+        label={<TranslatedText
+          stringId="lab.formType.label"
+          fallback="Select your request type"
+          data-testid='translatedtext-mjrf' />}
         required
       >
         {isLoading ? (
           <RadioItemSkeleton itemsLength={POSSIBLE_OPTIONS_LIST.length} />
         ) : (
-          <Field required name="requestFormType" component={RadioField} options={options} />
+          <Field
+            required
+            name="requestFormType"
+            component={RadioField}
+            options={options}
+            data-testid='field-fqbm' />
         )}
       </OuterLabelFieldWrapper>
     </div>

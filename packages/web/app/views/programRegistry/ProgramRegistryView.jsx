@@ -44,12 +44,12 @@ export const ProgramRegistryView = () => {
     return (
       <>
         <ViewHeader>
-          <h1>
+          <h1 data-testid='h1-oodc'>
             <TranslatedReferenceData
               fallback={searchParams.get('name')}
               value={programRegistryId}
               category="programRegistry"
-            />
+              data-testid='translatedreferencedata-vye5' />
           </h1>
         </ViewHeader>
         <Container>
@@ -57,7 +57,7 @@ export const ProgramRegistryView = () => {
             <TranslatedText
               stringId="programRegistry.patientSearch.title"
               fallback="Program patient search"
-            />
+              data-testid='translatedtext-irtk' />
           </span>
           <ProgramRegistrySearchBar
             searchParameters={searchParameters}

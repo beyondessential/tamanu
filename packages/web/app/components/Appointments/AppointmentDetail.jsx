@@ -87,43 +87,55 @@ const PatientInfo = ({ patient }) => {
         </PatientName>
         <TextDisplayIdLabel>{displayId}</TextDisplayIdLabel>
       </PatientNameRow>
-      <table>
+      <table data-testid='table-5uya'>
         <tbody>
-          <tr>
+          <tr data-testid='tr-2mwo'>
             <PatientInfoLabel>
-              <TranslatedText stringId="general.sex.label" fallback="Sex" />
+              <TranslatedText
+                stringId="general.sex.label"
+                fallback="Sex"
+                data-testid='translatedtext-bgqx' />
             </PatientInfoLabel>
             <PatientInfoValue>
               <TranslatedSex sex={sex} />
             </PatientInfoValue>
           </tr>
-          <tr>
+          <tr data-testid='tr-5a4z'>
             <PatientInfoLabel>
-              <TranslatedText stringId="general.dateOfBirth.label" fallback="Date of Birth" />
+              <TranslatedText
+                stringId="general.dateOfBirth.label"
+                fallback="Date of Birth"
+                data-testid='translatedtext-03qa' />
             </PatientInfoLabel>
             <PatientInfoValue>
-              <DateDisplay date={dateOfBirth} />
+              <DateDisplay date={dateOfBirth} data-testid='datedisplay-0ion' />
             </PatientInfoValue>
           </tr>
           {additionalData && additionalData.primaryContactNumber && (
-            <tr>
+            <tr data-testid='tr-5i1i'>
               <PatientInfoLabel>
-                <TranslatedText stringId="general.contactNumber.label" fallback="Contact Number" />
+                <TranslatedText
+                  stringId="general.contactNumber.label"
+                  fallback="Contact Number"
+                  data-testid='translatedtext-cf2x' />
               </PatientInfoLabel>
               <PatientInfoValue>{additionalData.primaryContactNumber}</PatientInfoValue>
             </tr>
           )}
           {village && (
-            <tr>
+            <tr data-testid='tr-um6c'>
               <PatientInfoLabel>
-                <TranslatedText stringId="general.village.label" fallback="Village" />
+                <TranslatedText
+                  stringId="general.village.label"
+                  fallback="Village"
+                  data-testid='translatedtext-5fp4' />
               </PatientInfoLabel>
               <PatientInfoValue>
                 <TranslatedReferenceData
                   fallback={village.name}
                   value={village.id}
                   category="village"
-                />
+                  data-testid='translatedreferencedata-54dy' />
               </PatientInfoValue>
             </tr>
           )}
@@ -160,7 +172,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.title"
           fallback="Cancel Appointment"
-        />
+          data-testid='translatedtext-zeqy' />
       }
       onClose={onClose}
       open={open}
@@ -169,7 +181,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.heading"
           fallback="Are you sure you want to cancel this appointment?"
-        />
+          data-testid='translatedtext-ay7m' />
       </Heading>
       <Details>
         {
@@ -177,18 +189,18 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
             stringId="scheduling.modal.cancelAppointment.detailsText"
             fallback=":appointmentType appointment for"
             replacements={{ appointmentType: appointmentType.name }}
-          />
+            data-testid='translatedtext-74nu' />
         }{' '}
         <PatientNameDisplay patient={patient} />
         {' - '}
         <AppointmentTime {...appointment} />
       </Details>
       <Row>
-        <DeleteButton onClick={onConfirm}>
+        <DeleteButton onClick={onConfirm} data-testid='deletebutton-acql'>
           <TranslatedText
             stringId="scheduling.modal.cancelAppointment.action.cancel"
             fallback="Yes, Cancel"
-          />
+            data-testid='translatedtext-k7pp' />
         </DeleteButton>
       </Row>
     </Modal>
@@ -294,17 +306,23 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           {appointmentType && (
             <>
               <Heading>
-                <TranslatedText stringId="general.type.label" fallback="Type" />
+                <TranslatedText
+                  stringId="general.type.label"
+                  fallback="Type"
+                  data-testid='translatedtext-qywm' />
               </Heading>
               <TranslatedReferenceData
                 value={appointmentType.id}
                 fallback={appointmentType.name}
                 category="appointmentType"
-              />
+                data-testid='translatedreferencedata-zen5' />
             </>
           )}
           <Heading>
-            <TranslatedText stringId="general.time.label" fallback="Time" />
+            <TranslatedText
+              stringId="general.time.label"
+              fallback="Time"
+              data-testid='translatedtext-lxw2' />
           </Heading>
           <div>
             <AppointmentTime {...appointment} />
@@ -315,7 +333,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <TranslatedText
               stringId="scheduling.appointmentDetail.select.status.label"
               fallback="Select Status"
-            />
+              data-testid='translatedtext-ev63' />
           }
           options={APPOINTMENT_STATUS_OPTIONS}
           value={statusOption}
@@ -369,38 +387,49 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
             fallback="Clinician"
-          />
+            data-testid='translatedtext-af60' />
         </Heading>
         {clinician.displayName}
       </Section>
       <PatientInfo patient={patient} />
       <Section>
         <Heading>
-          <TranslatedText stringId="general.area.label" fallback="Area" />
+          <TranslatedText
+            stringId="general.area.label"
+            fallback="Area"
+            data-testid='translatedtext-nioy' />
         </Heading>
         <TranslatedReferenceData
           fallback={locationGroup.name}
           value={locationGroup.id}
           category="locationGroup"
-        />
+          data-testid='translatedreferencedata-7gdf' />
       </Section>
-      <Button variant="outlined" color="primary" onClick={onOpenAppointmentModal}>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={onOpenAppointmentModal}
+        data-testid='button-kq8l'>
         <TranslatedText
           stringId="scheduling.appointmentDetail.action.reschedule"
           fallback="Reschedule"
-        />
+          data-testid='translatedtext-tx97' />
       </Button>
       {!currentEncounter &&
         !currentEncounterError &&
         !currentEncounterLoading &&
         !additionalDataLoading &&
         !createdEncounter && (
-          <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
+          <Button
+            variant="text"
+            color="primary"
+            onClick={onOpenEncounterModal}
+            data-testid='button-pf81'>
             <u>
               <TranslatedText
                 stringId="scheduling.action.admitOrCheckIn"
                 fallback="Admit or check-in"
-              />
+                data-testid='translatedtext-worp' />
             </u>
           </Button>
         )}
@@ -450,7 +479,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
               <TranslatedText
                 stringId="scheduling.modal.cancelAppointment.error.unableToCancel"
                 fallback="Unable to cancel appointment. Please try again."
-              />,
+                data-testid='translatedtext-sxxq' />,
             );
           }
           setCancelConfirmed(false);

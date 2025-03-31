@@ -48,8 +48,16 @@ const PaddedSearchIcon = styled(SearchIcon)`
 
 const renderSearchBar = ({ placeholder, submitForm }) => (
   <SearchInputContainer>
-    <Field component={TextField} placeholder={placeholder} name="name" />
-    <FormSubmitButton color="primary" variant="contained" onClick={submitForm}>
+    <Field
+      component={TextField}
+      placeholder={placeholder}
+      name="name"
+      data-testid='field-kerp' />
+    <FormSubmitButton
+      color="primary"
+      variant="contained"
+      onClick={submitForm}
+      data-testid='formsubmitbutton-nb9p'>
       <PaddedSearchIcon />
       Search
     </FormSubmitButton>

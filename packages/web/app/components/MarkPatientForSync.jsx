@@ -42,7 +42,10 @@ export const MarkPatientForSync = ({ patient }) => {
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />
-      <TranslatedText stringId="patient.action.markForSync" fallback="Sync patient records" />
+      <TranslatedText
+        stringId="patient.action.markForSync"
+        fallback="Sync patient records"
+        data-testid='translatedtext-tyuc' />
     </MarkPatientForSyncButton>
   );
 };

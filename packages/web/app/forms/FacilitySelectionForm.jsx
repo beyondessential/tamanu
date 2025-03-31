@@ -48,25 +48,37 @@ const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => 
     <FormGrid columns={1}>
       <div>
         <Heading>
-          <TranslatedText stringId="auth.facility.heading" fallback="Select facility" />
+          <TranslatedText
+            stringId="auth.facility.heading"
+            fallback="Select facility"
+            data-testid='translatedtext-bpl2' />
         </Heading>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>
       <Field
         name="facilityId"
         label={
-          <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />
+          <TranslatedText
+            stringId="general.localisedField.facility.label"
+            fallback="Facility"
+            data-testid='translatedtext-wqd0' />
         }
         component={AutocompleteField}
         options={options}
         required
-      />
+        data-testid='field-bbwr' />
       <StyledButtonRow>
         <CancelButton onClick={onCancel}>
-          {<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          {<TranslatedText
+            stringId="general.action.cancel"
+            fallback="Cancel"
+            data-testid='translatedtext-0fka' />}
         </CancelButton>
         <SubmitButton
-          text={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
+          text={<TranslatedText
+            stringId="general.action.submit"
+            fallback="Submit"
+            data-testid='translatedtext-81ha' />}
         />
       </StyledButtonRow>
       <LanguageSelector />
@@ -102,7 +114,7 @@ export const FacilitySelectionForm = React.memo(
               <TranslatedText
                 stringId="general.localisedField.facility.label"
                 fallback="Facility"
-              />,
+                data-testid='translatedtext-pv04' />,
             ),
         })}
       />

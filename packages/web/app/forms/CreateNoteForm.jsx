@@ -58,16 +58,25 @@ export const CreateNoteForm = ({
         <NoteDateTimeField required />
       </StyledFormGrid>
       <NoteContentField
-        label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
+        label={<TranslatedText
+          stringId="note.modal.addNote.label"
+          fallback="Add note"
+          data-testid='translatedtext-x73v' />}
         onChange={onNoteContentChange}
       />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText={<TranslatedText stringId="note.action.addNote" fallback="Add note" />}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        confirmText={<TranslatedText
+          stringId="note.action.addNote"
+          fallback="Add note"
+          data-testid='translatedtext-9wof' />}
+        cancelText={<TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid='translatedtext-gbv7' />}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-lk27' />
     </>
   );
 };

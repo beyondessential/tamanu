@@ -78,20 +78,26 @@ export const MultiStepForm = ({
           <FormGrid>
             {React.cloneElement(step, props)}
             <FormSeparatorLine />
-            <ButtonRow>
+            <ButtonRow data-testid='buttonrow-qw0z'>
               {stepNumber > 0 && (
                 <StyledBackButton onClick={() => previous(props.values)}>
-                  <TranslatedText stringId="general.action.back" fallback="Back" />
+                  <TranslatedText
+                    stringId="general.action.back"
+                    fallback="Back"
+                    data-testid='translatedtext-gt30' />
                 </StyledBackButton>
               )}
               <FormSubmitCancelRow
                 confirmText={
                   step.props.submitButtonText || (
-                    <TranslatedText stringId="general.action.next" fallback="Next" />
+                    <TranslatedText
+                      stringId="general.action.next"
+                      fallback="Next"
+                      data-testid='translatedtext-ivkt' />
                   )
                 }
                 onCancel={onCancel}
-              />
+                data-testid='formsubmitcancelrow-yr8x' />
             </ButtonRow>
           </FormGrid>
         );

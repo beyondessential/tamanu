@@ -25,7 +25,10 @@ export const CancelInvoiceModal = ({ open, onClose, invoice }) => {
     <Modal
       width="sm"
       title={
-        <TranslatedText stringId="invoice.modal.cancelInvoice.title" fallback="Cancel invoice" />
+        <TranslatedText
+          stringId="invoice.modal.cancelInvoice.title"
+          fallback="Cancel invoice"
+          data-testid='translatedtext-ch7w' />
       }
       open={open}
       onClose={onClose}
@@ -34,7 +37,7 @@ export const CancelInvoiceModal = ({ open, onClose, invoice }) => {
         <TranslatedText
           stringId="invoice.modal.cancelInvoice.warningText"
           fallback="Are you sure you would like to cancel this invoice? This cannot be undone."
-        />
+          data-testid='translatedtext-8xyf' />
       </ContentText>
       <ModalActionRow onConfirm={cancelInvoice} onCancel={onClose} />
     </Modal>

@@ -32,12 +32,18 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NoteModal
-        title={<TranslatedText stringId="note.modal.create.title" fallback="New note" />}
+        title={<TranslatedText
+          stringId="note.modal.create.title"
+          fallback="New note"
+          data-testid='translatedtext-v04m' />}
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
-        confirmText={<TranslatedText stringId="note.action.add" fallback="Add note" />}
+        confirmText={<TranslatedText
+          stringId="note.action.add"
+          fallback="Add note"
+          data-testid='translatedtext-7nw7' />}
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
@@ -49,7 +55,10 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           transformOptions={options => [
             {
               value: null,
-              label: <TranslatedText stringId="general.select.all" fallback="All" />,
+              label: <TranslatedText
+                stringId="general.select.all"
+                fallback="All"
+                data-testid='translatedtext-797v' />,
             },
             ...options.filter(
               option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
@@ -62,8 +71,11 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           verb="create"
           noun="EncounterNote"
-        >
-          <TranslatedText stringId="note.action.new" fallback="New note" />
+          data-testid='buttonwithpermissioncheck-kz0x'>
+          <TranslatedText
+            stringId="note.action.new"
+            fallback="New note"
+            data-testid='translatedtext-vy2u' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTableWithPermission

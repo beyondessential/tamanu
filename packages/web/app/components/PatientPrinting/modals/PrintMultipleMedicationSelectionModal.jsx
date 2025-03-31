@@ -12,7 +12,7 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
           fallback="Print prescriptions"
-        />
+          data-testid='translatedtext-uoin' />
       }
       width="md"
       open={open}

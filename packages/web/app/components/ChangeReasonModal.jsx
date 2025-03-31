@@ -24,7 +24,7 @@ export const ChangeReasonModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="encounter.modal.changeReason.title"
           fallback="Change reason for encounter"
-        />
+          data-testid='translatedtext-1cwu' />
       }
       open={open}
       onClose={onClose}

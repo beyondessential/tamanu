@@ -45,7 +45,7 @@ const ErrorMessageContents = ({ error, onCancel }) => (
         <TranslatedText
           stringId="document.form.error.upload.title"
           fallback="Unable to upload file"
-        />
+          data-testid='translatedtext-0l6u' />
       </MessageTitle>
       <Message>
         <TranslatedText
@@ -53,12 +53,12 @@ const ErrorMessageContents = ({ error, onCancel }) => (
           fallback="File cannot be uploaded at this time. This may be due to network problems or insufficient
           storage space on your server. Please try again in a few minutes or contact your system
           administrator."
-        />
+          data-testid='translatedtext-t7kl' />
         <br />
         <TranslatedText
           stringId="document.form.error.messageDetails"
           fallback="Error message details:"
-        />
+          data-testid='translatedtext-dmxp' />
         <br />
         {error}
       </Message>
@@ -80,40 +80,58 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         component={FileChooserField}
         filters={FILE_FILTERS}
-        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
+        label={<TranslatedText
+          stringId="general.selectFile.label"
+          fallback="Select file"
+          data-testid='translatedtext-fcxb' />}
         name="file"
         required
         style={{ gridColumn: '1 / -1' }}
-      />
+        data-testid='field-r7v3' />
       <Field
         name="name"
-        label={<TranslatedText stringId="general.fileName.label" fallback="File name" />}
+        label={<TranslatedText
+          stringId="general.fileName.label"
+          fallback="File name"
+          data-testid='translatedtext-5ooo' />}
         required
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
-      />
+        data-testid='field-axjf' />
       <Field
         name="documentOwner"
-        label={<TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />}
+        label={<TranslatedText
+          stringId="document.documentOwner.label"
+          fallback="Document owner"
+          data-testid='translatedtext-4fih' />}
         component={TextField}
-      />
+        data-testid='field-n8bq' />
       <Field
         name="departmentId"
-        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+        label={<TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid='translatedtext-e1hp' />}
         component={AutocompleteField}
         suggester={departmentSuggester}
-      />
+        data-testid='field-bydy' />
       <Field
         name="note"
-        label={<TranslatedText stringId="general.note.label" fallback="Note" />}
+        label={<TranslatedText
+          stringId="general.note.label"
+          fallback="Note"
+          data-testid='translatedtext-zubx' />}
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
-      />
+        data-testid='field-95bo' />
       <FormSubmitCancelRow
-        confirmText={<TranslatedText stringId="general.action.add" fallback="Add" />}
+        confirmText={<TranslatedText
+          stringId="general.action.add"
+          fallback="Add"
+          data-testid='translatedtext-hf06' />}
         onConfirm={submitForm}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-pg9b' />
     </FormGrid>
   );
 };
@@ -188,7 +206,10 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
             ),
           ),
         name: foreignKey().translatedLabel(
-          <TranslatedText stringId="document.validation.fileName.path" fallback="File name" />,
+          <TranslatedText
+            stringId="document.validation.fileName.path"
+            fallback="File name"
+            data-testid='translatedtext-cr7s' />,
         ),
       })}
     />

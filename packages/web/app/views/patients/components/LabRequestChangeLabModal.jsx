@@ -33,7 +33,10 @@ export const LabRequestChangeLabModal = React.memo(
               .string()
               .required()
               .translatedLabel(
-                <TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />,
+                <TranslatedText
+                  stringId="lab.laboratory.label"
+                  fallback="Laboratory"
+                  data-testid='translatedtext-zeb5' />,
               ),
           })}
           initialValues={{
@@ -48,12 +51,12 @@ export const LabRequestChangeLabModal = React.memo(
                   <TranslatedText
                     stringId="lab.modal.changeLab.laboratory.label"
                     fallback="Laboratory"
-                  />
+                    data-testid='translatedtext-j155' />
                 }
                 name="labTestLaboratoryId"
                 suggester={laboratorySuggester}
                 required
-              />
+                data-testid='field-ltr9' />
               <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </FormGrid>
           )}

@@ -17,7 +17,10 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
     cityTown: {
       component: TextField,
       label: (
-        <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />
+        <TranslatedText
+          stringId="general.localisedField.cityTown.label"
+          fallback="City/town"
+          data-testid='translatedtext-zyi6' />
       ),
     },
     subdivisionId: {
@@ -27,21 +30,27 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.subdivisionId.label"
           fallback="Sub division"
-        />
+          data-testid='translatedtext-gm9e' />
       ),
     },
     divisionId: {
       component: AutocompleteField,
       suggester: divisionSuggester,
       label: (
-        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
+        <TranslatedText
+          stringId="general.localisedField.divisionId.label"
+          fallback="Division"
+          data-testid='translatedtext-vhhv' />
       ),
     },
     countryId: {
       component: AutocompleteField,
       suggester: countrySuggester,
       label: (
-        <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />
+        <TranslatedText
+          stringId="general.localisedField.countryId.label"
+          fallback="Country"
+          data-testid='translatedtext-nk1e' />
       ),
     },
     settlementId: {
@@ -51,7 +60,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.settlementId.label"
           fallback="Settlement"
-        />
+          data-testid='translatedtext-4vje' />
       ),
     },
     medicalAreaId: {
@@ -61,7 +70,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.medicalAreaId.label"
           fallback="Medical area"
-        />
+          data-testid='translatedtext-bcgj' />
       ),
     },
     nursingZoneId: {
@@ -71,7 +80,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.nursingZoneId.label"
           fallback="Nursing zone"
-        />
+          data-testid='translatedtext-8wfv' />
       ),
     },
     streetVillage: {
@@ -80,7 +89,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.streetVillage.label"
           fallback="Residential landmark"
-        />
+          data-testid='translatedtext-vyok' />
       ),
     },
   };

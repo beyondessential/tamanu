@@ -62,7 +62,10 @@ const Actions = styled.div`
 const getColumns = type => [
   {
     key: 'displayId',
-    title: <TranslatedText stringId="lab.requestSummary.table.column.testId" fallback="Test ID" />,
+    title: <TranslatedText
+      stringId="lab.requestSummary.table.column.testId"
+      fallback="Test ID"
+      data-testid='translatedtext-uau5' />,
     sortable: false,
   },
   ...(type === LAB_REQUEST_FORM_TYPES.PANEL
@@ -70,7 +73,10 @@ const getColumns = type => [
         {
           key: 'panelId',
           title: (
-            <TranslatedText stringId="lab.requestSummary.table.column.panel" fallback="Panel" />
+            <TranslatedText
+              stringId="lab.requestSummary.table.column.panel"
+              fallback="Panel"
+              data-testid='translatedtext-19y0' />
           ),
           sortable: false,
           accessor: ({ labTestPanelRequest }) =>
@@ -79,15 +85,21 @@ const getColumns = type => [
                 fallback={labTestPanelRequest.labTestPanel.name}
                 value={labTestPanelRequest.labTestPanel.id}
                 category="labTestPanel"
-              />
-            )) || <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />,
+                data-testid='translatedreferencedata-ar9e' />
+            )) || <TranslatedText
+              stringId="general.fallback.notApplicable"
+              fallback="N/A"
+              data-testid='translatedtext-ef9f' />,
         },
       ]
     : []),
   {
     key: 'labTestCategory',
     title: (
-      <TranslatedText stringId="lab.requestSummary.table.column.testCategory" fallback="Category" />
+      <TranslatedText
+        stringId="lab.requestSummary.table.column.testCategory"
+        fallback="Category"
+        data-testid='translatedtext-rs83' />
     ),
     sortable: false,
     accessor: ({ category }) =>
@@ -96,7 +108,7 @@ const getColumns = type => [
           fallback={category.name}
           value={category.id}
           category={category.type}
-        />
+          data-testid='translatedreferencedata-llh0' />
       )) ||
       '',
   },
@@ -106,17 +118,17 @@ const getColumns = type => [
       <TranslatedText
         stringId="lab.requestSummary.table.column.sampleDate"
         fallback="Sample date"
-      />
+        data-testid='translatedtext-eurz' />
     ),
     sortable: false,
     accessor: ({ sampleTime }) =>
       sampleTime ? (
-        <DateDisplay showTime date={sampleTime} />
+        <DateDisplay showTime date={sampleTime} data-testid='datedisplay-lfuq' />
       ) : (
         <TranslatedText
           stringId="lab.requestSummary.table.column.sampleDate.notCollected"
           fallback="Sample not collected"
-        />
+          data-testid='translatedtext-s3i4' />
       ),
   },
 ];
@@ -141,14 +153,17 @@ export const LabRequestSummaryPane = React.memo(
     return (
       <Container>
         <Heading3 mb="12px">
-          <TranslatedText stringId="lab.requestSummary.heading" fallback="Request finalised" />
+          <TranslatedText
+            stringId="lab.requestSummary.heading"
+            fallback="Request finalised"
+            data-testid='translatedtext-ckpj' />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
             stringId="lab.requestSummary.instruction"
             fallback="Your lab request has been finalised. Please select items from the list below to print
           requests or sample labels."
-          />
+            data-testid='translatedtext-kfzv' />
         </BodyText>
         <Card>
           <StyledInfoCard gridRowGap={10} elevated={false}>
@@ -163,10 +178,10 @@ export const LabRequestSummaryPane = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                      />
+                        data-testid='translatedtext-1724' />
                     ),
                   }}
-                />
+                  data-testid='translatedtext-0z1s' />
               }
               value={requestedBy?.displayName}
             />
@@ -175,31 +190,37 @@ export const LabRequestSummaryPane = React.memo(
                 <TranslatedText
                   stringId="general.requestDateTime.label"
                   fallback="Request date & time"
-                />
+                  data-testid='translatedtext-cds0' />
               }
-              value={<DateDisplay date={requestedDate} showTime />}
+              value={<DateDisplay date={requestedDate} showTime data-testid='datedisplay-ygfh' />}
             />
             <InfoCardItem
-              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              label={<TranslatedText
+                stringId="general.department.label"
+                fallback="Department"
+                data-testid='translatedtext-0yxc' />}
               value={
                 department?.name && (
                   <TranslatedReferenceData
                     fallback={department.name}
                     value={department.id}
                     category="department"
-                  />
+                    data-testid='translatedreferencedata-w6g0' />
                 )
               }
             />
             <InfoCardItem
-              label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
+              label={<TranslatedText
+                stringId="lab.priority.label"
+                fallback="Priority"
+                data-testid='translatedtext-48lb' />}
               value={
                 priority ? (
                   <TranslatedReferenceData
                     fallback={priority.name}
                     value={priority.id}
                     category={priority.type}
-                  />
+                    data-testid='translatedreferencedata-depb' />
                 ) : (
                   '-'
                 )
@@ -211,7 +232,9 @@ export const LabRequestSummaryPane = React.memo(
             columns={[selectableColumn, ...getColumns(requestFormType)]}
             data={labRequests}
             elevated={false}
-            noDataMessage={<TranslatedText stringId="lab.requestSummary.table.noData" />}
+            noDataMessage={<TranslatedText
+              stringId="lab.requestSummary.table.noData"
+              data-testid='translatedtext-lio2' />}
             allowExport={false}
           />
         </Card>
@@ -220,8 +243,11 @@ export const LabRequestSummaryPane = React.memo(
             size="small"
             onClick={() => setIsOpen(MODALS.LABEL_PRINT)}
             disabled={noRowSelected}
-          >
-            <TranslatedText stringId="lab.action.printLabel" fallback="Print label" />
+            data-testid='outlinedbutton-lvj3'>
+            <TranslatedText
+              stringId="lab.action.printLabel"
+              fallback="Print label"
+              data-testid='translatedtext-g808' />
           </OutlinedButton>
           <LabRequestPrintLabelModal
             labRequests={selectedRows}
@@ -232,8 +258,11 @@ export const LabRequestSummaryPane = React.memo(
             disabled={areNotesLoading || noRowSelected}
             size="small"
             onClick={() => setIsOpen(MODALS.PRINT)}
-          >
-            <TranslatedText stringId="lab.action.printRequest" fallback="Print request" />
+            data-testid='outlinedbutton-ox5a'>
+            <TranslatedText
+              stringId="lab.action.printRequest"
+              fallback="Print request"
+              data-testid='translatedtext-1ask' />
           </OutlinedButton>
           <MultipleLabRequestsPrintoutModal
             encounter={encounter}
@@ -247,8 +276,11 @@ export const LabRequestSummaryPane = React.memo(
         </Actions>
         <FormSeparatorLine />
         <Box display="flex" justifyContent="flex-end" pt={3}>
-          <Button onClick={onClose}>
-            <TranslatedText stringId="general.action.close" fallback="Close" />
+          <Button onClick={onClose} data-testid='button-ckn3'>
+            <TranslatedText
+              stringId="general.action.close"
+              fallback="Close"
+              data-testid='translatedtext-ppil' />
           </Button>
         </Box>
       </Container>

@@ -60,13 +60,13 @@ export const InvoiceDiscountAssessmentForm = ({
         <TranslatedText
           stringId="invoice.modal.assessment.subtitle"
           fallback="Patient invoice discount assessment"
-        />
+          data-testid='translatedtext-evqt' />
       </Heading3>
       <BodyText mb="36px" color="textTertiary">
         <TranslatedText
           stringId="invoice.modal.assessment.description"
           fallback="To begin creating a new invoice, complete the patient discount assessment below."
-        />
+          data-testid='translatedtext-rsl7' />
       </BodyText>
       <Form
         onSubmit={() => handleSubmit({ percentage: (1 - percentage).toFixed(2) })}
@@ -79,32 +79,35 @@ export const InvoiceDiscountAssessmentForm = ({
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.family.label"
                     fallback="What is the family size?"
-                  />
+                    data-testid='translatedtext-3rvw' />
                 }
                 component={SelectField}
                 options={familySizesOptions}
                 onChange={(e) => setFamilySize(e.target.value)}
-              />
+                data-testid='field-7zl5' />
               <Field
                 name="annualIncome"
                 label={
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.income.label"
                     fallback="What is their annual income?"
-                  />
+                    data-testid='translatedtext-uwa2' />
                 }
                 component={SelectField}
                 options={annualIncomeOptions}
                 disabled={!familySize && familySize !== 0}
                 onChange={handleAnnualIncomeChange}
-              />
+                data-testid='field-dv6y' />
             </FormGrid>
             <StyledDivider />
             <ConfirmCancelBackRow
               onConfirm={submitForm}
               onCancel={onClose}
               onBack={handleBack}
-              confirmText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+              confirmText={<TranslatedText
+                stringId="general.action.next"
+                fallback="Next"
+                data-testid='translatedtext-v6ga' />}
               confirmDisabled={isSubmitting}
             />
           </>
@@ -117,7 +120,7 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.familySize.path"
                 fallback="Family size"
-              />,
+                data-testid='translatedtext-l264' />,
             ),
           annualIncome: yup
             .string()
@@ -126,7 +129,7 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.annualIncome.path"
                 fallback="Annual income"
-              />,
+                data-testid='translatedtext-bij0' />,
             ),
         })}
       />

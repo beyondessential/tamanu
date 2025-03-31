@@ -32,19 +32,22 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={<TranslatedEnum
+          value={note.noteType}
+          enumValues={NOTE_TYPE_LABELS}
+          data-testid='translatedenum-ap5p' />}
         writtenByLabel={
           <TranslatedText
             stringId="treatmentPlan.note.form.lastUpdatedBy.label"
             fallback="Last updated by (or on behalf of)"
-          />
+            data-testid='translatedtext-6z2p' />
         }
         writtenBy={writtenBy}
         dateLabel={
           <TranslatedText
             stringId="treatmentPlan.note.form.lastUpdatedAt.label"
             fallback="Last updated at date & time"
-          />
+            data-testid='translatedtext-nvqs' />
         }
         date={note.date}
       />
@@ -54,29 +57,34 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
             <TranslatedText
               stringId="treatmentPlan.note.updatedBy.label"
               fallback="Updated by (or on behalf of)"
-            />
+              data-testid='translatedtext-u875' />
           }
           required
         />
         <NoteDateTimeField required />
       </StyledFormGrid>
-
       <NoteContentField
         label={
           <TranslatedText
             stringId="treatmentPlan.note.updateTreatmentPlan.label"
             fallback="Update treatment plan"
-          />
+            data-testid='translatedtext-8vdy' />
         }
         onChange={onNoteContentChange}
       />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        confirmText={<TranslatedText
+          stringId="general.action.save"
+          fallback="Save"
+          data-testid='translatedtext-0t5n' />}
+        cancelText={<TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid='translatedtext-a2cv' />}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-0rfb' />
     </>
   );
 };

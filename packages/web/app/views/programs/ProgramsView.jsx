@@ -127,7 +127,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return (
       <ErrorMessage
         title={
-          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+          <TranslatedText
+            stringId="program.modal.selectSurvey.error.title"
+            fallback="Error"
+            data-testid='translatedtext-znto' />
         }
         error={error}
       />
@@ -139,7 +142,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
       <ProgramsPane>
         <ProgramsPaneHeader>
           <ProgramsPaneHeading variant="h6">
-            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select form" />
+            <TranslatedText
+              stringId="program.modal.selectSurvey.title"
+              fallback="Select form"
+              data-testid='translatedtext-hlef' />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
@@ -152,7 +158,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-              />
+                data-testid='translatedtext-rysu' />
             }
           />
           <SurveySelector
@@ -164,7 +170,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-              />
+                data-testid='translatedtext-ind9' />
             }
           />
         </FormGrid>

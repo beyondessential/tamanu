@@ -16,8 +16,11 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
+        <Button onClick={handleNewSurvey} data-testid='button-7l0s'>
+          <TranslatedText
+            stringId="program.action.newSurvey"
+            fallback="New form"
+            data-testid='translatedtext-9paz' />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} patient={patient} />

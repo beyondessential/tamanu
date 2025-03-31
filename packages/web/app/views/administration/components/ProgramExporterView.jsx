@@ -21,14 +21,14 @@ const ExportForm = ({ options = [] }) => (
         <TranslatedText
           stringId="admin.export.selectProgram.label"
           fallback="Select program to export"
-        />
+          data-testid='translatedtext-qucr' />
       }
       component={AutocompleteField}
       options={options}
       required
-    />
-    <ButtonRow alignment="left">
-      <FormSubmitButton text="Export" />
+      data-testid='field-qii5' />
+    <ButtonRow alignment="left" data-testid='buttonrow-0zdb'>
+      <FormSubmitButton text="Export" data-testid='formsubmitbutton-95wc' />
     </ButtonRow>
   </FormGrid>
 );
@@ -81,7 +81,10 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
             .string()
             .required()
             .translatedLabel(
-              <TranslatedText stringId="admin.export.validation.program.path" fallback="Program" />,
+              <TranslatedText
+                stringId="admin.export.validation.program.path"
+                fallback="Program"
+                data-testid='translatedtext-lyhz' />,
             ),
         })}
         formType={FORM_TYPES.CREATE_FORM}

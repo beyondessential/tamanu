@@ -33,12 +33,18 @@ const StyledField = styled(Field)`
 `;
 
 const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
-  <ButtonRow>
+  <ButtonRow data-testid='buttonrow-hl77'>
     <CenteredLink onClick={onClear}>
-      <TranslatedText stringId="general.action.clear" fallback="Clear" />
+      <TranslatedText
+        stringId="general.action.clear"
+        fallback="Clear"
+        data-testid='translatedtext-0c5w' />
     </CenteredLink>
     <ConfirmButton color="primary" onClick={onConfirm}>
-      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      <TranslatedText
+        stringId="general.action.confirm"
+        fallback="Confirm"
+        data-testid='translatedtext-100v' />
     </ConfirmButton>
   </ButtonRow>
 ));
@@ -52,39 +58,48 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
         <FormGrid columns={2}>
           <Field
             name="type"
-            label={<TranslatedText stringId="general.type.label" fallback="Type" />}
+            label={<TranslatedText
+              stringId="general.type.label"
+              fallback="Type"
+              data-testid='translatedtext-g02b' />}
             component={TranslatedSelectField}
             enumValues={TEMPLATE_TYPE_LABELS}
             required
             onChange={() => resetForm({ values: {} })}
-          />
+            data-testid='field-hasu' />
           <Field
             name="name"
             label={
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
-              />
+                data-testid='translatedtext-8zl5' />
             }
             component={TextField}
             required
-          />
+            data-testid='field-huro' />
         </FormGrid>
         <SmallGridSpacer />
         <FormGrid columns={1} nested>
           <StyledField
             name="title"
             label={
-              <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />
+              <TranslatedText
+                stringId="general.localisedField.title.label"
+                fallback="Title"
+                data-testid='translatedtext-bpnn' />
             }
             component={TextField}
             disabled={disabledTitle}
           />
           <Field
             name="body"
-            label={<TranslatedText stringId="admin.template.content.label" fallback="Contents" />}
+            label={<TranslatedText
+              stringId="admin.template.content.label"
+              fallback="Contents"
+              data-testid='translatedtext-osda' />}
             component={TallMultilineTextField}
-          />
+            data-testid='field-4aaz' />
         </FormGrid>
         <ConfirmClearRow onConfirm={submitForm} onClear={resetForm} />
       </>
@@ -100,7 +115,10 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
         type: yup
           .string()
           .required()
-          .translatedLabel(<TranslatedText stringId="general.type.label" fallback="Type" />),
+          .translatedLabel(<TranslatedText
+          stringId="general.type.label"
+          fallback="Type"
+          data-testid='translatedtext-ked7' />),
         name: yup
           .string()
           .required()
@@ -108,7 +126,7 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
             <TranslatedText
               stringId="patientLetterTemplate.templateName.label"
               fallback="Template name"
-            />,
+              data-testid='translatedtext-w7fv' />,
           ),
         title: yup.string(),
         body: yup.string(),

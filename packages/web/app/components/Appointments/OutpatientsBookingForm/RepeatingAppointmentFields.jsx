@@ -189,10 +189,10 @@ export const RepeatingAppointmentFields = ({
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
               fallback="Repeats every"
-            />
+              data-testid='translatedtext-veyj' />
           }
           component={StyledNumberField}
-        />
+          data-testid='field-2xkt' />
         <Field
           placeholder=""
           name="schedule.frequency"
@@ -204,7 +204,7 @@ export const RepeatingAppointmentFields = ({
           TranslatedTextProps={{ casing: 'sentence' }}
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
-        />
+          data-testid='field-vpdd' />
       </Box>
       <Box>
         <SmallBodyText>
@@ -217,7 +217,10 @@ export const RepeatingAppointmentFields = ({
       </Box>
       <FormControl variant="standard">
         <StyledFormLabel id="ends-radio">
-          <TranslatedText stringId="outpatientAppointment.repeating.ends.label" fallback="Ends" />
+          <TranslatedText
+            stringId="outpatientAppointment.repeating.ends.label"
+            fallback="Ends"
+            data-testid='translatedtext-5w61' />
         </StyledFormLabel>
         <StyledRadioGroup
           aria-labelledby="ends-radio"
@@ -232,9 +235,9 @@ export const RepeatingAppointmentFields = ({
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.on"
                   fallback="On"
-                />
+                  data-testid='translatedtext-tlne' />
               }
-            />
+              data-testid='styledformcontrollabel-hna6' />
             <Field
               name="schedule.untilDate"
               disabled={readonly || endsMode !== ENDS_MODES.ON}
@@ -246,7 +249,7 @@ export const RepeatingAppointmentFields = ({
                 'yyyy-MM-dd',
               )}
               component={StyledDateField}
-            />
+              data-testid='field-bo5h' />
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
@@ -256,9 +259,9 @@ export const RepeatingAppointmentFields = ({
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.after"
                   fallback="After"
-                />
+                  data-testid='translatedtext-r24j' />
               }
-            />
+              data-testid='styledformcontrollabel-zf13' />
             <Field
               name="schedule.occurrenceCount"
               sx={{
@@ -272,12 +275,12 @@ export const RepeatingAppointmentFields = ({
               value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
               disabled={readonly || endsMode !== ENDS_MODES.AFTER}
               component={StyledNumberField}
-            />
+              data-testid='field-n8pf' />
             <SmallBodyText color="textTertiary">
               <TranslatedText
                 stringId="outpatientAppointment.repeating.occurrenceCount.label"
                 fallback="occurrences"
-              />
+                data-testid='translatedtext-s0hc' />
             </SmallBodyText>
           </Box>
         </StyledRadioGroup>

@@ -12,18 +12,28 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="patient.warning.title" fallback="Patient warnings" />}
+      title={<TranslatedText
+        stringId="patient.warning.title"
+        fallback="Patient warnings"
+        data-testid='translatedtext-10cy' />}
       open={alertVisible}
       onClose={close}
     >
-      <ul>
+      <ul data-testid='ul-slw2'>
         {alerts.map(a => (
-          <li key={a.id}>{a.note}</li>
+          <li key={a.id} data-testid='li-l3zq'>{a.note}</li>
         ))}
       </ul>
-      <ButtonRow>
-        <Button variant="contained" color="primary" onClick={close}>
-          <TranslatedText stringId="general.action.ok" fallback="OK" />
+      <ButtonRow data-testid='buttonrow-q5z9'>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={close}
+          data-testid='button-gpil'>
+          <TranslatedText
+            stringId="general.action.ok"
+            fallback="OK"
+            data-testid='translatedtext-er5f' />
         </Button>
       </ButtonRow>
     </Modal>

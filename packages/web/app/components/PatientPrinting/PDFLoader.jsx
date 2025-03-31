@@ -31,7 +31,10 @@ const LoadingIndicator = () => (
   <Loader>
     <CircularProgress size="5rem" />
     <Typography>
-      <TranslatedText stringId="general.status.loading" fallback="Loading…" />
+      <TranslatedText
+        stringId="general.status.loading"
+        fallback="Loading…"
+        data-testid='translatedtext-g6tp' />
     </Typography>
   </Loader>
 );

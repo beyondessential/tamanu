@@ -123,7 +123,10 @@ const tooltipStyles = css`
 
 const StyledTooltip = styled(ThemedTooltip).attrs({
   title: (
-    <TranslatedText stringId="locationBooking.tooltip.notAvailable" fallback="Not available" />
+    <TranslatedText
+      stringId="locationBooking.tooltip.notAvailable"
+      fallback="Not available"
+      data-testid='translatedtext-28sw' />
   ),
 })`
   ${tooltipStyles}

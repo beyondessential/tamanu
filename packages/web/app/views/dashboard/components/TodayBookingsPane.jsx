@@ -244,14 +244,14 @@ export const TodayBookingsPane = ({ showTasks }) => {
           <TranslatedText
             stringId="dashboard.bookings.todayBookings.title"
             fallback="Today's bookings"
-          />
+            data-testid='translatedtext-10e7' />
         </Heading4>
         {!!appointments.length && (
           <ActionLink onClick={onViewAll}>
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.viewAll"
               fallback="View all..."
-            />
+              data-testid='translatedtext-qgyk' />
           </ActionLink>
         )}
       </TitleContainer>
@@ -261,12 +261,12 @@ export const TodayBookingsPane = ({ showTasks }) => {
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.noBookings"
               fallback="You have no bookings scheduled for today. To view other bookings, visit"
-            />
+              data-testid='translatedtext-ygl6' />
             <Link onClick={onLocationBookingsClick}>
               <TranslatedText
                 stringId="dashboard.bookings.todayBookings.locationBookings"
                 fallback="Location bookings"
-              />
+                data-testid='translatedtext-ykvd' />
             </Link>
           </Box>
         </NoDataContainer>

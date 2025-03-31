@@ -32,5 +32,5 @@ export const LinkedField = ({ linkedFieldName, endpoint, ...props }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.id]);
 
-  return <Field {...props} />;
+  return <Field {...props} data-testid='field-7x7n' />;
 };

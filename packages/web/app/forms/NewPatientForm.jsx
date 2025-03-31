@@ -103,7 +103,11 @@ export const NewPatientForm = memo(
         <IdBannerContainer>
           <RandomPatientButton setValues={setValues} generateId={generateId} />
           <IdBanner>
-            <Field name="displayId" component={IdField} regenerateId={generateId} />
+            <Field
+              name="displayId"
+              component={IdField}
+              regenerateId={generateId}
+              data-testid='field-qb31' />
           </IdBanner>
         </IdBannerContainer>
         <StyledRadioField
@@ -120,7 +124,7 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.newPatient"
                   fallback="Create new patient"
-                />
+                  data-testid='translatedtext-7p2u' />
               ),
             },
             {
@@ -129,7 +133,7 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.birthRegistry"
                   fallback="Register birth"
-                />
+                  data-testid='translatedtext-vh7b' />
               ),
             },
           ]}
@@ -156,13 +160,13 @@ export const NewPatientForm = memo(
               <TranslatedText
                 stringId="patient.additionalInformation.label"
                 fallback="Add additional information"
-              />
+                data-testid='translatedtext-v07q' />
               <span>
                 {' '}
                 <TranslatedText
                   stringId="patient.additionalInformation.exampleText"
                   fallback="(religion, occupation, blood type...)"
-                />
+                  data-testid='translatedtext-2toi' />
               </span>
             </div>
           )}

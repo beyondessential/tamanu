@@ -24,7 +24,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
       stringId="bedManagement.modal.handoverNotes.title"
       fallback="Handover notes :date"
       replacements={{ date: getDisplayDate(new Date(), 'dd/MM/yy') }}
-    />
+      data-testid='translatedtext-yaye' />
   );
 
   const {

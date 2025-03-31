@@ -61,9 +61,12 @@ const getReferralSource = ({ referralSource }) =>
       category="referralSource"
       fallback={referralSource.name}
       value={referralSource.id}
-    />
+      data-testid='translatedreferencedata-9mph' />
   ) : (
-    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+    <TranslatedText
+      stringId="general.fallback.unknown"
+      fallback="Unknown"
+      data-testid='translatedtext-oj9i' />
   );
 
 const getDiet = ({ diets }) => {
@@ -75,7 +78,11 @@ const getDiet = ({ diets }) => {
       {diets.map((diet, index) => (
         <>
           {!!index && ', '}
-          <TranslatedReferenceData category="diet" fallback={diet.name} value={diet.id} />
+          <TranslatedReferenceData
+            category="diet"
+            fallback={diet.name}
+            value={diet.id}
+            data-testid='translatedreferencedata-121n' />
         </>
       ))}
     </DietCardValue>
@@ -100,7 +107,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             <TranslatedText
               stringId="patient.encounter.details.card.plannedMove.label"
               fallback="Planned move"
-            />
+              data-testid='translatedtext-gzsj' />
           }
           value={getFullLocationName(encounter.plannedLocation)}
         />
@@ -113,13 +120,16 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
           <TranslatedText
             stringId="encounter.summary.encounterType.label"
             fallback="Encounter type"
-          />
+            data-testid='translatedtext-6rzc' />
         }
         value={getEncounterType(encounter)}
         icon={encounterTypeIcon}
       />
       <InfoCardItem
-        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+        label={<TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid='translatedtext-bzn2' />}
         value={getDepartmentName(encounter)}
         icon={departmentIcon}
       />
@@ -129,7 +139,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             <TranslatedText
               stringId="encounter.summary.triageScore.label"
               fallback="Triage score"
-            />
+              data-testid='translatedtext-rxrm' />
           }
           value={encounter.triages?.[0]?.score || '—'}
           icon={triageScoreIcon}
@@ -141,7 +151,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             <TranslatedText
               stringId="encounter.summary.patientType.label"
               fallback="Patient type"
-            />
+              data-testid='translatedtext-0o52' />
           }
           value={patientBillingType}
           icon={patientTypeIcon}
@@ -149,23 +159,32 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
       )}
       {isInpatient(encounter?.encounterType) && (
         <InfoCardItem
-          label={<TranslatedText stringId="encounter.summary.diet.label" fallback="Diet" />}
+          label={<TranslatedText
+            stringId="encounter.summary.diet.label"
+            fallback="Diet"
+            data-testid='translatedtext-8p18' />}
           value={getDiet(encounter)}
           icon={dietIcon}
         />
       )}
       <InfoCardItem
-        label={<TranslatedText stringId="general.location.label" fallback="Location" />}
+        label={<TranslatedText
+          stringId="general.location.label"
+          fallback="Location"
+          data-testid='translatedtext-i51y' />}
         value={getFullLocationName(encounter?.location)}
         icon={locationIcon}
       />
     </InfoCardFirstColumn>
     <InfoCardSecondColumn>
       <InfoCardItem
-        label={<TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival date" />}
+        label={<TranslatedText
+          stringId="encounter.arrivalDate.label"
+          fallback="Arrival date"
+          data-testid='translatedtext-xch1' />}
         value={
           <>
-            <DateDisplay date={encounter.startDate} />
+            <DateDisplay date={encounter.startDate} data-testid='datedisplay-0uky' />
             {encounter.endDate && (
               <>
                 <CardLabel>
@@ -173,7 +192,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                   <TranslatedText
                     stringId="encounter.summary.dischargeDate.label"
                     fallback="Discharge date"
-                  />
+                    data-testid='translatedtext-4vho' />
                   {':'}
                 </CardLabel>
                 <CardValue>{DateDisplay.stringFormat(encounter.endDate)}</CardValue>
@@ -194,10 +213,10 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                />
+                  data-testid='translatedtext-snb9' />
               ),
             }}
-          />
+            data-testid='translatedtext-9y4w' />
         }
         value={encounter.examiner?.displayName || 'Unknown'}
         icon={supervisingClinicianIcon}
@@ -209,7 +228,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               <TranslatedText
                 stringId="general.localisedField.referralSourceId.label"
                 fallback="Referral source"
-              />
+                data-testid='translatedtext-62u2' />
             }
             value={getReferralSource(encounter)}
             icon={referralSourceIcon}
@@ -220,7 +239,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
           <TranslatedText
             stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
-          />
+            data-testid='translatedtext-sxqq' />
         }
         value={encounter.reasonForEncounter}
         icon={reasonForEncounterIcon}

@@ -18,7 +18,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   return (
     <FormModal
       title={
-        <TranslatedText stringId="patient.encounter.action.movePatient" fallback="Move patient" />
+        <TranslatedText
+          stringId="patient.encounter.action.movePatient"
+          fallback="Move patient"
+          data-testid='translatedtext-z3w3' />
       }
       open={open}
       onClose={onClose}
@@ -39,11 +42,14 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 <TranslatedText
                   stringId="patient.encounter.movePatient.location.label"
                   fallback="New location"
-                />
+                  data-testid='translatedtext-jqil' />
               }
               required
-            />
-            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onClose} />
+              data-testid='field-jpdz' />
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              onCancel={onClose}
+              data-testid='formsubmitcancelrow-b1ap' />
           </FormGrid>
         )}
       />

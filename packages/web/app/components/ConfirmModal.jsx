@@ -21,21 +21,27 @@ export const ConfirmModal = ({
   subText,
   width = 'sm',
   ConfirmButton = OutlinedButton,
-  confirmButtonText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
-  cancelButtonText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+  confirmButtonText = <TranslatedText
+    stringId="general.action.confirm"
+    fallback="Confirm"
+    data-testid='translatedtext-a4do' />,
+  cancelButtonText = <TranslatedText
+    stringId="general.action.cancel"
+    fallback="Cancel"
+    data-testid='translatedtext-viv2' />,
   className,
   customContent,
 }) => (
   <Modal className={className} width={width} title={title} open={open} onClose={onCancel}>
     {customContent || (
       <Content>
-        <h3>{text}</h3>
-        <p>{subText}</p>
+        <h3 data-testid='h3-nwiq'>{text}</h3>
+        <p data-testid='p-v8hh'>{subText}</p>
       </Content>
     )}
     <ConfirmRowDivider />
-    <ButtonRow>
-      <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
+    <ButtonRow data-testid='buttonrow-bstt'>
+      <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-eyga'>{cancelButtonText}</OutlinedButton>
       <ConfirmButton variant="contained" onClick={onConfirm}>
         {confirmButtonText}
       </ConfirmButton>

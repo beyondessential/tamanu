@@ -118,13 +118,19 @@ const getStatus = ({ status }) => <StatusBadge $status={status}>{status}</Status
 const COLUMNS = [
   {
     key: 'startTime',
-    title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
+    title: <TranslatedText
+      stringId="pastAppointment.modal.table.column.date"
+      fallback="Date"
+      data-testid='translatedtext-m48s' />,
     accessor: getDate,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
   {
     key: 'outpatientAppointmentArea',
-    title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
+    title: <TranslatedText
+      stringId="pastAppointment.modal.table.column.area"
+      fallback="Area"
+      data-testid='translatedtext-kxiy' />,
     accessor: ({ locationGroup }) => locationGroup?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
@@ -134,7 +140,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="pastAppointment.modal.table.column.clinician"
         fallback="Clinician"
-      />
+        data-testid='translatedtext-bnk4' />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -142,7 +148,10 @@ const COLUMNS = [
   {
     key: 'appointmentType',
     title: (
-      <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
+      <TranslatedText
+        stringId="pastAppointment.modal.table.column.type"
+        fallback="Appt type"
+        data-testid='translatedtext-dmzb' />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -150,7 +159,10 @@ const COLUMNS = [
   {
     key: 'status',
     title: (
-      <TranslatedText stringId="pastAppointment.modal.table.column.status" fallback="Status" />
+      <TranslatedText
+        stringId="pastAppointment.modal.table.column.status"
+        fallback="Status"
+        data-testid='translatedtext-vajp' />
     ),
     accessor: getStatus,
   },
@@ -181,7 +193,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
         <TranslatedText
           stringId="appointment.modal.pastAppointments.title"
           fallback="Past appointments"
-        />
+          data-testid='translatedtext-7mp6' />
       }
       open={open}
       onClose={onClose}

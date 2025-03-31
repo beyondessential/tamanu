@@ -29,6 +29,6 @@ export const DisplayIdField = ({ required }) => {
       required={required}
       validate={validateFn}
       enablePasting
-    />
+      data-testid='localisedfield-oz4f' />
   );
 };

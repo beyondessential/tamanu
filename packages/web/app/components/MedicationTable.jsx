@@ -18,37 +18,55 @@ const getMedicationName = ({ medication }) => (
     fallback={medication.name}
     value={medication.id}
     category={medication.type}
-  />
+    data-testid='translatedreferencedata-wmbk' />
 );
 
 const MEDICATION_COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date }) => <DateDisplay date={date} />,
+    title: <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid='translatedtext-0snb' />,
+    accessor: ({ date }) => <DateDisplay date={date} data-testid='datedisplay-28z2' />,
   },
   {
     key: 'medication.name',
-    title: <TranslatedText stringId="medication.table.column.name" fallback="Drug" />,
+    title: <TranslatedText
+      stringId="medication.table.column.name"
+      fallback="Drug"
+      data-testid='translatedtext-vwr8' />,
     accessor: getMedicationName,
     sortable: false,
   },
   {
     key: 'prescription',
-    title: <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
+    title: <TranslatedText
+      stringId="medication.instructions.label"
+      fallback="Instructions"
+      data-testid='translatedtext-5r71' />,
   },
   {
     key: 'route',
-    title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+    title: <TranslatedText
+      stringId="medication.route.label"
+      fallback="Route"
+      data-testid='translatedtext-edom' />,
   },
   {
     key: 'endDate',
-    title: <TranslatedText stringId="medication.endDate.label" fallback="End date" />,
-    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
+    title: <TranslatedText
+      stringId="medication.endDate.label"
+      fallback="End date"
+      data-testid='translatedtext-igx8' />,
+    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} data-testid='datedisplay-e15q' /> : ''),
   },
   {
     key: 'prescriber',
-    title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
+    title: <TranslatedText
+      stringId="medication.prescriber.label"
+      fallback="Prescriber"
+      data-testid='translatedtext-906c' />,
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
@@ -57,25 +75,34 @@ const MEDICATION_COLUMNS = [
 const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
-    title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
+    title: <TranslatedText
+      stringId="general.patient.label"
+      fallback="Patient"
+      data-testid='translatedtext-jnht' />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },
   {
     key: 'department',
-    title: <TranslatedText stringId="general.department.label" fallback="Department" />,
+    title: <TranslatedText
+      stringId="general.department.label"
+      fallback="Department"
+      data-testid='translatedtext-3dmz' />,
     accessor: ({ encounter }) => (
       <TranslatedReferenceData
         fallback={encounter.department.name}
         value={encounter.department.id}
         category="department"
-      />
+        data-testid='translatedreferencedata-08vu' />
     ),
     sortable: false,
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
+    title: <TranslatedText
+      stringId="general.location.label"
+      fallback="Location"
+      data-testid='translatedtext-mms3' />,
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
@@ -120,7 +147,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
         elevated={false}
-      />
+        data-testid='datafetchingtable-35xe' />
     </div>
   );
 });
@@ -153,7 +180,7 @@ export const DataFetchingMedicationTable = () => {
         <TranslatedText
           stringId="medication.table.noData"
           fallback="No medication requests found"
-        />
+          data-testid='translatedtext-13bi' />
       }
       initialSort={{ order: 'desc', orderBy: 'date' }}
       onRowClick={onMedicationSelect}

@@ -22,20 +22,29 @@ import {
 export const CENTRAL_MENU_ITEMS = [
   {
     key: 'referenceData',
-    label: <TranslatedText stringId="adminSidebar.referenceData" fallback="Reference data" />,
+    label: <TranslatedText
+      stringId="adminSidebar.referenceData"
+      fallback="Reference data"
+      data-testid='translatedtext-yjlq' />,
     path: '/admin/referenceData',
     icon: <LanguageIcon color="secondary" />,
   },
   {
     key: 'permissions',
-    label: <TranslatedText stringId="adminSidebar.permissions" fallback="Permissions" />,
+    label: <TranslatedText
+      stringId="adminSidebar.permissions"
+      fallback="Permissions"
+      data-testid='translatedtext-ypq4' />,
     path: '/admin/permissions',
     ability: { action: 'read', subject: 'userRole' },
     icon: <GroupIcon color="secondary" />,
   },
   {
     key: 'programs',
-    label: <TranslatedText stringId="adminSidebar.programs" fallback="Programs" />,
+    label: <TranslatedText
+      stringId="adminSidebar.programs"
+      fallback="Programs"
+      data-testid='translatedtext-02fw' />,
     path: '/admin/programs',
     icon: workspacesIcon,
   },
@@ -47,57 +56,84 @@ export const CENTRAL_MENU_ITEMS = [
   },
   {
     key: 'patientMerge',
-    label: <TranslatedText stringId="adminSidebar.patientMerge" fallback="Patient merge" />,
+    label: <TranslatedText
+      stringId="adminSidebar.patientMerge"
+      fallback="Patient merge"
+      data-testid='translatedtext-7sss' />,
     path: '/admin/patientMerge',
     icon: <CallMergeIcon color="secondary" />,
   },
   {
     key: 'templates',
-    label: <TranslatedText stringId="adminSidebar.templates" fallback="Templates" />,
+    label: <TranslatedText
+      stringId="adminSidebar.templates"
+      fallback="Templates"
+      data-testid='translatedtext-wets' />,
     path: '/admin/templates',
     icon: autoAwesomeMotionIcon,
   },
   {
     key: 'translation',
-    label: <TranslatedText stringId="adminSidebar.translation" fallback="Translation" />,
+    label: <TranslatedText
+      stringId="adminSidebar.translation"
+      fallback="Translation"
+      data-testid='translatedtext-29jn' />,
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
     icon: <TranslateIcon color="secondary" />,
   },
   {
     key: 'assets',
-    label: <TranslatedText stringId="adminSidebar.assetUpload" fallback="Asset upload" />,
+    label: <TranslatedText
+      stringId="adminSidebar.assetUpload"
+      fallback="Asset upload"
+      data-testid='translatedtext-cqwb' />,
     path: '/admin/assets',
     icon: upload2Icon,
   },
   {
     key: 'sync',
-    label: <TranslatedText stringId="adminSidebar.syncStatus" fallback="Sync status" />,
+    label: <TranslatedText
+      stringId="adminSidebar.syncStatus"
+      fallback="Sync status"
+      data-testid='translatedtext-d0yp' />,
     path: '/admin/sync',
     icon: <CloudIcon color="secondary" />,
   },
   {
     key: 'settings',
-    label: <TranslatedText stringId="adminSidebar.settings" fallback="Settings" />,
+    label: <TranslatedText
+      stringId="adminSidebar.settings"
+      fallback="Settings"
+      data-testid='translatedtext-fhnu' />,
     path: '/admin/settings',
     ability: { action: 'write', subject: 'settings' },
     icon: <SettingsIcon color="secondary" />,
   },
   {
     key: 'fhirJobStats',
-    label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
+    label: <TranslatedText
+      stringId="adminSidebar.fhirJobStats"
+      fallback="FHIR job stats"
+      data-testid='translatedtext-vkrn' />,
     path: '/admin/fhir/jobStats',
     icon: <BarChartIcon color="secondary" />,
   },
   {
     key: 'reports',
-    label: <TranslatedText stringId="adminSidebar.reports" fallback="Reports" />,
+    label: <TranslatedText
+      stringId="adminSidebar.reports"
+      fallback="Reports"
+      data-testid='translatedtext-a725' />,
     path: '/admin/reports',
     icon: newsIcon,
   },
   {
     key: 'Insurer payments',
-    label: <TranslatedText stringId="adminSidebar.insurerPayments" fallback="Insurer payments" />,
+    label: <TranslatedText
+      stringId="adminSidebar.insurerPayments"
+      fallback="Insurer payments"
+      data-testid='translatedtext-rt7x' />,
     path: '/admin/insurerPayments',
     icon: <AttachMoneyIcon color="secondary" />,
   },

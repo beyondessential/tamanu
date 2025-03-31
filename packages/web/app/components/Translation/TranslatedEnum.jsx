@@ -12,13 +12,23 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
-      <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} {...restProps} />
+      <TranslatedText
+        stringId="general.fallback.unknown"
+        fallback={enumFallback}
+        {...restProps}
+        data-testid='translatedtext-t890' />
     );
   }
 
   const fallback = enumValues[value];
   const stringId = `${prefix}.${value}`;
-  return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
+  return (
+    <TranslatedText
+      stringId={stringId}
+      fallback={fallback}
+      {...restProps}
+      data-testid='translatedtext-jmnd' />
+  );
 };
 
 TranslatedEnum.propTypes = {

@@ -43,7 +43,10 @@ const TabContainer = styled.div`
 
 const tabs = [
   {
-    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
+    label: <TranslatedText
+      stringId="admin.settings.tab.editor.title"
+      fallback="Editor"
+      data-testid='translatedtext-1ap8' />,
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
     render: props => {
@@ -51,7 +54,7 @@ const tabs = [
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
-        <TabContainer>
+        <TabContainer data-testid='tabcontainer-opna'>
           <ScopeSelectorFields {...props} />
           {shouldShowEditor && <EditorView {...props} />}
         </TabContainer>
@@ -59,11 +62,14 @@ const tabs = [
     },
   },
   {
-    label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
+    label: <TranslatedText
+      stringId="admin.settings.tab.jsonEditor.title"
+      fallback="JSON editor"
+      data-testid='translatedtext-tv1l' />,
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
-      <TabContainer>
+      <TabContainer data-testid='tabcontainer-ggyi'>
         <ScopeSelectorFields {...props} />
         <JSONEditorView {...props} />
       </TabContainer>
@@ -110,7 +116,10 @@ export const SettingsView = () => {
 
   return (
     <AdminViewContainer
-      title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
+      title={<TranslatedText
+        stringId="admin.settings.title"
+        fallback="Settings"
+        data-testid='translatedtext-pa0x' />}
     >
       {settingsFetchError ? (
         <ErrorMessage error={settingsFetchError} />
@@ -212,7 +221,7 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
-      />
+        data-testid='styledtabdisplay-pbea' />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}

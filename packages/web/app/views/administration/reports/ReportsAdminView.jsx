@@ -38,41 +38,53 @@ export const ReportsAdminView = () => {
 
   const tabs = [
     {
-      label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+      label: <TranslatedText
+        stringId="general.action.edit"
+        fallback="Edit"
+        data-testid='translatedtext-4czz' />,
       key: REPORT_TABS.EDIT,
       icon: 'fa fa-edit',
       render: () => (
-        <TabContainer>
+        <TabContainer data-testid='tabcontainer-m0r1'>
           <SelectReportView />
         </TabContainer>
       ),
     },
     {
-      label: <TranslatedText stringId="general.action.create" fallback="Create" />,
+      label: <TranslatedText
+        stringId="general.action.create"
+        fallback="Create"
+        data-testid='translatedtext-v0ij' />,
       key: REPORT_TABS.CREATE,
       icon: 'fa fa-plus',
       render: () => (
-        <TabContainer>
+        <TabContainer data-testid='tabcontainer-qaqz'>
           <CreateReportView />
         </TabContainer>
       ),
     },
     {
-      label: <TranslatedText stringId="general.action.export" fallback="Export" />,
+      label: <TranslatedText
+        stringId="general.action.export"
+        fallback="Export"
+        data-testid='translatedtext-ctm5' />,
       key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
       render: () => (
-        <TabContainer>
+        <TabContainer data-testid='tabcontainer-froq'>
           <ExportReportView />
         </TabContainer>
       ),
     },
     {
-      label: <TranslatedText stringId="general.action.import" fallback="Import" />,
+      label: <TranslatedText
+        stringId="general.action.import"
+        fallback="Import"
+        data-testid='translatedtext-5xgl' />,
       key: REPORT_TABS.IMPORT,
       icon: 'fa fa-file-import',
       render: () => (
-        <TabContainer>
+        <TabContainer data-testid='tabcontainer-i8mu'>
           <ImportReportView />
         </TabContainer>
       ),
@@ -81,13 +93,18 @@ export const ReportsAdminView = () => {
 
   return (
     <OuterContainer>
-      <TopBar title={<TranslatedText stringId="admin.reports.title" fallback="Reports" />} />
+      <TopBar
+        title={<TranslatedText
+          stringId="admin.reports.title"
+          fallback="Reports"
+          data-testid='translatedtext-vd0q' />}
+        data-testid='topbar-v633' />
       <StyledTabDisplay
         tabs={tabs}
         currentTab={currentTab}
         onTabSelect={setCurrentTab}
         scrollable={false}
-      />
+        data-testid='styledtabdisplay-8ycv' />
     </OuterContainer>
   );
 };

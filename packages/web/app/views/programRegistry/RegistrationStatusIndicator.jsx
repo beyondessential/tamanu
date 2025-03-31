@@ -33,7 +33,7 @@ export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideTe
         <TranslatedEnum
           value={patientProgramRegistration.registrationStatus}
           enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
-        />
+          data-testid='translatedenum-0ye2' />
       }
     >
       <StatusDiv>
@@ -47,7 +47,7 @@ export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideTe
             <TranslatedEnum
               value={patientProgramRegistration.registrationStatus}
               enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
-            />
+              data-testid='translatedenum-kqg3' />
           </b>
         )}
       </StatusDiv>

@@ -57,7 +57,10 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
     <Container>
       <HeaderBar>
         <Typography variant="h3">
-          <TranslatedText stringId="patient.document.search.title" fallback="Documents search" />
+          <TranslatedText
+            stringId="patient.document.search.title"
+            fallback="Documents search"
+            data-testid='translatedtext-gmqi' />
         </Typography>
       </HeaderBar>
       <Form
@@ -66,25 +69,37 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
           <CustomFormGrid columns={5}>
             <Field
               name="type"
-              label={<TranslatedText stringId="document.type.label" fallback="Type" />}
+              label={<TranslatedText
+                stringId="document.type.label"
+                fallback="Type"
+                data-testid='translatedtext-643t' />}
               component={DynamicSelectField}
               options={DOCUMENT_TYPE_OPTIONS}
               size="small"
-            />
+              data-testid='field-qkou' />
             <Field
               name="documentOwner"
-              label={<TranslatedText stringId="document.owner.label" fallback="Owner" />}
+              label={<TranslatedText
+                stringId="document.owner.label"
+                fallback="Owner"
+                data-testid='translatedtext-o60y' />}
               component={SearchField}
               size="small"
-            />
+              data-testid='field-ahct' />
             <Field
               name="departmentName"
-              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              label={<TranslatedText
+                stringId="general.department.label"
+                fallback="Department"
+                data-testid='translatedtext-wlxp' />}
               component={SearchField}
               size="small"
-            />
+              data-testid='field-m2ux' />
             <SubmitButton type="submit" size="small">
-              <TranslatedText stringId="general.action.search" fallback="Search" />
+              <TranslatedText
+                stringId="general.action.search"
+                fallback="Search"
+                data-testid='translatedtext-bzuy' />
             </SubmitButton>
             <ClearButton
               onClick={() => {
@@ -94,7 +109,10 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               }}
               size="small"
             >
-              <TranslatedText stringId="general.action.clearSearch" fallback="Clear" />
+              <TranslatedText
+                stringId="general.action.clearSearch"
+                fallback="Clear"
+                data-testid='translatedtext-71fw' />
             </ClearButton>
           </CustomFormGrid>
         )}

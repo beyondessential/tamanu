@@ -46,14 +46,23 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
-          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
+          <OutlinedButton
+            onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
+            data-testid='outlinedbutton-1a06'>
             <TranslatedText
               stringId="document.action.openPatientLetter"
               fallback="Patient letter"
-            />
+              data-testid='translatedtext-bq3g' />
           </OutlinedButton>
-          <ButtonWithPermissionCheck verb="create" noun="DocumentMetadata" onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
-            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+          <ButtonWithPermissionCheck
+            verb="create"
+            noun="DocumentMetadata"
+            onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+            data-testid='buttonwithpermissioncheck-dx04'>
+            <TranslatedText
+              stringId="document.action.addDocument"
+              fallback="Add document"
+              data-testid='translatedtext-ojz9' />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable

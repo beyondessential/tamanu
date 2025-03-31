@@ -9,7 +9,7 @@ const COLUMNS = [
   {
     key: 'createdAt',
     title: 'Date & time',
-    accessor: ({ createdAt }) => <DateDisplay date={createdAt} showTime />,
+    accessor: ({ createdAt }) => <DateDisplay date={createdAt} showTime data-testid='datedisplay-6ai2' />,
   },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'updatedByDisplayName', title: 'Recorded by' },

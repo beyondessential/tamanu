@@ -29,18 +29,27 @@ const schema = yup.object().shape({
     .string()
     .required()
     .translatedLabel(
-      <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />,
+      <TranslatedText
+        stringId="admin.report.export.report.label"
+        fallback="Report"
+        data-testid='translatedtext-xoqb' />,
     ),
   versionId: yup
     .string()
     .required()
-    .translatedLabel(<TranslatedText stringId="admin.report.version.label" fallback="Version" />),
+    .translatedLabel(<TranslatedText
+    stringId="admin.report.version.label"
+    fallback="Version"
+    data-testid='translatedtext-uytp' />),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
     .required()
     .translatedLabel(
-      <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />,
+      <TranslatedText
+        stringId="admin.report.export.format.label"
+        fallback="Format"
+        data-testid='translatedtext-en7w' />,
     ),
 });
 
@@ -77,7 +86,7 @@ export const ExportReportView = () => {
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
-        />,
+          data-testid='translatedtext-4qji' />,
       );
     }
   };
@@ -98,7 +107,10 @@ export const ExportReportView = () => {
               component={ReportSelectField}
               required
               label={
-                <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />
+                <TranslatedText
+                  stringId="admin.report.export.report.label"
+                  fallback="Report"
+                  data-testid='translatedtext-imll' />
               }
               name="reportId"
               placeholder={getTranslation(
@@ -106,13 +118,16 @@ export const ExportReportView = () => {
                 'Select a report definition',
               )}
               setSelectedReportName={setSelectedReportName}
-            />
+              data-testid='field-1zwt' />
             {values.reportId && (
               <Field
                 component={VersionSelectField}
                 required
                 label={
-                  <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />
+                  <TranslatedText
+                    stringId="admin.report.export.version.label"
+                    fallback="Version"
+                    data-testid='translatedtext-hpgn' />
                 }
                 name="versionId"
                 placeholder={getTranslation(
@@ -120,26 +135,32 @@ export const ExportReportView = () => {
                   'Select a report version',
                 )}
                 setSelectedVersionNumber={setSelectedVersionNumber}
-              />
+                data-testid='field-q5s9' />
             )}
             {values.versionId && (
               <Field
                 component={RadioField}
                 label={
-                  <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />
+                  <TranslatedText
+                    stringId="admin.report.export.format.label"
+                    fallback="Format"
+                    data-testid='translatedtext-1ztl' />
                 }
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
                   value,
                 }))}
-              />
+                data-testid='field-1g15' />
             )}
           </FormGrid>
-          <ButtonRow alignment="left">
+          <ButtonRow alignment="left" data-testid='buttonrow-9n0o'>
             <FormSubmitButton
-              text={<TranslatedText stringId="general.action.export" fallback="Export" />}
-            />
+              text={<TranslatedText
+                stringId="general.action.export"
+                fallback="Export"
+                data-testid='translatedtext-qw0s' />}
+              data-testid='formsubmitbutton-5pc7' />
           </ButtonRow>
         </InnerContainer>
       )}

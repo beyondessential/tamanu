@@ -23,51 +23,66 @@ export const PatientCarePlanForm = ({
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
-          label={<TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />}
+          label={<TranslatedText
+            stringId="carePlan.plan.label"
+            fallback="Care plan"
+            data-testid='translatedtext-o14f' />}
           component={AutocompleteField}
           suggester={carePlanSuggester}
           required
-        />
+          data-testid='field-rjun' />
         <FormGrid columns={2}>
           <Field
             name="date"
             label={
-              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
+              <TranslatedText
+                stringId="general.recordedDate.label"
+                fallback="Date recorded"
+                data-testid='translatedtext-chdx' />
             }
             component={DateTimeField}
             saveDateAsString
-          />
+            data-testid='field-nsdf' />
           <Field
             name="examinerId"
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
-              />
+                data-testid='translatedtext-ttyy' />
             }
             component={AutocompleteField}
             suggester={practitionerSuggester}
-          />
+            data-testid='field-8lmn' />
         </FormGrid>
         <Field
           name="content"
-          label={<TranslatedText stringId="carePlan.content.label" fallback="Main care plan" />}
+          label={<TranslatedText
+            stringId="carePlan.content.label"
+            fallback="Main care plan"
+            data-testid='translatedtext-b4xm' />}
           required
           component={TextField}
           multiline
           minRows={6}
-        />
+          data-testid='field-tb9e' />
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
           confirmText={
             editedObject ? (
-              <TranslatedText stringId="general.action.save" fallback="Save" />
+              <TranslatedText
+                stringId="general.action.save"
+                fallback="Save"
+                data-testid='translatedtext-qfuk' />
             ) : (
-              <TranslatedText stringId="general.action.add" fallback="Add" />
+              <TranslatedText
+                stringId="general.action.add"
+                fallback="Add"
+                data-testid='translatedtext-2y76' />
             )
           }
-        />
+          data-testid='formsubmitcancelrow-kuty' />
       </FormGrid>
     )}
     initialValues={{
@@ -77,7 +92,10 @@ export const PatientCarePlanForm = ({
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       carePlanId: foreignKey().translatedLabel(
-        <TranslatedText stringId="carePlan.plan.label" fallback="Care plan" />,
+        <TranslatedText
+          stringId="carePlan.plan.label"
+          fallback="Care plan"
+          data-testid='translatedtext-bmg9' />,
       ),
       date: yup.date(),
       examinerId: yup.string(),

@@ -22,15 +22,35 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(o => ({ label: o, value: o }));
-    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
+    return (
+      <Field
+        name={fieldName}
+        component={SelectField}
+        label={name}
+        options={fieldOptions}
+        data-testid='field-9ark' />
+    );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
-    return <Field name={fieldName} component={TextField} label={name} enablePasting />;
+    return (
+      <Field
+        name={fieldName}
+        component={TextField}
+        label={name}
+        enablePasting
+        data-testid='field-3uz1' />
+    );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
-    return <Field name={fieldName} component={NumberField} label={name} />;
+    return (
+      <Field
+        name={fieldName}
+        component={NumberField}
+        label={name}
+        data-testid='field-2eng' />
+    );
   }
-  return <p>Unknown field type: {fieldType}</p>;
+  return <p data-testid='p-ay6n'>Unknown field type: {fieldType}</p>;
 };
 
 export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {

@@ -105,21 +105,36 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
             stringId="admin.settings.viewDefaultScope.message"
             fallback="View default :scope settings"
             replacements={{ scope }}
-          />
+            data-testid='translatedtext-jqqs' />
         </DefaultSettingsButton>
         <StyledButtonRow>
           {editMode ? (
             <>
-              <Button variant="outlined" onClick={turnOffEditMode}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              <Button variant="outlined" onClick={turnOffEditMode} data-testid='button-l22v'>
+                <TranslatedText
+                  stringId="general.action.cancel"
+                  fallback="Cancel"
+                  data-testid='translatedtext-84wp' />
               </Button>
-              <Button onClick={saveSettings} disabled={!hasSettingsChanged}>
-                <TranslatedText stringId="general.action.save" fallback="Save" />
+              <Button
+                onClick={saveSettings}
+                disabled={!hasSettingsChanged}
+                data-testid='button-9ot4'>
+                <TranslatedText
+                  stringId="general.action.save"
+                  fallback="Save"
+                  data-testid='translatedtext-u045' />
               </Button>
             </>
           ) : (
-            <Button onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+            <Button
+              onClick={turnOnEditMode}
+              disabled={!isEditorVisible}
+              data-testid='button-2i5w'>
+              <TranslatedText
+                stringId="general.action.edit"
+                fallback="Edit"
+                data-testid='translatedtext-044u' />
             </Button>
           )}
         </StyledButtonRow>

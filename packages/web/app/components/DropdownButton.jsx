@@ -186,7 +186,7 @@ export const DropdownButton = React.memo(
             {!hasPermission && <LockIcon />}
             {mainAction.label}
           </MainButtonComponent>
-          <MenuButton onClick={handleToggle}>
+          <MenuButton onClick={handleToggle} data-testid='menubutton-nt1n'>
             <KeyboardArrowDownIcon />
           </MenuButton>
         </ButtonGroup>
@@ -199,7 +199,7 @@ export const DropdownButton = React.memo(
                     key={action.label}
                     disabled={!action.onClick}
                     onClick={event => handleClick(event, index + 1)}
-                  >
+                    data-testid='menuitem-eyrk'>
                     {action.label}
                   </MenuItem>
                 ))}

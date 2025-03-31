@@ -65,7 +65,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <TranslatedText
           stringId="programRegistry.modal.deleteRegistry.title"
           fallback="Delete record"
-        />
+          data-testid='translatedtext-8tih' />
       }
       width="sm"
       open={open}
@@ -73,13 +73,13 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       overrideContentPadding
     >
       <Text>
-        <p className="header">
+        <p className="header" data-testid='p-m1uv'>
           <TranslatedText
             stringId="programRegistry.modal.deleteRegistry.header"
             fallback="Confirm patient registry deletion"
-          />
+            data-testid='translatedtext-s1aj' />
         </p>
-        <p className="desc">
+        <p className="desc" data-testid='p-y56j'>
           <TranslatedText
             stringId="programRegistry.modal.deleteRegistry.description"
             fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
@@ -89,7 +89,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
                 programRegistry?.name,
               ),
             }}
-          />
+            data-testid='translatedtext-b15f' />
         </p>
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />

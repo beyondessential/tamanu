@@ -17,6 +17,105 @@ module.exports = function transformer(file, api) {
     return testId;
   }
 
+  // Important components to add test IDs to
+  const importantComponents = new Set([
+    // Critical Form Elements
+    'Field',
+    'TextField',
+    'DateField',
+    'TimeField',
+    'DateTimeField',
+    'SelectField',
+    'CheckField',
+    'NumberField',
+    'AutocompleteField',
+    'DynamicSelectField',
+    'SwitchField',
+    'SuggesterSelectField',
+    'TranslatedField',
+    'TranslatedSelectField',
+    'TranslatedText',
+    'TranslatedReferenceData',
+    'TranslatedEnum',
+
+    // Navigation and Layout
+    'TopBar',
+    'TabContainer',
+    'StyledTabDisplay',
+
+    // Base button components
+    'Button',
+    'ButtonBase',
+    'DeleteButton',
+    'FormCancelButton',
+    'FormSubmitButton',
+    'FormSubmitCancelRow',
+    'StyledMenuButton',
+    'ToggleButton',
+    'ButtonWithPermissionCheck',
+    'CheckInButton',
+    'MenuButton',
+    'Menu',
+    'MenuItem',
+    'ButtonRow',
+    'TextButton',
+    'MuiButton',
+    'InfoButton',
+    'OutlinedButton',
+    'StyledButton',
+    'IconButton',
+    'DefaultIconButton',
+    'UnstyledHtmlButton',
+    'ToggleButton',
+
+    // Data Display
+    'CardItem',
+    'LabelledValue',
+    'DateDisplay',
+    'TableRow',
+    'StyledTableDataCell',
+    'DataFetchingTable',
+
+    // Interactive Elements
+    'DefaultIconButton',
+    'RemoveIconButton',
+    'ClearAllButton',
+    'StyledCheckboxControl',
+    'StyledFormControlLabel',
+
+    // Search and Filter
+    'SearchField',
+    'LocalisedField',
+    'SuggesterSelectField',
+
+    // Base HTML elements that should always get test IDs
+    'button',
+    'input',
+    'select',
+    'textarea',
+    'a',
+    'form',
+    'table',
+    'tr',
+    'td',
+    'th',
+    'p',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'ul',
+    'ol',
+    'li',
+    'label',
+    'nav',
+    'header',
+    'footer',
+    'main',
+  ]);
+
   // Process each JSX element
   root.find(j.JSXElement).forEach((path) => {
     const openingElement = path.node.openingElement;
@@ -41,12 +140,10 @@ module.exports = function transformer(file, api) {
 
     if (hasTestId) return;
 
-    // Handle other components and interactive elements
-    const isComponent = elementName[0] === elementName[0].toUpperCase();
-    const interactiveElements = ['button', 'input', 'select', 'textarea', 'a'];
-    const shouldAddTestId = isComponent || interactiveElements.includes(elementName.toLowerCase());
+    // Check if this is an important component or element
+    const isImportantComponent = importantComponents.has(elementName);
 
-    if (shouldAddTestId) {
+    if (isImportantComponent) {
       const testId = generateTestId(elementName);
 
       console.log(`Adding data-testid="${testId}" to ${elementName}`);

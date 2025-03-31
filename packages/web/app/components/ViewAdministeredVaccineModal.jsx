@@ -85,12 +85,12 @@ const ErrorMessage = () => {
           <TranslatedText
             stringId="vaccine.error.cantLoadVaccine.title"
             fallback="Error: Cannot load view modal for this vaccine"
-          />
+            data-testid='translatedtext-i0w1' />
         </AlertTitle>
         <TranslatedText
           stringId="vaccine.error.cantLoadVaccine.subTitle"
           fallback="Please contact administrator"
-        />
+          data-testid='translatedtext-xe3o' />
       </Alert>
     </Box>
   );
@@ -135,90 +135,127 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 
   const fieldObjects = {
     vaccine: {
-      label: <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />,
+      label: <TranslatedText
+        stringId="vaccine.vaccine.label"
+        fallback="Vaccine"
+        data-testid='translatedtext-y07k' />,
       value: vaccineId ? (
         <TranslatedReferenceData
           category="scheduledVaccine"
           fallback={vaccineLabel}
           value={vaccineId}
-        />
+          data-testid='translatedreferencedata-0mu1' />
       ) : (
         '-'
       ),
     },
     batch: {
-      label: <TranslatedText stringId="vaccine.batch.label" fallback="Batch" />,
+      label: <TranslatedText
+        stringId="vaccine.batch.label"
+        fallback="Batch"
+        data-testid='translatedtext-henu' />,
       value: batch || '-',
     },
     schedule: {
-      label: <TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />,
+      label: <TranslatedText
+        stringId="vaccine.schedule.label"
+        fallback="Schedule"
+        data-testid='translatedtext-d9u0' />,
       value: doseLabel || '-',
     },
     dateRecorded: {
-      label: <TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />,
-      value: <DateDisplay date={date} />,
+      label: <TranslatedText
+        stringId="vaccine.dateRecorded.label"
+        fallback="Date recorded"
+        data-testid='translatedtext-lqo9' />,
+      value: <DateDisplay date={date} data-testid='datedisplay-d341' />,
     },
     dateGiven: {
-      label: <TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />,
-      value: <DateDisplay date={date} />,
+      label: <TranslatedText
+        stringId="vaccine.dateGiven.label"
+        fallback="Date given"
+        data-testid='translatedtext-wnaa' />,
+      value: <DateDisplay date={date} data-testid='datedisplay-wlxi' />,
     },
     injectionSite: {
-      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      label: <TranslatedText
+        stringId="vaccine.injectionSite.label"
+        fallback="Injection site"
+        data-testid='translatedtext-k641' />,
       value: injectionSite || '-',
     },
     area: {
-      label: <TranslatedText stringId="general.area.label" fallback="Area" />,
+      label: <TranslatedText
+        stringId="general.area.label"
+        fallback="Area"
+        data-testid='translatedtext-yrch' />,
       value: location?.locationGroup ? (
         <TranslatedReferenceData
           fallback={location.locationGroup.name}
           value={location.locationGroup.id}
           category="locationGroup"
-        />
+          data-testid='translatedreferencedata-swud' />
       ) : (
         '-'
       ),
     },
     location: {
-      label: <TranslatedText stringId="general.location.label" fallback="Location" />,
+      label: <TranslatedText
+        stringId="general.location.label"
+        fallback="Location"
+        data-testid='translatedtext-ow47' />,
       value: location ? (
-        <TranslatedReferenceData fallback={location.name} value={location.id} category="location" />
+        <TranslatedReferenceData
+          fallback={location.name}
+          value={location.id}
+          category="location"
+          data-testid='translatedreferencedata-m5nw' />
       ) : (
         '-'
       ),
     },
     department: {
-      label: <TranslatedText stringId="general.department.label" fallback="Department" />,
+      label: <TranslatedText
+        stringId="general.department.label"
+        fallback="Department"
+        data-testid='translatedtext-qorp' />,
       value: department ? (
         <TranslatedReferenceData
           fallback={department.name}
           value={department.id}
           category="department"
-        />
+          data-testid='translatedreferencedata-likk' />
       ) : (
         '-'
       ),
     },
     facility: {
-      label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
+      label: <TranslatedText
+        stringId="general.facility.label"
+        fallback="Facility"
+        data-testid='translatedtext-fynh' />,
       value:
         (location?.facility.name && (
           <TranslatedReferenceData
             fallback={location.facility.name}
             value={location.facility.id}
             category="facility"
-          />
+            data-testid='translatedreferencedata-ko9g' />
         )) ||
         (encounter.location.facility.name && (
           <TranslatedReferenceData
             fallback={encounter.location.facility.name}
             value={encounter.location.facility.id}
             category="facility"
-          />
+            data-testid='translatedreferencedata-f0fq' />
         )) ||
         '-',
     },
     givenBy: {
-      label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
+      label: <TranslatedText
+        stringId="vaccine.givenBy.label"
+        fallback="Given by"
+        data-testid='translatedtext-cnzx' />,
       value: givenBy || '-',
     },
     supervisingClinician: {
@@ -232,39 +269,61 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
                 casing="lower"
-              />
+                data-testid='translatedtext-jaka' />
             ),
           }}
-        />
+          data-testid='translatedtext-qmxr' />
       ),
       value: givenBy || '-',
     },
     recordedBy: {
-      label: <TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />,
+      label: <TranslatedText
+        stringId="vaccine.recordedBy.label"
+        fallback="Recorded by"
+        data-testid='translatedtext-5ka7' />,
       value: recorder?.displayName || '-',
     },
     vaccineName: {
-      label: <TranslatedText stringId="vaccine.vaccineName.label" fallback="Vaccine name" />,
+      label: <TranslatedText
+        stringId="vaccine.vaccineName.label"
+        fallback="Vaccine name"
+        data-testid='translatedtext-auww' />,
       value: vaccineName || '-',
     },
     vaccineBrand: {
-      label: <TranslatedText stringId="vaccine.vaccineBrand.label" fallback="Vaccine brand" />,
+      label: <TranslatedText
+        stringId="vaccine.vaccineBrand.label"
+        fallback="Vaccine brand"
+        data-testid='translatedtext-z5wf' />,
       value: vaccineBrand || '-',
     },
     disease: {
-      label: <TranslatedText stringId="vaccine.disease.label" fallback="Disease" />,
+      label: <TranslatedText
+        stringId="vaccine.disease.label"
+        fallback="Disease"
+        data-testid='translatedtext-608p' />,
       value: disease || '-',
     },
     status: {
-      label: <TranslatedText stringId="vaccine.status.label" fallback="Status" />,
+      label: <TranslatedText
+        stringId="vaccine.status.label"
+        fallback="Status"
+        data-testid='translatedtext-y073' />,
       value: givenElsewhere ? (
         'Given elsewhere'
       ) : (
-        <TranslatedEnum value={status} enumValues={VACCINE_STATUS_LABELS} enumFallback="-" />
+        <TranslatedEnum
+          value={status}
+          enumValues={VACCINE_STATUS_LABELS}
+          enumFallback="-"
+          data-testid='translatedenum-g2yx' />
       ),
     },
     country: {
-      label: <TranslatedText stringId="vaccine.country.label" fallback="Country" />,
+      label: <TranslatedText
+        stringId="vaccine.country.label"
+        fallback="Country"
+        data-testid='translatedtext-r5sx' />,
       value: givenBy || '-',
     },
     reason: {
@@ -272,20 +331,23 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         <TranslatedText
           stringId="general.localisedField.notGivenReasonId.label.short"
           fallback="Reason"
-        />
+          data-testid='translatedtext-noua' />
       ),
       value: notGivenReason ? (
         <TranslatedReferenceData
           fallback={notGivenReason.name}
           value={notGivenReason.id}
           category="vaccineNotGivenReason"
-        />
+          data-testid='translatedreferencedata-cxdh' />
       ) : (
         '-'
       ),
     },
     circumstance: {
-      label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
+      label: <TranslatedText
+        stringId="vaccine.circumstance.label"
+        fallback="Circumstance"
+        data-testid='translatedtext-fmlf' />,
       value:
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances
@@ -540,13 +602,19 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   if (!vaccineRecord) return null;
   return (
     <Modal
-      title={<TranslatedText stringId="vaccine.modal.view.title" fallback="View vaccine record" />}
+      title={<TranslatedText
+        stringId="vaccine.modal.view.title"
+        fallback="View vaccine record"
+        data-testid='translatedtext-1gku' />}
       open={open}
       onClose={onClose}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-0zq3' />}
         onConfirm={onClose}
       />
     </Modal>

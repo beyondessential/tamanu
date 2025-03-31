@@ -91,11 +91,17 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
   let actions = [
     {
-      label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+      label: <TranslatedText
+        stringId="general.action.remove"
+        fallback="Remove"
+        data-testid='translatedtext-w3cm' />,
       action: () => setOpenRemoveProgramRegistryFormModal(true),
     },
     {
-      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+      label: <TranslatedText
+        stringId="general.action.delete"
+        fallback="Delete"
+        data-testid='translatedtext-dn2x' />,
       action: () => setOpenDeleteProgramRegistryFormModal(true),
     },
   ];
@@ -103,11 +109,17 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   if (isRemoved)
     actions = [
       {
-        label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+        label: <TranslatedText
+          stringId="general.action.activate"
+          fallback="Activate"
+          data-testid='translatedtext-qldi' />,
         action: () => setOpenActivateProgramRegistryFormModal(true),
       },
       {
-        label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+        label: <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid='translatedtext-x9pp' />,
         action: () => setOpenDeleteProgramRegistryFormModal(true),
       },
     ];
@@ -115,11 +127,17 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   if (isDeleted)
     actions = [
       {
-        label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+        label: <TranslatedText
+          stringId="general.action.activate"
+          fallback="Activate"
+          data-testid='translatedtext-fpft' />,
         action: () => setOpenActivateProgramRegistryFormModal(true),
       },
       {
-        label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+        label: <TranslatedText
+          stringId="general.action.remove"
+          fallback="Remove"
+          data-testid='translatedtext-4h47' />,
         action: () => setOpenRemoveProgramRegistryFormModal(true),
       },
     ];
@@ -143,19 +161,21 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"
                 fallback="Date of registration"
-              />
+                data-testid='translatedtext-k4xc' />
               :
             </div>
             <div>
               <TranslatedText
                 stringId="programRegistry.registeredBy.label"
                 fallback="Registered by"
-              />
+                data-testid='translatedtext-ge6t' />
               :
             </div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
-            <DateDisplay date={patientProgramRegistration.registrationDate} />
+            <DateDisplay
+              date={patientProgramRegistration.registrationDate}
+              data-testid='datedisplay-y8yd' />
             <div>
               {patientProgramRegistration.registrationClinician
                 ? patientProgramRegistration.registrationClinician.displayName
@@ -172,19 +192,21 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                   <TranslatedText
                     stringId="programRegistry.dateRemoved.label"
                     fallback="Date removed"
-                  />
+                    data-testid='translatedtext-p5bv' />
                   :
                 </div>
                 <div>
                   <TranslatedText
                     stringId="programRegistry.removedBy.label"
                     fallback="Removed by"
-                  />
+                    data-testid='translatedtext-ubm0' />
                   :
                 </div>
               </TextColumns>
               <TextColumns style={{ fontWeight: 500 }}>
-                <DateDisplay date={patientProgramRegistration.dateRemoved} />
+                <DateDisplay
+                  date={patientProgramRegistration.dateRemoved}
+                  data-testid='datedisplay-189e' />
                 <div>{patientProgramRegistration.removedBy?.displayName}</div>
               </TextColumns>
             </TextColumnsContainer>
@@ -207,12 +229,18 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <TranslatedText
               stringId="programRegistry.patientInactive.tooltip"
               fallback="Patient must be active"
-            />
+              data-testid='translatedtext-scrg' />
           }
           visible={isRemoved}
         >
-          <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-            <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
+          <OutlinedButton
+            onClick={() => setOpenChangeStatusFormModal(true)}
+            disabled={isRemoved}
+            data-testid='outlinedbutton-1ozk'>
+            <TranslatedText
+              stringId="general.action.changeStatus"
+              fallback="Change status"
+              data-testid='translatedtext-mcdq' />
           </OutlinedButton>
         </ConditionalTooltip>
         <ChangeStatusFormModal
@@ -222,7 +250,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         />
         <MenuContainer>
           <div className="menu">
-            <MenuButton actions={actions} />
+            <MenuButton actions={actions} data-testid='menubutton-4hxl' />
           </div>
         </MenuContainer>
       </div>

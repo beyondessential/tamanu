@@ -24,7 +24,10 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
 };
 
 export const NoteModal = ({
-  title = <TranslatedText stringId="note.modal.default.title" fallback="Note" />,
+  title = <TranslatedText
+    stringId="note.modal.default.title"
+    fallback="Note"
+    data-testid='translatedtext-d5a7' />,
   open,
   onClose,
   onSaved,
@@ -85,7 +88,10 @@ export const NoteModal = ({
   return (
     <>
       <ConfirmModal
-        title={<TranslatedText stringId="note.modal.delete.title" fallback="Discard note" />}
+        title={<TranslatedText
+          stringId="note.modal.delete.title"
+          fallback="Discard note"
+          data-testid='translatedtext-vdke' />}
         open={openNoteCancelConfirmModal}
         width="sm"
         onCancel={() => setOpenNoteCancelConfirmModal(false)}
@@ -94,11 +100,11 @@ export const NoteModal = ({
           onClose();
         }}
         customContent={
-          <p>
+          <p data-testid='p-7gwy'>
             <TranslatedText
               stringId="note.modal.delete.confirmText"
               fallback="Are you sure you want to remove any changes you have made?"
-            />
+              data-testid='translatedtext-j98r' />
           </p>
         }
       />

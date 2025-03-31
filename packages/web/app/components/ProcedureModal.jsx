@@ -45,12 +45,18 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           fallback=":action procedure"
           replacements={{
             action: editedProcedure?.id ? (
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+              <TranslatedText
+                stringId="general.action.edit"
+                fallback="Edit"
+                data-testid='translatedtext-gwll' />
             ) : (
-              <TranslatedText stringId="general.action.new" fallback="New" />
+              <TranslatedText
+                stringId="general.action.new"
+                fallback="New"
+                data-testid='translatedtext-d7u1' />
             ),
           }}
-        />
+          data-testid='translatedtext-l6g6' />
       }
       open={!!editedProcedure}
       onClose={onClose}

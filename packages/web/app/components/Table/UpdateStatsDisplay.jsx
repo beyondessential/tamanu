@@ -22,7 +22,10 @@ const ErrorText = styled(SmallText)`
 
 const StatsError = () => (
   <ErrorText color="error">
-    <TranslatedText stringId="table.refreshSchedule.error" fallback="Error loading stats" />
+    <TranslatedText
+      stringId="table.refreshSchedule.error"
+      fallback="Error loading stats"
+      data-testid='translatedtext-7wgi' />
   </ErrorText>
 );
 
@@ -67,14 +70,14 @@ export const UpdateStatsDisplay = ({
               stringId="table.refreshSchedule.lastUpdated"
               fallback="Last updated: :lastUpdated"
               replacements={{ lastUpdated }}
-            />
+              data-testid='translatedtext-rl9t' />
           </SmallText>
           <SoftText>
             <TranslatedText
               stringId="table.refreshSchedule.schedule"
               fallback="Updated :schedule"
               replacements={{ schedule: parsedSchedule.toLowerCase() }}
-            />
+              data-testid='translatedtext-ttt1' />
           </SoftText>
         </>
       )}

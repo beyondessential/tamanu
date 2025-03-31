@@ -65,19 +65,25 @@ export const ParameterItem = props => {
           name={`${baseName}.name`}
           component={TextField}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
-          label={<TranslatedText stringId="general.name.label" fallback="Name" />}
-        />
+          label={<TranslatedText
+            stringId="general.name.label"
+            fallback="Name"
+            data-testid='translatedtext-kalt' />}
+          data-testid='field-upul' />
       </Grid>
       <Grid item xs={5}>
         <Field
           name={`${baseName}.label`}
           component={TextField}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
-          label={<TranslatedText stringId="report.editor.label.label" fallback="Label" />}
-        />
+          label={<TranslatedText
+            stringId="report.editor.label.label"
+            fallback="Label"
+            data-testid='translatedtext-a84w' />}
+          data-testid='field-j5ff' />
       </Grid>
       <Grid item xs={1}>
-        <IconButton variant="text" onClick={() => onDelete(id)}>
+        <IconButton variant="text" onClick={() => onDelete(id)} data-testid='iconbutton-h4w1'>
           <DeleteOutlinedIcon />
         </IconButton>
       </Grid>
@@ -94,12 +100,15 @@ export const ParameterItem = props => {
             );
           }}
           placeholder={getTranslation('general.placeholder.text', 'Text')}
-          label={<TranslatedText stringId="report.editor.fieldType.label" fallback="Field type" />}
+          label={<TranslatedText
+            stringId="report.editor.fieldType.label"
+            fallback="Field type"
+            data-testid='translatedtext-6zpb' />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,
           }))}
-        />
+          data-testid='field-wfsd' />
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
         <Grid item xs={11}>
@@ -111,7 +120,7 @@ export const ParameterItem = props => {
               <TranslatedText
                 stringId="report.editor.suggesterEndpoint.label"
                 fallback="Suggester endpoint"
-              />
+                data-testid='translatedtext-apxf' />
             }
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
               .sort((a, b) => a.localeCompare(b))
@@ -119,14 +128,17 @@ export const ParameterItem = props => {
                 label: key,
                 value: key,
               }))}
-          />
+            data-testid='field-2qel' />
         </Grid>
       )}
       {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
         <>
           <Grid item xs={12}>
             <OuterLabelFieldWrapper
-              label={<TranslatedText stringId="report.editor.options.label" fallback="Options" />}
+              label={<TranslatedText
+                stringId="report.editor.options.label"
+                fallback="Options"
+                data-testid='translatedtext-bvmc' />}
             />
           </Grid>
           <Field
@@ -138,16 +150,22 @@ export const ParameterItem = props => {
                 <Grid item xs={6}>
                   <Field
                     name={`${baseName}.options.${index}.label`}
-                    label={<TranslatedText stringId="general.label.label" fallback="Label" />}
+                    label={<TranslatedText
+                      stringId="general.label.label"
+                      fallback="Label"
+                      data-testid='translatedtext-5l93' />}
                     component={TextField}
-                  />
+                    data-testid='field-vhpk' />
                 </Grid>
                 <Grid item xs={5}>
                   <Field
                     name={`${baseName}.options.${index}.value`}
-                    label={<TranslatedText stringId="general.value.label" fallback="Value" />}
+                    label={<TranslatedText
+                      stringId="general.value.label"
+                      fallback="Value"
+                      data-testid='translatedtext-qmbn' />}
                     component={TextField}
-                  />
+                    data-testid='field-ee8j' />
                 </Grid>
                 <Grid item xs={1}>
                   <DeleteContainer onClick={() => onOptionDelete(index)}>
@@ -156,7 +174,7 @@ export const ParameterItem = props => {
                 </Grid>
               </>
             )}
-          />
+            data-testid='field-qjlf' />
         </>
       )}
       {parameterField === 'FacilityField' && (
@@ -167,10 +185,10 @@ export const ParameterItem = props => {
               <TranslatedText
                 stringId="report.editor.filterOtherSuggestionsSelectedFacility.label"
                 fallback="Filter other suggestions by selected facility"
-              />
+                data-testid='translatedtext-va0s' />
             }
             component={CheckField}
-          />
+            data-testid='field-h8m9' />
         </Grid>
       )}
       <Grid item xs={12}>

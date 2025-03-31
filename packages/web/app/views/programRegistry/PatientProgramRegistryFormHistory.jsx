@@ -21,9 +21,9 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.date"
             fallback="Date submitted"
-          />
+            data-testid='translatedtext-j3gr' />
         ),
-        accessor: row => <DateDisplay date={row.endTime} />,
+        accessor: row => <DateDisplay date={row.endTime} data-testid='datedisplay-pzpv' />,
         sortable: true,
       },
       {
@@ -32,21 +32,27 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.submittedBy"
             fallback="Submitted By"
-          />
+            data-testid='translatedtext-wcqu' />
         ),
         accessor: row => row.submittedBy,
         sortable: false,
       },
       {
         key: 'surveyName',
-        title: <TranslatedText stringId="programRegistry.modal.formHistory.form" fallback="Form" />,
+        title: <TranslatedText
+          stringId="programRegistry.modal.formHistory.form"
+          fallback="Form"
+          data-testid='translatedtext-m1y1' />,
         accessor: row => row.surveyName,
         sortable: false,
       },
       {
         key: 'result',
         title: (
-          <TranslatedText stringId="programRegistry.modal.formHistory.result" fallback="Result" />
+          <TranslatedText
+            stringId="programRegistry.modal.formHistory.result"
+            fallback="Result"
+            data-testid='translatedtext-meh6' />
         ),
         accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
         sortable: false,
@@ -60,14 +66,17 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <MenuButton
             actions={[
               {
-                label: <TranslatedText stringId="general.action.print" fallback="Print" />,
+                label: <TranslatedText
+                  stringId="general.action.print"
+                  fallback="Print"
+                  data-testid='translatedtext-3w7j' />,
                 action: () => {
                   setSelectedResponse(data);
                   setPrintModalOpen(true);
                 },
               },
             ]}
-          />
+            data-testid='menubutton-1n2t' />
         ),
         required: false,
       },
@@ -110,9 +119,9 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.noDataMessage"
             fallback="No Program registry responses found"
-          />
+            data-testid='translatedtext-n98p' />
         }
-      />
+        data-testid='datafetchingtable-y0e1' />
     </>
   );
 };

@@ -147,7 +147,10 @@ export const MultilineDatetimeDisplay = React.memo(
     const TimeText = isTimeSoft ? SoftText : Text;
     return (
       <Box>
-        <DateDisplay date={date} showExplicitDate={showExplicitDate} />
+        <DateDisplay
+          date={date}
+          showExplicitDate={showExplicitDate}
+          data-testid='datedisplay-ocgk' />
         <TimeText>{formatTime(date)}</TimeText>
       </Box>
     );

@@ -27,7 +27,11 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
               <span> to </span>
               <b>{newType}</b>
             </div>
-            <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              confirmText="Save"
+              onCancel={onCancel}
+              data-testid='formsubmitcancelrow-kjn9' />
           </FormGrid>
         );
       }}

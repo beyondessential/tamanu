@@ -182,10 +182,16 @@ export const LocalisedLocationField = React.memo(props => {
   return (
     <LocationField
       label={
-        <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+        <TranslatedText
+          stringId="general.localisedField.locationId.label"
+          fallback="Location"
+          data-testid='translatedtext-8ulu' />
       }
       locationGroupLabel={
-        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        <TranslatedText
+          stringId="general.localisedField.locationGroupId.label"
+          fallback="Area"
+          data-testid='translatedtext-ypyy' />
       }
       {...props}
     />

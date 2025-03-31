@@ -45,52 +45,70 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
         component={SearchField}
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid='translatedtext-vn63' />
         }
-      />
+        data-testid='localisedfield-lxud' />
       <LocalisedField
         component={SearchField}
         name="firstName"
         label={
-          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid='translatedtext-ebri' />
         }
-      />
+        data-testid='localisedfield-d7wg' />
       <LocalisedField
         component={SearchField}
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid='translatedtext-4uld' />
         }
-      />
+        data-testid='localisedfield-of5k' />
       <LocalisedField
         name="sex"
-        label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+        label={<TranslatedText
+          stringId="general.localisedField.sex.label"
+          fallback="Sex"
+          data-testid='translatedtext-iw9h' />}
         component={TranslatedSelectField}
         transformOptions={options =>
           hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
         }
         enumValues={SEX_LABELS}
         size="small"
-      />
+        data-testid='localisedfield-tcox' />
       <Spacer />
       <LocalisedField
         name="villageId"
         label={
-          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+          <TranslatedText
+            stringId="general.localisedField.villageId.label"
+            fallback="Village"
+            data-testid='translatedtext-e1jt' />
         }
         component={AutocompleteField}
         suggester={villageSuggester}
-      />
+        data-testid='localisedfield-uxv6' />
       <LocalisedField
         component={SelectField}
         prefix="vaccine.property.status"
         name="status"
         label={
-          <TranslatedText stringId="general.localisedField.vaccineStatus.label" fallback="Status" />
+          <TranslatedText
+            stringId="general.localisedField.vaccineStatus.label"
+            fallback="Status"
+            data-testid='translatedtext-e1ym' />
         }
         options={statusOptions}
         size="small"
-      />
+        data-testid='localisedfield-nh29' />
       <Spacer />
       <Spacer />
     </CustomisableSearchBar>

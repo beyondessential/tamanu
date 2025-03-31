@@ -37,7 +37,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
 
 export const ImagingRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Active imaging requests" />
+    <TopBar title="Active imaging requests" data-testid='topbar-kr6y' />
     {/* Here we give the listing an object containing the code for tracking the search state and also an array
     of statuses to be filtered by for each table */}
     <ImagingRequestListing
@@ -49,7 +49,7 @@ export const ImagingRequestListingView = () => (
 
 export const CompletedImagingRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Completed imaging requests" />
+    <TopBar title="Completed imaging requests" data-testid='topbar-sjpe' />
     {/* This is the same situation as above. We decided to separate out the active and completed components as we were
     running into state problems when switching between contexts for the same component */}
     <ImagingRequestListing

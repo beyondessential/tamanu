@@ -50,13 +50,19 @@ const LISTING_COLUMNS = [
 
 const location = {
   key: 'locationName',
-  title: <TranslatedText stringId="general.location.label" fallback="Location" />,
+  title: <TranslatedText
+    stringId="general.location.label"
+    fallback="Location"
+    data-testid='translatedtext-obtz' />,
   accessor: LocationCell,
 };
 
 const locationGroup = {
   key: 'locationGroupName',
-  title: <TranslatedText stringId="general.area.label" fallback="Area" />,
+  title: <TranslatedText
+    stringId="general.area.label"
+    fallback="Area"
+    data-testid='translatedtext-lt6f' />,
   accessor: LocationGroupCell,
 };
 
@@ -134,9 +140,12 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         verb="create"
         noun="Patient"
         onClick={showNewPatient}
-      >
+        data-testid='buttonwithpermissioncheck-6ajy'>
         +{'\u00A0'}
-        <TranslatedText stringId="patientList.action.add" fallback="Add new patient" />
+        <TranslatedText
+          stringId="patientList.action.add"
+          fallback="Add new patient"
+          data-testid='translatedtext-1lsh' />
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
@@ -156,14 +165,20 @@ export const PatientListingView = ({ onViewPatient }) => {
   return (
     <PageContainer>
       <TopBar
-        title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing" />}
-      >
+        title={<TranslatedText
+          stringId="patientList.default.title"
+          fallback="Patient listing"
+          data-testid='translatedtext-enlo' />}
+        data-testid='topbar-kzet'>
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid='translatedtext-ke7c' />
         </SearchTableTitle>
         <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
@@ -190,13 +205,16 @@ export const AdmittedPatientsView = () => {
           <TranslatedText
             stringId="patientList.inpatient.title"
             fallback="Admitted patient listing"
-          />
+            data-testid='translatedtext-o45o' />
         }
-      />
+        data-testid='topbar-pgre' />
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid='translatedtext-lswm' />
         </SearchTableTitle>
         <PatientSearchBar
           onSearch={setSearchParameters}
@@ -223,13 +241,19 @@ export const OutpatientsView = () => {
     <PageContainer>
       <TopBar
         title={
-          <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
+          <TranslatedText
+            stringId="patientList.outpatient.title"
+            fallback="Outpatient listing"
+            data-testid='translatedtext-vxhr' />
         }
-      />
+        data-testid='topbar-pf3x' />
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid='translatedtext-rioa' />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable

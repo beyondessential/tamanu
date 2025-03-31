@@ -43,7 +43,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
             <TranslatedText
               stringId="encounter.vitals.modal.recordVitals.title"
               fallback="Record vitals"
-            />
+              data-testid='translatedtext-pwi6' />
           }
           open={modalOpen}
           onClose={handleClose}
@@ -52,11 +52,14 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
         </FormModal>
         <VitalChartsModal />
         <TableButtonRow variant="small">
-          <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+          <Button
+            onClick={() => setModalOpen(true)}
+            disabled={readonly}
+            data-testid='button-g7cl'>
             <TranslatedText
               stringId="encounter.vitals.action.recordVitals"
               fallback="Record vitals"
-            />
+              data-testid='translatedtext-xj3r' />
           </Button>
         </TableButtonRow>
         <VitalsTable />

@@ -14,7 +14,11 @@ export const LocationCell = ({
   return (
     <div style={{ minWidth: 100, ...style }}>
       {locationId ? (
-        <TranslatedReferenceData value={locationId} fallback={locationName} category={category} />
+        <TranslatedReferenceData
+          value={locationId}
+          fallback={locationName}
+          category={category}
+          data-testid='translatedreferencedata-ine4' />
       ) : (
         locationName
       )}
@@ -26,7 +30,7 @@ export const LocationCell = ({
               value={plannedLocationId}
               fallback={plannedLocationName}
               category={category}
-            />
+              data-testid='translatedreferencedata-s47i' />
           }
           )
         </Typography>

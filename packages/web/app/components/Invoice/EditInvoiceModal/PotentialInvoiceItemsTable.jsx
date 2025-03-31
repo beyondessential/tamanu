@@ -126,24 +126,39 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
     {
       key: 'orderDate',
-      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-      accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
+      title: <TranslatedText
+        stringId="general.date.label"
+        fallback="Date"
+        data-testid='translatedtext-uae2' />,
+      accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-petx' />,
     },
     {
       key: 'productCode',
-      title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.code"
+        fallback="Code"
+        data-testid='translatedtext-8xou' />,
       accessor: ({ productCode }) => productCode,
     },
     {
       key: 'productType',
-      title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.category"
+        fallback="Category"
+        data-testid='translatedtext-neee' />,
       accessor: ({ productType }) => (
-        <TranslatedEnum value={productType} enumValues={INVOICE_ITEMS_CATEGORY_LABELS} />
+        <TranslatedEnum
+          value={productType}
+          enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
+          data-testid='translatedenum-rogu' />
       ),
     },
     {
       key: 'productPrice',
-      title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.price"
+        fallback="Price"
+        data-testid='translatedtext-to98' />,
       accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
@@ -151,7 +166,10 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       sortable: false,
       accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
-          <TranslatedText stringId="general.action.add" fallback="Add" />
+          <TranslatedText
+            stringId="general.action.add"
+            fallback="Add"
+            data-testid='translatedtext-vvjn' />
         </SingleAddButton>
       ),
     },
@@ -163,10 +181,13 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         <TranslatedText
           stringId="invoice.modal.potentialItems.title"
           fallback="Patient items to be added"
-        />
+          data-testid='translatedtext-xgvp' />
         {!isEmptyPotentialInvoiceItems && (
           <BulkAddButton onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}>
-            <TranslatedText stringId="general.action.addAll" fallback="Add all" />
+            <TranslatedText
+              stringId="general.action.addAll"
+              fallback="Add all"
+              data-testid='translatedtext-zz0u' />
           </BulkAddButton>
         )}
       </PaneHeader>
@@ -177,7 +198,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           <TranslatedText
             stringId="invoice.modal.potentialInvoices.table.noData"
             fallback="No patient items to be added"
-          />
+            data-testid='translatedtext-b8nh' />
         }
         allowExport={false}
         rowStyle={potentialInvoiceItemRowStyle}

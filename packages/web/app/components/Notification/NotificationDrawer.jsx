@@ -210,13 +210,13 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
           fallback="Notifications"
           stringId="dashboard.notification.notifications.title"
           replacements={{ count: unreadNotifications.length }}
-        />{' '}
+          data-testid='translatedtext-q9ro' />{' '}
         {!!unreadNotifications.length && (
           <TranslatedText
             fallback="(:count new)"
             stringId="dashboard.notification.title.countNew"
             replacements={{ count: unreadNotifications.length }}
-          />
+            data-testid='translatedtext-z61r' />
         )}
         <CloseButton onClick={onClose}>
           <CloseIcon />
@@ -228,13 +228,13 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
             <TranslatedText
               fallback="No notifications to display "
               stringId="dashboard.notification.empty.title"
-            />
+              data-testid='translatedtext-ygeu' />
           </Heading3>
           <BodyText>
             <TranslatedText
               fallback="Check back again later"
               stringId="dashboard.notification.empty.subTitle"
-            />
+              data-testid='translatedtext-3bbs' />
           </BodyText>
         </NoDataContainer>
       )}
@@ -243,13 +243,16 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
           {!!unreadNotifications.length && (
             <UnreadTitle>
               <Heading5 margin={0}>
-                <TranslatedText fallback="Unread" stringId="dashboard.notification.unread.title" />
+                <TranslatedText
+                  fallback="Unread"
+                  stringId="dashboard.notification.unread.title"
+                  data-testid='translatedtext-jhct' />
               </Heading5>
               <ActionLink onClick={onMarkAllAsRead}>
                 <TranslatedText
                   fallback="Mark all as read"
                   stringId="dashboard.notification.action.markAllAsRead"
-                />
+                  data-testid='translatedtext-7bsk' />
               </ActionLink>
             </UnreadTitle>
           )}
@@ -264,7 +267,7 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
                 fallback="Recent (last :recentNotificationsTimeFrame hours)"
                 stringId="dashboard.notification.recent.title"
                 replacements={{ recentNotificationsTimeFrame }}
-              />
+                data-testid='translatedtext-bbt0' />
             </ReadTitle>
           )}
           <NotificationList>

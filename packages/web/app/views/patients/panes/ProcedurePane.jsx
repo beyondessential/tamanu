@@ -27,8 +27,11 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           verb="create"
           noun="Procedure"
-        >
-          <TranslatedText stringId="procedure.action.create" fallback="New procedure" />
+          data-testid='buttonwithpermissioncheck-nt1o'>
+          <TranslatedText
+            stringId="procedure.action.create"
+            fallback="New procedure"
+            data-testid='translatedtext-ytyl' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />

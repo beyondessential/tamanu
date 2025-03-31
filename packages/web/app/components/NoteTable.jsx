@@ -175,7 +175,10 @@ const NoteContent = ({
       {isNotFilteredByNoteType && (
         <NoteHeaderContainer>
           <NoteHeaderText>
-            <TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />
+            <TranslatedEnum
+              value={note.noteType}
+              enumValues={NOTE_TYPE_LABELS}
+              data-testid='translatedenum-sxxc' />
           </NoteHeaderText>
         </NoteHeaderContainer>
       )}
@@ -200,20 +203,29 @@ const NoteContent = ({
         {contentIsClipped && !contentIsExpanded && (
           <ReadMoreSpan onClick={handleReadMore}>
             ...
-            <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
+            <TranslatedText
+              stringId="note.table.item.readMore"
+              fallback="read more"
+              data-testid='translatedtext-s4ud' />
           </ReadMoreSpan>
         )}
         {contentIsExpanded && (
           <ShowLessSpan onClick={handleReadLess}>
             {' '}
-            <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
+            <TranslatedText
+              stringId="note.table.item.showLess"
+              fallback="Show less"
+              data-testid='translatedtext-tx50' />
           </ShowLessSpan>
         )}
       </NoteExpandControlContainer>
       <NoteFooterContainer>
         {showNoteMetaPrefix && (
           <NoteFooterTextElement>
-            <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />:
+            <TranslatedText
+              stringId="general.lastUpdated.label"
+              fallback="Last updated"
+              data-testid='translatedtext-sbf5' />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
@@ -223,18 +235,21 @@ const NoteContent = ({
               stringId="note.table.onBehalfOfText"
               fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ noteOnBehalfOfName }}
-            />
+              data-testid='translatedtext-rjl3' />
           </NoteFooterTextElement>
         )}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
-        />
+          data-testid='datedisplay-2zlk' />
         {note.revisedById && (
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
             <EditedButton>
-              <TranslatedText stringId="note.table.footer.edited" fallback="edited" />
+              <TranslatedText
+                stringId="note.table.footer.edited"
+                fallback="edited"
+                data-testid='translatedtext-e1p1' />
             </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
@@ -264,12 +279,18 @@ const NoteTable = ({
           <TranslatedText
             stringId="note.modal.updateTreatmentPlan.title"
             fallback="Update treatment plan"
-          />
+            data-testid='translatedtext-2521' />
         ) : (
-          <TranslatedText stringId="note.modal.edit.title" fallback="Edit note" />
+          <TranslatedText
+            stringId="note.modal.edit.title"
+            fallback="Edit note"
+            data-testid='translatedtext-alee' />
         ),
       );
-      setModalCancelText(<TranslatedText stringId="general.action.cancel" fallback="Cancel" />);
+      setModalCancelText(<TranslatedText
+        stringId="general.action.cancel"
+        fallback="Cancel"
+        data-testid='translatedtext-z6ye' />);
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -279,7 +300,10 @@ const NoteTable = ({
 
   const handleViewNoteChangeLog = useCallback(
     note => {
-      setModalTitle(<TranslatedText stringId="note.modal.changeLog.title" fallback="Change Log" />);
+      setModalTitle(<TranslatedText
+        stringId="note.modal.changeLog.title"
+        fallback="Change Log"
+        data-testid='translatedtext-hc1a' />);
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -328,9 +352,15 @@ const NoteTable = ({
           noteFormMode={modalNoteFormMode}
           confirmText={
             modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
-              <TranslatedText stringId="general.action.close" fallback="Close" />
+              <TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid='translatedtext-eds8' />
             ) : (
-              <TranslatedText stringId="general.action.save" fallback="Save" />
+              <TranslatedText
+                stringId="general.action.save"
+                fallback="Save"
+                data-testid='translatedtext-2sdr' />
             )
           }
         />
@@ -351,17 +381,17 @@ const NoteTable = ({
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
-              />
+                data-testid='translatedtext-gki5' />
             ) : (
               <TranslatedText
                 stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
-              />
+                data-testid='translatedtext-uwiq' />
             )}
           </NoDataMessage>
         }
         rowStyle={rowStyle}
-      />
+        data-testid='datafetchingtable-ij5f' />
     </>
   );
 };

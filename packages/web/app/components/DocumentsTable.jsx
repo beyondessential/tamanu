@@ -40,13 +40,13 @@ const getAttachmentType = ({ type }) => {
 };
 
 const getUploadedDate = ({ documentUploadedAt }) =>
-  documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
+  documentUploadedAt ? <DateDisplay date={documentUploadedAt} data-testid='datedisplay-e62m' /> : '';
 const getDepartmentName = ({ department }) => department
   ? <TranslatedReferenceData
-    fallback={department.name}
-    value={department.id}
-    category="department"
-  />
+  fallback={department.name}
+  value={department.id}
+  category="department"
+  data-testid='translatedreferencedata-u9f7' />
   : ''
 
 export const DocumentsTable = React.memo(
@@ -64,7 +64,10 @@ export const DocumentsTable = React.memo(
 
     const actions = [
       {
-        label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+        label: <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid='translatedtext-x6im' />,
         action: () => setModalOpen(true),
         permissionCheck: () => {
           return ability?.can('delete', 'DocumentMetadata');
@@ -78,40 +81,61 @@ export const DocumentsTable = React.memo(
     const COLUMNS = [
       {
         key: 'name',
-        title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
+        title: <TranslatedText
+          stringId="general.table.column.name"
+          fallback="Name"
+          data-testid='translatedtext-m0xc' />,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'type',
-        title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
+        title: <TranslatedText
+          stringId="document.table.column.type"
+          fallback="Type"
+          data-testid='translatedtext-dior' />,
         accessor: getAttachmentType,
       },
       {
         key: 'documentUploadedAt',
-        title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
+        title: <TranslatedText
+          stringId="document.table.column.uploadedDate"
+          fallback="Upload"
+          data-testid='translatedtext-qrps' />,
         accessor: getUploadedDate,
       },
       {
         key: 'documentOwner',
-        title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
+        title: <TranslatedText
+          stringId="document.table.column.owner"
+          fallback="Owner"
+          data-testid='translatedtext-cg53' />,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'department.name',
-        title: <TranslatedText stringId="general.department.label" fallback="Department" />,
+        title: <TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid='translatedtext-t55n' />,
         accessor: getDepartmentName,
         CellComponent: LimitedLinesCell,
         sortable: false,
       },
       {
         key: 'note',
-        title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
+        title: <TranslatedText
+          stringId="document.table.column.comments"
+          fallback="Comments"
+          data-testid='translatedtext-3die' />,
         sortable: false,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'actions',
-        title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
+        title: <TranslatedText
+          stringId="document.table.column.actions"
+          fallback="Actions"
+          data-testid='translatedtext-jbuu' />,
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => (
@@ -119,7 +143,7 @@ export const DocumentsTable = React.memo(
             <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
               <GetAppIcon fontSize="small" />
             </StyledIconButton>
-            {actions.length > 0 && <MenuButton actions={actions} />}
+            {actions.length > 0 && <MenuButton actions={actions} data-testid='menubutton-zrlx' />}
           </ActionWrapper>
         ),
       },
@@ -131,7 +155,10 @@ export const DocumentsTable = React.memo(
           endpoint={endpoint}
           columns={COLUMNS}
           noDataMessage={
-            <TranslatedText stringId="documents.table.noData" fallback="No documents found" />
+            <TranslatedText
+              stringId="documents.table.noData"
+              fallback="No documents found"
+              data-testid='translatedtext-dcv4' />
           }
           fetchOptions={searchParameters}
           refreshCount={refreshCount}
@@ -139,7 +166,7 @@ export const DocumentsTable = React.memo(
           elevated={false}
           onRowClick={row => openDocumentPreview(row)}
           rowIdKey="id"
-        />
+          data-testid='datafetchingtable-1kc7' />
         <DeleteDocumentModal
           open={modalOpen}
           documentToDelete={selectedDocument}

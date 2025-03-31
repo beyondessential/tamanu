@@ -93,7 +93,7 @@ export const TasksPane = React.memo(({ encounter }) => {
               <TranslatedText
                 stringId="encounter.tasks.showCompleted.label"
                 fallback="Show completed"
-              />
+                data-testid='translatedtext-c2y3' />
             }
             onChange={() => setShowCompleted(!showCompleted)}
             value={showCompleted}
@@ -103,7 +103,7 @@ export const TasksPane = React.memo(({ encounter }) => {
               <TranslatedText
                 stringId="encounter.tasks.showNotCompleted.label"
                 fallback="Show not completed"
-              />
+                data-testid='translatedtext-iu21' />
             }
             onChange={() => setShowNotCompleted(!showNotCompleted)}
             value={showNotCompleted}
@@ -116,7 +116,7 @@ export const TasksPane = React.memo(({ encounter }) => {
               <TranslatedText
                 stringId="general.localisedField.assignedTo.label"
                 fallback="Assigned to"
-              />
+                data-testid='translatedtext-c88p' />
             </Box>
           }
           size="small"
@@ -124,8 +124,15 @@ export const TasksPane = React.memo(({ encounter }) => {
           onChange={onFilterByDesignation}
         />
         {canCreate && (
-          <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
-            <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
+          <Button
+            onClick={() => setTaskModalOpen(true)}
+            variant="outlined"
+            color="primary"
+            data-testid='button-umu4'>
+            <TranslatedText
+              stringId="encounter.tasks.action.newTask"
+              fallback="+ New task"
+              data-testid='translatedtext-1dm1' />
           </Button>
         )}
       </ActionRow>

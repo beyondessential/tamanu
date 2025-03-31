@@ -134,12 +134,12 @@ export const HeadCell = ({ title, count }) => (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation"
               fallback="appt"
-            />
+              data-testid='translatedtext-59zp' />
           ) : (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
               fallback="appts"
-            />
+              data-testid='translatedtext-m82g' />
           )}
         </>
       )}
@@ -173,14 +173,14 @@ export const OutpatientBookingCalendar = ({
           <TranslatedText
             stringId="appointments.action.emailReminder.success"
             fallback="Email successfully sent"
-          />,
+            data-testid='translatedtext-zrh7' />,
         ),
       onError: () =>
         toast.error(
           <TranslatedText
             stringId="appointments.action.emailReminder.error"
             fallback="Error sending email"
-          />,
+            data-testid='translatedtext-uv2o' />,
         ),
     },
   );
@@ -195,7 +195,7 @@ export const OutpatientBookingCalendar = ({
         <TranslatedText
           stringId="appointments.outpatientCalendar.error"
           fallback="Failed to load appointments. Please try again."
-        />
+          data-testid='translatedtext-nizo' />
       </ErrorText>
     );
   }
@@ -206,7 +206,7 @@ export const OutpatientBookingCalendar = ({
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
           fallback="No appointments to display. Please try adjusting the search filters."
-        />
+          data-testid='translatedtext-49j9' />
       </StatusText>
     );
   }
@@ -229,7 +229,7 @@ export const OutpatientBookingCalendar = ({
               category="locationGroup"
               value={cell.id}
               fallback={cell.name}
-            />
+              data-testid='translatedreferencedata-qqdd' />
           ) : (
             cell.displayName
           );
@@ -251,7 +251,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.newAppointment"
                                 fallback="New appointment"
-                              />
+                                data-testid='translatedtext-rjm7' />
                             ),
                             action: () => onCreateFromExisting(a),
                           },
@@ -260,7 +260,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.emailAppointment"
                                 fallback="Email appointment"
-                              />
+                                data-testid='translatedtext-amm4' />
                             ),
                             action: () =>
                               setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
@@ -275,7 +275,10 @@ export const OutpatientBookingCalendar = ({
         );
       })}
       <FormModal
-        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        title={<TranslatedText
+          stringId="patient.email.title"
+          fallback="Enter email address"
+          data-testid='translatedtext-6kqx' />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
       >

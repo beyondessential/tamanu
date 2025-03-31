@@ -48,7 +48,10 @@ export const ProgramRegistryStatusHistory = ({
     return [
       {
         key: 'clinicalStatusId',
-        title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
+        title: <TranslatedText
+          stringId="programRegistry.clinicalStatus.label"
+          fallback="Status"
+          data-testid='translatedtext-zgga' />,
         sortable: false,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
@@ -60,7 +63,7 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.recordedBy"
             fallback="Recorded By"
-          />
+            data-testid='translatedtext-nzc5' />
         ),
         sortable: false,
         accessor: row => row.clinician.displayName,
@@ -71,10 +74,10 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.dateRecorded"
             fallback="Date recorded"
-          />
+            data-testid='translatedtext-x3v2' />
         ),
         sortable: true,
-        accessor: row => <DateDisplay date={row.date} />,
+        accessor: row => <DateDisplay date={row.date} data-testid='datedisplay-78fu' />,
       },
       ...(removedOnce
         ? [
@@ -84,10 +87,10 @@ export const ProgramRegistryStatusHistory = ({
                 <TranslatedText
                   stringId="programRegistry.registrationDate.label"
                   fallback="Date of registration"
-                />
+                  data-testid='translatedtext-zh5o' />
               ),
               sortable: false,
-              accessor: row => <DateDisplay date={row?.registrationDate} />,
+              accessor: row => <DateDisplay date={row?.registrationDate} data-testid='datedisplay-pf2l' />,
             },
           ]
         : []),
@@ -100,7 +103,7 @@ export const ProgramRegistryStatusHistory = ({
         <TranslatedText
           stringId="programRegistry.statusHistory.title"
           fallback="Program status history"
-        />
+          data-testid='translatedtext-725p' />
       </Heading5>
       <Table
         isBodyScrollable
@@ -118,7 +121,7 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.noDataMessage"
             fallback="No Program registry clinical status found"
-          />
+            data-testid='translatedtext-1gvn' />
         }
         elevated={false}
         isLoading={isLoading}

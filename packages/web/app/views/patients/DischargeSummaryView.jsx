@@ -65,7 +65,7 @@ export const DischargeSummaryView = React.memo(() => {
           size="small"
           onClick={() => printPDF('discharge-summary')}
           startIcon={<PrintIcon />}
-        >
+          data-testid='button-4ju8'>
           Print Summary
         </Button>
       </NavContainer>

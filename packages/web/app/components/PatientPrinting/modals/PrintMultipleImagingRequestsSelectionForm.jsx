@@ -57,7 +57,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
           <TranslatedText
             stringId="imaging.modal.printMultiple.selectText"
             fallback="Select the imaging requests you would like to print"
-          />
+            data-testid='translatedtext-c1q1' />
         }
         headerColor={Colors.white}
         columns={columns}
@@ -69,14 +69,20 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
           <TranslatedText
             stringId="imaging.modal.printMultiple.table.noData"
             fallback="No imaging requests found"
-          />
+            data-testid='translatedtext-546x' />
         }
         allowExport={false}
       />
       <FormDivider />
       <ConfirmCancelRow
-        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
+        cancelText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-fgla' />}
+        confirmText={<TranslatedText
+          stringId="general.action.print"
+          fallback="Print"
+          data-testid='translatedtext-p7i4' />}
         confirmDisabled={selectedRows.length === 0}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}

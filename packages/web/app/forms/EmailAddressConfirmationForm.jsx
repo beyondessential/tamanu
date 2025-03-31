@@ -34,22 +34,28 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit, em
         <FormGrid columns={1}>
           <Field
             name="email"
-            label={<TranslatedText stringId="patient.email.label" fallback="Patient email" />}
+            label={<TranslatedText
+              stringId="patient.email.label"
+              fallback="Patient email"
+              data-testid='translatedtext-p45p' />}
             component={TextField}
             required
-          />
+            data-testid='field-hx5k' />
           <Field
             name="confirmEmail"
             label={
               <TranslatedText
                 stringId="patient.confirmEmail.label"
                 fallback="Confirm patient email"
-              />
+                data-testid='translatedtext-510t' />
             }
             component={TextField}
             required
-          />
-          <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
+            data-testid='field-ezrs' />
+          <FormSubmitCancelRow
+            onConfirm={submitForm}
+            onCancel={onCancel}
+            data-testid='formsubmitcancelrow-rin3' />
         </FormGrid>
       )}
     />

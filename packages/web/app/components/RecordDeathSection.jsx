@@ -62,9 +62,15 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
 
   const isPatientDead = Boolean(patient.dateOfDeath);
   const actionText = isPatientDead ? (
-    <TranslatedText stringId="patient.detailsSidebar.revertDeath" fallback="Revert death record" />
+    <TranslatedText
+      stringId="patient.detailsSidebar.revertDeath"
+      fallback="Revert death record"
+      data-testid='translatedtext-1ldc' />
   ) : (
-    <TranslatedText stringId="patient.detailsSidebar.recordDeath" fallback="Record death" />
+    <TranslatedText
+      stringId="patient.detailsSidebar.recordDeath"
+      fallback="Record death"
+      data-testid='translatedtext-iyhu' />
   );
 
   return (

@@ -13,7 +13,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.primaryContactNumber.label"
           fallback="Primary contact number"
-        />
+          data-testid='translatedtext-xboz' />
       ),
     },
     secondaryContactNumber: {
@@ -23,7 +23,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.secondaryContactNumber.label"
           fallback="Secondary contact number"
-        />
+          data-testid='translatedtext-d5qy' />
       ),
     },
     emergencyContactName: {
@@ -32,7 +32,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.emergencyContactName.label"
           fallback="Emergency contact name"
-        />
+          data-testid='translatedtext-p8yw' />
       ),
     },
     emergencyContactNumber: {
@@ -42,7 +42,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.emergencyContactNumber.label"
           fallback="Emergency contact number"
-        />
+          data-testid='translatedtext-fzwx' />
       ),
     },
   };

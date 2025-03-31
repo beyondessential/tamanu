@@ -48,11 +48,17 @@ export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] 
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      label: <TranslatedText
+        stringId="general.action.modify"
+        fallback="Modify"
+        data-testid='translatedtext-6ig7' />,
       action: onEdit,
     },
     {
-      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      label: <TranslatedText
+        stringId="general.action.cancel"
+        fallback="Cancel"
+        data-testid='translatedtext-l6nl' />,
       action: onCancel,
     },
     ...additionalActions,
@@ -60,7 +66,10 @@ export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] 
 
   return (
     <ControlsContainer>
-      {canWriteAppointment && <StyledMenuButton actions={actions} placement="bottom-start" />}
+      {canWriteAppointment && <StyledMenuButton
+        actions={actions}
+        placement="bottom-start"
+        data-testid='styledmenubutton-6ulw' />}
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>

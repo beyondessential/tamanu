@@ -63,7 +63,10 @@ export const SurveyResponsesPrintModal = React.memo(
     return (
       <Modal
         title={
-          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+          <TranslatedText
+            stringId="surveyResponse.modal.details.title"
+            fallback="Form response"
+            data-testid='translatedtext-4qwx' />
         }
         open={open}
         onClose={onClose}

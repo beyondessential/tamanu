@@ -24,7 +24,7 @@ const LocationTable = React.memo(({ ...props }) => (
     columns={COLUMNS}
     noDataMessage="No locations found"
     {...props}
-  />
+    data-testid='datafetchingtable-x7n2' />
 ));
 
 export const LocationAdminView = React.memo(() => {
@@ -41,8 +41,12 @@ export const LocationAdminView = React.memo(() => {
 
   return (
     <PageContainer>
-      <TopBar title="Locations">
-        <Button color="primary" variant="outlined" onClick={showCreatingLocationModal}>
+      <TopBar title="Locations" data-testid='topbar-a19z'>
+        <Button
+          color="primary"
+          variant="outlined"
+          onClick={showCreatingLocationModal}
+          data-testid='button-x7x7'>
           Add new location
         </Button>
       </TopBar>

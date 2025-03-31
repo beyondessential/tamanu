@@ -289,7 +289,7 @@ export const DataFetchingTable = memo(
             <TranslatedText
               stringId="general.table.error.noPermission"
               fallback="You do not have permission to view this table. If you require access, please contact your administrator."
-            />
+              data-testid='translatedtext-l04z' />
           }
         />
       );

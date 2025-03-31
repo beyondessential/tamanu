@@ -27,13 +27,13 @@ export const ErrorView = React.memo(({ error }) => {
 
   return (
     <ContentPane>
-      <h2>Oops!</h2>
-      <p>The application encountered an error when trying to display this information.</p>
-      <p>The message of the error is:</p>
+      <h2 data-testid='h2-m9cx'>Oops!</h2>
+      <p data-testid='p-sjmi'>The application encountered an error when trying to display this information.</p>
+      <p data-testid='p-298i'>The message of the error is:</p>
       <DebugInfo onClick={logError}>{error.message}</DebugInfo>
-      <p>The stack of the error are:</p>
+      <p data-testid='p-ljyd'>The stack of the error are:</p>
       <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
-      <p>The contents of the application state are:</p>
+      <p data-testid='p-f1ql'>The contents of the application state are:</p>
       <DebugInfo onClick={logState}>{JSON.stringify({ reduxState }, null, 2)}</DebugInfo>
     </ContentPane>
   );

@@ -154,7 +154,10 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
           data-test-class="download-data-button"
           data-testid="download-data-button"
         >
-          <TranslatedText stringId="general.action.download" fallback="Download" />
+          <TranslatedText
+            stringId="general.action.download"
+            fallback="Download"
+            data-testid='translatedtext-ynwg' />
         </GreyOutlinedButton>
       )}
     </>

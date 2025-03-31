@@ -80,45 +80,50 @@ export const KebabMenu = () => {
   
   const supportUrl = getLocalisation('supportDeskUrl');
 
-  return <>
-    <StyledIconButton
-      onClick={onOpenKebabMenu}
-    >
-      <MoreVert />
-    </StyledIconButton>
-    <StyledMenu
-      anchorEl={anchorEl}
-      open={open}
-      onClose={handleCloseKebabMenu}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-    >
-      {/* If multiple languages not implemented, no need for the modal to show */}
-      {languageOptions.length > 1 && <KebabMenuItem
-        onClick={handleChangingLanguage}
+  return (
+    <>
+      <StyledIconButton
+        onClick={onOpenKebabMenu}
       >
-        <TranslatedText stringId="general.language.change" fallback="Change language" />
-      </KebabMenuItem>}
-      <KebabMenuItem onClick={handleCloseKebabMenu}>
-        <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+        <MoreVert />
+      </StyledIconButton>
+      <StyledMenu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleCloseKebabMenu}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        {/* If multiple languages not implemented, no need for the modal to show */}
+        {languageOptions.length > 1 && <KebabMenuItem
+          onClick={handleChangingLanguage}
+        >
           <TranslatedText
-            stringId="externalLink.supportCentre"
-            fallback="Support centre"
-          />
-          <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
-        </SupportDesktopLink>
-      </KebabMenuItem>
-    </StyledMenu>
-    <ChangeLanguageModal
-      width='xs'
-      open={isChangingLanguage}
-      onClose={() => setChangingLanguage(false)}
-    />
-  </>
+            stringId="general.language.change"
+            fallback="Change language"
+            data-testid='translatedtext-qiru' />
+        </KebabMenuItem>}
+        <KebabMenuItem onClick={handleCloseKebabMenu}>
+          <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+            <TranslatedText
+              stringId="externalLink.supportCentre"
+              fallback="Support centre"
+              data-testid='translatedtext-06xg' />
+            <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
+          </SupportDesktopLink>
+        </KebabMenuItem>
+      </StyledMenu>
+      <ChangeLanguageModal
+        width='xs'
+        open={isChangingLanguage}
+        onClose={() => setChangingLanguage(false)}
+      />
+    </>
+  );
 };

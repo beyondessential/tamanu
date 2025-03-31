@@ -86,7 +86,7 @@ export const VaccineGivenForm = ({
                 <TranslatedText
                   stringId="vaccine.givenElsewhereCheckbox.label"
                   fallback="Given elsewhere (e.g overseas)"
-                />
+                  data-testid='translatedtext-n7dz' />
               }
               component={CheckField}
               onChange={(_e, value) => {
@@ -101,7 +101,7 @@ export const VaccineGivenForm = ({
                 }
                 setValues(newValues);
               }}
-            />
+              data-testid='field-ax65' />
           </FullWidthCol>
         </>
       )}
@@ -114,13 +114,13 @@ export const VaccineGivenForm = ({
                 <TranslatedText
                   stringId="general.localisedField.circumstanceIds.label"
                   fallback="Circumstances"
-                />
+                  data-testid='translatedtext-usr0' />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
               isMulti
               required
-            />
+              data-testid='localisedfield-pbxo' />
           </FullWidthCol>
           <StyledDivider />
         </>
@@ -144,21 +144,20 @@ export const VaccineGivenForm = ({
           <BatchField />
         </>
       )}
-
       {!editMode && schedules?.length ? (
         <AdministeredVaccineScheduleField schedules={schedules} />
       ) : null}
-
       <VaccineDateField
-        label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
+        label={<TranslatedText
+          stringId="vaccine.dateGiven.label"
+          fallback="Date given"
+          data-testid='translatedtext-yxix' />}
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
         max={getCurrentDateString()}
         keepIncorrectValue
       />
-
       <InjectionSiteField />
-
       {!values.givenElsewhere ? (
         <>
           <StyledDivider />
@@ -167,15 +166,10 @@ export const VaccineGivenForm = ({
           <DepartmentField />
         </>
       ) : null}
-
       <StyledDivider />
-
       {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
-
       {values.givenElsewhere && !editMode && <StyledDivider />}
-
       {!editMode && <RecordedByField />}
-
       {vaccineConsentEnabled && (
         <>
           <StyledDivider />

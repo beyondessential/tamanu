@@ -30,7 +30,10 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
     <FormModal
       width="md"
       title={
-        <TranslatedText stringId="imaging.modal.create.title" fallback="New imaging request" />
+        <TranslatedText
+          stringId="imaging.modal.create.title"
+          fallback="New imaging request"
+          data-testid='translatedtext-0b6e' />
       }
       open={open}
       onClose={onClose}

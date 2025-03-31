@@ -13,13 +13,19 @@ export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
     <FormGrid columns={1}>
       <LocalisedField
         name="dietIds"
-        label={<TranslatedText stringId="general.localisedField.dietId.label" fallback="Diet" />}
+        label={<TranslatedText
+          stringId="general.localisedField.dietId.label"
+          fallback="Diet"
+          data-testid='translatedtext-oug0' />}
         endpoint="diet"
         component={SuggesterSelectField}
         isMulti
-      />
+        data-testid='localisedfield-lh6s' />
       <ModalActionRow
-        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        confirmText={<TranslatedText
+          stringId="general.action.confirm"
+          fallback="Confirm"
+          data-testid='translatedtext-ijfn' />}
         onConfirm={submitForm}
         onCancel={onCancel}
       />

@@ -36,14 +36,14 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
 
 export const LabRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Active lab requests" />
+    <TopBar title="Active lab requests" data-testid='topbar-rv2v' />
     <LabRequestListing statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE} />
   </PageContainer>
 );
 
 export const PublishedLabRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Published lab requests" />
+    <TopBar title="Published lab requests" data-testid='topbar-nint' />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
       searchParamKey={LabRequestSearchParamKeys.Published}

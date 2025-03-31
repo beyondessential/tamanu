@@ -69,7 +69,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                 stringId="note.table.onBehalfOfText"
                 fallback="On behalf of :changeOnBehalfOfName"
                 replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
-              />
+                data-testid='translatedtext-blqt' />
             </NoteOnBehalfOf>
           ) : null}
           {isMainCarePlan ? (
@@ -77,19 +77,22 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
               <TranslatedText
                 stringId="carePlan.modal.mainCarePlanIndicator"
                 fallback="Main care plan"
-              />
+                data-testid='translatedtext-goik' />
             </MainCarePlanIndicator>
           ) : null}
         </VerticalCenter>
         <VerticalCenter>
           <Timestamp>
-            <DateDisplay date={note.date} />
+            <DateDisplay date={note.date} data-testid='datedisplay-ega2' />
           </Timestamp>
           <MenuButton
             iconColor={Colors.midText}
             actions={[
               {
-                label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                label: <TranslatedText
+                  stringId="general.action.edit"
+                  fallback="Edit"
+                  data-testid='translatedtext-p2m2' />,
                 action: () => {
                   onEditClicked();
                 },
@@ -98,7 +101,10 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                 ? []
                 : [
                     {
-                      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                      label: <TranslatedText
+                        stringId="general.action.delete"
+                        fallback="Delete"
+                        data-testid='translatedtext-bq8n' />,
                       action: async () => {
                         await deleteNote(note.id);
                         onNoteDeleted();
@@ -106,7 +112,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                     },
                   ]),
             ]}
-          />
+            data-testid='menubutton-3cra' />
         </VerticalCenter>
       </NoteHeaderContainer>
       <NoteContentContainer>

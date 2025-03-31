@@ -68,42 +68,54 @@ export const InvoiceItemCard = ({ item }) => {
     <Card mb={3}>
       <Column>
         <CardItem
-          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          label={<TranslatedText
+            stringId="general.date.label"
+            fallback="Date"
+            data-testid='translatedtext-1l1r' />}
           value={item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
-        />
+          data-testid='carditem-5jsj' />
         <CardItem
-          label={<TranslatedText stringId="invoice.table.column.code" fallback="Code" />}
+          label={<TranslatedText
+            stringId="invoice.table.column.code"
+            fallback="Code"
+            data-testid='translatedtext-8e4e' />}
           value={item.productCode}
-        />
+          data-testid='carditem-oho6' />
         <CardItem
           label={
             <TranslatedText
               stringId="invoice.modal.editInvoice.orderedBy.label"
               fallback="Ordered by"
-            />
+              data-testid='translatedtext-e1lx' />
           }
           value={item?.orderedByUser?.displayName}
-        />
+          data-testid='carditem-l9mb' />
       </Column>
       <Column>
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.details.label"
+              fallback="Details"
+              data-testid='translatedtext-5lm4' />
           }
           value={item.productName}
-        />
+          data-testid='carditem-ac17' />
         <CardItem
           label={
             <TranslatedText
               stringId="invoice.modal.editInvoice.quantity.label"
               fallback="Quantity"
-            />
+              data-testid='translatedtext-wqpa' />
           }
           value={item.quantity}
-        />
+          data-testid='carditem-fs8q' />
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.price.label"
+              fallback="Price"
+              data-testid='translatedtext-a72b' />
           }
           value={
             <>
@@ -111,7 +123,7 @@ export const InvoiceItemCard = ({ item }) => {
               {!!discountPrice && <span>{discountPrice}</span>}
             </>
           }
-        />
+          data-testid='carditem-v0zu' />
       </Column>
     </Card>
   );

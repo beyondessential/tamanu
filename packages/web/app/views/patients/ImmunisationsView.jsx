@@ -32,14 +32,20 @@ const StyledSearchTableTitle = styled(SearchTableTitle)`
 
 const getSchedule = record =>
   record?.scheduleName || (
-    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+    <TranslatedText
+      stringId="general.fallback.notApplicable"
+      fallback="N/A"
+      data-testid='translatedtext-60pd' />
   );
 
 const COLUMNS = [
   displayId,
   {
     key: 'fullName',
-    title: <TranslatedText stringId="general.patientName.label" fallback="Patient name" />,
+    title: <TranslatedText
+      stringId="general.patientName.label"
+      fallback="Patient name"
+      data-testid='translatedtext-uj04' />,
     accessor: row => `${row.firstName} ${row.lastName}`,
   },
   dateOfBirth,
@@ -47,22 +53,34 @@ const COLUMNS = [
   village,
   {
     key: 'vaccineDisplayName',
-    title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
+    title: <TranslatedText
+      stringId="vaccine.table.column.vaccine"
+      fallback="Vaccine"
+      data-testid='translatedtext-j8wn' />,
     accessor: getVaccineName,
   },
   {
     key: 'schedule',
-    title: <TranslatedText stringId="vaccine.table.column.schedule" fallback="Schedule" />,
+    title: <TranslatedText
+      stringId="vaccine.table.column.schedule"
+      fallback="Schedule"
+      data-testid='translatedtext-hy8u' />,
     accessor: getSchedule,
   },
   {
     key: 'dueDate',
-    title: <TranslatedText stringId="vaccine.table.column.dueDate" fallback="Due date" />,
+    title: <TranslatedText
+      stringId="vaccine.table.column.dueDate"
+      fallback="Due date"
+      data-testid='translatedtext-ljvt' />,
     accessor: getDueDate,
   },
   {
     key: 'status',
-    title: <TranslatedText stringId="vaccine.table.column.status" fallback="Status" />,
+    title: <TranslatedText
+      stringId="vaccine.table.column.status"
+      fallback="Status"
+      data-testid='translatedtext-igh1' />,
     accessor: getStatusTag,
     sortable: false,
   },
@@ -96,15 +114,18 @@ export const ImmunisationsView = () => {
     <PageContainer>
       <TopBar
         title={
-          <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
+          <TranslatedText
+            stringId="immunisation.register.title"
+            fallback="Immunisation register"
+            data-testid='translatedtext-6xt0' />
         }
-      />
+        data-testid='topbar-nnvx' />
       <ContentPane>
         <StyledSearchTableTitle component="div">
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
-          />
+            data-testid='translatedtext-jn5w' />
 
           {updateStats && <UpdateStatsDisplay stats={updateStats} error={error} />}
         </StyledSearchTableTitle>

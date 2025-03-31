@@ -19,7 +19,11 @@ const StyledTextSpan = styled.span`
 const getMedicationNameAndPrescription = ({ medication, prescription }) => (
   <StyledDiv>
     <StyledTextSpan>
-      <TranslatedReferenceData fallback={medication.name} value={medication.id} category="drug"/>  
+      <TranslatedReferenceData
+        fallback={medication.name}
+        value={medication.id}
+        category="drug"
+        data-testid='translatedreferencedata-kohv' />  
     </StyledTextSpan>
     <br />
     <StyledTextSpan color={Colors.midText}>{prescription}</StyledTextSpan>
@@ -33,29 +37,42 @@ const DISCHARGED_MEDICATION_COLUMNS = [
       <TranslatedText
         stringId="patient.medication.table.column.itemOrPrescription"
         fallback="Item/Prescription"
-      />
+        data-testid='translatedtext-ses1' />
     ),
     accessor: getMedicationNameAndPrescription,
     sortable: true,
   },
   {
     key: 'quantity',
-    title: <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Qty" />,
+    title: <TranslatedText
+      stringId="patient.medication.table.column.quantity"
+      fallback="Qty"
+      data-testid='translatedtext-3vgw' />,
     sortable: false,
   },
   {
     key: 'prescriber',
     title: (
-      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      <TranslatedText
+        stringId="general.localisedField.clinician.label"
+        fallback="Clinician"
+        data-testid='translatedtext-hmtc' />
     ),
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
   {
     key: 'location.facility.name',
-    title: <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />,
+    title: <TranslatedText
+      stringId="general.localisedField.facility.label"
+      fallback="Facility"
+      data-testid='translatedtext-a78c' />,
     accessor: data => data?.encounter?.location?.facility?.name
-      ? <TranslatedReferenceData fallback={data?.encounter?.location?.facility.name} value={data?.encounter?.location?.facility.id} category="facility"/> 
+      ? <TranslatedReferenceData
+      fallback={data?.encounter?.location?.facility.name}
+      value={data?.encounter?.location?.facility.id}
+      category="facility"
+      data-testid='translatedreferencedata-q09w' /> 
       : '',
     sortable: false,
   },
@@ -65,9 +82,9 @@ const DISCHARGED_MEDICATION_COLUMNS = [
       <TranslatedText
         stringId="patient.medication.table.column.endDate"
         fallback="Discharge date"
-      />
+        data-testid='translatedtext-sdas' />
     ),
-    accessor: data => <DateDisplay date={data?.encounter?.endDate ?? ''} />,
+    accessor: data => <DateDisplay date={data?.encounter?.endDate ?? ''} data-testid='datedisplay-edvg' />,
     sortable: true,
   },
 ];
@@ -81,25 +98,34 @@ const DISPENSED_MEDICATION_COLUMNS = [
       <TranslatedText
         stringId="patient.medication.table.column.itemOrPrescription"
         fallback="Item/Prescription"
-      />
+        data-testid='translatedtext-8ft7' />
     ),
     sortable: true,
   },
   {
     key: 'b',
-    title: <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Qty" />,
+    title: <TranslatedText
+      stringId="patient.medication.table.column.quantity"
+      fallback="Qty"
+      data-testid='translatedtext-28dz' />,
     sortable: false,
   },
   {
     key: 'c',
     title: (
-      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      <TranslatedText
+        stringId="general.localisedField.clinician.label"
+        fallback="Clinician"
+        data-testid='translatedtext-nkgh' />
     ),
     sortable: false,
   },
   {
     key: 'd',
-    title: <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />,
+    title: <TranslatedText
+      stringId="general.localisedField.facility.label"
+      fallback="Facility"
+      data-testid='translatedtext-nvzk' />,
     sortable: false,
   },
   {
@@ -108,7 +134,7 @@ const DISPENSED_MEDICATION_COLUMNS = [
       <TranslatedText
         stringId="patient.medication.table.column.dispensedDate"
         fallback="Dispensed date"
-      />
+        data-testid='translatedtext-os13' />
     ),
     sortable: true,
   },
@@ -122,7 +148,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
           <TranslatedText
             stringId="patient.medication.discharge.table.title"
             fallback="Most recent discharge medications"
-          />
+            data-testid='translatedtext-kj2u' />
         }
       >
         <DataFetchingTable
@@ -132,10 +158,10 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
             <TranslatedText
               stringId="patient.medication.discharge.table.noData"
               fallback="No discharge medications found"
-            />
+              data-testid='translatedtext-xubp' />
           }
           initialSort={{ order: 'desc', orderBy: 'endDate' }}
-        />
+          data-testid='datafetchingtable-qrum' />
       </OuterLabelFieldWrapper>
     </ContentPane>
     <ContentPane>
@@ -144,7 +170,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
           <TranslatedText
             stringId="patient.medication.dispensed.table.title"
             fallback="Dispensed medications"
-          />
+            data-testid='translatedtext-7beg' />
         }
       >
         <Table
@@ -154,7 +180,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
             <TranslatedText
               stringId="patient.medication.dispensed.table.noData"
               fallback="No dispensed medications found"
-            />
+              data-testid='translatedtext-aw8y' />
           }
           // Next two props are used only to avoid a display error and an execution error
           page={0}

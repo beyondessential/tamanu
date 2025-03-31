@@ -90,7 +90,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.programRegistry.label"
                       fallback="Program registry"
-                    />
+                      data-testid='translatedtext-3ouj' />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
@@ -102,19 +102,19 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       setSelectedProgramRegistryId(event.target.value);
                     }
                   }}
-                />
+                  data-testid='field-pisk' />
                 <Field
                   name="date"
                   label={
                     <TranslatedText
                       stringId="programRegistry.registrationDate.label"
                       fallback="Date of registration"
-                    />
+                      data-testid='translatedtext-iw07' />
                   }
                   saveDateAsString
                   required
                   component={DateField}
-                />
+                  data-testid='field-6ckt' />
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
@@ -123,26 +123,26 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.registeredBy.label"
                       fallback="Registered by"
-                    />
+                      data-testid='translatedtext-wnr2' />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
-                />
+                  data-testid='field-xb9f' />
                 <Field
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
                       stringId="programRegistry.registeringFacility.label"
                       fallback="Registering facility"
-                    />
+                      data-testid='translatedtext-vlrw' />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
-                />
+                  data-testid='field-l3l2' />
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
@@ -150,14 +150,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.registryForm.clinicalStatus.disabledTooltip"
                       fallback="Select a program registry to set the status"
-                    />
+                      data-testid='translatedtext-i84s' />
                   }
                   name="clinicalStatusId"
                   label={
                     <TranslatedText
                       stringId="programRegistry.clinicalStatus.label"
                       fallback="Status"
-                    />
+                      data-testid='translatedtext-eqrj' />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
@@ -170,12 +170,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       <TranslatedText
                         stringId="programRegistry.registryForm.relatedConditions.disabledTooltip"
                         fallback="Select a program registry to add related conditions"
-                      />
+                        data-testid='translatedtext-ihub' />
                     ) : (
                       <TranslatedText
                         stringId="programRegistry.registryForm.relatedConditions.noConditionsTooltip"
                         fallback="No conditions have been configured for this program registry"
-                      />
+                        data-testid='translatedtext-va3p' />
                     )
                   }
                   name="conditionIds"
@@ -183,7 +183,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.relatedConditions.label"
                       fallback="Related conditions"
-                    />
+                      data-testid='translatedtext-yxxg' />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={BaseMultiselectField}
@@ -193,7 +193,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                         fallback={condition.name}
                         value={condition.id}
                         category="prCondition"
-                      />
+                        data-testid='translatedreferencedata-zv5a' />
                     ),
                     value: condition.id,
                     searchString: getTranslation(
@@ -233,18 +233,21 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           <TranslatedText
             stringId="programRegistry.programRegistry.label"
             fallback="Program registry"
-          />,
+            data-testid='translatedtext-bwtw' />,
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
         clinicianId: foreignKey().translatedLabel(
-          <TranslatedText stringId="programRegistry.registeredBy.label" fallback="Registered by" />,
+          <TranslatedText
+            stringId="programRegistry.registeredBy.label"
+            fallback="Registered by"
+            data-testid='translatedtext-4d80' />,
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
-          />,
+            data-testid='translatedtext-6r6j' />,
         ),
       })}
     />

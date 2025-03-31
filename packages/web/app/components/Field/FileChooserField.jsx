@@ -53,7 +53,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
         onChange={selectFile}
         accept={acceptString}
         style={{ display: 'none' }}
-      />
+        data-testid='input-7sx5' />
       <OuterLabelFieldWrapper label={label} {...props}>
         <FieldButtonRow className={value ? 'has-value' : ''}>
           {value ? (
@@ -63,21 +63,31 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
                 <TranslatedText
                   stringId="chooseFile.button.changeSelection.label"
                   fallback="Change selection"
-                />
+                  data-testid='translatedtext-oiyi' />
               </ChangeSelectionButton>
             </>
           ) : (
             <>
-              <Button onClick={showFileDialog} variant="outlined" color="primary">
-                <TranslatedText stringId="chooseFile.button.label" fallback="Choose file" />
+              <Button
+                onClick={showFileDialog}
+                variant="outlined"
+                color="primary"
+                data-testid='button-p25q'>
+                <TranslatedText
+                  stringId="chooseFile.button.label"
+                  fallback="Choose file"
+                  data-testid='translatedtext-6nfa' />
               </Button>
               <HintText>
-                <TranslatedText stringId="chooseFile.hint.max10Mb.label" fallback="Max 10 MB" />
+                <TranslatedText
+                  stringId="chooseFile.hint.max10Mb.label"
+                  fallback="Max 10 MB"
+                  data-testid='translatedtext-h8s9' />
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
                   fallback="Supported file types"
-                />
+                  data-testid='translatedtext-bqsm' />
                 : {filters.map(filter => filter.name).join(', ')}
               </HintText>
             </>

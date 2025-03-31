@@ -25,7 +25,7 @@ const validationSchema = yup.object().shape({
       <TranslatedText
         stringId="lab.modal.recordSample.sampleTime.label"
         fallback="Date & time collected"
-      />,
+        data-testid='translatedtext-9htg' />,
     ),
   labSampleSiteId: yup.string(),
   specimenTypeId: yup.string().when('mandateSpecimenType', {
@@ -37,7 +37,7 @@ const validationSchema = yup.object().shape({
           <TranslatedText
             stringId="lab.modal.recordSample.specimenType.label"
             fallback="Specimen type"
-          />,
+            data-testid='translatedtext-hcgc' />,
         ),
   }),
 });
@@ -104,7 +104,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
               <TranslatedText
                 stringId="lab.modal.recordSample.sampleTime.label"
                 fallback="Date & time collected"
-              />
+                data-testid='translatedtext-zlra' />
             }
             required
             saveDateAsString
@@ -116,7 +116,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
               <TranslatedText
                 stringId="lab.sampleDetail.table.column.collectedBy"
                 fallback="Collected by"
-              />
+                data-testid='translatedtext-kq0m' />
             }
             suggester={practitionerSuggester}
             disabled={!values.sampleTime}
@@ -128,7 +128,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
               <TranslatedText
                 stringId="lab.sampleDetail.table.column.specimenType"
                 fallback="Specimen type"
-              />
+                data-testid='translatedtext-4in0' />
             }
             component={AutocompleteField}
             suggester={specimenTypeSuggester}
@@ -137,7 +137,10 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
           <StyledField
             name="labSampleSiteId"
-            label={<TranslatedText stringId="lab.site.label" fallback="Site" />}
+            label={<TranslatedText
+              stringId="lab.site.label"
+              fallback="Site"
+              data-testid='translatedtext-s8iu' />}
             disabled={!values.sampleTime}
             component={SuggesterSelectField}
             endpoint="labSampleSite"
@@ -146,7 +149,10 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
       </FieldContainer>
       <ModalFormActionRow
         onConfirm={submitForm}
-        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        confirmText={<TranslatedText
+          stringId="general.action.confirm"
+          fallback="Confirm"
+          data-testid='translatedtext-takp' />}
         onCancel={onClose}
       />
     </>

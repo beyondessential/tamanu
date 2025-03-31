@@ -26,7 +26,12 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
     <>
       <SelectInput name="survey" options={surveys} value={value ?? ''} onChange={handleChange} />
       <StyledButtonRow>
-        <Button onClick={handleSubmit} disabled={!value} variant="contained" color="primary">
+        <Button
+          onClick={handleSubmit}
+          disabled={!value}
+          variant="contained"
+          color="primary"
+          data-testid='button-xlv2'>
           {buttonText}
         </Button>
       </StyledButtonRow>

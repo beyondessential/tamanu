@@ -120,20 +120,32 @@ const LoginFormComponent = ({
       <div>
         <LoginHeading>
           {rememberEmail ? (
-            <TranslatedText stringId="login.heading.welcomeBack" fallback="Welcome back" />
+            <TranslatedText
+              stringId="login.heading.welcomeBack"
+              fallback="Welcome back"
+              data-testid='translatedtext-cmvj' />
           ) : (
-            <TranslatedText stringId="login.heading.login" fallback="Log in" />
+            <TranslatedText
+              stringId="login.heading.login"
+              fallback="Log in"
+              data-testid='translatedtext-iqrf' />
           )}
         </LoginHeading>
         <LoginSubtext>
-          <TranslatedText stringId="login.subTitle" fallback="Enter your details below to log in" />
+          <TranslatedText
+            stringId="login.subTitle"
+            fallback="Enter your details below to log in"
+            data-testid='translatedtext-wlm5' />
         </LoginSubtext>
         {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       </div>
       <StyledField
         name="email"
         type="email"
-        label={<TranslatedText stringId="login.email.label" fallback="Email" />}
+        label={<TranslatedText
+          stringId="login.email.label"
+          fallback="Email"
+          data-testid='translatedtext-1j7q' />}
         required
         component={TextField}
         placeholder={getTranslation('login.email.placeholder', 'Enter your email address')}
@@ -144,7 +156,10 @@ const LoginFormComponent = ({
       <div>
         <StyledField
           name="password"
-          label={<TranslatedText stringId="login.password.label" fallback="Password" />}
+          label={<TranslatedText
+            stringId="login.password.label"
+            fallback="Password"
+            data-testid='translatedtext-fi9i' />}
           type="password"
           required
           component={TextField}
@@ -155,15 +170,24 @@ const LoginFormComponent = ({
         <RememberMeRow>
           <StyledCheckboxField
             name="rememberMe"
-            label={<TranslatedText stringId="login.rememberMe.label" fallback="Remember me" />}
+            label={<TranslatedText
+              stringId="login.rememberMe.label"
+              fallback="Remember me"
+              data-testid='translatedtext-hiy0' />}
             component={CheckField}
           />
         </RememberMeRow>
       </div>
-      <LoginButton text={<TranslatedText stringId="login.login.label" fallback="Log in" />} />
+      <LoginButton text={<TranslatedText
+        stringId="login.login.label"
+        fallback="Log in"
+        data-testid='translatedtext-yabu' />} />
       <LanguageSelector />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
-        <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot your password?" />
+        <TranslatedText
+          stringId="login.forgotPassword.label"
+          fallback="Forgot your password?"
+          data-testid='translatedtext-tdb0' />
       </ForgotPasswordButton>
     </FormGrid>
   );
@@ -211,7 +235,10 @@ export const LoginForm = React.memo(
             .string()
             .required()
             .translatedLabel(
-              <TranslatedText stringId="login.password.label" fallback="Password" />,
+              <TranslatedText
+                stringId="login.password.label"
+                fallback="Password"
+                data-testid='translatedtext-9hfq' />,
             ),
         })}
       />

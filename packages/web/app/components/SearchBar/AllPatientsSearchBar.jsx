@@ -57,14 +57,17 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.culturalName.label.short"
                 fallback="Cultural name"
-              />
+                data-testid='translatedtext-irz0' />
             }
-          />
+            data-testid='localisedfield-ih8i' />
           <TwoColumnsField>
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
               name="sex"
-              label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+              label={<TranslatedText
+                stringId="general.localisedField.sex.label"
+                fallback="Sex"
+                data-testid='translatedtext-ee6u' />}
               component={TranslatedSelectField}
               transformOptions={options =>
                 hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
@@ -79,7 +82,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.villageId.label"
                 fallback="Village"
-              />
+                data-testid='translatedtext-e4pl' />
             }
             component={AutocompleteField}
             suggester={villageSuggester}
@@ -91,7 +94,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="patientList.table.includeDeceasedCheckbox.label"
                 fallback="Include deceased patients"
-              />
+                data-testid='translatedtext-svx5' />
             }
           />
         </>
@@ -101,30 +104,42 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         component={SearchField}
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid='translatedtext-hyg9' />
         }
-      />
+        data-testid='localisedfield-kal5' />
       <LocalisedField
         component={SearchField}
         name="firstName"
         label={
-          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid='translatedtext-9uls' />
         }
-      />
+        data-testid='localisedfield-ybhi' />
       <LocalisedField
         component={SearchField}
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid='translatedtext-g4ky' />
         }
-      />
+        data-testid='localisedfield-4m1f' />
       <Field
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label={<TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />}
+        label={<TranslatedText
+          stringId="general.dateOfBirth.label"
+          fallback="DOB"
+          data-testid='translatedtext-s7yj' />}
         max={getCurrentDateString()}
-      />
+        data-testid='field-ioko' />
     </CustomisableSearchBarWithPermissionCheck>
   );
 });

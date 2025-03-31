@@ -185,7 +185,7 @@ export const ContactDetails = ({
           <TranslatedText
             stringId="patient.details.reminderContacts.status.failed"
             fallback="Failed"
-          />
+            data-testid='translatedtext-pdkv' />
         );
         break;
       case CONNECTION_STATUS.PENDING:
@@ -194,7 +194,7 @@ export const ContactDetails = ({
             stringId="patient.details.reminderContacts.status.pending"
             fallback=":method pending"
             replacements={{ method }}
-          />
+            data-testid='translatedtext-t5s8' />
         );
         break;
       case CONNECTION_STATUS.SUCCESS:
@@ -202,7 +202,7 @@ export const ContactDetails = ({
           <TranslatedText
             stringId={`patient.details.reminderContacts.method.${method}`}
             fallback={method}
-          />
+            data-testid='translatedtext-5ho9' />
         );
         break;
     }
@@ -216,7 +216,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contact"
           fallback="Contact"
-        />
+          data-testid='translatedtext-05x9' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, name }) => (
@@ -233,7 +233,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.relationship"
           fallback="Relationship"
-        />
+          data-testid='translatedtext-tmrw' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, relationship }) => (
@@ -250,7 +250,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contactMethod"
           fallback="Contact method"
-        />
+          data-testid='translatedtext-1mtn' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, method }) =>
@@ -268,7 +268,7 @@ export const ContactDetails = ({
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
-                  />
+                    data-testid='translatedtext-x46u' />
                 </StyledTextButton>
               );
             },
@@ -285,7 +285,10 @@ export const ContactDetails = ({
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
                 <RowActionLink onClick={() => onRetry(row)}>
-                  <TranslatedText stringId="general.action.retry" fallback="Retry" />
+                  <TranslatedText
+                    stringId="general.action.retry"
+                    fallback="Retry"
+                    data-testid='translatedtext-jxn1' />
                 </RowActionLink>
               ) : (
                 ''

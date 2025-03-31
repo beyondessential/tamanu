@@ -114,12 +114,18 @@ export const AuthFlowView = ({ children }) => {
         <FormContainer>{children}</FormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-            <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />
+            <TranslatedText
+              stringId="externalLink.supportCentre"
+              fallback="Support centre"
+              data-testid='translatedtext-xfhx' />
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
         <DesktopVersionText title={FULL_VERSION}>
-          <TranslatedText stringId="login.version" fallback="Version" /> {agentVersion}
+          <TranslatedText
+            stringId="login.version"
+            fallback="Version"
+            data-testid='translatedtext-tbxs' /> {agentVersion}
         </DesktopVersionText>
       </ContentContainer>
       <SplashImage brandId={brandId} />

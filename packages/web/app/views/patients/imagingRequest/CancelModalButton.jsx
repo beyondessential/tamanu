@@ -42,24 +42,30 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
 
   return (
     <>
-      <Button variant="text" onClick={() => setIsOpen(true)}>
-        <TranslatedText stringId="imaging.action.cancelRequest" fallback="Cancel request" />
+      <Button variant="text" onClick={() => setIsOpen(true)} data-testid='button-ze3r'>
+        <TranslatedText
+          stringId="imaging.action.cancelRequest"
+          fallback="Cancel request"
+          data-testid='translatedtext-mh01' />
       </Button>
       <CancelModal
         title={
-          <TranslatedText stringId="imaging.modal.cancel.title" fallback="Cancel imaging request" />
+          <TranslatedText
+            stringId="imaging.modal.cancel.title"
+            fallback="Cancel imaging request"
+            data-testid='translatedtext-cyfu' />
         }
         helperText={
           <TranslatedText
             stringId="imaging.modal.cancel.helperText"
             fallback="This reason will permanently delete the imaging request record"
-          />
+            data-testid='translatedtext-lq0l' />
         }
         bodyText={
           <TranslatedText
             stringId="imaging.modal.cancel.reasonText"
             fallback="Please select reason for cancelling imaging request and click 'Confirm'"
-          />
+            data-testid='translatedtext-x5q4' />
         }
         options={cancellationReasonOptions}
         open={isOpen}

@@ -94,7 +94,10 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
+      title={<TranslatedText
+        stringId="general.language.change"
+        fallback="Change language"
+        data-testid='translatedtext-qusx' />}
       open={open}
       onClose={onClose}
       {...props}
@@ -102,7 +105,10 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
       <LanguageSelectorContainer>
         <SelectInput
           options={languageOptions}
-          label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+          label={<TranslatedText
+            stringId="login.languageSelector.label"
+            fallback="Language"
+            data-testid='translatedtext-y1rd' />}
           isClearable={false}
           error={!!error}
           customStyleObject={customStyles}

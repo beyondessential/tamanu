@@ -23,7 +23,10 @@ export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...
 
   return (
     <FormModal
-      title={<TranslatedText stringId="diagnosis.modal.title" fallback="Diagnosis" />}
+      title={<TranslatedText
+        stringId="diagnosis.modal.title"
+        fallback="Diagnosis"
+        data-testid='translatedtext-swbd' />}
       open={!!diagnosis}
       onClose={onClose}
     >

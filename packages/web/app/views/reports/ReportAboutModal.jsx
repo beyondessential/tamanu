@@ -18,7 +18,7 @@ const StyledButtonRow = styled.div`
 
 const CloseButtonRow = ({ onClose }) => (
   <StyledButtonRow>
-    <OutlinedButton variant="contained" onClick={onClose}>
+    <OutlinedButton variant="contained" onClick={onClose} data-testid='outlinedbutton-p9x2'>
       Close
     </OutlinedButton>
   </StyledButtonRow>

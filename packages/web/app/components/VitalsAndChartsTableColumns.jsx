@@ -68,7 +68,7 @@ const MeasureCell = React.memo(({ value, data }) => {
             setModalTitle(value);
             setVitalChartModalOpen(true);
           }}
-        >
+          data-testid='iconbutton-xr8l'>
           <VitalVectorIcon />
         </IconButton>
       )}
@@ -115,7 +115,7 @@ const TitleCell = React.memo(({ value }) => {
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
             }}
-          >
+            data-testid='iconbutton-64tu'>
             <VitalVectorIcon />
           </IconButton>
         )}
@@ -185,7 +185,10 @@ export const getChartsTableColumns = (
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
     'measure',
-    <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
+    <TranslatedText
+      stringId="encounter.vitals.table.column.measure"
+      fallback="Measure"
+      data-testid='translatedtext-sw5i' />,
     patient,
     recordedDates,
     onCellClick,

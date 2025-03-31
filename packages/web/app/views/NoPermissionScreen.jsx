@@ -46,13 +46,13 @@ export const NoPermissionScreen = () => {
           <TranslatedText
             stringId="general.permission.permissionRequired.title"
             fallback="Permission required"
-          />
+            data-testid='translatedtext-mcmz' />
         </Heading>
         <Description>
           <TranslatedText
             stringId="general.permission.permissionRequired.message"
             fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
-          />
+            data-testid='translatedtext-d8kt' />
         </Description>
       </Message>
     </Container>

@@ -56,20 +56,20 @@ const DiscountForm = () => {
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
             fallback="Type"
-          />
+            data-testid='translatedtext-5vwi' />
         }
         component={SelectField}
         options={discountTypeOptions}
         required
         style={{ gridColumn: '1 / 1' }}
-      />
+        data-testid='field-iotc' />
       <Field
         name="amount"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
             fallback="Discount amount"
-          />
+            data-testid='translatedtext-q04d' />
         }
         placeholder={getTranslation(
           'invoice.modal.addDiscountInvoiceItem.discount.placeholder',
@@ -86,18 +86,18 @@ const DiscountForm = () => {
           onInput: validateDecimalPlaces,
         })}
         style={{ gridColumn: '2 / 2' }}
-      />
+        data-testid='field-zdys' />
       <Field
         name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discountReason.label"
             fallback="Reason for item discount"
-          />
+            data-testid='translatedtext-n9t8' />
         }
         component={TextField}
         style={{ gridColumn: '3 / 5' }}
-      />
+        data-testid='field-rt1b' />
     </FormGrid>
   );
 };
@@ -115,20 +115,20 @@ const MarkupForm = () => {
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
             fallback="Type"
-          />
+            data-testid='translatedtext-tvot' />
         }
         component={SelectField}
         options={discountTypeOptions}
         required
         style={{ gridColumn: '1 / 1' }}
-      />
+        data-testid='field-qd3v' />
       <Field
         name="amount"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
             fallback="Markup amount"
-          />
+            data-testid='translatedtext-c8r0' />
         }
         placeholder={getTranslation(
           'invoice.modal.addMarkupInvoiceItem.markup.placeholder',
@@ -144,18 +144,18 @@ const MarkupForm = () => {
           onInput: validateDecimalPlaces,
         })}
         style={{ gridColumn: '2 / 2' }}
-      />
+        data-testid='field-vu61' />
       <Field
         name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.discountReason.label"
             fallback="Reason for item markup"
-          />
+            data-testid='translatedtext-pyg2' />
         }
         component={TextField}
         style={{ gridColumn: '3 / 5' }}
-      />
+        data-testid='field-yv1t' />
     </FormGrid>
   );
 };
@@ -165,7 +165,10 @@ const AddNoteForm = () => {
     <FormGrid columns={3}>
       <Field
         name="note"
-        label={<TranslatedText stringId="invoice.modal.addNote.note.label" fallback="Note" />}
+        label={<TranslatedText
+          stringId="invoice.modal.addNote.note.label"
+          fallback="Note"
+          data-testid='translatedtext-3h2c' />}
         component={TextField}
         inputProps={{
           maxLength: 30,
@@ -176,10 +179,10 @@ const AddNoteForm = () => {
             <TranslatedText
               stringId="invoice.modal.addNote.note.helperText"
               fallback="Max 30 characters"
-            />
+              data-testid='translatedtext-kxdo' />
           </Box>
         }
-      />
+        data-testid='field-hoqc' />
     </FormGrid>
   );
 };
@@ -195,7 +198,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
           fallback="Type"
-        />,
+          data-testid='translatedtext-ra79' />,
       ),
     amount: yup
       .number()
@@ -215,7 +218,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
           fallback="Discount amount"
-        />,
+          data-testid='translatedtext-tvqd' />,
       ),
   });
 
@@ -227,7 +230,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
           fallback="Type"
-        />,
+          data-testid='translatedtext-dkdh' />,
       ),
     amount: yup
       .number()
@@ -237,7 +240,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
           fallback="Markup amount"
-        />,
+          data-testid='translatedtext-pzy2' />,
       ),
   });
 
@@ -245,24 +248,32 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     switch (action) {
       case INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE:
         return (
-          <TranslatedText stringId="invoice.modal.deleteInvoiceItem.title" fallback="Delete item" />
+          <TranslatedText
+            stringId="invoice.modal.deleteInvoiceItem.title"
+            fallback="Delete item"
+            data-testid='translatedtext-6ely' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT:
         return (
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.title"
             fallback="Add discount"
-          />
+            data-testid='translatedtext-s9sh' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP:
         return (
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.title"
             fallback="Add markup"
-          />
+            data-testid='translatedtext-efof' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE:
-        return <TranslatedText stringId="invoice.modal.addNote.title" fallback="Add note" />;
+        return (
+          <TranslatedText
+            stringId="invoice.modal.addNote.title"
+            fallback="Add note"
+            data-testid='translatedtext-ngwl' />
+        );
       default:
         return '';
     }

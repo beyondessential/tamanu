@@ -23,9 +23,9 @@ export const Dialog = memo(
     >
       <>
         {contentText}
-        <ButtonRow>
+        <ButtonRow data-testid='buttonrow-0mwy'>
           {dialogType === 'confirm' && (
-            <Button variant="outlined" onClick={onClose}>
+            <Button variant="outlined" onClick={onClose} data-testid='button-ceh4'>
               {cancelText}
             </Button>
           )}
@@ -33,7 +33,7 @@ export const Dialog = memo(
             variant="contained"
             color="primary"
             onClick={dialogType === 'confirm' ? onConfirm : onClose}
-          >
+            data-testid='button-unnz'>
             {okText}
           </Button>
         </ButtonRow>

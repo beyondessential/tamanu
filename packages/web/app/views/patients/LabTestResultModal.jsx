@@ -60,7 +60,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
               testName: labTest?.labTestType?.name,
               testId: labTest?.labRequest?.displayId,
             }}
-          />
+            data-testid='translatedtext-wkyr' />
         </ModalHeader>
       }
       open={open}
@@ -70,7 +70,10 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         <div>
           <ValueDisplay
             title={
-              <TranslatedText stringId="lab.modal.testResult.value.result" fallback="Result" />
+              <TranslatedText
+                stringId="lab.modal.testResult.value.result"
+                fallback="Result"
+                data-testid='translatedtext-o4ms' />
             }
             value={labTest?.result}
           />
@@ -79,7 +82,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
               <TranslatedText
                 stringId="lab.modal.testResult.value.laboratoryOfficer"
                 fallback="Laboratory Officer"
-              />
+                data-testid='translatedtext-2cyf' />
             }
             value={labTest?.laboratoryOfficer}
           />
@@ -88,7 +91,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
               <TranslatedText
                 stringId="lab.modal.testResult.value.verification"
                 fallback="Verification"
-              />
+                data-testid='translatedtext-69b8' />
             }
             value={labTest?.verification}
           />
@@ -100,7 +103,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
               <TranslatedText
                 stringId="labs.modal.testResult.value.completed"
                 fallback="Completed"
-              />
+                data-testid='translatedtext-z6rv' />
             }
             value={DateDisplay.stringFormat(labTest?.completedDate)}
           />
@@ -109,15 +112,22 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
               <TranslatedText
                 stringId="lab.modal.testResult.value.testMethod"
                 fallback="Test Method"
-              />
+                data-testid='translatedtext-93x2' />
             }
             value={labTest?.labTestMethod?.name 
-              && <TranslatedReferenceData fallback={labTest.labTestMethod.name} value={labTest.labTestMethod.id} category="labTestMethod"/>}
+              && <TranslatedReferenceData
+              fallback={labTest.labTestMethod.name}
+              value={labTest.labTestMethod.id}
+              category="labTestMethod"
+              data-testid='translatedreferencedata-i0js' />}
           />
         </div>
       </ModalBody>
       <ModalActionRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-uirk' />}
         onConfirm={onClose}
       />
     </Modal>

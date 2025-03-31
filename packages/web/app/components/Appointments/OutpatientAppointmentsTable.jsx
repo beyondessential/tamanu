@@ -274,18 +274,18 @@ const TableHeader = ({ title, patient }) => {
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"
             fallback="View past appointments"
-          />
+            data-testid='translatedtext-yham' />
         </ViewPastBookingsButton>
         {canCreateAppointment && (
           <Button
             variant="outlined"
             color="primary"
             onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
-          >
+            data-testid='button-r4l8'>
             <TranslatedText
               stringId="patient.appointments.table.bookAppointment"
               fallback="+ Book appointment"
-            />
+              data-testid='translatedtext-fyd1' />
           </Button>
         )}
       </ActionRow>
@@ -332,7 +332,10 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      label: <TranslatedText
+        stringId="general.action.cancel"
+        fallback="Cancel"
+        data-testid='translatedtext-g9p2' />,
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -347,12 +350,18 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId="patient.appointments.table.column.date" fallback="Date" />,
+      title: <TranslatedText
+        stringId="patient.appointments.table.column.date"
+        fallback="Date"
+        data-testid='translatedtext-gz4u' />,
       accessor: getDate,
     },
     {
       key: 'outpatientAppointmentArea',
-      title: <TranslatedText stringId="patient.appointments.table.column.area" fallback="Area" />,
+      title: <TranslatedText
+        stringId="patient.appointments.table.column.area"
+        fallback="Area"
+        data-testid='translatedtext-ddy7' />,
       accessor: ({ locationGroup }) => locationGroup?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={248} />,
     },
@@ -362,7 +371,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.clinician"
           fallback="Clinician"
-        />
+          data-testid='translatedtext-xjd9' />
       ),
       accessor: ({ clinician }) => clinician?.displayName || '-',
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={139} />,
@@ -373,7 +382,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.appointmentType"
           fallback="Appointment type"
-        />
+          data-testid='translatedtext-ih9r' />
       ),
       accessor: ({ appointmentType }) => appointmentType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={155} />,
@@ -390,7 +399,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
                 className="menu-container"
                 onMouseEnter={() => setSelectedAppointment(data)}
               >
-                <StyledMenuButton actions={actions} />
+                <StyledMenuButton actions={actions} data-testid='styledmenubutton-kgtz' />
               </MenuContainer>
             ),
           },
@@ -410,7 +419,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
             <TranslatedText
               stringId="patient.appointments.table.noData"
               fallback="No outpatient appointments"
-            />
+              data-testid='translatedtext-26zx' />
           }
           patient={patient}
         />
@@ -431,7 +440,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.appointments.table.title"
                 fallback="Outpatient appointments"
-              />
+                data-testid='translatedtext-quwj' />
             }
             patient={patient}
           />

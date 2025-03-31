@@ -53,7 +53,10 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
       <H2>{getPatientNameAsString(patient)}</H2>
       <PrimaryDetails>
         <InlineDetailsDisplay
-          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          label={<TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid='translatedtext-aeay' />}
           value={<TranslatedSex sex={sex} />}
         />
         <InlineDetailsDisplay
@@ -61,14 +64,17 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-            />
+              data-testid='translatedtext-2ji9' />
           }
-          value={<DateDisplay date={dateOfBirth} noTooltip />}
+          value={<DateDisplay date={dateOfBirth} noTooltip data-testid='datedisplay-1n0g' />}
         />
       </PrimaryDetails>
       <InlineDetailsDisplay
         label={
-          <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
+          <TranslatedText
+            stringId="patient.details.reminderContacts.label"
+            fallback="Contact"
+            data-testid='translatedtext-cjq5' />
         }
         value={additionalData?.primaryContactNumber}
       />

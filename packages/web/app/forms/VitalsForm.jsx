@@ -42,7 +42,10 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
             .date()
             .translatedLabel(
-              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+              <TranslatedText
+                stringId="general.recordedDate.label"
+                fallback="Date recorded"
+                data-testid='translatedtext-s427' />,
             )
             .required(),
         }),
@@ -107,10 +110,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           setFieldValue={setFieldValue}
           submitButton={
             <FormSubmitCancelRow
-              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+              confirmText={<TranslatedText
+                stringId="general.action.record"
+                fallback="Record"
+                data-testid='translatedtext-1q7f' />}
               onConfirm={submitForm}
               onCancel={onClose}
-            />
+              data-testid='formsubmitcancelrow-tf67' />
           }
           encounterType={encounterType}
         />

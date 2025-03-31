@@ -36,13 +36,19 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DATE,
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+    title: <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid='translatedtext-ogsc' />,
     sortable: false,
-    accessor: ({ date }) => <DateDisplay date={date} />,
+    accessor: ({ date }) => <DateDisplay date={date} data-testid='datedisplay-nz7u' />,
   },
   {
     key: COLUMN_KEYS.MEDICATION,
-    title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+    title: <TranslatedText
+      stringId="medication.medication.label"
+      fallback="Medication"
+      data-testid='translatedtext-2y49' />,
     sortable: false,
     maxWidth: 300,
     accessor: ({ medication }) => (
@@ -50,7 +56,7 @@ const COLUMNS = [
         fallback={medication.name}
         value={medication.id}
         category={medication.type}
-      />
+        data-testid='translatedreferencedata-918x' />
     ),
   },
   {
@@ -59,7 +65,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="medication.modal.printMultiple.table.column.quantity"
         fallback="Quantity"
-      />
+        data-testid='translatedtext-eb9j' />
     ),
     sortable: false,
     maxWidth: 70,
@@ -82,7 +88,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="medication.modal.printMultiple.table.column.repeats"
         fallback="Repeats"
-      />
+        data-testid='translatedtext-1rdv' />
     ),
     sortable: false,
     accessor: ({ repeats, onChange }) => (
@@ -168,17 +174,19 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         onClose={() => setOpenPrintoutModal(false)}
         patientWeight={showPatientWeight ? patientWeight : undefined}
       />
-
       <PrescriberWrapper>
         <AutocompleteInput
           infoTooltip={
             <TranslatedText
               stringId="medication.modal.printMultiple.prescriber.tooltip"
               fallback="The prescriber will appear on the printed prescription"
-            />
+              data-testid='translatedtext-9q77' />
           }
           name="prescriberId"
-          label={<TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />}
+          label={<TranslatedText
+            stringId="medication.prescriber.label"
+            fallback="Prescriber"
+            data-testid='translatedtext-ooep' />}
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
@@ -189,7 +197,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
               <TranslatedText
                 stringId="medication.modal.printMultiple.prescriber.helperText"
                 fallback="Please select a prescriber"
-              />
+                data-testid='translatedtext-sfyh' />
             )
           }
         />
@@ -205,21 +213,20 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
                 stringId="medication.patientWeight.label"
                 fallback="Patient weight :unit"
                 replacements={{ unit: `(${weightUnit})` }}
-              />
+                data-testid='translatedtext-16m2' />
             }
             placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
             className="patient-weight-input"
             type="number"
-          />
+            data-testid='textfield-mtrd' />
         )}
       </PrescriberWrapper>
-
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
             stringId="medication.modal.printMultiple.table.title"
             fallback="Select the prescriptions you would like to print"
-          />
+            data-testid='translatedtext-jkgf' />
         }
       >
         <Table
@@ -233,15 +240,21 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             <TranslatedText
               stringId="medication.modal.printMultiple.table.noData"
               fallback="No medication requests found"
-            />
+              data-testid='translatedtext-qqvh' />
           }
           allowExport={false}
           cellOnChange={cellOnChange}
         />
       </OuterLabelFieldWrapper>
       <ConfirmCancelRow
-        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
+        cancelText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-neu6' />}
+        confirmText={<TranslatedText
+          stringId="general.action.print"
+          fallback="Print"
+          data-testid='translatedtext-lc3m' />}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />

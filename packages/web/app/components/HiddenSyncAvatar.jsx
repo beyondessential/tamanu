@@ -29,7 +29,7 @@ const Error = ({ errorMessage }) => (
       <TranslatedText
         stringId="sidebar.avatar.notification.manualSyncFailed"
         fallback="Manual sync failed"
-      />
+        data-testid='translatedtext-bb8x' />
     </b>
     <ErrorMessage>{errorMessage}</ErrorMessage>
   </div>
@@ -77,7 +77,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
           <TranslatedText
             stringId="sidebar.avatar.notification.startingManualSync"
             fallback="Starting manual sync..."
-          />,
+            data-testid='translatedtext-o94y' />,
         );
         const { message } = await api.post(`sync/run`);
         toast.success(
@@ -85,7 +85,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
             stringId="sidebar.avatar.notification.manualSync"
             fallback={`Manual sync: ${message}`}
             replacements={{ message }}
-          />,
+            data-testid='translatedtext-18og' />,
         );
       });
       return;
@@ -101,7 +101,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
               <TranslatedText
                 stringId="sidebar.avatar.notification.facilityNotSync"
                 fallback="Facility server has not synced since last restart."
-              />
+                data-testid='translatedtext-o7ji' />
             </div>,
           );
         } else {
@@ -113,7 +113,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
                 stringId="sidebar.avatar.notification.facilityLastSync"
                 fallback={`Facility server last synced ${ago} ago (took ${took}).`}
                 replacements={{ ago, took }}
-              />
+                data-testid='translatedtext-0egc' />
             </div>,
           );
         }
@@ -125,7 +125,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
                 stringId="sidebar.notification.currentSyncRunning"
                 fallback={`Current sync has been running for ${duration}.`}
                 replacements={{ duration }}
-              />
+                data-testid='translatedtext-fev0' />
             </div>,
           );
         }

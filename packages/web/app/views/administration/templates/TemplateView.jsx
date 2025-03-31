@@ -72,7 +72,12 @@ export const TemplateView = () => {
         onDelete={onDeleteTemplate}
         allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
       />
-      <TopBar title={<TranslatedText stringId="admin.template.title" fallback="Templates" />} />
+      <TopBar
+        title={<TranslatedText
+          stringId="admin.template.title"
+          fallback="Templates"
+          data-testid='translatedtext-k5as' />}
+        data-testid='topbar-dpt2' />
       <ContentPane>
         <ContentContainer>
           <NewTemplateForm

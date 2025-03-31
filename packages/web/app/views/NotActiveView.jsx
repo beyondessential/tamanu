@@ -3,7 +3,7 @@ import { Notification, TopBar } from '../components';
 
 export const NotActiveView = React.memo(() => (
   <>
-    <TopBar title="Not active yet" />
+    <TopBar title="Not active yet" data-testid='topbar-1smn' />
     <Notification message="This section is not activated yet." />
   </>
 ));

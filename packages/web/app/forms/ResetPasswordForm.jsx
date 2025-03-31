@@ -39,13 +39,16 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
     <FormGrid columns={1}>
       <div>
         <FormHeading>
-          <TranslatedText stringId="forgotPassword.heading" fallback="Forgot password" />
+          <TranslatedText
+            stringId="forgotPassword.heading"
+            fallback="Forgot password"
+            data-testid='translatedtext-suxi' />
         </FormHeading>
         <FormSubtext>
           <TranslatedText
             stringId="forgotPassword.message"
             fallback="Enter your email address below and we will send you a reset code."
-          />
+            data-testid='translatedtext-twnn' />
         </FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>
@@ -53,21 +56,27 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
         autoComplete="email"
         name="email"
         type="email"
-        label={<TranslatedText stringId="forgotPassword.email.label" fallback="Email" />}
+        label={<TranslatedText
+          stringId="forgotPassword.email.label"
+          fallback="Email"
+          data-testid='translatedtext-d751' />}
         required
         component={TextField}
         placeholder={getTranslation('forgotPassword.email.placeholder', 'Enter your email address')}
-      />
+        data-testid='field-tn9j' />
       <ResetPasswordButton
         text={
           <TranslatedText
             stringId="forgotPassword.sendResetCode.label"
             fallback="Send reset code"
-          />
+            data-testid='translatedtext-ihtj' />
         }
       />
       <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-        <TranslatedText stringId="forgotPassword.backToLogin.label" fallback="Back to login" />
+        <TranslatedText
+          stringId="forgotPassword.backToLogin.label"
+          fallback="Back to login"
+          data-testid='translatedtext-ydi4' />
       </BackToLoginButton>
     </FormGrid>
   );

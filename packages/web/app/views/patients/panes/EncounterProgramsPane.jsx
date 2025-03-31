@@ -21,8 +21,11 @@ export const EncounterProgramsPane = React.memo(({ patient }) => {
   return (
     <TabPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
+        <Button onClick={handleNewSurvey} data-testid='button-uz0i'>
+          <TranslatedText
+            stringId="program.action.newSurvey"
+            fallback="New form"
+            data-testid='translatedtext-jsfh' />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable

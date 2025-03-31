@@ -34,7 +34,6 @@ export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, on
         successContactIds={successContactIds}
         onRemoveContact={onRemoveContact}
       />
-
       {canAddReminderContacts && (
         <StyledAddContactButton
           variant="outlined"
@@ -46,11 +45,14 @@ export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, on
           <TranslatedText
             stringId="patient.details.reminderContacts.action.add"
             fallback="Add contact"
-          />
+            data-testid='translatedtext-qepd' />
         </StyledAddContactButton>
       )}
       <ModalCancelRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-jbco' />}
         confirmColor="primary"
         onConfirm={onClose}
       />

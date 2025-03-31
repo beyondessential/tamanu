@@ -15,8 +15,11 @@ const ContentContainer = styled.div`
 export const ReportGenerator = () => (
   <PageContainer>
     <TopBar
-      title={<TranslatedText stringId="report.generate.title" fallback="Report generator" />}
-    />
+      title={<TranslatedText
+        stringId="report.generate.title"
+        fallback="Report generator"
+        data-testid='translatedtext-c8eb' />}
+      data-testid='topbar-94nd' />
     <ContentPane>
       <ContentContainer>
         <ReportGeneratorForm />

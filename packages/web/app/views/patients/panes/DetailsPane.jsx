@@ -15,13 +15,16 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 const ForbiddenMessage = () => (
   <ContentPane>
     <Typography variant="h4">
-      <TranslatedText stringId="general.error.forbidden" fallback="Forbidden" />
+      <TranslatedText
+        stringId="general.error.forbidden"
+        fallback="Forbidden"
+        data-testid='translatedtext-xywl' />
     </Typography>
     <Typography variant="body2">
       <TranslatedText
         stringId="patient.detailsSidebar.error.forbiddenMessage"
         fallback="You do not have permission to read, create or write patient data."
-      />
+        data-testid='translatedtext-4r2q' />
     </Typography>
   </ContentPane>
 );

@@ -44,7 +44,10 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   return (
     <FormModal
       width="md"
-      title={<TranslatedText stringId="document.modal.create.title" fallback="Add document" />}
+      title={<TranslatedText
+        stringId="document.modal.create.title"
+        fallback="Add document"
+        data-testid='translatedtext-f1ih' />}
       open={open}
       onClose={handleClose}
     >

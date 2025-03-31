@@ -123,7 +123,7 @@ export const AppointmentDetailPopper = ({
                 disabled={!canWriteAppointment}
               />
               {canWriteAppointment && canCreateEncounter && (
-                <CheckInButton appointment={appointment} />
+                <CheckInButton appointment={appointment} data-testid='checkinbutton-oyur' />
               )}
             </Footer>
           </StyledPaper>

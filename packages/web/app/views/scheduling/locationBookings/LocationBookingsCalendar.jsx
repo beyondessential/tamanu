@@ -78,7 +78,7 @@ const emptyStateMessage = (
     <TranslatedText
       stringId="locationBooking.calendar.noMatchingBookings"
       fallback="No bookings to display. Please try adjusting the search filters."
-    />
+      data-testid='translatedtext-luhl' />
   </EmptyState>
 );
 

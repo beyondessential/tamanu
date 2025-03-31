@@ -25,7 +25,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.birthCertificate.label"
           fallback="Birth certificate number"
-        />
+          data-testid='translatedtext-yihy' />
       ),
     },
     insurerId: {
@@ -35,7 +35,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.insurer.label"
           fallback="Insurer"
-        />
+          data-testid='translatedtext-kq3u' />
       ),
       condition: () => !!enablePatientInsurer,
     },
@@ -45,7 +45,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.insurerPolicyNumber.label"
           fallback="Insurance policy number"
-        />
+          data-testid='translatedtext-govk' />
       ),
       condition: () => !!enablePatientInsurer,
     },
@@ -56,7 +56,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.drivingLicense.label"
           fallback="Driving license number"
-        />
+          data-testid='translatedtext-b397' />
       ),
     },
     passport: {
@@ -65,7 +65,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.passport.label"
           fallback="Passport number"
-        />
+          data-testid='translatedtext-bl6j' />
       ),
     },
   };

@@ -47,12 +47,18 @@ export const ResultsSearchBar = React.memo(
     return (
       <Container>
         <Heading3 mb={2}>
-          <TranslatedText stringId="patient.lab.results.search.title" fallback="Lab results" />
+          <TranslatedText
+            stringId="patient.lab.results.search.title"
+            fallback="Lab results"
+            data-testid='translatedtext-yy0m' />
         </Heading3>
         <Fields>
           <StyledAutoCompleteInput
             name="category"
-            label={<TranslatedText stringId="lab.testCategory.label" fallback="Test category" />}
+            label={<TranslatedText
+              stringId="lab.testCategory.label"
+              fallback="Test category"
+              data-testid='translatedtext-40z4' />}
             disabled={disabled}
             suggester={categorySuggester}
             value={searchParameters.categoryId}
@@ -67,7 +73,7 @@ export const ResultsSearchBar = React.memo(
               <TranslatedText
                 stringId="patient.lab.results.search.panel.label"
                 fallback="Test panel"
-              />
+                data-testid='translatedtext-5zzp' />
             }
             disabled={disabled}
             value={searchParameters.panelId}

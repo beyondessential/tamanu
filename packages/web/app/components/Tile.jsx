@@ -47,7 +47,10 @@ export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...prop
   <Container {...props}>
     <Header>
       <Icon color="primary" />
-      {actions && !isReadOnly && <MenuButton actions={actions} iconDirection="horizontal" />}
+      {actions && !isReadOnly && <MenuButton
+        actions={actions}
+        iconDirection="horizontal"
+        data-testid='menubutton-bhqs' />}
     </Header>
     <Text>{text}</Text>
     <Main>{main}</Main>

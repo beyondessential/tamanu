@@ -65,19 +65,25 @@ export const DiagnosisForm = React.memo(
             <TranslatedText
               stringId="general.localisedField.diagnosis.label"
               fallback="Diagnosis"
-            />,
+              data-testid='translatedtext-0bmz' />,
           ),
           certainty: yup
             .string()
             .oneOf(certaintyOptions)
             .required()
             .translatedLabel(
-              <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />,
+              <TranslatedText
+                stringId="diagnosis.certainty.label"
+                fallback="Certainty"
+                data-testid='translatedtext-kiz0' />,
             ),
           date: yup
             .date()
             .required()
-            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+            .translatedLabel(<TranslatedText
+            stringId="general.date.label"
+            fallback="Date"
+            data-testid='translatedtext-iaxv' />),
         })}
         render={({ submitForm }) => (
           <FormGrid>
@@ -88,48 +94,60 @@ export const DiagnosisForm = React.memo(
                   <TranslatedText
                     stringId="general.localisedField.diagnosis.label"
                     fallback="Diagnosis"
-                  />
+                    data-testid='translatedtext-p7l3' />
                 }
                 component={AutocompleteField}
                 suggester={diagnosisSuggester}
                 required
-              />
+                data-testid='field-sohc' />
             </div>
             <Field
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
-              label={<TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />}
+              label={<TranslatedText
+                stringId="diagnosis.isPrimary.label"
+                fallback="Is primary"
+                data-testid='translatedtext-0gkf' />}
               component={CheckField}
-            />
+              data-testid='field-jehu' />
             <Field
               name="certainty"
-              label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
+              label={<TranslatedText
+                stringId="diagnosis.certainty.label"
+                fallback="Certainty"
+                data-testid='translatedtext-0981' />}
               component={TranslatedSelectField}
               enumValues={DIAGNOSIS_CERTAINTY_LABELS}
               transformOptions={options =>
                 options.filter(option => shouldIncludeCertaintyOption(option, isTriage, isEdit))
               }
               required
-            />
+              data-testid='field-pleu' />
             <Field
               name="date"
-              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+              label={<TranslatedText
+                stringId="general.date.label"
+                fallback="Date"
+                data-testid='translatedtext-3wbt' />}
               component={DateField}
               required
               saveDateAsString
-            />
+              data-testid='field-wsdq' />
             <Field
               name="clinicianId"
               label={
                 <TranslatedText
                   stringId="general.localisedField.clinician.label"
                   fallback="Clinician"
-                />
+                  data-testid='translatedtext-ddjp' />
               }
               component={AutocompleteField}
               suggester={practitionerSuggester}
-            />
-            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
+              data-testid='field-zo5s' />
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              onCancel={onCancel}
+              data-testid='formsubmitcancelrow-388l' />
           </FormGrid>
         )}
       />

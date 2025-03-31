@@ -15,16 +15,19 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
         <TranslatedReferenceData
           fallback={area.name}
           value={area.id}
-          category={area.type} />
+          category={area.type}
+          data-testid='translatedreferencedata-eoiz' />
       </span>).join(', ')
       : imagingRequest?.areaNote;
-    return <p style={{ margin: '0' }}>{areas}</p>;
+    return <p style={{ margin: '0' }} data-testid='p-kvwd'>{areas}</p>;
   }
   if (dataType === 'completedDate') {
     return (
-      <p style={{ margin: '0' }}>
+      <p style={{ margin: '0' }} data-testid='p-ggu5'>
         {imagingRequest?.results[0]?.completedAt ? (
-          <DateDisplay date={imagingRequest?.results[0]?.completedAt} />
+          <DateDisplay
+            date={imagingRequest?.results[0]?.completedAt}
+            data-testid='datedisplay-9tzj' />
         ) : (
           '--/--/----'
         )}

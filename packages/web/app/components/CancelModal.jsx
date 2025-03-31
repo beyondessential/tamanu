@@ -37,7 +37,7 @@ export const CancelModal = React.memo(
               <TranslatedText
                 stringId="imaging.modal.cancel.reason.label"
                 fallback="Reason for cancellation"
-              />,
+                data-testid='translatedtext-qxdx' />,
             ),
         })}
         render={({ values, submitForm }) => (
@@ -51,19 +51,22 @@ export const CancelModal = React.memo(
                   <TranslatedText
                     stringId="imaging.modal.cancel.reason.label"
                     fallback="Reason for cancellation"
-                  />
+                    data-testid='translatedtext-77b6' />
                 }
                 name="reasonForCancellation"
                 options={options}
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
                 prefix="imaging.cancel.property.reason"
-              />
+                data-testid='field-pqto' />
             </Wrapper>
             <FormSubmitCancelRow
               onCancel={onClose}
               onConfirm={submitForm}
-              cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-            />
+              cancelText={<TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid='translatedtext-qs8v' />}
+              data-testid='formsubmitcancelrow-8um6' />
           </ModalBody>
         )}
       />

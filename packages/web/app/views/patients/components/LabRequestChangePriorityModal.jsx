@@ -19,7 +19,10 @@ export const LabRequestChangePriorityModal = React.memo(
       <FormModal open={open} onClose={onClose} title="Change priority">
         <FormGrid columns={1}>
           <AutocompleteInput
-            label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
+            label={<TranslatedText
+              stringId="lab.priority.label"
+              fallback="Priority"
+              data-testid='translatedtext-pijg' />}
             name="priority"
             suggester={suggester}
             value={priorityId}

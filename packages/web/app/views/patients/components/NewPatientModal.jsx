@@ -29,7 +29,10 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   );
   return (
     <FormModal
-      title={<TranslatedText stringId="patient.modal.create.title" fallback="Add new patient" />}
+      title={<TranslatedText
+        stringId="patient.modal.create.title"
+        fallback="Add new patient"
+        data-testid='translatedtext-0s97' />}
       onClose={onCancel}
       open={open}
     >

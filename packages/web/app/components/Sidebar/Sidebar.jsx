@@ -206,11 +206,18 @@ export const Sidebar = React.memo(({ items }) => {
     }
     if (!facility) {
       return (
-        <TranslatedText stringId="general.meta.centralServer" fallback="Central admin server" />
+        <TranslatedText
+          stringId="general.meta.centralServer"
+          fallback="Central admin server"
+          data-testid='translatedtext-ptog' />
       );
     }
     return (
-      <TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />
+      <TranslatedReferenceData
+        fallback={facility.name}
+        value={facility.id}
+        category="facility"
+        data-testid='translatedreferencedata-bdle' />
     );
   }, [facility, isFacilityLoading]);
 
@@ -316,7 +323,10 @@ export const Sidebar = React.memo(({ items }) => {
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
               <Version title={FULL_VERSION}>
-                <TranslatedText stringId="general.meta.version" fallback="Version" />{' '}
+                <TranslatedText
+                  stringId="general.meta.version"
+                  fallback="Version"
+                  data-testid='translatedtext-awrj' />{' '}
                 {api.agentVersion}
               </Version>
               <LogoutButton
@@ -325,7 +335,10 @@ export const Sidebar = React.memo(({ items }) => {
                 id="logout"
                 data-test-id="siderbar-logout-item"
               >
-                <TranslatedText stringId="auth.action.logout" fallback="Log out" />
+                <TranslatedText
+                  stringId="auth.action.logout"
+                  fallback="Log out"
+                  data-testid='translatedtext-qpap' />
               </LogoutButton>
             </StyledMetadataBox>
           </>

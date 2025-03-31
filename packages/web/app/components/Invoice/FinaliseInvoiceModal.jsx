@@ -28,7 +28,7 @@ export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
         <TranslatedText
           stringId="invoice.modal.finaliseInvoice.title"
           fallback="Finalise invoice"
-        />
+          data-testid='translatedtext-19kd' />
       }
       open={open}
       onClose={onClose}
@@ -37,12 +37,15 @@ export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
         <TranslatedText
           stringId="invoice.modal.finaliseInvoice.warningText"
           fallback="Are you sure you would like to finalise this invoice? You will not be able to make any changes."
-        />
+          data-testid='translatedtext-qd51' />
       </ContentText>
       <ModalActionRow
         onConfirm={finaliseInvoice}
         onCancel={onClose}
-        confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
+        confirmText={<TranslatedText
+          stringId="general.action.finalise"
+          fallback="Finalise"
+          data-testid='translatedtext-5oje' />}
       />
     </Modal>
   );

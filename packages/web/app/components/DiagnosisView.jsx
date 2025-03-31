@@ -20,15 +20,21 @@ const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
     return (
       <DiagnosisHeading>
-        <TranslatedText stringId="diagnosis.list.noData" fallback="No diagnoses recorded." />
+        <TranslatedText
+          stringId="diagnosis.list.noData"
+          fallback="No diagnoses recorded."
+          data-testid='translatedtext-1662' />
       </DiagnosisHeading>
     );
   }
 
   return (
     <DiagnosisHeading>
-      <TranslatedText stringId="diagnosis.list.heading" fallback="Diagnosis" />:
-    </DiagnosisHeading>
+      <TranslatedText
+        stringId="diagnosis.list.heading"
+        fallback="Diagnosis"
+        data-testid='translatedtext-v70f' />:
+          </DiagnosisHeading>
   );
 });
 
@@ -65,7 +71,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
           <TranslatedText
             stringId="diagnosis.list.error.forbiddenMessage"
             fallback="You do not have permission to list diagnoses."
-          />
+            data-testid='translatedtext-fo5x' />
         </Typography>
       </Box>
     </>
@@ -88,7 +94,10 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
           color="primary"
           disabled={readOnly}
         >
-          <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
+          <TranslatedText
+            stringId="diagnosis.action.add"
+            fallback="Add diagnosis"
+            data-testid='translatedtext-uin2' />
         </AddDiagnosisButton>
       </DiagnosisGrid>
     </>

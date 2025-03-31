@@ -14,21 +14,34 @@ import { TranslatedText } from '../Translation/TranslatedText';
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      <TranslatedText stringId="paginatedForm.summary.heading" fallback="Form complete" />
+      <TranslatedText
+        stringId="paginatedForm.summary.heading"
+        fallback="Form complete"
+        data-testid='translatedtext-0sq7' />
     </Typography>
     <Typography>
       <TranslatedText
         stringId="paginatedForm.summary.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-      />
+        data-testid='translatedtext-bzhi' />
     </Typography>
     <div>
-      <ButtonRow>
-        <OutlinedButton onClick={onStepBack}>
-          <TranslatedText stringId="general.action.previous" fallback="Prev" />
+      <ButtonRow data-testid='buttonrow-i6jd'>
+        <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-0rba'>
+          <TranslatedText
+            stringId="general.action.previous"
+            fallback="Prev"
+            data-testid='translatedtext-yvvw' />
         </OutlinedButton>
-        <Button color="primary" variant="contained" onClick={submitForm}>
-          <TranslatedText stringId="general.action.complete" fallback="Complete" />
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={submitForm}
+          data-testid='button-wkg1'>
+          <TranslatedText
+            stringId="general.action.complete"
+            fallback="Complete"
+            data-testid='translatedtext-7cf9' />
         </Button>
       </ButtonRow>
     </div>
@@ -42,11 +55,21 @@ const StyledAlert = styled(Alert)`
 const DefaultSuccessScreen = ({ onClose }) => (
   <div>
     <StyledAlert severity="success">
-      <TranslatedText stringId="paginatedForm.success.heading" fallback="Your response has been successfully submitted." />
+      <TranslatedText
+        stringId="paginatedForm.success.heading"
+        fallback="Your response has been successfully submitted."
+        data-testid='translatedtext-o2e9' />
     </StyledAlert>
-    <ButtonRow>
-      <Button variant="contained" color="primary" onClick={onClose}>
-        <TranslatedText stringId="general.action.ok" fallback="Ok" />
+    <ButtonRow data-testid='buttonrow-hqou'>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={onClose}
+        data-testid='button-k1o1'>
+        <TranslatedText
+          stringId="general.action.ok"
+          fallback="Ok"
+          data-testid='translatedtext-eveu' />
       </Button>
     </ButtonRow>
   </div>
@@ -81,14 +104,30 @@ export const DefaultFormScreen = ({
       {updatedScreenReactElement}
       {customBottomRow || (
         <Box mt={4} display="flex" justifyContent="space-between">
-          <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
-            <TranslatedText stringId="general.action.back" fallback="Back" />
+          <OutlinedButton
+            onClick={hasStepBack ? onStepBack : undefined}
+            disabled={!hasStepBack}
+            data-testid='outlinedbutton-kxqb'>
+            <TranslatedText
+              stringId="general.action.back"
+              fallback="Back"
+              data-testid='translatedtext-iyde' />
           </OutlinedButton>
-          <Button color="primary" variant="contained" onClick={onStepForward}>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={onStepForward}
+            data-testid='button-whi6'>
             {isLast ? (
-              <TranslatedText stringId="general.action.submit" fallback="Submit" />
+              <TranslatedText
+                stringId="general.action.submit"
+                fallback="Submit"
+                data-testid='translatedtext-f8xw' />
             ) : (
-              <TranslatedText stringId="general.action.continue" fallback="Continue" />
+              <TranslatedText
+                stringId="general.action.continue"
+                fallback="Continue"
+                data-testid='translatedtext-u47b' />
             )}
           </Button>
         </Box>

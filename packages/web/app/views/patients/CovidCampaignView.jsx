@@ -55,14 +55,16 @@ const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus
 
 const PatientCovidCampaignTable = React.memo(({ onPatientSelect, ...props }) => {
   delete props.getVaccines;
-  return <DataFetchingTable
-    endpoint="patient"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    exportName="Covid Campaign"
-    onRowClick={onPatientSelect}
-    {...props}
-  />;
+  return (
+    <DataFetchingTable
+      endpoint="patient"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      exportName="Covid Campaign"
+      onRowClick={onPatientSelect}
+      {...props}
+      data-testid='datafetchingtable-ixq1' />
+  );
 });
 
 export const CovidCampaignView = ({ getPatientVaccinations }) => {
@@ -83,7 +85,7 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
         patient={patient}
         onClose={() => setModalOpen(false)}
       />
-      <TopBar title="COVID campaign" />
+      <TopBar title="COVID campaign" data-testid='topbar-pj9f' />
       <ImmunisationSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientCovidCampaignTable

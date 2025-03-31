@@ -33,10 +33,10 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
                 casing="lower"
-              />
+                data-testid='translatedtext-lmsw' />
             ),
           }}
-        />
+          data-testid='translatedtext-18zt' />
       }
       open={open}
       onClose={onClose}

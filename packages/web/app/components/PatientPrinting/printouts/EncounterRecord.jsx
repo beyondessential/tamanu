@@ -110,7 +110,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-tazs' /> || {},
       style: { width: '30%' },
     },
   ],
@@ -131,7 +131,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-j389' /> || {},
       style: { width: '30%' },
     },
   ],
@@ -148,7 +148,7 @@ const COLUMNS = {
                 fallback={diagnosis.name}
                 value={diagnosis.id}
                 category="diagnosis"
-              />
+                data-testid='translatedreferencedata-78tx' />
             </span>
             <span> {diagnosis.code}</span>
           </>
@@ -164,7 +164,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-832n' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -181,7 +181,7 @@ const COLUMNS = {
                 fallback={procedureType.name}
                 value={procedureType.id}
                 category={procedureType.type}
-              />
+                data-testid='translatedreferencedata-ohp8' />
             </span>
             <span> {procedureType.code}</span>
           </>
@@ -191,7 +191,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-20k2' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -215,13 +215,13 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate /> || {},
+      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate data-testid='datedisplay-cp31' /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate /> || {},
+      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate data-testid='datedisplay-znq6' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -248,7 +248,7 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate data-testid='datedisplay-uoz5' />,
       style: { width: '20%' },
     },
     {
@@ -269,7 +269,7 @@ const COLUMNS = {
             fallback={medication.name}
             value={medication.id}
             category={medication.type}
-          />
+            data-testid='translatedreferencedata-3bhk' />
         ),
       style: { width: '20%' },
     },
@@ -294,7 +294,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate />,
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-6xtp' />,
       style: { width: '20%' },
     },
   ],
@@ -329,7 +329,6 @@ export const EncounterRecord = React.memo(
           logoSrc={logo}
           pageTitle="Patient Encounter Record"
         />
-
         <SummaryHeading>Patient details</SummaryHeading>
         <Divider />
         <RowContainer>
@@ -338,7 +337,11 @@ export const EncounterRecord = React.memo(
               {firstName} {lastName}
             </DisplayValue>
             <LocalisedDisplayValue name="dateOfBirth">
-              <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+              <DateDisplay
+                date={dateOfBirth}
+                showDate={false}
+                showExplicitDate
+                data-testid='datedisplay-4wm6' />
             </LocalisedDisplayValue>
             <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
           </div>
@@ -348,7 +351,6 @@ export const EncounterRecord = React.memo(
             <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
           </div>
         </RowContainer>
-
         <SummaryHeading>Encounter Details</SummaryHeading>
         <Divider />
         <RowContainer>
@@ -358,7 +360,7 @@ export const EncounterRecord = React.memo(
                 fallback={location.facility.name}
                 value={location.facility.id}
                 category="facility"
-              />
+                data-testid='translatedreferencedata-iy2r' />
             </LocalisedDisplayValue>
             <DisplayValue
               name={
@@ -371,10 +373,10 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                      />
+                        data-testid='translatedtext-s3pz' />
                     ),
                   }}
-                />
+                  data-testid='translatedtext-rhxc' />
               }
               size="10px"
             >
@@ -391,10 +393,10 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                      />
+                        data-testid='translatedtext-wvck' />
                     ),
                   }}
-                />
+                  data-testid='translatedtext-ycd7' />
               }
               size="10px"
             >
@@ -410,66 +412,66 @@ export const EncounterRecord = React.memo(
                 fallback={department.name}
                 value={department.id}
                 category="department"
-              />
+                data-testid='translatedreferencedata-3d4j' />
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px">
-              <DateDisplay date={startDate} showDate={false} showExplicitDate />
+              <DateDisplay
+                date={startDate}
+                showDate={false}
+                showExplicitDate
+                data-testid='datedisplay-pxba' />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px">
-              <DateDisplay date={endDate} showDate={false} showExplicitDate />
+              <DateDisplay
+                date={endDate}
+                showDate={false}
+                showExplicitDate
+                data-testid='datedisplay-ceax' />
             </DisplayValue>
           </div>
         </RowContainer>
-
         {encounterTypeHistory.length > 0 ? (
           <>
             <TableHeading>Encounter Types</TableHeading>
             <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
           </>
         ) : null}
-
         {locationHistory.length > 0 ? (
           <>
             <TableHeading>Locations</TableHeading>
             <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
           </>
         ) : null}
-
         {diagnoses.length > 0 ? (
           <>
             <TableHeading>Diagnoses</TableHeading>
             <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
           </>
         ) : null}
-
         {procedures.length > 0 ? (
           <>
             <TableHeading>Procedures</TableHeading>
             <CompactListTable data={procedures} columns={COLUMNS.procedures} />
           </>
         ) : null}
-
         {labRequests.length > 0 ? (
           <>
             <TableHeading>Lab Requests</TableHeading>
             <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
           </>
         ) : null}
-
         {imagingRequests.length > 0 ? (
           <>
             <TableHeading>Imaging Requests</TableHeading>
             <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
           </>
         ) : null}
-
         {medications.length > 0 ? (
           <>
             <TableHeading>Medications</TableHeading>
             <CompactListTable data={medications} columns={COLUMNS.medications} />
           </>
         ) : null}
-
         {notes.length > 0 ? (
           <>
             <TableHeading>Notes</TableHeading>
@@ -487,7 +489,7 @@ export const EncounterRecord = React.memo(
                       {note.onBehalfOf ? (
                         <span>on behalf of {note.onBehalfOf.displayName} </span>
                       ) : null}
-                      <DateDisplay date={note.date} showTime />
+                      <DateDisplay date={note.date} showTime data-testid='datedisplay-sme0' />
                     </NoteMeta>
                   </RowContent>
                 </Row>

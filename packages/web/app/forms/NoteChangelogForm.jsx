@@ -26,11 +26,20 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={<TranslatedEnum
+          value={note.noteType}
+          enumValues={NOTE_TYPE_LABELS}
+          data-testid='translatedenum-j0xm' />}
         date={note.revisedBy?.date || note.date}
-        dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
+        dateLabel={<TranslatedText
+          stringId="note.dateTime.label"
+          fallback="Date & time"
+          data-testid='translatedtext-phe4' />}
         writtenByLabel={
-          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+          <TranslatedText
+            stringId="note.writtenBy.label"
+            fallback="Written by (or on behalf of)"
+            data-testid='translatedtext-4b6g' />
         }
         writtenBy={writtenBy}
       />
@@ -38,7 +47,10 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
       <NoteChangeLogs note={note} />
       <StyledDivider />
       <ConfirmCancelRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-ugx5' />}
         onConfirm={onCancel}
       />
     </>

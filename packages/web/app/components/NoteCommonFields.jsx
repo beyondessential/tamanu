@@ -64,7 +64,10 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
 };
 export const WrittenByField = ({
   label = (
-    <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+    <TranslatedText
+      stringId="note.writtenBy.label"
+      fallback="Written by (or on behalf of)"
+      data-testid='translatedtext-4a93' />
   ),
   required,
   disabled,
@@ -79,7 +82,7 @@ export const WrittenByField = ({
       component={AutocompleteField}
       suggester={practitionerSuggester}
       disabled={disabled}
-    />
+      data-testid='field-rmxj' />
   );
 };
 
@@ -89,17 +92,23 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   return (
     <Field
       name="date"
-      label={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
+      label={<TranslatedText
+        stringId="note.dateTime.label"
+        fallback="Date & time"
+        data-testid='translatedtext-cwox' />}
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
-    />
+      data-testid='field-h9ax' />
   );
 };
 
 export const NoteContentField = ({
-  label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
+  label = <TranslatedText
+    stringId="note.edit.label"
+    fallback="Edit note"
+    data-testid='translatedtext-ukcc' />,
   onChange,
 }) => (
   <Field
@@ -110,7 +119,7 @@ export const NoteContentField = ({
     multiline
     onChange={onChange}
     minRows={18}
-  />
+    data-testid='field-qjpe' />
 );
 
 export const NoteInfoSection = ({
@@ -130,7 +139,10 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label={<TranslatedText stringId="note.noteType.label" fallback="Note type" />}
+      label={<TranslatedText
+        stringId="note.noteType.label"
+        fallback="Note type"
+        data-testid='translatedtext-ci2m' />}
       value={noteType}
       borderHeight={50}
     />
@@ -146,7 +158,7 @@ export const NoteInfoSection = ({
         numberOfColumns={numberOfColumns}
         fontSize={14}
         label={dateLabel}
-        value={<DateDisplay date={date} showTime />}
+        value={<DateDisplay date={date} showTime data-testid='datedisplay-stan' />}
         borderHeight={50}
       />
     )}
@@ -156,7 +168,10 @@ export const NoteInfoSection = ({
 export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
   <Field
     name="noteType"
-    label={<TranslatedText stringId="note.type.label" fallback="Type" />}
+    label={<TranslatedText
+      stringId="note.type.label"
+      fallback="Type"
+      data-testid='translatedtext-7kzs' />}
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
@@ -173,7 +188,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     onChange={onChange}
-  />
+    data-testid='field-de81' />
 );
 
 export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
@@ -184,12 +199,15 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
   return (
     <Field
       name="template"
-      label={<TranslatedText stringId="note.template.label" fallback="Template" />}
+      label={<TranslatedText
+        stringId="note.template.label"
+        fallback="Template"
+        data-testid='translatedtext-cw7t' />}
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
       disabled={!noteType}
-    />
+      data-testid='field-1l6o' />
   );
 };
 

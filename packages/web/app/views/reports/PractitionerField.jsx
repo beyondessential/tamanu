@@ -13,12 +13,12 @@ export const PractitionerField = ({ name = 'practitioner', required, label }) =>
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
             fallback="Clinician"
-          />
+            data-testid='translatedtext-klvm' />
         )
       }
       component={AutocompleteField}
       suggester={practitionerSuggester}
       required={required}
-    />
+      data-testid='field-dvbh' />
   );
 };

@@ -38,55 +38,73 @@ export const AllergyForm = ({
           <Field
             name="allergyId"
             label={
-              <TranslatedText stringId="allergies.allergyName.label" fallback="Allergy name" />
+              <TranslatedText
+                stringId="allergies.allergyName.label"
+                fallback="Allergy name"
+                data-testid='translatedtext-xife' />
             }
             component={AutocompleteField}
             suggester={allergySuggester}
             required
             allowCreatingCustomValue={canCreateReferenceData}
-          />
+            data-testid='field-cozz' />
           <Field
             name="reactionId"
-            label={<TranslatedText stringId="general.reaction.label" fallback="Reaction" />}
+            label={<TranslatedText
+              stringId="general.reaction.label"
+              fallback="Reaction"
+              data-testid='translatedtext-oy8q' />}
             component={SuggesterSelectField}
             endpoint="reaction"
-          />
+            data-testid='field-qz57' />
           <Field
             name="recordedDate"
             label={
-              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />
+              <TranslatedText
+                stringId="general.recordedDate.label"
+                fallback="Date recorded"
+                data-testid='translatedtext-jl41' />
             }
             component={DateField}
             saveDateAsString
             required
-          />
+            data-testid='field-v0la' />
           <Field
             name="practitionerId"
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
-              />
+                data-testid='translatedtext-tt55' />
             }
             component={AutocompleteField}
             suggester={practitionerSuggester}
-          />
+            data-testid='field-fbr7' />
           <Field
             name="note"
-            label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+            label={<TranslatedText
+              stringId="general.notes.label"
+              fallback="Notes"
+              data-testid='translatedtext-4akz' />}
             component={TextField}
-          />
+            data-testid='field-3bbg' />
           <FormSubmitCancelRow
             onCancel={onCancel}
             onConfirm={submitForm}
             confirmText={
               editedObject ? (
-                <TranslatedText stringId="general.action.save" fallback="Save" />
+                <TranslatedText
+                  stringId="general.action.save"
+                  fallback="Save"
+                  data-testid='translatedtext-6giz' />
               ) : (
-                <TranslatedText stringId="general.action.add" fallback="Add" />
+                <TranslatedText
+                  stringId="general.action.add"
+                  fallback="Add"
+                  data-testid='translatedtext-ptoc' />
               )
             }
-          />
+            data-testid='formsubmitcancelrow-8d06' />
         </FormGrid>
       )}
       initialValues={{
@@ -102,7 +120,10 @@ export const AllergyForm = ({
           .date()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+            <TranslatedText
+              stringId="general.recordedDate.label"
+              fallback="Date recorded"
+              data-testid='translatedtext-1n9r' />,
           ),
       })}
     />

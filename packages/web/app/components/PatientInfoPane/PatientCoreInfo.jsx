@@ -113,7 +113,7 @@ const HealthIdDisplay = ({ displayId }) => (
         <TranslatedText
           stringId="general.localisedField.displayId.label"
           fallback="National Health Number"
-        />
+          data-testid='translatedtext-m2xi' />
       </HealthIdText>
       <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
     </HealthId>
@@ -129,7 +129,10 @@ export const CoreInfoDisplay = memo(({ patient }) => {
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
         <NameHeader>
-          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient details" />
+          <TranslatedText
+            stringId="patient.detailsSidebar.title"
+            fallback="Patient details"
+            data-testid='translatedtext-pyk2' />
         </NameHeader>
         <NameContainer>
           <div>
@@ -141,7 +144,10 @@ export const CoreInfoDisplay = memo(({ patient }) => {
       </PatientButton>
       <CoreInfoSection>
         <CoreInfoCell
-          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          label={<TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid='translatedtext-lxxa' />}
           testId="core-info-patient-sex"
         >
           <TranslatedSex sex={patient.sex} />
@@ -151,11 +157,11 @@ export const CoreInfoDisplay = memo(({ patient }) => {
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-            />
+              data-testid='translatedtext-6xrd' />
           }
           testId="core-info-patient-dob"
         >
-          <DateDisplay date={patient.dateOfBirth} />
+          <DateDisplay date={patient.dateOfBirth} data-testid='datedisplay-5xlq' />
           <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>

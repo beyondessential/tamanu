@@ -50,7 +50,10 @@ const CalendarInnerWrapper = styled(Box)`
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
-  title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
+  title: <TranslatedText
+    stringId="scheduling.appointments.title"
+    fallback="Appointments"
+    data-testid='translatedtext-bywj' />,
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
@@ -201,12 +204,12 @@ export const OutpatientAppointmentsView = () => {
           <GroupByToggle />
           <OutpatientAppointmentsFilter />
           {canCreateAppointment && (
-            <Button onClick={handleCreateAppointment}>
+            <Button onClick={handleCreateAppointment} data-testid='button-p1b3'>
               <AddIcon aria-hidden />{' '}
               <TranslatedText
                 stringId="scheduling.action.bookAppointment"
                 fallback="Book appointment"
-              />
+                data-testid='translatedtext-svat' />
             </Button>
           )}
         </AppointmentTopBar>

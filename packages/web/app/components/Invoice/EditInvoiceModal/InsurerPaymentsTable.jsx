@@ -42,21 +42,30 @@ const getInsurerPaymentStatus = insurerPayment => {
 const COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+    title: <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid='translatedtext-pmjc' />,
     sortable: false,
     dontCallRowInput: true,
-    accessor: ({ date }) => <DateDisplay date={date} />,
+    accessor: ({ date }) => <DateDisplay date={date} data-testid='datedisplay-kde7' />,
   },
   {
     key: 'insurerName',
-    title: <TranslatedText stringId="invoice.table.payment.column.payer" fallback="Payer" />,
+    title: <TranslatedText
+      stringId="invoice.table.payment.column.payer"
+      fallback="Payer"
+      data-testid='translatedtext-3zwh' />,
     sortable: false,
     dontCallRowInput: true,
     accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
   },
   {
     key: 'amount',
-    title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
+    title: <TranslatedText
+      stringId="invoice.table.payment.column.amount"
+      fallback="Amount"
+      data-testid='translatedtext-0bsq' />,
     sortable: false,
     dontCallRowInput: true,
     accessor: ({ amount }) => formatDisplayPrice(amount),
@@ -67,14 +76,17 @@ const COLUMNS = [
       <TranslatedText
         stringId="invoice.table.payment.column.receiptNumber"
         fallback="Receipt number"
-      />
+        data-testid='translatedtext-gc4v' />
     ),
     sortable: false,
     dontCallRowInput: true,
   },
   {
     key: 'status',
-    title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
+    title: <TranslatedText
+      stringId="invoice.table.payment.column.status"
+      fallback="Status"
+      data-testid='translatedtext-q2my' />,
     sortable: false,
     dontCallRowInput: true,
     accessor: ({ insurerPayment }) => getInsurerPaymentStatus(insurerPayment),
@@ -92,7 +104,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
           <TranslatedText
             stringId="invoice.modal.payment.insurerPayments"
             fallback="Insurer payments"
-          />
+            data-testid='translatedtext-bt56' />
         </Heading4>
         <Heading4 sx={{ margin: '15px 0 15px 0' }}>
           <TranslatedText
@@ -101,7 +113,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
             replacements={{
               remainingBalance: formatDisplayPrice(Math.max(0, insurerPaymentRemainingBalance)),
             }}
-          />
+            data-testid='translatedtext-36x1' />
         </Heading4>
       </Title>
       <Table

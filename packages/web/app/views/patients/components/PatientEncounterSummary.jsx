@@ -132,7 +132,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
                   fallback={deathData.facility.name}
                   value={deathData?.facility.id}
                   category="facility"
-                />
+                  data-testid='translatedreferencedata-i9ah' />
               )) ||
               'Unknown'}
           </ContentText>
@@ -142,7 +142,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-            />
+              data-testid='translatedtext-zstx' />
             :
           </ContentLabel>
           <ContentText>{deathData?.clinician?.displayName}</ContentText>
@@ -155,16 +155,19 @@ const PatientDeathSummary = React.memo(({ patient }) => {
                 fallback={deathData?.causes?.primary?.condition.name}
                 value={deathData?.causes?.primary?.condition.id}
                 category={deathData?.causes?.primary?.condition.type}
-              />
+                data-testid='translatedreferencedata-xd6r' />
             ) : (
-              <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                data-testid='translatedtext-lkg4' />
             )}
           </ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>Date of death:</ContentLabel>
           <ContentText>
-            <DateDisplay date={deathData?.dateOfDeath} />
+            <DateDisplay date={deathData?.dateOfDeath} data-testid='datedisplay-oa2e' />
           </ContentText>
         </ContentItem>
       </Content>
@@ -183,7 +186,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   if (isLoading) {
     return (
       <DataStatusMessage
-        message={<TranslatedText stringId="general.status.loading" fallback="Loading..." />}
+        message={<TranslatedText
+          stringId="general.status.loading"
+          fallback="Loading..."
+          data-testid='translatedtext-zhjj' />}
       />
     );
   }
@@ -199,14 +205,18 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <TranslatedText
             stringId="patient.encounterSummary.noCurrentVisit"
             fallback="No Current Visit"
-          />
+            data-testid='translatedtext-o6ob' />
         </NoVisitTitle>
-        <ButtonRow>
-          <ButtonWithPermissionCheck onClick={openCheckin} verb="create" noun="Encounter">
+        <ButtonRow data-testid='buttonrow-r3o2'>
+          <ButtonWithPermissionCheck
+            onClick={openCheckin}
+            verb="create"
+            noun="Encounter"
+            data-testid='buttonwithpermissioncheck-c2ck'>
             <TranslatedText
               stringId="patient.encounterSummary.adminOrCheckIn"
               fallback="Admit or check-in"
-            />
+              data-testid='translatedtext-yy4p' />
           </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
@@ -230,7 +240,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">
-          <TranslatedText stringId="general.type.label" fallback="Type" />:
+          <TranslatedText
+            stringId="general.type.label"
+            fallback="Type"
+            data-testid='translatedtext-gw4j' />:
         </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
@@ -241,18 +254,18 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                 fallback={location?.facility.name}
                 value={location?.facility.id}
                 category="facility"
-              />
+                data-testid='translatedreferencedata-bvzc' />
             </>
           ) : (
             ''
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
-        <Button onClick={() => viewEncounter(id)} size="small">
+        <Button onClick={() => viewEncounter(id)} size="small" data-testid='button-86sz'>
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
             fallback="View encounter"
-          />
+            data-testid='translatedtext-qmbd' />
         </Button>
       </Header>
       <Content>
@@ -261,7 +274,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
             <TranslatedText
               stringId="patient.encounterSummary.currentAdmission"
               fallback="Current admission"
-            />
+              data-testid='translatedtext-ka89' />
             :
           </ContentLabel>
           <ContentText>{patientStatus}</ContentText>
@@ -277,17 +290,20 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                     casing="lower"
-                  />
+                    data-testid='translatedtext-u2vc' />
                 ),
               }}
-            />
+              data-testid='translatedtext-5rgj' />
             :
           </ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>
-            <TranslatedText stringId="general.location.label" fallback="Location" />:
+            <TranslatedText
+              stringId="general.location.label"
+              fallback="Location"
+              data-testid='translatedtext-elye' />:
           </ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
@@ -297,7 +313,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
               <TranslatedText
                 stringId="general.localisedField.referralSourceId.label"
                 fallback="Referral source"
-              />
+                data-testid='translatedtext-43u0' />
               :
             </ContentLabel>
             <ContentText>
@@ -306,7 +322,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                   category="referralSource"
                   fallback={referralSource?.name}
                   value={referralSourceId}
-                />
+                  data-testid='translatedreferencedata-g1v2' />
               ) : (
                 referralSource?.name || '-'
               )}
@@ -318,11 +334,11 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
             <TranslatedText
               stringId="patient.encounterSummary.arrivalDate"
               fallback="Arrival date"
-            />
+              data-testid='translatedtext-29as' />
             :
           </ContentLabel>
           <ContentText>
-            <DateDisplay date={startDate} />
+            <DateDisplay date={startDate} data-testid='datedisplay-2x90' />
           </ContentText>
         </ContentItem>
         <ContentItem>
@@ -330,7 +346,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
             <TranslatedText
               stringId="encounter.reasonForEncounter.label"
               fallback="Reason for encounter"
-            />
+              data-testid='translatedtext-n6iu' />
             :
           </ContentLabel>
           <ContentText>{reasonForEncounter}</ContentText>

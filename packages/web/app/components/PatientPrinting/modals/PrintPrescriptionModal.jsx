@@ -100,7 +100,10 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   return (
     <>
       <Modal
-        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
+        title={<TranslatedText
+          stringId="medication.modal.print.title"
+          fallback="Prescription"
+          data-testid='translatedtext-b1sx' />}
         open={open}
         onClose={onClose}
         width="md"

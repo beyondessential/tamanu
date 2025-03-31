@@ -47,7 +47,7 @@ export const CreateReportView = () => {
           stringId="admin.report.notification.importedReport"
           fallback={`Imported report: ${reportDefinitionId}`}
           replacements={{ reportDefinitionId }}
-        />
+          data-testid='translatedtext-2ppq' />
       );
     } catch (err) {
       toast.error(
@@ -55,7 +55,7 @@ export const CreateReportView = () => {
           stringId="admin.report.notification.createReportFailed"
           fallback={`Failed to create report: ${err.message}`}
           replacements={{ message: err.message }}
-        />
+          data-testid='translatedtext-ve6n' />
       );
     }
   };

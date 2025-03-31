@@ -87,14 +87,21 @@ export const GroupByAppointmentToggle = props => {
   return (
     <Wrapper onClick={handleChange} role="radiogroup" {...props}>
       <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
-        <TranslatedText stringId="outpatientAppointments.groupByToggle.area" fallback="Area" />
+      <ToggleButton
+        aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}
+        data-testid='togglebutton-khjq'>
+        <TranslatedText
+          stringId="outpatientAppointments.groupByToggle.area"
+          fallback="Area"
+          data-testid='translatedtext-9iue' />
       </ToggleButton>
-      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}>
+      <ToggleButton
+        aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}
+        data-testid='togglebutton-2j2s'>
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.clinicians"
           fallback="Clinicians"
-        />
+          data-testid='translatedtext-29zq' />
       </ToggleButton>
     </Wrapper>
   );

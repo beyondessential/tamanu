@@ -84,10 +84,13 @@ const ImportForm = ({
       <Field
         component={FileChooserField}
         filters={[FILTER_EXCEL]}
-        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
+        label={<TranslatedText
+          stringId="general.selectFile.label"
+          fallback="Select file"
+          data-testid='translatedtext-jzyk' />}
         name="file"
         required
-      />
+        data-testid='field-tuvg' />
       {dataTypes && dataTypesSelectable && (
         <Field
           name="includedDataTypes"
@@ -95,11 +98,11 @@ const ImportForm = ({
             <TranslatedText
               stringId="admin.import.includedDataTypes.label"
               fallback="Select data types to import"
-            />
+              data-testid='translatedtext-l8uz' />
           }
           component={ExpandedMultiSelectField}
           options={dataTypes.map(value => ({ value, label: startCase(value) }))}
-        />
+          data-testid='field-6mip' />
       )}
       <StyledButtonRow alignment={buttonRowAlignment}>
         <ImportButton
@@ -109,13 +112,19 @@ const ImportForm = ({
           }}
           disabled={!values.file}
         >
-          <TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />
+          <TranslatedText
+            stringId="admin.import.action.testImport"
+            fallback="Test import"
+            data-testid='translatedtext-irmx' />
         </ImportButton>
         <ImportButton
           disabled={!values.file}
           onSubmit={(event, extraFormData) => submitForm(event, extraFormData)}
         >
-          <TranslatedText stringId="general.action.import" fallback="Import" />
+          <TranslatedText
+            stringId="general.action.import"
+            fallback="Import"
+            data-testid='translatedtext-xuc4' />
         </ImportButton>
       </StyledButtonRow>
     </ContentContainer>
@@ -129,22 +138,22 @@ function sumStat(stats, fields = ['created', 'updated', 'errored']) {
 const OutcomeHeader = ({ result }) => {
   let head;
   if (result.didntSendReason === 'validationFailed') {
-    head = <h3>Please correct these validation issues and try again</h3>;
+    head = <h3 data-testid='h3-s6hs'>Please correct these validation issues and try again</h3>;
   } else if (result.didntSendReason === 'dryRun') {
-    head = <h3>Test import finished successfully</h3>;
+    head = <h3 data-testid='h3-wrd1'>Test import finished successfully</h3>;
   } else if (result.didntSendReason) {
-    head = <h3>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
+    head = <h3 data-testid='h3-36bv'>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
   } else if (!result?.errors?.length) {
-    head = <h3>Import successful!</h3>;
+    head = <h3 data-testid='h3-gh5p'>Import successful!</h3>;
   } else {
-    head = <h3>Import failed - unknown server error</h3>;
+    head = <h3 data-testid='h3-ujl3'>Import failed - unknown server error</h3>;
   }
 
   return (
     <>
       {head}
       {result.stats && (
-        <p>
+        <p data-testid='p-o67q'>
           {`Time: ${result.duration?.toFixed(2) ?? 'unknown '}s — Records: ` +
             `${sumStat(result.stats, ['created'])} created, ` +
             `${sumStat(result.stats, ['updated'])} updated, ` +
@@ -165,11 +174,11 @@ const OutcomeDisplay = ({ result }) => {
     <div>
       <OutcomeHeader result={result} />
       <hr />
-      <h4>Summary</h4>
+      <h4 data-testid='h4-53ik'>Summary</h4>
       {result.stats && <ImportStatsDisplay stats={result.stats} />}
       {result?.errors?.length > 0 && (
         <>
-          <h4>Errors</h4>
+          <h4 data-testid='h4-gr0i'>Errors</h4>
           <ImportErrorsTable errors={result?.errors} />
         </>
       )}
@@ -240,7 +249,10 @@ export const ImporterView = memo(
             file: yup
               .string()
               .required()
-              .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
+              .translatedLabel(<TranslatedText
+              stringId="general.file.label"
+              fallback="File"
+              data-testid='translatedtext-7rx9' />),
           })}
           initialValues={{
             includedDataTypes: initialDataTypes,

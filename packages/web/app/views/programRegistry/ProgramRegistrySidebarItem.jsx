@@ -39,7 +39,11 @@ export const ProgramRegistrySidebarItem = ({
             isCurrent={currentPath.includes(secondaryPath)}
             color=""
             label={
-              <TranslatedReferenceData value={id} fallback={name} category="programRegistry" />
+              <TranslatedReferenceData
+                value={id}
+                fallback={name}
+                category="programRegistry"
+                data-testid='translatedreferencedata-l5tf' />
             }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}

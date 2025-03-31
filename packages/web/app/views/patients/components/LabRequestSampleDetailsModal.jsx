@@ -8,7 +8,7 @@ export const LabRequestSampleDetailsModal = ({ open, onClose, labRequest }) => {
     <Modal open={open} onClose={onClose} title="Sample details">
       <LabRequestSampleDetailsCard labRequest={labRequest} />
       <Box display="flex" justifyContent="flex-end" pt={3}>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose} data-testid='button-kk63'>Close</Button>
       </Box>
     </Modal>
   );

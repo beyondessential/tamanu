@@ -42,7 +42,10 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
     <div>
       <Row>
         <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
-        <Button onClick={onClick}><TranslatedText stringId='admin.patientMerge.action.get' fallback='Get' /></Button>
+        <Button onClick={onClick} data-testid='button-x0ux'><TranslatedText
+          stringId='admin.patientMerge.action.get'
+          fallback='Get'
+          data-testid='translatedtext-8etr' /></Button>
       </Row>
       {error && (
         <pre>
@@ -68,15 +71,18 @@ export const PatientMergeSearch = ({ onBeginMerge }) => {
   const [secondPatient, setSecondPatient] = useState();
   return (
     <MergeFrame>
-      <h3>
-        <TranslatedText stringId="admin.patientMerge.title" fallback="Select patients to merge" />
+      <h3 data-testid='h3-9tum'>
+        <TranslatedText
+          stringId="admin.patientMerge.title"
+          fallback="Select patients to merge"
+          data-testid='translatedtext-5eo7' />
       </h3>
       <PatientFetcher
         label={
           <TranslatedText
             stringId="admin.patientMerge.firstPatient.label"
             fallback="First patient display ID"
-          />
+            data-testid='translatedtext-hjsn' />
         }
         onPatientFound={setFirstPatient}
       />
@@ -85,15 +91,18 @@ export const PatientMergeSearch = ({ onBeginMerge }) => {
           <TranslatedText
             stringId="admin.patientMerge.secondPatient.label"
             fallback="Second patient display ID"
-          />
+            data-testid='translatedtext-36re' />
         }
         onPatientFound={setSecondPatient}
       />
       <Button
         disabled={!(firstPatient && secondPatient)}
         onClick={() => onBeginMerge(firstPatient, secondPatient)}
-      >
-        <TranslatedText stringId="admin.patientMerge.action.merge" fallback="Merge" />
+        data-testid='button-oc8k'>
+        <TranslatedText
+          stringId="admin.patientMerge.action.merge"
+          fallback="Merge"
+          data-testid='translatedtext-1ao7' />
       </Button>
     </MergeFrame>
   );

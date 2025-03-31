@@ -30,7 +30,7 @@ const IDFrame = styled.div`
 const IDDisplay = ({ patient, selectable, selected }) => (
   <IDFrame>
     <span title={patient.id}>{patient.displayId}</span>
-    {selectable && <input type="radio" checked={selected} />}
+    {selectable && <input type="radio" checked={selected} data-testid='input-xrh3' />}
   </IDFrame>
 );
 
@@ -71,7 +71,7 @@ export const PatientSummary = ({
 }) => (
   <SummaryFrame onClick={onSelect} selected={selected}>
     <Header>
-      <h3>{heading}</h3>
+      <h3 data-testid='h3-j0yi'>{heading}</h3>
       <IDDisplay patient={patient} selected={selected} selectable={onSelect} />
     </Header>
     <Columns>
@@ -81,48 +81,61 @@ export const PatientSummary = ({
             <TranslatedText
               stringId="general.localisedField.firstName.label"
               fallback="First name"
-            />
+              data-testid='translatedtext-b7os' />
           }
           value={patient.firstName}
-        />
+          data-testid='labelledvalue-kyks' />
         <LabelledValue
           label={
-            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+            <TranslatedText
+              stringId="general.localisedField.lastName.label"
+              fallback="Last name"
+              data-testid='translatedtext-j01y' />
           }
           value={patient.lastName}
-        />
+          data-testid='labelledvalue-nnhs' />
         <LabelledValue
           label={
             <TranslatedText
               stringId="general.localisedField.culturalName.label"
               fallback="Cultural name"
-            />
+              data-testid='translatedtext-ehvp' />
           }
           value={patient.culturalName}
-        />
+          data-testid='labelledvalue-6yz7' />
       </div>
       <div>
         <LabelledValue
           label={
-            <TranslatedText stringId="general.localisedField.village.label" fallback="Village" />
+            <TranslatedText
+              stringId="general.localisedField.village.label"
+              fallback="Village"
+              data-testid='translatedtext-ee2i' />
           }
           value={patient.village
-            && <TranslatedReferenceData fallback={patient.village.name} value={patient.village.id} category="village" />
+            && <TranslatedReferenceData
+            fallback={patient.village.name}
+            value={patient.village.id}
+            category="village"
+            data-testid='translatedreferencedata-w05t' />
           }
-        />
+          data-testid='labelledvalue-2aif' />
         <LabelledValue
-          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          label={<TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid='translatedtext-8488' />}
           value={SEX_VALUE_INDEX[patient.sex]?.label}
-        />
+          data-testid='labelledvalue-dlc9' />
         <LabelledValue
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label"
               fallback="Date of birth"
-            />
+              data-testid='translatedtext-4wap' />
           }
-          value={<DateDisplay date={patient.dateOfBirth} />}
-        />
+          value={<DateDisplay date={patient.dateOfBirth} data-testid='datedisplay-1f2z' />}
+          data-testid='labelledvalue-898n' />
       </div>
     </Columns>
   </SummaryFrame>

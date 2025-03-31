@@ -81,7 +81,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
               programRegistry?.name,
             ),
           }}
-        />
+          data-testid='translatedtext-04lp' />
       </Heading5>
       <Form
         showInlineErrorsOnly
@@ -106,7 +106,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   <TranslatedText
                     stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
                     fallback="Patient must be active"
-                  />
+                    data-testid='translatedtext-44vd' />
                 }
               >
                 <Field
@@ -115,27 +115,26 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.surveyId.label"
                       fallback="Select form"
-                    />
+                      data-testid='translatedtext-86ai' />
                   }
                   component={BaseSelectField}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
-                />
+                  data-testid='field-4ut7' />
               </ConditionalTooltip>
-
               <ConditionalTooltip
                 title={
                   isRemoved ? (
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
                       fallback="Patient must be active"
-                    />
+                      data-testid='translatedtext-kghs' />
                   ) : (
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.proceed.tooltip"
                       fallback="Select form to proceed"
-                    />
+                      data-testid='translatedtext-ynyo' />
                   )
                 }
                 visible={isRemoved || !values.surveyId}
@@ -146,11 +145,11 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     onClick={submitForm}
                     disabled={isRemoved || !values.surveyId}
                     isSubmitting={false}
-                  >
+                    data-testid='styledbutton-niog'>
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.action.beginForm"
                       fallback="Begin form"
-                    />
+                      data-testid='translatedtext-6shj' />
                   </StyledButton>
                 </div>
               </ConditionalTooltip>

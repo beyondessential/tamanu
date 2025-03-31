@@ -14,15 +14,26 @@ import { useDocumentActions } from '../../hooks/useDocumentActions';
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? (
-    <TranslatedText stringId="patient.modal.patientLetter.title" fallback="Patient letter" />
+    <TranslatedText
+      stringId="patient.modal.patientLetter.title"
+      fallback="Patient letter"
+      data-testid='translatedtext-y0qj' />
   ) : (
     name
   );
 
 const DownloadButton = ({ onClick }) => {
   return (
-    <Button variant="outlined" size="small" startIcon={<GetAppIcon />} onClick={onClick}>
-      <TranslatedText stringId="general.action.download" fallback="Download" />
+    <Button
+      variant="outlined"
+      size="small"
+      startIcon={<GetAppIcon />}
+      onClick={onClick}
+      data-testid='button-kx14'>
+      <TranslatedText
+        stringId="general.action.download"
+        fallback="Download"
+        data-testid='translatedtext-h5lj' />
     </Button>
   );
 };
@@ -46,7 +57,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
       replacements={{
         documentType,
       }}
-    />
+      data-testid='translatedtext-qr8h' />
   );
 };
 
@@ -74,7 +85,7 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
                   scrollPage,
                   pageCount: pageCount ?? '‒', // figure dash
                 }}
-              />
+                data-testid='translatedtext-5kuh' />
             ) : null}
           </Subtitle>
         </div>

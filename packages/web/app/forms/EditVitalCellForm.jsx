@@ -26,10 +26,19 @@ const Text = styled(Typography)`
 
 const DeleteEntryButton = ({ disabled, onClick }) => (
   <Box display="flex" alignSelf="start" marginTop="18px">
-    <IconButton color="primary" edge="start" disabled={disabled} onClick={onClick} disableRipple>
+    <IconButton
+      color="primary"
+      edge="start"
+      disabled={disabled}
+      onClick={onClick}
+      disableRipple
+      data-testid='iconbutton-vhs7'>
       <DeleteOutlineIcon fontSize="small" />
       <Text>
-        <TranslatedText stringId="encounter.vitals.action.deleteEntry" fallback="Delete entry" />
+        <TranslatedText
+          stringId="encounter.vitals.action.deleteEntry"
+          fallback="Delete entry"
+          data-testid='translatedtext-ggze' />
       </Text>
     </IconButton>
   </Box>
@@ -78,12 +87,12 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
           <TranslatedText
             stringId="encounter.vitals.editReason.label"
             fallback="Reason for change to record"
-          />
+            data-testid='translatedtext-aijb' />
           : {reasonForChangeLabel}
         </LogText>
       )}
       <LogTextSmall>
-        {userDisplayName} <DateDisplay date={date} showTime shortYear />
+        {userDisplayName} <DateDisplay date={date} showTime shortYear data-testid='datedisplay-cu6i' />
       </LogTextSmall>
     </LogContainer>
   );
@@ -173,15 +182,18 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               <TranslatedText
                 stringId="encounter.vitals.editReason.label"
                 fallback="Reason for change to record"
-              />
+                data-testid='translatedtext-fdj9' />
             }
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
-          />
+            data-testid='field-5fcy' />
           <FormSeparatorLine />
           <OuterLabelFieldWrapper
-            label={<TranslatedText stringId="encounter.vitals.history.label" fallback="History" />}
+            label={<TranslatedText
+              stringId="encounter.vitals.history.label"
+              fallback="History"
+              data-testid='translatedtext-w289' />}
             style={{ gridColumn: '1 / -1' }}
           >
             <Box
@@ -205,8 +217,11 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           <FormSubmitCancelRow
             onCancel={handleClose}
             onConfirm={submitForm}
-            confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
-          />
+            confirmText={<TranslatedText
+              stringId="general.action.save"
+              fallback="Save"
+              data-testid='translatedtext-7lro' />}
+            data-testid='formsubmitcancelrow-44cb' />
         </FormGrid>
       )}
     />

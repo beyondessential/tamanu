@@ -75,25 +75,40 @@ export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
       <Box width="12%">
-        <TranslatedText stringId="general.date.label" fallback="Date" />
+        <TranslatedText
+          stringId="general.date.label"
+          fallback="Date"
+          data-testid='translatedtext-nfvx' />
       </Box>
       <Box width="30%">
-        <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.details.label"
+          fallback="Details"
+          data-testid='translatedtext-3haf' />
       </Box>
       <Box width="10%" paddingLeft="10px">
-        <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
+        <TranslatedText
+          stringId="invoice.table.column.code"
+          fallback="Code"
+          data-testid='translatedtext-zb5p' />
       </Box>
       <Box width="10%" paddingLeft="10px">
-        <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
+        <TranslatedText
+          stringId="invoice.table.column.quantity"
+          fallback="Quantity"
+          data-testid='translatedtext-5x4n' />
       </Box>
       <Box width="19%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
-        />
+          data-testid='translatedtext-rfes' />
       </Box>
       <Box width="11%" flexGrow={1} paddingLeft="10px">
-        <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.price.label"
+          fallback="Price"
+          data-testid='translatedtext-rqhv' />
       </Box>
     </StyledItemHeader>
   );
@@ -203,19 +218,22 @@ export const InvoiceItemRow = ({
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeMarkup"
             fallback="Remove markup"
-          />
+            data-testid='translatedtext-kinc' />
         ) : (
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeDiscount"
             fallback="Remove discount"
-          />
+            data-testid='translatedtext-dfiv' />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
       hidden: !item.discount?.amount,
     },
     {
       label: (
-        <TranslatedText stringId="invoice.modal.editInvoice.addDiscount" fallback="Add discount" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.addDiscount"
+          fallback="Add discount"
+          data-testid='translatedtext-0i8d' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
@@ -223,7 +241,10 @@ export const InvoiceItemRow = ({
     },
     {
       label: (
-        <TranslatedText stringId="invoice.modal.editInvoice.addMarkup" fallback="Add markup" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.addMarkup"
+          fallback="Add markup"
+          data-testid='translatedtext-pphv' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
@@ -231,16 +252,25 @@ export const InvoiceItemRow = ({
     },
     {
       label: item.note ? (
-        <TranslatedText stringId="invoice.modal.editInvoice.editNote" fallback="Edit note" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.editNote"
+          fallback="Edit note"
+          data-testid='translatedtext-0uaf' />
       ) : (
-        <TranslatedText stringId="invoice.modal.editInvoice.addNote" fallback="Add note" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.addNote"
+          fallback="Add note"
+          data-testid='translatedtext-w7gw' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
       hidden: !!item.sourceId,
     },
     {
-      label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
+      label: <TranslatedText
+        stringId="invoice.modal.editInvoice.delete"
+        fallback="Delete"
+        data-testid='translatedtext-goqg' />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
       disabled: isDeleteDisabled,
     },
@@ -278,7 +308,7 @@ export const InvoiceItemRow = ({
               component={DateField}
               size="small"
               saveDateAsString
-            />
+              data-testid='field-vdwi' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
@@ -294,7 +324,7 @@ export const InvoiceItemRow = ({
               suggester={invoiceProductsSuggester}
               size="small"
               onChange={handleChangeProduct}
-            />
+              data-testid='field-r153' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item.productName}
@@ -308,7 +338,10 @@ export const InvoiceItemRow = ({
               marginTop={editable ? '4px' : '-8px'}
               color={Colors.darkText}
             >
-              <TranslatedText stringId="invoice.modal.editInvoice.note.label" fallback="Note" />
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.note.label"
+                fallback="Note"
+                data-testid='translatedtext-bl8a' />
               {`: ${item.note}`}
             </Box>
           )}
@@ -330,7 +363,7 @@ export const InvoiceItemRow = ({
               }}
               size="small"
               required
-            />
+              data-testid='field-9vbw' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.quantity}
@@ -346,7 +379,7 @@ export const InvoiceItemRow = ({
               suggester={practitionerSuggester}
               size="small"
               onChange={handleChangeOrderedBy}
-            />
+              data-testid='field-gx05' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderedByUser?.displayName}
@@ -375,7 +408,7 @@ export const InvoiceItemRow = ({
                   component={PriceField}
                   required
                   style={{ width: '100%' }}
-                />
+                  data-testid='field-b87o' />
               )
             )}
             {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}
