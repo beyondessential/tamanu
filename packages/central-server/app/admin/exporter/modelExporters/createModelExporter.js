@@ -10,6 +10,7 @@ import { TranslatedStringExporter } from './TranslatedStringExporter';
 import { TaskSetExporter } from './TaskSetExporter';
 import { UserExporter } from './UserExporter';
 import { TaskTemplateExporter } from './TaskTemplateExporter';
+import { DrugExporter } from './DrugExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -21,6 +22,7 @@ const CustomExportersByDataType = {
   user: UserExporter,
   [REFERENCE_TYPES.TASK_TEMPLATE]: TaskTemplateExporter,
   [REFERENCE_TYPES.TASK_SET]: TaskSetExporter,
+  [REFERENCE_TYPES.DRUG]: DrugExporter,
 };
 
 export const createModelExporter = (context, dataType) => {
