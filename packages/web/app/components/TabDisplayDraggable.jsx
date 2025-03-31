@@ -110,7 +110,7 @@ export const TabDisplayDraggable = ({
                   draggableId={key}
                   index={index}
                   isDragDisabled={!render}
-                  data-testid='draggable-cehj'>
+                  data-testid={`draggable-${key}`}>
                   {(provided, snapshot) => (
                     <StyledTab
                       ref={provided.innerRef}
@@ -122,12 +122,12 @@ export const TabDisplayDraggable = ({
                         selected: currentTabData?.key === key,
                         isDragging: snapshot.isDragging,
                       })}
-                      data-testid='styledtab-ccs8'>
+                      data-testid={`styledtab-${key}`}>
                       {icon && (
                         <Icon
                           className={icon}
                           color={currentTabData?.key === key ? Colors.primary : Colors.softText}
-                          data-testid='icon-1iqd' />
+                          data-testid={`icon-${key}`} />
                       )}
                       {label}
                     </StyledTab>
