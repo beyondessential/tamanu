@@ -33,7 +33,7 @@ export const BookingsCell = ({
       }}
       $selected={isSelected}
       $clickable={canCreateBooking}
-    >
+      data-testid='cell-dp5l'>
       {appointments?.map(a => (
         <AppointmentTile
           appointment={a}
@@ -42,7 +42,7 @@ export const BookingsCell = ({
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}
-        />
+          data-testid='appointmenttile-b6vn' />
       ))}
     </CarouselGrid.Cell>
   );
@@ -59,14 +59,18 @@ export const BookingsRow = ({
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
-    <CarouselGrid.Row>
-      <CarouselGrid.RowHeaderCell>
+    <CarouselGrid.Row data-testid='row-m8yc'>
+      <CarouselGrid.RowHeaderCell data-testid='rowheadercell-qiko'>
         <TranslatedReferenceData
           category="locationGroup"
           value={locationGroup.id}
           fallback={locationGroup.name}
-        />{' '}
-        <TranslatedReferenceData category="location" value={location.id} fallback={location.name} />
+          data-testid='translatedreferencedata-7cuw' />{' '}
+        <TranslatedReferenceData
+          category="location"
+          value={location.id}
+          fallback={location.name}
+          data-testid='translatedreferencedata-1gpj' />
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell
@@ -76,7 +80,7 @@ export const BookingsRow = ({
           location={location}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
-        />
+          data-testid='bookingscell-5t8x' />
       ))}
     </CarouselGrid.Row>
   );
@@ -90,7 +94,7 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  if (locationsQuery.isLoading) return <SkeletonRows colCount={displayedDates.length} />;
+  if (locationsQuery.isLoading) return <SkeletonRows colCount={displayedDates.length} data-testid='skeletonrows-munx' />;
 
   if (filteredLocations?.length === 0) return null;
 
@@ -102,6 +106,6 @@ export const LocationBookingsCalendarBody = ({
       location={location}
       openBookingForm={openBookingForm}
       openCancelModal={openCancelModal}
-    />
+      data-testid='bookingsrow-t3ka' />
   ));
 };

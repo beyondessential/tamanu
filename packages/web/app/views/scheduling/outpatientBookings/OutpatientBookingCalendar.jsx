@@ -119,27 +119,27 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 export const HeadCell = ({ title, count }) => (
   <>
-    <HeadCellWrapper>
-      <HeadCellTextWrapper>
-        <ThemedTooltip title={title}>
-          <HeadCellText>{title}</HeadCellText>
+    <HeadCellWrapper data-testid='headcellwrapper-zp1o'>
+      <HeadCellTextWrapper data-testid='headcelltextwrapper-pgoj'>
+        <ThemedTooltip title={title} data-testid='themedtooltip-rz38'>
+          <HeadCellText data-testid='headcelltext-m9ej'>{title}</HeadCellText>
         </ThemedTooltip>
       </HeadCellTextWrapper>
     </HeadCellWrapper>
-    <AppointmentCountLabel>
+    <AppointmentCountLabel data-testid='appointmentcountlabel-pnn0'>
       {Number.isInteger(count) && (
         <>
-          <AppointmentCount>{count}</AppointmentCount>&nbsp;
+          <AppointmentCount data-testid='appointmentcount-d4z0'>{count}</AppointmentCount>&nbsp;
           {count === 1 ? (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation"
               fallback="appt"
-            />
+              data-testid='translatedtext-8hjq' />
           ) : (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
               fallback="appts"
-            />
+              data-testid='translatedtext-rpon' />
           )}
         </>
       )}
@@ -173,40 +173,40 @@ export const OutpatientBookingCalendar = ({
           <TranslatedText
             stringId="appointments.action.emailReminder.success"
             fallback="Email successfully sent"
-          />,
+            data-testid='translatedtext-jxz5' />,
         ),
       onError: () =>
         toast.error(
           <TranslatedText
             stringId="appointments.action.emailReminder.error"
             fallback="Error sending email"
-          />,
+            data-testid='translatedtext-ov72' />,
         ),
     },
   );
 
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton data-testid='loadingskeleton-2rfj' />;
   }
 
   if (error) {
     return (
-      <ErrorText>
+      <ErrorText data-testid='errortext-9qcv'>
         <TranslatedText
           stringId="appointments.outpatientCalendar.error"
           fallback="Failed to load appointments. Please try again."
-        />
+          data-testid='translatedtext-f5nc' />
       </ErrorText>
     );
   }
 
   if (headData.length === 0) {
     return (
-      <StatusText>
+      <StatusText data-testid='statustext-0wes'>
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
           fallback="No appointments to display. Please try adjusting the search filters."
-        />
+          data-testid='translatedtext-irve' />
       </StatusText>
     );
   }
@@ -220,7 +220,7 @@ export const OutpatientBookingCalendar = ({
       width="100%"
       overflow="auto"
       flex={1}
-    >
+      data-testid='box-8llp'>
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         const title =
@@ -229,14 +229,17 @@ export const OutpatientBookingCalendar = ({
               category="locationGroup"
               value={cell.id}
               fallback={cell.name}
-            />
+              data-testid='translatedreferencedata-5vst' />
           ) : (
             cell.displayName
           );
         return (
-          <ColumnWrapper className="column-wrapper" key={cell.id}>
-            <HeadCell title={title} count={appointments?.length || 0} />
-            <AppointmentColumnWrapper>
+          <ColumnWrapper className="column-wrapper" key={cell.id} data-testid='columnwrapper-u5rp'>
+            <HeadCell
+              title={title}
+              count={appointments?.length || 0}
+              data-testid='headcell-9w0q' />
+            <AppointmentColumnWrapper data-testid='appointmentcolumnwrapper-yxim'>
               {appointments.map(a => (
                 <AppointmentTile
                   key={a.id}
@@ -251,7 +254,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.newAppointment"
                                 fallback="New appointment"
-                              />
+                                data-testid='translatedtext-fn6p' />
                             ),
                             action: () => onCreateFromExisting(a),
                           },
@@ -260,7 +263,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.emailAppointment"
                                 fallback="Email appointment"
-                              />
+                                data-testid='translatedtext-1xgj' />
                             ),
                             action: () =>
                               setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
@@ -268,17 +271,20 @@ export const OutpatientBookingCalendar = ({
                         ]
                       : []
                   }
-                />
+                  data-testid='appointmenttile-51fd' />
               ))}
             </AppointmentColumnWrapper>
           </ColumnWrapper>
         );
       })}
       <FormModal
-        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        title={<TranslatedText
+          stringId="patient.email.title"
+          fallback="Enter email address"
+          data-testid='translatedtext-topi' />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
-      >
+        data-testid='formmodal-vx6o'>
         <EmailAddressConfirmationForm
           onSubmit={async ({ email }) => {
             await sendAppointmentEmail(email);
@@ -286,7 +292,7 @@ export const OutpatientBookingCalendar = ({
           }}
           onCancel={() => setEmailModalState(null)}
           emailOverride={emailModalState?.email}
-        />
+          data-testid='emailaddressconfirmationform-yhdd' />
       </FormModal>
     </Box>
   );

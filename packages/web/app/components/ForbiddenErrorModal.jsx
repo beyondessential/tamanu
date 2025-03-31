@@ -15,8 +15,11 @@ const StyledTypography = styled.p`
 
 export const ForbiddenErrorModalContents = ({ onConfirm, confirmText }) => (
   <>
-    <StyledTypography gutterBottom>{FORBIDDEN_ERROR_MESSAGE}</StyledTypography>
-    <ModalActionRow onConfirm={onConfirm} confirmText={confirmText} />
+    <StyledTypography gutterBottom data-testid='styledtypography-ajow'>{FORBIDDEN_ERROR_MESSAGE}</StyledTypography>
+    <ModalActionRow
+      onConfirm={onConfirm}
+      confirmText={confirmText}
+      data-testid='modalactionrow-ooxp' />
   </>
 );
 
@@ -37,8 +40,11 @@ export const ForbiddenErrorModal = () => {
   }
 
   return (
-    <Modal title="Forbidden" open onClose={handleClose}>
-      <ForbiddenErrorModalContents onConfirm={handleConfirm} confirmText="Navigate back" />
+    <Modal title="Forbidden" open onClose={handleClose} data-testid='modal-w8lm'>
+      <ForbiddenErrorModalContents
+        onConfirm={handleConfirm}
+        confirmText="Navigate back"
+        data-testid='forbiddenerrormodalcontents-f43a' />
     </Modal>
   );
 };

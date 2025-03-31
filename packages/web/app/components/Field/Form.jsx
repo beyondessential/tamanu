@@ -24,8 +24,8 @@ const FormErrors = ({ errors }) => {
   return Object.entries(allErrors).map(
     ([name, error]) =>
       error && (
-        <Typography key={name} variant="subtitle2">
-          <ErrorMessage error={error} />
+        <Typography key={name} variant="subtitle2" data-testid='typography-vmhk'>
+          <ErrorMessage error={error} data-testid='errormessage-sjd4' />
         </Typography>
       ),
   );
@@ -225,13 +225,18 @@ export class Form extends React.PureComponent {
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
-        <StyledForm style={style} onSubmit={submitForm} noValidate $clickable={!isSubmitting}>
+        <StyledForm
+          style={style}
+          onSubmit={submitForm}
+          noValidate
+          $clickable={!isSubmitting}
+          data-testid='styledform-5o5i'>
           {showWarningForNonAsyncSubmitHandler && (
             <Alert
               severity="warning"
               onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
-            >
-              <AlertTitle>
+              data-testid='alert-ygcm'>
+              <AlertTitle data-testid='alerttitle-3i79'>
                 DEV Warning: this form does not have async onSubmit (ignore if intentional)
               </AlertTitle>
             </Alert>
@@ -245,8 +250,8 @@ export class Form extends React.PureComponent {
             clearForm: () => formProps.resetForm({}),
           })}
         </StyledForm>
-        <ScrollToError />
-        <FormSubmissionFlag />
+        <ScrollToError data-testid='scrolltoerror-4wl5' />
+        <FormSubmissionFlag data-testid='formsubmissionflag-cs54' />
       </>
     );
   };
@@ -287,7 +292,7 @@ export class Form extends React.PureComponent {
             formType,
           }}
           {...props}
-        >
+          data-testid='formik-81z6'>
           {this.renderFormContents}
         </Formik>
         {!suppressErrorDialog && suppressErrorDialogCondition(validationErrors) && (
@@ -298,11 +303,11 @@ export class Form extends React.PureComponent {
               <TranslatedText
                 stringId="general.form.validationError.heading"
                 fallback="Please fix below errors to continue"
-              />
+                data-testid='translatedtext-zyuh' />
             }
             disableDevWarning
-            contentText={<FormErrors errors={validationErrors} />}
-          />
+            contentText={<FormErrors errors={validationErrors} data-testid='formerrors-yc9p' />}
+            data-testid='dialog-d6dt' />
         )}
       </>
     );

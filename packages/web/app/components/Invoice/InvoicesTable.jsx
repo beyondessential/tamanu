@@ -80,7 +80,11 @@ const getDate = ({ date }) => formatShortest(date);
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (
-    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+    <TranslatedText
+      stringId="general.fallback.notApplicable"
+      fallback="N/A"
+      casing="lower"
+      data-testid='translatedtext-nc3a' />
   ) : (
     `$${patientTotal}`
   );
@@ -88,7 +92,11 @@ const getInvoiceTotal = row => {
 const getPaymentStatus = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED) {
     return (
-      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+      <TranslatedText
+        stringId="general.fallback.notApplicable"
+        fallback="N/A"
+        casing="lower"
+        data-testid='translatedtext-wjgy' />
     );
   }
   return (
@@ -96,7 +104,7 @@ const getPaymentStatus = row => {
       <TranslatedEnum
         value={row.patientPaymentStatus}
         enumValues={INVOICE_PATIENT_PAYMENT_STATUSES_LABELS}
-      />
+        data-testid='translatedenum-r2dz' />
       {/* The payment status refers to the patient contribution only UNLESS the insurer has rejected the payment,
       in which case the status is followed by a /Rejected */}
       {row.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED && (
@@ -105,7 +113,7 @@ const getPaymentStatus = row => {
           <TranslatedEnum
             value={row.insurerPaymentStatus}
             enumValues={INVOICE_INSURER_PAYMENT_STATUS_LABELS}
-          />
+            data-testid='translatedenum-qjeb' />
         </>
       )}
     </>
@@ -120,17 +128,21 @@ const getEncounterType = row => {
       .join(''),
   );
   return (
-    <ThemedTooltip title={label}>
+    <ThemedTooltip title={label} data-testid='themedtooltip-zxwp'>
       <span>{abbreviationLabel}</span>
     </ThemedTooltip>
   );
 };
-const getStatus = ({ status }) => <InvoiceStatus status={status} />;
+const getStatus = ({ status }) => <InvoiceStatus status={status} data-testid='invoicestatus-i1yc' />;
 
 const getRemainingBalance = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED)
     return (
-      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+      <TranslatedText
+        stringId="general.fallback.notApplicable"
+        fallback="N/A"
+        casing="lower"
+        data-testid='translatedtext-xymo' />
     );
   const { patientPaymentRemainingBalance } = getInvoiceSummary(row);
   const remainingBalance = formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance));
@@ -140,19 +152,28 @@ const getRemainingBalance = row => {
 const COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="patient.invoice.table.column.date" fallback="Date" />,
+    title: <TranslatedText
+      stringId="patient.invoice.table.column.date"
+      fallback="Date"
+      data-testid='translatedtext-yrb7' />,
     accessor: getDate,
   },
   {
     key: 'displayId',
     title: (
-      <TranslatedText stringId="patient.invoice.table.column.displayId" fallback="Invoice number" />
+      <TranslatedText
+        stringId="patient.invoice.table.column.displayId"
+        fallback="Invoice number"
+        data-testid='translatedtext-6bo2' />
     ),
   },
   {
     key: 'encounterType',
     title: (
-      <TranslatedText stringId="patient.invoice.table.column.encounterType" fallback="Admission" />
+      <TranslatedText
+        stringId="patient.invoice.table.column.encounterType"
+        fallback="Admission"
+        data-testid='translatedtext-yrqs' />
     ),
     accessor: getEncounterType,
   },
@@ -162,7 +183,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="patient.invoice.table.column.patientTotal"
         fallback="Patient total"
-      />
+        data-testid='translatedtext-1brp' />
     ),
     accessor: getInvoiceTotal,
   },
@@ -172,18 +193,24 @@ const COLUMNS = [
       <TranslatedText
         stringId="patient.invoice.table.column.paymentStatus"
         fallback="Payment status"
-      />
+        data-testid='translatedtext-90i7' />
     ),
     accessor: getPaymentStatus,
   },
   {
     key: 'balance',
-    title: <TranslatedText stringId="patient.invoice.table.column.balance" fallback="Balance" />,
+    title: <TranslatedText
+      stringId="patient.invoice.table.column.balance"
+      fallback="Balance"
+      data-testid='translatedtext-krre' />,
     accessor: getRemainingBalance,
   },
   {
     key: 'status',
-    title: <TranslatedText stringId="patient.invoice.table.column.status" fallback="Status" />,
+    title: <TranslatedText
+      stringId="patient.invoice.table.column.status"
+      fallback="Status"
+      data-testid='translatedtext-a57d' />,
     accessor: getStatus,
   },
 ];
@@ -211,13 +238,19 @@ export const InvoicesTable = ({ patient }) => {
         endpoint={`patient/${patient.id}/invoices`}
         columns={COLUMNS}
         noDataMessage={
-          <TranslatedText stringId="patient.invoice.table.noData" fallback="No invoices found" />
+          <TranslatedText
+            stringId="patient.invoice.table.noData"
+            fallback="No invoices found"
+            data-testid='translatedtext-swy0' />
         }
         allowExport={false}
         TableHeader={
-          <TableTitle>
+          <TableTitle data-testid='tabletitle-xw5v'>
             <span>
-              <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
+              <TranslatedText
+                stringId="patient.invoice.table.title"
+                fallback="Patient invoices"
+                data-testid='translatedtext-umfy' />
             </span>
             <span>
               <TranslatedText
@@ -226,7 +259,7 @@ export const InvoicesTable = ({ patient }) => {
                 replacements={{
                   totalBalance: formatDisplayPrice(totalOutstandingBalance?.result || 0),
                 }}
-              />
+                data-testid='translatedtext-y63h' />
             </span>
           </TableTitle>
         }
@@ -239,7 +272,7 @@ export const InvoicesTable = ({ patient }) => {
             : undefined
         }
         refreshCount={refreshTable}
-      />
+        data-testid='table-ea81' />
       {openInvoiceModal && (
         <InvoiceModalGroup
           initialModalType={openInvoiceModal}
@@ -247,7 +280,7 @@ export const InvoicesTable = ({ patient }) => {
           onClose={() => setOpenInvoiceModal()}
           isPatientView
           afterDeleteInvoice={afterDeleteInvoice}
-        />
+          data-testid='invoicemodalgroup-6dca' />
       )}
     </>
   );

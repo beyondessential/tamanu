@@ -69,19 +69,25 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   return [
     {
       key: 'labTestType',
-      title: <TranslatedText stringId="lab.testType.label" fallback="Test type" />,
+      title: <TranslatedText
+        stringId="lab.testType.label"
+        fallback="Test type"
+        data-testid='translatedtext-8oo7' />,
       width: '120px',
       accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
           category="labTestType"
-        />
+          data-testid='translatedreferencedata-gvnb' />
       ),
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
-      title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
+      title: <TranslatedText
+        stringId="lab.results.table.column.result"
+        fallback="Result"
+        data-testid='translatedtext-0937' />,
       accessor: (row, i) => {
         const { resultType, options } = row.labTestType;
         return (
@@ -93,19 +99,25 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
             tabIndex={tabIndex(0, i)}
-          />
+            data-testid='labresultaccessorfield-1r9h' />
         );
       },
     },
     {
       key: 'unit',
-      title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
+      title: <TranslatedText
+        stringId="lab.results.table.column.unit"
+        fallback="Units"
+        data-testid='translatedtext-9rpw' />,
       width: '80px',
-      accessor: row => <BodyText color="textTertiary">{row.labTestType.unit || 'N/A'}</BodyText>,
+      accessor: row => <BodyText color="textTertiary" data-testid='bodytext-uq3u'>{row.labTestType.unit || 'N/A'}</BodyText>,
     },
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
-      title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
+      title: <TranslatedText
+        stringId="lab.results.table.column.method"
+        fallback="Method"
+        data-testid='translatedtext-wrj3' />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -113,13 +125,16 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
           tabIndex={tabIndex(1, i)}
-        />
+          data-testid='accessorfield-ik1h' />
       ),
     },
     {
       key: LAB_TEST_PROPERTIES.VERIFICATION,
       title: (
-        <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
+        <TranslatedText
+          stringId="lab.results.table.column.verification"
+          fallback="Verification"
+          data-testid='translatedtext-q47o' />
       ),
       accessor: (row, i) => (
         <AccessorField
@@ -127,13 +142,16 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           component={TextField}
           name={LAB_TEST_PROPERTIES.VERIFICATION}
           tabIndex={tabIndex(2, i)}
-        />
+          data-testid='accessorfield-jhrr' />
       ),
     },
     {
       key: LAB_TEST_PROPERTIES.COMPLETED_DATE,
       title: (
-        <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
+        <TranslatedText
+          stringId="lab.results.table.column.completedDate"
+          fallback="Completed"
+          data-testid='translatedtext-3tgn' />
       ),
       width: '260px',
       accessor: (row, i) => (
@@ -143,7 +161,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
           tabIndex={tabIndex(3, i)}
           saveDateAsString
-        />
+          data-testid='accessorfield-k5ef' />
       ),
     },
   ];
@@ -151,22 +169,34 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
 
 const ResultsFormSkeleton = () => (
   <>
-    <Box padding="0 30px">
-      <Box marginBottom="20px">
+    <Box padding="0 30px" data-testid='box-40fc'>
+      <Box marginBottom="20px" data-testid='box-ccfc'>
         <div>
-          <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
-          <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
+          <Skeleton
+            variant="text"
+            width={124}
+            style={{ fontSize: 20, marginBottom: 4 }}
+            data-testid='skeleton-um2y' />
+          <Skeleton
+            variant="text"
+            width={270}
+            style={{ fontSize: 12 }}
+            data-testid='skeleton-llaz' />
         </div>
       </Box>
-      <Skeleton variant="rect" height={254} style={{ borderRadius: 4 }} />
+      <Skeleton
+        variant="rect"
+        height={254}
+        style={{ borderRadius: 4 }}
+        data-testid='skeleton-dl86' />
     </Box>
   </>
 );
 
 const ResultsFormError = ({ error }) => (
-  <Box padding="8px 30px 25px 30px">
-    <Alert severity="error">
-      <AlertTitle>Error</AlertTitle>
+  <Box padding="8px 30px 25px 30px" data-testid='box-ta1e'>
+    <Alert severity="error" data-testid='alert-m6oy'>
+      <AlertTitle data-testid='alerttitle-kpbw'>Error</AlertTitle>
       <b>Failed to load result with error:</b> {error.message}
     </Alert>
   </Box>
@@ -212,29 +242,29 @@ const ResultsForm = ({
     areLabTestResultsReadOnly,
   ]);
 
-  if (isLoading) return <ResultsFormSkeleton />;
-  if (isError) return <ResultsFormError error={error} />;
+  if (isLoading) return <ResultsFormSkeleton data-testid='resultsformskeleton-ibqy' />;
+  if (isError) return <ResultsFormError error={error} data-testid='resultsformerror-se9z' />;
 
   return (
-    <Box>
-      <Box margin="0px 30px" paddingBottom="20px">
+    <Box data-testid='box-miwv'>
+      <Box margin="0px 30px" paddingBottom="20px" data-testid='box-jcm4'>
         <div>
-          <Heading4 marginBottom="10px">
+          <Heading4 marginBottom="10px" data-testid='heading4-5541'>
             <TranslatedText
               stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
-            />
+              data-testid='translatedtext-8n3h' />
           </Heading4>
-          <SmallBodyText color="textTertiary">
+          <SmallBodyText color="textTertiary" data-testid='smallbodytext-4j32'>
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results and other test result details."
-            />
+              data-testid='translatedtext-3nvu' />
           </SmallBodyText>
         </div>
       </Box>
-      <TableContainer>
-        <StyledTableFormFields columns={columns} data={data} />
+      <TableContainer data-testid='tablecontainer-dyto'>
+        <StyledTableFormFields columns={columns} data={data} data-testid='styledtableformfields-5s0u' />
       </TableContainer>
     </Box>
   );
@@ -264,7 +294,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
             fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
             replacements={{ length: labTestRes.length, displayId }}
-          />,
+            data-testid='translatedtext-h2yk' />,
         );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
@@ -278,7 +308,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
             fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
             replacements={{ message: err.message, displayId }}
-          />,
+            data-testid='translatedtext-6nu5' />,
         );
       },
     },
@@ -302,12 +332,12 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
           stringId="patient.lab.modal.enterResults.title"
           fallback="Enter results | Test ID :testId"
           replacements={{ testId: displayId }}
-        />
+          data-testid='translatedtext-r9ex' />
       }
       open={open}
       onClose={onClose}
       overrideContentPadding
-    >
+      data-testid='styledmodal-ou57'>
       <Form
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
@@ -325,16 +355,16 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
                 isError={isError}
                 error={error}
                 {...props}
-              />
+                data-testid='resultsform-xeh7' />
               <StyledConfirmCancelRow
                 onCancel={onClose}
                 onConfirm={submitForm}
                 confirmDisabled={confirmDisabled}
-              />
+                data-testid='styledconfirmcancelrow-5osn' />
             </>
           );
         }}
-      />
+        data-testid='form-z03z' />
     </StyledModal>
   );
 };

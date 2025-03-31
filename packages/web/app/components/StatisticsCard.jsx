@@ -66,17 +66,17 @@ const FooterContainer = styled.div`
 `;
 
 export const StatisticsCard = React.memo(({ value, percentageIncrease, title, color, Footer }) => (
-  <Container>
-    <Header background={color}>{title}</Header>
-    <Body>
-      <Content>
-        <ValueText color={color}>{value}</ValueText>
-        <PercentageText percentage={percentageIncrease}>
-          {percentageIncrease > 0 ? <ArrowUpward /> : <ArrowDownward />}
+  <Container data-testid='container-qbh0'>
+    <Header background={color} data-testid='header-2rlj'>{title}</Header>
+    <Body data-testid='body-loon'>
+      <Content data-testid='content-3lke'>
+        <ValueText color={color} data-testid='valuetext-0dus'>{value}</ValueText>
+        <PercentageText percentage={percentageIncrease} data-testid='percentagetext-9baf'>
+          {percentageIncrease > 0 ? <ArrowUpward data-testid='arrowupward-rou4' /> : <ArrowDownward data-testid='arrowdownward-qnez' />}
           <span>{Math.abs(percentageIncrease)}%</span>
         </PercentageText>
       </Content>
-      {Footer && <FooterContainer>{Footer}</FooterContainer>}
+      {Footer && <FooterContainer data-testid='footercontainer-pozz'>{Footer}</FooterContainer>}
     </Body>
   </Container>
 ));

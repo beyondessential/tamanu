@@ -11,7 +11,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
 
   return (
-    <TabPane>
+    <TabPane data-testid='tabpane-q1xp'>
       <ProcedureModal
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
@@ -20,18 +20,24 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
           setEditedProcedure(null);
           await loadEncounter(encounter.id);
         }}
-      />
-      <TableButtonRow variant="small">
+        data-testid='proceduremodal-xq2p' />
+      <TableButtonRow variant="small" data-testid='tablebuttonrow-o76z'>
         <ButtonWithPermissionCheck
           onClick={() => setEditedProcedure({})}
           disabled={readonly}
           verb="create"
           noun="Procedure"
-        >
-          <TranslatedText stringId="procedure.action.create" fallback="New procedure" />
+          data-testid='buttonwithpermissioncheck-h58o'>
+          <TranslatedText
+            stringId="procedure.action.create"
+            fallback="New procedure"
+            data-testid='translatedtext-gqco' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
+      <ProcedureTable
+        encounterId={encounter.id}
+        onItemClick={item => setEditedProcedure(item)}
+        data-testid='proceduretable-4661' />
     </TabPane>
   );
 });

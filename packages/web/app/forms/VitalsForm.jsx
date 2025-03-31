@@ -42,7 +42,10 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup
             .date()
             .translatedLabel(
-              <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+              <TranslatedText
+                stringId="general.recordedDate.label"
+                fallback="Date recorded"
+                data-testid='translatedtext-6iti' />,
             )
             .required(),
         }),
@@ -53,13 +56,20 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const canCreateVitals = ability.can('create', 'Vitals');
 
   if (isLoading) {
-    return <ModalLoader />;
+    return <ModalLoader data-testid='modalloader-328q' />;
   }
 
   if (!canCreateVitals) {
     return (
-      <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
+      <Modal
+        title="Permission required"
+        open
+        onClose={onClose}
+        data-testid='modal-08wo'>
+        <ForbiddenErrorModalContents
+          onConfirm={onClose}
+          confirmText="Close"
+          data-testid='forbiddenerrormodalcontents-5ntb' />
       </Modal>
     );
   }
@@ -70,7 +80,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         title="Error: Cannot load vitals form"
         errorMessage="Please contact an administrator to ensure the Vitals form is configured correctly."
         error={error}
-      />
+        data-testid='errormessage-s5wr' />
     );
   }
 
@@ -107,15 +117,18 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           setFieldValue={setFieldValue}
           submitButton={
             <FormSubmitCancelRow
-              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+              confirmText={<TranslatedText
+                stringId="general.action.record"
+                fallback="Record"
+                data-testid='translatedtext-rn5f' />}
               onConfirm={submitForm}
               onCancel={onClose}
-            />
+              data-testid='formsubmitcancelrow-vzf5' />
           }
           encounterType={encounterType}
-        />
+          data-testid='surveyscreen-k85n' />
       )}
-    />
+      data-testid='form-b7c4' />
   );
 });
 

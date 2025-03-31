@@ -30,17 +30,26 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   };
 
   return (
-    <TabPane>
+    <TabPane data-testid='tabpane-i5ka'>
       <NoteModal
-        title={<TranslatedText stringId="note.modal.create.title" fallback="New note" />}
+        title={<TranslatedText
+          stringId="note.modal.create.title"
+          fallback="New note"
+          data-testid='translatedtext-rng8' />}
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
-        confirmText={<TranslatedText stringId="note.action.add" fallback="Add note" />}
+        confirmText={<TranslatedText
+          stringId="note.action.add"
+          fallback="Add note"
+          data-testid='translatedtext-pc3u' />}
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
-      />
-      <TableButtonRow variant="small" justifyContent="space-between">
+        data-testid='notemodal-f7ax' />
+      <TableButtonRow
+        variant="small"
+        justifyContent="space-between"
+        data-testid='tablebuttonrow-0cfz'>
         <StyledTranslatedSelectField
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
@@ -49,21 +58,27 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           transformOptions={options => [
             {
               value: null,
-              label: <TranslatedText stringId="general.select.all" fallback="All" />,
+              label: <TranslatedText
+                stringId="general.select.all"
+                fallback="All"
+                data-testid='translatedtext-awa7' />,
             },
             ...options.filter(
               option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
             ),
           ]}
           isClearable={false}
-        />
+          data-testid='styledtranslatedselectfield-oy9y' />
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterNote"
-        >
-          <TranslatedText stringId="note.action.new" fallback="New note" />
+          data-testid='buttonwithpermissioncheck-qbou'>
+          <TranslatedText
+            stringId="note.action.new"
+            fallback="New note"
+            data-testid='translatedtext-r2fu' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTableWithPermission
@@ -72,7 +87,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         noun="EncounterNote"
         noteModalOnSaved={noteModalOnSaved}
         noteType={noteType}
-      />
+        data-testid='notetablewithpermission-ngp2' />
     </TabPane>
   );
 });

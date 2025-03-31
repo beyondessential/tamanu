@@ -49,22 +49,22 @@ export const TabDisplay = React.memo(
           <Icon
             className={icon}
             color={currentTabData.key === key ? Colors.primary : Colors.softText}
-          />
+            data-testid='icon-r0ru' />
         }
         style={{ minWidth: 'auto' }}
         label={label}
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
-      />
+        data-testid='styledtab-yhha' />
     ));
     return (
-      <TabBar className={className}>
+      <TabBar className={className} data-testid='tabbar-bg0b'>
         <TabContainer
           variant={scrollable ? 'scrollable' : 'fixed'}
           scrollButtons={scrollable ? 'on' : 'off'}
           value={currentTab}
-        >
+          data-testid='tabcontainer-4j73'>
           {buttons}
         </TabContainer>
         {currentTabData.render({ ...tabProps })}

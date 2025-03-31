@@ -43,7 +43,10 @@ const TabContainer = styled.div`
 
 const tabs = [
   {
-    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
+    label: <TranslatedText
+      stringId="admin.settings.tab.editor.title"
+      fallback="Editor"
+      data-testid='translatedtext-43ay' />,
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
     render: props => {
@@ -51,21 +54,24 @@ const tabs = [
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
-        <TabContainer>
-          <ScopeSelectorFields {...props} />
-          {shouldShowEditor && <EditorView {...props} />}
+        <TabContainer data-testid='tabcontainer-6tbj'>
+          <ScopeSelectorFields {...props} data-testid='scopeselectorfields-mdma' />
+          {shouldShowEditor && <EditorView {...props} data-testid='editorview-g9wr' />}
         </TabContainer>
       );
     },
   },
   {
-    label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
+    label: <TranslatedText
+      stringId="admin.settings.tab.jsonEditor.title"
+      fallback="JSON editor"
+      data-testid='translatedtext-fs34' />,
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
-      <TabContainer>
-        <ScopeSelectorFields {...props} />
-        <JSONEditorView {...props} />
+      <TabContainer data-testid='tabcontainer-z96b'>
+        <ScopeSelectorFields {...props} data-testid='scopeselectorfields-mtsk' />
+        <JSONEditorView {...props} data-testid='jsoneditorview-7anx' />
       </TabContainer>
     ),
   },
@@ -110,10 +116,13 @@ export const SettingsView = () => {
 
   return (
     <AdminViewContainer
-      title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
-    >
+      title={<TranslatedText
+        stringId="admin.settings.title"
+        fallback="Settings"
+        data-testid='translatedtext-gs7s' />}
+      data-testid='adminviewcontainer-htwi'>
       {settingsFetchError ? (
-        <ErrorMessage error={settingsFetchError} />
+        <ErrorMessage error={settingsFetchError} data-testid='errormessage-2eud' />
       ) : (
         <Form
           enableReinitialize
@@ -126,10 +135,10 @@ export const SettingsView = () => {
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
-            />
+              data-testid='settingsform-lqhf' />
           )}
           style={{ flex: 1 }}
-        />
+          data-testid='form-3nvo' />
       )}
     </AdminViewContainer>
   );
@@ -212,12 +221,12 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
-      />
+        data-testid='styledtabdisplay-teef' />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-      />
+        data-testid='warningmodal-kbpq' />
     </>
   );
 };

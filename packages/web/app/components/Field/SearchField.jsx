@@ -57,7 +57,7 @@ export const SearchField = props => {
       value={searchValue}
       onChange={onChange}
       onClear={clearSearch}
-    />
+      data-testid='searchinput-cjfz' />
   );
 };
 
@@ -71,13 +71,13 @@ export const SearchInput = props => {
     <StyledTextInput
       InputProps={{
         startAdornment: (
-          <Icon position="start">
-            <Search />
+          <Icon position="start" data-testid='icon-5uu4'>
+            <Search data-testid='search-ne6p' />
           </Icon>
         ),
         endAdornment: value && (
-          <StyledIconButton onClick={onClear}>
-            <StyledClearIcon />
+          <StyledIconButton onClick={onClear} data-testid='stylediconbutton-l48b'>
+            <StyledClearIcon data-testid='styledclearicon-ywim' />
           </StyledIconButton>
         ),
       }}
@@ -87,6 +87,6 @@ export const SearchInput = props => {
       }
       value={value}
       onChange={onChange}
-    />
+      data-testid='styledtextinput-vpd8' />
   );
 };

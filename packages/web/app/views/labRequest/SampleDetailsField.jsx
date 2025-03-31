@@ -74,29 +74,37 @@ export const SampleDetailsField = ({
       key="category"
       stringId="lab.sampleDetail.table.column.category"
       fallback="Category"
-    />,
+      data-testid='translatedtext-r56z' />,
     <TranslatedText
       key="dateTimeCollected"
       stringId="lab.sampleDetail.table.column.collectionDateTime"
       fallback="Date & time collected"
-    />,
+      data-testid='translatedtext-2dwc' />,
     <TranslatedText
       key="dateTimeCollected"
       stringId="lab.sampleDetail.table.column.collectedBy"
       fallback="Collected by"
-    />,
+      data-testid='translatedtext-xd1n' />,
     <>
       <TranslatedText
         key="specimentType"
         stringId="lab.sampleDetail.table.column.specimenType"
         fallback="Specimen type"
-      />
+        data-testid='translatedtext-tznt' />
       {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
     </>,
-    <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
+    <TranslatedText
+      key="site"
+      stringId="lab.site.label"
+      fallback="Site"
+      data-testid='translatedtext-umcq' />,
   ];
   const WITH_PANELS_HEADERS = [
-    <TranslatedText key="panel" stringId="lab.sampleDetail.table.column.panel" fallback="Panel" />,
+    <TranslatedText
+      key="panel"
+      stringId="lab.sampleDetail.table.column.panel"
+      fallback="Panel"
+      data-testid='translatedtext-8f07' />,
     ...HEADERS,
   ];
 
@@ -149,22 +157,22 @@ export const SampleDetailsField = ({
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
       return (
-        <React.Fragment key={identifier}>
+        <React.Fragment key={identifier} data-testid='fragment-lxar'>
           {hasPanels && (
-            <Cell style={{ marginLeft: '32px' }}>
-              <Typography variant="subtitle1">
+            <Cell style={{ marginLeft: '32px' }} data-testid='cell-ow83'>
+              <Typography variant="subtitle1" data-testid='typography-ex0x'>
                 <TranslatedReferenceData
                   category="labTestPanel"
                   fallback={sample.panelName}
                   value={sample.panelId}
-                />
+                  data-testid='translatedreferencedata-xa5y' />
               </Typography>
             </Cell>
           )}
-          <Cell style={!hasPanels ? { marginLeft: '32px' } : {}}>
-            <Typography variant="subtitle1">{sample.categoryName}</Typography>
+          <Cell style={!hasPanels ? { marginLeft: '32px' } : {}} data-testid='cell-xzhc'>
+            <Typography variant="subtitle1" data-testid='typography-772r'>{sample.categoryName}</Typography>
           </Cell>
-          <Cell>
+          <Cell data-testid='cell-o2z5'>
             <StyledField
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
@@ -177,9 +185,9 @@ export const SampleDetailsField = ({
                   removeSample(identifier);
                 }
               }}
-            />
+              data-testid='styledfield-ratc' />
           </Cell>
-          <Cell>
+          <Cell data-testid='cell-3kij'>
             <StyledField
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`}
               disabled={!isSampleCollected}
@@ -189,9 +197,9 @@ export const SampleDetailsField = ({
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'collectedById', value);
               }}
-            />
+              data-testid='styledfield-wifm' />
           </Cell>
-          <Cell>
+          <Cell data-testid='cell-pbcg'>
             <StyledField
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`}
               disabled={!isSampleCollected}
@@ -201,9 +209,9 @@ export const SampleDetailsField = ({
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'specimenTypeId', value);
               }}
-            />
+              data-testid='styledfield-8g4b' />
           </Cell>
-          <Cell>
+          <Cell data-testid='cell-fr2g'>
             <StyledField
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`}
               disabled={!isSampleCollected}
@@ -213,7 +221,7 @@ export const SampleDetailsField = ({
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'labSampleSiteId', value);
               }}
-            />
+              data-testid='styledfield-mog8' />
           </Cell>
         </React.Fragment>
       );
@@ -230,9 +238,9 @@ export const SampleDetailsField = ({
   );
 
   return (
-    <Container hasPanels={hasPanels}>
+    <Container hasPanels={hasPanels} data-testid='container-qasv'>
       {headers.map(columnName => (
-        <HeaderCell key={`header-${columnName}`}>{columnName}</HeaderCell>
+        <HeaderCell key={`header-${columnName}`} data-testid='headercell-vhy0'>{columnName}</HeaderCell>
       ))}
       {initialSamples.map(request => {
         return renderSampleDetails(request);

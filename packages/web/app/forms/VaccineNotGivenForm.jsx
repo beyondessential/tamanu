@@ -35,20 +35,20 @@ export const VaccineNotGivenForm = ({
   setVaccineLabel,
   values,
 }) => (
-  <TwoTwoGrid>
+  <TwoTwoGrid data-testid='twotwogrid-ng3x'>
     {!editMode && (
       <CategoryField
         category={category}
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
         resetForm={resetForm}
-      />
+        data-testid='categoryfield-z56o' />
     )}
     {category === VACCINE_CATEGORIES.OTHER ? (
       <>
-        {!editMode && <VaccineNameField />}
+        {!editMode && <VaccineNameField data-testid='vaccinenamefield-6dpr' />}
 
-        <DiseaseField />
+        <DiseaseField data-testid='diseasefield-xxrx' />
       </>
     ) : (
       !editMode && (
@@ -57,36 +57,42 @@ export const VaccineNotGivenForm = ({
             vaccineLabel={vaccineLabel}
             vaccineOptions={vaccineOptions}
             setVaccineLabel={setVaccineLabel}
-          />
+            data-testid='vaccinelabelfield-tv4u' />
           <br />
         </>
       )
     )}
 
     {!editMode && schedules?.length ? (
-      <AdministeredVaccineScheduleField schedules={schedules} />
+      <AdministeredVaccineScheduleField schedules={schedules} data-testid='administeredvaccineschedulefield-6a3r' />
     ) : null}
 
     <LocalisedField
       name="notGivenReasonId"
-      label={<TranslatedText stringId="vaccine.notGivenReason.label" fallback="Reason" />}
+      label={<TranslatedText
+        stringId="vaccine.notGivenReason.label"
+        fallback="Reason"
+        data-testid='translatedtext-u1dv' />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
-    />
+      data-testid='localisedfield-olx5' />
 
     <VaccineDateField
-      label={<TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />}
+      label={<TranslatedText
+        stringId="vaccine.dateRecorded.label"
+        fallback="Date recorded"
+        data-testid='translatedtext-0c0a' />}
       min={values?.patientData?.dateOfBirth}
       max={getCurrentDateString()}
       keepIncorrectValue
-    />
+      data-testid='vaccinedatefield-jzo2' />
 
-    <StyledDivider />
+    <StyledDivider data-testid='styleddivider-j5dz' />
 
-    <LocationField />
-    <DepartmentField />
+    <LocationField data-testid='locationfield-cycj' />
+    <DepartmentField data-testid='departmentfield-seg3' />
 
-    <StyledDivider />
+    <StyledDivider data-testid='styleddivider-iprr' />
 
     <GivenByField
       label={
@@ -99,18 +105,22 @@ export const VaccineNotGivenForm = ({
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
                 casing="lower"
-              />
+                data-testid='translatedtext-vzip' />
             ),
           }}
-        />
+          data-testid='translatedtext-0pgo' />
       }
-    />
+      data-testid='givenbyfield-m30g' />
 
-    {!editMode && <RecordedByField />}
+    {!editMode && <RecordedByField data-testid='recordedbyfield-79v5' />}
 
-    <StyledDivider />
+    <StyledDivider data-testid='styleddivider-930m' />
 
-    <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
+    <ConfirmCancelRowField
+      onConfirm={submitForm}
+      editMode={editMode}
+      onCancel={onCancel}
+      data-testid='confirmcancelrowfield-wzd0' />
   </TwoTwoGrid>
 );
 

@@ -106,18 +106,28 @@ export const TextInput = ({ value = '', label, enablePasting = false, ...props }
     }
   };
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledTextField value={value} variant="outlined" onPaste={onPaste} {...rest} />
+    <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-lh0l'>
+      <StyledTextField
+        value={value}
+        variant="outlined"
+        onPaste={onPaste}
+        {...rest}
+        data-testid='styledtextfield-6maz' />
     </OuterLabelFieldWrapper>
   );
 };
 
 export const LimitedTextField = ({ limit = 255, ...props }) => (
-  <TextField {...props} inputProps={{ maxLength: limit }} />
+  <TextField {...props} inputProps={{ maxLength: limit }} data-testid='textfield-v1ft' />
 );
 
 export const TextField = ({ field, ...props }) => (
-  <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+  <TextInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+    data-testid='textinput-4s02' />
 );
 
 export const MultilineTextField = ({ field, ...props }) => (
@@ -127,11 +137,14 @@ export const MultilineTextField = ({ field, ...props }) => (
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
-  />
+    data-testid='textinput-9zig' />
 );
 
 export const TallMultilineTextField = props => (
-  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
+  <MultilineTextField
+    style={{ minHeight: '156px' }}
+    {...props}
+    data-testid='multilinetextfield-br2o' />
 );
 
 export const ReadOnlyTextField = ({ field, ...props }) => (
@@ -141,7 +154,7 @@ export const ReadOnlyTextField = ({ field, ...props }) => (
     onChange={field.onChange}
     {...props}
     disabled
-  />
+    data-testid='textinput-q9s4' />
 );
 
 TextInput.propTypes = {

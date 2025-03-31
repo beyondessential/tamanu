@@ -130,7 +130,7 @@ const useTranslationMutation = () => {
           <TranslatedText
             stringId="admin.translation.notification.translationsSaved"
             fallback="Translations saved"
-          />
+            data-testid='translatedtext-dg1v' />
           {newStringIds ? (
             <>
               {', '}
@@ -138,7 +138,7 @@ const useTranslationMutation = () => {
                 stringId="admin.translation.notification.newStringIdCreated"
                 fallback={`Created ${newStringIds} new translated string entries`}
                 replacements={{ newStringIds }}
-              />
+                data-testid='translatedtext-aw7k' />
             </>
           ) : (
             ''
@@ -152,14 +152,19 @@ const useTranslationMutation = () => {
         stringId="admin.translation.notification.savingFailed"
         fallback={`Error saving translations: ${err.message}`}
         replacements={{ message: err.message }}
-      />;
+        data-testid='translatedtext-8708' />;
     },
   });
 };
 
 const TranslationField = ({ stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField id={`['${stringId}']`} name={code} component={TextField} multiline />
+  (<AccessorField
+    id={`['${stringId}']`}
+    name={code}
+    component={TextField}
+    multiline
+    data-testid='accessorfield-e12n' />)
 );
 
 // Saving doesn't track `isSubmitting` correctly because there is a custom mutation handling
@@ -194,18 +199,18 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
       {
         key: 'stringId',
         title: (
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="center" data-testid='box-362c'>
             <TranslatedText
               stringId="admin.translation.table.column.translationId"
               fallback="Translation ID"
-            />
+              data-testid='translatedtext-cwdl' />
           </Box>
         ),
         accessor: ({ stringId }) => {
           if (stringId === 'languageName' || stringId === 'countryCode')
             return (
-              <Box display="flex" alignItems="center">
-                <ReservedText>{stringId}</ReservedText>
+              <Box display="flex" alignItems="center" data-testid='box-40cb'>
+                <ReservedText data-testid='reservedtext-e0pc'>{stringId}</ReservedText>
                 <Tooltip
                   title={
                     <>
@@ -213,18 +218,18 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                         <TranslatedText
                           stringId="admin.translation.table.languageName.toolTip"
                           fallback="Language name is a reserved translation ID used for displaying language in selector"
-                        />
+                          data-testid='translatedtext-rxfz' />
                       )}
                       {stringId === 'countryCode' && (
                         <TranslatedText
                           stringId="admin.translation.table.countryCode.toolTip"
                           fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
-                        />
+                          data-testid='translatedtext-yt19' />
                       )}
                     </>
                   }
-                >
-                  <HelpIcon style={{ color: Colors.primary }} />
+                  data-testid='tooltip-brb2'>
+                  <HelpIcon style={{ color: Colors.primary }} data-testid='helpicon-py2n' />
                 </Tooltip>
               </Box>
             );
@@ -234,7 +239,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
       ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
-        accessor: row => <TranslationField code={code} {...row} />,
+        accessor: row => <TranslationField code={code} {...row} data-testid='translationfield-xrew' />,
       })),
     ],
     [data, languageNames],
@@ -256,21 +261,23 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
 
   if (data.length === 0)
     return (
-      <Alert severity="info">
-        Please load in translations using the reference data importer to activate this tab
-      </Alert>
+      <Alert severity="info" data-testid='alert-yx67'>Please load in translations using the reference data importer to activate this tab
+              </Alert>
     );
 
   return (
     <>
-      <Box display="flex" alignItems="flex-end" mb={2}>
-        <SearchArea>
+      <Box display="flex" alignItems="flex-end" mb={2} data-testid='box-bfr9'>
+        <SearchArea data-testid='searcharea-1yo4'>
           <StyledSearchInput
-            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
+            label={<TranslatedText
+              stringId="general.action.search"
+              fallback="Search"
+              data-testid='translatedtext-iba8' />}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
-          />
+            data-testid='styledsearchinput-l73m' />
           <ReferenceDataSwitchInput
             value={includeReferenceData}
             onChange={() => setIncludeReferenceData(!includeReferenceData)}
@@ -278,15 +285,26 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
               <TranslatedText
                 stringId="admin.translation.showReferenceData"
                 fallback="Show reference data"
-              />
+                data-testid='translatedtext-pqyl' />
             }
-          />
+            data-testid='referencedataswitchinput-80o1' />
         </SearchArea>
-        <Button disabled={isSaving || !dirty} onClick={handleSave}>
-          <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
+        <Button
+          disabled={isSaving || !dirty}
+          onClick={handleSave}
+          data-testid='button-a3nd'>
+          <TranslatedText
+            stringId="general.action.saveChanges"
+            fallback="Save changes"
+            data-testid='translatedtext-umrz' />
         </Button>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
+      <StyledTableFormFields
+        columns={columns}
+        data={tableRows}
+        pagination
+        stickyHeader
+        data-testid='styledtableformfields-y4iq' />
     </>
   );
 };
@@ -314,7 +332,7 @@ export const TranslationForm = () => {
     await saveTranslations(submitData);
   };
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) return <LoadingIndicator data-testid='loadingindicator-ka7i' />;
   if (error)
     return (
       <ErrorMessage
@@ -322,10 +340,10 @@ export const TranslationForm = () => {
           <TranslatedText
             stringId="admin.translation.error.loadTranslations"
             fallback="Error: Could not load translations:"
-          />
+            data-testid='translatedtext-sh00' />
         }
         error={error}
-      />
+        data-testid='errormessage-mltv' />
     );
 
   const sortedTranslations = sortBy(
@@ -334,7 +352,7 @@ export const TranslationForm = () => {
   ); // Ensure languageName key stays on top
 
   return (
-    <Container>
+    <Container data-testid='container-v9eo'>
       <Form
         initialValues={initialValues}
         enableReinitialize
@@ -342,9 +360,13 @@ export const TranslationForm = () => {
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         render={props => (
-          <FormContents {...props} data={sortedTranslations} languageNames={languageNames} />
+          <FormContents
+            {...props}
+            data={sortedTranslations}
+            languageNames={languageNames}
+            data-testid='formcontents-s4pk' />
         )}
-      />
+        data-testid='form-zsv6' />
     </Container>
   );
 };

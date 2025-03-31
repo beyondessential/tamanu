@@ -38,7 +38,7 @@ const CustomDotWrapper = styled.div`
 const DateTimeHeader = ({ name }) => {
   return (
     <span>
-      {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
+      {formatShortest(name)} <TimeText data-testid='timetext-356k'>{formatTime(name)}</TimeText>
     </span>
   );
 };
@@ -48,13 +48,13 @@ export const TooltipContent = props => {
   const { config = {} } = visualisationConfig;
 
   return (
-    <Wrapper>
-      <DateTimeHeader name={name} />
-      <ValueWrapper $alignItem="baseline">
-        <CustomDotWrapper>
-          <CustomDot payload={{ dotColor }} />
+    <Wrapper data-testid='wrapper-qw8e'>
+      <DateTimeHeader name={name} data-testid='datetimeheader-5q4l' />
+      <ValueWrapper $alignItem="baseline" data-testid='valuewrapper-wm8x'>
+        <CustomDotWrapper data-testid='customdotwrapper-brji'>
+          <CustomDot payload={{ dotColor }} data-testid='customdot-fvmx' />
         </CustomDotWrapper>
-        <FlexColumn>
+        <FlexColumn data-testid='flexcolumn-edqa'>
           <span>{formatValue(value, config)}</span>
           <span>{description}</span>
         </FlexColumn>
@@ -76,13 +76,13 @@ export const InwardArrowVectorTooltipContent = props => {
   const { unit = '' } = config;
 
   return (
-    <Wrapper>
-      <DateTimeHeader name={name} />
-      <ValueWrapper $alignItem="center">
-        <CustomDotWrapper>
-          <InwardArrowVectorIcon color={dotColor} />
+    <Wrapper data-testid='wrapper-vh8r'>
+      <DateTimeHeader name={name} data-testid='datetimeheader-wory' />
+      <ValueWrapper $alignItem="center" data-testid='valuewrapper-2kd9'>
+        <CustomDotWrapper data-testid='customdotwrapper-e54l'>
+          <InwardArrowVectorIcon color={dotColor} data-testid='inwardarrowvectoricon-196q' />
         </CustomDotWrapper>
-        <FlexColumn>
+        <FlexColumn data-testid='flexcolumn-fnm2'>
           <span>{`${inwardArrowVector.top}/${inwardArrowVector.bottom} ${unit}`}</span>
           <span>{description}</span>
           <span>{secondDescription}</span>

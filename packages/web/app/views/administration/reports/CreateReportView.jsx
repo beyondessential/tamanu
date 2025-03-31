@@ -47,7 +47,7 @@ export const CreateReportView = () => {
           stringId="admin.report.notification.importedReport"
           fallback={`Imported report: ${reportDefinitionId}`}
           replacements={{ reportDefinitionId }}
-        />
+          data-testid='translatedtext-apl3' />
       );
     } catch (err) {
       toast.error(
@@ -55,7 +55,7 @@ export const CreateReportView = () => {
           stringId="admin.report.notification.createReportFailed"
           fallback={`Failed to create report: ${err.message}`}
           replacements={{ message: err.message }}
-        />
+          data-testid='translatedtext-0gsv' />
       );
     }
   };
@@ -63,7 +63,7 @@ export const CreateReportView = () => {
   const canEditSchema = Boolean(ability?.can('write', 'ReportDbSchema'));
 
   return (
-    <Container>
+    <Container data-testid='container-i00n'>
       <ReportEditor
         initialValues={{
           status: REPORT_STATUSES.PUBLISHED,
@@ -73,7 +73,7 @@ export const CreateReportView = () => {
           parameters: [],
         }}
         onSubmit={onSubmit}
-      />
+        data-testid='reporteditor-kh3x' />
     </Container>
   );
 };

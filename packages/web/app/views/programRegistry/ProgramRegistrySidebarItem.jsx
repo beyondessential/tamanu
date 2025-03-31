@@ -28,8 +28,8 @@ export const ProgramRegistrySidebarItem = ({
 
   return (
     <PrimarySidebarItem
-      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
-    >
+      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted, path }}
+      data-testid='primarysidebaritem-kx7z'>
       {programRegistries.data.map(({ id, name }) => {
         const secondaryPath = `${path}/${id}?name=${name}`;
         return !retracted ? (
@@ -39,11 +39,15 @@ export const ProgramRegistrySidebarItem = ({
             isCurrent={currentPath.includes(secondaryPath)}
             color=""
             label={
-              <TranslatedReferenceData value={id} fallback={name} category="programRegistry" />
+              <TranslatedReferenceData
+                value={id}
+                fallback={name}
+                category="programRegistry"
+                data-testid='translatedreferencedata-2dpm' />
             }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}
-          />
+            data-testid='secondarysidebaritem-3uo3' />
         ) : null;
       })}
     </PrimarySidebarItem>

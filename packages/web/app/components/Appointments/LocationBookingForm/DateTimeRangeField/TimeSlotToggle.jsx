@@ -123,7 +123,10 @@ const tooltipStyles = css`
 
 const StyledTooltip = styled(ThemedTooltip).attrs({
   title: (
-    <TranslatedText stringId="locationBooking.tooltip.notAvailable" fallback="Not available" />
+    <TranslatedText
+      stringId="locationBooking.tooltip.notAvailable"
+      fallback="Not available"
+      data-testid='translatedtext-id2c' />
   ),
 })`
   ${tooltipStyles}
@@ -141,8 +144,8 @@ const TooltipHelper = styled.div.attrs({ tabIndex: 0 })`
  * would otherwise be disabled.
  */
 const BookedTooltip = ({ children, ...props }) => (
-  <StyledTooltip {...props}>
-    <TooltipHelper>{children}</TooltipHelper>
+  <StyledTooltip {...props} data-testid='styledtooltip-7c6e'>
+    <TooltipHelper data-testid='tooltiphelper-67sf'>{children}</TooltipHelper>
   </StyledTooltip>
 );
 
@@ -165,24 +168,27 @@ export const TimeSlotToggle = ({
 }) => {
   if (disabled) {
     return (
-      <Toggle {...props} disabled>
-        <TimeRangeDisplay range={timeSlot} />
+      <Toggle {...props} disabled data-testid='toggle-lixi'>
+        <TimeRangeDisplay range={timeSlot} data-testid='timerangedisplay-ufzc' />
       </Toggle>
     );
   }
 
   if (booked) {
     return (
-      <BookedTooltip>
-        <BookedToggle {...props}>
-          <TimeRangeDisplay range={timeSlot} />
+      <BookedTooltip data-testid='bookedtooltip-887i'>
+        <BookedToggle {...props} data-testid='bookedtoggle-bvlf'>
+          <TimeRangeDisplay range={timeSlot} data-testid='timerangedisplay-yr7n' />
         </BookedToggle>
       </BookedTooltip>
     );
   }
 
   return (
-    <ConflictTooltip title={conflictTooltipTitle} visible={!selectable}>
+    <ConflictTooltip
+      title={conflictTooltipTitle}
+      visible={!selectable}
+      data-testid='conflicttooltip-zq8q'>
       <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}
@@ -190,8 +196,8 @@ export const TimeSlotToggle = ({
         onMouseEnter={selectable ? onMouseEnter : null}
         onMouseLeave={selectable ? onMouseLeave : null}
         {...props}
-      >
-        <TimeRangeDisplay range={timeSlot} />
+        data-testid='availabletoggle-r779'>
+        <TimeRangeDisplay range={timeSlot} data-testid='timerangedisplay-u02j' />
       </AvailableToggle>
     </ConflictTooltip>
   );
@@ -205,7 +211,7 @@ const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
 `;
 
 const SkeletonTimeSlotToggles = ({ count = 16 }) => {
-  return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} />);
+  return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} data-testid='styledskeleton-rh16' />);
 };
 
 /**
@@ -214,6 +220,10 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
  */
 export const PlaceholderTimeSlotToggles = memo(() => {
   const { isPending, slots } = useBookingSlots(startOfToday());
-  if (isPending) return <SkeletonTimeSlotToggles />;
-  return slots?.map(slot => <TimeSlotToggle disabled key={idOfTimeSlot(slot)} timeSlot={slot} />);
+  if (isPending) return <SkeletonTimeSlotToggles data-testid='skeletontimeslottoggles-9a22' />;
+  return slots?.map(slot => <TimeSlotToggle
+    disabled
+    key={idOfTimeSlot(slot)}
+    timeSlot={slot}
+    data-testid='timeslottoggle-63lw' />);
 });

@@ -33,21 +33,21 @@ export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideTe
         <TranslatedEnum
           value={patientProgramRegistration.registrationStatus}
           enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
-        />
+          data-testid='translatedenum-u75m' />
       }
-    >
-      <StatusDiv>
+      data-testid='themedtooltip-otvi'>
+      <StatusDiv data-testid='statusdiv-4354'>
         {patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
-          <StatusActiveDot style={style} />
+          <StatusActiveDot style={style} data-testid='statusactivedot-ci2c' />
         ) : (
-          <StatusInactiveDot style={style} />
+          <StatusInactiveDot style={style} data-testid='statusinactivedot-1l6u' />
         )}
         {!hideText && (
           <b>
             <TranslatedEnum
               value={patientProgramRegistration.registrationStatus}
               enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
-            />
+              data-testid='translatedenum-lbnw' />
           </b>
         )}
       </StatusDiv>

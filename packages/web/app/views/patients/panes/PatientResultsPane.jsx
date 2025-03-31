@@ -36,24 +36,24 @@ const WrongPermissionInner = styled(MessageInner)`
 `;
 
 const NoResultsMessage = () => (
-  <MessageContainer>
-    <MessageInner>
+  <MessageContainer data-testid='messagecontainer-ybo1'>
+    <MessageInner data-testid='messageinner-mmlt'>
       <TranslatedText
         stringId="patient.lab.results.table.noData"
         fallback="This patient has no lab results to display. Once lab results are available they will be
       displayed here."
-      />
+        data-testid='translatedtext-rj1j' />
     </MessageInner>
   </MessageContainer>
 );
 
 const WrongPermissionMessage = () => (
-  <MessageContainer>
-    <WrongPermissionInner>
+  <MessageContainer data-testid='messagecontainer-u1qz'>
+    <WrongPermissionInner data-testid='wrongpermissioninner-gdjv'>
       <TranslatedText
         stringId="patient.lab.results.table.noPermission"
         fallback="You do not have permission to view lab results"
-      />
+        data-testid='translatedtext-4jzf' />
     </WrongPermissionInner>
   </MessageContainer>
 );
@@ -82,14 +82,14 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         searchParameters={searchParameters}
         setSearchParameters={setSearchParameters}
         patientId={patient?.id}
-      />
-      <ContentPane>
+        data-testid='resultssearchbar-rh35' />
+      <ContentPane data-testid='contentpane-o96w'>
         {!canViewLabRequestResults ? (
-          <WrongPermissionMessage />
+          <WrongPermissionMessage data-testid='wrongpermissionmessage-1s22' />
         ) : (
           <>
-            {noResults && <NoResultsMessage />}
-            {isInitialLoad && <LoadingIndicator height={400} />}
+            {noResults && <NoResultsMessage data-testid='noresultsmessage-5zha' />}
+            {isInitialLoad && <LoadingIndicator height={400} data-testid='loadingindicator-2fo0' />}
             {dirty && (
               <PatientLabTestsTable
                 patient={patient}
@@ -97,7 +97,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
                 labTests={data?.data}
                 count={data?.count}
                 isLoading={isLoading}
-              />
+                data-testid='patientlabteststable-9cgh' />
             )}
           </>
         )}

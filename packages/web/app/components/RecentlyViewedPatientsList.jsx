@@ -168,28 +168,33 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
       onClick={() => handleClick(patient.id)}
       patientPerPage={patientPerPage}
       $isDashboard={isDashboard}
-    >
+      data-testid='cardcomponent-gqky'>
       <PatientStatusIndicator
         $encounterType={patient.encounter_type}
         $isPatientDeceased={isPatientDeceased}
-      />
-      <CardComponentContent>
-        <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
+        data-testid='patientstatusindicator-a5ir' />
+      <CardComponentContent data-testid='cardcomponentcontent-wwqt'>
+        <ThemedTooltip
+          title={`${patient.firstName || ''} ${patient.lastName || ''}`}
+          data-testid='themedtooltip-i98w'>
           <CardTitle
             $encounterType={patient.encounter_type}
             $isPatientDeceased={isPatientDeceased}
             $isDashboard={isDashboard}
-          >
+            data-testid='cardtitle-qqhk'>
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>
-        <CardText $isDashboard={isDashboard}>{patient.displayId}</CardText>
-        <CapitalizedCardText $isDashboard={isDashboard}>
-          <TranslatedSex sex={patient.sex} />
+        <CardText $isDashboard={isDashboard} data-testid='cardtext-iro1'>{patient.displayId}</CardText>
+        <CapitalizedCardText $isDashboard={isDashboard} data-testid='capitalizedcardtext-zu58'>
+          <TranslatedSex sex={patient.sex} data-testid='translatedsex-zkco' />
         </CapitalizedCardText>
-        <CardText $isDashboard={isDashboard}>
-          <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />
-          : <DateDisplay date={patient.dateOfBirth} shortYear />
+        <CardText $isDashboard={isDashboard} data-testid='cardtext-i2bu'>
+          <TranslatedText
+            stringId="general.dateOfBirth.label"
+            fallback="DOB"
+            data-testid='translatedtext-7ljq' />
+          : <DateDisplay date={patient.dateOfBirth} shortYear data-testid='datedisplay-tw5s' />
         </CardText>
       </CardComponentContent>
     </CardComponent>
@@ -229,38 +234,40 @@ export const RecentlyViewedPatientsList = ({
   }
 
   return (
-    <Container>
-      <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
+    <Container data-testid='container-791z'>
+      <ContainerTitle
+        onClick={() => setIsExpanded(!isExpanded)}
+        data-testid='containertitle-zwrx'>
         {!isDashboard && (
           <>
-            <SectionLabel>
+            <SectionLabel data-testid='sectionlabel-ybkl'>
               <TranslatedText
                 stringId="patientList.recentlyViewed.title"
                 fallback="Recently viewed"
-              />
+                data-testid='translatedtext-lobc' />
             </SectionLabel>
-            {isExpanded ? <ExpandLess /> : <ExpandMore />}
+            {isExpanded ? <ExpandLess data-testid='expandless-4fci' /> : <ExpandMore data-testid='expandmore-mi2c' />}
           </>
         )}
       </ContainerTitle>
-      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <CardListContainer $isDashboard={isDashboard}>
+      <Collapse in={isExpanded} timeout="auto" unmountOnExit data-testid='collapse-q5zd'>
+        <CardListContainer $isDashboard={isDashboard} data-testid='cardlistcontainer-skdl'>
           {isDashboard && (
-            <SectionTitle>
+            <SectionTitle data-testid='sectiontitle-frit'>
               <TranslatedText
                 stringId="patientList.recentlyViewed.title"
                 fallback="Recently viewed"
-              />
+                data-testid='translatedtext-dyvm' />
             </SectionTitle>
           )}
           {pageIndex > 0 ? (
-            <LeftArrowButton onClick={() => changePage(-1)}>
-              <NavigateBefore />
+            <LeftArrowButton onClick={() => changePage(-1)} data-testid='leftarrowbutton-tjtk'>
+              <NavigateBefore data-testid='navigatebefore-5m41' />
             </LeftArrowButton>
           ) : (
-            <MarginDiv />
+            <MarginDiv data-testid='margindiv-pxqe' />
           )}
-          <CardList>
+          <CardList data-testid='cardlist-zxcl'>
             {recentlyViewedPatients
               .slice(pageIndex * patientPerPage, (pageIndex + 1) * patientPerPage)
               .map(patient => (
@@ -270,19 +277,19 @@ export const RecentlyViewedPatientsList = ({
                   handleClick={cardOnClick}
                   isDashboard={isDashboard}
                   patientPerPage={patientPerPage}
-                />
+                  data-testid='card-m3ff' />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (
-            <RightArrowButton onClick={() => changePage(1)}>
-              <NavigateNext />
+            <RightArrowButton onClick={() => changePage(1)} data-testid='rightarrowbutton-jva4'>
+              <NavigateNext data-testid='navigatenext-zeo2' />
             </RightArrowButton>
           ) : (
-            <MarginDiv />
+            <MarginDiv data-testid='margindiv-7km8' />
           )}
         </CardListContainer>
       </Collapse>
-      {!isExpanded && <ComponentDivider />}
+      {!isExpanded && <ComponentDivider data-testid='componentdivider-ciq5' />}
     </Container>
   );
 };

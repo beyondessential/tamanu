@@ -21,6 +21,6 @@ export const VitalLineChart = props => {
       visualisationConfig={visualisationConfig}
       isLoading={isLoading}
       chartProps={chartProps}
-    />
+      data-testid='linechart-02ks' />
   );
 };

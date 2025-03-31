@@ -22,7 +22,7 @@ export const NoteItemList = ({
   return (
     <StyledBox
       sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
-    >
+      data-testid='styledbox-o2d6'>
       {noteItems.map((noteItem, index) => (
         <NoteItem
           key={noteItem.id}
@@ -31,7 +31,7 @@ export const NoteItemList = ({
           editable={currentUserId === noteItem.authorId}
           onEditNoteItem={onEditNoteItem}
           lastNoteItemRef={index === noteItems.length - 1 ? lastNoteItemRef : undefined}
-        />
+          data-testid='noteitem-wp2c' />
       ))}
     </StyledBox>
   );

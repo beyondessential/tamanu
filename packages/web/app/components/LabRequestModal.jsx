@@ -89,7 +89,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       departmentSuggester={departmentSuggester}
       specimenTypeSuggester={specimenTypeSuggester}
       labSampleSiteSuggester={labSampleSiteSuggester}
-    />
+      data-testid='labrequestmultistepform-4yb0' />
   );
 
   if (isSuccess) {
@@ -99,7 +99,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
         labRequests={newLabRequests}
         requestFormType={requestFormType}
         onClose={handleClose}
-      />
+        data-testid='labrequestsummarypane-uhfv' />
     );
   }
 
@@ -112,12 +112,12 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
           replacements={{
             modalSectionTitle: requestFormType ? `| ${SECTION_TITLES[requestFormType]}` : ' ',
           }}
-        />
+          data-testid='translatedtext-2ldh' />
       }
       open={open}
       onClose={handleClose}
       minHeight={800}
-    >
+      data-testid='styledmodal-bqm5'>
       {ModalBody}
     </StyledModal>
   );

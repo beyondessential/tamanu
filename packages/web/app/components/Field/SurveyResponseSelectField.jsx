@@ -38,6 +38,6 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
       onChange={field.onChange}
       value={field.value}
       options={options}
-    />
+      data-testid='selectinput-ra3s' />
   );
 };

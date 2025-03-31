@@ -83,37 +83,40 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           vaccineLabel: vaccineData?.label,
         }}
         onClose={handleCloseRecordModal}
-      />
+        data-testid='vaccinemodal-uxlc' />
       <ViewAdministeredVaccineModal
         open={isViewAdministeredModalOpen}
         patientId={patient.id}
         vaccineRecord={vaccineData}
         onClose={() => setIsViewAdministeredModalOpen(false)}
-      />
+        data-testid='viewadministeredvaccinemodal-mckw' />
       <EditAdministeredVaccineModal
         open={isEditAdministeredModalOpen}
         patientId={patient.id}
         vaccineRecord={vaccineData}
         onClose={() => setIsEditAdministeredModalOpen(false)}
-      />
+        data-testid='editadministeredvaccinemodal-krbw' />
       <DeleteAdministeredVaccineModal
         open={isDeleteAdministeredModalOpen}
         patientId={patient.id}
         vaccineRecord={vaccineData}
         onClose={() => setIsDeleteAdministeredModalOpen(false)}
-      />
-      <ContentPane>
-        <TableButtonRow variant="small">
+        data-testid='deleteadministeredvaccinemodal-k9i2' />
+      <ContentPane data-testid='contentpane-9tqb'>
+        <TableButtonRow variant="small" data-testid='tablebuttonrow-grvp'>
           {certifiable && (
             <CovidCertificateButton
               onClick={() => setIsCovidCertificateModalOpen(true)}
               variant="text"
-            >
-              <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
+              data-testid='covidcertificatebutton-vnau'>
+              <CovidCertificateIcon
+                style={{ marginRight: 4 }}
+                className="fa fa-clipboard-list"
+                data-testid='covidcertificateicon-o54c' />
               <TranslatedText
                 stringId="vaccine.action.viewCovidCertificate"
                 fallback="COVID-19 certificate"
-              />
+                data-testid='translatedtext-lsxv' />
             </CovidCertificateButton>
           )}
           {!!vaccinations.length && (
@@ -121,11 +124,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               onClick={() => setIsCertificateModalOpen(true)}
               variant="outlined"
               disabled={!vaccinations.length}
-            >
+              data-testid='button-i4cv'>
               <TranslatedText
                 stringId="vaccine.action.viewVaccineCertificate"
                 fallback="Immunisation certificate"
-              />
+                data-testid='translatedtext-u89m' />
             </Button>
           )}
           <ButtonWithPermissionCheck
@@ -133,33 +136,36 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             noun="PatientVaccine"
             onClick={() => setIsAdministerModalOpen(true)}
             disabled={readonly}
-          >
-            <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
+            data-testid='buttonwithpermissioncheck-zmgl'>
+            <TranslatedText
+              stringId="vaccine.action.recordVaccine"
+              fallback="Record vaccine"
+              data-testid='translatedtext-4e9m' />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
-        <TableWrapper>
+        <TableWrapper data-testid='tablewrapper-rbs7'>
           <ImmunisationScheduleTable
             patient={patient}
             onItemEdit={id => handleOpenRecordModal(id)}
-          />
+            data-testid='immunisationscheduletable-8nat' />
         </TableWrapper>
         <ImmunisationsTable
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
           onItemDeleteClick={id => handleOpenDeleteModal(id)}
-        />
+          data-testid='immunisationstable-q9jd' />
       </ContentPane>
       <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCovidCertificateModalOpen(false)}
-      />
+        data-testid='covidvaccinecertificatemodal-dzug' />
       <VaccineCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCertificateModalOpen(false)}
-      />
+        data-testid='vaccinecertificatemodal-mfeh' />
     </>
   );
 });

@@ -79,7 +79,7 @@ export const InvoiceModalGroup = ({
           }}
           onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
-        />
+          data-testid='upsertinvoicemodal-wt5z' />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.EDIT_INVOICE) && invoice && (
         <EditInvoiceModal
@@ -91,10 +91,14 @@ export const InvoiceModalGroup = ({
           handleDeleteInvoice={handleDeleteInvoice}
           handleFinaliseInvoice={handleFinaliseInvoice}
           isPatientView={isPatientView}
-        />
+          data-testid='editinvoicemodal-7xne' />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (
-        <CancelInvoiceModal open onClose={() => handleCloseInvoiceModal()} invoice={invoice} />
+        <CancelInvoiceModal
+          open
+          onClose={() => handleCloseInvoiceModal()}
+          invoice={invoice}
+          data-testid='cancelinvoicemodal-zrjt' />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.DELETE_INVOICE) && invoice && (
         <DeleteInvoiceModal
@@ -102,10 +106,14 @@ export const InvoiceModalGroup = ({
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
           onDeleteSuccess={afterDeleteInvoice}
-        />
+          data-testid='deleteinvoicemodal-s0jy' />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
-        <FinaliseInvoiceModal open onClose={() => handleCloseInvoiceModal()} invoice={invoice} />
+        <FinaliseInvoiceModal
+          open
+          onClose={() => handleCloseInvoiceModal()}
+          invoice={invoice}
+          data-testid='finaliseinvoicemodal-d1cy' />
       )}
     </>
   );

@@ -36,11 +36,14 @@ export const ListTable = ({ columns, data, className }) => {
   const totalWidth = columns.reduce((sum, c) => sum + c.widthProportion || 1, 0);
   const getWidth = widthProportion => `${(widthProportion / totalWidth) * 100}%`;
   return (
-    <Table className={className}>
+    <Table className={className} data-testid='table-3rm2'>
       <thead>
-        <Row>
+        <Row data-testid='row-5r58'>
           {columns.map(({ key, title, style, widthProportion = 1 }) => (
-            <Header key={key} style={{ width: getWidth(widthProportion), ...style }}>
+            <Header
+              key={key}
+              style={{ width: getWidth(widthProportion), ...style }}
+              data-testid='header-0mym'>
               {title}
             </Header>
           ))}
@@ -48,7 +51,7 @@ export const ListTable = ({ columns, data, className }) => {
       </thead>
       <tbody>
         {data.map(row => (
-          <Row key={row.id}>
+          <Row key={row.id} data-testid='row-7yxx'>
             {columns.map(({ key, accessor, style, widthProportion = 1 }) => (
               <Cell
                 key={key}
@@ -56,7 +59,7 @@ export const ListTable = ({ columns, data, className }) => {
                   width: getWidth(widthProportion),
                   ...style,
                 }}
-              >
+                data-testid='cell-mzpq'>
                 {accessor ? accessor(row) : row[key]}
               </Cell>
             ))}

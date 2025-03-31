@@ -132,11 +132,21 @@ const StepperWrapper = styled(Box)`
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
   return (
-    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
-      <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
+    <DayWrapper
+      onClick={onClick}
+      $selected={selected}
+      $isToday={isToday(date)}
+      data-testid='daywrapper-2vbq'>
+      <WeekdayText
+        $isWeekend={isWeekendDay}
+        $selected={selected}
+        data-testid='weekdaytext-no67'>
         {format(date, 'EEEEE')}
       </WeekdayText>
-      <DateText $isWeekend={isWeekendDay} $selected={selected}>
+      <DateText
+        $isWeekend={isWeekendDay}
+        $selected={selected}
+        data-testid='datetext-gl3a'>
         {date.getDate()}
       </DateText>
     </DayWrapper>
@@ -189,18 +199,18 @@ export const DateSelector = ({ value, onChange }) => {
   };
 
   return (
-    <Wrapper onKeyDown={handleOnKeyDown}>
+    <Wrapper onKeyDown={handleOnKeyDown} data-testid='wrapper-up3h'>
       <StyledMonthPicker
         key={value.valueOf()}
         value={viewedDays[0]}
         onChange={handleMonthYearChange}
-      />
-      <TodayButton onClick={handleChangeToday}>Today</TodayButton>
-      <StepperWrapper>
-        <StepperButton onClick={handleDecrement}>
-          <ArrowBackIos />
+        data-testid='styledmonthpicker-3pmc' />
+      <TodayButton onClick={handleChangeToday} data-testid='todaybutton-4gqy'>Today</TodayButton>
+      <StepperWrapper data-testid='stepperwrapper-4wbc'>
+        <StepperButton onClick={handleDecrement} data-testid='stepperbutton-s2jx'>
+          <ArrowBackIos data-testid='arrowbackios-jjro' />
         </StepperButton>
-        <DaysWrapper>
+        <DaysWrapper data-testid='dayswrapper-f31b'>
           {viewedDays.map(date => (
             <DayButton
               aria-pressed={isSameDay(date, value)}
@@ -208,11 +218,11 @@ export const DateSelector = ({ value, onChange }) => {
               selected={isSameDay(date, value)}
               onClick={() => handleChange(date)}
               key={`day-button-${date.getTime()}`}
-            />
+              data-testid='daybutton-ppdz' />
           ))}
         </DaysWrapper>
-        <StepperButton onClick={handleIncrement}>
-          <ArrowForwardIos />
+        <StepperButton onClick={handleIncrement} data-testid='stepperbutton-3zzm'>
+          <ArrowForwardIos data-testid='arrowforwardios-xpst' />
         </StepperButton>
       </StepperWrapper>
     </Wrapper>

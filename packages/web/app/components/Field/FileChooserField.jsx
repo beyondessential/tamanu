@@ -53,31 +53,41 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
         onChange={selectFile}
         accept={acceptString}
         style={{ display: 'none' }}
-      />
-      <OuterLabelFieldWrapper label={label} {...props}>
-        <FieldButtonRow className={value ? 'has-value' : ''}>
+        data-testid='input-q5no' />
+      <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-uc1o'>
+        <FieldButtonRow className={value ? 'has-value' : ''} data-testid='fieldbuttonrow-snj9'>
           {value ? (
             <>
               {value.name}
-              <ChangeSelectionButton onClick={showFileDialog}>
+              <ChangeSelectionButton onClick={showFileDialog} data-testid='changeselectionbutton-fvw1'>
                 <TranslatedText
                   stringId="chooseFile.button.changeSelection.label"
                   fallback="Change selection"
-                />
+                  data-testid='translatedtext-qw1d' />
               </ChangeSelectionButton>
             </>
           ) : (
             <>
-              <Button onClick={showFileDialog} variant="outlined" color="primary">
-                <TranslatedText stringId="chooseFile.button.label" fallback="Choose file" />
+              <Button
+                onClick={showFileDialog}
+                variant="outlined"
+                color="primary"
+                data-testid='button-1mo9'>
+                <TranslatedText
+                  stringId="chooseFile.button.label"
+                  fallback="Choose file"
+                  data-testid='translatedtext-9peo' />
               </Button>
-              <HintText>
-                <TranslatedText stringId="chooseFile.hint.max10Mb.label" fallback="Max 10 MB" />
+              <HintText data-testid='hinttext-oxv8'>
+                <TranslatedText
+                  stringId="chooseFile.hint.max10Mb.label"
+                  fallback="Max 10 MB"
+                  data-testid='translatedtext-u0s3' />
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
                   fallback="Supported file types"
-                />
+                  data-testid='translatedtext-k2w3' />
                 : {filters.map(filter => filter.name).join(', ')}
               </HintText>
             </>
@@ -94,5 +104,5 @@ export const FileChooserField = ({ field, ...props }) => (
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
-  />
+    data-testid='filechooserinput-0fxi' />
 );

@@ -38,34 +38,40 @@ const DiagnosisName = styled.span`
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
-  <DiagnosisChip onClick={onClick}>
-    <Category isPrimary={isPrimary}>
+  <DiagnosisChip onClick={onClick} data-testid='diagnosischip-3n28'>
+    <Category isPrimary={isPrimary} data-testid='category-vwwx'>
       {isPrimary ? (
-        <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
+        <TranslatedText
+          stringId="encounter.diagnosis.type.primary"
+          fallback="P"
+          data-testid='translatedtext-jz99' />
       ) : (
-        <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
+        <TranslatedText
+          stringId="encounter.diagnosis.type.secondary"
+          fallback="S"
+          data-testid='translatedtext-ssu2' />
       )}
     </Category>
     {diagnosis?.name && diagnosis?.id && (
-      <DiagnosisName isPrimary={isPrimary}>
+      <DiagnosisName isPrimary={isPrimary} data-testid='diagnosisname-vvn4'>
         <TranslatedReferenceData
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
-        />
+          data-testid='translatedreferencedata-eww0' />
       </DiagnosisName>
     )}
   </DiagnosisChip>
 ));
 
 export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
-  <DiagnosisListContainer>
+  <DiagnosisListContainer data-testid='diagnosislistcontainer-dqkk'>
     {diagnoses.map(d => (
       <DiagnosisItem
         key={d.id}
         {...d}
         onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
-      />
+        data-testid='diagnosisitem-037x' />
     ))}
   </DiagnosisListContainer>
 ));

@@ -9,7 +9,11 @@ export const ConfiguredMandatoryPatientFields = (props) => {
   return fieldsToShow.length ? (
     <>
       {fieldsToShow.map(field => (
-        <LocalisedField key={field.name} enablePasting {...field} />
+        <LocalisedField
+          key={field.name}
+          enablePasting
+          {...field}
+          data-testid='localisedfield-0jtf' />
       ))}
     </>
   ) : null;

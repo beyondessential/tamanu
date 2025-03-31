@@ -72,9 +72,13 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel>
+        <LanguageOptionLabel data-testid='languageoptionlabel-99kx'>
           {countryCode && isISO31661Alpha2(countryCode) && (
-            <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
+            <ReactCountryFlag
+              countryCode={countryCode}
+              style={{ width: '22px' }}
+              svg
+              data-testid='reactcountryflag-82t6' />
           )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
@@ -94,29 +98,35 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
+      title={<TranslatedText
+        stringId="general.language.change"
+        fallback="Change language"
+        data-testid='translatedtext-0de4' />}
       open={open}
       onClose={onClose}
       {...props}
-    >
-      <LanguageSelectorContainer>
+      data-testid='modal-b06c'>
+      <LanguageSelectorContainer data-testid='languageselectorcontainer-2x22'>
         <SelectInput
           options={languageOptions}
-          label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+          label={<TranslatedText
+            stringId="login.languageSelector.label"
+            fallback="Language"
+            data-testid='translatedtext-upsy' />}
           isClearable={false}
           error={!!error}
           customStyleObject={customStyles}
           name="Language"
           value={language}
           onChange={handleLanguageChange}
-        />
+          data-testid='selectinput-9ajj' />
       </LanguageSelectorContainer>
       <ModalActionRow
         confirmText="Confirm"
         onConfirm={onConfirmLanguageChange}
         onCancel={onClose}
         cancelText="Cancel"
-      />
+        data-testid='modalactionrow-x0mn' />
     </Modal>
   );
 };

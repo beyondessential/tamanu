@@ -15,6 +15,6 @@ export const SingleVitalChartView = () => {
       visualisationConfig={visualisationConfig}
       dateRange={dateRange}
       isInMultiChartsView={isInMultiChartsView}
-    />
+      data-testid='vitalchartcomponent-84pc' />
   );
 };

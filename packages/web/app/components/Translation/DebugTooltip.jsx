@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+  <Tooltip
+    classes={{ popper: props.className }}
+    {...props}
+    data-testid='tooltip-bsup'>
     {props.children}
   </Tooltip>
 ))`
@@ -47,7 +50,7 @@ export const DebugTooltip = React.memo(({ children, stringId, replacements, fall
             <>
               <br />
               <b>replacements:</b>
-              <StyledList>
+              <StyledList data-testid='styledlist-adcx'>
                 {Object.entries(replacements).map(([key, value]) => (
                   <li key={key}>
                     {key}: {value}
@@ -63,8 +66,8 @@ export const DebugTooltip = React.memo(({ children, stringId, replacements, fall
       open={open}
       arrow
       placement="top"
-    >
-      <DebugHighlighted>{children}</DebugHighlighted>
+      data-testid='styledtooltip-r5z6'>
+      <DebugHighlighted data-testid='debughighlighted-x8q9'>{children}</DebugHighlighted>
     </StyledTooltip>
   );
 });

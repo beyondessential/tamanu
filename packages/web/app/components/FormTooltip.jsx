@@ -14,8 +14,12 @@ const StyledInfoIcon = styled(InfoIcon)`
 `;
 
 export const FormTooltip = styled(props => (
-  <MuiTooltip classes={{ popper: props.className }} arrow {...props}>
-    <StyledInfoIcon />
+  <MuiTooltip
+    classes={{ popper: props.className }}
+    arrow
+    {...props}
+    data-testid='muitooltip-s88r'>
+    <StyledInfoIcon data-testid='styledinfoicon-sg86' />
   </MuiTooltip>
 ))`
   & .MuiTooltip-tooltip {

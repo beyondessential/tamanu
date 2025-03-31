@@ -12,11 +12,16 @@ export const NumberInput = ({ min, max, step, inputProps = {}, ...props }) => (
       ...inputProps,
     }}
     type="number"
-  />
+    data-testid='textinput-v131' />
 );
 
 export const NumberField = ({ field, ...props }) => (
-  <NumberInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <NumberInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid='numberinput-3kwu' />
 );
 
 NumberInput.propTypes = {

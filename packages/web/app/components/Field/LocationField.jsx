@@ -121,11 +121,12 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
-          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          // do not autofill if there is a pre-filled value
+          autofill={!value && autofill}
           size={size}
           helperText={helperText}
           error={error}
-        />
+          data-testid='autocompleteinput-0tiu' />
         <LocationAutocompleteInput
           label={label}
           disabled={locationSelectIsDisabled || disabled}
@@ -137,9 +138,10 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
-          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          // do not autofill if there is a pre-filled value
+          autofill={!value && autofill}
           size={size}
-        />
+          data-testid='locationautocompleteinput-6e7h' />
       </>
     );
   },
@@ -174,7 +176,7 @@ export const LocationField = React.memo(({ field, ...props }) => {
       value={field.value || ''}
       onChange={field.onChange}
       {...props}
-    />
+      data-testid='locationinput-cvpu' />
   );
 });
 
@@ -182,13 +184,19 @@ export const LocalisedLocationField = React.memo(props => {
   return (
     <LocationField
       label={
-        <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+        <TranslatedText
+          stringId="general.localisedField.locationId.label"
+          fallback="Location"
+          data-testid='translatedtext-2nxr' />
       }
       locationGroupLabel={
-        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        <TranslatedText
+          stringId="general.localisedField.locationGroupId.label"
+          fallback="Area"
+          data-testid='translatedtext-lqc7' />
       }
       {...props}
-    />
+      data-testid='locationfield-wf9f' />
   );
 });
 
@@ -207,19 +215,17 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text {...props}>
-        This location is reserved by another patient. Please ensure the bed is available before
-        confirming.
-      </Text>
+      <Text {...props} data-testid='text-voq8'>This location is reserved by another patient. Please ensure the bed is available before
+                confirming.
+              </Text>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text {...props}>
-        This location is occupied by another patient. Please ensure the bed is available before
-        confirming.
-      </Text>
+      <Text {...props} data-testid='text-heyi'>This location is occupied by another patient. Please ensure the bed is available before
+                confirming.
+              </Text>
     );
   }
 

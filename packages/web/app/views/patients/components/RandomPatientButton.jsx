@@ -40,8 +40,9 @@ export const RandomPatientButton = ({ generateId, setValues }) => {
   }
 
   return (
-    <RandomButtonStyled onClick={() => setValues(makeRandomPatient(generateId))}>
-      Randomise
-    </RandomButtonStyled>
+    <RandomButtonStyled
+      onClick={() => setValues(makeRandomPatient(generateId))}
+      data-testid='randombuttonstyled-sqtb'>Randomise
+          </RandomButtonStyled>
   );
 };

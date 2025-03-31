@@ -33,7 +33,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.conditions"
         fallback="Ongoing conditions"
-      />
+        data-testid='translatedtext-lt23' />
     }
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
@@ -46,10 +46,10 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
           stringId="ongoingCondition.resolved"
           fallback=":name (resolved)"
           replacements={{ name }}
-        />
+          data-testid='translatedtext-hlax' />
       );
     }}
-  />
+    data-testid='infopanelist-gx0r' />
 ));
 
 const AllergyDisplay = memo(({ patient, readonly }) => (
@@ -58,7 +58,10 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     id={PANE_SECTION_IDS.ALLERGIES}
     title={
-      <TranslatedText stringId="patient.detailsSidebar.subheading.allergies" fallback="Allergies" />
+      <TranslatedText
+        stringId="patient.detailsSidebar.subheading.allergies"
+        fallback="Allergies"
+        data-testid='translatedtext-cm29' />
     }
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
@@ -68,9 +71,9 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
         fallback={allergy.allergy.name}
         value={allergy.allergy.id}
         category="allergy"
-      />
+        data-testid='translatedreferencedata-xx23' />
     )}
-  />
+    data-testid='infopanelist-j1q8' />
 ));
 
 const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
@@ -82,7 +85,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.familyHistory"
         fallback="Family history"
-      />
+        data-testid='translatedtext-u77j' />
     }
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
@@ -93,7 +96,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
       if (!relation) return name;
       return `${name} (${relation})`;
     }}
-  />
+    data-testid='infopanelist-x70z' />
 ));
 
 const PatientIssuesDisplay = memo(({ patient, readonly }) => (
@@ -105,13 +108,13 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.issues"
         fallback="Other patient issues"
-      />
+        data-testid='translatedtext-hyec' />
     }
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
     getName={issue => issue.note}
-  />
+    data-testid='infopanelist-2y30' />
 ));
 
 const CarePlanDisplay = memo(({ patient, readonly }) => (
@@ -123,24 +126,38 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.carePlans"
         fallback="Care plans"
-      />
+        data-testid='translatedtext-qyk7' />
     }
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => (
-      <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />
+      <TranslatedReferenceData
+        fallback={carePlan.name}
+        value={carePlan.id}
+        category="carePlan"
+        data-testid='translatedreferencedata-k1sn' />
     )}
     behavior="modal"
-    itemTitle={<TranslatedText stringId="carePlan.modal.create.title" fallback="Add care plan" />}
+    itemTitle={<TranslatedText
+      stringId="carePlan.modal.create.title"
+      fallback="Add care plan"
+      data-testid='translatedtext-mjq7' />}
     CustomEditForm={PatientCarePlanDetails}
     getEditFormName={({ carePlan }) => (
       <>
-        <TranslatedText stringId="carePlan.modal.edit.title" fallback="Care plan" />:{' '}
-        <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />
+        <TranslatedText
+          stringId="carePlan.modal.edit.title"
+          fallback="Care plan"
+          data-testid='translatedtext-h78x' />:{' '}
+        <TranslatedReferenceData
+          fallback={carePlan.name}
+          value={carePlan.id}
+          category="carePlan"
+          data-testid='translatedreferencedata-mc13' />
       </>
     )}
-  />
+    data-testid='infopanelist-poja' />
 ));
 
 const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
@@ -151,7 +168,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.programRegistry"
         fallback="Program registry"
-      />
+        data-testid='translatedtext-90u8' />
     }
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
@@ -163,20 +180,19 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="programRegistry.modal.addProgramRegistry.title"
         fallback="Add program registry"
-      />
+        data-testid='translatedtext-kzxg' />
     }
     getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
-  />
+    data-testid='infopanelist-rq17' />
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
-    <OutlinedButton size="small" onClick={openModal}>
-      Cause of death
-    </OutlinedButton>
+    <OutlinedButton size="small" onClick={openModal} data-testid='outlinedbutton-m6uu'>Cause of death
+          </OutlinedButton>
   );
 });
 
-const PrintSection = memo(({ patient }) => <PrintPatientDetailsModal patient={patient} />);
+const PrintSection = memo(({ patient }) => <PrintPatientDetailsModal patient={patient} data-testid='printpatientdetailsmodal-dy3t' />);
 
 const Container = styled.div`
   display: flex;
@@ -228,25 +244,44 @@ export const PatientInfoPane = () => {
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   return (
-    <Container>
-      <CoreInfoDisplay patient={patient} />
-      <ListsSection>
-        <OngoingConditionDisplay patient={patient} readonly={readonly} />
-        <AllergyDisplay patient={patient} readonly={readonly} />
-        <FamilyHistoryDisplay patient={patient} readonly={readonly} />
-        <PatientIssuesDisplay patient={patient} readonly={readonly} />
-        <CarePlanDisplay patient={patient} readonly={readonly} />
-        <ProgramRegistryDisplay patient={patient} readonly={readonly} />
-        <Buttons>
-          {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} />}
-          <PrintSection patient={patient} readonly={readonly} />
+    <Container data-testid='container-qhh8'>
+      <CoreInfoDisplay patient={patient} data-testid='coreinfodisplay-fxik' />
+      <ListsSection data-testid='listssection-1frw'>
+        <OngoingConditionDisplay
+          patient={patient}
+          readonly={readonly}
+          data-testid='ongoingconditiondisplay-q1ok' />
+        <AllergyDisplay patient={patient} readonly={readonly} data-testid='allergydisplay-y46g' />
+        <FamilyHistoryDisplay
+          patient={patient}
+          readonly={readonly}
+          data-testid='familyhistorydisplay-qha4' />
+        <PatientIssuesDisplay
+          patient={patient}
+          readonly={readonly}
+          data-testid='patientissuesdisplay-llbu' />
+        <CarePlanDisplay patient={patient} readonly={readonly} data-testid='careplandisplay-7hx3' />
+        <ProgramRegistryDisplay
+          patient={patient}
+          readonly={readonly}
+          data-testid='programregistrydisplay-4eu1' />
+        <Buttons data-testid='buttons-hh6n'>
+          {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} data-testid='causeofdeathbutton-ow4w' />}
+          <PrintSection patient={patient} readonly={readonly} data-testid='printsection-yt3i' />
         </Buttons>
         {showRecordDeathActions && (
-          <RecordDeathSection patient={patient} openDeathModal={openModal} />
+          <RecordDeathSection
+            patient={patient}
+            openDeathModal={openModal}
+            data-testid='recorddeathsection-jeoi' />
         )}
       </ListsSection>
       {patientDeathsEnabled && (
-        <DeathModal open={isModalOpen} onClose={closeModal} deathData={deathData} />
+        <DeathModal
+          open={isModalOpen}
+          onClose={closeModal}
+          deathData={deathData}
+          data-testid='deathmodal-12q9' />
       )}
     </Container>
   );

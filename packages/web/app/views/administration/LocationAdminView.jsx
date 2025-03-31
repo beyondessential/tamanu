@@ -24,7 +24,7 @@ const LocationTable = React.memo(({ ...props }) => (
     columns={COLUMNS}
     noDataMessage="No locations found"
     {...props}
-  />
+    data-testid='datafetchingtable-xc1i' />
 ));
 
 export const LocationAdminView = React.memo(() => {
@@ -40,21 +40,25 @@ export const LocationAdminView = React.memo(() => {
   }, []);
 
   return (
-    <PageContainer>
-      <TopBar title="Locations">
-        <Button color="primary" variant="outlined" onClick={showCreatingLocationModal}>
+    <PageContainer data-testid='pagecontainer-gm65'>
+      <TopBar title="Locations" data-testid='topbar-har7'>
+        <Button
+          color="primary"
+          variant="outlined"
+          onClick={showCreatingLocationModal}
+          data-testid='button-0aez'>
           Add new location
         </Button>
       </TopBar>
-      <LocationSearchBar onSearch={setSearchParameters} />
-      <LocationTable fetchOptions={searchParameters} />
+      <LocationSearchBar onSearch={setSearchParameters} data-testid='locationsearchbar-zu6f' />
+      <LocationTable fetchOptions={searchParameters} data-testid='locationtable-chkw' />
       <NewRecordModal
         title="Create new location"
         endpoint="location"
         open={creatingLocation}
         onCancel={hideCreatingLocationModal}
         Form={NewLocationForm}
-      />
+        data-testid='newrecordmodal-qsqh' />
     </PageContainer>
   );
 });

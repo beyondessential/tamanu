@@ -18,12 +18,20 @@ const Column = ({ header, appointments, onAppointmentUpdated }) => {
 
   return (
     <>
-      <ColumnHeader className="location" $width={width} $minWidth={minWidth}>
+      <ColumnHeader
+        className="location"
+        $width={width}
+        $minWidth={minWidth}
+        data-testid='columnheader-y3re'>
         {header}
       </ColumnHeader>
-      <ColumnBody className="appointments">
+      <ColumnBody className="appointments" data-testid='columnbody-h38k'>
         {appointmentsByStartTime.map(appt => (
-          <Appointment key={appt.id} appointment={appt} onUpdated={onAppointmentUpdated} />
+          <Appointment
+            key={appt.id}
+            appointment={appt}
+            onUpdated={onAppointmentUpdated}
+            data-testid='appointment-lse5' />
         ))}
       </ColumnBody>
     </>
@@ -76,9 +84,13 @@ export const DailySchedule = ({
       };
     });
   return (
-    <Container>
+    <Container data-testid='container-xxnp'>
       {columns.map(props => (
-        <Column key={props.key} onAppointmentUpdated={onAppointmentUpdated} {...props} />
+        <Column
+          key={props.key}
+          onAppointmentUpdated={onAppointmentUpdated}
+          {...props}
+          data-testid='column-zgt6' />
       ))}
     </Container>
   );

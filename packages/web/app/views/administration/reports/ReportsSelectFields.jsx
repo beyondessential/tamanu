@@ -33,7 +33,7 @@ export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportNam
       options={options}
       error={!!fetchError || props.error}
       helperText={fetchError?.message || props.helperText}
-    />
+      data-testid='baseselectfield-i6c5' />
   );
 };
 
@@ -77,6 +77,6 @@ export const VersionSelectField = props => {
       options={options}
       error={!!fetchError || props.error}
       helperText={fetchError?.message || props.helperText}
-    />
+      data-testid='baseselectfield-043k' />
   );
 };

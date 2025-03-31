@@ -32,9 +32,9 @@ export const SuggesterSelectField = React.memo(
     };
 
     return isMulti ? (
-      <MultiselectInput {...baseProps} {...props} />
+      <MultiselectInput {...baseProps} {...props} data-testid='multiselectinput-vf2i' />
     ) : (
-      <SelectInput {...baseProps} {...props} />
+      <SelectInput {...baseProps} {...props} data-testid='selectinput-phtg' />
     );
   },
 );

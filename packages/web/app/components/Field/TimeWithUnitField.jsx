@@ -31,7 +31,7 @@ const HiddenInput = styled(TextInput)`
   }
 `;
 
-const HiddenField = props => <HiddenInput {...props} type="hidden" />;
+const HiddenField = props => <HiddenInput {...props} type="hidden" data-testid='hiddeninput-g7ug' />;
 
 export const TimeWithUnitInput = ({
   onChange,
@@ -81,8 +81,12 @@ export const TimeWithUnitInput = ({
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} className={className} {...props}>
-      <FieldWrapper>
+    <OuterLabelFieldWrapper
+      label={label}
+      className={className}
+      {...props}
+      data-testid='outerlabelfieldwrapper-xi7f'>
+      <FieldWrapper data-testid='fieldwrapper-u4xe'>
         <MainField
           value={value}
           onChange={onValueChange}
@@ -90,20 +94,25 @@ export const TimeWithUnitInput = ({
           max={max}
           step={step}
           {...props}
-        />
-        <Select select onChange={onUnitChange} value={unit}>
+          data-testid='mainfield-r4oz' />
+        <Select select onChange={onUnitChange} value={unit} data-testid='select-f39x'>
           {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
-            <MenuItem key={option.unit} value={option.unit}>
+            <MenuItem key={option.unit} value={option.unit} data-testid='menuitem-aqjx'>
               {option.unit}
             </MenuItem>
           ))}
         </Select>
       </FieldWrapper>
-      <HiddenField name={name} value={valueInMinutes || 0} />
+      <HiddenField name={name} value={valueInMinutes || 0} data-testid='hiddenfield-il8g' />
     </OuterLabelFieldWrapper>
   );
 };
 
 export const TimeWithUnitField = ({ field, ...props }) => (
-  <TimeWithUnitInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <TimeWithUnitInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid='timewithunitinput-hu11' />
 );

@@ -29,6 +29,6 @@ export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, cha
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
-    />
+      data-testid='styledtranslatedselectfield-vwze' />
   );
 };

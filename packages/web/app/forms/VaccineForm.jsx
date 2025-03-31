@@ -84,7 +84,7 @@ export const VaccineForm = ({
                 fallback={vaccine.label}
                 value={vaccine.id}
                 category="scheduledVaccine"
-              />
+                data-testid='translatedreferencedata-e94b' />
             ),
             value: vaccine.label,
             schedules: vaccine.schedules,
@@ -97,15 +97,18 @@ export const VaccineForm = ({
   }, [category, getScheduledVaccines, editMode]);
 
   if (isLoadingCurrentEncounter || isLoadingPatientData) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid='loadingindicator-dpow' />;
   }
 
   if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
-        title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
+        title={<TranslatedText
+          stringId="vaccine.loadError"
+          fallback="Cannot load vaccine form"
+          data-testid='translatedtext-eumt' />}
         errorMessage={currentEncounterError?.message || patientDataError?.message}
-      />
+        data-testid='errormessage-9m9j' />
     );
   }
 
@@ -122,7 +125,7 @@ export const VaccineForm = ({
         <TranslatedText
           stringId="vaccine.minDateError"
           fallback="Date cannot be prior to patient date of birth"
-        />,
+          data-testid='translatedtext-nkib' />,
         (value, context) => {
           if (!value) return true;
           const minDate = parse(
@@ -139,7 +142,10 @@ export const VaccineForm = ({
       )
       .test(
         'max',
-        <TranslatedText stringId="vaccine.maxDateError" fallback="Date cannot be in the future" />,
+        <TranslatedText
+          stringId="vaccine.maxDateError"
+          fallback="Date cannot be in the future"
+          data-testid='translatedtext-rure' />,
         value => {
           if (!value) return true;
           const maxDate = new Date();
@@ -246,9 +252,9 @@ export const VaccineForm = ({
           currentUser={currentUser}
           vaccineConsentEnabled={vaccineConsentEnabled}
           initialValues={initialValues}
-        />
+          data-testid='vaccineformcomponent-djg3' />
       )}
-    />
+      data-testid='form-c1bs' />
   );
 };
 
@@ -288,9 +294,14 @@ const VaccineFormComponent = ({
       values={values}
       patientId={patientId}
       setValues={setValues}
-    />
+      data-testid='vaccinegivenform-8mmv' />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
+    <VaccineNotGivenForm
+      {...props}
+      resetForm={resetForm}
+      submitForm={submitForm}
+      values={values}
+      data-testid='vaccinenotgivenform-8wpb' />
   );
 };
 

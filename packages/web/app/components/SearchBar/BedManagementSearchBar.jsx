@@ -51,53 +51,64 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   return (
     <>
       <CustomisableSearchBar
-        title={<TranslatedText stringId="bedManagement.search.title" fallback="Search Locations" />}
+        title={<TranslatedText
+          stringId="bedManagement.search.title"
+          fallback="Search Locations"
+          data-testid='translatedtext-zn2t' />}
         onSearch={onSearch}
         initialValues={searchParameters}
-      >
+        data-testid='customisablesearchbar-xodq'>
         <HandoverNotesButton
           disabled={handoverNotesButtonDisabled}
           startIcon={
-            <HandoverNotesIcon color={searchParameters?.area ? Colors.primary : Colors.softText} />
+            <HandoverNotesIcon
+              color={searchParameters?.area ? Colors.primary : Colors.softText}
+              data-testid='handovernotesicon-d4ts' />
           }
           onClick={handleHandoverNotesButtonClick}
-        >
+          data-testid='handovernotesbutton-40su'>
           {handoverNotesButtonDisabled ? (
             <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="bedManagement.search.handoverNotes.tooltip"
                   fallback="Select an 'Area' to create handover notes"
-                />
+                  data-testid='translatedtext-g7x4' />
               }
-            >
+              data-testid='themedtooltip-25rl'>
               <span>
                 <TranslatedText
                   stringId="bedManagement.search.handoverNotes.button.label"
                   fallback="Handover notes"
-                />
+                  data-testid='translatedtext-7sg3' />
               </span>
             </ThemedTooltip>
           ) : (
             <TranslatedText
               stringId="bedManagement.search.handoverNotes.button.label"
               fallback="Handover notes"
-            />
+              data-testid='translatedtext-94wp' />
           )}
         </HandoverNotesButton>
 
-        <EmptyGridItem />
+        <EmptyGridItem data-testid='emptygriditem-t5fd' />
         <LocalisedField
           name="area"
-          label={<TranslatedText stringId="general.localisedField.area.label" fallback="Area" />}
+          label={<TranslatedText
+            stringId="general.localisedField.area.label"
+            fallback="Area"
+            data-testid='translatedtext-9195' />}
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}
-        />
+          data-testid='localisedfield-rcg5' />
         <LocalisedField
           name="status"
           label={
-            <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
+            <TranslatedText
+              stringId="general.localisedField.status.label"
+              fallback="Status"
+              data-testid='translatedtext-dm7m' />
           }
           size="small"
           component={TranslatedSelectField}
@@ -106,7 +117,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             ...options,
           ]}
           enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
-        />
+          data-testid='localisedfield-vkhx' />
       </CustomisableSearchBar>
       <HandoverNotesModal
         open={handoverNotesModalShown}
@@ -115,7 +126,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         width="md"
         keepMounted
         area={searchParameters?.area}
-      />
+        data-testid='handovernotesmodal-el85' />
     </>
   );
 });

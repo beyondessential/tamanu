@@ -99,7 +99,7 @@ export const JSONEditor = React.memo(
         markers={marker ? [marker] : null}
         wrapEnabled={!editMode}
         {...props}
-      />
+        data-testid='styledjsoneditor-t3jl' />
     );
   },
 );

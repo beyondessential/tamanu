@@ -403,16 +403,19 @@ export const TimeSlotPicker = ({
   const showError = hasAttemptedSubmit && error;
 
   return (
-    <OuterLabelFieldWrapper label={label} required={required}>
+    <OuterLabelFieldWrapper
+      label={label}
+      required={required}
+      data-testid='outerlabelfieldwrapper-u29k'>
       <ToggleGroup
         disabled={disabled}
         value={selectedToggles}
         onChange={handleChange}
         error={showError}
         {...props}
-      >
+        data-testid='togglegroup-fxn9'>
         {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
-          <PlaceholderTimeSlotToggles />
+          <PlaceholderTimeSlotToggles data-testid='placeholdertimeslottoggles-l1fr' />
         ) : (
           timeSlots?.map(timeSlot => {
             const isBooked = bookedIntervals.some(bookedInterval =>
@@ -465,12 +468,12 @@ export const TimeSlotPicker = ({
                 selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={id}
-              />
+                data-testid='timeslottoggle-9o5k' />
             );
           })
         )}
       </ToggleGroup>
-      {showError && <StyledFormHelperText error>{error}</StyledFormHelperText>}
+      {showError && <StyledFormHelperText error data-testid='styledformhelpertext-czb5'>{error}</StyledFormHelperText>}
     </OuterLabelFieldWrapper>
   );
 };

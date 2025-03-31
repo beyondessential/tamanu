@@ -89,7 +89,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) return <LoadingIndicator data-testid='loadingindicator-fndp' />;
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
@@ -107,46 +107,52 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   const sortedData = sortBy(translatedData, c => c.translatedName);
 
   return (
-    <Container>
-      <HeadingContainer>
-        <Heading5>
+    <Container data-testid='container-e9ot'>
+      <HeadingContainer data-testid='headingcontainer-63dn'>
+        <Heading5 data-testid='heading5-qhuo'>
           <TranslatedText
             stringId="programRegistry.relatedConditions.label"
             fallback="Related conditions"
-          />
+            data-testid='translatedtext-tezx' />
         </Heading5>
         <ConditionalTooltip
           title={
             <TranslatedText
               stringId="programRegistry.conditions.patientInactive.tooltip"
               fallback="Patient must be active"
-            />
+              data-testid='translatedtext-vqzq' />
           }
           visible={isRemoved}
-        >
-          <AddConditionButton onClick={() => setOpenAddCondition(true)} disabled={isRemoved}>
+          data-testid='conditionaltooltip-a43q'>
+          <AddConditionButton
+            onClick={() => setOpenAddCondition(true)}
+            disabled={isRemoved}
+            data-testid='addconditionbutton-dpis'>
             <TranslatedText
               stringId="programRegistry.conditions.addCondition.button"
               fallback="+ Add condition"
-            />
+              data-testid='translatedtext-79jd' />
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
       {sortedData.map(condition => (
-        <ConditionContainer key={condition.id}>
+        <ConditionContainer key={condition.id} data-testid='conditioncontainer-ka0k'>
           <ConditionalTooltip
             title={condition.translatedName}
             visible={condition.translatedName?.length > 30}
-          >
-            <ClippedConditionName>{condition.translatedName}</ClippedConditionName>
+            data-testid='conditionaltooltip-9k0h'>
+            <ClippedConditionName data-testid='clippedconditionname-z0wi'>{condition.translatedName}</ClippedConditionName>
           </ConditionalTooltip>
-          <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+          <ConditionalTooltip
+            title="Patient must be active"
+            visible={isRemoved}
+            data-testid='conditionaltooltip-lakj'>
             <IconButton
               style={{ padding: 0 }}
               onClick={() => setConditionToRemove(condition)}
               disabled={isRemoved}
-            >
-              <CloseIcon style={{ fontSize: '14px' }} />
+              data-testid='iconbutton-ft2o'>
+              <CloseIcon style={{ fontSize: '14px' }} data-testid='closeicon-qm8f' />
             </IconButton>
           </ConditionalTooltip>
         </ConditionContainer>
@@ -160,7 +166,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           }))}
           programRegistryConditions={programRegistryConditions}
           open
-        />
+          data-testid='addconditionformmodal-wa4w' />
       )}
       {conditionToRemove && (
         <RemoveConditionFormModal
@@ -169,7 +175,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           onSubmit={() => setConditionToRemove(undefined)}
           onCancel={() => setConditionToRemove(undefined)}
           open
-        />
+          data-testid='removeconditionformmodal-g7vx' />
       )}
     </Container>
   );

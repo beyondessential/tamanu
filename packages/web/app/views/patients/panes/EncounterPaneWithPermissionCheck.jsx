@@ -34,12 +34,12 @@ export const EncounterPaneWithPermissionCheck = ({ children, permissionNoun }) =
   return hasPermission ? (
     children
   ) : (
-    <Container>
-      <Content>
+    <Container data-testid='container-8nih'>
+      <Content data-testid='content-2kuh'>
         <TranslatedText
           stringId="encounter.pane.notPermittedText"
           fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
-        />
+          data-testid='translatedtext-96zt' />
       </Content>
     </Container>
   );

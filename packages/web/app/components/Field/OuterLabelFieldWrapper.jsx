@@ -26,7 +26,10 @@ const Icon = styled.i`
 `;
 
 const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+  <Tooltip
+    classes={{ popper: props.className }}
+    {...props}
+    data-testid='tooltip-vm4x'>
     {props.children}
   </Tooltip>
 ))`
@@ -53,14 +56,21 @@ export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(({ children, required, label, infoTooltip, style, className, size }, ref) => (
     <div style={style} className={className} ref={ref}>
       {label && (
-        <OuterLabel className="label-field" size={size}>
+        <OuterLabel className="label-field" size={size} data-testid='outerlabel-5g8s'>
           {label}
-          {required && <OuterLabelRequired>*</OuterLabelRequired>}
+          {required && <OuterLabelRequired data-testid='outerlabelrequired-bywb'>*</OuterLabelRequired>}
         </OuterLabel>
       )}
       {infoTooltip && (
-        <StyledTooltip arrow placement="top" title={infoTooltip}>
-          <Icon className="fa fa-info-circle" color={Colors.softText} />
+        <StyledTooltip
+          arrow
+          placement="top"
+          title={infoTooltip}
+          data-testid='styledtooltip-pmvq'>
+          <Icon
+            className="fa fa-info-circle"
+            color={Colors.softText}
+            data-testid='icon-gd4a' />
         </StyledTooltip>
       )}
       {children}

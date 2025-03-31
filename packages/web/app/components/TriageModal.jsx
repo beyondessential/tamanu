@@ -51,8 +51,8 @@ const DetailValue = styled.span`
 const DETAILS_FIELD_DEFINITIONS = [
   ['firstName', 'First name'],
   ['lastName', 'Last name'],
-  ['sex', 'Sex', ({ sex }) => <TranslatedSex sex={sex} />],
-  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
+  ['sex', 'Sex', ({ sex }) => <TranslatedSex sex={sex} data-testid='translatedsex-eirc' />],
+  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid='datedisplay-78pn' />],
 ];
 
 export const TriageModal = React.memo(
@@ -63,32 +63,38 @@ export const TriageModal = React.memo(
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
       ([name]) => getSetting(`fields.${name}.hidden`) !== true,
     ).map(([name, label, accessor]) => (
-      <React.Fragment key={name}>
-        <DetailLabel>
-          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={label} />:
+      <React.Fragment key={name} data-testid='fragment-oz4x'>
+        <DetailLabel data-testid='detaillabel-l4mb'>
+          <TranslatedText
+            stringId={`general.localisedFields.${name}.label`}
+            fallback={label}
+            data-testid='translatedtext-ef2v' />:
         </DetailLabel>
-        <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+        <DetailValue data-testid='detailvalue-lsjb'>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));
 
     return (
       <FormModal
         title={
-          <TranslatedText stringId="patient.modal.triage.title" fallback="New emergency triage" />
+          <TranslatedText
+            stringId="patient.modal.triage.title"
+            fallback="New emergency triage"
+            data-testid='translatedtext-3ejb' />
         }
         open={open}
         width="md"
         onClose={onClose}
-      >
-        <Header>
+        data-testid='formmodal-v42d'>
+        <Header data-testid='header-fvav'>
           <TranslatedText
             stringId="patient.modal.triage.patientDetails.heading"
             fallback="Patient details"
-          />
+            data-testid='translatedtext-kxn4' />
         </Header>
-        <PatientDetails>
-          <Grid>{detailsFields}</Grid>
-          <DisplayIdLabel>{displayId}</DisplayIdLabel>
+        <PatientDetails data-testid='patientdetails-pdbh'>
+          <Grid data-testid='grid-jaa1'>{detailsFields}</Grid>
+          <DisplayIdLabel data-testid='displayidlabel-upiz'>{displayId}</DisplayIdLabel>
         </PatientDetails>
         <TriageForm
           onSubmitEncounter={onSubmitEncounter}
@@ -96,7 +102,7 @@ export const TriageModal = React.memo(
           onCancel={onClose}
           patient={patient}
           initialValues={initialValues}
-        />
+          data-testid='triageform-ldgl' />
       </FormModal>
     );
   },

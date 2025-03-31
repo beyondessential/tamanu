@@ -18,14 +18,17 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
   const isLoading =
     isPatientLoading || (isVillageEnabled && isVillageLoading) || isCertificateFetching;
   return (
-    <PDFLoader isLoading={isLoading} id="imaging-request-printout">
+    <PDFLoader
+      isLoading={isLoading}
+      id="imaging-request-printout"
+      data-testid='pdfloader-fwti'>
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
         patient={{ ...patient, village }}
         encounter={encounter}
         imagingRequests={imagingRequests}
         certificateData={certificateData}
-      />
+        data-testid='multipleimagingrequestsprintout-mc0g' />
     </PDFLoader>
   );
 };
@@ -41,7 +44,7 @@ export const MultipleImagingRequestsPrintoutModal = ({
         <TranslatedText
           stringId="imaging.modal.printMultiple.title"
           fallback="Print imaging request/s"
-        />
+          data-testid='translatedtext-svux' />
       }
       width="md"
       open={open}
@@ -49,8 +52,11 @@ export const MultipleImagingRequestsPrintoutModal = ({
       color={Colors.white}
       printable
       onPrint={() => printPDF('imaging-request-printout')}
-    >
-      <MultipleImagingRequestsWrapper encounter={encounter} imagingRequests={imagingRequests} />
+      data-testid='modal-9574'>
+      <MultipleImagingRequestsWrapper
+        encounter={encounter}
+        imagingRequests={imagingRequests}
+        data-testid='multipleimagingrequestswrapper-igip' />
     </Modal>
   );
 };

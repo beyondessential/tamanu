@@ -108,78 +108,83 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     <Modal
       title={
         <>
-          <TranslatedText stringId="programRegistry.activate.title" fallback="Activate" />{' '}
+          <TranslatedText
+            stringId="programRegistry.activate.title"
+            fallback="Activate"
+            data-testid='translatedtext-n29q' />{' '}
           <TranslatedReferenceData
             fallback={patientProgramRegistration.programRegistry.name}
             value={patientProgramRegistration.programRegistry.id}
             category="programRegistry"
-          />
+            data-testid='translatedreferencedata-cvni' />
         </>
       }
       open={open}
       width="md"
       onClose={onClose}
       overrideContentPadding
-    >
+      data-testid='modal-zeab'>
       <Form
         showInlineErrorsOnly
         onSubmit={activate}
         render={({ submitForm }) => {
           return (
             <div>
-              <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
+              <FormGrid
+                style={{ paddingLeft: '32px', paddingRight: '32px' }}
+                data-testid='formgrid-9f1e'>
+                <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-4pzw'>
                   <Field
                     name="date"
                     label={
                       <TranslatedText
                         stringId="programRegistry.registrationDate.label"
                         fallback="Date of registration"
-                      />
+                        data-testid='translatedtext-yuoi' />
                     }
                     saveDateAsString
                     component={DateField}
                     required
-                  />
+                    data-testid='field-tch8' />
                   <Field
                     name="clinicianId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.registeredBy.label"
                         fallback="Registered by"
-                      />
+                        data-testid='translatedtext-mlof' />
                     }
                     component={AutocompleteField}
                     suggester={registeredBySuggester}
                     required
-                  />
+                    data-testid='field-w7w6' />
                 </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
+                <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-rptq'>
                   <Field
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.registeringFacility.label"
                         fallback="Registering facility"
-                      />
+                        data-testid='translatedtext-36x6' />
                     }
                     component={AutocompleteField}
                     suggester={registeringFacilitySuggester}
                     required
-                  />
+                    data-testid='field-w9lw' />
                   <Field
                     name="clinicalStatusId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
-                      />
+                        data-testid='translatedtext-3n56' />
                     }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
-                  />
+                    data-testid='field-a2v3' />
                 </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
+                <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-jcc7'>
                   <FieldWithTooltip
                     disabledTooltipText={
                       !conditions
@@ -191,7 +196,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       <TranslatedText
                         stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
-                      />
+                        data-testid='translatedtext-6uhn' />
                     }
                     placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
@@ -201,7 +206,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                           fallback={condition.name}
                           value={condition.id}
                           category="prCondition"
-                        />
+                          data-testid='translatedreferencedata-cv46' />
                       ),
                       value: condition.id,
                       searchString: getTranslation(
@@ -210,7 +215,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       ),
                     }))}
                     disabled={!conditions || conditions.length === 0}
-                  />
+                    data-testid='fieldwithtooltip-h76w' />
                 </FormGrid>
               </FormGrid>
               <Divider
@@ -219,12 +224,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                   marginTop: '30px',
                   marginBottom: '30px',
                 }}
-              />
+                data-testid='divider-xakk' />
               <ConfirmCancelRow
                 style={{ paddingLeft: '32px', paddingRight: '32px' }}
                 onCancel={onClose}
                 onConfirm={submitForm}
-              />
+                data-testid='confirmcancelrow-fucf' />
             </div>
           );
         }}
@@ -246,7 +251,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
             getTranslation('validation.required.inline', '*Required'),
           ),
         })}
-      />
+        data-testid='form-4kxt' />
     </Modal>
   );
 };

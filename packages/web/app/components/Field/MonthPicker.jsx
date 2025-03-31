@@ -162,6 +162,6 @@ export const MonthPicker = ({
       maxDate={maxDate}
       value={value}
       {...props}
-    />
+      data-testid='styleddatepicker-urfj' />
   );
 };

@@ -191,9 +191,9 @@ export const EditorView = memo(
 
     return (
       <>
-        <SettingsWrapper>
-          <CategoryOptions p={2}>
-            <Box display="flex" alignItems="center">
+        <SettingsWrapper data-testid='settingswrapper-bfnb'>
+          <CategoryOptions p={2} data-testid='categoryoptions-0h2x'>
+            <Box display="flex" alignItems="center" data-testid='box-e25e'>
               <StyledSelectInput
                 required
                 placeholder=""
@@ -201,52 +201,58 @@ export const EditorView = memo(
                   <TranslatedText
                     stringId="admin.settings.category.label"
                     fallback="Select category"
-                  />
+                    data-testid='translatedtext-65vi' />
                 }
                 value={category}
                 onChange={handleChangeCategory}
                 options={categoryOptions}
-              />
+                data-testid='styledselectinput-kvyx' />
               {subCategoryOptions && (
-                <Box ml={2}>
+                <Box ml={2} data-testid='box-o82k'>
                   <StyledDynamicSelectField
                     label={
                       <TranslatedText
                         stringId="admin.settings.subCategory.label"
                         fallback="Select sub-category"
-                      />
+                        data-testid='translatedtext-i0zl' />
                     }
                     placeholder=""
                     value={subCategory}
                     onChange={handleChangeSubcategory}
                     options={subCategoryOptions}
-                  />
+                    data-testid='styleddynamicselectfield-d62r' />
                 </Box>
               )}
             </Box>
-            <ButtonGroup>
-              <OutlinedButton onClick={() => resetForm()} disabled={!dirty}>
+            <ButtonGroup data-testid='buttongroup-oe3l'>
+              <OutlinedButton
+                onClick={() => resetForm()}
+                disabled={!dirty}
+                data-testid='outlinedbutton-mhaq'>
                 <TranslatedText
                   stringId="admin.settings.action.clearChanges"
                   fallback="Clear changes"
-                />
+                  data-testid='translatedtext-pj7p' />
               </OutlinedButton>
-              <Button onClick={saveSettings} disabled={!dirty || isSubmitting}>
+              <Button
+                onClick={saveSettings}
+                disabled={!dirty || isSubmitting}
+                data-testid='button-s1z4'>
                 <TranslatedText
                   stringId="admin.settings.action.saveChanges"
                   fallback="Save changes"
-                />
+                  data-testid='translatedtext-yd0s' />
               </Button>
             </ButtonGroup>
           </CategoryOptions>
-          <Divider />
+          <Divider data-testid='divider-tp55' />
           {category && (
-            <CategoriesWrapper p={2}>
+            <CategoriesWrapper p={2} data-testid='categorieswrapper-0ae4'>
               <Category
                 schema={schemaForCategory}
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
-              />
+                data-testid='category-cbjk' />
             </CategoriesWrapper>
           )}
         </SettingsWrapper>

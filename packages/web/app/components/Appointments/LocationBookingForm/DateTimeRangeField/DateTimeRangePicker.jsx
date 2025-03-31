@@ -10,11 +10,17 @@ import { TIME_SLOT_PICKER_VARIANTS } from './constants';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,
-  datePickerLabel = <TranslatedText stringId="general.date.label" fallback="Date" />,
+  datePickerLabel = <TranslatedText
+    stringId="general.date.label"
+    fallback="Date"
+    data-testid='translatedtext-m27g' />,
   datePickerName,
   disabled = false,
   required,
-  timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
+  timePickerLabel = <TranslatedText
+    stringId="general.time.label"
+    fallback="Time"
+    data-testid='translatedtext-pvp4' />,
   ...props
 }) => {
   const { setFieldValue, values } = useFormikContext();
@@ -51,7 +57,7 @@ export const DateTimeRangePicker = ({
         required={required}
         saveDateAsString
         {...props}
-      />
+        data-testid='field-ui1x' />
       <TimeSlotPicker
         date={isValidDate ? dateFieldValue : null}
         disabled={disabled || !hasSelectedLocation || !isValidDate}
@@ -59,7 +65,7 @@ export const DateTimeRangePicker = ({
         label={timePickerLabel}
         required={required}
         variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
-      />
+        data-testid='timeslotpicker-1tfi' />
     </>
   );
 };

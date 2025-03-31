@@ -14,8 +14,12 @@ export const InfoModal = React.memo(({ children, width }) => {
 
   return (
     <>
-      <InfoButton onClick={() => setOpen(true)} />
-      <Modal open={isOpen} width={width} onClose={() => setOpen(false)}>
+      <InfoButton onClick={() => setOpen(true)} data-testid='infobutton-n1y2' />
+      <Modal
+        open={isOpen}
+        width={width}
+        onClose={() => setOpen(false)}
+        data-testid='modal-1xhf'>
         {children}
       </Modal>
     </>
@@ -23,7 +27,7 @@ export const InfoModal = React.memo(({ children, width }) => {
 });
 
 export const ImageInfoModal = React.memo(({ src }) => (
-  <InfoModal width="lg">
-    <FullSizeImg src={src} />
+  <InfoModal width="lg" data-testid='infomodal-5px1'>
+    <FullSizeImg src={src} data-testid='fullsizeimg-pxs4' />
   </InfoModal>
 ));

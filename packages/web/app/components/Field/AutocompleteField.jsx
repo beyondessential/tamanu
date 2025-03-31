@@ -296,15 +296,15 @@ export class AutocompleteInput extends Component {
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
     return (
-      <Item selected={isHighlighted} component="div">
-        <Typography variant="body2">
+      <Item selected={isHighlighted} component="div" data-testid='item-ttpg'>
+        <Typography variant="body2" data-testid='typography-qxy3'>
           {isCustomizedOption ? (
             <>
               &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
-              />
+                data-testid='translatedtext-cdcb' />
               )
             </>
           ) : (
@@ -312,7 +312,10 @@ export class AutocompleteInput extends Component {
           )}
         </Typography>
         {tag && (
-          <OptionTag $background={tag.background} $color={tag.color}>
+          <OptionTag
+            $background={tag.background}
+            $color={tag.color}
+            data-testid='optiontag-quv2'>
             {tag.label}
           </OptionTag>
         )}
@@ -330,14 +333,14 @@ export class AutocompleteInput extends Component {
         anchorEl={this.anchorEl}
         open={!!option.children}
         placement="bottom-start"
-      >
+        data-testid='suggestionscontainer-g6eb'>
         <SuggestionsList
           {...option.containerProps}
           size={size}
           $multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
-        >
+          data-testid='suggestionslist-g0gk'>
           {option.children}
         </SuggestionsList>
       </SuggestionsContainer>
@@ -368,7 +371,7 @@ export class AutocompleteInput extends Component {
         className={className}
         infoTooltip={infoTooltip}
         size={size}
-      >
+        data-testid='outerlabelfieldwrapper-cye7'>
         <StyledTextField
           variant="outlined"
           size={size}
@@ -377,13 +380,16 @@ export class AutocompleteInput extends Component {
             endAdornment: (
               <>
                 {tag && (
-                  <SelectTag $background={tag.background} $color={tag.color}>
+                  <SelectTag
+                    $background={tag.background}
+                    $color={tag.color}
+                    data-testid='selecttag-0nyd'>
                     {tag.label}
                   </SelectTag>
                 )}
                 {value && !disabled && (
-                  <StyledIconButton onClick={this.handleClearValue}>
-                    <StyledClearIcon />
+                  <StyledIconButton onClick={this.handleClearValue} data-testid='stylediconbutton-769n'>
+                    <StyledClearIcon data-testid='styledclearicon-26j6' />
                   </StyledIconButton>
                 )}
                 <Icon
@@ -392,8 +398,8 @@ export class AutocompleteInput extends Component {
                     event.preventDefault();
                     this.anchorEl.click();
                   }}
-                >
-                  {suggestions.length > 0 ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  data-testid='icon-nvwe'>
+                  {suggestions.length > 0 ? <ExpandLessIcon data-testid='expandlessicon-ceh2' /> : <ExpandMoreIcon data-testid='expandmoreicon-a4eo' />}
                 </Icon>
               </>
             ),
@@ -402,7 +408,7 @@ export class AutocompleteInput extends Component {
           value={value}
           disabled={disabled}
           {...other}
-        />
+          data-testid='styledtextfield-7a3b' />
       </OuterLabelFieldWrapper>
     );
   };
@@ -423,7 +429,7 @@ export class AutocompleteInput extends Component {
 
   renderSectionTitle = section => {
     const { getSectionTitle } = this.props;
-    return <SectionTitle>{getSectionTitle(section)}</SectionTitle>;
+    return <SectionTitle data-testid='sectiontitle-a46q'>{getSectionTitle(section)}</SectionTitle>;
   };
 
   render() {
@@ -474,7 +480,7 @@ export class AutocompleteInput extends Component {
             onChange: this.handleInputChange,
             inputRef,
           }}
-        />
+          data-testid='autosuggest-1m4v' />
       </>
     );
   }
@@ -534,5 +540,5 @@ export const AutocompleteField = ({ field, ...props }) => (
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
-  />
+    data-testid='autocompleteinput-fezv' />
 );

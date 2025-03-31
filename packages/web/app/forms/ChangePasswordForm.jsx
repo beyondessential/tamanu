@@ -95,26 +95,32 @@ const ChangePasswordFormComponent = ({
   const { getTranslation } = useTranslation();
 
   return (
-    <FormGrid columns={1}>
-      <FormTitleSection>
-        <FormHeading>
-          <TranslatedText stringId="resetPassword.heading" fallback="Reset password" />
+    <FormGrid columns={1} data-testid='formgrid-md71'>
+      <FormTitleSection data-testid='formtitlesection-spnn'>
+        <FormHeading data-testid='formheading-8281'>
+          <TranslatedText
+            stringId="resetPassword.heading"
+            fallback="Reset password"
+            data-testid='translatedtext-vjh4' />
         </FormHeading>
-        <FormSubtext>
+        <FormSubtext data-testid='formsubtext-k9rz'>
           <TranslatedText
             stringId="resetPassword.message"
             fallback="An email has been sent to the specified email address if it is registered with.
           Please follow the instructions outlined in the email."
-          />
+            data-testid='translatedtext-4xem' />
         </FormSubtext>
-        {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
+        {!!errorMessage && <FormSubtext data-testid='formsubtext-a66n'>{errorMessage}</FormSubtext>}
       </FormTitleSection>
-      <FieldContainer>
+      <FieldContainer data-testid='fieldcontainer-t25u'>
         <Field
           autoComplete="one-time-code"
           name="token"
           type="text"
-          label={<TranslatedText stringId="resetPassword.resetCode.label" fallback="Reset code" />}
+          label={<TranslatedText
+            stringId="resetPassword.resetCode.label"
+            fallback="Reset code"
+            data-testid='translatedtext-dvan' />}
           required
           component={TextField}
           placeholder={getTranslation('resetPassword.resetCode.placeholder', 'Enter reset code')}
@@ -123,13 +129,16 @@ const ChangePasswordFormComponent = ({
               setFieldError('token', '');
             }
           }}
-        />
-        <HorizontalDivider />
+          data-testid='field-tzs8' />
+        <HorizontalDivider data-testid='horizontaldivider-sov1' />
         <Field
           name="newPassword"
           type="password"
           label={
-            <TranslatedText stringId="resetPassword.newPassword.label" fallback="New password" />
+            <TranslatedText
+              stringId="resetPassword.newPassword.label"
+              fallback="New password"
+              data-testid='translatedtext-wkys' />
           }
           required
           component={TextField}
@@ -140,7 +149,7 @@ const ChangePasswordFormComponent = ({
             }
           }}
           autoComplete="new-password"
-        />
+          data-testid='field-wpnd' />
         <Field
           autoComplete="new-password"
           name="confirmNewPassword"
@@ -149,7 +158,7 @@ const ChangePasswordFormComponent = ({
             <TranslatedText
               stringId="resetPassword.confirmNewPassword.label"
               fallback="Confirm new password"
-            />
+              data-testid='translatedtext-aulk' />
           }
           required
           component={TextField}
@@ -162,14 +171,23 @@ const ChangePasswordFormComponent = ({
               setFieldError('confirmNewPassword', '');
             }
           }}
-        />
+          data-testid='field-vb47' />
       </FieldContainer>
-      <ActionButtonContainer>
-        <ChangePasswordButton type="submit">
-          <TranslatedText stringId="resetPassword.resetPassword.label" fallback="Reset password" />
+      <ActionButtonContainer data-testid='actionbuttoncontainer-jf25'>
+        <ChangePasswordButton type="submit" data-testid='changepasswordbutton-wc0g'>
+          <TranslatedText
+            stringId="resetPassword.resetPassword.label"
+            fallback="Reset password"
+            data-testid='translatedtext-oklq' />
         </ChangePasswordButton>
-        <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-          <TranslatedText stringId="resetPassword.backToLogin.label" fallback="Back to login" />
+        <BackToLoginButton
+          onClick={onNavToLogin}
+          variant="outlined"
+          data-testid='backtologinbutton-ywhg'>
+          <TranslatedText
+            stringId="resetPassword.backToLogin.label"
+            fallback="Back to login"
+            data-testid='translatedtext-li1f' />
         </BackToLoginButton>
       </ActionButtonContainer>
       <ResendCodeButton
@@ -177,11 +195,11 @@ const ChangePasswordFormComponent = ({
           onRestartFlow();
           onNavToResetPassword();
         }}
-      >
+        data-testid='resendcodebutton-bfz0'>
         <TranslatedText
           stringId="resetPassword.resendResetCode.label"
           fallback="Resend reset code"
-        />
+          data-testid='translatedtext-qcpj' />
       </ResendCodeButton>
     </FormGrid>
   );
@@ -209,31 +227,39 @@ export const ChangePasswordForm = React.memo(
         onValidateResetCode={onValidateResetCode}
         setFieldError={setFieldError}
         errors={errors}
-      />
+        data-testid='changepasswordformcomponent-4brl' />
     );
 
     if (success) {
       return (
-        <FormGrid columns={1}>
-          <IconContainer>
+        <FormGrid columns={1} data-testid='formgrid-n9yn'>
+          <IconContainer data-testid='iconcontainer-cvn0'>
             <img src={ApprovedIcon} alt="Circle check" />
           </IconContainer>
           <div>
-            <FormHeading>
+            <FormHeading data-testid='formheading-ilti'>
               <TranslatedText
                 stringId="resetPassword.success.heading"
                 fallback="Password successfully reset"
-              />
+                data-testid='translatedtext-nsum' />
             </FormHeading>
-            <SuccessSubtext>
+            <SuccessSubtext data-testid='successsubtext-zfgd'>
               <TranslatedText
                 stringId="resetPassword.success.subHeading"
                 fallback="Your password has been successfully reset"
-              />
+                data-testid='translatedtext-89z8' />
             </SuccessSubtext>
           </div>
-          <BackToLoginButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
-            <TranslatedText stringId="resetPassword.backToLogin.label" fallback="Back to login" />
+          <BackToLoginButton
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={onNavToLogin}
+            data-testid='backtologinbutton-6h27'>
+            <TranslatedText
+              stringId="resetPassword.backToLogin.label"
+              fallback="Back to login"
+              data-testid='translatedtext-t1cs' />
           </BackToLoginButton>
         </FormGrid>
       );
@@ -293,7 +319,7 @@ export const ChangePasswordForm = React.memo(
             .required(getTranslation('validation.required.inline', '*Required')),
         })}
         suppressErrorDialog
-      />
+        data-testid='form-xain' />
     );
   },
 );

@@ -21,8 +21,11 @@ const ErrorText = styled(SmallText)`
 `;
 
 const StatsError = () => (
-  <ErrorText color="error">
-    <TranslatedText stringId="table.refreshSchedule.error" fallback="Error loading stats" />
+  <ErrorText color="error" data-testid='errortext-ogx7'>
+    <TranslatedText
+      stringId="table.refreshSchedule.error"
+      fallback="Error loading stats"
+      data-testid='translatedtext-r19d' />
   </ErrorText>
 );
 
@@ -57,24 +60,28 @@ export const UpdateStatsDisplay = ({
 
   if (!lastUpdated) return null;
   return (
-    <Box display="flex" flexDirection="column" alignItems="flex-end">
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="flex-end"
+      data-testid='box-yq69'>
       {error ? (
-        <StatsError />
+        <StatsError data-testid='statserror-vs5g' />
       ) : (
         <>
-          <SmallText color="textTertiary">
+          <SmallText color="textTertiary" data-testid='smalltext-jilp'>
             <TranslatedText
               stringId="table.refreshSchedule.lastUpdated"
               fallback="Last updated: :lastUpdated"
               replacements={{ lastUpdated }}
-            />
+              data-testid='translatedtext-egj4' />
           </SmallText>
-          <SoftText>
+          <SoftText data-testid='softtext-o3x9'>
             <TranslatedText
               stringId="table.refreshSchedule.schedule"
               fallback="Updated :schedule"
               replacements={{ schedule: parsedSchedule.toLowerCase() }}
-            />
+              data-testid='translatedtext-un1s' />
           </SoftText>
         </>
       )}

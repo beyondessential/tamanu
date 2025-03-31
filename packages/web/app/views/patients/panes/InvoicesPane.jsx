@@ -9,8 +9,8 @@ const ContentPane = styled.div`
 export const InvoicesPane = React.memo(({ patient }) => {
   return (
     <>
-      <ContentPane>
-        <InvoicesTable patient={patient} />
+      <ContentPane data-testid='contentpane-0ruz'>
+        <InvoicesTable patient={patient} data-testid='invoicestable-c1ar' />
       </ContentPane>
     </>
   );

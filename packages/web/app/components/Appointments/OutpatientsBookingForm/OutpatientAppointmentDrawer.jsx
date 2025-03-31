@@ -72,7 +72,7 @@ const getDescription = (isEdit, isLockedPatient) => {
       <TranslatedText
         stringId="outpatientAppointment.form.edit.description"
         fallback="Modify the selected appointment below."
-      />
+        data-testid='translatedtext-uafv' />
     );
   }
 
@@ -81,7 +81,7 @@ const getDescription = (isEdit, isLockedPatient) => {
       <TranslatedText
         stringId="outpatientAppointment.form.newForPatient.description"
         fallback="Complete appointment details below to create a new appointment for the selected patient."
-      />
+        data-testid='translatedtext-pjmv' />
     );
   }
 
@@ -89,7 +89,7 @@ const getDescription = (isEdit, isLockedPatient) => {
     <TranslatedText
       stringId="outpatientAppointment.form.new.description"
       fallback="Select a patient from the below list and add relevant appointment details to create a new appointment."
-    />
+      data-testid='translatedtext-epcp' />
   );
 };
 
@@ -104,31 +104,34 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         <TranslatedText
           stringId="outpatientAppointments.cancelWarningModal.title"
           fallback="Cancel appointment modification"
-        />
+          data-testid='translatedtext-invo' />
       }
       subText={
         <TranslatedText
           stringId="outpatientAppointments.cancelWarningModal.subtext"
           fallback="Are you sure you would like to cancel modifying the appointment?"
-        />
+          data-testid='translatedtext-4bt3' />
       }
       open={open}
       onConfirm={() => {
         handleClose(true);
       }}
       cancelButtonText={
-        <TranslatedText stringId="appointments.action.backToEditing" fallback="Back to editing" />
+        <TranslatedText
+          stringId="appointments.action.backToEditing"
+          fallback="Back to editing"
+          data-testid='translatedtext-7b8p' />
       }
       confirmButtonText={
         <TranslatedText
           stringId="appointments.action.cancelModification"
           fallback="Cancel modification"
-        />
+          data-testid='translatedtext-rfq5' />
       }
       onCancel={() => {
         handleClose(false);
       }}
-    />
+      data-testid='confirmmodal-x4hg' />
   );
 };
 
@@ -137,12 +140,12 @@ const SuccessMessage = ({ isEdit = false }) => {
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
       fallback="Appointment successfully modified"
-    />
+      data-testid='translatedtext-aqt6' />
   ) : (
     <TranslatedText
       stringId="outpatientAppointment.notification.create.success"
       fallback="Appointment successfully created"
-    />
+      data-testid='translatedtext-mnyi' />
   );
 };
 
@@ -152,13 +155,13 @@ const ErrorMessage = ({ isEdit = false, error }) => {
       stringId="outpatientAppointment.notification.edit.error"
       fallback="Failed to edit appointment with error: :error"
       replacements={{ error: error.message }}
-    />
+      data-testid='translatedtext-91gu' />
   ) : (
     <TranslatedText
       stringId="outpatientAppointment.notification.create.error"
       fallback="Failed to create appointment with error: :error"
       replacements={{ error: error.message }}
-    />
+      data-testid='translatedtext-p7ph' />
   );
 };
 
@@ -177,22 +180,25 @@ const EmailFields = ({ patientId }) => {
       <Field
         name="email"
         label={
-          <TranslatedText stringId="appointment.emailAddress.label" fallback="Email address" />
+          <TranslatedText
+            stringId="appointment.emailAddress.label"
+            fallback="Email address"
+            data-testid='translatedtext-7bci' />
         }
         required
         component={TextField}
-      />
+        data-testid='field-bnf9' />
       <Field
         name="confirmEmail"
         label={
           <TranslatedText
             stringId="appointment.confirmEmailAddress.label"
             fallback="Confirm email address"
-          />
+            data-testid='translatedtext-em08' />
         }
         required
         component={TextField}
-      />
+        data-testid='field-2bi5' />
     </>
   );
 };
@@ -377,20 +383,23 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             <TranslatedText
               stringId="outpatientAppointment.form.edit.heading"
               fallback="Modify outpatient appointment"
-            />
+              data-testid='translatedtext-ewkn' />
           ) : (
             <TranslatedText
               stringId="outpatientAppointment.form.new.heading"
               fallback="New outpatient appointment"
-            />
+              data-testid='translatedtext-ybqa' />
           )
         }
         description={getDescription(isEdit, isLockedPatient)}
-      >
-        <FormGrid columns={1}>
+        data-testid='drawer-iph2'>
+        <FormGrid columns={1} data-testid='formgrid-riga'>
           <Field
             name="patientId"
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            label={<TranslatedText
+              stringId="general.form.patient.label"
+              fallback="Patient"
+              data-testid='translatedtext-xoq8' />}
             placeholder={getTranslation(
               'scheduling.filter.placeholder.patientNameOrId',
               'Search patient name or ID',
@@ -399,79 +408,88 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             suggester={patientSuggester}
             disabled={isLockedPatient}
             required
-          />
+            data-testid='field-peaf' />
           <Field
             label={
               <TranslatedText
                 stringId="general.localisedField.locationGroupId.label"
                 fallback="Area"
-              />
+                data-testid='translatedtext-i56k' />
             }
             name="locationGroupId"
             component={AutocompleteField}
             suggester={locationGroupSuggester}
             required
-          />
+            data-testid='field-gudr' />
           <Field
             name="appointmentTypeId"
             label={
               <TranslatedText
                 stringId="appointment.appointmentType.label"
                 fallback="Appointment type"
-              />
+                data-testid='translatedtext-erlj' />
             }
             component={DynamicSelectField}
             suggester={appointmentTypeSuggester}
             required
-          />
+            data-testid='field-djha' />
           <Field
             name="clinicianId"
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
-              />
+                data-testid='translatedtext-8he8' />
             }
             component={AutocompleteField}
             suggester={clinicianSuggester}
-          />
-          <DateTimeFieldWithSameDayWarning isEdit={isEdit} onChange={handleUpdateStartTime} />
+            data-testid='field-nyxe' />
+          <DateTimeFieldWithSameDayWarning
+            isEdit={isEdit}
+            onChange={handleUpdateStartTime}
+            data-testid='datetimefieldwithsamedaywarning-bh9y' />
           <Field
             name="endTime"
             disabled={!values.startTime}
             date={values.startTime && parseISO(values.startTime)}
-            label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+            label={<TranslatedText
+              stringId="general.endTime.label"
+              fallback="End time"
+              data-testid='translatedtext-s9qy' />}
             component={TimeWithFixedDateField}
             saveDateAsString
-          />
+            data-testid='field-6mrp' />
           <Field
             name="isHighPriority"
             style={{ width: 'fit-content' }}
             label={
-              <IconLabel>
-                <TranslatedText stringId="general.highPriority.label" fallback="High priority" />
+              <IconLabel data-testid='iconlabel-ijml'>
+                <TranslatedText
+                  stringId="general.highPriority.label"
+                  fallback="High priority"
+                  data-testid='translatedtext-wk0x' />
                 <HighPriorityIcon
                   aria-label="High priority"
                   aria-hidden={undefined}
                   htmlColor={Colors.alert}
                   style={{ fontSize: 18 }}
-                />
+                  data-testid='highpriorityicon-i0bk' />
               </IconLabel>
             }
             component={CheckField}
-          />
+            data-testid='field-vyk1' />
           <Field
             name="shouldEmailAppointment"
             label={
               <TranslatedText
                 stringId="appointment.emailAppointment.label"
                 fallback="Email appointment"
-              />
+                data-testid='translatedtext-edpi' />
             }
             component={CheckField}
             onChange={handleResetEmailFields}
-          />
-          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
+            data-testid='field-160d' />
+          {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} data-testid='emailfields-eexe' />}
           {!hideIsRepeatingToggle && (
             <Field
               name="isRepeatingAppointment"
@@ -482,10 +500,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
                 <TranslatedText
                   stringId="appointment.isRepeatingAppointment.label"
                   fallback="Repeating appointment"
-                />
+                  data-testid='translatedtext-e4lo' />
               }
               component={SwitchField}
-            />
+              data-testid='field-chv4' />
           )}
           {values.schedule && (
             <RepeatingAppointmentFields
@@ -495,9 +513,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
               readonly={modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT}
-            />
+              data-testid='repeatingappointmentfields-xd2i' />
           )}
-          <FormSubmitCancelRow onCancel={warnAndResetForm} />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid='formsubmitcancelrow-r1ru' />
         </FormGrid>
       </Drawer>
     );
@@ -511,11 +529,11 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const { mutateAsync: handleSubmit } = useAppointmentMutation(initialValues.id, {
     onSuccess: () => {
-      notifySuccess(<SuccessMessage isEdit={isEdit} />);
+      notifySuccess(<SuccessMessage isEdit={isEdit} data-testid='successmessage-0rtl' />);
       onClose();
     },
     onError: error => {
-      notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
+      notifyError(<ErrorMessage isEdit={isEdit} error={error} data-testid='errormessage-26wp' />);
     },
   });
 
@@ -535,12 +553,12 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         initialValues={initialValues}
         enableReinitialize
         render={renderForm}
-      />
+        data-testid='form-mvw4' />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-      />
+        data-testid='warningmodal-h7ov' />
     </>
   );
 };

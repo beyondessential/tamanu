@@ -17,8 +17,8 @@ const StyledButtonRow = styled.div`
 `;
 
 const CloseButtonRow = ({ onClose }) => (
-  <StyledButtonRow>
-    <OutlinedButton variant="contained" onClick={onClose}>
+  <StyledButtonRow data-testid='styledbuttonrow-xyl4'>
+    <OutlinedButton variant="contained" onClick={onClose} data-testid='outlinedbutton-2myt'>
       Close
     </OutlinedButton>
   </StyledButtonRow>
@@ -29,8 +29,8 @@ export const ReportAboutModal = ({ title, open, onClose, content }) => (
     open={open}
     onClose={onClose}
     fixedBottomRow
-    bottomRowContent={<CloseButtonRow onClose={onClose} />}
-  >
-    <TextContainer>{content}</TextContainer>
+    bottomRowContent={<CloseButtonRow onClose={onClose} data-testid='closebuttonrow-0q3h' />}
+    data-testid='modal-oo22'>
+    <TextContainer data-testid='textcontainer-qqsq'>{content}</TextContainer>
   </Modal>
 );

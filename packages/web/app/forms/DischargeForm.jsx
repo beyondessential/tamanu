@@ -96,10 +96,13 @@ const dischargingClinicianLabel = (
     fallback="Discharging :clinician"
     replacements={{
       clinician: (
-        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+        <TranslatedText
+          stringId="general.localisedField.clinician.label"
+          fallback="Clinician"
+          data-testid='translatedtext-q0hb' />
       ),
     }}
-  />
+    data-testid='translatedtext-buzh' />
 );
 
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
@@ -163,7 +166,7 @@ const StyledUnorderedList = styled.ul`
 `;
 
 const ProcedureList = React.memo(({ procedures }) => (
-  <StyledUnorderedList>
+  <StyledUnorderedList data-testid='styledunorderedlist-g4mq'>
     {procedures.length > 0 ? (
       procedures.map(({ procedureType }) => (
         <li key={procedureType.id}>
@@ -171,11 +174,14 @@ const ProcedureList = React.memo(({ procedures }) => (
             fallback={procedureType.name}
             value={procedureType.id}
             category={procedureType.type}
-          />
+            data-testid='translatedreferencedata-yta7' />
         </li>
       ))
     ) : (
-      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+      <TranslatedText
+        stringId="general.fallback.notApplicable"
+        fallback="N/A"
+        data-testid='translatedtext-9pcc' />
     )}
   </StyledUnorderedList>
 ));
@@ -188,7 +194,7 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
     variant="outlined"
     type="number"
     {...props}
-  />
+    data-testid='styledtextfield-4ea9' />
 );
 
 const StyledFlexDiv = styled.div`
@@ -207,17 +213,17 @@ the table headers and there is a need to display two text descriptions
 alongside the checkbox with different stylings.
 */
 const CustomCheckField = ({ field, lineOne, lineTwo }) => (
-  <StyledFlexDiv>
+  <StyledFlexDiv data-testid='styledflexdiv-5emq'>
     <StyledCheckbox
       color="primary"
       value={field.value}
       name={field.name}
       onChange={field.onChange}
-    />
+      data-testid='styledcheckbox-3e39' />
     <div>
-      <StyledTextSpan>{lineOne}</StyledTextSpan>
+      <StyledTextSpan data-testid='styledtextspan-qiqs'>{lineOne}</StyledTextSpan>
       <br />
-      <StyledTextSpan color={Colors.midText}>{lineTwo}</StyledTextSpan>
+      <StyledTextSpan color={Colors.midText} data-testid='styledtextspan-vpef'>{lineTwo}</StyledTextSpan>
     </div>
   </StyledFlexDiv>
 );
@@ -230,14 +236,17 @@ const MedicationAccessor = ({ id, medication, prescription }) => (
         fallback={medication.name}
         value={medication.id}
         category={medication.type}
-      />
+        data-testid='translatedreferencedata-dktp' />
     }
     lineTwo={prescription}
     component={CustomCheckField}
-  />
+    data-testid='field-dcxx' />
 );
 const QuantityAccessor = ({ id }) => (
-  <Field name={`medications.${id}.quantity`} component={NumberFieldWithoutLabel} />
+  <Field
+    name={`medications.${id}.quantity`}
+    component={NumberFieldWithoutLabel}
+    data-testid='field-ksmf' />
 );
 const RepeatsAccessor = ({ id }) => (
   <Field
@@ -245,7 +254,7 @@ const RepeatsAccessor = ({ id }) => (
     isClearable={false}
     component={TranslatedSelectField}
     enumValues={REPEATS_LABELS}
-  />
+    data-testid='field-ium3' />
 );
 
 const medicationColumns = [
@@ -255,7 +264,7 @@ const medicationColumns = [
       <TranslatedText
         stringId="discharge.table.column.drugOrPrescription"
         fallback="Drug / Prescription"
-      />
+        data-testid='translatedtext-qyha' />
     ),
     accessor: MedicationAccessor,
   },
@@ -265,14 +274,17 @@ const medicationColumns = [
       <TranslatedText
         stringId="discharge.table.column.dischargeQuantity"
         fallback="Discharge Quantity"
-      />
+        data-testid='translatedtext-8e5k' />
     ),
     accessor: QuantityAccessor,
     width: '20%',
   },
   {
     key: 'repeats',
-    title: <TranslatedText stringId="discharge.table.column.repeats" fallback="Repeats" />,
+    title: <TranslatedText
+      stringId="discharge.table.column.repeats"
+      fallback="Repeats"
+      data-testid='translatedtext-opjr' />,
     accessor: RepeatsAccessor,
     width: '20%',
   },
@@ -289,11 +301,14 @@ const EncounterOverview = ({
     <>
       <DateTimeInput
         label={
-          <TranslatedText stringId="discharge.admissionDate.label" fallback="Admission date" />
+          <TranslatedText
+            stringId="discharge.admissionDate.label"
+            fallback="Admission date"
+            data-testid='translatedtext-gkby' />
         }
         value={startDate}
         disabled
-      />
+        data-testid='datetimeinput-4c61' />
       <TextInput
         label={
           <TranslatedText
@@ -305,45 +320,51 @@ const EncounterOverview = ({
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                />
+                  data-testid='translatedtext-67df' />
               ),
             }}
-          />
+            data-testid='translatedtext-62et' />
         }
         value={examiner ? examiner.displayName : '-'}
         disabled
-      />
+        data-testid='textinput-f322' />
       <TextInput
         label={
           <TranslatedText
             stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
-          />
+            data-testid='translatedtext-v2va' />
         }
         value={reasonForEncounter}
         disabled
         style={{ gridColumn: '1 / -1' }}
-      />
+        data-testid='textinput-11vp' />
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
+        label={<TranslatedText
+          stringId="general.diagnosis.label"
+          fallback="Diagnosis"
+          data-testid='translatedtext-320n' />}
         style={{ gridColumn: '1 / -1' }}
-      >
+        data-testid='outerlabelfieldwrapper-2u7q'>
         {!currentDiagnoses.length && dischargeDiagnosisMandatory ? (
-          <BodyText color={Colors.alert}>
+          <BodyText color={Colors.alert} data-testid='bodytext-lhri'>
             <TranslatedText
               stringId="discharge.diagnosis.empty"
               fallback="No diagnosis recorded. A diagnosis must be recorded in order to finalise a discharge."
-            />
+              data-testid='translatedtext-ajd4' />
           </BodyText>
         ) : (
-          <DiagnosisList diagnoses={currentDiagnoses} />
+          <DiagnosisList diagnoses={currentDiagnoses} data-testid='diagnosislist-ytbf' />
         )}
       </OuterLabelFieldWrapper>
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="discharge.procedures.label" fallback="Procedures" />}
+        label={<TranslatedText
+          stringId="discharge.procedures.label"
+          fallback="Procedures"
+          data-testid='translatedtext-3s6j' />}
         style={{ gridColumn: '1 / -1' }}
-      >
-        <ProcedureList procedures={procedures} />
+        data-testid='outerlabelfieldwrapper-qzw5'>
+        <ProcedureList procedures={procedures} data-testid='procedurelist-m4o9' />
       </OuterLabelFieldWrapper>
     </>
   );
@@ -389,8 +410,8 @@ const DischargeFormScreen = props => {
 
   return (
     <>
-      <IconButton onClick={handleCancelAttempt}>
-        <CloseIcon />
+      <IconButton onClick={handleCancelAttempt} data-testid='iconbutton-h244'>
+        <CloseIcon data-testid='closeicon-ggbt' />
       </IconButton>
       <DefaultFormScreen
         customBottomRow={
@@ -401,52 +422,59 @@ const DischargeFormScreen = props => {
               <ConditionalTooltip
                 visible={isDiagnosisEmpty}
                 title={
-                  <SmallBodyText maxWidth={135} fontWeight={400}>
+                  <SmallBodyText maxWidth={135} fontWeight={400} data-testid='smallbodytext-cujc'>
                     <TranslatedText
                       stringId="discharge.diagnosisMustBeRecord.tooltip"
                       fallback="Diagnosis must be recorded to finalise discharge"
-                    />
+                      data-testid='translatedtext-562y' />
                   </SmallBodyText>
                 }
-              >
-                <StyledFormSubmitButton {...props}>
-                  <Box whiteSpace="nowrap">
+                data-testid='conditionaltooltip-d52d'>
+                <StyledFormSubmitButton {...props} data-testid='styledformsubmitbutton-b274'>
+                  <Box whiteSpace="nowrap" data-testid='box-p5wr'>
                     <TranslatedText
                       stringId="general.action.finaliseDischarge"
                       fallback="Finalise discharge"
-                    />
+                      data-testid='translatedtext-afge' />
                   </Box>
                 </StyledFormSubmitButton>
               </ConditionalTooltip>
             )}
             confirmDisabled={isDiagnosisEmpty}
-            cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          />
+            cancelText={<TranslatedText
+              stringId="general.action.cancel"
+              fallback="Cancel"
+              data-testid='translatedtext-2w8k' />}
+            data-testid='formconfirmcancelbackrow-xkrs' />
         }
         {...props}
-      />
+        data-testid='defaultformscreen-0jje' />
     </>
   );
 };
 
 const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
   <div className="ConfirmContent">
-    <ConfirmContent>
+    <ConfirmContent data-testid='confirmcontent-bhoj'>
       <h3>
         <TranslatedText
           stringId="discharge.modal.confirm.heading"
           fallback="Confirm patient discharge"
-        />
+          data-testid='translatedtext-vfv1' />
       </h3>
       <p>
         <TranslatedText
           stringId="discharge.modal.confirm.warningText"
           fallback="Are you sure you want to discharge the patient? This action is irreversible."
-        />
+          data-testid='translatedtext-4o2r' />
       </p>
     </ConfirmContent>
-    <Divider />
-    <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
+    <Divider data-testid='divider-67lg' />
+    <FormConfirmCancelBackRow
+      onBack={onStepBack}
+      onConfirm={submitForm}
+      onCancel={onCancel}
+      data-testid='formconfirmcancelbackrow-ttpv' />
   </div>
 );
 
@@ -459,30 +487,39 @@ const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
   };
   return (
     <div>
-      <IconButton onClick={onStepBack}>
-        <CloseIcon />
+      <IconButton onClick={onStepBack} data-testid='iconbutton-r4jg'>
+        <CloseIcon data-testid='closeicon-nkjl' />
       </IconButton>
-      <UnsavedContent>
+      <UnsavedContent data-testid='unsavedcontent-lqwq'>
         <TranslatedText
           stringId="discharge.modal.unsavedChanges.message"
           fallback="You have unsaved changes. Are you sure you would like to discard these changes or would you like to 'Save & exit'?"
-        />
+          data-testid='translatedtext-774e' />
       </UnsavedContent>
-      <StyledDivider />
+      <StyledDivider data-testid='styleddivider-0thc' />
       <FormConfirmCancelBackRow
         onConfirm={onCancel}
         confirmText={
-          <Box whiteSpace="nowrap">
-            <TranslatedText stringId="general.action.discardChanges" fallback="Discard changes" />
+          <Box whiteSpace="nowrap" data-testid='box-gxxv'>
+            <TranslatedText
+              stringId="general.action.discardChanges"
+              fallback="Discard changes"
+              data-testid='translatedtext-nd4x' />
           </Box>
         }
         onCancel={onStepBack}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        cancelText={<TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid='translatedtext-cw71' />}
         {...(canWriteDischarge && { onBack: onSave })}
         backButtonText={
-          <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
+          <TranslatedText
+            stringId="general.action.saveAndExit"
+            fallback="Save & exit"
+            data-testid='translatedtext-6xd9' />
         }
-      />
+        data-testid='formconfirmcancelbackrow-8nre' />
     </div>
   );
 };
@@ -542,11 +579,14 @@ export const DischargeForm = ({
         <TranslatedText
           stringId="discharge.modal.unsavedChanges.title"
           fallback="Unsaved changes"
-        />,
+          data-testid='translatedtext-os9t' />,
       );
       return;
     }
-    onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
+    onTitleChange(<TranslatedText
+      stringId="discharge.modal.title"
+      fallback="Discharge patient"
+      data-testid='translatedtext-juk1' />);
   }, [showWarningScreen, onTitleChange]);
 
   return (
@@ -560,7 +600,7 @@ export const DischargeForm = ({
           currentDiagnoses={currentDiagnoses}
           onSubmit={handleSubmit}
           setShowWarningScreen={setShowWarningScreen}
-        />
+          data-testid='dischargeformscreen-z2zo' />
       )}
       formType={FORM_TYPES.CREATE_FORM}
       SummaryScreen={
@@ -571,7 +611,7 @@ export const DischargeForm = ({
                 {...props}
                 showWarningScreen={showWarningScreen}
                 onSubmit={handleSubmit}
-              />
+                data-testid='unsavedchangesscreen-o64o' />
             )
       }
       validationSchema={yup.object().shape({
@@ -579,7 +619,10 @@ export const DischargeForm = ({
           .date()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />,
+            <TranslatedText
+              stringId="discharge.dischargeDate.label"
+              fallback="Discharge date"
+              data-testid='translatedtext-542l' />,
           ),
         discharge: yup
           .object()
@@ -593,7 +636,7 @@ export const DischargeForm = ({
                   <TranslatedText
                     stringId="discharge.notes.label"
                     fallback="Discharge treatment plan and follow-up notes"
-                  />,
+                    data-testid='translatedtext-208f' />,
                 )
               : yup.string().optional(),
           })
@@ -602,7 +645,7 @@ export const DischargeForm = ({
             <TranslatedText
               stringId="general.localisedField.dischargeDisposition.label"
               fallback="Discharge disposition"
-            />,
+              data-testid='translatedtext-5ib8' />,
           ),
       })}
       formProps={{
@@ -610,48 +653,57 @@ export const DischargeForm = ({
         showInlineErrorsOnly: true,
         validateOnChange: true,
       }}
-    >
-      <FormGrid>
-        <EncounterOverview encounter={encounter} currentDiagnoses={currentDiagnoses} />
+      data-testid='paginatedform-ghn7'>
+      <FormGrid data-testid='formgrid-menu'>
+        <EncounterOverview
+          encounter={encounter}
+          currentDiagnoses={currentDiagnoses}
+          data-testid='encounteroverview-1swb' />
         <Field
           name="endDate"
           label={
-            <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />
+            <TranslatedText
+              stringId="discharge.dischargeDate.label"
+              fallback="Discharge date"
+              data-testid='translatedtext-mhlm' />
           }
           component={DateTimeField}
           min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
           required
           saveDateAsString
-        />
+          data-testid='field-20tt' />
         <Field
           name="discharge.dischargerId"
           label={dischargingClinicianLabel}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
-        />
+          data-testid='field-6we6' />
         <LocalisedField
           name="discharge.dispositionId"
           label={
             <TranslatedText
               stringId="general.localisedField.dischargeDisposition.label"
               fallback="Discharge disposition"
-            />
+              data-testid='translatedtext-scxc' />
           }
           path="fields.dischargeDisposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}
-        />
+          data-testid='localisedfield-d7fu' />
         <OuterLabelFieldWrapper
           label={
             <TranslatedText
               stringId="discharge.dischargeMedications.label"
               fallback="Discharge medications"
-            />
+              data-testid='translatedtext-6d1o' />
           }
           style={{ gridColumn: '1 / -1' }}
-        >
-          <TableFormFields columns={medicationColumns} data={activeMedications} />
+          data-testid='outerlabelfieldwrapper-axm9'>
+          <TableFormFields
+            columns={medicationColumns}
+            data={activeMedications}
+            data-testid='tableformfields-i8q7' />
         </OuterLabelFieldWrapper>
         <Field
           name="sendToPharmacy"
@@ -659,33 +711,35 @@ export const DischargeForm = ({
             <TranslatedText
               stringId="discharge.sendToPharmacy.label"
               fallback="Send prescription to pharmacy"
-            />
+              data-testid='translatedtext-h7xy' />
           }
           component={CheckField}
           helperText={
             <TranslatedText
               stringId="discharge.sendToPharmacy.helperText"
               fallback="Requires mSupply"
-            />
+              data-testid='translatedtext-kjqf' />
           }
           style={{ gridColumn: '1 / -1' }}
           disabled
-        />
+          data-testid='field-cxfn' />
         <Field
           name="discharge.note"
           label={
             <TranslatedText
               stringId="discharge.notes.label"
               fallback="Discharge treatment plan and follow-up notes"
-            />
+              data-testid='translatedtext-kr28' />
           }
           component={TextField}
           multiline
           minRows={4}
           style={{ gridColumn: '1 / -1' }}
           required={dischargeNoteMandatory}
-        />
-        <Divider style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }} />
+          data-testid='field-0uma' />
+        <Divider
+          style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
+          data-testid='divider-lj2w' />
       </FormGrid>
     </PaginatedForm>
   );

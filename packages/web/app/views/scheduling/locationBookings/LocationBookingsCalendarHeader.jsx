@@ -75,8 +75,8 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       $isToday={isToday}
       dateTime={formatISO(date, { representation: 'date' })}
       {...props}
-    >
-      <Weekday $isToday={isToday}>{formatWeekdayShort(date)}</Weekday>
+      data-testid='headercell-dpnh'>
+      <Weekday $isToday={isToday} data-testid='weekday-i79b'>{formatWeekdayShort(date)}</Weekday>
       {formatShort(date)}
     </HeaderCell>
   );
@@ -117,10 +117,14 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   };
 
   return (
-    <CarouselGrid.HeaderRow>
-      <StyledFirstHeaderCell>
-        <StyledMonthPicker key={monthPickerRefreshKey} value={monthOf} onChange={setMonthOf} />
-        <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
+    <CarouselGrid.HeaderRow data-testid='headerrow-afra'>
+      <StyledFirstHeaderCell data-testid='styledfirstheadercell-6j8e'>
+        <StyledMonthPicker
+          key={monthPickerRefreshKey}
+          value={monthOf}
+          onChange={setMonthOf}
+          data-testid='styledmonthpicker-4uml' />
+        <GoToThisWeekButton onClick={goToThisWeek} data-testid='gotothisweekbutton-034z'>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
@@ -128,7 +132,14 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
           : isFirstDisplayedDate(d)
           ? FIRST_DISPLAYED_DAY_ID
           : null;
-        return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
+        return (
+          <DayHeaderCell
+            date={d}
+            dim={!isSameMonth(d, monthOf)}
+            id={id}
+            key={d.valueOf()}
+            data-testid='dayheadercell-abp0' />
+        );
       })}
     </CarouselGrid.HeaderRow>
   );

@@ -20,13 +20,13 @@ export const FacilitySelectionView = () => {
   };
 
   return (
-    <AuthFlowView>
+    <AuthFlowView data-testid='authflowview-19c1'>
       <FacilitySelectionForm
         facilities={facilities}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         errorMessage={error}
-      />
+        data-testid='facilityselectionform-704s' />
     </AuthFlowView>
   );
 };

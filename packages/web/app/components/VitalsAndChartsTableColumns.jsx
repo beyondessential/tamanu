@@ -28,7 +28,11 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const VitalsLimitedLinesCell = ({ value }) => (
-  <LimitedLinesCell value={value} maxWidth="75px" maxLines={2} />
+  <LimitedLinesCell
+    value={value}
+    maxWidth="75px"
+    maxLines={2}
+    data-testid='limitedlinescell-r6w3' />
 );
 
 const MeasureCell = React.memo(({ value, data }) => {
@@ -57,7 +61,12 @@ const MeasureCell = React.memo(({ value, data }) => {
       : visualisationConfig?.key;
 
   return (
-    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+    <Box
+      flexDirection="row"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      data-testid='box-w3f4'>
       {value}
       {hasVitalChart && (
         <IconButton
@@ -68,8 +77,8 @@ const MeasureCell = React.memo(({ value, data }) => {
             setModalTitle(value);
             setVitalChartModalOpen(true);
           }}
-        >
-          <VitalVectorIcon />
+          data-testid='iconbutton-t7kq'>
+          <VitalVectorIcon data-testid='vitalvectoricon-b8jn' />
         </IconButton>
       )}
     </Box>
@@ -104,7 +113,12 @@ const TitleCell = React.memo(({ value }) => {
   }
 
   return (
-    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+    <Box
+      flexDirection="row"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      data-testid='box-8p39'>
       {value}
       {isSuccess && allGraphedChartKeys.length > 0 && (
           <IconButton
@@ -115,11 +129,11 @@ const TitleCell = React.memo(({ value }) => {
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
             }}
-          >
-            <VitalVectorIcon />
+            data-testid='iconbutton-u6iz'>
+            <VitalVectorIcon data-testid='vitalvectoricon-qhwu' />
           </IconButton>
         )}
-      {isLoading && <CircularProgress size={14} />}
+      {isLoading && <CircularProgress size={14} data-testid='circularprogress-wtcr' />}
     </Box>
   );
 });
@@ -142,7 +156,7 @@ export const getChartsTableColumns = (
           value={value}
           config={config}
           validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
-        />
+          data-testid='rangetooltipcell-f4qi' />
       ),
       CellComponent: MeasureCell,
       TitleCellComponent: TitleCell,
@@ -151,7 +165,7 @@ export const getChartsTableColumns = (
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: <DateHeadCell value={date} />,
+        title: <DateHeadCell value={date} data-testid='dateheadcell-ucdw' />,
         sortable: false,
         key: date,
         accessor: cells => {
@@ -172,7 +186,7 @@ export const getChartsTableColumns = (
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
               ValueWrapper={VitalsLimitedLinesCell}
-            />
+              data-testid='rangevalidatedcell-3biv' />
           );
         },
         exportOverrides: {
@@ -185,7 +199,10 @@ export const getChartsTableColumns = (
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
     'measure',
-    <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
+    <TranslatedText
+      stringId="encounter.vitals.table.column.measure"
+      fallback="Measure"
+      data-testid='translatedtext-l9f5' />,
     patient,
     recordedDates,
     onCellClick,

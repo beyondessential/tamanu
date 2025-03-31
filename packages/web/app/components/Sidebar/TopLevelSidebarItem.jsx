@@ -65,8 +65,12 @@ export const TopLevelSidebarItem = ({
   retracted,
 }) => (
   <>
-    {divider && <ListDivider />}
-    <StyledTooltip title={retracted ? label : ''} placement="top-end" arrow>
+    {divider && <ListDivider data-testid='listdivider-19k7' />}
+    <StyledTooltip
+      title={retracted ? label : ''}
+      placement="top-end"
+      arrow
+      data-testid='styledtooltip-85bn'>
       <TopLevelListItem
         button
         to={path}
@@ -74,9 +78,13 @@ export const TopLevelSidebarItem = ({
         selected={isCurrent}
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
-      >
-        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} />}
-        <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
+        data-testid='toplevellistitem-a957'>
+        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} data-testid='sidebartoplevelicon-hioy' />}
+        <TopLevelItemText
+          disableTypography
+          primary={label}
+          $invisible={retracted}
+          data-testid='toplevelitemtext-52i5' />
       </TopLevelListItem>
     </StyledTooltip>
   </>

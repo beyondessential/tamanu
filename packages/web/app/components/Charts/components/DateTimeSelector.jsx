@@ -69,7 +69,7 @@ export const DateTimeSelector = props => {
   }, [value, formatAndSetDateRange]);
 
   return (
-    <Wrapper>
+    <Wrapper data-testid='wrapper-onhu'>
       <SelectInput
         options={options}
         value={value}
@@ -78,12 +78,13 @@ export const DateTimeSelector = props => {
           setValue(v.target.value);
         }}
         size="small"
-      />
+        data-testid='selectinput-i6gc' />
       {value === CUSTOM_DATE && (
         <DateInput
           size="small"
           saveDateAsString
-          format={DATE_FORMAT} // set format so we can safely use parseISO
+          // set format so we can safely use parseISO
+          format={DATE_FORMAT}
           value={startDateString}
           onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
@@ -96,7 +97,7 @@ export const DateTimeSelector = props => {
             }
           }, 200)}
           arrows
-        />
+          data-testid='dateinput-z016' />
       )}
     </Wrapper>
   );

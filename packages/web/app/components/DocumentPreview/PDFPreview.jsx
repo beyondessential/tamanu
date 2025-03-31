@@ -86,10 +86,10 @@ export default function PDFPreview({
   }, [scrollPage, setScrollPage, pageCount]);
 
   return (
-    <PDFDocument ref={scrollRef}>
+    <PDFDocument ref={scrollRef} data-testid='pdfdocument-qcy9'>
       {pages.map((p, i) => (
         // eslint-disable-next-line react/no-array-index-key
-        <PDFPage page={p} key={i} parentRef={scrollRef} />
+        (<PDFPage page={p} key={i} parentRef={scrollRef} data-testid='pdfpage-l9ek' />)
       ))}
     </PDFDocument>
   );

@@ -63,7 +63,7 @@ export const TemplateView = () => {
   }, [api, updateRefreshCount, editingTemplate?.id]);
 
   return (
-    <PageContainer>
+    <PageContainer data-testid='pagecontainer-sslq'>
       <EditTemplateModal
         open={!!editingTemplate}
         template={editingTemplate}
@@ -71,17 +71,25 @@ export const TemplateView = () => {
         onClose={() => setEditingTemplate(null)}
         onDelete={onDeleteTemplate}
         allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
-      />
-      <TopBar title={<TranslatedText stringId="admin.template.title" fallback="Templates" />} />
-      <ContentPane>
-        <ContentContainer>
+        data-testid='edittemplatemodal-pqg9' />
+      <TopBar
+        title={<TranslatedText
+          stringId="admin.template.title"
+          fallback="Templates"
+          data-testid='translatedtext-ymk6' />}
+        data-testid='topbar-lv3u' />
+      <ContentPane data-testid='contentpane-y13i'>
+        <ContentContainer data-testid='contentcontainer-clq8'>
           <NewTemplateForm
             allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
             onSubmit={createTemplate}
             refreshTable={updateRefreshCount}
-          />
+            data-testid='newtemplateform-yuo4' />
         </ContentContainer>
-        <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
+        <TemplateList
+          refreshCount={refreshCount}
+          onRowClick={setEditingTemplate}
+          data-testid='templatelist-77lv' />
       </ContentPane>
     </PageContainer>
   );

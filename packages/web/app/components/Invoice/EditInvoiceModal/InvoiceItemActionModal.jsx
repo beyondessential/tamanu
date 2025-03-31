@@ -49,27 +49,27 @@ const DiscountForm = () => {
   const type = values.type;
 
   return (
-    <FormGrid columns={4}>
+    <FormGrid columns={4} data-testid='formgrid-nq1c'>
       <Field
         name="type"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
             fallback="Type"
-          />
+            data-testid='translatedtext-povy' />
         }
         component={SelectField}
         options={discountTypeOptions}
         required
         style={{ gridColumn: '1 / 1' }}
-      />
+        data-testid='field-x1us' />
       <Field
         name="amount"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
             fallback="Discount amount"
-          />
+            data-testid='translatedtext-chc0' />
         }
         placeholder={getTranslation(
           'invoice.modal.addDiscountInvoiceItem.discount.placeholder',
@@ -86,18 +86,18 @@ const DiscountForm = () => {
           onInput: validateDecimalPlaces,
         })}
         style={{ gridColumn: '2 / 2' }}
-      />
+        data-testid='field-f1vf' />
       <Field
         name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discountReason.label"
             fallback="Reason for item discount"
-          />
+            data-testid='translatedtext-uyma' />
         }
         component={TextField}
         style={{ gridColumn: '3 / 5' }}
-      />
+        data-testid='field-5rde' />
     </FormGrid>
   );
 };
@@ -108,27 +108,27 @@ const MarkupForm = () => {
   const type = values.type;
 
   return (
-    <FormGrid columns={4}>
+    <FormGrid columns={4} data-testid='formgrid-ipzc'>
       <Field
         name="type"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
             fallback="Type"
-          />
+            data-testid='translatedtext-titz' />
         }
         component={SelectField}
         options={discountTypeOptions}
         required
         style={{ gridColumn: '1 / 1' }}
-      />
+        data-testid='field-q3my' />
       <Field
         name="amount"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
             fallback="Markup amount"
-          />
+            data-testid='translatedtext-ftv4' />
         }
         placeholder={getTranslation(
           'invoice.modal.addMarkupInvoiceItem.markup.placeholder',
@@ -144,42 +144,50 @@ const MarkupForm = () => {
           onInput: validateDecimalPlaces,
         })}
         style={{ gridColumn: '2 / 2' }}
-      />
+        data-testid='field-jq24' />
       <Field
         name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.discountReason.label"
             fallback="Reason for item markup"
-          />
+            data-testid='translatedtext-iaw8' />
         }
         component={TextField}
         style={{ gridColumn: '3 / 5' }}
-      />
+        data-testid='field-7e19' />
     </FormGrid>
   );
 };
 
 const AddNoteForm = () => {
   return (
-    <FormGrid columns={3}>
+    <FormGrid columns={3} data-testid='formgrid-f8vp'>
       <Field
         name="note"
-        label={<TranslatedText stringId="invoice.modal.addNote.note.label" fallback="Note" />}
+        label={<TranslatedText
+          stringId="invoice.modal.addNote.note.label"
+          fallback="Note"
+          data-testid='translatedtext-lqlp' />}
         component={TextField}
         inputProps={{
           maxLength: 30,
         }}
         style={{ gridColumn: '1 / 3' }}
         helperText={
-          <Box textAlign="right" fontSize="11px" fontWeight={400} color={Colors.midText}>
+          <Box
+            textAlign="right"
+            fontSize="11px"
+            fontWeight={400}
+            color={Colors.midText}
+            data-testid='box-xi3i'>
             <TranslatedText
               stringId="invoice.modal.addNote.note.helperText"
               fallback="Max 30 characters"
-            />
+              data-testid='translatedtext-x4bm' />
           </Box>
         }
-      />
+        data-testid='field-30xh' />
     </FormGrid>
   );
 };
@@ -195,7 +203,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.discount.type"
           fallback="Type"
-        />,
+          data-testid='translatedtext-afd9' />,
       ),
     amount: yup
       .number()
@@ -215,7 +223,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.discount.amount"
           fallback="Discount amount"
-        />,
+          data-testid='translatedtext-9kqv' />,
       ),
   });
 
@@ -227,7 +235,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addDiscountInvoiceItem.markup.type"
           fallback="Type"
-        />,
+          data-testid='translatedtext-a6g2' />,
       ),
     amount: yup
       .number()
@@ -237,7 +245,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         <TranslatedText
           stringId="invoice.modal.addMarkupInvoiceItem.markup.amount"
           fallback="Markup amount"
-        />,
+          data-testid='translatedtext-4vgj' />,
       ),
   });
 
@@ -245,24 +253,32 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     switch (action) {
       case INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE:
         return (
-          <TranslatedText stringId="invoice.modal.deleteInvoiceItem.title" fallback="Delete item" />
+          <TranslatedText
+            stringId="invoice.modal.deleteInvoiceItem.title"
+            fallback="Delete item"
+            data-testid='translatedtext-87fm' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT:
         return (
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.title"
             fallback="Add discount"
-          />
+            data-testid='translatedtext-vfny' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP:
         return (
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.title"
             fallback="Add markup"
-          />
+            data-testid='translatedtext-dm58' />
         );
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE:
-        return <TranslatedText stringId="invoice.modal.addNote.title" fallback="Add note" />;
+        return (
+          <TranslatedText
+            stringId="invoice.modal.addNote.title"
+            fallback="Add note"
+            data-testid='translatedtext-2op8' />
+        );
       default:
         return '';
     }
@@ -270,15 +286,15 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
 
   const formData = {
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT]: {
-      form: <DiscountForm />,
+      form: <DiscountForm data-testid='discountform-zd85' />,
       schema: discountValidationSchema,
     },
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP]: {
-      form: <MarkupForm />,
+      form: <MarkupForm data-testid='markupform-ia46' />,
       schema: markupValidationSchema,
     },
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE]: {
-      form: <AddNoteForm />,
+      form: <AddNoteForm data-testid='addnoteform-ilq2' />,
       initialValues: { note: item.note },
     },
   };
@@ -290,20 +306,28 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
   const renderForm = ({ submitForm }) => (
     <>
       {formData[action]?.form}
-      <StyledDivider />
-      <ConfirmCancelRowField onConfirm={submitForm} onCancel={onClose} />
+      <StyledDivider data-testid='styleddivider-g7cs' />
+      <ConfirmCancelRowField
+        onConfirm={submitForm}
+        onCancel={onClose}
+        data-testid='confirmcancelrowfield-nhgq' />
     </>
   );
 
   return (
-    <Modal width="sm" title={getModalTitle()} open={open} onClose={onClose}>
-      <InvoiceItemCard item={item} />
+    <Modal
+      width="sm"
+      title={getModalTitle()}
+      open={open}
+      onClose={onClose}
+      data-testid='modal-bs2m'>
+      <InvoiceItemCard item={item} data-testid='invoiceitemcard-74ar' />
       <Form
         validationSchema={formData[action]?.schema}
         initialValues={formData[action]?.initialValues}
         onSubmit={handleSubmit}
         render={renderForm}
-      ></Form>
+        data-testid='form-ne4d'></Form>
     </Modal>
   );
 };

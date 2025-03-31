@@ -137,7 +137,7 @@ const MultiValue = props => {
           onClick: () => clearValue(),
         },
       }}
-    ></components.MultiValue>
+      data-testid='multivalue-5sur'></components.MultiValue>
   );
 };
 
@@ -151,7 +151,7 @@ const Option = props => {
           viewBox="0 0 8 6"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-        >
+          data-testid='styledtick-ror3'>
           <path
             d="M7.82857 1.02L3.25714 5.82C3.14286 5.94 3.02857 6 2.85714 6C2.68571 6 2.57143 5.94 2.45714 5.82L0.171429 3.42C-0.0571429 3.18 -0.0571429 2.82 0.171429 2.58C0.4 2.34 0.742857 2.34 0.971428 2.58L2.85714 4.56L7.02857 0.18C7.25714 -0.06 7.6 -0.06 7.82857 0.18C8.05714 0.42 8.05714 0.78 7.82857 1.02Z"
             fill={Colors.primary}
@@ -162,7 +162,7 @@ const Option = props => {
     </>
   );
   return (
-    <components.Option {...props} isFocused={false}>
+    <components.Option {...props} isFocused={false} data-testid='option-75zd'>
       {children}
     </components.Option>
   );
@@ -224,8 +224,8 @@ export const MultiAutocompleteInput = ({
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledFormControl {...props}>
+    <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-cqwo'>
+      <StyledFormControl {...props} data-testid='styledformcontrol-td30'>
         <StyledSelect
           value={selected}
           options={options}
@@ -239,7 +239,8 @@ export const MultiAutocompleteInput = ({
           noOptionsMessage={() => null}
           placeholder={placeholder ?? getTranslation('general.placeholder.search...', 'Search...')}
           inputValue={inputValue}
-          filterOption={null} // filter by suggester
+          // filter by suggester
+          filterOption={null}
           components={{
             DropdownIndicator: SelectDropdownIndicator,
             MultiValue,
@@ -252,8 +253,8 @@ export const MultiAutocompleteInput = ({
           fetchCurrentOption={suggester.fetchCurrentOption}
           isDisabled={disabled}
           {...props}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+          data-testid='styledselect-bfc5' />
+        {helperText && <FormHelperText data-testid='formhelpertext-5maz'>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
@@ -265,5 +266,5 @@ export const MultiAutocompleteField = ({ field, ...props }) => (
     name={field.name}
     onChange={field.onChange}
     {...props}
-  />
+    data-testid='multiautocompleteinput-3hj6' />
 );

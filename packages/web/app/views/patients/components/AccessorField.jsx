@@ -34,7 +34,11 @@ function getResultOptions(options) {
 }
 
 export const AccessorField = ({ id, name, tabIndex, ...props }) => (
-  <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />
+  <StyledField
+    {...props}
+    inputProps={{ tabIndex }}
+    name={`${id}.${name}`}
+    data-testid='styledfield-h653' />
 );
 
 export const LabResultAccessorField = ({ resultType, options, ...props }) => (
@@ -42,5 +46,5 @@ export const LabResultAccessorField = ({ resultType, options, ...props }) => (
     component={getResultComponent(resultType, options)}
     options={getResultOptions(options)}
     {...props}
-  />
+    data-testid='accessorfield-mcjl' />
 );

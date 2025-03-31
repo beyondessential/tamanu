@@ -38,6 +38,6 @@ export const FacilityField = ({
       onChange={handleClearAssociatedFields}
       suggester={facilitySuggester}
       required={required}
-    />
+      data-testid='field-5biw' />
   );
 };

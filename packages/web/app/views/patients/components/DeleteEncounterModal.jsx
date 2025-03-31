@@ -12,13 +12,18 @@ export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient
   };
 
   return (
-    <Modal width="md" title="Delete encounter record" onClose={onClose} open={open}>
+    <Modal
+      width="md"
+      title="Delete encounter record"
+      onClose={onClose}
+      open={open}
+      data-testid='modal-lsi1'>
       <DeleteEncounterForm
         encounterToDelete={encounterToDelete}
         onCancel={onClose}
         onSubmit={onSubmit}
         patient={patient}
-      />
+        data-testid='deleteencounterform-5p2w' />
     </Modal>
   );
 };

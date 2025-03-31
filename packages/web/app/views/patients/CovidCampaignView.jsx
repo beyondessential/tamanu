@@ -39,7 +39,7 @@ export const covidVaccinationStatus = {
   key: 'vaccinationStatus',
   title: 'Vaccination status',
   minWidth: 100,
-  accessor: row => <CovidVaccinationStatusComponent row={row} />,
+  accessor: row => <CovidVaccinationStatusComponent row={row} data-testid='covidvaccinationstatuscomponent-wr44' />,
   asyncExportAccessor: async row => {
     const patientVaccinations = await API.get(`patient/${row.id}/administeredVaccines`);
     const covidVaccinations = patientVaccinations.data.filter(
@@ -55,14 +55,16 @@ const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus
 
 const PatientCovidCampaignTable = React.memo(({ onPatientSelect, ...props }) => {
   delete props.getVaccines;
-  return <DataFetchingTable
-    endpoint="patient"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    exportName="Covid Campaign"
-    onRowClick={onPatientSelect}
-    {...props}
-  />;
+  return (
+    <DataFetchingTable
+      endpoint="patient"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      exportName="Covid Campaign"
+      onRowClick={onPatientSelect}
+      {...props}
+      data-testid='datafetchingtable-4c9l' />
+  );
 });
 
 export const CovidCampaignView = ({ getPatientVaccinations }) => {
@@ -75,22 +77,22 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer data-testid='pagecontainer-3zbk'>
       <PatientImmunisationsModal
         maxWidth="lg"
         fullWidth={false}
         open={modalOpen}
         patient={patient}
         onClose={() => setModalOpen(false)}
-      />
-      <TopBar title="COVID campaign" />
-      <ImmunisationSearchBar onSearch={setSearchParameters} />
-      <ContentPane>
+        data-testid='patientimmunisationsmodal-pk75' />
+      <TopBar title="COVID campaign" data-testid='topbar-hjrc' />
+      <ImmunisationSearchBar onSearch={setSearchParameters} data-testid='immunisationsearchbar-k0b2' />
+      <ContentPane data-testid='contentpane-bnlu'>
         <PatientCovidCampaignTable
           getVaccines={getPatientVaccinations}
           onPatientSelect={onRowClick}
           fetchOptions={searchParameters}
-        />
+          data-testid='patientcovidcampaigntable-bi5w' />
       </ContentPane>
     </PageContainer>
   );

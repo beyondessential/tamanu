@@ -21,22 +21,25 @@ const StatusDisplay = React.memo(({ status }) => {
   const {
     background = '#EDEDED',
     color = '#444444;',
-    label = <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />,
+    label = <TranslatedText
+      stringId="general.fallback.unknown"
+      fallback="Unknown"
+      data-testid='translatedtext-zecb' />,
   } = IMAGING_REQUEST_STATUS_CONFIG[status];
 
   return (
-    <TableCellTag $background={background} $color={color}>
+    <TableCellTag $background={background} $color={color} data-testid='tablecelltag-8fjj'>
       {label}
     </TableCellTag>
   );
 });
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
-const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
+const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} data-testid='patientnamedisplay-rwx6' />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
-const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
-const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
+const getStatus = ({ status }) => <StatusDisplay status={status} data-testid='statusdisplay-uuoz' />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip data-testid='datedisplay-d0si' />;
+const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip data-testid='datedisplay-xh2e' />;
 const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown');
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
@@ -83,7 +86,10 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     {
       key: 'encounter.patient.displayId',
       title: (
-        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        <TranslatedText
+          stringId="general.localisedField.displayId.label.short"
+          fallback="NHN"
+          data-testid='translatedtext-iwfv' />
       ),
       accessor: getPatientDisplayId,
       sortable: false,
@@ -133,6 +139,6 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         orderBy: isCompletedTable ? 'completedAt' : 'requestedDate',
       }}
       isRowsDisabled={isRowsDisabled}
-    />
+      data-testid='searchtablewithpermissioncheck-jjp4' />
   );
 });

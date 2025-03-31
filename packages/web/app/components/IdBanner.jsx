@@ -22,12 +22,12 @@ const IdFieldTitle = styled.div`
 `;
 
 export const IdBanner = ({ children }) => (
-  <IdFieldContainer>
-    <IdFieldTitle>
+  <IdFieldContainer data-testid='idfieldcontainer-fd2l'>
+    <IdFieldTitle data-testid='idfieldtitle-pcqe'>
       <TranslatedText
         stringId="general.localisedField.displayId.label"
         fallback="National Health Number"
-      />
+        data-testid='translatedtext-c57l' />
       :
     </IdFieldTitle>
 

@@ -71,9 +71,13 @@ export const LanguageSelector = () => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel>
+        <LanguageOptionLabel data-testid='languageoptionlabel-lxsu'>
           {countryCode && isISO31661Alpha2(countryCode) && (
-            <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
+            <ReactCountryFlag
+              countryCode={countryCode}
+              style={{ width: '22px' }}
+              svg
+              data-testid='reactcountryflag-4sfm' />
           )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
@@ -90,17 +94,20 @@ export const LanguageSelector = () => {
   };
 
   return (
-    <LanguageSelectorContainer>
+    <LanguageSelectorContainer data-testid='languageselectorcontainer-1xer'>
       <SelectInput
         options={languageOptions}
-        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+        label={<TranslatedText
+          stringId="login.languageSelector.label"
+          fallback="Language"
+          data-testid='translatedtext-3qat' />}
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
         name="Language"
         value={storedLanguage}
         onChange={handleLanguageChange}
-      />
+        data-testid='selectinput-2jq3' />
     </LanguageSelectorContainer>
   );
 };

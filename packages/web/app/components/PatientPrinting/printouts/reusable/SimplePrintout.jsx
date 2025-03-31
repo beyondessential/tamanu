@@ -34,8 +34,11 @@ export const NoteContentSection = ({
   const noteContentList = notes.map(note => note.content);
   return (
     <>
-      <Text $boldTitle={boldTitle}>{title}</Text>
-      <NotesBox $height={height} $minHeight={noteContentList.length ? '0px' : emptyMinHeight}>
+      <Text $boldTitle={boldTitle} data-testid='text-7htz'>{title}</Text>
+      <NotesBox
+        $height={height}
+        $minHeight={noteContentList.length ? '0px' : emptyMinHeight}
+        data-testid='notesbox-l4n4'>
         {separator ? noteContentList.join(separator) : noteContentList}
       </NotesBox>
     </>
@@ -46,15 +49,20 @@ export const SimplePrintout = React.memo(
   ({ patient, village, additionalData, tableData, notes, certificate }) => {
     const { pageTitle, title, subTitle, logo } = certificate;
     return (
-      <CertificateWrapper>
-        <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle={pageTitle} />
+      <CertificateWrapper data-testid='certificatewrapper-nzk8'>
+        <PrintLetterhead
+          title={title}
+          subTitle={subTitle}
+          logoSrc={logo}
+          pageTitle={pageTitle}
+          data-testid='printletterhead-pse6' />
         <PatientDetailPrintout
           patient={patient}
           village={village}
           additionalData={additionalData}
-        />
-        <GridTable data={tableData} />
-        <NoteContentSection notes={notes} />
+          data-testid='patientdetailprintout-q3ab' />
+        <GridTable data={tableData} data-testid='gridtable-99er' />
+        <NoteContentSection notes={notes} data-testid='notecontentsection-v312' />
       </CertificateWrapper>
     );
   },

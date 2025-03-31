@@ -52,9 +52,9 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
     const contextualizeIfIsTranslatedText = element => {
       if (!isTranslatedText(element)) return element;
       return (
-        <QueryClientProvider client={queryClient}>
-          <ApiContext.Provider value={api}>
-            <TranslationContext.Provider value={translationContext}>
+        <QueryClientProvider client={queryClient} data-testid='queryclientprovider-k086'>
+          <ApiContext.Provider value={api} data-testid='provider-72ic'>
+            <TranslationContext.Provider value={translationContext} data-testid='provider-c9xv'>
               {element}
             </TranslationContext.Provider>
           </ApiContext.Provider>
@@ -111,7 +111,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
             if (c.CellComponent) {
               const CellComponent = c.CellComponent;
-              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} />);
+              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} data-testid='cellcomponent-7u3b' />);
               return;
             }
 
@@ -146,15 +146,18 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   return (
     <>
       {ExportButton ? (
-        <ExportButton onClick={onDownloadData} />
+        <ExportButton onClick={onDownloadData} data-testid='exportbutton-2uhy' />
       ) : (
         <GreyOutlinedButton
           onClick={onDownloadData}
-          startIcon={<GetAppIcon />}
+          startIcon={<GetAppIcon data-testid='getappicon-bmce' />}
           data-test-class="download-data-button"
           data-testid="download-data-button"
         >
-          <TranslatedText stringId="general.action.download" fallback="Download" />
+          <TranslatedText
+            stringId="general.action.download"
+            fallback="Download"
+            data-testid='translatedtext-oycf' />
         </GreyOutlinedButton>
       )}
     </>

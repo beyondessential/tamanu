@@ -84,31 +84,43 @@ const StyledTooltip = styled(ThemedTooltip)`
 export const PrimarySidebarItem = ({
   icon,
   label,
+  path,
   children,
   selected,
   highlighted,
   onClick,
   divider,
   retracted,
-}) => (
+}) => {
+  const dataTestIdSuffix = path.replace(/\//g, '-')
+  return (
   <>
-    {divider && <ListDivider $retracted={retracted} />}
-    <StyledTooltip title={retracted ? label : ''} placement="top-end">
+    {divider && <ListDivider $retracted={retracted} data-testid='listdivider-4m9l' />}
+    <StyledTooltip
+      title={retracted ? label : ''}
+      placement="top-end">
       <PrimaryListItem
         button
         onClick={onClick}
         selected={selected}
         $highlighted={highlighted}
         $retracted={retracted}
-        data-test-class="primary-sidebar-item"
-      >
-        <SidebarPrimaryIcon src={icon || administrationIcon} $centered={retracted} />
-        <PrimaryItemText disableTypography $invisible={retracted} primary={label} />
-        {!retracted && <ExpandMore />}
+        data-testid={`primarylistitem-${dataTestIdSuffix}`}>
+        <SidebarPrimaryIcon
+          src={icon || administrationIcon}
+          $centered={retracted}
+          data-testid='sidebarprimaryicon-yysn' />
+        <PrimaryItemText
+          disableTypography
+          $invisible={retracted}
+          primary={label}
+          data-testid='primaryitemtext-000p' />
+        {!retracted && <ExpandMore data-testid='expandmore-opqd' />}
       </PrimaryListItem>
     </StyledTooltip>
-    <Collapse in={selected} timeout="auto" unmountOnExit>
-      <StyledList component="div">{children}</StyledList>
+    <Collapse in={selected} timeout="auto" unmountOnExit data-testid='collapse-sns9'>
+      <StyledList component="div" data-testid='styledlist-mlft'>{children}</StyledList>
     </Collapse>
   </>
 );
+}

@@ -34,15 +34,18 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="lab.modal.printLabel.title" fallback="Print label" />}
+      title={<TranslatedText
+        stringId="lab.modal.printLabel.title"
+        fallback="Print label"
+        data-testid='translatedtext-4d9s' />}
       width="md"
       open={open}
       onClose={onClose}
       printable
-    >
-      <Container>
+      data-testid='modal-5no3'>
+      <Container data-testid='container-78hf'>
         {labRequests.map(lab => (
-          <Box key={lab.displayId} mb={3}>
+          <Box key={lab.displayId} mb={3} data-testid='box-ldhb'>
             <LabRequestPrintLabel
               printWidth={labelWidth}
               data={{
@@ -53,18 +56,18 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
                 date: lab.sampleTime,
                 labCategory: lab.category
                   && <TranslatedReferenceData
-                    fallback={lab.category.name}
-                    value={lab.category.id}
-                    category={lab.category.type}
-                  />,
+                  fallback={lab.category.name}
+                  value={lab.category.id}
+                  category={lab.category.type}
+                  data-testid='translatedreferencedata-hcy8' />,
                 specimenType: lab.specimenType
                   && <TranslatedReferenceData
-                    fallback={lab.specimenType.name}
-                    value={lab.specimenType.id}
-                    category={lab.specimenType.type}
-                  />
+                  fallback={lab.specimenType.name}
+                  value={lab.specimenType.id}
+                  category={lab.specimenType.type}
+                  data-testid='translatedreferencedata-guo4' />
               }}
-            />
+              data-testid='labrequestprintlabel-xrxn' />
           </Box>
         ))}
       </Container>

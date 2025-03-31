@@ -41,22 +41,22 @@ export const SelectReportView = () => {
   );
 
   return (
-    <FlexContainer>
+    <FlexContainer data-testid='flexcontainer-37gh'>
       <ReportTable
         data={reportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}
         error={reportError?.message}
-      />
+        data-testid='reporttable-3n12' />
       {report && (
-        <VersionsTableContainer>
+        <VersionsTableContainer data-testid='versionstablecontainer-c1o5'>
           <VersionTable
             data={versionData}
             loading={areVersionsLoading}
             error={versionsError?.message}
             onRowClick={handleVersionClick}
-          />
+            data-testid='versiontable-pv9p' />
         </VersionsTableContainer>
       )}
     </FlexContainer>

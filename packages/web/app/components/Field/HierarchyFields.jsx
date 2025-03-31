@@ -21,7 +21,7 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
   );
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
   return (
-    <Container>
+    <Container data-testid='container-bmjc'>
       {hierarchyToShow.map((type, index) => {
         const fieldData = fields.find(f => f.referenceType === type);
         const parentFieldData = fields.find(f => f.referenceType === hierarchyToShow[index - 1]);
@@ -34,7 +34,7 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
             isFirstLevel={index === 0}
             parentId={parentId}
             fieldData={fieldData}
-          />
+            data-testid='hierarchyfielditem-ybp2' />
         );
       })}
     </Container>

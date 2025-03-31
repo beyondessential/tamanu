@@ -41,7 +41,7 @@ const UserTable = React.memo(({ ...props }) => (
     columns={COLUMNS}
     noDataMessage="No users found"
     {...props}
-  />
+    data-testid='datafetchingtable-3ziq' />
 ));
 
 export const UserAdminView = React.memo(() => {
@@ -56,20 +56,24 @@ export const UserAdminView = React.memo(() => {
   }, []);
 
   return (
-    <PageContainer>
-      <TopBar title="Users">
-        <Button color="primary" variant="outlined" onClick={showCreatingUserModal}>
+    <PageContainer data-testid='pagecontainer-c8xe'>
+      <TopBar title="Users" data-testid='topbar-kj0y'>
+        <Button
+          color="primary"
+          variant="outlined"
+          onClick={showCreatingUserModal}
+          data-testid='button-bxa9'>
           Add new user
         </Button>
       </TopBar>
-      <UserTable fetchOptions={{}} />
+      <UserTable fetchOptions={{}} data-testid='usertable-mpss' />
       <NewRecordModal
         title="Create new user"
         endpoint={USERS_ENDPOINT}
         open={creatingUser}
         onCancel={hideCreatingUserModal}
         Form={NewUserForm}
-      />
+        data-testid='newrecordmodal-9boc' />
     </PageContainer>
   );
 });

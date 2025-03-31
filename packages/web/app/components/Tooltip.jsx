@@ -4,7 +4,12 @@ import { Tooltip } from '@material-ui/core';
 import { Colors } from '../constants';
 
 export const ThemedTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} placement="top" arrow {...props} />
+  <Tooltip
+    classes={{ popper: props.className }}
+    placement="top"
+    arrow
+    {...props}
+    data-testid='tooltip-b4e8' />
 ))`
   .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
@@ -27,7 +32,7 @@ export const ConditionalTooltip = ({ visible, children, ...restProps }) => {
   if (!visible) return children;
   return (
     //  Below div is needed to make ThemedTooltip work
-    <ThemedTooltip {...restProps}>
+    <ThemedTooltip {...restProps} data-testid='themedtooltip-50xj'>
       <div>{children}</div>
     </ThemedTooltip>
   );

@@ -11,7 +11,7 @@ const MainInstruction = styled.p`
 
 const SelectInstructions = () => (
   <div>
-    <MainInstruction>Select which version of the patient should be kept.</MainInstruction>
+    <MainInstruction data-testid='maininstruction-h1si'>Select which version of the patient should be kept.</MainInstruction>
     <p>
       Patient details recorded against the patient record to be kept, including name, sex, location,
       blood type and contact details will be retained. Any details that are only recorded against
@@ -43,21 +43,26 @@ export const KeepPatientDecisionForm = ({
         });
       }}
       onCancel={onCancel}
-    />
+      data-testid='confirmcancelrow-3i0t' />
   );
   return (
-    <Modal title="Merge patients" actions={actions} open onClose={onCancel}>
-      <SelectInstructions />
+    <Modal
+      title="Merge patients"
+      actions={actions}
+      open
+      onClose={onCancel}
+      data-testid='modal-wmvi'>
+      <SelectInstructions data-testid='selectinstructions-8d76' />
       <PatientSummary
         patient={firstPatient}
         onSelect={() => setSelectedPatient(firstPatient)}
         selected={selectedPatient === firstPatient}
-      />
+        data-testid='patientsummary-jcx5' />
       <PatientSummary
         patient={secondPatient}
         onSelect={() => setSelectedPatient(secondPatient)}
         selected={selectedPatient === secondPatient}
-      />
+        data-testid='patientsummary-mywe' />
     </Modal>
   );
 };

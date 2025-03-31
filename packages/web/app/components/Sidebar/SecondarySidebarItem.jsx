@@ -28,7 +28,9 @@ const Dot = styled.div`
   background: ${props => props.$color};
   margin-right: 14px;
 `;
-export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => (
+export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => {
+  const dataTestIdSuffix = path.replace(/\//g, '-')
+  return (
   <SecondaryListItem
     button
     to={path}
@@ -36,8 +38,8 @@ export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick
     selected={isCurrent}
     onClick={onClick}
     data-test-class="secondary-sidebar-item"
-  >
+    data-testid={`secondarylistitem-${dataTestIdSuffix}`}>
     {color && <Dot $color={color} />}
-    <SecondaryItemText disableTypography primary={label} />
+    <SecondaryItemText disableTypography primary={label} data-testid={`secondaryitemtext-${dataTestIdSuffix}`} />
   </SecondaryListItem>
-);
+)};

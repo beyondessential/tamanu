@@ -90,9 +90,12 @@ export const TabDisplayDraggable = ({
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <TabBar className={className}>
-        <Droppable droppableId="tab-display-droppable" direction="horizontal">
+    <DragDropContext onDragEnd={onDragEnd} data-testid='dragdropcontext-v5fu'>
+      <TabBar className={className} data-testid='tabbar-zlyy'>
+        <Droppable
+          droppableId="tab-display-droppable"
+          direction="horizontal"
+          data-testid='droppable-3q8i'>
           {provided => (
             <TabContainer
               ref={provided.innerRef}
@@ -100,9 +103,14 @@ export const TabDisplayDraggable = ({
               scrollButtons={scrollable ? 'on' : 'off'}
               value={currentTabData?.order || 0}
               {...provided.droppableProps}
-            >
+              data-testid='tabcontainer-uai8'>
               {tabs.map(({ key, label, render, icon }, index) => (
-                <Draggable key={key} draggableId={key} index={index} isDragDisabled={!render}>
+                <Draggable
+                  key={key}
+                  draggableId={key}
+                  index={index}
+                  isDragDisabled={!render}
+                  data-testid='draggable-cehj'>
                   {(provided, snapshot) => (
                     <StyledTab
                       ref={provided.innerRef}
@@ -114,12 +122,12 @@ export const TabDisplayDraggable = ({
                         selected: currentTabData?.key === key,
                         isDragging: snapshot.isDragging,
                       })}
-                    >
+                      data-testid='styledtab-ccs8'>
                       {icon && (
                         <Icon
                           className={icon}
                           color={currentTabData?.key === key ? Colors.primary : Colors.softText}
-                        />
+                          data-testid='icon-1iqd' />
                       )}
                       {label}
                     </StyledTab>

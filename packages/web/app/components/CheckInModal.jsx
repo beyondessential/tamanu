@@ -16,10 +16,15 @@ function getEncounterTypeLabel(encounterType) {
         <TranslatedText
           stringId="encounter.property.type.admission"
           fallback="Hospital admission"
-        />
+          data-testid='translatedtext-bmgr' />
       );
     case ENCOUNTER_TYPES.CLINIC:
-      return <TranslatedText stringId="encounter.property.type.clinic" fallback="Clinic" />;
+      return (
+        <TranslatedText
+          stringId="encounter.property.type.clinic"
+          fallback="Clinic"
+          data-testid='translatedtext-lt10' />
+      );
     default:
       return '';
   }
@@ -68,18 +73,18 @@ export const CheckInModal = React.memo(
             stringId="patient.modal.checkIn.title"
             fallback="Admit or check-in | :encounterType"
             replacements={{ encounterType: getEncounterTypeLabel(props?.encounterType) }}
-          />
+            data-testid='translatedtext-s67c' />
         }
         open={open}
         onClose={onClose}
-      >
+        data-testid='formmodal-4oua'>
         <EncounterForm
           onSubmit={onCreateEncounter}
           onCancel={onClose}
           patientBillingTypeId={patientBillingTypeId}
           initialValues={initialValues}
           {...props}
-        />
+          data-testid='encounterform-13gk' />
       </FormModal>
     );
   },

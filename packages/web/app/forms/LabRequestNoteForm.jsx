@@ -116,16 +116,16 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   );
 
   return (
-    <Container>
-      <NotesIcon color="primary" style={{ marginTop: 4 }} />
-      <Box flex="1" ml={1}>
-        <List>
+    <Container data-testid='container-6gfs'>
+      <NotesIcon color="primary" style={{ marginTop: 4 }} data-testid='notesicon-4qul' />
+      <Box flex="1" ml={1} data-testid='box-7r5l'>
+        <List data-testid='list-19gk'>
           {isSuccess &&
             notes.data?.map(note => (
-              <ListItem key={`${note.id}`}>
+              <ListItem key={`${note.id}`} data-testid='listitem-bd73'>
                 {note.content}
-                <Caption>
-                  {note.author?.displayName} <DateDisplay date={note.date} showTime />
+                <Caption data-testid='caption-gjgp'>
+                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-testid='datedisplay-ju3f' />
                 </Caption>
               </ListItem>
             ))}
@@ -139,18 +139,33 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
             render={({ values }) => {
               const formSubmitIsDisabled = !values.content?.trim();
               return active ? (
-                <Box display="flex" alignItems="center">
-                  <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <CancelAddNoteButton onClick={() => setActive(false)}>Cancel</CancelAddNoteButton>
-                  <SubmitNoteButton $underline disabled={formSubmitIsDisabled} text="Save" />
+                <Box display="flex" alignItems="center" data-testid='box-hygn'>
+                  <NotesInput
+                    label=""
+                    name="content"
+                    component={TextField}
+                    autoFocus
+                    data-testid='notesinput-zirf' />
+                  <CancelAddNoteButton onClick={() => setActive(false)} data-testid='canceladdnotebutton-1p1s'>Cancel</CancelAddNoteButton>
+                  <SubmitNoteButton
+                    $underline
+                    disabled={formSubmitIsDisabled}
+                    text="Save"
+                    data-testid='submitnotebutton-3s84' />
                 </Box>
               ) : (
-                <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
-                  <TranslatedText stringId="general.action.addNote" fallback="Add note" />
+                <ShowAddNoteFormButton
+                  $underline
+                  onClick={() => setActive(true)}
+                  data-testid='showaddnoteformbutton-thpi'>
+                  <TranslatedText
+                    stringId="general.action.addNote"
+                    fallback="Add note"
+                    data-testid='translatedtext-6ric' />
                 </ShowAddNoteFormButton>
               );
             }}
-          />
+            data-testid='form-7jdi' />
         )}
       </Box>
     </Container>

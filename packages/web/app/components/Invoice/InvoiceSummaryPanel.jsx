@@ -102,12 +102,15 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
   };
 
   return (
-    <FieldArray name="insurers">
+    <FieldArray name="insurers" data-testid='fieldarray-f3fl'>
       {formArrayMethods => {
         return (
-          <CardItem flexDirection="column">
+          <CardItem flexDirection="column" data-testid='carditem-p9rg'>
             {!!insurers.length && (
-              <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+              <TranslatedText
+                stringId="invoice.summary.insurer.label"
+                fallback="Insurer"
+                data-testid='translatedtext-7mzp' />
             )}
             {insurers?.map((insurer, index) => (
               <Box
@@ -116,15 +119,15 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                 justifyContent="space-between"
                 width="100%"
                 position="relative"
-              >
-                <Box display="flex" style={{ gap: '8px' }}>
+                data-testid='box-70z7'>
+                <Box display="flex" style={{ gap: '8px' }} data-testid='box-zoc8'>
                   <Field
                     name={`insurers.${index}.insurerId`}
                     required
                     component={AutocompleteField}
                     suggester={insurerSuggester}
                     size="small"
-                  />
+                    data-testid='field-6jf7' />
                   <Field
                     name={`insurers.${index}.percentage`}
                     component={StyledNumberField}
@@ -132,15 +135,21 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     max={100}
                     onInput={preventInvalid}
                     required
-                  />
-                  <Box marginTop="11px">%</Box>
+                    data-testid='field-v5p9' />
+                  <Box marginTop="11px" data-testid='box-mtns'>%</Box>
                 </Box>
-                <Box marginTop="11px" display="flex" justifyContent="flex-end">
+                <Box
+                  marginTop="11px"
+                  display="flex"
+                  justifyContent="flex-end"
+                  data-testid='box-mrtu'>
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
-                  <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
-                    <CloseIcon />
+                  <RemoveInsurerButton
+                    onClick={() => formArrayMethods.remove(index)}
+                    data-testid='removeinsurerbutton-7h8t'>
+                    <CloseIcon data-testid='closeicon-am8c' />
                   </RemoveInsurerButton>
                 </Box>
               </Box>
@@ -157,18 +166,18 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                       : undefined,
                 });
               }}
-            >
+              data-testid='addinsurerbutton-zsf0'>
               {'+ '}
               {insurers.length ? (
                 <TranslatedText
                   stringId="invoice.summary.action.addAnotherInsurer"
                   fallback="Add another insurer"
-                />
+                  data-testid='translatedtext-j0rc' />
               ) : (
                 <TranslatedText
                   stringId="invoice.summary.action.addInsurer"
                   fallback="Add insurer"
-                />
+                  data-testid='translatedtext-79ap' />
               )}
             </AddInsurerButton>
           </CardItem>
@@ -180,16 +189,24 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
 
 const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
   return (
-    <CardItem flexDirection="column">
-      <Box fontWeight={500}>
-        <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+    <CardItem flexDirection="column" data-testid='carditem-3k9i'>
+      <Box fontWeight={500} data-testid='box-8ytp'>
+        <TranslatedText
+          stringId="invoice.summary.insurer.label"
+          fallback="Insurer"
+          data-testid='translatedtext-26zz' />
       </Box>
       {insurers?.map((insurer, index) => (
-        <Box key={insurer.id} display="flex" justifyContent="space-between" width="100%">
+        <Box
+          key={insurer.id}
+          display="flex"
+          justifyContent="space-between"
+          width="100%"
+          data-testid='box-l56h'>
           {insurer.insurer?.name}
-          <DiscountedPrice>
+          <DiscountedPrice data-testid='discountedprice-y3fm'>
             <span>{insurer.percentage * 100}%</span>
-            <BodyText color={Colors.darkestText}>
+            <BodyText color={Colors.darkestText} data-testid='bodytext-zyif'>
               {insurerDiscountAmountDisplayList[index]
                 ? `-${insurerDiscountAmountDisplayList[index]}`
                 : ''}
@@ -227,31 +244,36 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
   );
 
   return (
-    <Container>
-      <CardItem>
+    <Container data-testid='container-p5qj'>
+      <CardItem data-testid='carditem-z6k5'>
         <TranslatedText
           stringId="invoice.summary.subtotal.discountable"
           fallback="Discountable items subtotal"
-        />
+          data-testid='translatedtext-17ar' />
         <span>{discountableItemsSubtotal ?? '-'}</span>
       </CardItem>
-      <CardItem>
+      <CardItem data-testid='carditem-tiv6'>
         <TranslatedText
           stringId="invoice.summary.subtotal.nondiscountable"
           fallback="Non-discountable items subtotal"
-        />
+          data-testid='translatedtext-828s' />
         <span>{nonDiscountableItemsSubtotal ?? '-'}</span>
       </CardItem>
-      <Divider />
-      <CardItem sx={{ fontWeight: 500 }}>
-        <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
+      <Divider data-testid='divider-mot1' />
+      <CardItem sx={{ fontWeight: 500 }} data-testid='carditem-vvf4'>
+        <TranslatedText
+          stringId="invoice.summary.total.label"
+          fallback="Total"
+          data-testid='translatedtext-qedx' />
         <span>{itemsSubtotal ?? '-'}</span>
       </CardItem>
-      <Divider />
+      <Divider data-testid='divider-49jw' />
       {editable && (
         <>
-          <InsurersEditable insurerDiscountAmountDisplayList={insurerDiscountAmountDisplayList} />
-          <Divider />
+          <InsurersEditable
+            insurerDiscountAmountDisplayList={insurerDiscountAmountDisplayList}
+            data-testid='insurerseditable-7r3g' />
+          <Divider data-testid='divider-gic9' />
         </>
       )}
       {!editable && !!insurers?.length && (
@@ -259,33 +281,44 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           <InsurersView
             insurers={insurers}
             insurerDiscountAmountDisplayList={insurerDiscountAmountDisplayList}
-          />
-          <Divider />
+            data-testid='insurersview-3y9v' />
+          <Divider data-testid='divider-bfqi' />
         </>
       )}
       {(!!insurers?.length || editable) && (
         <>
-          <CardItem sx={{ fontWeight: 500 }}>
+          <CardItem sx={{ fontWeight: 500 }} data-testid='carditem-o3em'>
             <TranslatedText
               stringId="invoice.summary.patientSubtotal.label"
               fallback="Patient subtotal"
-            />
+              data-testid='translatedtext-ekgn' />
             <span>{patientSubtotal ?? '-'}</span>
           </CardItem>
-          <Divider />
+          <Divider data-testid='divider-foeu' />
         </>
       )}
-      <CardItem sx={{ marginBottom: '-6px', fontWeight: 500 }}>
-        <TranslatedText stringId="invoice.summary.discount.label" fallback="Discount" />
+      <CardItem
+        sx={{ marginBottom: '-6px', fontWeight: 500 }}
+        data-testid='carditem-1ngh'>
+        <TranslatedText
+          stringId="invoice.summary.discount.label"
+          fallback="Discount"
+          data-testid='translatedtext-5iru' />
         {editable && !invoice.discount && (
-          <Button onClick={handleEditDiscount}>
-            <TranslatedText stringId="invoice.summary.action.addDiscount" fallback="Add discount" />
+          <Button onClick={handleEditDiscount} data-testid='button-lxbh'>
+            <TranslatedText
+              stringId="invoice.summary.action.addDiscount"
+              fallback="Add discount"
+              data-testid='translatedtext-hng4' />
           </Button>
         )}
         {!!invoice.discount && (
-          <DiscountedPrice>
+          <DiscountedPrice data-testid='discountedprice-nuxm'>
             <span>{invoice.discount.percentage * 100}%</span>
-            <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
+            <BodyText
+              sx={{ fontWeight: 400 }}
+              color={Colors.darkestText}
+              data-testid='bodytext-5tbe'>
               {typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>
@@ -298,11 +331,11 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             color: Colors.midText,
             '&&': { justifyContent: 'flex-start' },
           }}
-        >
-          <DescriptionText>
+          data-testid='carditem-85pj'>
+          <DescriptionText data-testid='descriptiontext-6ty7'>
             <ThemedTooltip
               title={
-                <Box textAlign="center" whiteSpace="pre">
+                <Box textAlign="center" whiteSpace="pre" data-testid='box-598v'>
                   <span>{invoice.discount?.reason}</span>
                   {invoice.discount?.reason && '\n'}
                   <span>
@@ -312,44 +345,49 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
                   </span>
                 </Box>
               }
-            >
+              data-testid='themedtooltip-oem6'>
               <span>
                 {invoice.discount?.isManual ? (
                   <TranslatedText
                     stringId="invoice.summary.discountManual"
                     fallback="Manual discount"
-                  />
+                    data-testid='translatedtext-lou8' />
                 ) : (
                   <TranslatedText
                     stringId="invoice.summary.discountAssessment"
                     fallback="Patient discount applied"
-                  />
+                    data-testid='translatedtext-usmq' />
                 )}
               </span>
             </ThemedTooltip>
           </DescriptionText>
           {editable && (
-            <IconButton onClick={handleEditDiscount}>
-              <PencilIcon />
+            <IconButton onClick={handleEditDiscount} data-testid='iconbutton-w66q'>
+              <PencilIcon data-testid='pencilicon-12fm' />
             </IconButton>
           )}
         </CardItem>
       )}
       {!!invoice.discount && (
-        <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>
+        <CardItem
+          sx={{ marginBottom: '-6px', color: Colors.midText }}
+          data-testid='carditem-wljk'>
           <TranslatedText
             stringId="invoice.summary.appliedDiscountable"
             fallback="Applied to discountable balance"
-          />
-          <DiscountedPrice>{patientDiscountableSubtotal ?? '-'}</DiscountedPrice>
+            data-testid='translatedtext-5kcz' />
+          <DiscountedPrice data-testid='discountedprice-v3xh'>{patientDiscountableSubtotal ?? '-'}</DiscountedPrice>
         </CardItem>
       )}
-      <Divider />
-      <CardItem>
-        <Heading3 sx={{ margin: 0 }}>
-          <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total" />
+      <Divider data-testid='divider-8zwi' />
+      <CardItem data-testid='carditem-h9rd'>
+        <Heading3 sx={{ margin: 0 }} data-testid='heading3-y938'>
+          <TranslatedText
+            stringId="invoice.summary.patientTotal"
+            fallback="Patient total"
+            data-testid='translatedtext-nst0' />
         </Heading3>
-        <Heading3 sx={{ margin: 0 }}>{patientTotal ?? '-'}</Heading3>
+        <Heading3 sx={{ margin: 0 }} data-testid='heading3-vj7u'>{patientTotal ?? '-'}</Heading3>
       </CardItem>
     </Container>
   );

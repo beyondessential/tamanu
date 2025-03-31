@@ -132,18 +132,21 @@ export const SearchMultiSelectInput = ({
         variant="outlined"
         onClick={handleOpen}
         {...props}
-      >
+        data-testid='styledinputbutton-wskp'>
         {label} {value.length > 0 ? `(${value.length})` : ''}
       </StyledInputButton>
-
-      <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <SearchContainer>
+      <StyledMenu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        data-testid='styledmenu-j04h'>
+        <SearchContainer data-testid='searchcontainer-4ydp'>
           {shouldShowSearch && (
             <StyledTextInput
               InputProps={{
                 startAdornment: (
-                  <Icon>
-                    <Search />
+                  <Icon data-testid='icon-ulci'>
+                    <Search data-testid='search-clu1' />
                   </Icon>
                 ),
               }}
@@ -152,14 +155,17 @@ export const SearchMultiSelectInput = ({
               value={searchValue}
               onChange={e => setSearchValue(e.target.value)}
               size="small"
-            />
+              data-testid='styledtextinput-ryvy' />
           )}
-          <StyledTextButton onClick={handleClear}>
-            <TranslatedText stringId="general.action.clear" fallback="Clear" />
+          <StyledTextButton onClick={handleClear} data-testid='styledtextbutton-mth0'>
+            <TranslatedText
+              stringId="general.action.clear"
+              fallback="Clear"
+              data-testid='translatedtext-hxyt' />
           </StyledTextButton>
         </SearchContainer>
 
-        <OptionsContainer>
+        <OptionsContainer data-testid='optionscontainer-nneh'>
           {options.length > 0 ? (
             options
               .filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
@@ -168,19 +174,22 @@ export const SearchMultiSelectInput = ({
                 <StyledMenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
-                >
+                  data-testid='styledmenuitem-8ebf'>
                   <Checkbox
                     checked={value.includes(option.value)}
-                    icon={<CheckboxIconUnchecked width={15} height={15} />}
-                    checkedIcon={<CheckboxIconChecked width={15} height={15} />}
+                    icon={<CheckboxIconUnchecked width={15} height={15} data-testid='checkboxiconunchecked-aqdj' />}
+                    checkedIcon={<CheckboxIconChecked width={15} height={15} data-testid='checkboxiconchecked-1zsb' />}
                     sx={{ padding: 0 }}
-                  />
-                  <ListItemText primary={option.label} />
+                    data-testid='checkbox-hyuw' />
+                  <ListItemText primary={option.label} data-testid='listitemtext-pqs6' />
                 </StyledMenuItem>
               ))
           ) : (
-            <MenuItem disabled>
-              <TranslatedText stringId="general.search.noDataMessage" fallback="No options found" />
+            <MenuItem disabled data-testid='menuitem-n0tf'>
+              <TranslatedText
+                stringId="general.search.noDataMessage"
+                fallback="No options found"
+                data-testid='translatedtext-lpri' />
             </MenuItem>
           )}
         </OptionsContainer>
@@ -197,7 +206,7 @@ export const SearchMultiSelectField = ({ field, options, label, ...props }) => (
     label={label}
     options={options}
     {...props}
-  />
+    data-testid='searchmultiselectinput-ptb5' />
 );
 
 export const SuggesterSearchMultiSelectField = ({
@@ -224,5 +233,5 @@ export const SuggesterSearchMultiSelectField = ({
     options,
   };
 
-  return <SearchMultiSelectInput {...baseProps} {...props} />;
+  return <SearchMultiSelectInput {...baseProps} {...props} data-testid='searchmultiselectinput-z9c6' />;
 };

@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { CarouselComponents as CalendarGrid } from './CarouselComponents';
 
 const SkeletonRowHeaderCell = () => (
-  <CalendarGrid.RowHeaderCell>
-    <Skeleton animation="wave" variant="text" width="8em" />
-    <Skeleton animation="wave" variant="text" width="5em" />
+  <CalendarGrid.RowHeaderCell data-testid='rowheadercell-mht9'>
+    <Skeleton animation="wave" variant="text" width="8em" data-testid='skeleton-l9w9' />
+    <Skeleton animation="wave" variant="text" width="5em" data-testid='skeleton-42iz' />
   </CalendarGrid.RowHeaderCell>
 );
 
@@ -22,13 +22,13 @@ const SkeletonBodyCell = styled(Skeleton).attrs({
 `;
 
 const SkeletonRow = ({ colCount }) => (
-  <CalendarGrid.Row>
-    <SkeletonRowHeaderCell />
+  <CalendarGrid.Row data-testid='row-ehpg'>
+    <SkeletonRowHeaderCell data-testid='skeletonrowheadercell-mts6' />
     {Array.from({ length: colCount }).map((_, i) => (
-      <SkeletonBodyCell key={i} />
+      <SkeletonBodyCell key={i} data-testid='skeletonbodycell-uelj' />
     ))}
   </CalendarGrid.Row>
 );
 
 export const SkeletonRows = ({ colCount }) =>
-  Array.from({ length: 7 }).map((_, i) => <SkeletonRow colCount={colCount} key={i} />);
+  Array.from({ length: 7 }).map((_, i) => <SkeletonRow colCount={colCount} key={i} data-testid='skeletonrow-xti8' />);

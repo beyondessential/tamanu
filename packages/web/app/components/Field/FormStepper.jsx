@@ -46,14 +46,18 @@ const StyledStepButton = styled(StepButton)`
 `;
 
 export const FormStepper = ({ screenIndex, handleStep, screenReactElements }) => (
-  <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+  <StyledStepper
+    nonLinear
+    activeStep={screenIndex}
+    connector={null}
+    data-testid='styledstepper-6u8v'>
     {screenReactElements.map(({ key }, index) => (
-      <StyledStep key={key}>
+      <StyledStep key={key} data-testid='styledstep-pr7d'>
         <StyledStepButton
           onClick={handleStep(index)}
           icon={null}
           $isActive={screenIndex >= index}
-        />
+          data-testid='styledstepbutton-nucr' />
       </StyledStep>
     ))}
   </StyledStepper>

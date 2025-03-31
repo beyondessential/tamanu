@@ -90,16 +90,16 @@ export const DashboardTaskPane = React.memo(() => {
   };
 
   return (
-    <TabPane>
-      <TopBar>
-        <Heading4 whiteSpace="nowrap">
+    <TabPane data-testid='tabpane-s00l'>
+      <TopBar data-testid='topbar-r96r'>
+        <Heading4 whiteSpace="nowrap" data-testid='heading4-ng7b'>
           <TranslatedText
             stringId="dashboard.tasks.upcomingTasks.title"
             fallback="Upcoming tasks"
-          />
+            data-testid='translatedtext-0dpr' />
         </Heading4>
-        <ActionRow>
-          <FilterGrid>
+        <ActionRow data-testid='actionrow-iw9x'>
+          <FilterGrid data-testid='filtergrid-t0gc'>
             <LocationInput
               name="locationId"
               onChange={onLocationIdChange}
@@ -108,32 +108,34 @@ export const DashboardTaskPane = React.memo(() => {
                 <TranslatedText
                   stringId="general.localisedField.locationId.label"
                   fallback="Location"
-                />
+                  data-testid='translatedtext-u95d' />
               }
               locationGroupLabel={
                 <TranslatedText
                   stringId="general.localisedField.locationGroupId.label"
                   fallback="Area"
-                />
+                  data-testid='translatedtext-kbsm' />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
               isMulti={true}
-            />
+              data-testid='locationinput-aabz' />
             <StyledCheckInput
               label={
                 <TranslatedText
                   stringId="dashboard.tasks.table.highPriorityOnly.label"
                   fallback="High priority only"
-                />
+                  data-testid='translatedtext-crsm' />
               }
               value={clinicianDashboardTaskingTableFilter.highPriority}
               onChange={onHighPriorityOnlyChange}
-            />
+              data-testid='styledcheckinput-fzec' />
           </FilterGrid>
         </ActionRow>
       </TopBar>
-      <DashboardTasksTable searchParameters={clinicianDashboardTaskingTableFilter} />
+      <DashboardTasksTable
+        searchParameters={clinicianDashboardTaskingTableFilter}
+        data-testid='dashboardtaskstable-lyo3' />
     </TabPane>
   );
 });

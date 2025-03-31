@@ -16,7 +16,7 @@ export const WorkerRenderedPDFViewer = props => {
     ...props,
   });
 
-  if (isFetching) return <LoadingIndicator height="500px" />;
+  if (isFetching) return <LoadingIndicator height="500px" data-testid='loadingindicator-9zv6' />;
   const src = url ? `${url}#toolbar=0` : null;
 
   if (error) {
@@ -24,5 +24,5 @@ export const WorkerRenderedPDFViewer = props => {
     return <div>{JSON.stringify(error)}</div>;
   }
 
-  return <FullIframe id={props.id} src={src} />;
+  return <FullIframe id={props.id} src={src} data-testid='fulliframe-rz3a' />;
 };

@@ -52,7 +52,7 @@ export const Field = formikConnect(
         helperText={message}
         name={name}
         onChange={combinedOnChange}
-      />
+        data-testid='formikfield-19wp' />
     );
   },
 );
@@ -80,20 +80,30 @@ export const FieldWithTooltip = ({
 }) => {
   if (disabledTooltipText && props.disabled)
     return (
-      <MuiBox position="relative">
-        <StyledToolTip title={disabledTooltipText} arrow placement="top" {...props}>
+      <MuiBox position="relative" data-testid='muibox-slpq'>
+        <StyledToolTip
+          title={disabledTooltipText}
+          arrow
+          placement="top"
+          {...props}
+          data-testid='styledtooltip-qc9k'>
           {/* Below div is needed to make StyledToolTip work  */}
           <div>
-            <Field {...props} />
+            <Field {...props} data-testid='field-ete4' />
           </div>
         </StyledToolTip>
       </MuiBox>
     );
 
   return (
-    <MuiBox position="relative">
-      <Field {...props} />
-      {tooltipText && <FormTooltip arrow placement="top" title={tooltipText} {...muiTooltipProps} />}
+    <MuiBox position="relative" data-testid='muibox-8z4o'>
+      <Field {...props} data-testid='field-tybt' />
+      {tooltipText && <FormTooltip
+        arrow
+        placement="top"
+        title={tooltipText}
+        {...muiTooltipProps}
+        data-testid='formtooltip-lztn' />}
     </MuiBox>
   );
 };

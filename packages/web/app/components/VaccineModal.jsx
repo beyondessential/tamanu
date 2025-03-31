@@ -59,7 +59,10 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
 
   const TABS = [
     {
-      label: <TranslatedText stringId="vaccine.property.status.given" fallback="Given" />,
+      label: <TranslatedText
+        stringId="vaccine.property.status.given"
+        fallback="Given"
+        data-testid='translatedtext-2esy' />,
       key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm
@@ -69,11 +72,14 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
           existingValues={vaccineRecord}
-        />
+          data-testid='vaccineform-0k3p' />
       ),
     },
     {
-      label: <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />,
+      label: <TranslatedText
+        stringId="vaccine.property.status.notGiven"
+        fallback="Not given"
+        data-testid='translatedtext-ju96' />,
       key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm
@@ -83,19 +89,26 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
           existingValues={vaccineRecord}
-        />
+          data-testid='vaccineform-e7qk' />
       ),
     },
   ];
 
   return (
     <FormModal
-      title={<TranslatedText stringId="vaccine.modal.create.title" fallback="Record vaccine" />}
+      title={<TranslatedText
+        stringId="vaccine.modal.create.title"
+        fallback="Record vaccine"
+        data-testid='translatedtext-w6y6' />}
       open={open}
       onClose={onClose}
       width="md"
-    >
-      <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
+      data-testid='formmodal-82as'>
+      <SegmentTabDisplay
+        tabs={TABS}
+        currentTabKey={currentTabKey}
+        onTabSelect={setCurrentTabKey}
+        data-testid='segmenttabdisplay-c1t9' />
     </FormModal>
   );
 };

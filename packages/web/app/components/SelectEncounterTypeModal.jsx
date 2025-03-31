@@ -29,8 +29,12 @@ const EncounterOptionTypeButton = styled(Button)`
 `;
 
 const EncounterOptionButton = ({ label, image, onClick }) => (
-  <EncounterOptionTypeButton variant="contained" color="default" onClick={onClick}>
-    <TypeImage alt={label} src={image} />
+  <EncounterOptionTypeButton
+    variant="contained"
+    color="default"
+    onClick={onClick}
+    data-testid='encounteroptiontypebutton-haqi'>
+    <TypeImage alt={label} src={image} data-testid='typeimage-c71v' />
     {label}
   </EncounterOptionTypeButton>
 );
@@ -45,16 +49,19 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
         value={value}
         image={image}
         onClick={() => onSelectEncounterType(value)}
-      />
+        data-testid='encounteroptionbutton-6ubf' />
     ));
 
   return (
     <Modal
-      title={<TranslatedText stringId="patient.modal.admit.title" fallback="Admit or check-in" />}
+      title={<TranslatedText
+        stringId="patient.modal.admit.title"
+        fallback="Admit or check-in"
+        data-testid='translatedtext-505w' />}
       open={open}
       onClose={onClose}
-    >
-      <SelectorGrid>{items}</SelectorGrid>
+      data-testid='modal-8456'>
+      <SelectorGrid data-testid='selectorgrid-000c'>{items}</SelectorGrid>
     </Modal>
   );
 });

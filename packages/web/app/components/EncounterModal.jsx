@@ -54,7 +54,7 @@ export const EncounterModal = React.memo(
           open={modalStatus === MODAL_STATES.SELECT_OPEN}
           onClose={onCloseModal}
           onSelectEncounterType={onSelectEncounterType}
-        />
+          data-testid='selectencountertypemodal-dty8' />
         <CheckInModal
           open={modalStatus === MODAL_STATES.ENCOUNTER_OPEN}
           onClose={onCloseModal}
@@ -64,7 +64,7 @@ export const EncounterModal = React.memo(
           patientBillingTypeId={patientBillingTypeId}
           referral={referral}
           initialValues={initialValues}
-        />
+          data-testid='checkinmodal-7ijs' />
         <TriageModal
           open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
           onSubmitEncounter={onSubmitEncounter}
@@ -72,7 +72,7 @@ export const EncounterModal = React.memo(
           onClose={onCloseModal}
           patient={patient}
           initialValues={initialValues}
-        />
+          data-testid='triagemodal-715s' />
       </>
     );
   },

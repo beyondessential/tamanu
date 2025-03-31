@@ -66,27 +66,27 @@ const ReferralFlow = ({ patient, currentUser }) => {
   );
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid='loadingindicator-uqkf' />;
   }
 
   if (isError) {
-    return <ErrorMessage title="Error" error={error} />;
+    return <ErrorMessage title="Error" error={error} data-testid='errormessage-ub43' />;
   }
 
   if (!referralSurvey) {
     return (
-      <ProgramsPane>
-        <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
+      <ProgramsPane data-testid='programspane-6xjz'>
+        <ProgramsPaneHeader data-testid='programspaneheader-8cj1'>
+          <ProgramsPaneHeading variant="h6" data-testid='programspaneheading-a55s'>Select a referral</ProgramsPaneHeading>
         </ProgramsPaneHeader>
-        <FormGrid columns={1}>
+        <FormGrid columns={1} data-testid='formgrid-prtu'>
           <SurveySelector
             onSubmit={setSelectedReferral}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={referralSurveys}
             buttonText="Begin referral"
-          />
+            data-testid='surveyselector-6c7l' />
         </FormGrid>
       </ProgramsPane>
     );
@@ -99,7 +99,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       patient={patient}
       patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
-    />
+      data-testid='surveyview-3mvd' />
   );
 };
 
@@ -113,9 +113,14 @@ export const ReferralsView = () => {
         onViewPatient={id => {
           dispatch(reloadPatient(id));
         }}
-      />
+        data-testid='patientlistingview-o7jr' />
     );
   }
 
-  return <ReferralFlow patient={patient} currentUser={currentUser} />;
+  return (
+    <ReferralFlow
+      patient={patient}
+      currentUser={currentUser}
+      data-testid='referralflow-ctqh' />
+  );
 };

@@ -43,17 +43,28 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
   return (
     <>
-      {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
-      <PaneWrapper>
-        <TableButtonRow variant="small">
-          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
+      {!isFromEncounter && <DocumentsSearchBar
+        setSearchParameters={setSearchParameters}
+        data-testid='documentssearchbar-hoyg' />}
+      <PaneWrapper data-testid='panewrapper-vhzo'>
+        <TableButtonRow variant="small" data-testid='tablebuttonrow-khuv'>
+          <OutlinedButton
+            onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
+            data-testid='outlinedbutton-me4h'>
             <TranslatedText
               stringId="document.action.openPatientLetter"
               fallback="Patient letter"
-            />
+              data-testid='translatedtext-ws2i' />
           </OutlinedButton>
-          <ButtonWithPermissionCheck verb="create" noun="DocumentMetadata" onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
-            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+          <ButtonWithPermissionCheck
+            verb="create"
+            noun="DocumentMetadata"
+            onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+            data-testid='buttonwithpermissioncheck-slv7'>
+            <TranslatedText
+              stringId="document.action.addDocument"
+              fallback="Add document"
+              data-testid='translatedtext-yhxu' />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable
@@ -63,7 +74,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           refreshTable={updateRefreshCount}
           onDownload={onDownload}
           openDocumentPreview={openDocumentPreview}
-        />
+          data-testid='documentstable-mcc0' />
       </PaneWrapper>
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
@@ -72,18 +83,18 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         refreshTable={updateRefreshCount}
         openDocumentPreview={openDocumentPreview}
         patient={patient}
-      />
+        data-testid='patientlettermodal-v1gh' />
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={closeModal}
         endpoint={documentMetadataEndpoint}
         refreshTable={updateRefreshCount}
-      />
+        data-testid='documentmodal-ug9z' />
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
         onClose={closeModal}
         document={selectedDocument}
-      />
+        data-testid='documentpreviewmodal-6yk3' />
     </>
   );
 });

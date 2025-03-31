@@ -113,8 +113,8 @@ export const ReminderContactModal = ({ onClose, open }) => {
       title={getModalTitle()}
       open={open}
       onClose={onClose}
-    >
-      <ReminderModalContainer>
+      data-testid='styledbasemodal-y16p'>
+      <ReminderModalContainer data-testid='remindermodalcontainer-3k3b'>
         {activeView === REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST && (
           <ReminderContactList
             onAddContact={() => handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM)}
@@ -123,13 +123,20 @@ export const ReminderContactModal = ({ onClose, open }) => {
             onClose={onClose}
             pendingContacts={pendingContacts}
             successContactIds={successContactIds}
-          />
+            data-testid='remindercontactlist-og9g' />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_FORM && (
-          <AddReminderContact onContinue={onContinue} onBack={onBack} onClose={onClose} />
+          <AddReminderContact
+            onContinue={onContinue}
+            onBack={onBack}
+            onClose={onClose}
+            data-testid='addremindercontact-alhi' />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE && (
-          <ReminderContactQR contact={newContact} onClose={onBack} />
+          <ReminderContactQR
+            contact={newContact}
+            onClose={onBack}
+            data-testid='remindercontactqr-q8dp' />
         )}
         {activeView === REMINDER_CONTACT_VIEWS.REMOVE_REMINDER && (
           <RemoveReminderContact
@@ -138,7 +145,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
             pendingContacts={pendingContacts}
             onClose={onClose}
             onBack={onBack}
-          />
+            data-testid='removeremindercontact-ru7m' />
         )}
       </ReminderModalContainer>
     </StyledBaseModal>

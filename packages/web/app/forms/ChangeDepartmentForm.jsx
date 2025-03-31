@@ -13,19 +13,25 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
   const renderForm = ({ submitForm }) => (
-    <FormGrid columns={1}>
+    <FormGrid columns={1} data-testid='formgrid-ln39'>
       <Field
-        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+        label={<TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid='translatedtext-d130' />}
         name="departmentId"
         component={AutocompleteField}
         suggester={departmentSuggester}
         required
-      />
+        data-testid='field-cy0j' />
       <FormSubmitCancelRow
         onConfirm={submitForm}
-        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        confirmText={<TranslatedText
+          stringId="general.action.save"
+          fallback="Save"
+          data-testid='translatedtext-1u70' />}
         onCancel={onCancel}
-      />
+        data-testid='formsubmitcancelrow-s4op' />
     </FormGrid>
   );
 
@@ -42,11 +48,14 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="general.department.label" fallback="Department" />,
+            <TranslatedText
+              stringId="general.department.label"
+              fallback="Department"
+              data-testid='translatedtext-pvrf' />,
           ),
       })}
       render={renderForm}
       onSubmit={onSubmit}
-    />
+      data-testid='form-1uj3' />
   );
 };

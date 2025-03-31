@@ -49,10 +49,13 @@ const StyledClearIcon = styled(ClearIcon)`
 const Option = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <components.Option {...props}>
+    <components.Option {...props} data-testid='option-phpw'>
       {children}
       {tag && (
-        <OptionTag $background={tag.background} $color={tag.color}>
+        <OptionTag
+          $background={tag.background}
+          $color={tag.color}
+          data-testid='optiontag-dcl5'>
           {tag.label}
         </OptionTag>
       )}
@@ -63,10 +66,13 @@ const Option = ({ children, ...props }) => {
 const SingleValue = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <components.SingleValue {...props}>
+    <components.SingleValue {...props} data-testid='singlevalue-tsqx'>
       {children}
       {tag && (
-        <SelectTag $background={tag.background} $color={tag.color}>
+        <SelectTag
+          $background={tag.background}
+          $color={tag.color}
+          data-testid='selecttag-aq4z'>
           {tag.label}
         </SelectTag>
       )}
@@ -76,8 +82,8 @@ const SingleValue = ({ children, ...props }) => {
 
 const ClearIndicator = ({ innerProps, tabIndex = 0 }) => {
   return (
-    <StyledIconButton {...innerProps} tabIndex={tabIndex}>
-      <StyledClearIcon />
+    <StyledIconButton {...innerProps} tabIndex={tabIndex} data-testid='stylediconbutton-6vh3'>
+      <StyledClearIcon data-testid='styledclearicon-aao1' />
     </StyledIconButton>
   );
 };
@@ -178,7 +184,7 @@ export const SelectInput = ({
         ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
         : selectedOptionLabel;
     return (
-      <OuterLabelFieldWrapper label={label} {...props}>
+      <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-hrjd'>
         <StyledTextField
           value={valueText}
           styles={defaultStyles}
@@ -188,7 +194,7 @@ export const SelectInput = ({
           readOnly={isReadonly}
           components={{ Option, SingleValue }}
           {...props}
-        />
+          data-testid='styledtextfield-xptm' />
       </OuterLabelFieldWrapper>
     );
   }
@@ -196,8 +202,12 @@ export const SelectInput = ({
   const selectedOption = options.find(option => value === option.value) ?? '';
 
   return (
-    <OuterLabelFieldWrapper label={label} ref={inputRef} {...props}>
-      <StyledFormControl {...props}>
+    <OuterLabelFieldWrapper
+      label={label}
+      ref={inputRef}
+      {...props}
+      data-testid='outerlabelfieldwrapper-wawx'>
+      <StyledFormControl {...props} data-testid='styledformcontrol-b7hs'>
         <Select
           value={selectedOption}
           onChange={handleChange}
@@ -214,29 +224,41 @@ export const SelectInput = ({
             Option,
             SingleValue,
             ClearIndicator: innerProps => (
-              <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
+              <ClearIndicator
+                {...innerProps}
+                tabIndex={inputProps.tabIndex}
+                data-testid='clearindicator-t2qe' />
             ),
-            DropdownIndicator: () => <ExpandMoreIcon />,
+            DropdownIndicator: () => <ExpandMoreIcon data-testid='expandmoreicon-h115' />,
           }}
           {...props}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+          data-testid='select-mbnb' />
+        {helperText && <FormHelperText data-testid='formhelpertext-fc0e'>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
 };
 
 export const BaseSelectField = ({ field, ...props }) => (
-  <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
+  <SelectInput
+    name={field.name}
+    onChange={field.onChange}
+    value={field.value}
+    {...props}
+    data-testid='selectinput-d6mv' />
 );
 
 // NOTE: not compatible with disabled SelectFields
 export const SelectField = ({ field, value, name, ...props }) => (
-  <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
+  <SelectInput
+    value={field ? field.value : value}
+    name={field ? field.name : name}
+    {...props}
+    data-testid='selectinput-b06y' />
 );
 
 export const TranslatedSelectField = props => {
-  return <TranslatedEnumField {...props} component={SelectInput} />;
+  return <TranslatedEnumField {...props} component={SelectInput} data-testid='translatedenumfield-de2z' />;
 };
 
 SelectField.propTypes = {
@@ -274,7 +296,11 @@ const StyledField = styled(BaseSelectField)`
 `;
 
 export const StyledSelectField = props => (
-  <StyledField {...props} className="styled-select-container" classNamePrefix="styled-select" />
+  <StyledField
+    {...props}
+    className="styled-select-container"
+    classNamePrefix="styled-select"
+    data-testid='styledfield-0hre' />
 );
 
 SelectInput.propTypes = {

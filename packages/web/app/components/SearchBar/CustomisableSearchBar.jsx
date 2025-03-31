@@ -90,18 +90,20 @@ export const CustomisableSearchBar = ({
     <Form
       onSubmit={handleSubmit}
       render={({ clearForm, values }) => (
-        <Container>
-          <CustomisableSearchBarGrid>
+        <Container data-testid='container-ntc5'>
+          <CustomisableSearchBarGrid data-testid='customisablesearchbargrid-c6rk'>
             {children}
-            <ActionsContainer>
+            <ActionsContainer data-testid='actionscontainer-3pm7'>
               {showExpandButton && (
-                <ThemedTooltip title={isExpanded ? 'Hide advanced search' : 'Advanced search'}>
+                <ThemedTooltip
+                  title={isExpanded ? 'Hide advanced search' : 'Advanced search'}
+                  data-testid='themedtooltip-arue'>
                   <IconButton
                     onClick={() => {
                       switchExpandValue();
                     }}
                     color="primary"
-                  >
+                    data-testid='iconbutton-zrkv'>
                     <img
                       src={isExpanded ? doubleUp : doubleDown}
                       alt={`${isExpanded ? 'hide' : 'show'} advanced search`}
@@ -109,8 +111,14 @@ export const CustomisableSearchBar = ({
                   </IconButton>
                 </ThemedTooltip>
               )}
-              <SearchButton type="submit" hasPermission={hasPermission}>
-                <TranslatedText stringId="general.action.search" fallback="Search" />
+              <SearchButton
+                type="submit"
+                hasPermission={hasPermission}
+                data-testid='searchbutton-nt24'>
+                <TranslatedText
+                  stringId="general.action.search"
+                  fallback="Search"
+                  data-testid='translatedtext-am6o' />
               </SearchButton>
               <ClearButton
                 onClick={() => {
@@ -121,18 +129,21 @@ export const CustomisableSearchBar = ({
                   // state rather than the previous state
                   setTimeout(() => clearForm(), 0);
                 }}
-              >
-                <TranslatedText stringId="general.action.clear" fallback="Clear" />
+                data-testid='clearbutton-z9x3'>
+                <TranslatedText
+                  stringId="general.action.clear"
+                  fallback="Clear"
+                  data-testid='translatedtext-vpib' />
               </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
-          {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
+          {isExpanded && <CustomisableSearchBarGrid data-testid='customisablesearchbargrid-q5qy'>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
       initialValues={initialValues}
       enableReinitialize
       formType={FORM_TYPES.SEARCH_FORM}
-    />
+      data-testid='form-ufk0' />
   );
 };
 

@@ -34,7 +34,7 @@ export const VitalsTable = React.memo(() => {
         onClose={() => {
           setOpenEditModal(false);
         }}
-      />
+        data-testid='editvitalcellmodal-wdxx' />
       <DynamicColumnTable
         columns={columns}
         data={data}
@@ -44,7 +44,7 @@ export const VitalsTable = React.memo(() => {
         count={data.length}
         allowExport
         showFooterLegend={showFooterLegend}
-      />
+        data-testid='dynamiccolumntable-4tgw' />
     </>
   );
 });

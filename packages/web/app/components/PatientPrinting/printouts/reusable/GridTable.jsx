@@ -31,14 +31,14 @@ const StrongText = styled(Text)`
 
 export const GridTable = ({ data }) => {
   return (
-    <Table>
+    <Table data-testid='table-n0rv'>
       {Object.entries(data).map(([key, value]) => (
-        <Row key={key}>
-          <Cell>
-            <StrongText>{key}</StrongText>
+        <Row key={key} data-testid='row-9a9y'>
+          <Cell data-testid='cell-xn4c'>
+            <StrongText data-testid='strongtext-yfz4'>{key}</StrongText>
           </Cell>
-          <Cell>
-            <Text>{value}</Text>
+          <Cell data-testid='cell-x60j'>
+            <Text data-testid='text-ombi'>{value}</Text>
           </Cell>
         </Row>
       ))}

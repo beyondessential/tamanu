@@ -97,34 +97,51 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     return null;
   }
   return (
-    <SettingsWrapper>
-      <StyledTopBar>
-        <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
-          <Settings />
+    <SettingsWrapper data-testid='settingswrapper-9xrm'>
+      <StyledTopBar data-testid='styledtopbar-0gcj'>
+        <DefaultSettingsButton
+          onClick={() => setIsDefaultModalOpen(true)}
+          data-testid='defaultsettingsbutton-kn1k'>
+          <Settings data-testid='settings-3n10' />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
             fallback="View default :scope settings"
             replacements={{ scope }}
-          />
+            data-testid='translatedtext-dstj' />
         </DefaultSettingsButton>
-        <StyledButtonRow>
+        <StyledButtonRow data-testid='styledbuttonrow-rzye'>
           {editMode ? (
             <>
-              <Button variant="outlined" onClick={turnOffEditMode}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              <Button variant="outlined" onClick={turnOffEditMode} data-testid='button-uan3'>
+                <TranslatedText
+                  stringId="general.action.cancel"
+                  fallback="Cancel"
+                  data-testid='translatedtext-jjde' />
               </Button>
-              <Button onClick={saveSettings} disabled={!hasSettingsChanged}>
-                <TranslatedText stringId="general.action.save" fallback="Save" />
+              <Button
+                onClick={saveSettings}
+                disabled={!hasSettingsChanged}
+                data-testid='button-n3bf'>
+                <TranslatedText
+                  stringId="general.action.save"
+                  fallback="Save"
+                  data-testid='translatedtext-lajm' />
               </Button>
             </>
           ) : (
-            <Button onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+            <Button
+              onClick={turnOnEditMode}
+              disabled={!isEditorVisible}
+              data-testid='button-308n'>
+              <TranslatedText
+                stringId="general.action.edit"
+                fallback="Edit"
+                data-testid='translatedtext-6xu9' />
             </Button>
           )}
         </StyledButtonRow>
       </StyledTopBar>
-      <EditorWrapper>
+      <EditorWrapper data-testid='editorwrapper-80yu'>
         <JSONEditor
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : settingsViewString}
@@ -132,13 +149,13 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           error={jsonError}
           placeholder="No settings found for this server/facility"
           fontSize={14}
-        />
+          data-testid='jsoneditor-y86r' />
       </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
         onClose={() => setIsDefaultModalOpen(false)}
         scope={scope}
-      />
+        data-testid='defaultsettingsmodal-3lpj' />
     </SettingsWrapper>
   );
 });
