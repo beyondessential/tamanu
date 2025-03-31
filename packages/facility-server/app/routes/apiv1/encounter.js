@@ -264,7 +264,7 @@ encounterRelations.get(
     res.send({ data: noteTypeToCount });
   }),
 );
-// hello
+
 encounterRelations.get(
   '/:id/notes/:noteId/changelogs',
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
