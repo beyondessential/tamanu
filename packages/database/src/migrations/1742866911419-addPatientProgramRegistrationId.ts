@@ -1,4 +1,73 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
+
+interface Condition {
+  id: string;
+  patient_id: string;
+  program_registry_id: string;
+}
+
+interface Registration {
+  id: string;
+  created_at: Date;
+  is_most_recent: boolean;
+}
+
+async function populateRegistrationIds(query: QueryInterface): Promise<void> {
+  // Get all conditions
+  const conditions = await query.sequelize.query<Condition>(`
+    SELECT id, patient_id, program_registry_id
+    FROM patient_program_registration_conditions;
+  `, { type: QueryTypes.SELECT });
+
+  for (const condition of conditions) {
+    // First try to get the most recent registration
+    const registrations = await query.sequelize.query<Registration>(`
+      SELECT id, created_at, is_most_recent
+      FROM patient_program_registrations
+      WHERE patient_id = :patientId
+      AND program_registry_id = :programRegistryId
+      ORDER BY date DESC;
+    `, {
+      replacements: {
+        patientId: condition.patient_id,
+        programRegistryId: condition.program_registry_id
+      },
+      type: QueryTypes.SELECT
+    });
+
+    if (registrations.length === 0) {
+      console.log(
+        `No registration found for condition ${condition.id} ` +
+        `(patient: ${condition.patient_id}, program: ${condition.program_registry_id})`
+      );
+      continue;
+    }
+
+    // Get the registration ID to use
+    let registrationId: string;
+    
+    // First check for most recent flag
+    const mostRecent = registrations.find(r => r.is_most_recent);
+    if (mostRecent) {
+      registrationId = mostRecent.id;
+    } else {
+      // If no most_recent flag, use the latest by date
+      registrationId = registrations[0]!.id;
+    }
+
+    // Update the condition with the registration ID
+    await query.sequelize.query(`
+      UPDATE patient_program_registration_conditions
+      SET patient_program_registration_id = :registrationId
+      WHERE id = :conditionId
+    `, {
+      replacements: {
+        registrationId,
+        conditionId: condition.id
+      }
+    });
+  }
+}
 
 export async function up(query: QueryInterface): Promise<void> {
   // Add the new column with foreign key constraint
@@ -12,7 +81,6 @@ export async function up(query: QueryInterface): Promise<void> {
         model: 'patient_program_registrations',
         key: 'id',
       },
-      onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
   );
@@ -23,20 +91,17 @@ export async function up(query: QueryInterface): Promise<void> {
   ]);
 
   // Update all conditions to link to their most recent program registration
-  await query.sequelize.query(`
-    UPDATE patient_program_registration_conditions pprc
-    SET patient_program_registration_id = ppr.id
-    FROM patient_program_registrations ppr
-    WHERE pprc.patient_id = ppr.patient_id
-    AND pprc.program_registry_id = ppr.program_registry_id
-    AND ppr.is_most_recent = true;
-  `);
+  await populateRegistrationIds(query);
 
   // Make the column NOT NULL
-  await query.changeColumn('patient_program_registration_conditions', 'patient_program_registration_id', {
-    type: DataTypes.UUID,
-    allowNull: false,
-  });
+  await query.changeColumn(
+    'patient_program_registration_conditions',
+    'patient_program_registration_id',
+    {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+  );
 
   // Remove the old columns
   await query.removeColumn('patient_program_registration_conditions', 'patient_id');
@@ -57,7 +122,7 @@ export async function down(query: QueryInterface): Promise<void> {
   // Copy data back from patient_program_registrations
   await query.sequelize.query(`
     UPDATE patient_program_registration_conditions pprc
-    SET 
+    SET
       patient_id = ppr.patient_id,
       program_registry_id = ppr.program_registry_id
     FROM patient_program_registrations ppr
@@ -74,13 +139,12 @@ export async function down(query: QueryInterface): Promise<void> {
     allowNull: false,
   });
 
-  // Remove the new column and its constraints
-  await query.removeConstraint(
-    'patient_program_registration_conditions',
-    'patient_program_registration_conditions_patient_program_registration_id_fk'
-  );
+  // Remove the new column
   await query.removeIndex('patient_program_registration_conditions', [
-    'patient_program_registration_id'
+    'patient_program_registration_id',
   ]);
-  await query.removeColumn('patient_program_registration_conditions', 'patient_program_registration_id');
+  await query.removeColumn(
+    'patient_program_registration_conditions',
+    'patient_program_registration_id',
+  );
 }
