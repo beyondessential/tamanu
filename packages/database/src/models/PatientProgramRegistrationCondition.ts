@@ -2,8 +2,8 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildSyncLookupSelect } from '../sync';
 
 export class PatientProgramRegistrationCondition extends Model {
   declare id: string;
@@ -69,16 +69,29 @@ export class PatientProgramRegistrationCondition extends Model {
   static getFullReferenceAssociations() {
     return ['programRegistryCondition'];
   }
-
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
     }
 
-    return `WHERE patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND updated_at_sync_tick > :since`;
+    return `
+      WHERE patient_program_registration_id IN (
+        SELECT id
+        FROM patient_program_registrations
+        WHERE patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
+      )
+      AND ${this.tableName}.updated_at_sync_tick > :since
+    `;
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildPatientLinkedLookupFilter(this);
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'patient_program_registrations.patient_id',
+      }),
+      joins: [
+        `LEFT JOIN patient_program_registrations ON ${this.tableName}.patient_program_registration_id = patient_program_registrations.id`,
+      ],
+    };
   }
 }

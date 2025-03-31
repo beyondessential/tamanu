@@ -152,12 +152,9 @@ export const RelatedConditionsForm = ({
   const [warningOpen, setWarningOpen] = useState(false);
   const { getTranslation } = useTranslation();
 
-  const { programRegistryId, patientId, clinicalStatusId } = patientProgramRegistration;
+  const { id, programRegistryId, clinicalStatusId } = patientProgramRegistration;
 
-  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientId,
-    programRegistryId,
-  );
+  const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(id);
 
   const handleConfirmedSubmit = async data => {
     const updatedConditions = Object.values(data.conditions)

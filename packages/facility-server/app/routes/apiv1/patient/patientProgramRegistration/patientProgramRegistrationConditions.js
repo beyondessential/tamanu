@@ -60,19 +60,18 @@ patientProgramRegistrationConditions.put(
 );
 
 patientProgramRegistrationConditions.get(
-  '/:patientId/programRegistration/:programRegistryId/condition',
+  '/programRegistration/:programRegistrationId/condition',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-    const { patientId, programRegistryId } = params;
+    const { programRegistrationId } = params;
     const { PatientProgramRegistrationCondition } = models;
 
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
+    // req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistrationCondition');
 
     const history = await PatientProgramRegistrationCondition.findAll({
       where: {
-        patientId,
-        programRegistryId,
+        patientProgramRegistrationId: programRegistrationId,
       },
       include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
       order: [['date', 'DESC']],
