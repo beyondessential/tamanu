@@ -4,11 +4,8 @@ export const MUI_SPACING_UNIT = 8;
 // (with the exception of searchTintColor)
 export const Colors = {
   primary: '#326699',
-  primaryBlue: {
-    100: '#326699',
-    30: '#C2D2E1',
-    10: '#EBF0F5',
-  },
+  primary30: '#C2D2E1',
+  primary10: '#EBF0F5',
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
