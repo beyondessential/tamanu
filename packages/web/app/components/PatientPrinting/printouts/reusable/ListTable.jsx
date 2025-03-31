@@ -43,15 +43,15 @@ export const ListTable = ({ columns, data, className }) => {
             <Header
               key={key}
               style={{ width: getWidth(widthProportion), ...style }}
-              data-testid='header-0mym'>
+              data-testid={`header-0mym-${key}`}>
               {title}
             </Header>
           ))}
         </Row>
       </thead>
       <tbody>
-        {data.map(row => (
-          <Row key={row.id} data-testid='row-7yxx'>
+        {data.map((row, index) => (
+          <Row key={row.id} data-testid={`row-7yxx-${index}`}>
             {columns.map(({ key, accessor, style, widthProportion = 1 }) => (
               <Cell
                 key={key}
@@ -59,7 +59,7 @@ export const ListTable = ({ columns, data, className }) => {
                   width: getWidth(widthProportion),
                   ...style,
                 }}
-                data-testid='cell-mzpq'>
+                data-testid={`cell-mzpq-${index}-${key}`}>
                 {accessor ? accessor(row) : row[key]}
               </Cell>
             ))}

@@ -114,14 +114,14 @@ export const SurveyScreen = ({
     (components, allComponents) =>
       components
         .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => (
+        .map((c, index) => (
           <SurveyQuestion
             component={c}
             patient={patient}
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
             encounterType={encounterType}
-            data-testid='surveyquestion-vmee' />
+            data-testid={`surveyquestion-vmee-${index}`} />
         )),
     [encounterType, patient, setQuestionToRef, values],
   );

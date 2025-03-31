@@ -151,8 +151,8 @@ export const Paginator = React.memo(
             MenuProps={{ classes: { paper: classes.selectMenu } }}
             disabled={!isDataInTable}
             data-testid='styledselectfield-lunn'>
-            {rowsPerPageOptions.map(option => (
-              <StyledMenuItem key={option} value={option} data-testid='styledmenuitem-fkrw'>
+            {rowsPerPageOptions.map((option) => (
+              <StyledMenuItem key={option} value={option} data-testid={`styledmenuitem-fkrw-${option}`}>
                 {option}
               </StyledMenuItem>
             ))}

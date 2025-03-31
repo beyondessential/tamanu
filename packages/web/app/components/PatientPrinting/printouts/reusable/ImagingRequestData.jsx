@@ -16,7 +16,7 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
           fallback={area.name}
           value={area.id}
           category={area.type}
-          data-testid={`translatedreferencedata-${index}`} />
+          data-testid={`translatedreferencedata-v05q-${index}`} />
       </span>).join(', ')
       : imagingRequest?.areaNote;
     return <p style={{ margin: '0' }}>{areas}</p>;

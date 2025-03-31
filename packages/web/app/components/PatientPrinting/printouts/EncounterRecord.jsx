@@ -503,12 +503,12 @@ export const EncounterRecord = React.memo(
           <>
             <TableHeading data-testid='tableheading-3225'>Notes</TableHeading>
             <Table data-testid='table-oqy4'>
-              {notes.map(note => (
-                <Row key={note.id} data-testid='row-6q5a'>
-                  <RowContent data-testid='rowcontent-yeda'>
-                    <BoldText data-testid='boldtext-wzyl'>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
-                    <ChildNote data-testid='childnote-wtgf'>{note.content}</ChildNote>
-                    <NoteMeta data-testid='notemeta-q7d7'>
+              {notes.map((note, index) => (
+                <Row key={note.id} data-testid={`row-6q5a-${index}`}>
+                  <RowContent data-testid={`rowcontent-yeda-${index}`}>
+                    <BoldText data-testid={`boldtext-wzyl-${index}`}>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                    <ChildNote data-testid={`childnote-wtgf-${index}`}>{note.content}</ChildNote>
+                    <NoteMeta data-testid={`notemeta-q7d7-${index}`}>
                       <span>
                         {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
                       </span>
@@ -516,7 +516,7 @@ export const EncounterRecord = React.memo(
                       {note.onBehalfOf ? (
                         <span>on behalf of {note.onBehalfOf.displayName} </span>
                       ) : null}
-                      <DateDisplay date={note.date} showTime data-testid='datedisplay-zlgm' />
+                      <DateDisplay date={note.date} showTime data-testid={`datedisplay-zlgm-${index}`} />
                     </NoteMeta>
                   </RowContent>
                 </Row>

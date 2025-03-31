@@ -87,7 +87,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
       data.map(async d => {
         const dx = {};
         await Promise.all(
-          exportableColumnsWithOverrides.map(async c => {
+          exportableColumnsWithOverrides.map(async (c, index) => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               dx[headerValue] = await c.asyncExportAccessor(d);
@@ -111,7 +111,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
             if (c.CellComponent) {
               const CellComponent = c.CellComponent;
-              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} data-testid='cellcomponent-7u3b' />);
+              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} data-testid={`cellcomponent-7u3b-${index}`} />);
               return;
             }
 

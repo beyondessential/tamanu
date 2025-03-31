@@ -270,7 +270,7 @@ export const Sidebar = React.memo(({ items }) => {
 
           if (item.Component) {
             const { Component } = item;
-            return <Component {...commonProps} key={item.key} data-testid={`component-${dataTestIdSuffix}`} />;
+            return <Component {...commonProps} key={item.key} data-testid={`component-itt0${dataTestIdSuffix}`} />;
           }
 
           if (!item.children) {
@@ -281,15 +281,15 @@ export const Sidebar = React.memo(({ items }) => {
                 isCurrent={currentPath.includes(item.path)}
                 disabled={!permissionCheck(item)}
                 onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-                data-testid={`toplevelsidebaritem${dataTestIdSuffix}`} />
+                data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`} />
             );
           }
 
           if (isRetracted) {
-            return <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem${dataTestIdSuffix}`} />;
+            return <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`} />;
           }
           return (
-            <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem${dataTestIdSuffix}`}>
+            <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}>
               {item.children.map(child => (
                 <SecondarySidebarItem
                   key={child.path}
@@ -299,7 +299,7 @@ export const Sidebar = React.memo(({ items }) => {
                   label={child.label}
                   disabled={!permissionCheck(child, item)}
                   onClick={() => onPathChanged(child.path)}
-                  data-testid={`secondarysidebaritem${dataTestIdSuffix}`} />
+                  data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`} />
               ))}
             </PrimarySidebarItem>
           );
