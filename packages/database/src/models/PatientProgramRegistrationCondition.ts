@@ -9,8 +9,7 @@ export class PatientProgramRegistrationCondition extends Model {
   declare id: string;
   declare date: string;
   declare deletionDate?: string;
-  declare patientId?: string;
-  declare programRegistryId?: string;
+  declare patientProgramRegistrationId: string;
   declare programRegistryConditionId?: string;
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
@@ -46,17 +45,9 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static initRelations(models: Models) {
-    // Note that we use a kind of composite foreign key here (patientId + programRegistryId)
-    // rather than just a single patientProgramRegistrationId. This is because
-    // PatientProgramRegistrion is an append-only array rather than a single record,
-    // so the relevant id changes every time a change is made to the relevant registration.
-    this.belongsTo(models.Patient, {
-      foreignKey: { name: 'patientId', allowNull: false },
-      as: 'patient',
-    });
-    this.belongsTo(models.ProgramRegistry, {
-      foreignKey: { name: 'programRegistryId', allowNull: false },
-      as: 'programRegistry',
+    this.belongsTo(models.PatientProgramRegistration, {
+      foreignKey: { name: 'patientProgramRegistrationId', allowNull: false },
+      as: 'patientProgramRegistration',
     });
 
     this.belongsTo(models.ProgramRegistryCondition, {
