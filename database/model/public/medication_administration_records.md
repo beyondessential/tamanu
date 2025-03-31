@@ -17,7 +17,3 @@ The date and time when the medication was administered or marked as not given. T
 {% docs medication_administration_records__prescription_id %}
 Reference to the [prescription](#!/source/source.tamanu.tamanu.prescriptions) that this administration record is associated with. Links this administration event to the specific medication order it fulfills.
 {% enddocs %}
-
-{% docs medication_administration_records__reason_not_given_id %}
-Reference to the [reference_data](#!/source/source.tamanu.tamanu.reference_data) table that provides standardized reason codes explaining why a medication was not administered when the status is "NOT_GIVEN".
-{% enddocs %}
