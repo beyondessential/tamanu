@@ -209,7 +209,7 @@ export const DropdownButton = React.memo(
                     key={action.label}
                     disabled={!action.onClick}
                     onClick={event => handleClick(event, index + 1)}
-                    data-testid='menuitem-0qdd'>
+                    data-testid={`menuitem-${index}`}>
                     {action.label}
                   </MenuItem>
                 ))}

@@ -66,12 +66,12 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
 
 export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
   <DiagnosisListContainer data-testid='diagnosislistcontainer-dqkk'>
-    {diagnoses.map(d => (
+    {diagnoses.map((d, index) => (
       <DiagnosisItem
         key={d.id}
         {...d}
         onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
-        data-testid='diagnosisitem-037x' />
+        data-testid={`diagnosisitem-${index}`} />
     ))}
   </DiagnosisListContainer>
 ));
