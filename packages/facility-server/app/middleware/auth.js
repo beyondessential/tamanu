@@ -205,7 +205,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user);
+  const token = await buildToken(user, req.facilityId);
   res.send({ token });
 }
 
@@ -261,6 +261,8 @@ export const authMiddleware = async (req, res, next) => {
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
+
+    console.log('token', await decodeToken(token));
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
