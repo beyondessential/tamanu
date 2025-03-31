@@ -139,7 +139,6 @@ imagingRequest.get(
       recordId: imagingRequestObject.id,
       params: req.params,
       model: ImagingRequest,
-      facilityId,
     });
 
     res.send({
