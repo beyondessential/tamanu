@@ -202,11 +202,11 @@ const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
           display="flex"
           justifyContent="space-between"
           width="100%"
-          data-testid='box-l56h'>
+          data-testid={`insurer-row-${index}`}>
           {insurer.insurer?.name}
-          <DiscountedPrice data-testid='discountedprice-y3fm'>
-            <span>{insurer.percentage * 100}%</span>
-            <BodyText color={Colors.darkestText} data-testid='bodytext-zyif'>
+          <DiscountedPrice data-testid={`discounted-price-${index}`}>
+            <span data-testid={`percentage-${index}`}>{insurer.percentage * 100}%</span>
+            <BodyText color={Colors.darkestText} data-testid={`discount-amount-${index}`}>
               {insurerDiscountAmountDisplayList[index]
                 ? `-${insurerDiscountAmountDisplayList[index]}`
                 : ''}
