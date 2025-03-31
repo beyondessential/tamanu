@@ -38,11 +38,7 @@ noteRoute.post(
 noteRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      query: { facilityId },
-    } = req;
+    const { models, params } = req;
     const noteId = params.id;
     const note = await models.Note.findOne({
       include: [
@@ -64,7 +60,6 @@ noteRoute.get(
       recordId: noteId,
       params,
       model: models.Note,
-      facilityId,
     });
 
     res.send(note);

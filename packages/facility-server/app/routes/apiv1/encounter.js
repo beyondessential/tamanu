@@ -41,8 +41,6 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
-// TODO: hard file
-
 encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
@@ -168,7 +166,10 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
-encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
+encounterRelations.get(
+  '/:id/discharge',
+  simpleGetHasOne('Discharge', 'encounterId', { auditAccess: true }),
+);
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
@@ -272,8 +273,10 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-// TODO: ?
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+);
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
