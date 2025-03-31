@@ -121,7 +121,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="pastAppointment.modal.table.column.date"
       fallback="Date"
-      data-testid='translatedtext-m48s' />,
+      data-test-id='translatedtext-m48s' />,
     accessor: getDate,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
@@ -130,7 +130,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="pastAppointment.modal.table.column.area"
       fallback="Area"
-      data-testid='translatedtext-kxiy' />,
+      data-test-id='translatedtext-kxiy' />,
     accessor: ({ locationGroup }) => locationGroup?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
   },
@@ -140,7 +140,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="pastAppointment.modal.table.column.clinician"
         fallback="Clinician"
-        data-testid='translatedtext-bnk4' />
+        data-test-id='translatedtext-bnk4' />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -151,7 +151,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="pastAppointment.modal.table.column.type"
         fallback="Appt type"
-        data-testid='translatedtext-dmzb' />
+        data-test-id='translatedtext-dmzb' />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -162,7 +162,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="pastAppointment.modal.table.column.status"
         fallback="Status"
-        data-testid='translatedtext-vajp' />
+        data-test-id='translatedtext-vajp' />
     ),
     accessor: getStatus,
   },
@@ -193,7 +193,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
         <TranslatedText
           stringId="appointment.modal.pastAppointments.title"
           fallback="Past appointments"
-          data-testid='translatedtext-7mp6' />
+          data-test-id='translatedtext-7mp6' />
       }
       open={open}
       onClose={onClose}

@@ -31,7 +31,7 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) 
         <TranslatedText
           stringId="invoice.modal.deleteInvoice.title"
           fallback="Delete invoice"
-          data-testid='translatedtext-bkoo' />
+          data-test-id='translatedtext-bkoo' />
       }
       open={open}
       onClose={onClose}
@@ -40,7 +40,7 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) 
         <TranslatedText
           stringId="invoice.modal.deleteInvoice.warningText"
           fallback="Are you sure you would like to delete this invoice? This cannot be undone."
-          data-testid='translatedtext-og0r' />
+          data-test-id='translatedtext-og0r' />
       </ContentText>
       <ModalActionRow onConfirm={deleteInvoice} onDelete={onClose} />
     </Modal>

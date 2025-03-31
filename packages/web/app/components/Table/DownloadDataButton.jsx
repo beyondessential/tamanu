@@ -152,12 +152,12 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
           onClick={onDownloadData}
           startIcon={<GetAppIcon />}
           data-test-class="download-data-button"
-          data-testid="download-data-button"
+          data-test-id="download-data-button"
         >
           <TranslatedText
             stringId="general.action.download"
             fallback="Download"
-            data-testid='translatedtext-ynwg' />
+            data-test-id='translatedtext-ynwg' />
         </GreyOutlinedButton>
       )}
     </>

@@ -23,7 +23,7 @@ const validationSchema = yup.object().shape({
     .translatedLabel(<TranslatedText
     stringId="general.status.label"
     fallback="Status"
-    data-testid='translatedtext-faka' />),
+    data-test-id='translatedtext-faka' />),
   sampleTime: yup.string().when('status', {
     is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     then: yup
@@ -32,7 +32,7 @@ const validationSchema = yup.object().shape({
         <TranslatedText
           stringId="lab.modal.changeStatus.sampleDateTime.label"
           fallback="Sample date & time"
-          data-testid='translatedtext-ffpu' />,
+          data-test-id='translatedtext-ffpu' />,
       )
       .required(),
     otherwise: yup.string().nullable(),
@@ -72,13 +72,13 @@ export const LabRequestChangeStatusModal = React.memo(
                   label={<TranslatedText
                     stringId="general.status.label"
                     fallback="Status"
-                    data-testid='translatedtext-8ry7' />}
+                    data-test-id='translatedtext-8ry7' />}
                   name="status"
                   enumValues={LAB_REQUEST_STATUS_LABELS}
                   transformOptions={options => options.filter(shouldIncludeOption)}
                   component={TranslatedSelectField}
                   required
-                  data-testid='field-j8cw' />
+                  data-test-id='field-j8cw' />
                 {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                   values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (
                     <>
@@ -88,28 +88,28 @@ export const LabRequestChangeStatusModal = React.memo(
                           <TranslatedText
                             stringId="lab.modal.changeStatus.sampleDateTime.label"
                             fallback="Sample date & time"
-                            data-testid='translatedtext-f5ld' />
+                            data-test-id='translatedtext-f5ld' />
                         }
                         required
                         component={DateTimeField}
                         saveDateAsString
-                        data-testid='field-c9w3' />
+                        data-test-id='field-c9w3' />
                       <Field
                         name="labSampleSiteId"
                         label={<TranslatedText
                           stringId="lab.site.label"
                           fallback="Site"
-                          data-testid='translatedtext-te9w' />}
+                          data-test-id='translatedtext-te9w' />}
                         component={SuggesterSelectField}
                         endpoint="labSampleSite"
-                        data-testid='field-jmqw' />
+                        data-test-id='field-jmqw' />
                     </>
                   )}
                 <FormSubmitCancelRow
                   confirmText="Confirm"
                   onCancel={onClose}
                   onConfirm={submitForm}
-                  data-testid='formsubmitcancelrow-9wun' />
+                  data-test-id='formsubmitcancelrow-9wun' />
               </FormGrid>
             );
           }}

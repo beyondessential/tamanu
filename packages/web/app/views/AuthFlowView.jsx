@@ -117,7 +117,7 @@ export const AuthFlowView = ({ children }) => {
             <TranslatedText
               stringId="externalLink.supportCentre"
               fallback="Support centre"
-              data-testid='translatedtext-xfhx' />
+              data-test-id='translatedtext-xfhx' />
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
@@ -125,7 +125,7 @@ export const AuthFlowView = ({ children }) => {
           <TranslatedText
             stringId="login.version"
             fallback="Version"
-            data-testid='translatedtext-tbxs' /> {agentVersion}
+            data-test-id='translatedtext-tbxs' /> {agentVersion}
         </DesktopVersionText>
       </ContentContainer>
       <SplashImage brandId={brandId} />

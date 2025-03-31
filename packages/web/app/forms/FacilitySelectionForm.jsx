@@ -51,7 +51,7 @@ const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => 
           <TranslatedText
             stringId="auth.facility.heading"
             fallback="Select facility"
-            data-testid='translatedtext-bpl2' />
+            data-test-id='translatedtext-bpl2' />
         </Heading>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>
@@ -61,24 +61,24 @@ const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => 
           <TranslatedText
             stringId="general.localisedField.facility.label"
             fallback="Facility"
-            data-testid='translatedtext-wqd0' />
+            data-test-id='translatedtext-wqd0' />
         }
         component={AutocompleteField}
         options={options}
         required
-        data-testid='field-bbwr' />
+        data-test-id='field-bbwr' />
       <StyledButtonRow>
         <CancelButton onClick={onCancel}>
           {<TranslatedText
             stringId="general.action.cancel"
             fallback="Cancel"
-            data-testid='translatedtext-0fka' />}
+            data-test-id='translatedtext-0fka' />}
         </CancelButton>
         <SubmitButton
           text={<TranslatedText
             stringId="general.action.submit"
             fallback="Submit"
-            data-testid='translatedtext-81ha' />}
+            data-test-id='translatedtext-81ha' />}
         />
       </StyledButtonRow>
       <LanguageSelector />
@@ -114,7 +114,7 @@ export const FacilitySelectionForm = React.memo(
               <TranslatedText
                 stringId="general.localisedField.facility.label"
                 fallback="Facility"
-                data-testid='translatedtext-pv04' />,
+                data-test-id='translatedtext-pv04' />,
             ),
         })}
       />

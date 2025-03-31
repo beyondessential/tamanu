@@ -112,7 +112,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
           replacements={{
             modalSectionTitle: requestFormType ? `| ${SECTION_TITLES[requestFormType]}` : ' ',
           }}
-          data-testid='translatedtext-yy0e' />
+          data-test-id='translatedtext-yy0e' />
       }
       open={open}
       onClose={handleClose}

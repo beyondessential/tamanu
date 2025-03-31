@@ -26,22 +26,22 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                  data-testid='translatedtext-cp30' />
+                  data-test-id='translatedtext-cp30' />
               ),
             }}
-            data-testid='translatedtext-suwc' />
+            data-test-id='translatedtext-suwc' />
         }
         suggester={clinicianSuggester}
         required
-        data-testid='field-oqo4' />
+        data-test-id='field-oqo4' />
       <FormSubmitCancelRow
         onConfirm={submitForm}
         confirmText={<TranslatedText
           stringId="general.action.save"
           fallback="Save"
-          data-testid='translatedtext-6bpm' />}
+          data-test-id='translatedtext-6bpm' />}
         onCancel={onCancel}
-        data-testid='formsubmitcancelrow-s1gz' />
+        data-test-id='formsubmitcancelrow-s1gz' />
     </FormGrid>
   );
 
@@ -59,7 +59,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="clinician"
-              data-testid='translatedtext-o4gi' />,
+              data-test-id='translatedtext-o4gi' />,
           ),
       })}
       formType={FORM_TYPES.EDIT_FORM}

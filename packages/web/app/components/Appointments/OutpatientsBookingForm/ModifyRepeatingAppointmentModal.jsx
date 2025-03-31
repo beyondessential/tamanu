@@ -40,7 +40,7 @@ export const ModifyRepeatingAppointmentModal = ({
         <TranslatedText
           stringId="outpatientAppointment.modal.modifyRepeatingAppointment.title"
           fallback="Modify appointment"
-          data-testid='translatedtext-sfgf' />
+          data-test-id='translatedtext-sfgf' />
       }
       customContent={
         <ContentWrapper>
@@ -48,7 +48,7 @@ export const ModifyRepeatingAppointmentModal = ({
             <TranslatedText
               stringId="outpatientAppointment.modal.modifyRepeatingAppointment.text"
               fallback="This is a repeating appointment. Would you like to modify this appointment only or this appointment and future appointments as well?"
-              data-testid='translatedtext-wxqz' />
+              data-test-id='translatedtext-wxqz' />
           </BodyText>
           <RadioGroupWrapper>
             <ModifyModeRadioGroup
@@ -61,7 +61,7 @@ export const ModifyRepeatingAppointmentModal = ({
       confirmButtonText={<TranslatedText
         stringId="general.action.continue"
         fallback="Continue"
-        data-testid='translatedtext-weqj' />}
+        data-test-id='translatedtext-weqj' />}
     />
   );
 };

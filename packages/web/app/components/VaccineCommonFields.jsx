@@ -43,28 +43,28 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
     label: <TranslatedText
       stringId="vaccine.category.option.routine"
       fallback="Routine"
-      data-testid='translatedtext-d80r' />,
+      data-test-id='translatedtext-d80r' />,
   },
   {
     value: VACCINE_CATEGORIES.CATCHUP,
     label: <TranslatedText
       stringId="vaccine.category.option.catchUp"
       fallback="Catch-up"
-      data-testid='translatedtext-y4va' />,
+      data-test-id='translatedtext-y4va' />,
   },
   {
     value: VACCINE_CATEGORIES.CAMPAIGN,
     label: <TranslatedText
       stringId="vaccine.category.option.campaign"
       fallback="Campaign"
-      data-testid='translatedtext-vojj' />,
+      data-test-id='translatedtext-vojj' />,
   },
   {
     value: VACCINE_CATEGORIES.OTHER,
     label: <TranslatedText
       stringId="vaccine.category.option.other"
       fallback="Other"
-      data-testid='translatedtext-5reo' />,
+      data-test-id='translatedtext-5reo' />,
     leftOptionalElement: <VerticalDivider orientation="vertical" />,
     style: { marginLeft: '15px' },
   },
@@ -77,7 +77,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
       label={<TranslatedText
         stringId="vaccine.category.label"
         fallback="Category"
-        data-testid='translatedtext-b27c' />}
+        data-test-id='translatedtext-b27c' />}
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
       onChange={e => {
@@ -86,7 +86,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
         resetForm();
       }}
       required
-      data-testid='field-gt29' />
+      data-test-id='field-gt29' />
   </FullWidthCol>
 );
 
@@ -96,12 +96,12 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     label={<TranslatedText
       stringId="vaccine.vaccine.label"
       fallback="Vaccine"
-      data-testid='translatedtext-wpda' />}
+      data-test-id='translatedtext-wpda' />}
     component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
-    data-testid='field-7s2g' />
+    data-test-id='field-7s2g' />
 );
 
 export const BatchField = () => (
@@ -110,9 +110,9 @@ export const BatchField = () => (
     label={<TranslatedText
       stringId="vaccine.batch.label"
       fallback="Batch"
-      data-testid='translatedtext-7crb' />}
+      data-test-id='translatedtext-7crb' />}
     component={TextField}
-    data-testid='field-5905' />
+    data-test-id='field-5905' />
 );
 
 export const VaccineDateField = ({ label, required = true, min, max, keepIncorrectValue }) => (
@@ -125,7 +125,7 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
     min={min}
     max={max}
     keepIncorrectValue={keepIncorrectValue}
-    data-testid='field-efdt' />
+    data-test-id='field-efdt' />
 );
 
 export const InjectionSiteField = () => (
@@ -134,10 +134,10 @@ export const InjectionSiteField = () => (
     label={<TranslatedText
       stringId="vaccine.injectionSite.label"
       fallback="Injection site"
-      data-testid='translatedtext-5eyg' />}
+      data-test-id='translatedtext-5eyg' />}
     component={TranslatedSelectField}
     enumValues={INJECTION_SITE_LABELS}
-    data-testid='field-suzz' />
+    data-test-id='field-suzz' />
 );
 
 export const LocationField = () => (
@@ -146,7 +146,7 @@ export const LocationField = () => (
     component={LocalisedLocationField}
     enableLocationStatus={false}
     required
-    data-testid='field-08dm' />
+    data-test-id='field-08dm' />
 );
 
 export const DepartmentField = () => {
@@ -159,11 +159,11 @@ export const DepartmentField = () => {
       label={<TranslatedText
         stringId="general.department.label"
         fallback="Department"
-        data-testid='translatedtext-z9ov' />}
+        data-test-id='translatedtext-z9ov' />}
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
-      data-testid='field-dub3' />
+      data-test-id='field-dub3' />
   );
 };
 
@@ -171,12 +171,12 @@ export const GivenByField = ({
   label = <TranslatedText
     stringId="vaccine.givenBy.label"
     fallback="Given by"
-    data-testid='translatedtext-8nlc' />,
+    data-test-id='translatedtext-8nlc' />,
 }) => <Field
   name="givenBy"
   label={label}
   component={TextField}
-  data-testid='field-ojcj' />;
+  data-test-id='field-ojcj' />;
 
 export const GivenByCountryField = () => {
   const countrySuggester = useSuggester('country');
@@ -187,12 +187,12 @@ export const GivenByCountryField = () => {
       label={<TranslatedText
         stringId="vaccine.country.label"
         fallback="Country"
-        data-testid='translatedtext-x82d' />}
+        data-test-id='translatedtext-x82d' />}
       component={AutocompleteField}
       suggester={countrySuggester}
       required
       allowFreeTextForExistingValue
-      data-testid='field-zpgo' />
+      data-test-id='field-zpgo' />
   );
 };
 
@@ -206,7 +206,7 @@ export const RecordedByField = () => {
       label={<TranslatedText
         stringId="vaccine.recordedBy.label"
         fallback="Recorded by"
-        data-testid='translatedtext-oe8p' />}
+        data-test-id='translatedtext-oe8p' />}
       component={BaseSelectField}
       options={[
         {
@@ -215,7 +215,7 @@ export const RecordedByField = () => {
         },
       ]}
       value={currentUser.id}
-      data-testid='field-rbd8' />
+      data-test-id='field-rbd8' />
   );
 };
 
@@ -225,7 +225,7 @@ export const ConsentField = ({ label }) => (
       label={<TranslatedText
         stringId="vaccine.consent.label"
         fallback="Consent"
-        data-testid='translatedtext-h7iv' />}
+        data-test-id='translatedtext-h7iv' />}
       style={{ marginBottom: '5px' }}
       required
     />
@@ -234,7 +234,7 @@ export const ConsentField = ({ label }) => (
       label={label}
       component={CheckField}
       required
-      data-testid='field-bpc0' />
+      data-test-id='field-bpc0' />
   </FullWidthCol>
 );
 
@@ -244,9 +244,9 @@ export const ConsentGivenByField = () => (
     label={<TranslatedText
       stringId="vaccine.consentGivenBy.label"
       fallback="Consent given by"
-      data-testid='translatedtext-lxa0' />}
+      data-test-id='translatedtext-lxa0' />}
     component={TextField}
-    data-testid='field-s7ja' />
+    data-test-id='field-s7ja' />
 );
 
 export const AdministeredVaccineScheduleField = ({ schedules }) => {
@@ -268,12 +268,12 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
       label={<TranslatedText
         stringId="vaccine.schedule.label"
         fallback="Schedule"
-        data-testid='translatedtext-sphp' />}
+        data-test-id='translatedtext-sphp' />}
       component={RadioField}
       options={scheduleOptions}
       required
       autofillSingleAvailableOption
-      data-testid='field-916a' />
+      data-test-id='field-916a' />
   </FullWidthCol>));
 };
 
@@ -283,10 +283,10 @@ export const VaccineNameField = () => (
     label={<TranslatedText
       stringId="vaccine.vaccineName.label"
       fallback="Vaccine name"
-      data-testid='translatedtext-bg2k' />}
+      data-test-id='translatedtext-bg2k' />}
     component={TextField}
     required
-    data-testid='field-tzsi' />
+    data-test-id='field-tzsi' />
 );
 
 export const VaccineBrandField = () => (
@@ -295,9 +295,9 @@ export const VaccineBrandField = () => (
     label={<TranslatedText
       stringId="vaccine.vaccineBrand.label"
       fallback="Vaccine brand"
-      data-testid='translatedtext-kbgz' />}
+      data-test-id='translatedtext-kbgz' />}
     component={TextField}
-    data-testid='field-315m' />
+    data-test-id='field-315m' />
 );
 
 export const DiseaseField = () => (
@@ -306,9 +306,9 @@ export const DiseaseField = () => (
     label={<TranslatedText
       stringId="vaccine.disease.label"
       fallback="Disease"
-      data-testid='translatedtext-f89x' />}
+      data-test-id='translatedtext-f89x' />}
     component={TextField}
-    data-testid='field-83iz' />
+    data-test-id='field-83iz' />
 );
 
 export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false }) => (
@@ -319,7 +319,7 @@ export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false })
       editMode ? <TranslatedText
         stringId="general.action.save"
         fallback="Save"
-        data-testid='translatedtext-5acw' /> : undefined
+        data-test-id='translatedtext-5acw' /> : undefined
     }
-    data-testid='formsubmitcancelrow-yk22' />
+    data-test-id='formsubmitcancelrow-yk22' />
 );

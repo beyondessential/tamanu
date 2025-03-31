@@ -35,7 +35,7 @@ const InfoPopupLabel = React.memo(() => (
       <TranslatedText
         stringId="patient.modal.triage.triageScore.label"
         fallback="Triage score"
-        data-testid='translatedtext-tas9' />
+        data-test-id='translatedtext-tas9' />
     </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
@@ -52,10 +52,10 @@ const triageClinicianLabel = (
           stringId="general.localisedField.clinician.label.short"
           fallback="Clinician"
           casing="lower"
-          data-testid='translatedtext-wc6k' />
+          data-test-id='translatedtext-wc6k' />
       ),
     }}
-    data-testid='translatedtext-5wwd' />
+    data-test-id='translatedtext-5wwd' />
 );
 
 export const TriageForm = ({
@@ -84,33 +84,33 @@ export const TriageForm = ({
             <TranslatedText
               stringId="patient.modal.triage.arrivalTime.label"
               fallback="Arrival date & time"
-              data-testid='translatedtext-mvou' />
+              data-test-id='translatedtext-mvou' />
           }
           component={DateTimeField}
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
           helperText="If different from triage time"
           saveDateAsString
-          data-testid='field-w16w' />
+          data-test-id='field-w16w' />
         <Field
           name="triageTime"
           label={
             <TranslatedText
               stringId="patient.modal.triage.triageDateTime.label"
               fallback="Triage date & time"
-              data-testid='translatedtext-vumd' />
+              data-test-id='translatedtext-vumd' />
           }
           required
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
           component={DateTimeField}
           saveDateAsString
-          data-testid='field-fjx9' />
+          data-test-id='field-fjx9' />
         <Field
           name="locationId"
           component={LocalisedLocationField}
           required
-          data-testid='field-vgjq' />
+          data-test-id='field-vgjq' />
         <LocationAvailabilityWarningMessage
           locationId={values?.locationId}
           style={{
@@ -126,11 +126,11 @@ export const TriageForm = ({
             <TranslatedText
               stringId="general.localisedField.arrivalModeId.label"
               fallback="Arrival mode"
-              data-testid='translatedtext-wnhq' />
+              data-test-id='translatedtext-wnhq' />
           }
           component={SuggesterSelectField}
           endpoint="arrivalMode"
-          data-testid='localisedfield-nd1a' />
+          data-test-id='localisedfield-nd1a' />
         <Field
           name="score"
           label={<InfoPopupLabel />}
@@ -138,7 +138,7 @@ export const TriageForm = ({
           fullWidth
           options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
           style={{ gridColumn: '1/-1' }}
-          data-testid='field-ofmd' />
+          data-test-id='field-ofmd' />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
             name="chiefComplaintId"
@@ -146,30 +146,30 @@ export const TriageForm = ({
               <TranslatedText
                 stringId="patient.modal.triage.chiefComplaint.label"
                 fallback="Chief complaint"
-                data-testid='translatedtext-zsu7' />
+                data-test-id='translatedtext-zsu7' />
             }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
             required
-            data-testid='field-racc' />
+            data-test-id='field-racc' />
           <Field
             name="secondaryComplaintId"
             label={
               <TranslatedText
                 stringId="patient.modal.triage.secondaryComplaint.label"
                 fallback="Secondary complaint"
-                data-testid='translatedtext-g54e' />
+                data-test-id='translatedtext-g54e' />
             }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
-            data-testid='field-tk1a' />
+            data-test-id='field-tk1a' />
           <Box mt={1} mb={2}>
             <Field
               name="vitals"
               patient={patient}
               component={NestedVitalsModal}
               encounterType={ENCOUNTER_TYPES.TRIAGE}
-              data-testid='field-h3l0' />
+              data-test-id='field-h3l0' />
           </Box>
         </FormGrid>
         <Field
@@ -178,12 +178,12 @@ export const TriageForm = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          data-testid='field-ivcy' />
+          data-test-id='field-ivcy' />
         <ModalFormActionRow
           confirmText={<TranslatedText
             stringId="general.action.submit"
             fallback="Submit"
-            data-testid='translatedtext-oist' />}
+            data-test-id='translatedtext-oist' />}
           onConfirm={submitForm}
           onCancel={onCancel}
         />
@@ -262,14 +262,14 @@ export const TriageForm = ({
           <TranslatedText
             stringId="patient.modal.triage.chiefComplaint.label"
             fallback="Chief complaint"
-            data-testid='translatedtext-dj2g' />,
+            data-test-id='translatedtext-dj2g' />,
         ),
         practitionerId: foreignKey().translatedLabel(triageClinicianLabel),
         locationId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="general.localisedField.locationId.label"
             fallback="Location"
-            data-testid='translatedtext-7fkg' />,
+            data-test-id='translatedtext-7fkg' />,
         ),
         score: yup
           .string()
@@ -278,7 +278,7 @@ export const TriageForm = ({
             <TranslatedText
               stringId="patient.modal.triage.triageScore.label"
               fallback="Triage score"
-              data-testid='translatedtext-fr08' />,
+              data-test-id='translatedtext-fr08' />,
           ),
       })}
     />

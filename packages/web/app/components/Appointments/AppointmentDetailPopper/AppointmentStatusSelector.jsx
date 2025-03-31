@@ -38,14 +38,14 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
         <TranslatedText
           stringId="scheduling.action.changeStatus.success"
           fallback="Appointment status updated"
-          data-testid='translatedtext-xktt' />,
+          data-test-id='translatedtext-xktt' />,
       ),
     onError: () =>
       toast.error(
         <TranslatedText
           stringId="scheduling.action.changeStatus.error"
           fallback="Couldn’t update appointment status"
-          data-testid='translatedtext-d3pw' />,
+          data-test-id='translatedtext-d3pw' />,
       ),
   });
 

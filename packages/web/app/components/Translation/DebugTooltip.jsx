@@ -49,7 +49,7 @@ export const DebugTooltip = React.memo(({ children, stringId, replacements, fall
               <b>replacements:</b>
               <StyledList>
                 {Object.entries(replacements).map(([key, value]) => (
-                  <li key={key} data-testid='li-x8wx'>
+                  <li key={key} data-test-id='li-x8wx'>
                     {key}: {value}
                   </li>
                 ))}

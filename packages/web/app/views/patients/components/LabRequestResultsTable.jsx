@@ -33,19 +33,19 @@ const columns = sex => [
     title: <TranslatedText
       stringId="lab.testType.label"
       fallback="Test type"
-      data-testid='translatedtext-0z51' />,
+      data-test-id='translatedtext-0z51' />,
     key: 'labTestType.name',
     accessor: row => <TranslatedReferenceData
       fallback={row.labTestType.name}
       value={row.labTestType.id}
       category="labTestType"
-      data-testid='translatedreferencedata-dvhf' />,
+      data-test-id='translatedreferencedata-dvhf' />,
   },
   {
     title: <TranslatedText
       stringId="lab.results.table.column.result"
       fallback="Result"
-      data-testid='translatedtext-zh87' />,
+      data-test-id='translatedtext-zh87' />,
     key: 'result',
     accessor: ({ result }) => result ?? '',
   },
@@ -53,7 +53,7 @@ const columns = sex => [
     title: <TranslatedText
       stringId="lab.results.table.column.unit"
       fallback="Units"
-      data-testid='translatedtext-fqte' />,
+      data-test-id='translatedtext-fqte' />,
     key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
   },
@@ -61,7 +61,7 @@ const columns = sex => [
     title: <TranslatedText
       stringId="lab.results.table.column.reference"
       fallback="Reference"
-      data-testid='translatedtext-1uls' />,
+      data-test-id='translatedtext-1uls' />,
     key: 'reference',
     accessor: makeRangeStringAccessor(sex),
     sortable: false,
@@ -70,7 +70,7 @@ const columns = sex => [
     title: <TranslatedText
       stringId="lab.results.table.column.labTestMethod"
       fallback="Method"
-      data-testid='translatedtext-mntb' />,
+      data-test-id='translatedtext-mntb' />,
     key: 'labTestMethod',
     accessor: getMethod,
     sortable: false,
@@ -80,7 +80,7 @@ const columns = sex => [
       <TranslatedText
         stringId="lab.results.table.column.laboratoryOfficer"
         fallback="Lab officer"
-        data-testid='translatedtext-5lz1' />
+        data-test-id='translatedtext-5lz1' />
     ),
     key: 'laboratoryOfficer',
   },
@@ -89,7 +89,7 @@ const columns = sex => [
       <TranslatedText
         stringId="lab.results.table.column.verification"
         fallback="Verification"
-        data-testid='translatedtext-cr0s' />
+        data-test-id='translatedtext-cr0s' />
     ),
     key: 'verification',
   },
@@ -98,7 +98,7 @@ const columns = sex => [
       <TranslatedText
         stringId="lab.results.table.column.completedDate"
         fallback="Completed"
-        data-testid='translatedtext-ucwd' />
+        data-test-id='translatedtext-ucwd' />
     ),
     key: 'completedDate',
     accessor: getCompletedDate,

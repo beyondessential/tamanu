@@ -29,7 +29,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     <TranslatedText
       stringId="scheduling.locationBookings.title"
       fallback="Location bookings"
-      data-testid='translatedtext-bcez' />
+      data-test-id='translatedtext-bcez' />
   ),
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
@@ -126,7 +126,7 @@ export const LocationBookingsView = () => {
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
-              data-testid='translatedtext-7o5o' />
+              data-test-id='translatedtext-7o5o' />
           </NewBookingButton>
         )}
       </LocationBookingsTopBar>
@@ -135,7 +135,7 @@ export const LocationBookingsView = () => {
           <TranslatedText
             stringId="locationBooking.calendar.noBookableLocations"
             fallback="No bookable locations"
-            data-testid='translatedtext-d16r' />
+            data-test-id='translatedtext-d16r' />
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar

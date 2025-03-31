@@ -13,7 +13,7 @@ export const ConfiguredMandatoryPatientFields = (props) => {
           key={field.name}
           enablePasting
           {...field}
-          data-testid='localisedfield-8edb' />
+          data-test-id='localisedfield-8edb' />
       ))}
     </>
   ) : null;

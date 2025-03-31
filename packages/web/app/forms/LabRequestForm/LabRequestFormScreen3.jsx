@@ -47,13 +47,13 @@ export const LabRequestFormScreen3 = props => {
         <TranslatedText
           stringId="lab.sampleDetails.heading"
           fallback="Sample details"
-          data-testid='translatedtext-gixi' />
+          data-test-id='translatedtext-gixi' />
       </Heading3>
       <StyledBodyText mb="28px" color="textTertiary">
         <TranslatedText
           stringId="lab.sampleDetails.instruction"
           fallback="Please record details for the samples that have been collected. Otherwise leave blank and click ‘Finalise’."
-          data-testid='translatedtext-ei0e' />
+          data-test-id='translatedtext-ei0e' />
       </StyledBodyText>
       <Field
         name="sampleDetails"
@@ -67,7 +67,7 @@ export const LabRequestFormScreen3 = props => {
         labSampleSiteSuggester={labSampleSiteSuggester}
         required
         {...props}
-        data-testid='field-ftl8' />
+        data-test-id='field-ftl8' />
     </div>
   );
 };

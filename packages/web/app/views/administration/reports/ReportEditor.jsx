@@ -78,7 +78,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               <TranslatedText
                 stringId="admin.report.reportName.label"
                 fallback="Report name"
-                data-testid='translatedtext-bl8h' />
+                data-test-id='translatedtext-bl8h' />
             }
             name="name"
             component={TextField}
@@ -90,7 +90,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               <TranslatedText
                 stringId="admin.report.defaultDateRange.label"
                 fallback="Default date range"
-                data-testid='translatedtext-0tm2' />
+                data-test-id='translatedtext-0tm2' />
             }
             name="defaultDateRange"
             component={TranslatedSelectField}
@@ -104,7 +104,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               label={<TranslatedText
                 stringId="admin.report.dbSchema.label"
                 fallback="DB Schema"
-                data-testid='translatedtext-6u31' />}
+                data-test-id='translatedtext-6u31' />}
               name="dbSchema"
               component={TranslatedSelectField}
               enumValues={REPORT_DB_SCHEMA_LABELS}
@@ -120,7 +120,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
                 <TranslatedText
                   stringId="admin.report.canBeRunOn.label"
                   fallback="Can be run on"
-                  data-testid='translatedtext-jnbk' />
+                  data-test-id='translatedtext-jnbk' />
               }
               name="dataSources"
               component={TranslatedMultiSelectField}
@@ -133,7 +133,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             label={<TranslatedText
               stringId="general.notes.label"
               fallback="Notes"
-              data-testid='translatedtext-s92d' />}
+              data-test-id='translatedtext-s92d' />}
             name="notes"
             multiline
           />
@@ -146,13 +146,13 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               <TranslatedText
                 stringId="admin.report.query.label"
                 fallback="Query"
-                data-testid='translatedtext-hufs' />
+                data-test-id='translatedtext-hufs' />
             </Grid>
             <Grid item xs={4}>
               <TranslatedText
                 stringId="admin.report.parameters.label"
                 fallback="Parameters"
-                data-testid='translatedtext-g5fw' />
+                data-test-id='translatedtext-g5fw' />
             </Grid>
           </Grid>
         </AccordionSummary>
@@ -184,7 +184,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <ButtonRow data-testid='buttonrow-fxp6'>
+      <ButtonRow data-test-id='buttonrow-fxp6'>
         <StatusField
           name="status"
           component={TranslatedSelectField}
@@ -197,17 +197,17 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           color="primary"
           type="submit"
           isSubmitting={isSubmitting}
-          data-testid='button-33gq'>
+          data-test-id='button-33gq'>
           {isEdit ? (
             <TranslatedText
               stringId="admin.report.action.createNewVersion"
               fallback="Create new version"
-              data-testid='translatedtext-6vrc' />
+              data-test-id='translatedtext-6vrc' />
           ) : (
             <TranslatedText
               stringId="general.action.create"
               fallback="Create"
-              data-testid='translatedtext-2o44' />
+              data-test-id='translatedtext-2o44' />
           )}
         </Button>
       </ButtonRow>
@@ -229,7 +229,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             <TranslatedText
               stringId="admin.report.reportName.label"
               fallback="Report name"
-              data-testid='translatedtext-kigf' />,
+              data-test-id='translatedtext-kigf' />,
           ),
         dataSources: yup
           .array()
@@ -262,7 +262,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                 <TranslatedText
                   stringId="admin.report.validation.name.path"
                   fallback="Parameter name"
-                  data-testid='translatedtext-26pj' />,
+                  data-test-id='translatedtext-26pj' />,
               ),
             label: yup
               .string()
@@ -271,7 +271,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                 <TranslatedText
                   stringId="admin.report.validation.label.path"
                   fallback="Parameter label"
-                  data-testid='translatedtext-if7u' />,
+                  data-test-id='translatedtext-if7u' />,
               ),
             parameterField: yup
               .string()
@@ -280,7 +280,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                 <TranslatedText
                   stringId="admin.report.fieldType.label"
                   fallback="Field type"
-                  data-testid='translatedtext-71sq' />,
+                  data-test-id='translatedtext-71sq' />,
               ),
             suggesterEndpoint: yup.string().when('parameterField', {
               is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
@@ -291,7 +291,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                   <TranslatedText
                     stringId="admin.report.suggesterEndpoint.label"
                     fallback="Parameter label"
-                    data-testid='translatedtext-boom' />,
+                    data-test-id='translatedtext-boom' />,
                 ),
               otherwise: yup.string(),
             }),
@@ -317,7 +317,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .translatedLabel(<TranslatedText
           stringId="admin.report.query.label"
           fallback="Query"
-          data-testid='translatedtext-umaw' />),
+          data-test-id='translatedtext-umaw' />),
         status: yup
           .string()
           .oneOf(REPORT_STATUSES_VALUES)
@@ -325,7 +325,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .translatedLabel(<TranslatedText
           stringId="general.status.label"
           fallback="Status"
-          data-testid='translatedtext-qxmo' />),
+          data-test-id='translatedtext-qxmo' />),
       })}
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}

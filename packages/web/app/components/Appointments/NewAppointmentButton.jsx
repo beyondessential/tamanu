@@ -15,11 +15,11 @@ export const NewAppointmentButton = ({ onSuccess }) => {
         onClick={() => {
           setOpenModal(true);
         }}
-        data-testid='buttonwithpermissioncheck-kbx2'>
+        data-test-id='buttonwithpermissioncheck-kbx2'>
         <TranslatedText
           stringId="scheduling.action.newAppointment"
           fallback="New appointment"
-          data-testid='translatedtext-0zm6' />
+          data-test-id='translatedtext-0zm6' />
       </ButtonWithPermissionCheck>
       <AppointmentModal
         open={openModal}

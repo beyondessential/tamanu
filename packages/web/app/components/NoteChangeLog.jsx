@@ -40,10 +40,10 @@ const NoteChangeLogInfo = ({ note }) => (
             stringId="note.table.onBehalfOfText"
             fallback="on behalf of :changeOnBehalfOfName"
             replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
-            data-testid='translatedtext-80mu' />{' '}
+            data-test-id='translatedtext-80mu' />{' '}
         </span>
       ) : null}
-      <DateDisplay date={note.date} showTime data-testid='datedisplay-yv1w' />
+      <DateDisplay date={note.date} showTime data-test-id='datedisplay-yv1w' />
     </>
   </StyledNoteChangeLogInfoWrapper>
 );

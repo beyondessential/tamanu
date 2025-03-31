@@ -48,7 +48,7 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => (
         <TranslatedText
           stringId="patient.id.regenerate"
           fallback="Regenerate"
-          data-testid='translatedtext-slij' />
+          data-test-id='translatedtext-slij' />
       </Text>
     </RegenerateId>
   </IdControl>

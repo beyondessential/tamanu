@@ -35,7 +35,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
       label={<TranslatedText
         stringId="general.dateAndTime.label"
         fallback="Date & time"
-        data-testid='translatedtext-t799' />}
+        data-test-id='translatedtext-t799' />}
       component={DateTimeField}
       saveDateAsString
       required
@@ -48,9 +48,9 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
           <TranslatedText
             stringId="outpatientAppointment.date.warning"
             fallback="Patient already has an appointment scheduled for this day"
-            data-testid='translatedtext-9bxj' />
+            data-test-id='translatedtext-9bxj' />
         )
       }
-      data-testid='field-83xd' />
+      data-test-id='field-83xd' />
   );
 };

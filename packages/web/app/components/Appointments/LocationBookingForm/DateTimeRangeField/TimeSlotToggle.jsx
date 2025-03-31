@@ -126,7 +126,7 @@ const StyledTooltip = styled(ThemedTooltip).attrs({
     <TranslatedText
       stringId="locationBooking.tooltip.notAvailable"
       fallback="Not available"
-      data-testid='translatedtext-28sw' />
+      data-test-id='translatedtext-28sw' />
   ),
 })`
   ${tooltipStyles}

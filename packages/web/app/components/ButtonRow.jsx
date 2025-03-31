@@ -42,19 +42,19 @@ export const FormSubmitCancelRow = React.memo(
     confirmText = <TranslatedText
       stringId="general.action.confirm"
       fallback="Confirm"
-      data-testid='translatedtext-mnvi' />,
+      data-test-id='translatedtext-mnvi' />,
     confirmColor = 'primary',
     cancelText = <TranslatedText
       stringId="general.action.cancel"
       fallback="Cancel"
-      data-testid='translatedtext-3zsq' />,
+      data-test-id='translatedtext-3zsq' />,
     confirmDisabled,
     confirmStyle,
     CustomConfirmButton,
     ...props
   }) => (
-    <ButtonRow {...props} data-testid='buttonrow-8rt9'>
-      {onCancel && <FormCancelButton onClick={onCancel} data-testid='formcancelbutton-nvuv'>{cancelText}</FormCancelButton>}
+    <ButtonRow {...props} data-test-id='buttonrow-8rt9'>
+      {onCancel && <FormCancelButton onClick={onCancel} data-test-id='formcancelbutton-nvuv'>{cancelText}</FormCancelButton>}
       {CustomConfirmButton ? (
         <CustomConfirmButton onClick={onConfirm} disabled={confirmDisabled} />
       ) : (
@@ -63,7 +63,7 @@ export const FormSubmitCancelRow = React.memo(
           onSubmit={onConfirm}
           disabled={confirmDisabled}
           {...(confirmStyle && { confirmStyle })}
-          data-testid='formsubmitbutton-oqxb'>
+          data-test-id='formsubmitbutton-oqxb'>
           {confirmText}
         </FormSubmitButton>
       )}
@@ -78,17 +78,17 @@ export const ConfirmCancelRow = React.memo(
     confirmText = <TranslatedText
       stringId="general.action.confirm"
       fallback="Confirm"
-      data-testid='translatedtext-bvto' />,
+      data-test-id='translatedtext-bvto' />,
     confirmColor = 'primary',
     cancelText = <TranslatedText
       stringId="general.action.cancel"
       fallback="Cancel"
-      data-testid='translatedtext-resn' />,
+      data-test-id='translatedtext-resn' />,
     confirmDisabled,
     ...props
   }) => (
-    <ButtonRow {...props} data-testid='buttonrow-d2nz'>
-      {onCancel && <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-lc4j'>{cancelText}</OutlinedButton>}
+    <ButtonRow {...props} data-test-id='buttonrow-d2nz'>
+      {onCancel && <OutlinedButton onClick={onCancel} data-test-id='outlinedbutton-lc4j'>{cancelText}</OutlinedButton>}
       <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmText}
       </ConfirmButton>
@@ -111,16 +111,16 @@ export const FormConfirmCancelBackRow = ({
   backButtonText = <TranslatedText
     stringId="general.action.back"
     fallback="Back"
-    data-testid='translatedtext-ja65' />,
+    data-test-id='translatedtext-ja65' />,
   ...props
 }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack} data-testid='outlinedbutton-9dol'>{backButtonText}</OutlinedButton>
+        <OutlinedButton onClick={onBack} data-test-id='outlinedbutton-9dol'>{backButtonText}</OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <FormSubmitCancelRow {...props} data-testid='formsubmitcancelrow-dtd1' />
+    <FormSubmitCancelRow {...props} data-test-id='formsubmitcancelrow-dtd1' />
   </FlexSpaceBetween>
 );
 
@@ -129,7 +129,7 @@ export const ConfirmCancelBackRow = ({
   backButtonText = <TranslatedText
     stringId="general.action.back"
     fallback="Back"
-    data-testid='translatedtext-p2dn' />,
+    data-test-id='translatedtext-p2dn' />,
   backDisabled = false,
   ...props
 }) => (
@@ -139,7 +139,7 @@ export const ConfirmCancelBackRow = ({
         <OutlinedButton
           onClick={onBack}
           disabled={backDisabled}
-          data-testid='outlinedbutton-bpnk'>
+          data-test-id='outlinedbutton-bpnk'>
           {backButtonText}
         </OutlinedButton>
       </GoBackButtonContainer>

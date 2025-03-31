@@ -12,7 +12,7 @@ export const PrintMultipleLabRequestsSelectionModal = ({ encounter, open, onClos
         <TranslatedText
           stringId="lab.modal.printMultiple.title"
           fallback="Print lab requests"
-          data-testid='translatedtext-8fqz' />
+          data-test-id='translatedtext-8fqz' />
       }
       width="xl"
       open={open}

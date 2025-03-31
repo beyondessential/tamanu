@@ -65,12 +65,12 @@ export const BookingsRow = ({
           category="locationGroup"
           value={locationGroup.id}
           fallback={locationGroup.name}
-          data-testid='translatedreferencedata-0k10' />{' '}
+          data-test-id='translatedreferencedata-0k10' />{' '}
         <TranslatedReferenceData
           category="location"
           value={location.id}
           fallback={location.name}
-          data-testid='translatedreferencedata-slav' />
+          data-test-id='translatedreferencedata-slav' />
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell

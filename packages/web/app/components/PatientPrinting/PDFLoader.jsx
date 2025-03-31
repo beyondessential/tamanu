@@ -34,7 +34,7 @@ const LoadingIndicator = () => (
       <TranslatedText
         stringId="general.status.loading"
         fallback="Loading…"
-        data-testid='translatedtext-g6tp' />
+        data-test-id='translatedtext-g6tp' />
     </Typography>
   </Loader>
 );

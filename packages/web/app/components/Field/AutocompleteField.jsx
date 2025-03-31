@@ -304,7 +304,7 @@ export class AutocompleteInput extends Component {
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
-                data-testid='translatedtext-xjet' />
+                data-test-id='translatedtext-xjet' />
               )
             </>
           ) : (

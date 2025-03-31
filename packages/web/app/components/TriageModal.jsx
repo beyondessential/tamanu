@@ -52,7 +52,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['firstName', 'First name'],
   ['lastName', 'Last name'],
   ['sex', 'Sex', ({ sex }) => <TranslatedSex sex={sex} />],
-  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid='datedisplay-moct' />],
+  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-test-id='datedisplay-moct' />],
 ];
 
 export const TriageModal = React.memo(
@@ -68,7 +68,7 @@ export const TriageModal = React.memo(
           <TranslatedText
             stringId={`general.localisedFields.${name}.label`}
             fallback={label}
-            data-testid='translatedtext-910k' />:
+            data-test-id='translatedtext-910k' />:
         </DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
@@ -80,7 +80,7 @@ export const TriageModal = React.memo(
           <TranslatedText
             stringId="patient.modal.triage.title"
             fallback="New emergency triage"
-            data-testid='translatedtext-x9zu' />
+            data-test-id='translatedtext-x9zu' />
         }
         open={open}
         width="md"
@@ -90,7 +90,7 @@ export const TriageModal = React.memo(
           <TranslatedText
             stringId="patient.modal.triage.patientDetails.heading"
             fallback="Patient details"
-            data-testid='translatedtext-ivfa' />
+            data-test-id='translatedtext-ivfa' />
         </Header>
         <PatientDetails>
           <Grid>{detailsFields}</Grid>

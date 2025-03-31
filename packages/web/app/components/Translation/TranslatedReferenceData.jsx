@@ -12,7 +12,7 @@ export const TranslatedReferenceData = ({ category, value, fallback, placeholder
     <TranslatedText
       stringId={getReferenceDataStringId(value, category)}
       fallback={`${fallback}`}
-      data-testid='translatedtext-is3v' />
+      data-test-id='translatedtext-is3v' />
   ) : (
     placeholder
   );

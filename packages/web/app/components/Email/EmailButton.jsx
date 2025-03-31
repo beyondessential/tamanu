@@ -17,14 +17,14 @@ export const EmailButton = ({ onEmail }) => {
         }}
         startIcon={<EmailIcon />}
         size="small"
-        data-testid='button-eej2'>
+        data-test-id='button-eej2'>
         Email
       </Button>
       <FormModal
         title={<TranslatedText
           stringId="patient.email.title"
           fallback="Enter email address"
-          data-testid='translatedtext-mz16' />}
+          data-test-id='translatedtext-mz16' />}
         open={openModal}
         onClose={() => setOpenModal(false)}
       >

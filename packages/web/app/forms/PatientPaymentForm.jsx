@@ -143,7 +143,7 @@ export const PatientPaymentForm = ({
             name="chequeNumber"
             component={TextField}
             size="small"
-            data-testid='field-yaum' />
+            data-test-id='field-yaum' />
         </FieldContainer>
       );
     }
@@ -164,7 +164,7 @@ export const PatientPaymentForm = ({
               component={DateField}
               saveDateAsString
               size="small"
-              data-testid='field-ct2t' />
+              data-test-id='field-ct2t' />
           </FieldContainer>
           <FieldContainer width="19%">
             <Field
@@ -174,7 +174,7 @@ export const PatientPaymentForm = ({
               suggester={paymentMethodSuggester}
               size="small"
               onChange={e => onDataChange({ paymentMethod: e.target })}
-              data-testid='field-nk19' />
+              data-test-id='field-nk19' />
           </FieldContainer>
           {renderChequeNumberField()}
           <FieldContainer width="13%">
@@ -187,7 +187,7 @@ export const PatientPaymentForm = ({
               onInput={validateDecimalPlaces}
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              data-testid='field-wdfu' />
+              data-test-id='field-wdfu' />
           </FieldContainer>
           <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
             <Field
@@ -196,18 +196,18 @@ export const PatientPaymentForm = ({
               component={TextField}
               size="small"
               onChange={e => setFieldValue('receiptNumber', e.target.value)}
-              data-testid='field-sx09' />
+              data-test-id='field-sx09' />
             <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="invoice.payment.tooltip.generateReceiptNumber"
                   fallback="Generate receipt number"
-                  data-testid='translatedtext-msnl' />
+                  data-test-id='translatedtext-msnl' />
               }
             >
               <IconButton
                 onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
-                data-testid='iconbutton-alcb'>
+                data-test-id='iconbutton-alcb'>
                 <CachedIcon />
               </IconButton>
             </ThemedTooltip>
@@ -217,11 +217,11 @@ export const PatientPaymentForm = ({
               size="small"
               onClick={submitForm}
               disabled={isCreatingPayment || isUpdatingPayment}
-              data-testid='button-bats'>
+              data-test-id='button-bats'>
               <TranslatedText
                 stringId="invoice.modal.payment.action.record"
                 fallback="Record"
-                data-testid='translatedtext-feva' />
+                data-test-id='translatedtext-feva' />
             </Button>
           </Box>
           {openConfirmPaidModal && (
@@ -239,19 +239,19 @@ export const PatientPaymentForm = ({
           .required(<TranslatedText
           stringId="general.required"
           fallback="Required"
-          data-testid='translatedtext-b6y7' />),
+          data-test-id='translatedtext-b6y7' />),
         methodId: yup
           .string()
           .required(<TranslatedText
           stringId="general.required"
           fallback="Required"
-          data-testid='translatedtext-97r7' />),
+          data-test-id='translatedtext-97r7' />),
         chequeNumber: yup.string().matches(/^[A-Za-z0-9]+$/, {
           message: (
             <TranslatedText
               stringId="invoice.payment.validation.invalidChequeNumber"
               fallback="Invalid cheque number - alphanumeric characters only"
-              data-testid='translatedtext-k5dc' />
+              data-test-id='translatedtext-k5dc' />
           ),
         }),
         amount: yup
@@ -259,13 +259,13 @@ export const PatientPaymentForm = ({
           .required(<TranslatedText
           stringId="general.required"
           fallback="Required"
-          data-testid='translatedtext-x8ky' />)
+          data-test-id='translatedtext-x8ky' />)
           .test(
             'is-valid-amount',
             <TranslatedText
               stringId="invoice.payment.validation.exceedAmount"
               fallback="Cannot be more than outstanding balance"
-              data-testid='translatedtext-2yf6' />,
+              data-test-id='translatedtext-2yf6' />,
             function(value) {
               const editingAmount = Number(editingPayment?.amount)
                 ? Number(editingPayment.amount)
@@ -281,13 +281,13 @@ export const PatientPaymentForm = ({
           .required(<TranslatedText
           stringId="general.required"
           fallback="Required"
-          data-testid='translatedtext-1rnj' />)
+          data-test-id='translatedtext-1rnj' />)
           .matches(/^[A-Za-z0-9]+$/, {
             message: (
               <TranslatedText
                 stringId="invoice.payment.validation.invalidReceiptNumber"
                 fallback="Invalid receipt number - alphanumeric characters only"
-                data-testid='translatedtext-ff1v' />
+                data-test-id='translatedtext-ff1v' />
             ),
           }),
       })}

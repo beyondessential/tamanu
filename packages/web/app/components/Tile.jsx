@@ -50,7 +50,7 @@ export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...prop
       {actions && !isReadOnly && <MenuButton
         actions={actions}
         iconDirection="horizontal"
-        data-testid='menubutton-bhqs' />}
+        data-test-id='menubutton-bhqs' />}
     </Header>
     <Text>{text}</Text>
     <Main>{main}</Main>

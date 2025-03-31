@@ -43,7 +43,7 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.firstName.label"
                 fallback="First name"
-                data-testid='translatedtext-xjti' />
+                data-test-id='translatedtext-xjti' />
             }
           >
             {firstName}
@@ -53,7 +53,7 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.lastName.label"
                 fallback="Last name"
-                data-testid='translatedtext-x5wc' />
+                data-test-id='translatedtext-x5wc' />
             }
           >
             {lastName}
@@ -63,16 +63,16 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.dateOfBirth.label.short"
                 fallback="DOB"
-                data-testid='translatedtext-n3kj' />
+                data-test-id='translatedtext-n3kj' />
             }
           >
-            <DateDisplay date={dateOfBirth} data-testid='datedisplay-iml1' />
+            <DateDisplay date={dateOfBirth} data-test-id='datedisplay-iml1' />
           </LocalisedLabel>
           <LocalisedLabel
             label={<TranslatedText
               stringId="general.localisedField.sex.label"
               fallback="Sex"
-              data-testid='translatedtext-2c5n' />}
+              data-test-id='translatedtext-2c5n' />}
           >
             {capitaliseFirstLetter(sex)}
           </LocalisedLabel>
@@ -81,7 +81,7 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.streetVillage.label"
                 fallback="Residential landmark"
-                data-testid='translatedtext-0727' />
+                data-test-id='translatedtext-0727' />
             }
           >
             {streetVillage}
@@ -93,7 +93,7 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.villageId.label"
                 fallback="Village"
-                data-testid='translatedtext-0381' />
+                data-test-id='translatedtext-0381' />
             }
           >
             {villageName}
@@ -103,7 +103,7 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.displayId.label.short"
                 fallback="NHN"
-                data-testid='translatedtext-w3kb' />
+                data-test-id='translatedtext-w3kb' />
             }
           >
             {displayId}

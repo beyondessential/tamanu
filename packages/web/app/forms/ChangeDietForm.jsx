@@ -16,16 +16,16 @@ export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
         label={<TranslatedText
           stringId="general.localisedField.dietId.label"
           fallback="Diet"
-          data-testid='translatedtext-oug0' />}
+          data-test-id='translatedtext-oug0' />}
         endpoint="diet"
         component={SuggesterSelectField}
         isMulti
-        data-testid='localisedfield-lh6s' />
+        data-test-id='localisedfield-lh6s' />
       <ModalActionRow
         confirmText={<TranslatedText
           stringId="general.action.confirm"
           fallback="Confirm"
-          data-testid='translatedtext-ijfn' />}
+          data-test-id='translatedtext-ijfn' />}
         onConfirm={submitForm}
         onCancel={onCancel}
       />

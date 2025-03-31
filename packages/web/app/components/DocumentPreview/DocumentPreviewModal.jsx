@@ -17,7 +17,7 @@ const getTitle = ({ source, name }) =>
     <TranslatedText
       stringId="patient.modal.patientLetter.title"
       fallback="Patient letter"
-      data-testid='translatedtext-y0qj' />
+      data-test-id='translatedtext-y0qj' />
   ) : (
     name
   );
@@ -29,11 +29,11 @@ const DownloadButton = ({ onClick }) => {
       size="small"
       startIcon={<GetAppIcon />}
       onClick={onClick}
-      data-testid='button-kx14'>
+      data-test-id='button-kx14'>
       <TranslatedText
         stringId="general.action.download"
         fallback="Download"
-        data-testid='translatedtext-h5lj' />
+        data-test-id='translatedtext-h5lj' />
     </Button>
   );
 };
@@ -57,7 +57,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
       replacements={{
         documentType,
       }}
-      data-testid='translatedtext-qr8h' />
+      data-test-id='translatedtext-qr8h' />
   );
 };
 
@@ -85,7 +85,7 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
                   scrollPage,
                   pageCount: pageCount ?? '‒', // figure dash
                 }}
-                data-testid='translatedtext-5kuh' />
+                data-test-id='translatedtext-5kuh' />
             ) : null}
           </Subtitle>
         </div>

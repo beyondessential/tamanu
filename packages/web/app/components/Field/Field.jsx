@@ -84,7 +84,7 @@ export const FieldWithTooltip = ({
         <StyledToolTip title={disabledTooltipText} arrow placement="top" {...props}>
           {/* Below div is needed to make StyledToolTip work  */}
           <div>
-            <Field {...props} data-testid='field-xc42' />
+            <Field {...props} data-test-id='field-xc42' />
           </div>
         </StyledToolTip>
       </MuiBox>
@@ -92,7 +92,7 @@ export const FieldWithTooltip = ({
 
   return (
     <MuiBox position="relative">
-      <Field {...props} data-testid='field-8x4k' />
+      <Field {...props} data-test-id='field-8x4k' />
       {tooltipText && <FormTooltip arrow placement="top" title={tooltipText} {...muiTooltipProps} />}
     </MuiBox>
   );

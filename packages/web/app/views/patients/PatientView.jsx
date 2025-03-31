@@ -45,7 +45,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.summary"
       fallback="Summary"
-      data-testid='translatedtext-w8k9' />,
+      data-test-id='translatedtext-w8k9' />,
     key: PATIENT_TABS.SUMMARY,
     icon: 'fa fa-user',
     render: props => <SummaryPane {...props} />,
@@ -54,7 +54,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.details"
       fallback="Details"
-      data-testid='translatedtext-2d30' />,
+      data-test-id='translatedtext-2d30' />,
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
@@ -63,7 +63,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.results"
       fallback="Results"
-      data-testid='translatedtext-m2tq' />,
+      data-test-id='translatedtext-m2tq' />,
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
     render: props => <PatientResultsPane {...props} />,
@@ -72,7 +72,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.referrals"
       fallback="Referrals"
-      data-testid='translatedtext-14j2' />,
+      data-test-id='translatedtext-14j2' />,
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
@@ -81,7 +81,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.forms"
       fallback="Forms"
-      data-testid='translatedtext-wcu2' />,
+      data-test-id='translatedtext-wcu2' />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: props => (
@@ -92,7 +92,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.documents"
       fallback="Documents"
-      data-testid='translatedtext-gjuy' />,
+      data-test-id='translatedtext-gjuy' />,
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
@@ -101,7 +101,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.vaccines"
       fallback="Vaccines"
-      data-testid='translatedtext-dy1v' />,
+      data-test-id='translatedtext-dy1v' />,
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
@@ -110,7 +110,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.medication"
       fallback="Medication"
-      data-testid='translatedtext-uzfv' />,
+      data-test-id='translatedtext-uzfv' />,
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
@@ -119,7 +119,7 @@ const TABS = [
     label: <TranslatedText
       stringId="patient.tab.invoices"
       fallback="Invoices"
-      data-testid='translatedtext-3hd9' />,
+      data-test-id='translatedtext-3hd9' />,
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,

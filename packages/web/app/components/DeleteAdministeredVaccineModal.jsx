@@ -26,19 +26,19 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
         <TranslatedText
           stringId="vaccine.modal.delete.title"
           fallback="Delete vaccination record"
-          data-testid='translatedtext-nm2p' />
+          data-test-id='translatedtext-nm2p' />
       }
       text={
         <TranslatedText
           stringId="vaccine.modal.delete.text"
           fallback="WARNING: This action is irreversible!"
-          data-testid='translatedtext-lt44' />
+          data-test-id='translatedtext-lt44' />
       }
       subText={
         <TranslatedText
           stringId="vaccine.modal.delete.subText"
           fallback="Are you sure you want to delete this vaccination record?"
-          data-testid='translatedtext-ghin' />
+          data-test-id='translatedtext-ghin' />
       }
       open={open}
       onCancel={onClose}
@@ -47,11 +47,11 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
       cancelButtonText={<TranslatedText
         stringId="general.action.no"
         fallback="No"
-        data-testid='translatedtext-mp4x' />}
+        data-test-id='translatedtext-mp4x' />}
       confirmButtonText={<TranslatedText
         stringId="general.action.yes"
         fallback="Yes"
-        data-testid='translatedtext-gmni' />}
+        data-test-id='translatedtext-gmni' />}
     />
   );
 };

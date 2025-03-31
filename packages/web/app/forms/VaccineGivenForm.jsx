@@ -86,7 +86,7 @@ export const VaccineGivenForm = ({
                 <TranslatedText
                   stringId="vaccine.givenElsewhereCheckbox.label"
                   fallback="Given elsewhere (e.g overseas)"
-                  data-testid='translatedtext-n7dz' />
+                  data-test-id='translatedtext-n7dz' />
               }
               component={CheckField}
               onChange={(_e, value) => {
@@ -101,7 +101,7 @@ export const VaccineGivenForm = ({
                 }
                 setValues(newValues);
               }}
-              data-testid='field-ax65' />
+              data-test-id='field-ax65' />
           </FullWidthCol>
         </>
       )}
@@ -114,13 +114,13 @@ export const VaccineGivenForm = ({
                 <TranslatedText
                   stringId="general.localisedField.circumstanceIds.label"
                   fallback="Circumstances"
-                  data-testid='translatedtext-usr0' />
+                  data-test-id='translatedtext-usr0' />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
               isMulti
               required
-              data-testid='localisedfield-pbxo' />
+              data-test-id='localisedfield-pbxo' />
           </FullWidthCol>
           <StyledDivider />
         </>
@@ -151,7 +151,7 @@ export const VaccineGivenForm = ({
         label={<TranslatedText
           stringId="vaccine.dateGiven.label"
           fallback="Date given"
-          data-testid='translatedtext-yxix' />}
+          data-test-id='translatedtext-yxix' />}
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
         max={getCurrentDateString()}

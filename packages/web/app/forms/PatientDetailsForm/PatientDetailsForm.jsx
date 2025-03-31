@@ -133,12 +133,12 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
           />
-          <ButtonRow data-testid='buttonrow-5q4s'>
+          <ButtonRow data-test-id='buttonrow-5q4s'>
             <FormSubmitButton
               variant="contained"
               color="primary"
               text="Save"
-              data-testid='formsubmitbutton-liay' />
+              data-test-id='formsubmitbutton-liay' />
           </ButtonRow>
         </>
       )}

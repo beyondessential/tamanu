@@ -109,7 +109,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
         {noteItem.onBehalfOf?.displayName ? (
           <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
         ) : null}
-        <DateDisplay date={noteItem.date} showTime data-testid='datedisplay-p74b' />
+        <DateDisplay date={noteItem.date} showTime data-test-id='datedisplay-p74b' />
       </StyledNoteItemLogMetadata>
 
       <StyledNoteItemLogContent>{noteItem.content}</StyledNoteItemLogContent>
@@ -133,7 +133,7 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
       <>
         <span>{noteItem.author?.displayName || ''} </span>
         {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
-        <DateDisplay date={noteItem.date} showTime data-testid='datedisplay-x1rc' />
+        <DateDisplay date={noteItem.date} showTime data-test-id='datedisplay-x1rc' />
         {noteItem?.noteItems?.length > 0 && (
           <>
             <span> (edited) </span>

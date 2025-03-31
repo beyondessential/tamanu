@@ -101,7 +101,7 @@ export const CustomisableSearchBar = ({
                       switchExpandValue();
                     }}
                     color="primary"
-                    data-testid='iconbutton-kh32'>
+                    data-test-id='iconbutton-kh32'>
                     <img
                       src={isExpanded ? doubleUp : doubleDown}
                       alt={`${isExpanded ? 'hide' : 'show'} advanced search`}
@@ -113,7 +113,7 @@ export const CustomisableSearchBar = ({
                 <TranslatedText
                   stringId="general.action.search"
                   fallback="Search"
-                  data-testid='translatedtext-4b4r' />
+                  data-test-id='translatedtext-4b4r' />
               </SearchButton>
               <ClearButton
                 onClick={() => {
@@ -128,7 +128,7 @@ export const CustomisableSearchBar = ({
                 <TranslatedText
                   stringId="general.action.clear"
                   fallback="Clear"
-                  data-testid='translatedtext-zl95' />
+                  data-test-id='translatedtext-zl95' />
               </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>

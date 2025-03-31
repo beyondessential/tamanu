@@ -41,7 +41,7 @@ export const MultipleImagingRequestsPrintoutModal = ({
         <TranslatedText
           stringId="imaging.modal.printMultiple.title"
           fallback="Print imaging request/s"
-          data-testid='translatedtext-tydo' />
+          data-test-id='translatedtext-tydo' />
       }
       width="md"
       open={open}

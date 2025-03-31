@@ -17,31 +17,31 @@ const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
       <TranslatedText
         stringId="paginatedForm.summary.heading"
         fallback="Form complete"
-        data-testid='translatedtext-0sq7' />
+        data-test-id='translatedtext-0sq7' />
     </Typography>
     <Typography>
       <TranslatedText
         stringId="paginatedForm.summary.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-        data-testid='translatedtext-bzhi' />
+        data-test-id='translatedtext-bzhi' />
     </Typography>
     <div>
-      <ButtonRow data-testid='buttonrow-i6jd'>
-        <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-0rba'>
+      <ButtonRow data-test-id='buttonrow-i6jd'>
+        <OutlinedButton onClick={onStepBack} data-test-id='outlinedbutton-0rba'>
           <TranslatedText
             stringId="general.action.previous"
             fallback="Prev"
-            data-testid='translatedtext-yvvw' />
+            data-test-id='translatedtext-yvvw' />
         </OutlinedButton>
         <Button
           color="primary"
           variant="contained"
           onClick={submitForm}
-          data-testid='button-wkg1'>
+          data-test-id='button-wkg1'>
           <TranslatedText
             stringId="general.action.complete"
             fallback="Complete"
-            data-testid='translatedtext-7cf9' />
+            data-test-id='translatedtext-7cf9' />
         </Button>
       </ButtonRow>
     </div>
@@ -58,18 +58,18 @@ const DefaultSuccessScreen = ({ onClose }) => (
       <TranslatedText
         stringId="paginatedForm.success.heading"
         fallback="Your response has been successfully submitted."
-        data-testid='translatedtext-o2e9' />
+        data-test-id='translatedtext-o2e9' />
     </StyledAlert>
-    <ButtonRow data-testid='buttonrow-hqou'>
+    <ButtonRow data-test-id='buttonrow-hqou'>
       <Button
         variant="contained"
         color="primary"
         onClick={onClose}
-        data-testid='button-k1o1'>
+        data-test-id='button-k1o1'>
         <TranslatedText
           stringId="general.action.ok"
           fallback="Ok"
-          data-testid='translatedtext-eveu' />
+          data-test-id='translatedtext-eveu' />
       </Button>
     </ButtonRow>
   </div>
@@ -107,27 +107,27 @@ export const DefaultFormScreen = ({
           <OutlinedButton
             onClick={hasStepBack ? onStepBack : undefined}
             disabled={!hasStepBack}
-            data-testid='outlinedbutton-kxqb'>
+            data-test-id='outlinedbutton-kxqb'>
             <TranslatedText
               stringId="general.action.back"
               fallback="Back"
-              data-testid='translatedtext-iyde' />
+              data-test-id='translatedtext-iyde' />
           </OutlinedButton>
           <Button
             color="primary"
             variant="contained"
             onClick={onStepForward}
-            data-testid='button-whi6'>
+            data-test-id='button-whi6'>
             {isLast ? (
               <TranslatedText
                 stringId="general.action.submit"
                 fallback="Submit"
-                data-testid='translatedtext-f8xw' />
+                data-test-id='translatedtext-f8xw' />
             ) : (
               <TranslatedText
                 stringId="general.action.continue"
                 fallback="Continue"
-                data-testid='translatedtext-u47b' />
+                data-test-id='translatedtext-u47b' />
             )}
           </Button>
         </Box>

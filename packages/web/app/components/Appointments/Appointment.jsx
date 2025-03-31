@@ -63,7 +63,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           <Box paddingTop="2px">
             <PatientNameDisplay patient={patient} />
           </Box>
-          <DateDisplay date={startTime} showDate={false} showTime data-testid='datedisplay-kvhe' />
+          <DateDisplay date={startTime} showDate={false} showTime data-test-id='datedisplay-kvhe' />
         </div>
         <div className="icon">{statusIcons[status]}</div>
       </StyledAppointment>

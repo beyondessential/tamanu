@@ -32,7 +32,7 @@ const TriageCell = ({ arrivalTime, children }) => (
         stringId="patientList.triage.table.waitTime.arrivalTime.toolTip"
         fallback="Arrival time: :arrivalTime"
         replacements={{ arrivalTime }}
-        data-testid='translatedtext-2jyj' />
+        data-test-id='translatedtext-2jyj' />
     }
     arrow
     placement="top"
@@ -69,7 +69,7 @@ export const TriageWaitTimeCell = React.memo(
                 stringId="patientList.triage.table.waitTime.cell.triageTime"
                 fallback="Triage at :triageDate"
                 replacements={{ triageDate: format(new Date(triageTime), 'h:mma') }}
-                data-testid='translatedtext-mr5s' />
+                data-test-id='translatedtext-mr5s' />
             </div>
           </TriageCell>
         );
@@ -81,7 +81,7 @@ export const TriageWaitTimeCell = React.memo(
               stringId="patientList.triage.table.waitTime.cell.closedTime"
               fallback="Seen at :triageDate"
               replacements={{ triageDate: format(new Date(closedTime), 'h:mma') }}
-              data-testid='translatedtext-lnxx' />
+              data-test-id='translatedtext-lnxx' />
           </TriageCell>
         );
       default:
@@ -90,7 +90,7 @@ export const TriageWaitTimeCell = React.memo(
             <TranslatedText
               stringId="patientList.triage.table.waitTime.cell.admitted"
               fallback="Admitted"
-              data-testid='translatedtext-vnhh' />
+              data-test-id='translatedtext-vnhh' />
           </PlainCell>
         );
     }

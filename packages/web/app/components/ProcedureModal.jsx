@@ -48,15 +48,15 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
               <TranslatedText
                 stringId="general.action.edit"
                 fallback="Edit"
-                data-testid='translatedtext-gwll' />
+                data-test-id='translatedtext-gwll' />
             ) : (
               <TranslatedText
                 stringId="general.action.new"
                 fallback="New"
-                data-testid='translatedtext-d7u1' />
+                data-test-id='translatedtext-d7u1' />
             ),
           }}
-          data-testid='translatedtext-l6g6' />
+          data-test-id='translatedtext-l6g6' />
       }
       open={!!editedProcedure}
       onClose={onClose}

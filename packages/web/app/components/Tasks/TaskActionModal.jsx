@@ -22,14 +22,14 @@ const getModalTitle = (action, isRepeatingTask) => {
         <TranslatedText
           stringId="task.modal.markAsCompleted.title"
           fallback="Mark as completed"
-          data-testid='translatedtext-iiov' />
+          data-test-id='translatedtext-iiov' />
       );
     case TASK_ACTIONS.NON_COMPLETED:
       return (
         <TranslatedText
           stringId="task.modal.markAsNotCompleted.title"
           fallback="Mark as not completed"
-          data-testid='translatedtext-m6ws' />
+          data-test-id='translatedtext-m6ws' />
       );
     case TASK_ACTIONS.DELETED:
       if (isRepeatingTask) {
@@ -37,21 +37,21 @@ const getModalTitle = (action, isRepeatingTask) => {
           <TranslatedText
             stringId="task.deleteTasks.modal.title"
             fallback="Delete tasks"
-            data-testid='translatedtext-p9ir' />
+            data-test-id='translatedtext-p9ir' />
         );
       }
       return (
         <TranslatedText
           stringId="task.deleteTask.modal.title"
           fallback="Delete task"
-          data-testid='translatedtext-1hcl' />
+          data-test-id='translatedtext-1hcl' />
       );
     case TASK_ACTIONS.TODO:
       return (
         <TranslatedText
           stringId="task.modal.toDo.title"
           fallback="Mark as to-do"
-          data-testid='translatedtext-utvu' />
+          data-test-id='translatedtext-utvu' />
       );
     default:
       return '';
@@ -65,14 +65,14 @@ const getModalDescription = (action, isRepeatingTask, taskIds) => {
         <TranslatedText
           stringId="task.modal.completed.description"
           fallback="Complete details below to mark the task/s as completed."
-          data-testid='translatedtext-whqh' />
+          data-test-id='translatedtext-whqh' />
       );
     case TASK_ACTIONS.NON_COMPLETED:
       return (
         <TranslatedText
           stringId="task.modal.notCompleted.description"
           fallback="Complete details below to mark the task/s as not completed."
-          data-testid='translatedtext-kl4x' />
+          data-test-id='translatedtext-kl4x' />
       );
     case TASK_ACTIONS.DELETED:
       if (taskIds.length > 1) {
@@ -80,7 +80,7 @@ const getModalDescription = (action, isRepeatingTask, taskIds) => {
           <TranslatedText
             stringId="task.modal.deleteMultiple.description"
             fallback="Complete details below to delete tasks. Please note that if the selected tasks include a repeating task, all future instances of the task will also be deleted. This action is irreversible. "
-            data-testid='translatedtext-v2yl' />
+            data-test-id='translatedtext-v2yl' />
         );
       }
       if (isRepeatingTask) {
@@ -88,21 +88,21 @@ const getModalDescription = (action, isRepeatingTask, taskIds) => {
           <TranslatedText
             stringId="task.modal.deleteRepeating.description"
             fallback="Complete details below to delete task. Please note that this is a repeating task and all future instances of the task will also be deleted. This action is irreversible."
-            data-testid='translatedtext-5z94' />
+            data-test-id='translatedtext-5z94' />
         );
       }
       return (
         <TranslatedText
           stringId="task.modal.delete.description"
           fallback="Complete details below to delete task. This action is irreversible."
-          data-testid='translatedtext-sqtk' />
+          data-test-id='translatedtext-sqtk' />
       );
     case TASK_ACTIONS.TODO:
       return (
         <TranslatedText
           stringId="task.modal.toDo.description"
           fallback="Complete details below to mark task/s as to-do."
-          data-testid='translatedtext-68ja' />
+          data-test-id='translatedtext-68ja' />
       );
     default:
       return '';

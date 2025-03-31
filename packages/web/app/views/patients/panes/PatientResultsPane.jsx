@@ -42,7 +42,7 @@ const NoResultsMessage = () => (
         stringId="patient.lab.results.table.noData"
         fallback="This patient has no lab results to display. Once lab results are available they will be
       displayed here."
-        data-testid='translatedtext-fffr' />
+        data-test-id='translatedtext-fffr' />
     </MessageInner>
   </MessageContainer>
 );
@@ -53,7 +53,7 @@ const WrongPermissionMessage = () => (
       <TranslatedText
         stringId="patient.lab.results.table.noPermission"
         fallback="You do not have permission to view lab results"
-        data-testid='translatedtext-vfih' />
+        data-test-id='translatedtext-vfih' />
     </WrongPermissionInner>
   </MessageContainer>
 );

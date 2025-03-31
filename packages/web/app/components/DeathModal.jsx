@@ -33,7 +33,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
       title={<TranslatedText
         stringId="death.modal.title"
         fallback="Record patient death"
-        data-testid='translatedtext-heti' />}
+        data-test-id='translatedtext-heti' />}
       open={open}
       onClose={onClose}
     >

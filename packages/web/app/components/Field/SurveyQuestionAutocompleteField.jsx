@@ -34,7 +34,7 @@ export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
   );
 
-  return <AutocompleteField suggester={suggester} {...props} data-testid='autocompletefield-lvju' />;
+  return <AutocompleteField suggester={suggester} {...props} data-test-id='autocompletefield-lvju' />;
 };
 
 export const PatientDataDisplayField = props => (

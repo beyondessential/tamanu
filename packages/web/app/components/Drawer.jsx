@@ -80,7 +80,7 @@ export const Drawer = ({
       <Wrapper>
         <Header>
           <Title>{title}</Title>
-          <IconButton aria-label="Close drawer" onClick={onClose} data-testid='iconbutton-ir6k'>
+          <IconButton aria-label="Close drawer" onClick={onClose} data-test-id='iconbutton-ir6k'>
             <CloseDrawerIcon />
           </IconButton>
         </Header>

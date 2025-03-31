@@ -53,12 +53,12 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
           <TranslatedText
             stringId="medication.modal.prescribe.title"
             fallback="Prescribe medication"
-            data-testid='translatedtext-dcw4' />
+            data-test-id='translatedtext-dcw4' />
         ) : (
           <TranslatedText
             stringId="medication.modal.details.title"
             fallback="Medication details"
-            data-testid='translatedtext-czq0' />
+            data-test-id='translatedtext-czq0' />
         )
       }
       open={open}

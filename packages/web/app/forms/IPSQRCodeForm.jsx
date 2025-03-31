@@ -42,7 +42,7 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
 
   return (
     <>
-      <p data-testid='p-55qd'>
+      <p data-test-id='p-55qd'>
         You will be asked to enter the patient&apos;s date of birth in order to log into the IPS
         portal. Please ensure this is correct otherwise amend in the{' '}
         <StyledPatientDetailsLink
@@ -61,40 +61,40 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
           <DateDisplay
             date={patient.dateOfBirth}
             fontWeight={500}
-            data-testid='datedisplay-n5dv' />
+            data-test-id='datedisplay-n5dv' />
         </StyledDateOfBirthContainer>
       </StyledDateOfBirthWrapper>
-      <p data-testid='p-rrii'>Enter the email address you would like the patient IPS QR code sent to.</p>
+      <p data-test-id='p-rrii'>Enter the email address you would like the patient IPS QR code sent to.</p>
       <FormGrid columns={1}>
         <Field
           name="email"
           label={<TranslatedText
             stringId="patient.email.label"
             fallback="Patient email"
-            data-testid='translatedtext-ijk4' />}
+            data-test-id='translatedtext-ijk4' />}
           component={TextField}
           required
-          data-testid='field-u9k6' />
+          data-test-id='field-u9k6' />
         <Field
           name="confirmEmail"
           label={
             <TranslatedText
               stringId="patient.confirmEmail.label"
               fallback="Confirm patient email"
-              data-testid='translatedtext-vz53' />
+              data-test-id='translatedtext-vz53' />
           }
           component={TextField}
           required
-          data-testid='field-yrzt' />
+          data-test-id='field-yrzt' />
         <FormSubmitCancelRow
           confirmText={<TranslatedText
             stringId="general.action.send"
             fallback="Send"
-            data-testid='translatedtext-goro' />}
+            data-test-id='translatedtext-goro' />}
           onConfirm={onSubmit}
           confirmDisabled={confirmDisabled}
           onCancel={onCancel}
-          data-testid='formsubmitcancelrow-8p7r' />
+          data-test-id='formsubmitcancelrow-8p7r' />
       </FormGrid>
     </>
   );

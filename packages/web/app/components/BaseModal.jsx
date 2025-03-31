@@ -147,15 +147,15 @@ export const BaseModal = memo(
                 onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
-                data-testid='styledbutton-32dt'>
+                data-test-id='styledbutton-32dt'>
                 <TranslatedText
                   stringId="general.action.print"
                   fallback="Print"
-                  data-testid='translatedtext-cco3' />
+                  data-test-id='translatedtext-cco3' />
               </StyledButton>
             )}
             {cornerExitButton && (
-              <IconButton onClick={onClose} disabled={!isClosable} data-testid='iconbutton-o2of'>
+              <IconButton onClick={onClose} disabled={!isClosable} data-test-id='iconbutton-o2of'>
                 <CloseIcon />
               </IconButton>
             )}

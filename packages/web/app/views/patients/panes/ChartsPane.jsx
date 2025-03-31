@@ -91,7 +91,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
       <TranslatedText
         stringId="chart.table.simple.noChart"
         fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
-        data-testid='translatedtext-ytlk' />
+        data-test-id='translatedtext-ytlk' />
     );
   }
 
@@ -100,7 +100,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
       <TranslatedText
         stringId="chart.table.complex.noChart"
         fallback="This patient has no chart information to display. Click '+ Add' to add information to add information to this chart."
-        data-testid='translatedtext-4wfp' />
+        data-test-id='translatedtext-4wfp' />
     );
   }
 
@@ -108,7 +108,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
     <TranslatedText
       stringId="chart.table.noData"
       fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-      data-testid='translatedtext-fumh' />
+      data-test-id='translatedtext-fumh' />
   );
 };
 
@@ -294,7 +294,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             <TranslatedText
               stringId="chart.table.noSelectableCharts"
               fallback="There are currently no charts available to record. Please speak to your System Administrator if you think this is incorrect."
-              data-testid='translatedtext-h1m2' />
+              data-test-id='translatedtext-h1m2' />
           }
         />
       </TabPane>
@@ -350,7 +350,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 <TranslatedText
                   stringId="chart.action.record.disabledTooltip"
                   fallback="'Add' an item first to record against"
-                  data-testid='translatedtext-b6zs' />
+                  data-test-id='translatedtext-b6zs' />
               }
             >
               <StyledButtonWithPermissionCheck
@@ -366,7 +366,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 <TranslatedText
                   stringId="chart.action.record"
                   fallback="Record"
-                  data-testid='translatedtext-0tuv' />
+                  data-test-id='translatedtext-0tuv' />
               </StyledButtonWithPermissionCheck>
             </ConditionalTooltip>
           </TableButtonRow>

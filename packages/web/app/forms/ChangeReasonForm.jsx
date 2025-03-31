@@ -19,15 +19,15 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
           <TranslatedText
             stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
-            data-testid='translatedtext-isib' />
+            data-test-id='translatedtext-isib' />
         }
         component={TextField}
-        data-testid='field-s5bh' />
+        data-test-id='field-s5bh' />
       <ModalActionRow
         confirmText={<TranslatedText
           stringId="general.action.confirm"
           fallback="Confirm"
-          data-testid='translatedtext-bosh' />}
+          data-test-id='translatedtext-bosh' />}
         onConfirm={submitForm}
         onCancel={onCancel}
       />

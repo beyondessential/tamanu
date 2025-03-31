@@ -42,10 +42,10 @@ const attendingClinicianLabel = (
           stringId="general.localisedField.clinician.label.short"
           fallback="Clinician"
           casing="lower"
-          data-testid='translatedtext-o2ql' />
+          data-test-id='translatedtext-o2ql' />
       ),
     }}
-    data-testid='translatedtext-73df' />
+    data-test-id='translatedtext-73df' />
 );
 
 const mannerOfDeathVisibilityCriteria = {
@@ -83,7 +83,7 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.causeOfDeath.label"
                   fallback="Cause Of Death"
-                  data-testid='translatedtext-dvpn' />,
+                  data-test-id='translatedtext-dvpn' />,
               ),
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
@@ -95,7 +95,7 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.timeBetweenOnsetAndDeath.label"
                   fallback="Time between onset and death"
-                  data-testid='translatedtext-uox2' />,
+                  data-test-id='translatedtext-uox2' />,
               ),
           }),
           clinicianId: yup
@@ -134,7 +134,7 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.validation.timeOfDeath.path"
                 fallback="Time of death"
-                data-testid='translatedtext-lg3x' />,
+                data-test-id='translatedtext-lg3x' />,
             ),
         })}
         initialValues={{
@@ -150,11 +150,11 @@ export const DeathForm = React.memo(
             label={<TranslatedText
               stringId="death.timeOfDeath.label"
               fallback="Date/Time"
-              data-testid='translatedtext-6j7j' />}
-            component={props => <DateTimeField {...props} InputProps={{}} data-testid='datetimefield-d2h3' />}
+              data-test-id='translatedtext-6j7j' />}
+            component={props => <DateTimeField {...props} InputProps={{}} data-test-id='datetimefield-d2h3' />}
             saveDateAsString
             required
-            data-testid='field-sw93' />
+            data-test-id='field-sw93' />
           <Field
             name="clinicianId"
             label={
@@ -167,15 +167,15 @@ export const DeathForm = React.memo(
                       stringId="general.localisedField.clinician.label.short"
                       fallback="Clinician"
                       casing="lower"
-                      data-testid='translatedtext-2fou' />
+                      data-test-id='translatedtext-2fou' />
                   ),
                 }}
-                data-testid='translatedtext-7raa' />
+                data-test-id='translatedtext-7raa' />
             }
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required
-            data-testid='field-jl2p' />
+            data-test-id='field-jl2p' />
         </StyledFormGrid>
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
@@ -183,14 +183,14 @@ export const DeathForm = React.memo(
             label={<TranslatedText
               stringId="death.causeOfDeath.label"
               fallback="Cause Of Death"
-              data-testid='translatedtext-j4ki' />}
+              data-test-id='translatedtext-j4ki' />}
             component={AutocompleteField}
             suggester={diagnosisSuggester}
             tooltipText={
               <TranslatedText
                 stringId="death.causeOfDeath.tooltip"
                 fallback="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
-                data-testid='translatedtext-hk3r' />
+                data-test-id='translatedtext-hk3r' />
             }
             required
           />
@@ -200,74 +200,74 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time between onset and death"
-                data-testid='translatedtext-6j16' />
+                data-test-id='translatedtext-6j16' />
             }
             component={TimeWithUnitField}
             required
-            data-testid='field-vjqm' />
+            data-test-id='field-vjqm' />
           <Field
             name="antecedentCause1"
             label={
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid='translatedtext-1ztz' />
+                data-test-id='translatedtext-1ztz' />
             }
             component={AutocompleteField}
             suggester={diagnosisSuggester}
-            data-testid='field-b6es' />
+            data-test-id='field-b6es' />
           <Field
             name="antecedentCause1Interval"
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time between onset and death"
-                data-testid='translatedtext-e6w8' />
+                data-test-id='translatedtext-e6w8' />
             }
             component={TimeWithUnitField}
-            data-testid='field-kcra' />
+            data-test-id='field-kcra' />
           <Field
             name="antecedentCause2"
             label={
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid='translatedtext-qud3' />
+                data-test-id='translatedtext-qud3' />
             }
             component={AutocompleteField}
             suggester={diagnosisSuggester}
-            data-testid='field-aiqe' />
+            data-test-id='field-aiqe' />
           <Field
             name="antecedentCause2Interval"
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time between onset and death"
-                data-testid='translatedtext-i7zm' />
+                data-test-id='translatedtext-i7zm' />
             }
             component={TimeWithUnitField}
-            data-testid='field-cdpc' />
+            data-test-id='field-cdpc' />
           <Field
             name="antecedentCause3"
             label={
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid='translatedtext-h3oz' />
+                data-test-id='translatedtext-h3oz' />
             }
             component={AutocompleteField}
             suggester={diagnosisSuggester}
-            data-testid='field-e3t7' />
+            data-test-id='field-e3t7' />
           <Field
             name="antecedentCause3Interval"
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time between onset and death"
-                data-testid='translatedtext-9jh6' />
+                data-test-id='translatedtext-9jh6' />
             }
             component={TimeWithUnitField}
-            data-testid='field-f45y' />
+            data-test-id='field-f45y' />
           <FormSeparatorLine />
           <Field
             name="otherContributingConditions"
@@ -280,11 +280,11 @@ export const DeathForm = React.memo(
                     <TranslatedText
                       stringId="death.otherContributionCondition.label"
                       fallback="Other contributing condition"
-                      data-testid='translatedtext-ghdp' />
+                      data-test-id='translatedtext-ghdp' />
                   }
                   component={AutocompleteField}
                   suggester={diagnosisSuggester}
-                  data-testid='field-396z' />
+                  data-test-id='field-396z' />
                 <MuiBox display="flex" alignItems="center">
                   <Field
                     name={`otherContributingConditions[${index}].interval`}
@@ -292,36 +292,36 @@ export const DeathForm = React.memo(
                       <TranslatedText
                         stringId="death.timeBetweenOnsetAndDeath.label"
                         fallback="Time between onset and death"
-                        data-testid='translatedtext-9jbv' />
+                        data-test-id='translatedtext-9jbv' />
                     }
                     component={TimeWithUnitField}
-                    data-testid='field-xmo1' />
+                    data-test-id='field-xmo1' />
                   {index > 0 && DeleteButton}
                 </MuiBox>
               </>
             )}
-            data-testid='field-ee5p' />
+            data-test-id='field-ee5p' />
           <FormSeparatorLine />
           <Field
             name="facilityId"
             label={<TranslatedText
               stringId="general.facility.label"
               fallback="Facility"
-              data-testid='translatedtext-ao9r' />}
+              data-test-id='translatedtext-ao9r' />}
             component={AutocompleteField}
             suggester={facilitySuggester}
-            data-testid='field-y0yj' />
+            data-test-id='field-y0yj' />
           <Field
             name="outsideHealthFacility"
             label={
               <TranslatedText
                 stringId="death.outsideHealthFacility.label"
                 fallback="Died outside health facility"
-                data-testid='translatedtext-mqjc' />
+                data-test-id='translatedtext-mqjc' />
             }
             component={CheckField}
             style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
-            data-testid='field-c0f4' />
+            data-test-id='field-c0f4' />
         </StyledFormGrid>
         <StyledFormGrid columns={1}>
           <Field
@@ -330,35 +330,35 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.surgeryInLast4Weeks.label"
                 fallback="Was surgery performed in the last 4 weeks?"
-                data-testid='translatedtext-4710' />
+                data-test-id='translatedtext-4710' />
             }
             component={RadioField}
             options={BINARY_UNKNOWN_OPTIONS}
-            data-testid='field-md9g' />
+            data-test-id='field-md9g' />
           <Field
             name="lastSurgeryDate"
             label={
               <TranslatedText
                 stringId="death.lastSurgeryDate.label"
                 fallback="What was the date of surgery"
-                data-testid='translatedtext-szmg' />
+                data-test-id='translatedtext-szmg' />
             }
             component={DateField}
             saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
-            data-testid='field-ck2w' />
+            data-test-id='field-ck2w' />
           <Field
             name="lastSurgeryReason"
             label={
               <TranslatedText
                 stringId="death.lastSurgeryReason.label"
                 fallback="What was the reason for the surgery"
-                data-testid='translatedtext-ce9c' />
+                data-test-id='translatedtext-ce9c' />
             }
             component={AutocompleteField}
             suggester={diagnosisSuggester}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
-            data-testid='field-9hmy' />
+            data-test-id='field-9hmy' />
         </StyledFormGrid>
         {canBePregnant ? (
           <StyledFormGrid columns={1}>
@@ -368,23 +368,23 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.pregnant.label"
                   fallback="Was the woman pregnant?"
-                  data-testid='translatedtext-g8m1' />
+                  data-test-id='translatedtext-g8m1' />
               }
               component={RadioField}
               options={BINARY_UNKNOWN_OPTIONS}
-              data-testid='field-ayi0' />
+              data-test-id='field-ayi0' />
             <Field
               name="pregnancyContribute"
               label={
                 <TranslatedText
                   stringId="death.pregnancyContribute.label"
                   fallback="Did the pregnancy contribute to the death?"
-                  data-testid='translatedtext-y65h' />
+                  data-test-id='translatedtext-y65h' />
               }
               component={RadioField}
               options={BINARY_UNKNOWN_OPTIONS}
               visibilityCriteria={{ pregnant: 'yes' }}
-              data-testid='field-d2kt' />
+              data-test-id='field-d2kt' />
           </StyledFormGrid>
         ) : null}
         <StyledFormGrid columns={1}>
@@ -394,45 +394,45 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.mannerOfDeath.label"
                 fallback="What was the manner of death?"
-                data-testid='translatedtext-m7xa' />
+                data-test-id='translatedtext-m7xa' />
             }
             component={TranslatedSelectField}
             enumValues={MANNER_OF_DEATHS}
             required
-            data-testid='field-wtyn' />
+            data-test-id='field-wtyn' />
           <Field
             name="mannerOfDeathDate"
             label={
               <TranslatedText
                 stringId="death.mannerOfDeathDate.label"
                 fallback="What date did this external cause occur?"
-                data-testid='translatedtext-fa0u' />
+                data-test-id='translatedtext-fa0u' />
             }
             component={DateField}
             saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
-            data-testid='field-hyfc' />
+            data-test-id='field-hyfc' />
           <Field
             name="mannerOfDeathLocation"
             label={
               <TranslatedText
                 stringId="death.mannerOfDeathLocation.label"
                 fallback="Where did this external cause occur?"
-                data-testid='translatedtext-9wcx' />
+                data-test-id='translatedtext-9wcx' />
             }
             component={TranslatedSelectField}
             enumValues={PLACE_OF_DEATHS}
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
-            data-testid='field-ngdu' />
+            data-test-id='field-ngdu' />
           <Field
             name="mannerOfDeathOther"
             label={<TranslatedText
               stringId="general.other.label"
               fallback="Other"
-              data-testid='translatedtext-cf5s' />}
+              data-test-id='translatedtext-cf5s' />}
             component={TextField}
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
-            data-testid='field-r2ol' />
+            data-test-id='field-r2ol' />
         </StyledFormGrid>
         {isInfant ? (
           <StyledFormGrid columns={1}>
@@ -442,82 +442,82 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.fetalOrInfant.label"
                   fallback="Was the death fetal or infant?"
-                  data-testid='translatedtext-r9cq' />
+                  data-test-id='translatedtext-r9cq' />
               }
               component={RadioField}
               options={BINARY_OPTIONS}
-              data-testid='field-b0l4' />
+              data-test-id='field-b0l4' />
             <Field
               name="stillborn"
               label={
                 <TranslatedText
                   stringId="death.stillborn.label"
                   fallback="Was it a stillbirth?"
-                  data-testid='translatedtext-3e97' />
+                  data-test-id='translatedtext-3e97' />
               }
               component={RadioField}
               options={BINARY_UNKNOWN_OPTIONS}
-              data-testid='field-bxxe' />
+              data-test-id='field-bxxe' />
             <Field
               name="birthWeight"
               label={
                 <TranslatedText
                   stringId="death.birthWeight.label"
                   fallback="Birth Weight (grams):"
-                  data-testid='translatedtext-n5v1' />
+                  data-test-id='translatedtext-n5v1' />
               }
               component={NumberField}
-              data-testid='field-1asm' />
+              data-test-id='field-1asm' />
             <Field
               name="numberOfCompletedPregnancyWeeks"
               label={
                 <TranslatedText
                   stringId="death.numberOfCompletedPregnancyWeeks.label"
                   fallback="Number of completed weeks of pregnancy:"
-                  data-testid='translatedtext-nlyg' />
+                  data-test-id='translatedtext-nlyg' />
               }
               component={NumberField}
-              data-testid='field-zikl' />
+              data-test-id='field-zikl' />
             <Field
               name="ageOfMother"
               label={<TranslatedText
                 stringId="death.ageOfMother.label"
                 fallback="Age of mother"
-                data-testid='translatedtext-0o6i' />}
+                data-test-id='translatedtext-0o6i' />}
               component={NumberField}
-              data-testid='field-fyif' />
+              data-test-id='field-fyif' />
             <Field
               name="motherExistingCondition"
               label={
                 <TranslatedText
                   stringId="death.motherExistingCondition.label"
                   fallback="Any condition in mother affecting the fetus or newborn?"
-                  data-testid='translatedtext-wg6y' />
+                  data-test-id='translatedtext-wg6y' />
               }
               component={AutocompleteField}
               suggester={diagnosisSuggester}
-              data-testid='field-us2c' />
+              data-test-id='field-us2c' />
             <Field
               name="deathWithin24HoursOfBirth"
               label={
                 <TranslatedText
                   stringId="death.deathWithin24HoursOfBirth.label"
                   fallback="Was the death within 24 hours of birth?"
-                  data-testid='translatedtext-uvef' />
+                  data-test-id='translatedtext-uvef' />
               }
               component={RadioField}
               options={BINARY_OPTIONS}
-              data-testid='field-l9fv' />
+              data-test-id='field-l9fv' />
             <Field
               name="numberOfHoursSurvivedSinceBirth"
               label={
                 <TranslatedText
                   stringId="death.numberOfHoursSurvived.label"
                   fallback="If yes, number of hours survived"
-                  data-testid='translatedtext-8dk9' />
+                  data-test-id='translatedtext-8dk9' />
               }
               component={NumberField}
-              data-testid='field-1zw6' />
+              data-test-id='field-1zw6' />
           </StyledFormGrid>
         ) : null}
       </PaginatedForm>

@@ -56,21 +56,21 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
         disabled={disabled}
         onClick={onClickTrue}
         color={yesColor}
-        data-testid='muibutton-7sg5'>
+        data-test-id='muibutton-7sg5'>
         <TranslatedText
           stringId="general.action.yes"
           fallback="Yes"
-          data-testid='translatedtext-epye' />
+          data-test-id='translatedtext-epye' />
       </MuiButton>
       <MuiButton
         disabled={disabled}
         onClick={onClickFalse}
         color={noColor}
-        data-testid='muibutton-9e0c'>
+        data-test-id='muibutton-9e0c'>
         <TranslatedText
           stringId="general.action.no"
           fallback="No"
-          data-testid='translatedtext-61sf' />
+          data-test-id='translatedtext-61sf' />
       </MuiButton>
     </MuiButtonGroup>
   );

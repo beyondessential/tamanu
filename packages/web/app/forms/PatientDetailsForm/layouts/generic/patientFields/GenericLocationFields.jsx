@@ -20,7 +20,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.cityTown.label"
           fallback="City/town"
-          data-testid='translatedtext-zyi6' />
+          data-test-id='translatedtext-zyi6' />
       ),
     },
     subdivisionId: {
@@ -30,7 +30,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.subdivisionId.label"
           fallback="Sub division"
-          data-testid='translatedtext-gm9e' />
+          data-test-id='translatedtext-gm9e' />
       ),
     },
     divisionId: {
@@ -40,7 +40,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.divisionId.label"
           fallback="Division"
-          data-testid='translatedtext-vhhv' />
+          data-test-id='translatedtext-vhhv' />
       ),
     },
     countryId: {
@@ -50,7 +50,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.countryId.label"
           fallback="Country"
-          data-testid='translatedtext-nk1e' />
+          data-test-id='translatedtext-nk1e' />
       ),
     },
     settlementId: {
@@ -60,7 +60,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.settlementId.label"
           fallback="Settlement"
-          data-testid='translatedtext-4vje' />
+          data-test-id='translatedtext-4vje' />
       ),
     },
     medicalAreaId: {
@@ -70,7 +70,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.medicalAreaId.label"
           fallback="Medical area"
-          data-testid='translatedtext-bcgj' />
+          data-test-id='translatedtext-bcgj' />
       ),
     },
     nursingZoneId: {
@@ -80,7 +80,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.nursingZoneId.label"
           fallback="Nursing zone"
-          data-testid='translatedtext-8wfv' />
+          data-test-id='translatedtext-8wfv' />
       ),
     },
     streetVillage: {
@@ -89,7 +89,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.streetVillage.label"
           fallback="Residential landmark"
-          data-testid='translatedtext-vyok' />
+          data-test-id='translatedtext-vyok' />
       ),
     },
   };

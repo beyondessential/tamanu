@@ -103,7 +103,7 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault.unchangedTooltip"
               fallback="This setting is already at its default value"
-              data-testid='translatedtext-xzlg' />
+              data-test-id='translatedtext-xzlg' />
           )
         }
       >
@@ -115,7 +115,7 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault"
               fallback="Reset to default"
-              data-testid='translatedtext-n4ru' />
+              data-test-id='translatedtext-n4ru' />
           </DefaultSettingButton>
         </div>
       </ConditionalTooltip>
@@ -211,7 +211,7 @@ export const SettingInput = ({
             stringId="admin.settings.error.noComponent"
             fallback="No component for this type: :type (default: :defaultValue)"
             replacements={{ type, defaultValue }}
-            data-testid='translatedtext-klnr' />
+            data-test-id='translatedtext-klnr' />
         </LargeBodyText>
       );
   }

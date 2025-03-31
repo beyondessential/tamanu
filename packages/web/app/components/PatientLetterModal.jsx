@@ -25,7 +25,7 @@ export const PatientLetterModal = React.memo(
           <TranslatedText
             stringId="patient.modal.patientLetter.title"
             fallback="Patient letter"
-            data-testid='translatedtext-v0kl' />
+            data-test-id='translatedtext-v0kl' />
         }
         open={open}
         onClose={onClose}

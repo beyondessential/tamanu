@@ -16,41 +16,41 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-testid='translatedtext-xi9c' />
+            data-test-id='translatedtext-xi9c' />
         }
         component={SearchField}
-        data-testid='localisedfield-aihu' />
+        data-test-id='localisedfield-aihu' />
       <LocalisedField
         name="lastName"
         label={
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-testid='translatedtext-wldj' />
+            data-test-id='translatedtext-wldj' />
         }
         component={SearchField}
-        data-testid='localisedfield-3dl2' />
+        data-test-id='localisedfield-3dl2' />
       <LocalisedField
         name="villageId"
         label={
           <TranslatedText
             stringId="general.localisedField.villageId.label"
             fallback="Village"
-            data-testid='translatedtext-5sdv' />
+            data-test-id='translatedtext-5sdv' />
         }
         component={AutocompleteField}
         suggester={villageSuggester}
-        data-testid='localisedfield-amr7' />
+        data-test-id='localisedfield-amr7' />
       <LocalisedField
         name="displayId"
         label={
           <TranslatedText
             stringId="general.localisedField.displayId.label.short"
             fallback="NHN"
-            data-testid='translatedtext-qkee' />
+            data-test-id='translatedtext-qkee' />
         }
         component={SearchField}
-        data-testid='localisedfield-x5c4' />
+        data-test-id='localisedfield-x5c4' />
       <DOBFields />
       <Field
         name="clinicalStatus"
@@ -58,17 +58,17 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
           <TranslatedText
             stringId="general.clinicalStatus.label"
             fallback="Clinical status"
-            data-testid='translatedtext-0o9l' />
+            data-test-id='translatedtext-0o9l' />
         }
         component={SearchField}
-        data-testid='field-l0mh' />
+        data-test-id='field-l0mh' />
       <SearchBarCheckField
         name="deceased"
         label={
           <TranslatedText
             stringId="patientList.table.includeDeceasedCheckbox.label"
             fallback="Include deceased patients"
-            data-testid='translatedtext-njhx' />
+            data-test-id='translatedtext-njhx' />
         }
       />
     </CustomisableSearchBar>

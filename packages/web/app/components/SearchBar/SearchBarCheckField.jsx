@@ -7,4 +7,4 @@ const StyledCheckField = styled(CheckField)`
   left: 10px;
 `;
 
-export const SearchBarCheckField = props => <Field {...props} component={StyledCheckField} data-testid='field-acp4' />;
+export const SearchBarCheckField = props => <Field {...props} component={StyledCheckField} data-test-id='field-acp4' />;

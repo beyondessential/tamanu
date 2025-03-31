@@ -25,7 +25,7 @@ const useColumns = () => {
         <TranslatedText
           stringId="patientList.triage.table.column.waitTime"
           fallback="Wait time"
-          data-testid='translatedtext-yzkk' />
+          data-test-id='translatedtext-yzkk' />
       ),
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
@@ -46,14 +46,14 @@ const useColumns = () => {
         <TranslatedText
           stringId="patientList.triage.table.column.chiefComplaint"
           fallback="Chief complaint"
-          data-testid='translatedtext-816p' />
+          data-test-id='translatedtext-816p' />
       ),
       accessor: row => (
         <TranslatedReferenceData
           value={row.chiefComplaintId}
           fallback={row.chiefComplaint}
           category="triageReason"
-          data-testid='translatedreferencedata-5oio' />
+          data-test-id='translatedreferencedata-5oio' />
       ),
     },
     {
@@ -62,7 +62,7 @@ const useColumns = () => {
         <TranslatedText
           stringId="general.localisedField.displayId.label.short"
           fallback="NHN"
-          data-testid='translatedtext-yir0' />
+          data-test-id='translatedtext-yir0' />
       ),
     },
     {
@@ -70,7 +70,7 @@ const useColumns = () => {
       title: <TranslatedText
         stringId="general.patient.label"
         fallback="Patient"
-        data-testid='translatedtext-gsb7' />,
+        data-test-id='translatedtext-gsb7' />,
       accessor: row => `${row.firstName} ${row.lastName}`,
     },
     {
@@ -79,16 +79,16 @@ const useColumns = () => {
         <TranslatedText
           stringId="general.localisedField.dateOfBirth.label.short"
           fallback="DOB"
-          data-testid='translatedtext-6ryf' />
+          data-test-id='translatedtext-6ryf' />
       ),
-      accessor: row => <DateDisplay date={row.dateOfBirth} data-testid='datedisplay-t29y' />,
+      accessor: row => <DateDisplay date={row.dateOfBirth} data-test-id='datedisplay-t29y' />,
     },
     {
       key: 'sex',
       title: <TranslatedText
         stringId="general.localisedField.sex.label"
         fallback="Sex"
-        data-testid='translatedtext-i2ge' />,
+        data-test-id='translatedtext-i2ge' />,
       accessor: row => <TranslatedSex sex={row.sex} />,
     },
     {
@@ -96,7 +96,7 @@ const useColumns = () => {
       title: <TranslatedText
         stringId="general.table.column.area"
         fallback="Area"
-        data-testid='translatedtext-2a0l' />,
+        data-test-id='translatedtext-2a0l' />,
       accessor: LocationGroupCell,
     },
     {
@@ -104,7 +104,7 @@ const useColumns = () => {
       title: <TranslatedText
         stringId="general.location.label"
         fallback="Location"
-        data-testid='translatedtext-o7qm' />,
+        data-test-id='translatedtext-o7qm' />,
       accessor: LocationCell,
     },
   ];
@@ -134,7 +134,7 @@ export const TriageTable = React.memo(() => {
         <TranslatedText
           stringId="patientList.table.noData"
           fallback="No patients found"
-          data-testid='translatedtext-z1e1' />
+          data-test-id='translatedtext-z1e1' />
       }
       onRowClick={viewEncounter}
     />

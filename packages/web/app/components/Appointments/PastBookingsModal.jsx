@@ -167,7 +167,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.date"
         fallback="Date"
-        data-testid='translatedtext-n7v8' />
+        data-test-id='translatedtext-n7v8' />
     ),
     accessor: getDate,
   },
@@ -177,7 +177,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.area"
         fallback="Area"
-        data-testid='translatedtext-rgyj' />
+        data-test-id='translatedtext-rgyj' />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -188,7 +188,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.location"
         fallback="Location"
-        data-testid='translatedtext-cvdo' />
+        data-test-id='translatedtext-cvdo' />
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
@@ -200,7 +200,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.clinician"
         fallback="Clinician"
-        data-testid='translatedtext-6p7y' />
+        data-test-id='translatedtext-6p7y' />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -211,7 +211,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.type"
         fallback="Booking type"
-        data-testid='translatedtext-elgd' />
+        data-test-id='translatedtext-elgd' />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
     CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
@@ -222,7 +222,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.status"
         fallback="Status"
-        data-testid='translatedtext-bdr7' />
+        data-test-id='translatedtext-bdr7' />
     ),
     accessor: getStatus,
   },
@@ -253,7 +253,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
         <TranslatedText
           stringId="bookings.modal.pastBookings.title"
           fallback="Past bookings"
-          data-testid='translatedtext-x0py' />
+          data-test-id='translatedtext-x0py' />
       }
       open
       onClose={onClose}

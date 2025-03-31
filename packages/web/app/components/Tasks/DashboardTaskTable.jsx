@@ -217,7 +217,7 @@ const NoDataMessage = () => (
     <TranslatedText
       stringId="dashboard.tasks.table.noData"
       fallback="No upcoming tasks to display. If applicable please try adjusting the filter."
-      data-testid='translatedtext-6rl9' />
+      data-test-id='translatedtext-6rl9' />
   </NoDataContainer>
 );
 
@@ -233,7 +233,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="dashboard.tasks.table.column.location"
       fallback="Location"
-      data-testid='translatedtext-goh0' />,
+      data-test-id='translatedtext-goh0' />,
     accessor: getLocation,
   },
   {
@@ -242,7 +242,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="dashboard.tasks.table.column.patientId"
         fallback="Patient ID"
-        data-testid='translatedtext-qd8f' />
+        data-test-id='translatedtext-qd8f' />
     ),
     accessor: ({ encounter }) => encounter.patient.displayId,
   },
@@ -251,7 +251,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="dashboard.tasks.table.column.patient"
       fallback="Patient"
-      data-testid='translatedtext-hzlo' />,
+      data-test-id='translatedtext-hzlo' />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   },
   {
@@ -259,7 +259,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="dashboard.tasks.table.column.task"
       fallback="Task"
-      data-testid='translatedtext-g49r' />,
+      data-test-id='translatedtext-g49r' />,
     accessor: getTaskName,
   },
   {
@@ -267,7 +267,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="dashboard.tasks.table.column.due"
       fallback="Due"
-      data-testid='translatedtext-93zu' />,
+      data-test-id='translatedtext-93zu' />,
     accessor: getDueTime,
   },
 ];

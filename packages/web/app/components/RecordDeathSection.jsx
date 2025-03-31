@@ -65,12 +65,12 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
     <TranslatedText
       stringId="patient.detailsSidebar.revertDeath"
       fallback="Revert death record"
-      data-testid='translatedtext-1ldc' />
+      data-test-id='translatedtext-1ldc' />
   ) : (
     <TranslatedText
       stringId="patient.detailsSidebar.recordDeath"
       fallback="Record death"
-      data-testid='translatedtext-iyhu' />
+      data-test-id='translatedtext-iyhu' />
   );
 
   return (

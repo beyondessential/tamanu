@@ -41,17 +41,17 @@ export const ViewPhotoLink = ({ imageId }) => {
 
   return (
     <>
-      <TextButton color="blue" onClick={openModalCallback} data-testid='textbutton-tcgm'>
+      <TextButton color="blue" onClick={openModalCallback} data-test-id='textbutton-tcgm'>
         <TranslatedText
           stringId="program.modal.view.action.viewImage"
           fallback="View Image"
-          data-testid='translatedtext-c3b1' />
+          data-test-id='translatedtext-c3b1' />
       </TextButton>
       <Modal title="Image" open={showModal} onClose={() => setShowModal(false)}>
         {imageData && !errorMessage ? (
           <Image src={getImageSourceFromData(imageData)} />
         ) : (
-          <p data-testid='p-lccq'>{errorMessage}</p>
+          <p data-test-id='p-lccq'>{errorMessage}</p>
         )}
       </Modal>
     </>

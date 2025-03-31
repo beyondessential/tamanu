@@ -18,31 +18,31 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           label={<TranslatedText
             stringId="general.type.label"
             fallback="Type"
-            data-testid='translatedtext-8nlq' />}
+            data-test-id='translatedtext-8nlq' />}
           component={TranslatedSelectField}
           enumValues={PATIENT_ISSUE_LABELS}
           required
-          data-testid='field-ae5g' />
+          data-test-id='field-ae5g' />
         <Field
           name="note"
           label={<TranslatedText
             stringId="general.notes.label"
             fallback="Notes"
-            data-testid='translatedtext-s227' />}
+            data-test-id='translatedtext-s227' />}
           component={TextField}
           multiline
           minRows={2}
-          data-testid='field-ecul' />
+          data-test-id='field-ecul' />
         <Field
           name="recordedDate"
           label={<TranslatedText
             stringId="general.recordedDate.label"
             fallback="Date recorded"
-            data-testid='translatedtext-oweh' />}
+            data-test-id='translatedtext-oweh' />}
           component={DateField}
           saveDateAsString
           required
-          data-testid='field-zxkq' />
+          data-test-id='field-zxkq' />
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
@@ -51,15 +51,15 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-testid='translatedtext-kpp0' />
+                data-test-id='translatedtext-kpp0' />
             ) : (
               <TranslatedText
                 stringId="general.action.add"
                 fallback="Add"
-                data-testid='translatedtext-kl2u' />
+                data-test-id='translatedtext-kl2u' />
             )
           }
-          data-testid='formsubmitcancelrow-67bj' />
+          data-test-id='formsubmitcancelrow-67bj' />
       </FormGrid>
     )}
     initialValues={{
@@ -75,7 +75,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         .translatedLabel(<TranslatedText
         stringId="general.note.label"
         fallback="Note"
-        data-testid='translatedtext-zf8r' />),
+        data-test-id='translatedtext-zf8r' />),
       recordedDate: yup
         .date()
         .required()
@@ -83,7 +83,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           <TranslatedText
             stringId="general.recordedDate.label"
             fallback="Date recorded"
-            data-testid='translatedtext-oxr3' />,
+            data-test-id='translatedtext-oxr3' />,
         ),
     })}
   />

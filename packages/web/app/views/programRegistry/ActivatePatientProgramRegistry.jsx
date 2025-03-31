@@ -111,12 +111,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
           <TranslatedText
             stringId="programRegistry.activate.title"
             fallback="Activate"
-            data-testid='translatedtext-mspa' />{' '}
+            data-test-id='translatedtext-mspa' />{' '}
           <TranslatedReferenceData
             fallback={patientProgramRegistration.programRegistry.name}
             value={patientProgramRegistration.programRegistry.id}
             category="programRegistry"
-            data-testid='translatedreferencedata-7q3d' />
+            data-test-id='translatedreferencedata-7q3d' />
         </>
       }
       open={open}
@@ -138,24 +138,24 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       <TranslatedText
                         stringId="programRegistry.registrationDate.label"
                         fallback="Date of registration"
-                        data-testid='translatedtext-qkkq' />
+                        data-test-id='translatedtext-qkkq' />
                     }
                     saveDateAsString
                     component={DateField}
                     required
-                    data-testid='field-tt0r' />
+                    data-test-id='field-tt0r' />
                   <Field
                     name="clinicianId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.registeredBy.label"
                         fallback="Registered by"
-                        data-testid='translatedtext-8hdw' />
+                        data-test-id='translatedtext-8hdw' />
                     }
                     component={AutocompleteField}
                     suggester={registeredBySuggester}
                     required
-                    data-testid='field-tk2m' />
+                    data-test-id='field-tk2m' />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
@@ -164,23 +164,23 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       <TranslatedText
                         stringId="programRegistry.registeringFacility.label"
                         fallback="Registering facility"
-                        data-testid='translatedtext-ivwk' />
+                        data-test-id='translatedtext-ivwk' />
                     }
                     component={AutocompleteField}
                     suggester={registeringFacilitySuggester}
                     required
-                    data-testid='field-w567' />
+                    data-test-id='field-w567' />
                   <Field
                     name="clinicalStatusId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
-                        data-testid='translatedtext-k57b' />
+                        data-test-id='translatedtext-k57b' />
                     }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
-                    data-testid='field-sxqy' />
+                    data-test-id='field-sxqy' />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <FieldWithTooltip
@@ -194,7 +194,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                       <TranslatedText
                         stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
-                        data-testid='translatedtext-y151' />
+                        data-test-id='translatedtext-y151' />
                     }
                     placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
@@ -204,7 +204,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                           fallback={condition.name}
                           value={condition.id}
                           category="prCondition"
-                          data-testid='translatedreferencedata-dmlf' />
+                          data-test-id='translatedreferencedata-dmlf' />
                       ),
                       value: condition.id,
                       searchString: getTranslation(

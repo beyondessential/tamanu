@@ -113,7 +113,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               <TranslatedText
                 stringId="vaccine.action.viewCovidCertificate"
                 fallback="COVID-19 certificate"
-                data-testid='translatedtext-85hl' />
+                data-test-id='translatedtext-85hl' />
             </CovidCertificateButton>
           )}
           {!!vaccinations.length && (
@@ -121,11 +121,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               onClick={() => setIsCertificateModalOpen(true)}
               variant="outlined"
               disabled={!vaccinations.length}
-              data-testid='button-oeic'>
+              data-test-id='button-oeic'>
               <TranslatedText
                 stringId="vaccine.action.viewVaccineCertificate"
                 fallback="Immunisation certificate"
-                data-testid='translatedtext-r393' />
+                data-test-id='translatedtext-r393' />
             </Button>
           )}
           <ButtonWithPermissionCheck
@@ -133,11 +133,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             noun="PatientVaccine"
             onClick={() => setIsAdministerModalOpen(true)}
             disabled={readonly}
-            data-testid='buttonwithpermissioncheck-l56o'>
+            data-test-id='buttonwithpermissioncheck-l56o'>
             <TranslatedText
               stringId="vaccine.action.recordVaccine"
               fallback="Record vaccine"
-              data-testid='translatedtext-ong2' />
+              data-test-id='translatedtext-ong2' />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <TableWrapper>

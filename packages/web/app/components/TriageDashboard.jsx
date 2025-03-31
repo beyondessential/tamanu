@@ -93,7 +93,7 @@ const CardFooter = ({ averageWaitTime, color }) => {
           <TranslatedText
             stringId="patientList.triage.card.footer.avgWaitTime"
             fallback="Avg. wait time"
-            data-testid='translatedtext-axvd' />
+            data-test-id='translatedtext-axvd' />
           :{' '}
         </FooterLabel>
         <FooterTime>{averageHrs}</FooterTime>
@@ -121,7 +121,7 @@ export const TriageDashboard = () => {
               stringId="patientList.triage.card.patientLevel"
               fallback="Level :level patient"
               replacements={{ level }}
-              data-testid='translatedtext-73vo' />
+              data-test-id='translatedtext-73vo' />
           }
           value={numberOfPatients}
           Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}

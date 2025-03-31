@@ -60,7 +60,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
           <TranslatedText
             stringId="patient.document.search.title"
             fallback="Documents search"
-            data-testid='translatedtext-gmqi' />
+            data-test-id='translatedtext-gmqi' />
         </Typography>
       </HeaderBar>
       <Form
@@ -72,34 +72,34 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               label={<TranslatedText
                 stringId="document.type.label"
                 fallback="Type"
-                data-testid='translatedtext-643t' />}
+                data-test-id='translatedtext-643t' />}
               component={DynamicSelectField}
               options={DOCUMENT_TYPE_OPTIONS}
               size="small"
-              data-testid='field-qkou' />
+              data-test-id='field-qkou' />
             <Field
               name="documentOwner"
               label={<TranslatedText
                 stringId="document.owner.label"
                 fallback="Owner"
-                data-testid='translatedtext-o60y' />}
+                data-test-id='translatedtext-o60y' />}
               component={SearchField}
               size="small"
-              data-testid='field-ahct' />
+              data-test-id='field-ahct' />
             <Field
               name="departmentName"
               label={<TranslatedText
                 stringId="general.department.label"
                 fallback="Department"
-                data-testid='translatedtext-wlxp' />}
+                data-test-id='translatedtext-wlxp' />}
               component={SearchField}
               size="small"
-              data-testid='field-m2ux' />
+              data-test-id='field-m2ux' />
             <SubmitButton type="submit" size="small">
               <TranslatedText
                 stringId="general.action.search"
                 fallback="Search"
-                data-testid='translatedtext-bzuy' />
+                data-test-id='translatedtext-bzuy' />
             </SubmitButton>
             <ClearButton
               onClick={() => {
@@ -112,7 +112,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               <TranslatedText
                 stringId="general.action.clearSearch"
                 fallback="Clear"
-                data-testid='translatedtext-71fw' />
+                data-test-id='translatedtext-71fw' />
             </ClearButton>
           </CustomFormGrid>
         )}

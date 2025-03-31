@@ -17,7 +17,7 @@ const validateCommaSeparatedEmails = async emails => {
       <TranslatedText
         stringId="report.generate.email.validation.atLeastOneRequired"
         fallback="At least 1 email address is required"
-        data-testid='translatedtext-nwtw' />
+        data-test-id='translatedtext-nwtw' />
     );
   }
   const emailList = parseEmails(emails);
@@ -28,7 +28,7 @@ const validateCommaSeparatedEmails = async emails => {
         stringId="report.generate.email.validation.invalid"
         fallback=":emails is invalid."
         replacements={{ emails }}
-        data-testid='translatedtext-tpor' />
+        data-test-id='translatedtext-tpor' />
     );
   }
 
@@ -40,7 +40,7 @@ const validateCommaSeparatedEmails = async emails => {
           stringId="report.generate.email.validation.invalid"
           fallback=":email is invalid."
           replacements={{ email: emailList[i] }}
-          data-testid='translatedtext-gnft' />
+          data-test-id='translatedtext-gnft' />
       );
     }
   }
@@ -55,7 +55,7 @@ export const EmailField = (props = {}) => (
       <TranslatedText
         stringId="report.generate.emailList.label"
         fallback="Email to (separate emails with a comma)"
-        data-testid='translatedtext-5f0e' />
+        data-test-id='translatedtext-5f0e' />
     }
     component={TextField}
     placeholder="example@example.com"
@@ -64,5 +64,5 @@ export const EmailField = (props = {}) => (
     validate={validateCommaSeparatedEmails}
     required
     {...props}
-    data-testid='field-ww0l' />
+    data-test-id='field-ww0l' />
 );

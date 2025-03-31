@@ -62,7 +62,7 @@ export const SwitchInput = ({ label, disabled, value, className, ...props }) => 
       label={label}
       disabled={disabled}
       className={className}
-      data-testid='styledformcontrollabel-x0jw' />
+      data-test-id='styledformcontrollabel-x0jw' />
   );
 };
 

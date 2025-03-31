@@ -97,7 +97,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
       title={<TranslatedText
         stringId="general.language.change"
         fallback="Change language"
-        data-testid='translatedtext-qusx' />}
+        data-test-id='translatedtext-qusx' />}
       open={open}
       onClose={onClose}
       {...props}
@@ -108,7 +108,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
           label={<TranslatedText
             stringId="login.languageSelector.label"
             fallback="Language"
-            data-testid='translatedtext-y1rd' />}
+            data-test-id='translatedtext-y1rd' />}
           isClearable={false}
           error={!!error}
           customStyleObject={customStyles}

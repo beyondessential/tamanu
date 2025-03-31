@@ -33,7 +33,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.conditions"
         fallback="Ongoing conditions"
-        data-testid='translatedtext-gbug' />
+        data-test-id='translatedtext-gbug' />
     }
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
@@ -46,7 +46,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
           stringId="ongoingCondition.resolved"
           fallback=":name (resolved)"
           replacements={{ name }}
-          data-testid='translatedtext-ws8o' />
+          data-test-id='translatedtext-ws8o' />
       );
     }}
   />
@@ -61,7 +61,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.allergies"
         fallback="Allergies"
-        data-testid='translatedtext-71i3' />
+        data-test-id='translatedtext-71i3' />
     }
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
@@ -71,7 +71,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
         fallback={allergy.allergy.name}
         value={allergy.allergy.id}
         category="allergy"
-        data-testid='translatedreferencedata-27wm' />
+        data-test-id='translatedreferencedata-27wm' />
     )}
   />
 ));
@@ -85,7 +85,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.familyHistory"
         fallback="Family history"
-        data-testid='translatedtext-460h' />
+        data-test-id='translatedtext-460h' />
     }
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
@@ -108,7 +108,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.issues"
         fallback="Other patient issues"
-        data-testid='translatedtext-y3ah' />
+        data-test-id='translatedtext-y3ah' />
     }
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
@@ -126,7 +126,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.carePlans"
         fallback="Care plans"
-        data-testid='translatedtext-ti4e' />
+        data-test-id='translatedtext-ti4e' />
     }
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
@@ -136,25 +136,25 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
         fallback={carePlan.name}
         value={carePlan.id}
         category="carePlan"
-        data-testid='translatedreferencedata-2uyd' />
+        data-test-id='translatedreferencedata-2uyd' />
     )}
     behavior="modal"
     itemTitle={<TranslatedText
       stringId="carePlan.modal.create.title"
       fallback="Add care plan"
-      data-testid='translatedtext-wqdz' />}
+      data-test-id='translatedtext-wqdz' />}
     CustomEditForm={PatientCarePlanDetails}
     getEditFormName={({ carePlan }) => (
       <>
         <TranslatedText
           stringId="carePlan.modal.edit.title"
           fallback="Care plan"
-          data-testid='translatedtext-527q' />:{' '}
+          data-test-id='translatedtext-527q' />:{' '}
         <TranslatedReferenceData
           fallback={carePlan.name}
           value={carePlan.id}
           category="carePlan"
-          data-testid='translatedreferencedata-5r5v' />
+          data-test-id='translatedreferencedata-5r5v' />
       </>
     )}
   />
@@ -168,7 +168,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="patient.detailsSidebar.subheading.programRegistry"
         fallback="Program registry"
-        data-testid='translatedtext-8azo' />
+        data-test-id='translatedtext-8azo' />
     }
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
@@ -180,14 +180,14 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
       <TranslatedText
         stringId="programRegistry.modal.addProgramRegistry.title"
         fallback="Add program registry"
-        data-testid='translatedtext-oadg' />
+        data-test-id='translatedtext-oadg' />
     }
     getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
   />
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
-    <OutlinedButton size="small" onClick={openModal} data-testid='outlinedbutton-hyyx'>Cause of death
+    <OutlinedButton size="small" onClick={openModal} data-test-id='outlinedbutton-hyyx'>Cause of death
           </OutlinedButton>
   );
 });

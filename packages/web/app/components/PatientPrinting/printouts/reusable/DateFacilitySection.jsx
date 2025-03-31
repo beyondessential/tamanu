@@ -34,7 +34,7 @@ export const DateFacilitySection = ({ encounter }) => {
     <RowContainer>
       <Item>
         <Label name="Print date">
-          <DateDisplay date={getCurrentDateString()} data-testid='datedisplay-aqwx' />
+          <DateDisplay date={getCurrentDateString()} data-test-id='datedisplay-aqwx' />
         </Label>
       </Item>
       <Item>
@@ -43,7 +43,7 @@ export const DateFacilitySection = ({ encounter }) => {
             <TranslatedText
               stringId="general.localisedField.facility.label"
               fallback="Facility"
-              data-testid='translatedtext-43pp' />
+              data-test-id='translatedtext-43pp' />
           }
         >
           {encounter?.location?.facility && (
@@ -51,7 +51,7 @@ export const DateFacilitySection = ({ encounter }) => {
               fallback={encounter.location.facility.name}
               value={encounter.location.facility.id}
               category="facility"
-              data-testid='translatedreferencedata-xvzz' />
+              data-test-id='translatedreferencedata-xvzz' />
           )}
         </LocalisedLabel>
       </Item>
@@ -61,7 +61,7 @@ export const DateFacilitySection = ({ encounter }) => {
             <TranslatedText
               stringId="general.localisedField.locationId.label"
               fallback="Location"
-              data-testid='translatedtext-4ree' />
+              data-test-id='translatedtext-4ree' />
           }
         >
           {getFullLocationName(encounter?.location)}

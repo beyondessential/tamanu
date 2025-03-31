@@ -100,7 +100,7 @@ export const TabDisplayDraggable = ({
               scrollButtons={scrollable ? 'on' : 'off'}
               value={currentTabData?.order || 0}
               {...provided.droppableProps}
-              data-testid='tabcontainer-9xnh'>
+              data-test-id='tabcontainer-9xnh'>
               {tabs.map(({ key, label, render, icon }, index) => (
                 <Draggable key={key} draggableId={key} index={index} isDragDisabled={!render}>
                   {(provided, snapshot) => (

@@ -32,7 +32,7 @@ export const LabRequestsTable = React.memo(
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-              data-testid='translatedtext-ce42' />
+              data-test-id='translatedtext-ce42' />
           ),
           accessor: getPatientDisplayId,
         },

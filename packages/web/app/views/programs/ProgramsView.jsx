@@ -130,7 +130,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
           <TranslatedText
             stringId="program.modal.selectSurvey.error.title"
             fallback="Error"
-            data-testid='translatedtext-znto' />
+            data-test-id='translatedtext-znto' />
         }
         error={error}
       />
@@ -145,7 +145,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             <TranslatedText
               stringId="program.modal.selectSurvey.title"
               fallback="Select form"
-              data-testid='translatedtext-hlef' />
+              data-test-id='translatedtext-hlef' />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
@@ -158,7 +158,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-                data-testid='translatedtext-rysu' />
+                data-test-id='translatedtext-rysu' />
             }
           />
           <SurveySelector
@@ -170,7 +170,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-                data-testid='translatedtext-ind9' />
+                data-test-id='translatedtext-ind9' />
             }
           />
         </FormGrid>

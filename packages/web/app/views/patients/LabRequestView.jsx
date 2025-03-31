@@ -118,7 +118,7 @@ const Menu = ({ setModal, status, disabled }) => {
       label: <TranslatedText
         stringId="lab.action.printLabel"
         fallback="Print label"
-        data-testid='translatedtext-7v81' />,
+        data-test-id='translatedtext-7v81' />,
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
@@ -128,7 +128,7 @@ const Menu = ({ setModal, status, disabled }) => {
       label: <TranslatedText
         stringId="lab.action.cancelRequest"
         fallback="Cancel request"
-        data-testid='translatedtext-m10y' />,
+        data-test-id='translatedtext-m10y' />,
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -137,7 +137,7 @@ const Menu = ({ setModal, status, disabled }) => {
       disabled={disabled}
       status={status}
       actions={menuActions}
-      data-testid='menubutton-1dt6' />
+      data-test-id='menubutton-1dt6' />
   );
 };
 
@@ -205,7 +205,7 @@ export const LabRequestView = () => {
             label: <TranslatedText
               stringId="lab.action.recordSample"
               fallback="Record sample"
-              data-testid='translatedtext-rmgy' />,
+              data-test-id='translatedtext-rmgy' />,
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
           },
         ]
@@ -214,14 +214,14 @@ export const LabRequestView = () => {
             label: <TranslatedText
               stringId="general.action.edit"
               fallback="Edit"
-              data-testid='translatedtext-g4yv' />,
+              data-test-id='translatedtext-g4yv' />,
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
           },
           {
             label: <TranslatedText
               stringId="lab.action.viewDetails"
               fallback="View details"
-              data-testid='translatedtext-hii4' />,
+              data-test-id='translatedtext-hii4' />,
             action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
           },
         ];
@@ -238,7 +238,7 @@ export const LabRequestView = () => {
           <TranslatedText
             stringId="lab.view.title"
             fallback="Labs"
-            data-testid='translatedtext-c7wx' />
+            data-test-id='translatedtext-c7wx' />
         </Heading2>
         <LabRequestCard
           labRequest={labRequest}
@@ -250,17 +250,17 @@ export const LabRequestView = () => {
                 onClick={() => {
                   handleChangeModalId(MODAL_IDS.PRINT);
                 }}
-                data-testid='outlinedbutton-fj4d'>
+                data-test-id='outlinedbutton-fj4d'>
                 <TranslatedText
                   stringId="lab.action.printRequest"
                   fallback="Print request"
-                  data-testid='translatedtext-nxwe' />
+                  data-test-id='translatedtext-nxwe' />
               </OutlinedButton>
               <Menu
                 setModal={handleChangeModalId}
                 status={labRequest.status}
                 disabled={isHidden}
-                data-testid='menu-dj1u' />
+                data-test-id='menu-dj1u' />
             </Box>
           }
         />
@@ -271,14 +271,14 @@ export const LabRequestView = () => {
             text={<TranslatedText
               stringId="lab.testCategory.label"
               fallback="Test Category"
-              data-testid='translatedtext-tjb5' />}
+              data-test-id='translatedtext-tjb5' />}
             main={
               labRequest.category?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.category.name}
                   value={labRequest.category.id}
                   category="labTestCategory"
-                  data-testid='translatedreferencedata-918e' />
+                  data-test-id='translatedreferencedata-918e' />
               ) : (
                 '-'
               )
@@ -289,7 +289,7 @@ export const LabRequestView = () => {
             text={<TranslatedText
               stringId="lab.view.tile.status.label"
               fallback="Status"
-              data-testid='translatedtext-jvfq' />}
+              data-test-id='translatedtext-jvfq' />}
             main={
               <TileTag $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}>
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
@@ -305,7 +305,7 @@ export const LabRequestView = () => {
                         <TranslatedText
                           stringId="lab.tooltip.cannotChangeStatus"
                           fallback="You cannot change the status of lab request without entering the sample details"
-                          data-testid='translatedtext-kd8y' />
+                          data-test-id='translatedtext-kd8y' />
                       }
                     >
                       <LabelContainer
@@ -317,7 +317,7 @@ export const LabRequestView = () => {
                         <TranslatedText
                           stringId="lab.action.changeStatus"
                           fallback="Change status"
-                          data-testid='translatedtext-p6hb' />
+                          data-test-id='translatedtext-p6hb' />
                       </LabelContainer>
                     </ConditionalTooltip>
                   ),
@@ -328,7 +328,7 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.viewStatusLog"
                     fallback="View status log"
-                    data-testid='translatedtext-c1st' />
+                    data-test-id='translatedtext-c1st' />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG),
               },
@@ -340,7 +340,7 @@ export const LabRequestView = () => {
               <TranslatedText
                 stringId="lab.view.tile.sampleTime.label"
                 fallback="Sample collected"
-                data-testid='translatedtext-7lev' />
+                data-test-id='translatedtext-7lev' />
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
@@ -349,7 +349,7 @@ export const LabRequestView = () => {
                   color={labRequest.sampleTime ? 'unset' : Colors.softText}
                   date={labRequest.sampleTime}
                   showTime
-                  data-testid='datedisplay-e16d' />
+                  data-test-id='datedisplay-e16d' />
               </>
             }
             actions={actions}
@@ -359,14 +359,14 @@ export const LabRequestView = () => {
             text={<TranslatedText
               stringId="lab.laboratory.label"
               fallback="Laboratory"
-              data-testid='translatedtext-g2pf' />}
+              data-test-id='translatedtext-g2pf' />}
             main={
               labRequest.laboratory?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.laboratory.name}
                   value={labRequest.laboratory.id}
                   category="labTestLaboratory"
-                  data-testid='translatedreferencedata-bg0m' />
+                  data-test-id='translatedreferencedata-bg0m' />
               ) : (
                 '-'
               )
@@ -378,7 +378,7 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.changeLaboratory"
                     fallback="Change laboratory"
-                    data-testid='translatedtext-xaax' />
+                    data-test-id='translatedtext-xaax' />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
               },
@@ -389,14 +389,14 @@ export const LabRequestView = () => {
             text={<TranslatedText
               stringId="lab.view.tile.priority.label"
               fallback="Priority"
-              data-testid='translatedtext-f0c3' />}
+              data-test-id='translatedtext-f0c3' />}
             main={
               labRequest.priority?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.priority.name}
                   value={labRequest.priority.id}
                   category="labTestPriority"
-                  data-testid='translatedreferencedata-4gdp' />
+                  data-test-id='translatedreferencedata-4gdp' />
               ) : (
                 '-'
               )
@@ -408,7 +408,7 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.changePriority"
                     fallback="Change priority"
-                    data-testid='translatedtext-9os3' />
+                    data-test-id='translatedtext-9os3' />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
               },
@@ -421,21 +421,21 @@ export const LabRequestView = () => {
           {hasAttachment && (
             <Button
               onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}
-              data-testid='button-8bww'>
+              data-test-id='button-8bww'>
               <TranslatedText
                 stringId="lab.action.viewReport"
                 fallback="View report"
-                data-testid='translatedtext-y5rn' />
+                data-test-id='translatedtext-y5rn' />
             </Button>
           )}
           {canEnterResults && (
             <Button
               onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
-              data-testid='button-feto'>
+              data-test-id='button-feto'>
               <TranslatedText
                 stringId="lab.action.enterResults"
                 fallback="Enter results"
-                data-testid='translatedtext-n1k8' />
+                data-test-id='translatedtext-n1k8' />
             </Button>
           )}
         </TableButtonRow>

@@ -29,22 +29,22 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           variant="outlined"
           color="primary"
-          data-testid='button-r51k'>
+          data-test-id='button-r51k'>
           <TranslatedText
             stringId="general.action.print"
             fallback="Print"
-            data-testid='translatedtext-6mp4' />
+            data-test-id='translatedtext-6mp4' />
         </Button>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="ImagingRequest"
-          data-testid='buttonwithpermissioncheck-e7hl'>
+          data-test-id='buttonwithpermissioncheck-e7hl'>
           <TranslatedText
             stringId="imaging.action.create"
             fallback="New imaging request"
-            data-testid='translatedtext-cdvv' />
+            data-test-id='translatedtext-cdvv' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} />

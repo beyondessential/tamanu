@@ -32,7 +32,7 @@ const schema = yup.object().shape({
       <TranslatedText
         stringId="admin.report.export.report.label"
         fallback="Report"
-        data-testid='translatedtext-xoqb' />,
+        data-test-id='translatedtext-xoqb' />,
     ),
   versionId: yup
     .string()
@@ -40,7 +40,7 @@ const schema = yup.object().shape({
     .translatedLabel(<TranslatedText
     stringId="admin.report.version.label"
     fallback="Version"
-    data-testid='translatedtext-uytp' />),
+    data-test-id='translatedtext-uytp' />),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
@@ -49,7 +49,7 @@ const schema = yup.object().shape({
       <TranslatedText
         stringId="admin.report.export.format.label"
         fallback="Format"
-        data-testid='translatedtext-en7w' />,
+        data-test-id='translatedtext-en7w' />,
     ),
 });
 
@@ -86,7 +86,7 @@ export const ExportReportView = () => {
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
-          data-testid='translatedtext-4qji' />,
+          data-test-id='translatedtext-4qji' />,
       );
     }
   };
@@ -110,7 +110,7 @@ export const ExportReportView = () => {
                 <TranslatedText
                   stringId="admin.report.export.report.label"
                   fallback="Report"
-                  data-testid='translatedtext-imll' />
+                  data-test-id='translatedtext-imll' />
               }
               name="reportId"
               placeholder={getTranslation(
@@ -118,7 +118,7 @@ export const ExportReportView = () => {
                 'Select a report definition',
               )}
               setSelectedReportName={setSelectedReportName}
-              data-testid='field-1zwt' />
+              data-test-id='field-1zwt' />
             {values.reportId && (
               <Field
                 component={VersionSelectField}
@@ -127,7 +127,7 @@ export const ExportReportView = () => {
                   <TranslatedText
                     stringId="admin.report.export.version.label"
                     fallback="Version"
-                    data-testid='translatedtext-hpgn' />
+                    data-test-id='translatedtext-hpgn' />
                 }
                 name="versionId"
                 placeholder={getTranslation(
@@ -135,7 +135,7 @@ export const ExportReportView = () => {
                   'Select a report version',
                 )}
                 setSelectedVersionNumber={setSelectedVersionNumber}
-                data-testid='field-q5s9' />
+                data-test-id='field-q5s9' />
             )}
             {values.versionId && (
               <Field
@@ -144,23 +144,23 @@ export const ExportReportView = () => {
                   <TranslatedText
                     stringId="admin.report.export.format.label"
                     fallback="Format"
-                    data-testid='translatedtext-1ztl' />
+                    data-test-id='translatedtext-1ztl' />
                 }
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
                   value,
                 }))}
-                data-testid='field-1g15' />
+                data-test-id='field-1g15' />
             )}
           </FormGrid>
-          <ButtonRow alignment="left" data-testid='buttonrow-9n0o'>
+          <ButtonRow alignment="left" data-test-id='buttonrow-9n0o'>
             <FormSubmitButton
               text={<TranslatedText
                 stringId="general.action.export"
                 fallback="Export"
-                data-testid='translatedtext-qw0s' />}
-              data-testid='formsubmitbutton-5pc7' />
+                data-test-id='translatedtext-qw0s' />}
+              data-test-id='formsubmitbutton-5pc7' />
           </ButtonRow>
         </InnerContainer>
       )}

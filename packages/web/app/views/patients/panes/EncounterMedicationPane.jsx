@@ -37,22 +37,22 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           noun="EncounterMedication"
           variant="outlined"
           color="primary"
-          data-testid='buttonwithpermissioncheck-dn0a'>
+          data-test-id='buttonwithpermissioncheck-dn0a'>
           <TranslatedText
             stringId="general.action.print"
             fallback="Print"
-            data-testid='translatedtext-c0kp' />
+            data-test-id='translatedtext-c0kp' />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setCreateMedicationModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterMedication"
-          data-testid='buttonwithpermissioncheck-nzzw'>
+          data-test-id='buttonwithpermissioncheck-nzzw'>
           <TranslatedText
             stringId="medication.action.newPrescription"
             fallback="New prescription"
-            data-testid='translatedtext-glep' />
+            data-test-id='translatedtext-glep' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <EncounterMedicationTable encounterId={encounter.id} />

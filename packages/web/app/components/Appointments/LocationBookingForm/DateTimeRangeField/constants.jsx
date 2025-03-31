@@ -13,18 +13,18 @@ export const CONFLICT_TOOLTIP_TITLE = {
     <TranslatedText
       stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
       fallback="All times must be available when booking over multiple timeslots"
-      data-testid='translatedtext-oknz' />
+      data-test-id='translatedtext-oknz' />
   ),
   [TIME_SLOT_PICKER_VARIANTS.START]: (
     <TranslatedText
       stringId="locationBooking.tooltip.unavailableFutureTimeWarning"
       fallback="All future time slots must be available when booking overnight"
-      data-testid='translatedtext-o32x' />
+      data-test-id='translatedtext-o32x' />
   ),
   [TIME_SLOT_PICKER_VARIANTS.END]: (
     <TranslatedText
       stringId="locationBooking.tooltip.unavailablePastTimeWarning"
       fallback="All previous time slots must be available when booking overnight"
-      data-testid='translatedtext-usm1' />
+      data-test-id='translatedtext-usm1' />
   ),
 };

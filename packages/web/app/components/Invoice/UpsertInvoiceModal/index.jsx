@@ -145,12 +145,12 @@ export const UpsertInvoiceModal = ({
           <TranslatedText
             stringId="invoice.action.create"
             fallback="Create invoice"
-            data-testid='translatedtext-ovsa' />
+            data-test-id='translatedtext-ovsa' />
         ) : (
           <TranslatedText
             stringId="invoice.action.update"
             fallback="Update invoice"
-            data-testid='translatedtext-01o3' />
+            data-test-id='translatedtext-01o3' />
         )
       }
       open={open}

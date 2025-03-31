@@ -110,7 +110,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-tazs' /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-test-id='datedisplay-tazs' /> || {},
       style: { width: '30%' },
     },
   ],
@@ -131,7 +131,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-j389' /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-test-id='datedisplay-j389' /> || {},
       style: { width: '30%' },
     },
   ],
@@ -148,7 +148,7 @@ const COLUMNS = {
                 fallback={diagnosis.name}
                 value={diagnosis.id}
                 category="diagnosis"
-                data-testid='translatedreferencedata-78tx' />
+                data-test-id='translatedreferencedata-78tx' />
             </span>
             <span> {diagnosis.code}</span>
           </>
@@ -164,7 +164,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-832n' /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-test-id='datedisplay-832n' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -181,7 +181,7 @@ const COLUMNS = {
                 fallback={procedureType.name}
                 value={procedureType.id}
                 category={procedureType.type}
-                data-testid='translatedreferencedata-ohp8' />
+                data-test-id='translatedreferencedata-ohp8' />
             </span>
             <span> {procedureType.code}</span>
           </>
@@ -191,7 +191,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-20k2' /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-test-id='datedisplay-20k2' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -215,13 +215,13 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate data-testid='datedisplay-cp31' /> || {},
+      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate data-test-id='datedisplay-cp31' /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate data-testid='datedisplay-znq6' /> || {},
+      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate data-test-id='datedisplay-znq6' /> || {},
       style: { width: '20%' },
     },
   ],
@@ -248,7 +248,7 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate data-testid='datedisplay-uoz5' />,
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate data-test-id='datedisplay-uoz5' />,
       style: { width: '20%' },
     },
     {
@@ -269,7 +269,7 @@ const COLUMNS = {
             fallback={medication.name}
             value={medication.id}
             category={medication.type}
-            data-testid='translatedreferencedata-3bhk' />
+            data-test-id='translatedreferencedata-3bhk' />
         ),
       style: { width: '20%' },
     },
@@ -294,7 +294,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-6xtp' />,
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-test-id='datedisplay-6xtp' />,
       style: { width: '20%' },
     },
   ],
@@ -341,7 +341,7 @@ export const EncounterRecord = React.memo(
                 date={dateOfBirth}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-4wm6' />
+                data-test-id='datedisplay-4wm6' />
             </LocalisedDisplayValue>
             <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
           </div>
@@ -360,7 +360,7 @@ export const EncounterRecord = React.memo(
                 fallback={location.facility.name}
                 value={location.facility.id}
                 category="facility"
-                data-testid='translatedreferencedata-iy2r' />
+                data-test-id='translatedreferencedata-iy2r' />
             </LocalisedDisplayValue>
             <DisplayValue
               name={
@@ -373,10 +373,10 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                        data-testid='translatedtext-s3pz' />
+                        data-test-id='translatedtext-s3pz' />
                     ),
                   }}
-                  data-testid='translatedtext-rhxc' />
+                  data-test-id='translatedtext-rhxc' />
               }
               size="10px"
             >
@@ -393,10 +393,10 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                        data-testid='translatedtext-wvck' />
+                        data-test-id='translatedtext-wvck' />
                     ),
                   }}
-                  data-testid='translatedtext-ycd7' />
+                  data-test-id='translatedtext-ycd7' />
               }
               size="10px"
             >
@@ -412,21 +412,21 @@ export const EncounterRecord = React.memo(
                 fallback={department.name}
                 value={department.id}
                 category="department"
-                data-testid='translatedreferencedata-3d4j' />
+                data-test-id='translatedreferencedata-3d4j' />
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px">
               <DateDisplay
                 date={startDate}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-pxba' />
+                data-test-id='datedisplay-pxba' />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px">
               <DateDisplay
                 date={endDate}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-ceax' />
+                data-test-id='datedisplay-ceax' />
             </DisplayValue>
           </div>
         </RowContainer>
@@ -489,7 +489,7 @@ export const EncounterRecord = React.memo(
                       {note.onBehalfOf ? (
                         <span>on behalf of {note.onBehalfOf.displayName} </span>
                       ) : null}
-                      <DateDisplay date={note.date} showTime data-testid='datedisplay-sme0' />
+                      <DateDisplay date={note.date} showTime data-test-id='datedisplay-sme0' />
                     </NoteMeta>
                   </RowContent>
                 </Row>

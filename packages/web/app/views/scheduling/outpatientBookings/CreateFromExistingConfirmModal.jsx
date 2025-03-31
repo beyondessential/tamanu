@@ -18,14 +18,14 @@ export const CreateFromExistingConfirmModal = ({ open, onCancel, onConfirm }) =>
         <TranslatedText
           stringId="scheduling.modal.appointment.title.createNewAppointment"
           fallback="Create new appointment"
-          data-testid='translatedtext-6cox' />
+          data-test-id='translatedtext-6cox' />
       }
       customContent={
         <Box p={7}>
           <TranslatedText
             stringId="scehduling.modal.appointment.content.createFromExistingWarning"
             fallback="This appointment is repeating and there may be future instances of this appointment already scheduled. Would you like to continue scheduling a new appointment?"
-            data-testid='translatedtext-bdtz' />
+            data-test-id='translatedtext-bdtz' />
         </Box>
       }
       open={open}

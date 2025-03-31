@@ -82,14 +82,14 @@ export const AssetUploaderView = memo(() => {
             <TranslatedText
               stringId="asset.validation.name.path"
               fallback="Asset name"
-              data-testid='translatedtext-nwfy' />,
+              data-test-id='translatedtext-nwfy' />,
           ),
         file: yup
           .string()
           .required(<TranslatedText
           stringId="general.file.label"
           fallback="File"
-          data-testid='translatedtext-rfue' />),
+          data-test-id='translatedtext-rfue' />),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
@@ -101,26 +101,26 @@ export const AssetUploaderView = memo(() => {
                 label={<TranslatedText
                   stringId="asset.name.label"
                   fallback="Select asset"
-                  data-testid='translatedtext-1rmi' />}
+                  data-test-id='translatedtext-1rmi' />}
                 name="name"
                 required
-                data-testid='field-w2lh' />
+                data-test-id='field-w2lh' />
               <Field
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
                 label={<TranslatedText
                   stringId="asset.file.label"
                   fallback="Select file"
-                  data-testid='translatedtext-n2s0' />}
+                  data-test-id='translatedtext-n2s0' />}
                 name="file"
                 required
-                data-testid='field-wiha' />
-              <ButtonRow data-testid='buttonrow-4jml'>
+                data-test-id='field-wiha' />
+              <ButtonRow data-test-id='buttonrow-4jml'>
                 <LargeSubmitButton
                   text={<TranslatedText
                     stringId="general.action.import"
                     fallback="Import"
-                    data-testid='translatedtext-jal5' />}
+                    data-test-id='translatedtext-jal5' />}
                 />
               </ButtonRow>
               <ResultDisplay result={result} />

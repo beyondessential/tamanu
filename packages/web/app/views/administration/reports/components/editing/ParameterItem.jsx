@@ -68,8 +68,8 @@ export const ParameterItem = props => {
           label={<TranslatedText
             stringId="general.name.label"
             fallback="Name"
-            data-testid='translatedtext-kalt' />}
-          data-testid='field-upul' />
+            data-test-id='translatedtext-kalt' />}
+          data-test-id='field-upul' />
       </Grid>
       <Grid item xs={5}>
         <Field
@@ -79,11 +79,11 @@ export const ParameterItem = props => {
           label={<TranslatedText
             stringId="report.editor.label.label"
             fallback="Label"
-            data-testid='translatedtext-a84w' />}
-          data-testid='field-j5ff' />
+            data-test-id='translatedtext-a84w' />}
+          data-test-id='field-j5ff' />
       </Grid>
       <Grid item xs={1}>
-        <IconButton variant="text" onClick={() => onDelete(id)} data-testid='iconbutton-h4w1'>
+        <IconButton variant="text" onClick={() => onDelete(id)} data-test-id='iconbutton-h4w1'>
           <DeleteOutlinedIcon />
         </IconButton>
       </Grid>
@@ -103,12 +103,12 @@ export const ParameterItem = props => {
           label={<TranslatedText
             stringId="report.editor.fieldType.label"
             fallback="Field type"
-            data-testid='translatedtext-6zpb' />}
+            data-test-id='translatedtext-6zpb' />}
           options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,
           }))}
-          data-testid='field-wfsd' />
+          data-test-id='field-wfsd' />
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
         <Grid item xs={11}>
@@ -120,7 +120,7 @@ export const ParameterItem = props => {
               <TranslatedText
                 stringId="report.editor.suggesterEndpoint.label"
                 fallback="Suggester endpoint"
-                data-testid='translatedtext-apxf' />
+                data-test-id='translatedtext-apxf' />
             }
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
               .sort((a, b) => a.localeCompare(b))
@@ -128,7 +128,7 @@ export const ParameterItem = props => {
                 label: key,
                 value: key,
               }))}
-            data-testid='field-2qel' />
+            data-test-id='field-2qel' />
         </Grid>
       )}
       {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
@@ -138,7 +138,7 @@ export const ParameterItem = props => {
               label={<TranslatedText
                 stringId="report.editor.options.label"
                 fallback="Options"
-                data-testid='translatedtext-bvmc' />}
+                data-test-id='translatedtext-bvmc' />}
             />
           </Grid>
           <Field
@@ -153,9 +153,9 @@ export const ParameterItem = props => {
                     label={<TranslatedText
                       stringId="general.label.label"
                       fallback="Label"
-                      data-testid='translatedtext-5l93' />}
+                      data-test-id='translatedtext-5l93' />}
                     component={TextField}
-                    data-testid='field-vhpk' />
+                    data-test-id='field-vhpk' />
                 </Grid>
                 <Grid item xs={5}>
                   <Field
@@ -163,9 +163,9 @@ export const ParameterItem = props => {
                     label={<TranslatedText
                       stringId="general.value.label"
                       fallback="Value"
-                      data-testid='translatedtext-qmbn' />}
+                      data-test-id='translatedtext-qmbn' />}
                     component={TextField}
-                    data-testid='field-ee8j' />
+                    data-test-id='field-ee8j' />
                 </Grid>
                 <Grid item xs={1}>
                   <DeleteContainer onClick={() => onOptionDelete(index)}>
@@ -174,7 +174,7 @@ export const ParameterItem = props => {
                 </Grid>
               </>
             )}
-            data-testid='field-qjlf' />
+            data-test-id='field-qjlf' />
         </>
       )}
       {parameterField === 'FacilityField' && (
@@ -185,10 +185,10 @@ export const ParameterItem = props => {
               <TranslatedText
                 stringId="report.editor.filterOtherSuggestionsSelectedFacility.label"
                 fallback="Filter other suggestions by selected facility"
-                data-testid='translatedtext-va0s' />
+                data-test-id='translatedtext-va0s' />
             }
             component={CheckField}
-            data-testid='field-h8m9' />
+            data-test-id='field-h8m9' />
         </Grid>
       )}
       <Grid item xs={12}>

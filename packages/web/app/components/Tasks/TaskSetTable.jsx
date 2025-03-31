@@ -62,7 +62,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.taskSetList"
         fallback="Task set list"
-        data-testid='translatedtext-z1m6' />
+        data-test-id='translatedtext-z1m6' />
     ),
     sortable: false,
   },
@@ -72,7 +72,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.assignedTo"
         fallback="Assigned to"
-        data-testid='translatedtext-scjw' />
+        data-test-id='translatedtext-scjw' />
     ),
     accessor: getDesignations,
     sortable: false,
@@ -83,7 +83,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.frequency"
         fallback="Frequency"
-        data-testid='translatedtext-ulry' />
+        data-test-id='translatedtext-ulry' />
     ),
     accessor: ({ taskTemplate }) => {
       const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
@@ -93,7 +93,7 @@ const COLUMNS = [
         <TranslatedText
           stringId="encounter.tasks.table.once"
           fallback="Once"
-          data-testid='translatedtext-2n6c' />
+          data-test-id='translatedtext-2n6c' />
       );
     },
     sortable: false,
@@ -104,7 +104,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.highPriority"
         fallback="High priority"
-        data-testid='translatedtext-vktm' />
+        data-test-id='translatedtext-vktm' />
     ),
     accessor: ({ taskTemplate }) => (taskTemplate?.highPriority ? <StyledPriorityHighIcon /> : ''),
     sortable: false,

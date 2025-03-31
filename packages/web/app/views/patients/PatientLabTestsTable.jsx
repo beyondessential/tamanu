@@ -135,7 +135,7 @@ export const PatientLabTestsTable = React.memo(
               title: <TranslatedText
                 stringId="lab.testCategory.label"
                 fallback="Test category"
-                data-testid='translatedtext-eofw' />,
+                data-test-id='translatedtext-eofw' />,
               accessor: (row) => <CategoryCell>{row.testCategory}</CategoryCell>,
               sortable: false,
             },
@@ -147,7 +147,7 @@ export const PatientLabTestsTable = React.memo(
           <TranslatedText
             stringId="patient.lab.results.table.column.testType"
             fallback="Test type"
-            data-testid='translatedtext-om7z' />
+            data-test-id='translatedtext-om7z' />
         ),
         accessor: (row) => (
           <CategoryCell>
@@ -164,7 +164,7 @@ export const PatientLabTestsTable = React.memo(
           <TranslatedText
             stringId="patient.lab.results.table.column.normalRange"
             fallback="Normal range"
-            data-testid='translatedtext-f7gq' />
+            data-test-id='translatedtext-f7gq' />
         ),
         accessor: (row) => {
           const range = row.normalRanges[patient?.sex];
@@ -190,7 +190,7 @@ export const PatientLabTestsTable = React.memo(
             const cellData = row.results[date];
             if (cellData) {
               return (
-                <StyledButton onClick={() => openModal(cellData.id)} data-testid='styledbutton-tr6q'>
+                <StyledButton onClick={() => openModal(cellData.id)} data-test-id='styledbutton-tr6q'>
                   <RangeValidatedCell
                     value={cellData.result}
                     config={{ unit: row.unit, rounding: null }}
@@ -200,7 +200,7 @@ export const PatientLabTestsTable = React.memo(
               );
             }
 
-            return <StyledButton disabled data-testid='styledbutton-17xw'>&mdash;</StyledButton>;
+            return <StyledButton disabled data-test-id='styledbutton-17xw'>&mdash;</StyledButton>;
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
@@ -220,7 +220,7 @@ export const PatientLabTestsTable = React.memo(
             <TranslatedText
               stringId="patient.lab.results.table.noData"
               fallback="This patient has no lab results to display. Once lab results are available they will be displayed here."
-              data-testid='translatedtext-br12' />
+              data-test-id='translatedtext-br12' />
           }
           count={count}
           allowExport

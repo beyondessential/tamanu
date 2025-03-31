@@ -18,7 +18,7 @@ export const LocationCell = ({
           value={locationId}
           fallback={locationName}
           category={category}
-          data-testid='translatedreferencedata-ine4' />
+          data-test-id='translatedreferencedata-ine4' />
       ) : (
         locationName
       )}
@@ -30,7 +30,7 @@ export const LocationCell = ({
               value={plannedLocationId}
               fallback={plannedLocationName}
               category={category}
-              data-testid='translatedreferencedata-s47i' />
+              data-test-id='translatedreferencedata-s47i' />
           }
           )
         </Typography>

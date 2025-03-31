@@ -55,7 +55,7 @@ export const ScopeSelectorFields = React.memo(
           label={<TranslatedText
             stringId="admin.settings.scope.label"
             fallback="Scope"
-            data-testid='translatedtext-gidj' />}
+            data-test-id='translatedtext-gidj' />}
           options={SCOPE_OPTIONS}
           value={scope}
           onChange={onScopeChange}
@@ -69,7 +69,7 @@ export const ScopeSelectorFields = React.memo(
             label={<TranslatedText
               stringId="general.facility.label"
               fallback="Facility"
-              data-testid='translatedtext-qvsm' />}
+              data-test-id='translatedtext-qvsm' />}
             value={facilityId}
             onChange={onFacilityChange}
             required

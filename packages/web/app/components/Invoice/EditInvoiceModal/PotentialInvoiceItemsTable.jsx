@@ -129,15 +129,15 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       title: <TranslatedText
         stringId="general.date.label"
         fallback="Date"
-        data-testid='translatedtext-uae2' />,
-      accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-petx' />,
+        data-test-id='translatedtext-uae2' />,
+      accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-test-id='datedisplay-petx' />,
     },
     {
       key: 'productCode',
       title: <TranslatedText
         stringId="invoice.table.column.code"
         fallback="Code"
-        data-testid='translatedtext-8xou' />,
+        data-test-id='translatedtext-8xou' />,
       accessor: ({ productCode }) => productCode,
     },
     {
@@ -145,12 +145,12 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       title: <TranslatedText
         stringId="invoice.table.column.category"
         fallback="Category"
-        data-testid='translatedtext-neee' />,
+        data-test-id='translatedtext-neee' />,
       accessor: ({ productType }) => (
         <TranslatedEnum
           value={productType}
           enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
-          data-testid='translatedenum-rogu' />
+          data-test-id='translatedenum-rogu' />
       ),
     },
     {
@@ -158,7 +158,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       title: <TranslatedText
         stringId="invoice.table.column.price"
         fallback="Price"
-        data-testid='translatedtext-to98' />,
+        data-test-id='translatedtext-to98' />,
       accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
@@ -169,7 +169,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           <TranslatedText
             stringId="general.action.add"
             fallback="Add"
-            data-testid='translatedtext-vvjn' />
+            data-test-id='translatedtext-vvjn' />
         </SingleAddButton>
       ),
     },
@@ -181,13 +181,13 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         <TranslatedText
           stringId="invoice.modal.potentialItems.title"
           fallback="Patient items to be added"
-          data-testid='translatedtext-xgvp' />
+          data-test-id='translatedtext-xgvp' />
         {!isEmptyPotentialInvoiceItems && (
           <BulkAddButton onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}>
             <TranslatedText
               stringId="general.action.addAll"
               fallback="Add all"
-              data-testid='translatedtext-zz0u' />
+              data-test-id='translatedtext-zz0u' />
           </BulkAddButton>
         )}
       </PaneHeader>
@@ -198,7 +198,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           <TranslatedText
             stringId="invoice.modal.potentialInvoices.table.noData"
             fallback="No patient items to be added"
-            data-testid='translatedtext-b8nh' />
+            data-test-id='translatedtext-b8nh' />
         }
         allowExport={false}
         rowStyle={potentialInvoiceItemRowStyle}

@@ -61,7 +61,7 @@ export const CreateNoteForm = ({
         label={<TranslatedText
           stringId="note.modal.addNote.label"
           fallback="Add note"
-          data-testid='translatedtext-x73v' />}
+          data-test-id='translatedtext-x73v' />}
         onChange={onNoteContentChange}
       />
       <StyledDivider />
@@ -70,13 +70,13 @@ export const CreateNoteForm = ({
         confirmText={<TranslatedText
           stringId="note.action.addNote"
           fallback="Add note"
-          data-testid='translatedtext-9wof' />}
+          data-test-id='translatedtext-9wof' />}
         cancelText={<TranslatedText
           stringId="general.action.cancel"
           fallback="Cancel"
-          data-testid='translatedtext-gbv7' />}
+          data-test-id='translatedtext-gbv7' />}
         onCancel={onCancel}
-        data-testid='formsubmitcancelrow-lk27' />
+        data-test-id='formsubmitcancelrow-lk27' />
     </>
   );
 };

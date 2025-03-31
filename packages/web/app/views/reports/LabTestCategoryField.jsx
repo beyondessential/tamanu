@@ -15,9 +15,9 @@ export const LabTestCategoryField = ({
     label={label ?? <TranslatedText
       stringId="lab.testCategory.label"
       fallback="Test category"
-      data-testid='translatedtext-6db5' />}
+      data-test-id='translatedtext-6db5' />}
     component={SuggesterSelectField}
     endpoint="labTestCategory"
     required={required}
-    data-testid='field-0jnu' />
+    data-test-id='field-0jnu' />
 );

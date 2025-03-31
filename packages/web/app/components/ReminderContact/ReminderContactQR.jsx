@@ -79,7 +79,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
         <TranslatedText
           stringId="patient.details.reminderContactQr.title"
           fallback="Scan QR code below"
-          data-testid='translatedtext-nkrn' />
+          data-test-id='translatedtext-nkrn' />
       </StyledHeaderText>
       <StyledText
         dangerouslySetInnerHTML={{
@@ -94,7 +94,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
         <TranslatedText
           stringId="patient.details.reminderContactQr.subDescription"
           fallback="They will receive a confirmation message from Telegram once their account is successfully registered."
-          data-testid='translatedtext-8lce' />
+          data-test-id='translatedtext-8lce' />
       </StyledText>
       <StyledQrContainer>
         {!isFetching && qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
@@ -105,7 +105,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
         confirmText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-testid='translatedtext-2s8j' />}
+          data-test-id='translatedtext-2s8j' />}
         confirmColor="primary"
         onConfirm={onClose}
       />

@@ -64,7 +64,7 @@ const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, parameters, ..
       baseQueryParameters={baseQueryParameters}
       name={name}
       {...props}
-      data-testid='field-hzuv' />
+      data-test-id='field-hzuv' />
   );
 };
 
@@ -83,7 +83,7 @@ const ParameterAutocompleteField = ({
       suggester={suggester}
       name={name}
       {...props}
-      data-testid='field-zeh1' />
+      data-test-id='field-zeh1' />
   );
 };
 
@@ -92,7 +92,7 @@ const ParameterSelectField = ({ name, ...props }) => (
     component={BaseSelectField}
     name={name}
     {...props}
-    data-testid='field-dszn' />
+    data-test-id='field-dszn' />
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (
@@ -100,7 +100,7 @@ const ParameterMultiselectField = ({ name, ...props }) => (
     component={BaseMultiselectField}
     name={name}
     {...props}
-    data-testid='field-yikj' />
+    data-test-id='field-yikj' />
 );
 
 const EmptyField = styled.div``;

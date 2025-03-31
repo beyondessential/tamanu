@@ -101,14 +101,14 @@ const ChangePasswordFormComponent = ({
           <TranslatedText
             stringId="resetPassword.heading"
             fallback="Reset password"
-            data-testid='translatedtext-s0k0' />
+            data-test-id='translatedtext-s0k0' />
         </FormHeading>
         <FormSubtext>
           <TranslatedText
             stringId="resetPassword.message"
             fallback="An email has been sent to the specified email address if it is registered with.
           Please follow the instructions outlined in the email."
-            data-testid='translatedtext-sju8' />
+            data-test-id='translatedtext-sju8' />
         </FormSubtext>
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </FormTitleSection>
@@ -120,7 +120,7 @@ const ChangePasswordFormComponent = ({
           label={<TranslatedText
             stringId="resetPassword.resetCode.label"
             fallback="Reset code"
-            data-testid='translatedtext-ibyf' />}
+            data-test-id='translatedtext-ibyf' />}
           required
           component={TextField}
           placeholder={getTranslation('resetPassword.resetCode.placeholder', 'Enter reset code')}
@@ -129,7 +129,7 @@ const ChangePasswordFormComponent = ({
               setFieldError('token', '');
             }
           }}
-          data-testid='field-zwml' />
+          data-test-id='field-zwml' />
         <HorizontalDivider />
         <Field
           name="newPassword"
@@ -138,7 +138,7 @@ const ChangePasswordFormComponent = ({
             <TranslatedText
               stringId="resetPassword.newPassword.label"
               fallback="New password"
-              data-testid='translatedtext-ogfd' />
+              data-test-id='translatedtext-ogfd' />
           }
           required
           component={TextField}
@@ -149,7 +149,7 @@ const ChangePasswordFormComponent = ({
             }
           }}
           autoComplete="new-password"
-          data-testid='field-xrwn' />
+          data-test-id='field-xrwn' />
         <Field
           autoComplete="new-password"
           name="confirmNewPassword"
@@ -158,7 +158,7 @@ const ChangePasswordFormComponent = ({
             <TranslatedText
               stringId="resetPassword.confirmNewPassword.label"
               fallback="Confirm new password"
-              data-testid='translatedtext-fzwf' />
+              data-test-id='translatedtext-fzwf' />
           }
           required
           component={TextField}
@@ -171,20 +171,20 @@ const ChangePasswordFormComponent = ({
               setFieldError('confirmNewPassword', '');
             }
           }}
-          data-testid='field-rvwm' />
+          data-test-id='field-rvwm' />
       </FieldContainer>
       <ActionButtonContainer>
         <ChangePasswordButton type="submit">
           <TranslatedText
             stringId="resetPassword.resetPassword.label"
             fallback="Reset password"
-            data-testid='translatedtext-m1q6' />
+            data-test-id='translatedtext-m1q6' />
         </ChangePasswordButton>
         <BackToLoginButton onClick={onNavToLogin} variant="outlined">
           <TranslatedText
             stringId="resetPassword.backToLogin.label"
             fallback="Back to login"
-            data-testid='translatedtext-lkp5' />
+            data-test-id='translatedtext-lkp5' />
         </BackToLoginButton>
       </ActionButtonContainer>
       <ResendCodeButton
@@ -196,7 +196,7 @@ const ChangePasswordFormComponent = ({
         <TranslatedText
           stringId="resetPassword.resendResetCode.label"
           fallback="Resend reset code"
-          data-testid='translatedtext-28nr' />
+          data-test-id='translatedtext-28nr' />
       </ResendCodeButton>
     </FormGrid>
   );
@@ -238,20 +238,20 @@ export const ChangePasswordForm = React.memo(
               <TranslatedText
                 stringId="resetPassword.success.heading"
                 fallback="Password successfully reset"
-                data-testid='translatedtext-k0p9' />
+                data-test-id='translatedtext-k0p9' />
             </FormHeading>
             <SuccessSubtext>
               <TranslatedText
                 stringId="resetPassword.success.subHeading"
                 fallback="Your password has been successfully reset"
-                data-testid='translatedtext-8t1k' />
+                data-test-id='translatedtext-8t1k' />
             </SuccessSubtext>
           </div>
           <BackToLoginButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
             <TranslatedText
               stringId="resetPassword.backToLogin.label"
               fallback="Back to login"
-              data-testid='translatedtext-ez6p' />
+              data-test-id='translatedtext-ez6p' />
           </BackToLoginButton>
         </FormGrid>
       );

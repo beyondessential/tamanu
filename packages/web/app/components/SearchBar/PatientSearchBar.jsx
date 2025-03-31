@@ -41,24 +41,24 @@ export const PatientSearchBar = React.memo(
                 <TranslatedText
                   stringId="general.localisedField.departmentId.label"
                   fallback="Department"
-                  data-testid='translatedtext-4n8p' />
+                  data-test-id='translatedtext-4n8p' />
               }
               size="small"
               component={AutocompleteField}
               suggester={departmentSuggester}
-              data-testid='localisedfield-qnaf' />
+              data-test-id='localisedfield-qnaf' />
             <LocalisedField
               name="clinicianId"
               label={
                 <TranslatedText
                   stringId="general.localisedField.clinicianId.label"
                   fallback="Clinician"
-                  data-testid='translatedtext-kk7m' />
+                  data-test-id='translatedtext-kk7m' />
               }
               component={AutocompleteField}
               size="small"
               suggester={practitionerSuggester}
-              data-testid='localisedfield-xku1' />
+              data-test-id='localisedfield-xku1' />
             {isInpatient && (
               <LocalisedField
                 name="dietId"
@@ -67,11 +67,11 @@ export const PatientSearchBar = React.memo(
                   <TranslatedText
                     stringId="general.localisedField.dietId.label"
                     fallback="Diet"
-                    data-testid='translatedtext-v1pk' />
+                    data-test-id='translatedtext-v1pk' />
                 }
                 suggester={dietSuggester}
                 component={AutocompleteField}
-                data-testid='localisedfield-85ap' />
+                data-test-id='localisedfield-85ap' />
             )}
           </>
         }
@@ -83,41 +83,41 @@ export const PatientSearchBar = React.memo(
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-              data-testid='translatedtext-dhy2' />
+              data-test-id='translatedtext-dhy2' />
           }
-          data-testid='localisedfield-vv9v' />
+          data-test-id='localisedfield-vv9v' />
         <LocalisedField
           name="firstName"
           label={
             <TranslatedText
               stringId="general.localisedField.firstName.label"
               fallback="First name"
-              data-testid='translatedtext-j1zn' />
+              data-test-id='translatedtext-j1zn' />
           }
           component={SearchField}
-          data-testid='localisedfield-4gfj' />
+          data-test-id='localisedfield-4gfj' />
         <LocalisedField
           name="lastName"
           label={
             <TranslatedText
               stringId="general.localisedField.lastName.label"
               fallback="Last name"
-              data-testid='translatedtext-fnpx' />
+              data-test-id='translatedtext-fnpx' />
           }
           component={SearchField}
-          data-testid='localisedfield-0rfo' />
+          data-test-id='localisedfield-0rfo' />
         <LocalisedField
           name="locationGroupId"
           label={
             <TranslatedText
               stringId="general.localisedField.locationGroupId.label"
               fallback="Area"
-              data-testid='translatedtext-p6qd' />
+              data-test-id='translatedtext-p6qd' />
           }
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}
-          data-testid='localisedfield-luhn' />
+          data-test-id='localisedfield-luhn' />
       </CustomisableSearchBarWithPermissionCheck>
     );
   },

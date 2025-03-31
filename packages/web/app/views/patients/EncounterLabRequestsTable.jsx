@@ -21,7 +21,7 @@ const columns = [
     title: <TranslatedText
       stringId="lab.table.column.testId"
       fallback="Test ID"
-      data-testid='translatedtext-1jea' />,
+      data-test-id='translatedtext-1jea' />,
     sortable: false,
     accessor: getRequestId,
   },
@@ -30,7 +30,7 @@ const columns = [
     title: <TranslatedText
       stringId="lab.testCategory.label"
       fallback="Test category"
-      data-testid='translatedtext-pyu8' />,
+      data-test-id='translatedtext-pyu8' />,
     accessor: getRequestType,
   },
   {
@@ -39,7 +39,7 @@ const columns = [
       <TranslatedText
         stringId="lab.table.column.requestedDate"
         fallback="Requested at time"
-        data-testid='translatedtext-esay' />
+        data-test-id='translatedtext-esay' />
     ),
     accessor: getDateWithTimeTooltip,
   },
@@ -48,7 +48,7 @@ const columns = [
     title: <TranslatedText
       stringId="general.requestedBy.label"
       fallback="Requested by"
-      data-testid='translatedtext-8ixa' />,
+      data-test-id='translatedtext-8ixa' />,
     accessor: getRequestedBy,
     sortable: false,
   },
@@ -57,7 +57,7 @@ const columns = [
     title: <TranslatedText
       stringId="lab.table.column.priority"
       fallback="Priority"
-      data-testid='translatedtext-i287' />,
+      data-test-id='translatedtext-i287' />,
     accessor: getPriority,
   },
   {
@@ -65,7 +65,7 @@ const columns = [
     title: <TranslatedText
       stringId="lab.table.column.status"
       fallback="Status"
-      data-testid='translatedtext-y315' />,
+      data-test-id='translatedtext-y315' />,
     accessor: getStatus,
     maxWidth: 200,
   },
@@ -92,10 +92,10 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
         <TranslatedText
           stringId="lab.table.noData"
           fallback="No lab requests found"
-          data-testid='translatedtext-kc8i' />
+          data-test-id='translatedtext-kc8i' />
       }
       onRowClick={selectLab}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
-      data-testid='datafetchingtable-90ed' />
+      data-test-id='datafetchingtable-90ed' />
   );
 });

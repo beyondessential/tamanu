@@ -9,7 +9,7 @@ import {
 import { getPatientStatus } from '../../utils/getPatientStatus';
 import { ThemedTooltip } from '../../components/Tooltip';
 
-const DateCell = React.memo(({ value }) => <DateDisplay date={value} data-testid='datedisplay-3bzb' />);
+const DateCell = React.memo(({ value }) => <DateDisplay date={value} data-test-id='datedisplay-3bzb' />);
 export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
 const SyncedCell = React.memo(({ value }) =>
   value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />,
@@ -21,7 +21,7 @@ export const markedForSync = {
     <TranslatedText
       stringId="general.localisedField.markedForSync.label.short"
       fallback="Sync"
-      data-testid='translatedtext-6fuj' />
+      data-test-id='translatedtext-6fuj' />
   ),
   minWidth: 26,
   CellComponent: SyncedCell,
@@ -33,7 +33,7 @@ export const displayId = {
   title: <TranslatedText
     stringId="general.localisedField.displayId.label.short"
     fallback="NHN"
-    data-testid='translatedtext-tsit' />,
+    data-test-id='translatedtext-tsit' />,
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };
@@ -43,7 +43,7 @@ export const firstName = {
   title: <TranslatedText
     stringId="general.localisedField.firstName.label"
     fallback="First name"
-    data-testid='translatedtext-k8ea' />,
+    data-test-id='translatedtext-k8ea' />,
   minWidth: 100,
 };
 
@@ -52,7 +52,7 @@ export const lastName = {
   title: <TranslatedText
     stringId="general.localisedField.lastName.label"
     fallback="Last name"
-    data-testid='translatedtext-rbmv' />,
+    data-test-id='translatedtext-rbmv' />,
   minWidth: 100,
 };
 
@@ -62,7 +62,7 @@ export const culturalName = {
     <TranslatedText
       stringId="general.localisedField.culturalName.label.short"
       fallback="Cultural name"
-      data-testid='translatedtext-8urf' />
+      data-test-id='translatedtext-8urf' />
   ),
   minWidth: 100,
 };
@@ -72,7 +72,7 @@ export const sex = {
   title: <TranslatedText
     stringId="general.localisedField.sex.label"
     fallback="Sex"
-    data-testid='translatedtext-fad7' />,
+    data-test-id='translatedtext-fad7' />,
   minWidth: 80,
   CellComponent: SexCell,
   sortable: false,
@@ -84,7 +84,7 @@ export const dateOfBirth = {
     <TranslatedText
       stringId="general.localisedField.dateOfBirth.label.short"
       fallback="DOB"
-      data-testid='translatedtext-16dy' />
+      data-test-id='translatedtext-16dy' />
   ),
   minWidth: 100,
   CellComponent: DateCell,
@@ -96,7 +96,7 @@ export const dateOfDeath = {
     <TranslatedText
       stringId="general.localisedField.dateOfDeath.label.short"
       fallback="Death"
-      data-testid='translatedtext-tjo1' />
+      data-test-id='translatedtext-tjo1' />
   ),
   minWidth: 100,
   CellComponent: DateCell,
@@ -107,14 +107,14 @@ export const village = {
   title: <TranslatedText
     stringId="general.localisedField.villageId.label"
     fallback="Village"
-    data-testid='translatedtext-kmbn' />,
+    data-test-id='translatedtext-kmbn' />,
   minWidth: 100,
   accessor: row => (
     <TranslatedReferenceData
       fallback={row.villageName ?? ''}
       value={row.villageId}
       category="village"
-      data-testid='translatedreferencedata-le9k' />
+      data-test-id='translatedreferencedata-le9k' />
   ),
 };
 
@@ -123,14 +123,14 @@ export const department = {
   title: <TranslatedText
     stringId="general.department.label"
     fallback="Department"
-    data-testid='translatedtext-bvhk' />,
+    data-test-id='translatedtext-bvhk' />,
   minWidth: 100,
   accessor: row => (
     <TranslatedReferenceData
       fallback={row.departmentName ?? ''}
       value={row.departmentId}
       category="department"
-      data-testid='translatedreferencedata-475j' />
+      data-test-id='translatedreferencedata-475j' />
   ),
 };
 
@@ -139,7 +139,7 @@ export const status = {
   title: <TranslatedText
     stringId="general.status.label"
     fallback="Status"
-    data-testid='translatedtext-ziu4' />,
+    data-test-id='translatedtext-ziu4' />,
   sortable: false,
   minWidth: 100,
   accessor: ({ dateOfDeath: dod, encounterType }) =>
@@ -152,7 +152,7 @@ export const clinician = {
     <TranslatedText
       stringId="general.localisedField.clinician.label.short"
       fallback="Clinician"
-      data-testid='translatedtext-8z1p' />
+      data-test-id='translatedtext-8z1p' />
   ),
   sortable: false,
 };
@@ -162,7 +162,7 @@ export const vaccinationStatus = {
   title: <TranslatedText
     stringId="vaccine.status.label"
     fallback="Vaccine status"
-    data-testid='translatedtext-jt8j' />,
+    data-test-id='translatedtext-jt8j' />,
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
@@ -172,7 +172,7 @@ export const diet = {
   title: <TranslatedText
     stringId="general.diet.label"
     fallback="Diet"
-    data-testid='translatedtext-jv3s' />,
+    data-test-id='translatedtext-jv3s' />,
   accessor: ({ diets }) => {
     if (!diets?.length) return null;
     const dietNames = diets.map(diet => diet.name);
@@ -190,7 +190,7 @@ export const inpatientSex = {
   title: <TranslatedText
     stringId="general.localisedField.sex.label"
     fallback="Sex"
-    data-testid='translatedtext-nv0f' />,
+    data-test-id='translatedtext-nv0f' />,
   accessor: ({ sex }) => {
     if (!sex) return null;
     return sex.charAt(0).toUpperCase();

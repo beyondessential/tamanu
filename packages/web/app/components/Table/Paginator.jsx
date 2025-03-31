@@ -137,14 +137,14 @@ export const Paginator = React.memo(
                   upperRange,
                   count,
                 }}
-                data-testid='translatedtext-9ey1' />
+                data-test-id='translatedtext-9ey1' />
             )}
           </PageRecordCount>
           <StyledSelectField
             label={<TranslatedText
               stringId="general.table.rowsPerPage"
               fallback="Rows per page"
-              data-testid='translatedtext-zuhp' />}
+              data-test-id='translatedtext-zuhp' />}
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}

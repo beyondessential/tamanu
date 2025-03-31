@@ -47,7 +47,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
         <TranslatedText
           stringId="lab.modal.printMultiple.title"
           fallback="Print lab requests"
-          data-testid='translatedtext-afi6' />
+          data-test-id='translatedtext-afi6' />
       }
       width="md"
       open={open}

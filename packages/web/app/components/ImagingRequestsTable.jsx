@@ -24,7 +24,7 @@ const StatusDisplay = React.memo(({ status }) => {
     label = <TranslatedText
       stringId="general.fallback.unknown"
       fallback="Unknown"
-      data-testid='translatedtext-cwxf' />,
+      data-test-id='translatedtext-cwxf' />,
   } = IMAGING_REQUEST_STATUS_CONFIG[status];
 
   return (
@@ -38,8 +38,8 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip data-testid='datedisplay-nomu' />;
-const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip data-testid='datedisplay-ygqw' />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip data-test-id='datedisplay-nomu' />;
+const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip data-test-id='datedisplay-ygqw' />;
 const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown');
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
@@ -89,7 +89,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         <TranslatedText
           stringId="general.localisedField.displayId.label.short"
           fallback="NHN"
-          data-testid='translatedtext-qfkx' />
+          data-test-id='translatedtext-qfkx' />
       ),
       accessor: getPatientDisplayId,
       sortable: false,

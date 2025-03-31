@@ -157,7 +157,7 @@ export const SearchMultiSelectInput = ({
             <TranslatedText
               stringId="general.action.clear"
               fallback="Clear"
-              data-testid='translatedtext-ig1g' />
+              data-test-id='translatedtext-ig1g' />
           </StyledTextButton>
         </SearchContainer>
 
@@ -181,11 +181,11 @@ export const SearchMultiSelectInput = ({
                 </StyledMenuItem>
               ))
           ) : (
-            <MenuItem disabled data-testid='menuitem-x7hs'>
+            <MenuItem disabled data-test-id='menuitem-x7hs'>
               <TranslatedText
                 stringId="general.search.noDataMessage"
                 fallback="No options found"
-                data-testid='translatedtext-1qc0' />
+                data-test-id='translatedtext-1qc0' />
             </MenuItem>
           )}
         </OptionsContainer>

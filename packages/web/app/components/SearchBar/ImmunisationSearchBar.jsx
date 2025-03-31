@@ -48,9 +48,9 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.displayId.label.short"
             fallback="NHN"
-            data-testid='translatedtext-vn63' />
+            data-test-id='translatedtext-vn63' />
         }
-        data-testid='localisedfield-lxud' />
+        data-test-id='localisedfield-lxud' />
       <LocalisedField
         component={SearchField}
         name="firstName"
@@ -58,9 +58,9 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-testid='translatedtext-ebri' />
+            data-test-id='translatedtext-ebri' />
         }
-        data-testid='localisedfield-d7wg' />
+        data-test-id='localisedfield-d7wg' />
       <LocalisedField
         component={SearchField}
         name="lastName"
@@ -68,22 +68,22 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-testid='translatedtext-4uld' />
+            data-test-id='translatedtext-4uld' />
         }
-        data-testid='localisedfield-of5k' />
+        data-test-id='localisedfield-of5k' />
       <LocalisedField
         name="sex"
         label={<TranslatedText
           stringId="general.localisedField.sex.label"
           fallback="Sex"
-          data-testid='translatedtext-iw9h' />}
+          data-test-id='translatedtext-iw9h' />}
         component={TranslatedSelectField}
         transformOptions={options =>
           hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
         }
         enumValues={SEX_LABELS}
         size="small"
-        data-testid='localisedfield-tcox' />
+        data-test-id='localisedfield-tcox' />
       <Spacer />
       <LocalisedField
         name="villageId"
@@ -91,11 +91,11 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.villageId.label"
             fallback="Village"
-            data-testid='translatedtext-e1jt' />
+            data-test-id='translatedtext-e1jt' />
         }
         component={AutocompleteField}
         suggester={villageSuggester}
-        data-testid='localisedfield-uxv6' />
+        data-test-id='localisedfield-uxv6' />
       <LocalisedField
         component={SelectField}
         prefix="vaccine.property.status"
@@ -104,11 +104,11 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           <TranslatedText
             stringId="general.localisedField.vaccineStatus.label"
             fallback="Status"
-            data-testid='translatedtext-e1ym' />
+            data-test-id='translatedtext-e1ym' />
         }
         options={statusOptions}
         size="small"
-        data-testid='localisedfield-nh29' />
+        data-test-id='localisedfield-nh29' />
       <Spacer />
       <Spacer />
     </CustomisableSearchBar>

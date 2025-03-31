@@ -82,10 +82,10 @@ export const SelectableTestItem = ({ name, label, category, checked, indetermina
             checked={checked}
             onChange={onChange}
             name={name}
-            data-testid='styledcheckboxcontrol-jg26' />
+            data-test-id='styledcheckboxcontrol-jg26' />
         }
         label={<TestItemLabel label={label} category={category} />}
-        data-testid='styledformcontrollabel-lgwe' />
+        data-test-id='styledformcontrollabel-lgwe' />
     </FormControl>
   );
 };
@@ -100,7 +100,7 @@ export const TestItem = ({ label, name, category, onRemove }) => {
       <RemoveIconButton
         onClick={handleRemove}
         color="primary"
-        data-testid='removeiconbutton-u386'>
+        data-test-id='removeiconbutton-u386'>
         <CloseIcon fontSize="inherit" />
       </RemoveIconButton>
     </TestItemWrapper>

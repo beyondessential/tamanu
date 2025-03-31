@@ -9,7 +9,7 @@ const getProcedureLabel = ({ procedureType }) => (
     fallback={procedureType.name}
     value={procedureType.id}
     category={procedureType.type}
-    data-testid='translatedreferencedata-5uqn' />
+    data-test-id='translatedreferencedata-5uqn' />
 );
 const getCodeLabel = ({ procedureType }) => procedureType.code;
 
@@ -19,15 +19,15 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="general.date.label"
       fallback="Date"
-      data-testid='translatedtext-xerp' />,
-    accessor: ({ date }) => <DateDisplay date={date} data-testid='datedisplay-bfwe' />,
+      data-test-id='translatedtext-xerp' />,
+    accessor: ({ date }) => <DateDisplay date={date} data-test-id='datedisplay-bfwe' />,
   },
   {
     key: 'ProcedureType.code',
     title: <TranslatedText
       stringId="procedure.table.column.code"
       fallback="Code"
-      data-testid='translatedtext-9f7k' />,
+      data-test-id='translatedtext-9f7k' />,
     accessor: getCodeLabel,
   },
   {
@@ -35,7 +35,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="procedure.table.column.name"
       fallback="Procedure"
-      data-testid='translatedtext-yuyq' />,
+      data-test-id='translatedtext-yuyq' />,
     accessor: getProcedureLabel,
   },
 ];
@@ -47,5 +47,5 @@ export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
     onRowClick={row => onItemClick(row)}
     elevated={false}
     initialSort={{ orderBy: 'date', order: 'desc' }}
-    data-testid='datafetchingtable-42je' />
+    data-test-id='datafetchingtable-42je' />
 ));

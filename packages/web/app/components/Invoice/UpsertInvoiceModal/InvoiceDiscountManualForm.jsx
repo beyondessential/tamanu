@@ -32,13 +32,13 @@ export const InvoiceDiscountManualForm = React.memo(
           <TranslatedText
             stringId="invoice.modal.manualDiscount.subtitle"
             fallback="Manual patient discount"
-            data-testid='translatedtext-gv28' />
+            data-test-id='translatedtext-gv28' />
         </Heading3>
         <BodyText mb="20px" color="textTertiary">
           <TranslatedText
             stringId="invoice.modal.manualDiscount.description"
             fallback="Please set the patient discount below. This discount will be applied to all eligible items on the invoice."
-            data-testid='translatedtext-eejx' />
+            data-test-id='translatedtext-eejx' />
         </BodyText>
         <Form
           onSubmit={onSubmit}
@@ -51,25 +51,25 @@ export const InvoiceDiscountManualForm = React.memo(
                     <TranslatedText
                       stringId="invoice.modal.manualDiscount.discount.label"
                       fallback="Discount (%)"
-                      data-testid='translatedtext-29ft' />
+                      data-test-id='translatedtext-29ft' />
                   }
                   component={NumberField}
                   min={0}
                   max={100}
                   onInput={preventInvalid}
                   required
-                  data-testid='field-rdmn' />
+                  data-test-id='field-rdmn' />
                 <Field
                   name="reason"
                   label={
                     <TranslatedText
                       stringId="invoice.modal.addDiscount.reason.label"
                       fallback="Reason for manual discount"
-                      data-testid='translatedtext-x3rg' />
+                      data-test-id='translatedtext-x3rg' />
                   }
                   component={TextField}
                   style={{ gridColumn: 'span 3' }}
-                  data-testid='field-d4vt' />
+                  data-test-id='field-d4vt' />
               </FormGrid>
               <StyledDivider />
               <ConfirmCancelBackRow
@@ -79,7 +79,7 @@ export const InvoiceDiscountManualForm = React.memo(
                 confirmText={<TranslatedText
                   stringId="general.action.next"
                   fallback="Next"
-                  data-testid='translatedtext-e1om' />}
+                  data-test-id='translatedtext-e1om' />}
                 confirmDisabled={isSubmitting}
               />
             </>
@@ -94,7 +94,7 @@ export const InvoiceDiscountManualForm = React.memo(
                 <TranslatedText
                   stringId="invoice.modal.manualDiscount.discount.label"
                   fallback="Discount (%)"
-                  data-testid='translatedtext-uo17' />,
+                  data-test-id='translatedtext-uo17' />,
               ),
           })}
           formType={initialValues ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

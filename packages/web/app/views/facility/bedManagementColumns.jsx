@@ -41,7 +41,7 @@ export const columns = [
     title: <TranslatedText
       stringId="general.table.column.area"
       fallback="Area"
-      data-testid='translatedtext-r4yi' />,
+      data-test-id='translatedtext-r4yi' />,
     minWidth: 100,
     accessor: ({ area }) => area || '-',
   },
@@ -50,7 +50,7 @@ export const columns = [
     title: <TranslatedText
       stringId="general.localisedField.locationId.label"
       fallback="Location"
-      data-testid='translatedtext-pje4' />,
+      data-test-id='translatedtext-pje4' />,
     minWidth: 100,
   },
   {
@@ -58,7 +58,7 @@ export const columns = [
     title: <TranslatedText
       stringId="bedManagement.table.column.alos"
       fallback="ALOS"
-      data-testid='translatedtext-j85r' />,
+      data-test-id='translatedtext-j85r' />,
     minWidth: 30,
     accessor: ({ alos }) => `${Math.round((alos || 0) * 10) / 10} days`,
     sortable: false,
@@ -66,7 +66,7 @@ export const columns = [
       <TranslatedText
         stringId="bedManagement.table.column.alos.tooltip"
         fallback="Average length of stay, last 30 days"
-        data-testid='translatedtext-cx88' />
+        data-test-id='translatedtext-cx88' />
     ),
   },
   {
@@ -74,7 +74,7 @@ export const columns = [
     title: <TranslatedText
       stringId="bedManagement.table.column.occupancy"
       fallback="Occupancy"
-      data-testid='translatedtext-xk7y' />,
+      data-test-id='translatedtext-xk7y' />,
     minWidth: 30,
     accessor: occupancyAccessor,
     sortable: false,
@@ -82,7 +82,7 @@ export const columns = [
       <TranslatedText
         stringId="bedManagement.table.column.occupancy.tooltip"
         fallback="Bed occupancy, last 30 days"
-        data-testid='translatedtext-8w6t' />
+        data-test-id='translatedtext-8w6t' />
     ),
   },
   {
@@ -91,7 +91,7 @@ export const columns = [
       <TranslatedText
         stringId="bedManagement.table.column.numberOfOccupants"
         fallback="No. occupants"
-        data-testid='translatedtext-nppb' />
+        data-test-id='translatedtext-nppb' />
     ),
     minWidth: 30,
     sortable: false,
@@ -99,7 +99,7 @@ export const columns = [
       <TranslatedText
         stringId="bedManagement.table.column.numberOfOccupants.tooltip"
         fallback="Current number of occupants"
-        data-testid='translatedtext-6sqa' />
+        data-test-id='translatedtext-6sqa' />
     ),
   },
   {
@@ -108,7 +108,7 @@ export const columns = [
       <TranslatedText
         stringId="general.table.column.patientFirstName"
         fallback="First Name"
-        data-testid='translatedtext-y31c' />
+        data-test-id='translatedtext-y31c' />
     ),
     minWidth: 100,
     accessor: patientFirstNameAccessor,
@@ -118,7 +118,7 @@ export const columns = [
     title: <TranslatedText
       stringId="general.table.column.patientLastName"
       fallback="Last name"
-      data-testid='translatedtext-iyq2' />,
+      data-test-id='translatedtext-iyq2' />,
     minWidth: 100,
     accessor: patientLastNameAccessor,
   },
@@ -127,7 +127,7 @@ export const columns = [
     title: <TranslatedText
       stringId="general.table.column.status"
       fallback="Status"
-      data-testid='translatedtext-wh00' />,
+      data-test-id='translatedtext-wh00' />,
     minWidth: 100,
     CellComponent: StatusCell,
   },

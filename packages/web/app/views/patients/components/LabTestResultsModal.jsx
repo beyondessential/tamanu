@@ -72,14 +72,14 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       title: <TranslatedText
         stringId="lab.testType.label"
         fallback="Test type"
-        data-testid='translatedtext-7lyy' />,
+        data-test-id='translatedtext-7lyy' />,
       width: '120px',
       accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
           category="labTestType"
-          data-testid='translatedreferencedata-88m3' />
+          data-test-id='translatedreferencedata-88m3' />
       ),
     },
     {
@@ -87,7 +87,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       title: <TranslatedText
         stringId="lab.results.table.column.result"
         fallback="Result"
-        data-testid='translatedtext-z1dg' />,
+        data-test-id='translatedtext-z1dg' />,
       accessor: (row, i) => {
         const { resultType, options } = row.labTestType;
         return (
@@ -108,7 +108,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       title: <TranslatedText
         stringId="lab.results.table.column.unit"
         fallback="Units"
-        data-testid='translatedtext-mbuj' />,
+        data-test-id='translatedtext-mbuj' />,
       width: '80px',
       accessor: row => <BodyText color="textTertiary">{row.labTestType.unit || 'N/A'}</BodyText>,
     },
@@ -117,7 +117,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       title: <TranslatedText
         stringId="lab.results.table.column.method"
         fallback="Method"
-        data-testid='translatedtext-7zut' />,
+        data-test-id='translatedtext-7zut' />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -134,7 +134,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         <TranslatedText
           stringId="lab.results.table.column.verification"
           fallback="Verification"
-          data-testid='translatedtext-uxm0' />
+          data-test-id='translatedtext-uxm0' />
       ),
       accessor: (row, i) => (
         <AccessorField
@@ -151,7 +151,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         <TranslatedText
           stringId="lab.results.table.column.completedDate"
           fallback="Completed"
-          data-testid='translatedtext-wc43' />
+          data-test-id='translatedtext-wc43' />
       ),
       width: '260px',
       accessor: (row, i) => (
@@ -241,13 +241,13 @@ const ResultsForm = ({
             <TranslatedText
               stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
-              data-testid='translatedtext-1qlq' />
+              data-test-id='translatedtext-1qlq' />
           </Heading4>
           <SmallBodyText color="textTertiary">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results and other test result details."
-              data-testid='translatedtext-ieiq' />
+              data-test-id='translatedtext-ieiq' />
           </SmallBodyText>
         </div>
       </Box>
@@ -282,7 +282,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
             fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
             replacements={{ length: labTestRes.length, displayId }}
-            data-testid='translatedtext-x6vx' />,
+            data-test-id='translatedtext-x6vx' />,
         );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
@@ -296,7 +296,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
             fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
             replacements={{ message: err.message, displayId }}
-            data-testid='translatedtext-f04b' />,
+            data-test-id='translatedtext-f04b' />,
         );
       },
     },
@@ -320,7 +320,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
           stringId="patient.lab.modal.enterResults.title"
           fallback="Enter results | Test ID :testId"
           replacements={{ testId: displayId }}
-          data-testid='translatedtext-w8sw' />
+          data-test-id='translatedtext-w8sw' />
       }
       open={open}
       onClose={onClose}

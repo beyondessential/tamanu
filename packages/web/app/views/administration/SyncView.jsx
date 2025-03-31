@@ -15,7 +15,7 @@ const LastSyncs = React.memo(props => (
         title: <TranslatedText
           stringId="general.facility.label.plural"
           fallback="Facilities"
-          data-testid='translatedtext-91r2' />,
+          data-test-id='translatedtext-91r2' />,
         minWidth: 100,
         accessor: ({ facilityIds }) => facilityIds.join(', '),
       },
@@ -25,9 +25,9 @@ const LastSyncs = React.memo(props => (
           <TranslatedText
             stringId="admin.syncStatus.table.column.lastCompleted"
             fallback="Last completed sync"
-            data-testid='translatedtext-tnhf' />
+            data-test-id='translatedtext-tnhf' />
         ),
-        accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime data-testid='datedisplay-yez8' />,
+        accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime data-test-id='datedisplay-yez8' />,
       },
       {
         key: 'duration',
@@ -35,7 +35,7 @@ const LastSyncs = React.memo(props => (
           <TranslatedText
             stringId="admin.syncStatus.table.column.duration."
             fallback="Duration"
-            data-testid='translatedtext-i9wd' />
+            data-test-id='translatedtext-i9wd' />
         ),
         accessor: ({ duration }) => ms(duration),
       },
@@ -43,9 +43,9 @@ const LastSyncs = React.memo(props => (
     noDataMessage={<TranslatedText
       stringId="general.table.noData"
       fallback="No data"
-      data-testid='translatedtext-zzl7' />}
+      data-test-id='translatedtext-zzl7' />}
     {...props}
-    data-testid='datafetchingtable-8g5k' />
+    data-test-id='datafetchingtable-8g5k' />
 ));
 
 export const SyncView = React.memo(() => {
@@ -55,14 +55,14 @@ export const SyncView = React.memo(() => {
         title={<TranslatedText
           stringId="admin.syncStatus.title"
           fallback="Sync status"
-          data-testid='translatedtext-io3n' />}
-        data-testid='topbar-6yi6' />
+          data-test-id='translatedtext-io3n' />}
+        data-test-id='topbar-6yi6' />
       <Box p={4}>
-        <p data-testid='p-nzaf'>
+        <p data-test-id='p-nzaf'>
           <TranslatedText
             stringId="admin.syncStatus.times.message"
             fallback="Times are in the server's timezone"
-            data-testid='translatedtext-8i9o' />
+            data-test-id='translatedtext-8i9o' />
         </p>
         <LastSyncs />
       </Box>

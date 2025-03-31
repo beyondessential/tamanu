@@ -27,7 +27,7 @@ export const IdBanner = ({ children }) => (
       <TranslatedText
         stringId="general.localisedField.displayId.label"
         fallback="National Health Number"
-        data-testid='translatedtext-rrkw' />
+        data-test-id='translatedtext-rrkw' />
       :
     </IdFieldTitle>
 

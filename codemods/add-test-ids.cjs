@@ -133,9 +133,9 @@ module.exports = function transformer(file, api) {
       return;
     }
 
-    // Skip if element already has a data-testid
+    // Skip if element already has a data-test-id
     const hasTestId = openingElement.attributes.some(
-      (attr) => attr.type === 'JSXAttribute' && attr.name.name === 'data-testid',
+      (attr) => attr.type === 'JSXAttribute' && attr.name.name === 'data-test-id',
     );
 
     if (hasTestId) return;
@@ -146,10 +146,10 @@ module.exports = function transformer(file, api) {
     if (isImportantComponent) {
       const testId = generateTestId(elementName);
 
-      console.log(`Adding data-testid="${testId}" to ${elementName}`);
+      console.log(`Adding data-test-id="${testId}" to ${elementName}`);
 
       openingElement.attributes.push(
-        j.jsxAttribute(j.jsxIdentifier('data-testid'), j.stringLiteral(testId)),
+        j.jsxAttribute(j.jsxIdentifier('data-test-id'), j.stringLiteral(testId)),
       );
     }
   });

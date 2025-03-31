@@ -91,14 +91,14 @@ export const NoteForm = ({
           .translatedLabel(<TranslatedText
           stringId="note.noteType.label"
           fallback="Note type"
-          data-testid='translatedtext-6b7b' />),
+          data-test-id='translatedtext-6b7b' />),
         date: yup
           .date()
           .required()
           .translatedLabel(<TranslatedText
           stringId="general.date.label"
           fallback="Date"
-          data-testid='translatedtext-4vjk' />),
+          data-test-id='translatedtext-4vjk' />),
         content: yup
           .string()
           .required()
@@ -106,7 +106,7 @@ export const NoteForm = ({
             <TranslatedText
               stringId="note.validation.content.path"
               fallback="Content"
-              data-testid='translatedtext-bkb7' />,
+              data-test-id='translatedtext-bkb7' />,
           ),
         writtenById: foreignKey().translatedLabel(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
@@ -114,12 +114,12 @@ export const NoteForm = ({
             <TranslatedText
               stringId="validation.rule.updatedByOnBehalfOf"
               fallback="Updated by (or on behalf of)"
-              data-testid='translatedtext-15n8' />
+              data-test-id='translatedtext-15n8' />
           ) : (
             <TranslatedText
               stringId="validation.rule.createdByOnBehalfOf"
               fallback="Created by (or on behalf of)"
-              data-testid='translatedtext-7cgt' />
+              data-test-id='translatedtext-7cgt' />
           ),
         ),
       })}

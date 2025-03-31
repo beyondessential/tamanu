@@ -125,7 +125,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               <ListItem key={`${note.id}`}>
                 {note.content}
                 <Caption>
-                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-testid='datedisplay-uyp8' />
+                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-test-id='datedisplay-uyp8' />
                 </Caption>
               </ListItem>
             ))}
@@ -149,7 +149,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   <TranslatedText
                     stringId="general.action.addNote"
                     fallback="Add note"
-                    data-testid='translatedtext-gvou' />
+                    data-test-id='translatedtext-gvou' />
                 </ShowAddNoteFormButton>
               );
             }}

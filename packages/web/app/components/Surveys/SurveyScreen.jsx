@@ -133,7 +133,7 @@ export const SurveyScreen = ({
       <TranslatedText
         stringId="general.form.blankPage"
         fallback="This page has been intentionally left blank"
-        data-testid='translatedtext-zjid' />
+        data-test-id='translatedtext-zjid' />
     </EmptyStateText>
   );
 
@@ -146,21 +146,21 @@ export const SurveyScreen = ({
             <OutlinedButton
               onClick={onStepBack || undefined}
               disabled={!onStepBack}
-              data-testid='outlinedbutton-hotn'>
+              data-test-id='outlinedbutton-hotn'>
               <TranslatedText
                 stringId="general.action.previous"
                 fallback="Prev"
-                data-testid='translatedtext-hdk8' />
+                data-test-id='translatedtext-hdk8' />
             </OutlinedButton>
             <Button
               color="primary"
               variant="contained"
               onClick={validateAndStep}
-              data-testid='button-uz4d'>
+              data-test-id='button-uz4d'>
               <TranslatedText
                 stringId="general.action.next"
                 fallback="Next"
-                data-testid='translatedtext-kwpo' />
+                data-test-id='translatedtext-kwpo' />
             </Button>
           </>
         )}

@@ -19,7 +19,7 @@ export const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
         <TranslatedText
           stringId="invoice.modal.confirmPaid.warningText"
           fallback="This payment will set this invoice as 'Paid' and no changes will be possible after this. Are you sure you wish to record this payment?"
-          data-testid='translatedtext-8uph' />
+          data-test-id='translatedtext-8uph' />
       </ContentText>
       <ModalActionRow onConfirm={onConfirm} onCancel={onClose} />
     </Modal>

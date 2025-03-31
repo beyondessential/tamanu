@@ -34,13 +34,13 @@ const ExportForm = ({
           <TranslatedText
             stringId="admin.export.includedDataTypes.label"
             fallback="Select data types to export"
-            data-testid='translatedtext-s27v' />
+            data-test-id='translatedtext-s27v' />
         }
         component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
-        data-testid='field-mmhz' />
+        data-test-id='field-mmhz' />
     )}
-    <ButtonRow alignment="left" data-testid='buttonrow-qdu2'>
+    <ButtonRow alignment="left" data-test-id='buttonrow-qdu2'>
       <ExportButton text={buttonLabel} />
     </ButtonRow>
   </StyledFormGrid>
@@ -71,7 +71,7 @@ export const ExporterView = memo(
           <TranslatedText
             stringId="general.action.export"
             fallback="Export"
-            data-testid='translatedtext-82uw' />{' '}
+            data-test-id='translatedtext-82uw' />{' '}
           {pluralize(title).toLowerCase()}
         </span>
       );

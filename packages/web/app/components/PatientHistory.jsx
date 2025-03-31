@@ -164,15 +164,15 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     <DateWrapper>
       <div>
         <StatusIndicator patientStatus={patientStatus} />
-        <DateDisplay date={startDate} data-testid='datedisplay-flb0' />
+        <DateDisplay date={startDate} data-test-id='datedisplay-flb0' />
         &nbsp;&ndash;{' '}
         {endDate ? (
-          <DateDisplay date={endDate} data-testid='datedisplay-2o8e' />
+          <DateDisplay date={endDate} data-test-id='datedisplay-2o8e' />
         ) : (
           <TranslatedText
             stringId="general.date.current"
             fallback="Current"
-            data-testid='translatedtext-m3sc' />
+            data-test-id='translatedtext-m3sc' />
         )}
       </div>
     </DateWrapper>
@@ -189,7 +189,7 @@ const getFacility = ({ facilityName, facilityId }) => (
         category="facility"
         fallback={facilityName}
         value={facilityId}
-        data-testid='translatedreferencedata-ti2y' />
+        data-test-id='translatedreferencedata-ti2y' />
     ) : (
       { facilityName }
     )}
@@ -218,7 +218,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
       <TranslatedText
         stringId="patient.history.syncWarning"
         fallback="Patient is being synced, so records might not be fully updated."
-        data-testid='translatedtext-85v7' />
+        data-test-id='translatedtext-85v7' />
     </SyncWarning>
   );
 };
@@ -236,7 +236,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       label: <TranslatedText
         stringId="general.action.delete"
         fallback="Delete"
-        data-testid='translatedtext-c35l' />,
+        data-test-id='translatedtext-c35l' />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
@@ -252,7 +252,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: <TranslatedText
         stringId="general.date.label"
         fallback="Date"
-        data-testid='translatedtext-cfqb' />,
+        data-test-id='translatedtext-cfqb' />,
       accessor: getDate,
     },
     {
@@ -260,7 +260,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: <TranslatedText
         stringId="encounter.type.label"
         fallback="Type"
-        data-testid='translatedtext-1qf5' />,
+        data-test-id='translatedtext-1qf5' />,
       accessor: getType,
     },
     {
@@ -268,7 +268,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: <TranslatedText
         stringId="general.table.column.facilityName"
         fallback="Facility"
-        data-testid='translatedtext-6s0h' />,
+        data-test-id='translatedtext-6s0h' />,
       accessor: getFacility,
       CellComponent: LimitedLinesCell,
     },
@@ -277,7 +277,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: <TranslatedText
         stringId="general.table.column.area"
         fallback="Area"
-        data-testid='translatedtext-pwk9' />,
+        data-test-id='translatedtext-pwk9' />,
       accessor: props => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
         (<TranslationContext.Provider value={translationContext}>
@@ -292,7 +292,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         <TranslatedText
           stringId="encounter.reasonForEncounter.label"
           fallback="Reason for encounter"
-          data-testid='translatedtext-fzpb' />
+          data-test-id='translatedtext-fzpb' />
       ),
       accessor: getReasonForEncounter,
       sortable: false,
@@ -313,7 +313,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           className="menu-container"
           onMouseEnter={() => setSelectedEncounterData(data)}
         >
-          <StyledMenuButton actions={actions} data-testid='styledmenubutton-lo18' />
+          <StyledMenuButton actions={actions} data-test-id='styledmenubutton-lo18' />
         </MenuContainer>
       ),
     });
@@ -333,7 +333,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
             <TranslatedText
               stringId="patient.history.table.noDataMessage"
               fallback="No encounter records to display"
-              data-testid='translatedtext-62sa' />
+              data-test-id='translatedtext-62sa' />
           </Box>
         }
         endpoint={`patient/${patient.id}/encounters`}
@@ -344,7 +344,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
             <TranslatedText
               stringId="patient.history.table.encounterHistory"
               fallback="Encounter history"
-              data-testid='translatedtext-wtyu' />
+              data-test-id='translatedtext-wtyu' />
           </Heading4>
         }
         ExportButton={props => (
@@ -352,7 +352,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
             title={<TranslatedText
               stringId="general.action.export"
               fallback="Export"
-              data-testid='translatedtext-gdpd' />}
+              data-test-id='translatedtext-gdpd' />}
           >
             <StyledIconButton size="small" variant="outlined" {...props}>
               <GetAppIcon />

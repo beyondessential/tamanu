@@ -95,7 +95,7 @@ describe('DownloadDataButton', () => {
     const translationFallback = chance.string();
     const testId = chance.string();
     const ExportButton = props => (
-      <button data-testid={testId} {...props}>
+      <button data-test-id={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>
     );
