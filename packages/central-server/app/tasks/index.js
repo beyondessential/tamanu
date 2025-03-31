@@ -1,6 +1,7 @@
 import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
+import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -48,6 +49,7 @@ export async function startScheduledTasks(context) {
     SyncLookupRefresher,
     GenerateRepeatingTasks,
     GenerateRepeatingAppointments,
+    SendStatusToMetaServer,
   ];
 
   if (config.integrations.fijiVrs.enabled) {
