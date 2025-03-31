@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/facility-server",
-  "version": "2.28.0",
+  "version": "2.28.1",
   "private": true,
   "description": "Facility server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
