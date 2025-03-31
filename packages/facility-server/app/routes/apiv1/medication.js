@@ -21,7 +21,7 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { encounterId, ...data } = req.body;
-    const { Prescription, EncounterPrescription } = models;
+    const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
     req.checkPermission('create', 'Prescription');
 
     const existingPrescription = await Prescription.findByPk(req.body.id, {
@@ -41,7 +41,8 @@ medication.post(
 
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-
+    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+  
     res.send(prescription.forResponse());
   }),
 );

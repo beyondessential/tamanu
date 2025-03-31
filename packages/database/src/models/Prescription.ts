@@ -80,11 +80,6 @@ export class Prescription extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
-          afterCreate: async (prescription: Prescription) => {
-            await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-              prescription,
-            );
-          },
           afterUpdate: async (prescription: Prescription, options) => {
             if (prescription.changed('pharmacyNotes')) {
               await models.Notification.pushNotification(
