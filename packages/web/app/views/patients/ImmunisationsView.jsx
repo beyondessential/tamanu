@@ -35,7 +35,7 @@ const getSchedule = record =>
     <TranslatedText
       stringId="general.fallback.notApplicable"
       fallback="N/A"
-      data-test-id='translatedtext-60pd' />
+      data-testid='translatedtext-60pd' />
   );
 
 const COLUMNS = [
@@ -45,7 +45,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="general.patientName.label"
       fallback="Patient name"
-      data-test-id='translatedtext-uj04' />,
+      data-testid='translatedtext-uj04' />,
     accessor: row => `${row.firstName} ${row.lastName}`,
   },
   dateOfBirth,
@@ -56,7 +56,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="vaccine.table.column.vaccine"
       fallback="Vaccine"
-      data-test-id='translatedtext-j8wn' />,
+      data-testid='translatedtext-j8wn' />,
     accessor: getVaccineName,
   },
   {
@@ -64,7 +64,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="vaccine.table.column.schedule"
       fallback="Schedule"
-      data-test-id='translatedtext-hy8u' />,
+      data-testid='translatedtext-hy8u' />,
     accessor: getSchedule,
   },
   {
@@ -72,7 +72,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="vaccine.table.column.dueDate"
       fallback="Due date"
-      data-test-id='translatedtext-ljvt' />,
+      data-testid='translatedtext-ljvt' />,
     accessor: getDueDate,
   },
   {
@@ -80,7 +80,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="vaccine.table.column.status"
       fallback="Status"
-      data-test-id='translatedtext-igh1' />,
+      data-testid='translatedtext-igh1' />,
     accessor: getStatusTag,
     sortable: false,
   },
@@ -117,15 +117,15 @@ export const ImmunisationsView = () => {
           <TranslatedText
             stringId="immunisation.register.title"
             fallback="Immunisation register"
-            data-test-id='translatedtext-6xt0' />
+            data-testid='translatedtext-6xt0' />
         }
-        data-test-id='topbar-nnvx' />
+        data-testid='topbar-nnvx' />
       <ContentPane>
         <StyledSearchTableTitle component="div">
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
-            data-test-id='translatedtext-jn5w' />
+            data-testid='translatedtext-jn5w' />
 
           {updateStats && <UpdateStatsDisplay stats={updateStats} error={error} />}
         </StyledSearchTableTitle>

@@ -11,7 +11,7 @@ const Red = styled.p`
 const ConfirmInstructions = () => (
   <div>
     <Red>Confirm merging of patients - this action is irreversible.</Red>
-    <p data-test-id='p-yyk8'>
+    <p data-testid='p-yyk8'>
       {`Merging patients can't be undone. Please allow 24 hours for this change to be synced
       throughout the entire system.`}
     </p>
@@ -30,21 +30,21 @@ export const ConfirmationModal = ({ mergePlan, onCancel, onBack, onConfirm }) =>
   };
 
   const actions = (
-    <ButtonRow data-test-id='buttonrow-o48d'>
-      <OutlinedButton disabled={inProgress} onClick={onBack} data-test-id='outlinedbutton-tjyo'>
+    <ButtonRow data-testid='buttonrow-o48d'>
+      <OutlinedButton disabled={inProgress} onClick={onBack} data-testid='outlinedbutton-tjyo'>
         Back
       </OutlinedButton>
       <Spacer />
       <OutlinedButton
         disabled={inProgress}
         onClick={onCancel}
-        data-test-id='outlinedbutton-6naz'>
+        data-testid='outlinedbutton-6naz'>
         Cancel
       </OutlinedButton>
       <Button
         disabled={inProgress}
         onClick={onConfirmClicked}
-        data-test-id='button-avxk'>
+        data-testid='button-avxk'>
         Confirm
       </Button>
     </ButtonRow>

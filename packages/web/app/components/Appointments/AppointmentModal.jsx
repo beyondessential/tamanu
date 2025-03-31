@@ -14,12 +14,12 @@ export const AppointmentModal = ({ open, onClose, onSuccess, appointment }) => {
           <TranslatedText
             stringId="scheduling.modal.appointment.title.updateAppointment"
             fallback="Update appointment"
-            data-test-id='translatedtext-6w1o' />
+            data-testid='translatedtext-6w1o' />
         ) : (
           <TranslatedText
             stringId="scheduling.modal.appointment.title.createNewAppointment"
             fallback="Create new appointment"
-            data-test-id='translatedtext-3swd' />
+            data-testid='translatedtext-3swd' />
         )
       }
       open={open}

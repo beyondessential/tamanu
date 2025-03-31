@@ -31,7 +31,7 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
               onConfirm={submitForm}
               confirmText="Save"
               onCancel={onCancel}
-              data-test-id='formsubmitcancelrow-kjn9' />
+              data-testid='formsubmitcancelrow-kjn9' />
           </FormGrid>
         );
       }}

@@ -39,7 +39,7 @@ export const NoteChangeLogs = ({ note = {} }) => {
       label={<TranslatedText
         stringId="note.changeLog.label"
         fallback="Change log"
-        data-test-id='translatedtext-g1ra' />}
+        data-testid='translatedtext-g1ra' />}
     >
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}

@@ -76,12 +76,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
                   <TranslatedText
                     stringId="general.requestedBy.label"
                     fallback="Requested by"
-                    data-test-id='translatedtext-m9j9' />
+                    data-testid='translatedtext-m9j9' />
                 }
                 saveDateAsString
                 component={AutocompleteField}
                 suggester={requesterSuggester}
-                data-test-id='localisedfield-hc12' />
+                data-testid='localisedfield-hc12' />
             </>
           )}
           <LocalisedField
@@ -90,22 +90,22 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               <TranslatedText
                 stringId="general.localisedField.locationGroupId.label"
                 fallback="Area"
-                data-test-id='translatedtext-2amd' />
+                data-testid='translatedtext-2amd' />
             }
             component={AutocompleteField}
             suggester={areaSuggester}
             size="small"
-            data-test-id='localisedfield-epow' />
+            data-testid='localisedfield-epow' />
           <Field
             name="departmentId"
             label={<TranslatedText
               stringId="general.department.label"
               fallback="Department"
-              data-test-id='translatedtext-ziwj' />}
+              data-testid='translatedtext-ziwj' />}
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"
-            data-test-id='field-czc7' />
+            data-testid='field-czc7' />
           {isCompletedTable && (
             <>
               <LocalisedField
@@ -114,11 +114,11 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
                   <TranslatedText
                     stringId="general.localisedField.completedAt.label"
                     fallback="Completed"
-                    data-test-id='translatedtext-av4b' />
+                    data-testid='translatedtext-av4b' />
                 }
                 saveDateAsString
                 component={DateField}
-                data-test-id='localisedfield-upmr' />
+                data-testid='localisedfield-upmr' />
             </>
           )}
           <FacilityCheckbox>
@@ -126,7 +126,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               name="allFacilities"
               label="Include all facilities"
               component={CheckField}
-              data-test-id='field-48bc' />
+              data-testid='field-48bc' />
           </FacilityCheckbox>
         </>
       }
@@ -137,40 +137,40 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           <TranslatedText
             stringId="general.localisedField.displayId.label.short"
             fallback="NHN"
-            data-test-id='translatedtext-mfs6' />
+            data-testid='translatedtext-mfs6' />
         }
         component={SearchField}
-        data-test-id='localisedfield-ufng' />
+        data-testid='localisedfield-ufng' />
       <LocalisedField
         name="firstName"
         label={
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-test-id='translatedtext-8vca' />
+            data-testid='translatedtext-8vca' />
         }
         component={SearchField}
-        data-test-id='localisedfield-f6ic' />
+        data-testid='localisedfield-f6ic' />
       <LocalisedField
         name="lastName"
         label={
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-test-id='translatedtext-hljb' />
+            data-testid='translatedtext-hljb' />
         }
         component={SearchField}
-        data-test-id='localisedfield-p48g' />
+        data-testid='localisedfield-p48g' />
       <LocalisedField
         name="requestId"
         label={
           <TranslatedText
             stringId="general.localisedField.requestId.label"
             fallback="Request ID"
-            data-test-id='translatedtext-vi6j' />
+            data-testid='translatedtext-vi6j' />
         }
         component={SearchField}
-        data-test-id='localisedfield-l8rh' />
+        data-testid='localisedfield-l8rh' />
       {!isCompletedTable && (
         <LocalisedField
           name="status"
@@ -178,7 +178,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             <TranslatedText
               stringId="general.localisedField.status.label"
               fallback="Status"
-              data-test-id='translatedtext-rwa6' />
+              data-testid='translatedtext-rwa6' />
           }
           component={TranslatedSelectField}
           enumValues={IMAGING_REQUEST_STATUS_LABELS}
@@ -194,7 +194,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             )
           }
           size="small"
-          data-test-id='localisedfield-hu89' />
+          data-testid='localisedfield-hu89' />
       )}
       {isCompletedTable && <Spacer />}
       <LocalisedField
@@ -203,34 +203,34 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           <TranslatedText
             stringId="general.localisedField.imagingType.label"
             fallback="Type"
-            data-test-id='translatedtext-8epy' />
+            data-testid='translatedtext-8epy' />
         }
         component={SelectField}
         options={imagingTypeOptions}
         size="small"
-        data-test-id='localisedfield-hcre' />
+        data-testid='localisedfield-hcre' />
       <LocalisedField
         name="requestedDateFrom"
         label={
           <TranslatedText
             stringId="general.localisedField.requestedDateFrom.label"
             fallback="Requested from"
-            data-test-id='translatedtext-4f5y' />
+            data-testid='translatedtext-4f5y' />
         }
         saveDateAsString
         component={DateField}
-        data-test-id='localisedfield-w6u6' />
+        data-testid='localisedfield-w6u6' />
       <LocalisedField
         name="requestedDateTo"
         label={
           <TranslatedText
             stringId="general.localisedField.requestedDateTo.label"
             fallback="Requested to"
-            data-test-id='translatedtext-lvg4' />
+            data-testid='translatedtext-lvg4' />
         }
         saveDateAsString
         component={DateField}
-        data-test-id='localisedfield-nww3' />
+        data-testid='localisedfield-nww3' />
       {!isCompletedTable && (
         <LocalisedField
           name="priority"
@@ -238,13 +238,13 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             <TranslatedText
               stringId="general.localisedField.priority.label"
               fallback="Priority"
-              data-test-id='translatedtext-2ay5' />
+              data-testid='translatedtext-2ay5' />
           }
           component={SelectField}
           options={imagingPriorities}
           size="small"
           prefix="imaging.property.priority"
-          data-test-id='localisedfield-38i7' />
+          data-testid='localisedfield-38i7' />
       )}
       {isCompletedTable && (
         <LocalisedField
@@ -252,11 +252,11 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={<TranslatedText
             stringId="general.requestedBy.label"
             fallback="Requested by"
-            data-test-id='translatedtext-7opq' />}
+            data-testid='translatedtext-7opq' />}
           component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
-          data-test-id='localisedfield-6aqf' />
+          data-testid='localisedfield-6aqf' />
       )}
     </CustomisableSearchBarWithPermissionCheck>
   );

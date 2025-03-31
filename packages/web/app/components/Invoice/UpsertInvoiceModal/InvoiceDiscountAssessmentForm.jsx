@@ -60,13 +60,13 @@ export const InvoiceDiscountAssessmentForm = ({
         <TranslatedText
           stringId="invoice.modal.assessment.subtitle"
           fallback="Patient invoice discount assessment"
-          data-test-id='translatedtext-evqt' />
+          data-testid='translatedtext-evqt' />
       </Heading3>
       <BodyText mb="36px" color="textTertiary">
         <TranslatedText
           stringId="invoice.modal.assessment.description"
           fallback="To begin creating a new invoice, complete the patient discount assessment below."
-          data-test-id='translatedtext-rsl7' />
+          data-testid='translatedtext-rsl7' />
       </BodyText>
       <Form
         onSubmit={() => handleSubmit({ percentage: (1 - percentage).toFixed(2) })}
@@ -79,25 +79,25 @@ export const InvoiceDiscountAssessmentForm = ({
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.family.label"
                     fallback="What is the family size?"
-                    data-test-id='translatedtext-3rvw' />
+                    data-testid='translatedtext-3rvw' />
                 }
                 component={SelectField}
                 options={familySizesOptions}
                 onChange={(e) => setFamilySize(e.target.value)}
-                data-test-id='field-7zl5' />
+                data-testid='field-7zl5' />
               <Field
                 name="annualIncome"
                 label={
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.income.label"
                     fallback="What is their annual income?"
-                    data-test-id='translatedtext-uwa2' />
+                    data-testid='translatedtext-uwa2' />
                 }
                 component={SelectField}
                 options={annualIncomeOptions}
                 disabled={!familySize && familySize !== 0}
                 onChange={handleAnnualIncomeChange}
-                data-test-id='field-dv6y' />
+                data-testid='field-dv6y' />
             </FormGrid>
             <StyledDivider />
             <ConfirmCancelBackRow
@@ -107,7 +107,7 @@ export const InvoiceDiscountAssessmentForm = ({
               confirmText={<TranslatedText
                 stringId="general.action.next"
                 fallback="Next"
-                data-test-id='translatedtext-v6ga' />}
+                data-testid='translatedtext-v6ga' />}
               confirmDisabled={isSubmitting}
             />
           </>
@@ -120,7 +120,7 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.familySize.path"
                 fallback="Family size"
-                data-test-id='translatedtext-l264' />,
+                data-testid='translatedtext-l264' />,
             ),
           annualIncome: yup
             .string()
@@ -129,7 +129,7 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.annualIncome.path"
                 fallback="Annual income"
-                data-test-id='translatedtext-bij0' />,
+                data-testid='translatedtext-bij0' />,
             ),
         })}
       />

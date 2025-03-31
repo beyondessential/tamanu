@@ -34,14 +34,14 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
             <TranslatedText
               stringId="general.localisedField.locationId.label"
               fallback="Location"
-              data-test-id='translatedtext-wm3s' />
+              data-testid='translatedtext-wm3s' />
           }
           value={
             <TranslatedReferenceData
               fallback={location?.name}
               value={location?.id}
               category="location"
-              data-test-id='translatedreferencedata-hk67' />
+              data-testid='translatedreferencedata-hk67' />
           }
         />
       )}
@@ -50,13 +50,13 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
           label={<TranslatedText
             stringId="scheduling.bookingType.label"
             fallback="Booking type"
-            data-test-id='translatedtext-pvwe' />}
+            data-testid='translatedtext-pvwe' />}
           value={
             <TranslatedReferenceData
               value={bookingType.id}
               fallback={bookingType.name}
               category="bookingType"
-              data-test-id='translatedreferencedata-4dr8' />
+              data-testid='translatedreferencedata-4dr8' />
           }
         />
       )}
@@ -66,7 +66,7 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
           <TranslatedText
             stringId="scheduling.bookingType.overnight"
             fallback="Overnight"
-            data-test-id='translatedtext-j5rd' />
+            data-testid='translatedtext-j5rd' />
         </Tag>
       )}
     </>
@@ -82,14 +82,14 @@ const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
             <TranslatedText
               stringId="appointment.appointmentType.label.short"
               fallback="Appt type"
-              data-test-id='translatedtext-bopp' />
+              data-testid='translatedtext-bopp' />
           }
           value={
             <TranslatedReferenceData
               value={appointmentType.id}
               fallback={appointmentType.name}
               category="appointmentType"
-              data-test-id='translatedreferencedata-cg99' />
+              data-testid='translatedreferencedata-cg99' />
           }
         />
       )}
@@ -103,7 +103,7 @@ const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
           <TranslatedText
             stringId="general.highPriority.label"
             fallback="High priority"
-            data-test-id='translatedtext-xc52' />
+            data-testid='translatedtext-xc52' />
         </Tag>
       )}
     </>
@@ -127,7 +127,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         label={<TranslatedText
           stringId="general.time.label"
           fallback="Time"
-          data-test-id='translatedtext-ezac' />}
+          data-testid='translatedtext-ezac' />}
         value={formatDateTimeRange(startTime, endTime)}
       />
       <DetailsDisplay
@@ -135,7 +135,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
             fallback="Clinician"
-            data-test-id='translatedtext-l6mv' />
+            data-testid='translatedtext-l6mv' />
         }
         value={clinician?.displayName}
       />
@@ -144,14 +144,14 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           <TranslatedText
             stringId="general.localisedField.locationGroupId.label"
             fallback="Area"
-            data-test-id='translatedtext-u1ui' />
+            data-testid='translatedtext-u1ui' />
         }
         value={
           <TranslatedReferenceData
             fallback={location?.locationGroup?.name || locationGroup?.name}
             value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
-            data-test-id='translatedreferencedata-88ax' />
+            data-testid='translatedreferencedata-88ax' />
         }
       />
       {/* Location booking specific data */}

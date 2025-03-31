@@ -23,18 +23,18 @@ const Gap = styled.div`
 
 const UneditedActions = ({ onClose, onDelete }) => (
   <ModalGenericButtonRow>
-    <DeleteButton onClick={onDelete} data-test-id='deletebutton-yfzv'>Delete template</DeleteButton>
+    <DeleteButton onClick={onDelete} data-testid='deletebutton-yfzv'>Delete template</DeleteButton>
     <Gap />
-    <Button onClick={onClose} data-test-id='button-4ibs'>Close</Button>
+    <Button onClick={onClose} data-testid='button-4ibs'>Close</Button>
   </ModalGenericButtonRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
   <ModalGenericButtonRow>
-    <DeleteButton onClick={onDelete} data-test-id='deletebutton-upk3'>Delete template</DeleteButton>
+    <DeleteButton onClick={onDelete} data-testid='deletebutton-upk3'>Delete template</DeleteButton>
     <Gap />
-    <OutlinedButton onClick={onClose} data-test-id='outlinedbutton-fk3u'>Cancel</OutlinedButton>
-    <Button onClick={onSave} data-test-id='button-gzip'>Save</Button>
+    <OutlinedButton onClick={onClose} data-testid='outlinedbutton-fk3u'>Cancel</OutlinedButton>
+    <Button onClick={onSave} data-testid='button-gzip'>Save</Button>
   </ModalGenericButtonRow>
 );
 
@@ -49,22 +49,22 @@ export const EditTemplateForm = memo(
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
-                data-test-id='translatedtext-8haw' />
+                data-testid='translatedtext-8haw' />
             }
             component={TextField}
             required
-            data-test-id='field-6o9x' />
+            data-testid='field-6o9x' />
           <Field
             name="title"
             label={
               <TranslatedText
                 stringId="general.localisedField.title.label"
                 fallback="Title"
-                data-test-id='translatedtext-8fta' />
+                data-testid='translatedtext-8fta' />
             }
             component={TextField}
             disabled={!allowInputTitleType.includes(values.type)}
-            data-test-id='field-kam1' />
+            data-testid='field-kam1' />
         </FormGrid>
         <SmallGridSpacer />
         <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
@@ -73,9 +73,9 @@ export const EditTemplateForm = memo(
             label={<TranslatedText
               stringId="admin.template.content.label"
               fallback="Contents"
-              data-test-id='translatedtext-mjgy' />}
+              data-testid='translatedtext-mjgy' />}
             component={TallMultilineTextField}
-            data-test-id='field-bmhh' />
+            data-testid='field-bmhh' />
         </FormGrid>
         {dirty ? (
           <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} />
@@ -99,7 +99,7 @@ export const EditTemplateForm = memo(
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
-                data-test-id='translatedtext-jwaj' />,
+                data-testid='translatedtext-jwaj' />,
             ),
           title: yup.string(),
           body: yup.string(),

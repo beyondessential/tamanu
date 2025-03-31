@@ -49,20 +49,20 @@ export const ProcedureForm = React.memo(
                 <TranslatedText
                   stringId="general.action.finalise"
                   fallback="Finalise"
-                  data-test-id='translatedtext-hgam' />
+                  data-testid='translatedtext-hgam' />
               );
             if (editedObject?.id)
               return (
                 <TranslatedText
                   stringId="general.action.update"
                   fallback="Update"
-                  data-test-id='translatedtext-tbgv' />
+                  data-testid='translatedtext-tbgv' />
               );
             return (
               <TranslatedText
                 stringId="general.action.submit"
                 fallback="Submit"
-                data-test-id='translatedtext-xsim' />
+                data-testid='translatedtext-xsim' />
             );
           };
 
@@ -78,12 +78,12 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="procedure.procedureType.label"
                         fallback="Procedure"
-                        data-test-id='translatedtext-y1oi' />
+                        data-testid='translatedtext-y1oi' />
                     }
                     required
                     component={AutocompleteField}
                     suggester={procedureSuggester}
-                    data-test-id='field-xwcd' />
+                    data-testid='field-xwcd' />
                 </div>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
@@ -92,42 +92,42 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
-                        data-test-id='translatedtext-2rh3' />
+                        data-testid='translatedtext-2rh3' />
                     }
                     required
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
-                    data-test-id='field-v4xs' />
+                    data-testid='field-v4xs' />
                   <Field
                     name="date"
                     label={
                       <TranslatedText
                         stringId="procedure.date.label"
                         fallback="Procedure date"
-                        data-test-id='translatedtext-bjbr' />
+                        data-testid='translatedtext-bjbr' />
                     }
                     saveDateAsString
                     required
                     component={DateField}
-                    data-test-id='field-9587' />
+                    data-testid='field-9587' />
                   <Field
                     locationGroupLabel={
                       <TranslatedText
                         stringId="procedure.area.label"
                         fallback="Procedure area"
-                        data-test-id='translatedtext-bf5g' />
+                        data-testid='translatedtext-bf5g' />
                     }
                     label={
                       <TranslatedText
                         stringId="procedure.location.label"
                         fallback="Procedure location"
-                        data-test-id='translatedtext-91qw' />
+                        data-testid='translatedtext-91qw' />
                     }
                     name="locationId"
                     enableLocationStatus={false}
                     required
                     component={LocationField}
-                    data-test-id='field-guc6' />
+                    data-testid='field-guc6' />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
@@ -136,22 +136,22 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="procedure.startTime.label"
                         fallback="Time started"
-                        data-test-id='translatedtext-bccq' />
+                        data-testid='translatedtext-bccq' />
                     }
                     component={TimeField}
                     saveDateAsString
-                    data-test-id='field-7b5t' />
+                    data-testid='field-7b5t' />
                   <Field
                     name="endTime"
                     label={
                       <TranslatedText
                         stringId="procedure.endTime.label"
                         fallback="Time ended"
-                        data-test-id='translatedtext-g9rq' />
+                        data-testid='translatedtext-g9rq' />
                     }
                     component={TimeField}
                     saveDateAsString
-                    data-test-id='field-bjve' />
+                    data-testid='field-bjve' />
                 </FormGrid>
 
                 <Field
@@ -160,56 +160,56 @@ export const ProcedureForm = React.memo(
                     <TranslatedText
                       stringId="procedure.anaesthetist.label"
                       fallback="Anaesthetist"
-                      data-test-id='translatedtext-6ev1' />
+                      data-testid='translatedtext-6ev1' />
                   }
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
-                  data-test-id='field-00ju' />
+                  data-testid='field-00ju' />
                 <Field
                   name="anaestheticId"
                   label={
                     <TranslatedText
                       stringId="procedure.anaesthetic.label"
                       fallback="Anaesthetic type"
-                      data-test-id='translatedtext-hw5v' />
+                      data-testid='translatedtext-hw5v' />
                   }
                   component={AutocompleteField}
                   suggester={anaestheticSuggester}
                   minRows={4}
                   style={{ gridColumn: 'span 2' }}
-                  data-test-id='field-t28n' />
+                  data-testid='field-t28n' />
                 <Field
                   name="assistantId"
                   label={
                     <TranslatedText
                       stringId="procedure.assistant.label"
                       fallback="Assistant"
-                      data-test-id='translatedtext-ifcr' />
+                      data-testid='translatedtext-ifcr' />
                   }
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
-                  data-test-id='field-72mr' />
+                  data-testid='field-72mr' />
                 <Field
                   name="note"
                   label={
                     <TranslatedText
                       stringId="procedure.noteOrInstruction.label"
                       fallback="Notes or additional instructions"
-                      data-test-id='translatedtext-z7cf' />
+                      data-testid='translatedtext-z7cf' />
                   }
                   component={TextField}
                   multiline
                   minRows={4}
                   style={{ gridColumn: 'span 2' }}
-                  data-test-id='field-erkr' />
+                  data-testid='field-erkr' />
                 <Field
                   name="completed"
                   label={<TranslatedText
                     stringId="general.completed.label"
                     fallback="Completed"
-                    data-test-id='translatedtext-bmnz' />}
+                    data-testid='translatedtext-bmnz' />}
                   component={CheckField}
-                  data-test-id='field-9qms' />
+                  data-testid='field-9qms' />
                 <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="completedNote"
@@ -217,18 +217,18 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="procedure.completedNote.label"
                         fallback="Notes on completed procedure"
-                        data-test-id='translatedtext-v743' />
+                        data-testid='translatedtext-v743' />
                     }
                     component={TextField}
                     multiline
                     minRows={4}
-                    data-test-id='field-p0kb' />
+                    data-testid='field-p0kb' />
                 </Collapse>
                 <FormSubmitCancelRow
                   onCancel={handleCancel}
                   onConfirm={submitForm}
                   confirmText={buttonText}
-                  data-test-id='formsubmitcancelrow-2qzd' />
+                  data-testid='formsubmitcancelrow-2qzd' />
               </FormGrid>
             </div>
           );
@@ -245,13 +245,13 @@ export const ProcedureForm = React.memo(
             <TranslatedText
               stringId="procedure.procedureType.label"
               fallback="Procedure"
-              data-test-id='translatedtext-eziy' />,
+              data-testid='translatedtext-eziy' />,
           ),
           locationId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.location.label"
               fallback="Location"
-              data-test-id='translatedtext-esk2' />,
+              data-testid='translatedtext-esk2' />,
           ),
           date: yup
             .date()
@@ -259,21 +259,21 @@ export const ProcedureForm = React.memo(
             .translatedLabel(<TranslatedText
             stringId="general.date.label"
             fallback="Date"
-            data-test-id='translatedtext-4h76' />),
+            data-testid='translatedtext-4h76' />),
           startTime: yup
             .date()
             .translatedLabel(
               <TranslatedText
                 stringId="general.startTime.label"
                 fallback="Start time"
-                data-test-id='translatedtext-7woc' />,
+                data-testid='translatedtext-7woc' />,
             ),
           endTime: yup.date(),
           physicianId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-test-id='translatedtext-6tzs' />,
+              data-testid='translatedtext-6tzs' />,
           ),
           assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),

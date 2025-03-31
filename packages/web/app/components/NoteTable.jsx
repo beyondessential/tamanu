@@ -178,7 +178,7 @@ const NoteContent = ({
             <TranslatedEnum
               value={note.noteType}
               enumValues={NOTE_TYPE_LABELS}
-              data-test-id='translatedenum-sxxc' />
+              data-testid='translatedenum-sxxc' />
           </NoteHeaderText>
         </NoteHeaderContainer>
       )}
@@ -206,7 +206,7 @@ const NoteContent = ({
             <TranslatedText
               stringId="note.table.item.readMore"
               fallback="read more"
-              data-test-id='translatedtext-s4ud' />
+              data-testid='translatedtext-s4ud' />
           </ReadMoreSpan>
         )}
         {contentIsExpanded && (
@@ -215,7 +215,7 @@ const NoteContent = ({
             <TranslatedText
               stringId="note.table.item.showLess"
               fallback="Show less"
-              data-test-id='translatedtext-tx50' />
+              data-testid='translatedtext-tx50' />
           </ShowLessSpan>
         )}
       </NoteExpandControlContainer>
@@ -225,7 +225,7 @@ const NoteContent = ({
             <TranslatedText
               stringId="general.lastUpdated.label"
               fallback="Last updated"
-              data-test-id='translatedtext-sbf5' />:
+              data-testid='translatedtext-sbf5' />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
@@ -235,13 +235,13 @@ const NoteContent = ({
               stringId="note.table.onBehalfOfText"
               fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ noteOnBehalfOfName }}
-              data-test-id='translatedtext-rjl3' />
+              data-testid='translatedtext-rjl3' />
           </NoteFooterTextElement>
         )}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
-          data-test-id='datedisplay-2zlk' />
+          data-testid='datedisplay-2zlk' />
         {note.revisedById && (
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
@@ -249,7 +249,7 @@ const NoteContent = ({
               <TranslatedText
                 stringId="note.table.footer.edited"
                 fallback="edited"
-                data-test-id='translatedtext-e1p1' />
+                data-testid='translatedtext-e1p1' />
             </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
@@ -279,18 +279,18 @@ const NoteTable = ({
           <TranslatedText
             stringId="note.modal.updateTreatmentPlan.title"
             fallback="Update treatment plan"
-            data-test-id='translatedtext-2521' />
+            data-testid='translatedtext-2521' />
         ) : (
           <TranslatedText
             stringId="note.modal.edit.title"
             fallback="Edit note"
-            data-test-id='translatedtext-alee' />
+            data-testid='translatedtext-alee' />
         ),
       );
       setModalCancelText(<TranslatedText
         stringId="general.action.cancel"
         fallback="Cancel"
-        data-test-id='translatedtext-z6ye' />);
+        data-testid='translatedtext-z6ye' />);
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -303,7 +303,7 @@ const NoteTable = ({
       setModalTitle(<TranslatedText
         stringId="note.modal.changeLog.title"
         fallback="Change Log"
-        data-test-id='translatedtext-hc1a' />);
+        data-testid='translatedtext-hc1a' />);
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -355,12 +355,12 @@ const NoteTable = ({
               <TranslatedText
                 stringId="general.action.close"
                 fallback="Close"
-                data-test-id='translatedtext-eds8' />
+                data-testid='translatedtext-eds8' />
             ) : (
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-test-id='translatedtext-2sdr' />
+                data-testid='translatedtext-2sdr' />
             )
           }
         />
@@ -381,17 +381,17 @@ const NoteTable = ({
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
-                data-test-id='translatedtext-gki5' />
+                data-testid='translatedtext-gki5' />
             ) : (
               <TranslatedText
                 stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
-                data-test-id='translatedtext-uwiq' />
+                data-testid='translatedtext-uwiq' />
             )}
           </NoDataMessage>
         }
         rowStyle={rowStyle}
-        data-test-id='datafetchingtable-ij5f' />
+        data-testid='datafetchingtable-ij5f' />
     </>
   );
 };

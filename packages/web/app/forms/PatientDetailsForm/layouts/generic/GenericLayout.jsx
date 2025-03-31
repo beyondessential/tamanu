@@ -44,7 +44,7 @@ export const GenericPrimaryDetailsLayout = ({
         <TranslatedText
           stringId="patient.detail.subheading.general"
           fallback="General information"
-          data-test-id='translatedtext-s3im' />
+          data-testid='translatedtext-s3im' />
         {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
       </PatientDetailsHeading>
       <FormGrid>
@@ -54,99 +54,99 @@ export const GenericPrimaryDetailsLayout = ({
             <TranslatedText
               stringId="general.localisedField.firstName.label"
               fallback="First name"
-              data-test-id='translatedtext-ezwh' />
+              data-testid='translatedtext-ezwh' />
           }
           component={TextField}
           required
           enablePasting
-          data-test-id='localisedfield-0c8i' />
+          data-testid='localisedfield-0c8i' />
         <LocalisedField
           name="middleName"
           label={
             <TranslatedText
               stringId="general.localisedField.middleName.label"
               fallback="Middle name"
-              data-test-id='translatedtext-2fi6' />
+              data-testid='translatedtext-2fi6' />
           }
           component={TextField}
           required={isRequiredPatientData('middleName')}
           enablePasting
-          data-test-id='localisedfield-ngxf' />
+          data-testid='localisedfield-ngxf' />
         <LocalisedField
           name="lastName"
           label={
             <TranslatedText
               stringId="general.localisedField.lastName.label"
               fallback="Last name"
-              data-test-id='translatedtext-a6ke' />
+              data-testid='translatedtext-a6ke' />
           }
           component={TextField}
           required
           enablePasting
-          data-test-id='localisedfield-g6iq' />
+          data-testid='localisedfield-g6iq' />
         <LocalisedField
           name="culturalName"
           label={
             <TranslatedText
               stringId="general.localisedField.culturalName.label"
               fallback="Cultural/traditional name"
-              data-test-id='translatedtext-w6lb' />
+              data-testid='translatedtext-w6lb' />
           }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
           enablePasting
-          data-test-id='localisedfield-u3ld' />
+          data-testid='localisedfield-u3ld' />
         <LocalisedField
           name="dateOfBirth"
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label"
               fallback="Date of birth"
-              data-test-id='translatedtext-g8z8' />
+              data-testid='translatedtext-g8z8' />
           }
           max={getCurrentDateString()}
           component={DateField}
           required
           saveDateAsString
-          data-test-id='localisedfield-u1hf' />
+          data-testid='localisedfield-u1hf' />
         <LocalisedField
           name="villageId"
           label={
             <TranslatedText
               stringId="general.localisedField.villageId.label"
               fallback="Village"
-              data-test-id='translatedtext-9eqf' />
+              data-testid='translatedtext-9eqf' />
           }
           component={AutocompleteField}
           suggester={villageSuggester}
           required={isRequiredPatientData('villageId')}
-          data-test-id='localisedfield-r6sf' />
+          data-testid='localisedfield-r6sf' />
         <LocalisedField
           name="sex"
           label={<TranslatedText
             stringId="general.localisedField.sex.label"
             fallback="Sex"
-            data-test-id='translatedtext-g390' />}
+            data-testid='translatedtext-g390' />}
           component={TranslatedRadioField}
           enumValues={SEX_LABELS}
           transformOptions={options =>
             hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
           }
           required
-          data-test-id='localisedfield-ydtu' />
+          data-testid='localisedfield-ydtu' />
         <LocalisedField
           name="email"
           label={
             <TranslatedText
               stringId="general.localisedField.email.label"
               fallback="Email address"
-              data-test-id='translatedtext-64j2' />
+              data-testid='translatedtext-64j2' />
           }
           component={TextField}
           type="email"
           required={isRequiredPatientData('email')}
           enablePasting
-          data-test-id='localisedfield-bazk' />
+          data-testid='localisedfield-bazk' />
         <RequiredSecondaryDetails
           patientRegistryType={patientRegistryType}
           registeredBirthPlace={registeredBirthPlace}
@@ -180,7 +180,7 @@ export const GenericSecondaryDetailsLayout = ({
           <TranslatedText
             stringId="patient.detail.subheading.birthDetails"
             fallback="Birth details"
-            data-test-id='translatedtext-pm8y' />
+            data-testid='translatedtext-pm8y' />
         </PatientDetailsHeading>
         <SecondaryDetailsFormGrid>
           <GenericBirthFields
@@ -195,7 +195,7 @@ export const GenericSecondaryDetailsLayout = ({
       <TranslatedText
         stringId="patient.detail.subheading.identificationInformation"
         fallback="Identification information"
-        data-test-id='translatedtext-hier' />
+        data-testid='translatedtext-hier' />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericIdentificationFields
@@ -209,7 +209,7 @@ export const GenericSecondaryDetailsLayout = ({
       <TranslatedText
         stringId="patient.detail.subheading.contactInformation"
         fallback="Contact information"
-        data-test-id='translatedtext-gppq' />
+        data-testid='translatedtext-gppq' />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericContactFields filterByMandatory={false} />
@@ -219,7 +219,7 @@ export const GenericSecondaryDetailsLayout = ({
       <TranslatedText
         stringId="patient.detail.subheading.personalInformation"
         fallback="Personal information"
-        data-test-id='translatedtext-n5xv' />
+        data-testid='translatedtext-n5xv' />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericPersonalFields
@@ -233,7 +233,7 @@ export const GenericSecondaryDetailsLayout = ({
       <TranslatedText
         stringId="patient.detail.subheading.locationInformation"
         fallback="Location information"
-        data-test-id='translatedtext-v7gr' />
+        data-testid='translatedtext-v7gr' />
     </PatientDetailsHeading>
     <SecondaryDetailsFormGrid>
       <GenericLocationFields filterByMandatory={false} />

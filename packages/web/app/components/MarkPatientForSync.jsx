@@ -45,7 +45,7 @@ export const MarkPatientForSync = ({ patient }) => {
       <TranslatedText
         stringId="patient.action.markForSync"
         fallback="Sync patient records"
-        data-test-id='translatedtext-tyuc' />
+        data-testid='translatedtext-tyuc' />
     </MarkPatientForSyncButton>
   );
 };

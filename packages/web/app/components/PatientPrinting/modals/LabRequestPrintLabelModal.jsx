@@ -37,7 +37,7 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
       title={<TranslatedText
         stringId="lab.modal.printLabel.title"
         fallback="Print label"
-        data-test-id='translatedtext-5n9c' />}
+        data-testid='translatedtext-5n9c' />}
       width="md"
       open={open}
       onClose={onClose}
@@ -59,13 +59,13 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
                   fallback={lab.category.name}
                   value={lab.category.id}
                   category={lab.category.type}
-                  data-test-id='translatedreferencedata-68my' />,
+                  data-testid='translatedreferencedata-68my' />,
                 specimenType: lab.specimenType
                   && <TranslatedReferenceData
                   fallback={lab.specimenType.name}
                   value={lab.specimenType.id}
                   category={lab.specimenType.type}
-                  data-test-id='translatedreferencedata-rz1p' />
+                  data-testid='translatedreferencedata-rz1p' />
               }}
             />
           </Box>

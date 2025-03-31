@@ -38,13 +38,13 @@ const validationSchema = readOnly =>
           <TranslatedText
             stringId="medication.medication.label"
             fallback="Medication"
-            data-test-id='translatedtext-5jq3' />,
+            data-testid='translatedtext-5jq3' />,
         ),
         prescriberId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="medication.prescriber.label"
             fallback="Prescriber"
-            data-test-id='translatedtext-89r6' />,
+            data-testid='translatedtext-89r6' />,
         ),
         prescription: yup
           .string()
@@ -53,7 +53,7 @@ const validationSchema = readOnly =>
             <TranslatedText
               stringId="medication.instructions.label"
               fallback="Instructions"
-              data-test-id='translatedtext-yj5l' />,
+              data-testid='translatedtext-yj5l' />,
           ),
         route: yup
           .string()
@@ -62,14 +62,14 @@ const validationSchema = readOnly =>
           .translatedLabel(<TranslatedText
           stringId="medication.route.label"
           fallback="Route"
-          data-test-id='translatedtext-1a79' />),
+          data-testid='translatedtext-1a79' />),
         date: yup
           .date()
           .required()
           .translatedLabel(<TranslatedText
           stringId="general.date.label"
           fallback="Date"
-          data-test-id='translatedtext-ygst' />),
+          data-testid='translatedtext-ygst' />),
         endDate: yup.date(),
         note: yup.string(),
         quantity: yup.number().integer(),
@@ -80,7 +80,7 @@ const validationSchema = readOnly =>
           <TranslatedText
             stringId="general.clinician.label"
             fallback="Clinician"
-            data-test-id='translatedtext-mmaw' />,
+            data-testid='translatedtext-mmaw' />,
         ),
       });
 
@@ -100,26 +100,26 @@ const DiscontinuedLabel = ({ medication }) => {
         <TranslatedText
           stringId="medication.detail.discontinued.title"
           fallback="Discontinued"
-          data-test-id='translatedtext-4v6m' />
+          data-testid='translatedtext-4v6m' />
       </strong>
       <br />
       <TranslatedText
         stringId="medication.detail.discontinued.discontinuedAt"
         fallback="Discontinued at: :date"
         replacements={{ date: getDateDisplay(discontinuedDate) }}
-        data-test-id='translatedtext-3r3b' />
+        data-testid='translatedtext-3r3b' />
       <br />
       <TranslatedText
         stringId="medication.detail.discontinued.discontinuedBy"
         fallback="by: :clinician"
         replacements={{ clinician: discontinuingClinician?.displayName }}
-        data-test-id='translatedtext-jp8k' />
+        data-testid='translatedtext-jp8k' />
       <br />
       <TranslatedText
         stringId="medication.detail.discontinued.reason"
         fallback="Reason: :reason"
         replacements={{ reason: discontinuingReason }}
-        data-test-id='translatedtext-jbfw' />
+        data-testid='translatedtext-jbfw' />
       <br />
     </Box>
   );
@@ -214,14 +214,14 @@ export const MedicationForm = React.memo(
                 <TranslatedText
                   stringId="medication.allergies.title"
                   fallback="Allergies"
-                  data-test-id='translatedtext-l51q' />:{' '}
+                  data-testid='translatedtext-l51q' />:{' '}
                 <span style={{ fontWeight: 500 }}>
                   {!isLoadingAllergies &&
                     (allergiesList || (
                       <TranslatedText
                         stringId="medication.allergies.noRecord"
                         fallback="None recorded"
-                        data-test-id='translatedtext-ga21' />
+                        data-testid='translatedtext-ga21' />
                     ))}
                 </span>
               </div>
@@ -232,13 +232,13 @@ export const MedicationForm = React.memo(
                     <TranslatedText
                       stringId="medication.medication.label"
                       fallback="Medication"
-                      data-test-id='translatedtext-bwp9' />
+                      data-testid='translatedtext-bwp9' />
                   }
                   component={AutocompleteField}
                   suggester={drugSuggester}
                   disabled={readOnly}
                   required={!readOnly}
-                  data-test-id='field-nrga' />
+                  data-testid='field-nrga' />
               </div>
               <Field
                 name="prescription"
@@ -246,62 +246,62 @@ export const MedicationForm = React.memo(
                   <TranslatedText
                     stringId="medication.instructions.label"
                     fallback="Instructions"
-                    data-test-id='translatedtext-niuo' />
+                    data-testid='translatedtext-niuo' />
                 }
                 component={TextField}
                 required={!readOnly}
                 disabled={readOnly}
-                data-test-id='field-25qi' />
+                data-testid='field-25qi' />
               <Field
                 name="route"
                 label={
                   <TranslatedText
                     stringId="medication.route.label"
                     fallback="Route of admission"
-                    data-test-id='translatedtext-6k5b' />
+                    data-testid='translatedtext-6k5b' />
                 }
                 component={TranslatedSelectField}
                 enumValues={DRUG_ROUTE_LABELS}
                 disabled={readOnly}
                 required={!readOnly}
-                data-test-id='field-qs6r' />
+                data-testid='field-qs6r' />
               <Field
                 name="date"
                 label={
                   <TranslatedText
                     stringId="medication.date.label"
                     fallback="Prescription date"
-                    data-test-id='translatedtext-xrrt' />
+                    data-testid='translatedtext-xrrt' />
                 }
                 saveDateAsString
                 component={DateField}
                 required={!readOnly}
                 disabled={readOnly}
-                data-test-id='field-qgnk' />
+                data-testid='field-qgnk' />
               <Field
                 name="endDate"
                 label={<TranslatedText
                   stringId="medication.endDate.label"
                   fallback="End date"
-                  data-test-id='translatedtext-kdcg' />}
+                  data-testid='translatedtext-kdcg' />}
                 saveDateAsString
                 component={DateField}
                 disabled={readOnly}
                 value={medication?.endDate}
-                data-test-id='field-hvno' />
+                data-testid='field-hvno' />
               <Field
                 name="prescriberId"
                 label={
                   <TranslatedText
                     stringId="medication.prescriber.label"
                     fallback="Prescriber"
-                    data-test-id='translatedtext-f47b' />
+                    data-testid='translatedtext-f47b' />
                 }
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
                 required={!readOnly}
                 disabled={readOnly}
-                data-test-id='field-o2rm' />
+                data-testid='field-o2rm' />
               {showPatientWeight && (
                 <Field
                   name="patientWeight"
@@ -310,39 +310,39 @@ export const MedicationForm = React.memo(
                       stringId="medication.patientWeight.label"
                       fallback="Patient weight :unit"
                       replacements={{ unit: `(${weightUnit})` }}
-                      data-test-id='translatedtext-5vni' />
+                      data-testid='translatedtext-5vni' />
                   }
                   onChange={e => setPatientWeight(e.target.value)}
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
-                  data-test-id='field-6ugb' />
+                  data-testid='field-6ugb' />
               )}
               <Field
                 name="note"
                 label={<TranslatedText
                   stringId="general.notes.label"
                   fallback="Notes"
-                  data-test-id='translatedtext-q6s9' />}
+                  data-testid='translatedtext-q6s9' />}
                 component={TextField}
                 style={{ gridColumn: '1/-1' }}
                 disabled={readOnly}
-                data-test-id='field-5jz7' />
+                data-testid='field-5jz7' />
               <FormGrid nested>
-                <h3 style={{ gridColumn: '1/-1' }} data-test-id='h3-xmvm'>Quantity</h3>
+                <h3 style={{ gridColumn: '1/-1' }} data-testid='h3-xmvm'>Quantity</h3>
                 <Field
                   name="qtyMorning"
                   label={
                     <TranslatedText
                       stringId="medication.quantityMorning.label"
                       fallback="Morning"
-                      data-test-id='translatedtext-cbzb' />
+                      data-testid='translatedtext-cbzb' />
                   }
                   min={0}
                   component={NumberField}
                   onInput={preventNegative}
                   disabled={readOnly}
-                  data-test-id='field-a4h2' />
+                  data-testid='field-a4h2' />
                 <Field
                   name="qtyLunch"
                   min={0}
@@ -350,38 +350,38 @@ export const MedicationForm = React.memo(
                     <TranslatedText
                       stringId="medication.quantityLunch.label"
                       fallback="Lunch"
-                      data-test-id='translatedtext-t04k' />
+                      data-testid='translatedtext-t04k' />
                   }
                   component={NumberField}
                   disabled={readOnly}
                   onInput={preventNegative}
-                  data-test-id='field-f6ju' />
+                  data-testid='field-f6ju' />
                 <Field
                   name="qtyEvening"
                   label={
                     <TranslatedText
                       stringId="medication.quantityEvening.label"
                       fallback="Evening"
-                      data-test-id='translatedtext-cthw' />
+                      data-testid='translatedtext-cthw' />
                   }
                   min={0}
                   component={NumberField}
                   disabled={readOnly}
                   onInput={preventNegative}
-                  data-test-id='field-uj43' />
+                  data-testid='field-uj43' />
                 <Field
                   name="qtyNight"
                   label={
                     <TranslatedText
                       stringId="medication.quantityNight.label"
                       fallback="Night"
-                      data-test-id='translatedtext-iool' />
+                      data-testid='translatedtext-iool' />
                   }
                   min={0}
                   component={NumberField}
                   disabled={readOnly}
                   onInput={preventNegative}
-                  data-test-id='field-5zoz' />
+                  data-testid='field-5zoz' />
               </FormGrid>
               <Field
                 name="indication"
@@ -389,24 +389,24 @@ export const MedicationForm = React.memo(
                   <TranslatedText
                     stringId="medication.indication.label"
                     fallback="Indication"
-                    data-test-id='translatedtext-bes6' />
+                    data-testid='translatedtext-bes6' />
                 }
                 component={TextField}
                 disabled={readOnly}
-                data-test-id='field-5uck' />
+                data-testid='field-5uck' />
               <Field
                 name="quantity"
                 label={
                   <TranslatedText
                     stringId="medication.dischargeQuantity.label"
                     fallback="Discharge quantity"
-                    data-test-id='translatedtext-dpen' />
+                    data-testid='translatedtext-dpen' />
                 }
                 min={0}
                 component={NumberField}
                 disabled={readOnly}
                 onInput={preventNegative}
-                data-test-id='field-yij6' />
+                data-testid='field-yij6' />
               {shouldShowDiscontinuationButton && (
                 <>
                   <DiscontinuePrintButtonRow>
@@ -414,11 +414,11 @@ export const MedicationForm = React.memo(
                       variant="outlined"
                       color="primary"
                       onClick={onDiscontinue}
-                      data-test-id='button-d64n'>
+                      data-testid='button-d64n'>
                       <TranslatedText
                         stringId="medication.action.discontinue"
                         fallback="Discontinue"
-                        data-test-id='translatedtext-h712' />
+                        data-testid='translatedtext-h712' />
                     </Button>
                     <div />
                     {!shouldDiscontinue && (
@@ -427,21 +427,21 @@ export const MedicationForm = React.memo(
                           variant="outlined"
                           color="primary"
                           onClick={onCancel}
-                          data-test-id='button-8dfm'>
+                          data-testid='button-8dfm'>
                           <TranslatedText
                             stringId="general.action.close"
                             fallback="Close"
-                            data-test-id='translatedtext-rdd6' />
+                            data-testid='translatedtext-rdd6' />
                         </Button>
                         <Button
                           variant="contained"
                           color="primary"
                           onClick={() => setPrintModalOpen(true)}
-                          data-test-id='button-xjbg'>
+                          data-testid='button-xjbg'>
                           <TranslatedText
                             stringId="general.action.print"
                             fallback="Print"
-                            data-test-id='translatedtext-v33f' />
+                            data-testid='translatedtext-v33f' />
                         </Button>
                       </>
                     )}
@@ -457,33 +457,33 @@ export const MedicationForm = React.memo(
                         <TranslatedText
                           stringId="medication.discontinuedBy.label"
                           fallback="Discontinued by"
-                          data-test-id='translatedtext-lwl2' />
+                          data-testid='translatedtext-lwl2' />
                       }
                       component={AutocompleteField}
                       suggester={practitionerSuggester}
                       value={medication?.discontinuingClinicianId}
-                      data-test-id='field-1ytk' />
+                      data-testid='field-1ytk' />
                     <Field
                       name="discontinuingReason"
                       label={
                         <TranslatedText
                           stringId="medication.discontinuedReason.label"
                           fallback="Discontinued reason"
-                          data-test-id='translatedtext-0szd' />
+                          data-testid='translatedtext-0szd' />
                       }
                       component={TextField}
-                      data-test-id='field-939r' />
+                      data-testid='field-939r' />
                   </>
                 )}
                 {medication?.discontinuedDate && <DiscontinuedLabel medication={medication} />}
               </div>
               {shouldShowSubmitButton && (
-                <ButtonRow data-test-id='buttonrow-6gc8'>
-                  <FormCancelButton onClick={onCancel} data-test-id='formcancelbutton-0skf'>
+                <ButtonRow data-testid='buttonrow-6gc8'>
+                  <FormCancelButton onClick={onCancel} data-testid='formcancelbutton-0skf'>
                     <TranslatedText
                       stringId="general.action.cancel"
                       fallback="Cancel"
-                      data-test-id='translatedtext-42gn' />
+                      data-testid='translatedtext-42gn' />
                   </FormCancelButton>
                   {shouldDiscontinue ? (
                     <FormSubmitButton
@@ -492,11 +492,11 @@ export const MedicationForm = React.memo(
                         setAwaitingPrint(false);
                         submitForm(data);
                       }}
-                      data-test-id='formsubmitbutton-dljd'>
+                      data-testid='formsubmitbutton-dljd'>
                       <TranslatedText
                         stringId="general.action.finalise"
                         fallback="Finalise"
-                        data-test-id='translatedtext-694w' />
+                        data-testid='translatedtext-694w' />
                     </FormSubmitButton>
                   ) : (
                     <FormSubmitDropdownButton
@@ -506,7 +506,7 @@ export const MedicationForm = React.memo(
                             <TranslatedText
                               stringId="general.action.finalise"
                               fallback="Finalise"
-                              data-test-id='translatedtext-44sy' />
+                              data-testid='translatedtext-44sy' />
                           ),
                           onClick: data => {
                             setAwaitingPrint(false);
@@ -518,7 +518,7 @@ export const MedicationForm = React.memo(
                             <TranslatedText
                               stringId="general.action.finaliseAndPrint"
                               fallback="Finalise & print"
-                              data-test-id='translatedtext-zscq' />
+                              data-testid='translatedtext-zscq' />
                           ),
                           onClick: data => {
                             setAwaitingPrint(true);

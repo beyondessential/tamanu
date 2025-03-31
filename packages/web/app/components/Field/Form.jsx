@@ -298,7 +298,7 @@ export class Form extends React.PureComponent {
               <TranslatedText
                 stringId="general.form.validationError.heading"
                 fallback="Please fix below errors to continue"
-                data-test-id='translatedtext-h3gd' />
+                data-testid='translatedtext-h3gd' />
             }
             disableDevWarning
             contentText={<FormErrors errors={validationErrors} />}

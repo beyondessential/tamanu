@@ -53,7 +53,7 @@ export const CoreComplexChartData = ({
       label: <TranslatedText
         stringId="general.action.delete"
         fallback="Delete"
-        data-test-id='translatedtext-mzck' />,
+        data-testid='translatedtext-mzck' />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Charting');
@@ -80,7 +80,7 @@ export const CoreComplexChartData = ({
               <TranslatedText
                 stringId="complexChartInstance.date"
                 fallback="Date & time of onset:"
-                data-test-id='translatedtext-tzks' />
+                data-testid='translatedtext-tzks' />
             </CoreComplexChartInfoHeader>
             <>{date}</>
           </CoreComplexChartSingleInfoWrapper>
@@ -91,7 +91,7 @@ export const CoreComplexChartData = ({
                 <TranslatedText
                   stringId="complexChartInstance.type"
                   fallback="Type:"
-                  data-test-id='translatedtext-dcxj' />
+                  data-testid='translatedtext-dcxj' />
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -104,13 +104,13 @@ export const CoreComplexChartData = ({
                 <TranslatedText
                   stringId="complexChartInstance.subtype"
                   fallback="Sub type:"
-                  data-test-id='translatedtext-ay09' />
+                  data-testid='translatedtext-ay09' />
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        { data.length === 0 ? <MenuButton actions={actions} data-test-id='menubutton-30ah' /> : null}
+        { data.length === 0 ? <MenuButton actions={actions} data-testid='menubutton-30ah' /> : null}
       </CoreComplexChartDataRow>
     </>
   );

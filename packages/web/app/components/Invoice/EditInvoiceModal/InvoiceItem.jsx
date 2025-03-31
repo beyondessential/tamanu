@@ -78,37 +78,37 @@ export const InvoiceItemHeader = () => {
         <TranslatedText
           stringId="general.date.label"
           fallback="Date"
-          data-test-id='translatedtext-nfvx' />
+          data-testid='translatedtext-nfvx' />
       </Box>
       <Box width="30%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.details.label"
           fallback="Details"
-          data-test-id='translatedtext-3haf' />
+          data-testid='translatedtext-3haf' />
       </Box>
       <Box width="10%" paddingLeft="10px">
         <TranslatedText
           stringId="invoice.table.column.code"
           fallback="Code"
-          data-test-id='translatedtext-zb5p' />
+          data-testid='translatedtext-zb5p' />
       </Box>
       <Box width="10%" paddingLeft="10px">
         <TranslatedText
           stringId="invoice.table.column.quantity"
           fallback="Quantity"
-          data-test-id='translatedtext-5x4n' />
+          data-testid='translatedtext-5x4n' />
       </Box>
       <Box width="19%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
-          data-test-id='translatedtext-rfes' />
+          data-testid='translatedtext-rfes' />
       </Box>
       <Box width="11%" flexGrow={1} paddingLeft="10px">
         <TranslatedText
           stringId="invoice.modal.editInvoice.price.label"
           fallback="Price"
-          data-test-id='translatedtext-rqhv' />
+          data-testid='translatedtext-rqhv' />
       </Box>
     </StyledItemHeader>
   );
@@ -218,12 +218,12 @@ export const InvoiceItemRow = ({
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeMarkup"
             fallback="Remove markup"
-            data-test-id='translatedtext-kinc' />
+            data-testid='translatedtext-kinc' />
         ) : (
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeDiscount"
             fallback="Remove discount"
-            data-test-id='translatedtext-dfiv' />
+            data-testid='translatedtext-dfiv' />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
       hidden: !item.discount?.amount,
@@ -233,7 +233,7 @@ export const InvoiceItemRow = ({
         <TranslatedText
           stringId="invoice.modal.editInvoice.addDiscount"
           fallback="Add discount"
-          data-test-id='translatedtext-0i8d' />
+          data-testid='translatedtext-0i8d' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
@@ -244,7 +244,7 @@ export const InvoiceItemRow = ({
         <TranslatedText
           stringId="invoice.modal.editInvoice.addMarkup"
           fallback="Add markup"
-          data-test-id='translatedtext-pphv' />
+          data-testid='translatedtext-pphv' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
@@ -255,12 +255,12 @@ export const InvoiceItemRow = ({
         <TranslatedText
           stringId="invoice.modal.editInvoice.editNote"
           fallback="Edit note"
-          data-test-id='translatedtext-0uaf' />
+          data-testid='translatedtext-0uaf' />
       ) : (
         <TranslatedText
           stringId="invoice.modal.editInvoice.addNote"
           fallback="Add note"
-          data-test-id='translatedtext-w7gw' />
+          data-testid='translatedtext-w7gw' />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
@@ -270,7 +270,7 @@ export const InvoiceItemRow = ({
       label: <TranslatedText
         stringId="invoice.modal.editInvoice.delete"
         fallback="Delete"
-        data-test-id='translatedtext-goqg' />,
+        data-testid='translatedtext-goqg' />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
       disabled: isDeleteDisabled,
     },
@@ -308,7 +308,7 @@ export const InvoiceItemRow = ({
               component={DateField}
               size="small"
               saveDateAsString
-              data-test-id='field-vdwi' />
+              data-testid='field-vdwi' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
@@ -324,7 +324,7 @@ export const InvoiceItemRow = ({
               suggester={invoiceProductsSuggester}
               size="small"
               onChange={handleChangeProduct}
-              data-test-id='field-r153' />
+              data-testid='field-r153' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item.productName}
@@ -341,7 +341,7 @@ export const InvoiceItemRow = ({
               <TranslatedText
                 stringId="invoice.modal.editInvoice.note.label"
                 fallback="Note"
-                data-test-id='translatedtext-bl8a' />
+                data-testid='translatedtext-bl8a' />
               {`: ${item.note}`}
             </Box>
           )}
@@ -363,7 +363,7 @@ export const InvoiceItemRow = ({
               }}
               size="small"
               required
-              data-test-id='field-9vbw' />
+              data-testid='field-9vbw' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.quantity}
@@ -379,7 +379,7 @@ export const InvoiceItemRow = ({
               suggester={practitionerSuggester}
               size="small"
               onChange={handleChangeOrderedBy}
-              data-test-id='field-gx05' />
+              data-testid='field-gx05' />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderedByUser?.displayName}
@@ -408,7 +408,7 @@ export const InvoiceItemRow = ({
                   component={PriceField}
                   required
                   style={{ width: '100%' }}
-                  data-test-id='field-b87o' />
+                  data-testid='field-b87o' />
               )
             )}
             {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}

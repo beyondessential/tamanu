@@ -41,7 +41,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
         <TranslatedText
           stringId="admin.translation.importOrOverwriteModalTitle"
           fallback="Overwrite existing translations"
-          data-test-id='translatedtext-7x5c' />
+          data-testid='translatedtext-7x5c' />
       }
       open={open}
       onClose={onClose}
@@ -51,30 +51,30 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
         <TranslatedText
           stringId="admin.translation.overwriteOrImportNewRowsModalMessage"
           fallback="Would you like to overwrite existing translations or import new rows only?"
-          data-test-id='translatedtext-ybql' />
+          data-testid='translatedtext-ybql' />
       </ContentText>
       <ModalActionRow>
         <ButtonActionContainer>
-          <OutlinedButton onClick={onClose} data-test-id='outlinedbutton-t249'>
+          <OutlinedButton onClick={onClose} data-testid='outlinedbutton-t249'>
             <TranslatedText
               stringId="general.action.back"
               fallback="Back"
-              data-test-id='translatedtext-w8g6' />
+              data-testid='translatedtext-w8g6' />
           </OutlinedButton>
           <div>
             <OutlinedButton
               onClick={e => onConfirm(e, { skipExisting: true })}
-              data-test-id='outlinedbutton-r4je'>
+              data-testid='outlinedbutton-r4je'>
               <TranslatedText
                 stringId="admin.translation.importNewRowsOnly"
                 fallback="Import new rows only"
-                data-test-id='translatedtext-xrfh' />
+                data-testid='translatedtext-xrfh' />
             </OutlinedButton>
             <StyledConfirmButton onClick={onConfirm}>
               <TranslatedText
                 stringId="admin.translation.overwriteExisting"
                 fallback="Overwrite existing translations"
-                data-test-id='translatedtext-hkfg' />
+                data-testid='translatedtext-hkfg' />
             </StyledConfirmButton>
           </div>
         </ButtonActionContainer>
@@ -97,7 +97,7 @@ const ImportButton = ({ onSubmit, ...props }) => {
           setPreImportModalOpen(true);
         }}
         type="button"
-        data-test-id='formsubmitbutton-padz' />
+        data-testid='formsubmitbutton-padz' />
       <PreSubmitModal
         open={preImportModalOpen}
         onClose={() => setPreImportModalOpen(false)}
@@ -110,17 +110,17 @@ const ImportButton = ({ onSubmit, ...props }) => {
 const ExportButton = props => {
   return (
     <ExportButtonRow>
-      <FormSubmitButton {...props} data-test-id='formsubmitbutton-d7mn' />
+      <FormSubmitButton {...props} data-testid='formsubmitbutton-d7mn' />
       <Field
         name="includeReferenceData"
         label={
           <TranslatedText
             stringId="admin.translation.includeReferenceData"
             fallback="Include reference data"
-            data-test-id='translatedtext-6ize' />
+            data-testid='translatedtext-6ize' />
         }
         component={ReferenceDataSwitchField}
-        data-test-id='field-gark' />
+        data-testid='field-gark' />
     </ExportButtonRow>
   );
 };
@@ -132,7 +132,7 @@ export const TranslationAdminView = () => {
     label: <TranslatedText
       stringId="admin.translation.edit"
       fallback="Edit"
-      data-test-id='translatedtext-qvkr' />,
+      data-testid='translatedtext-qvkr' />,
     key: 'edit',
     icon: 'fa fa-edit',
     render: TranslationForm,

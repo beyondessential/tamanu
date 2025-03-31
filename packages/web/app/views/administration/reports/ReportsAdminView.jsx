@@ -41,11 +41,11 @@ export const ReportsAdminView = () => {
       label: <TranslatedText
         stringId="general.action.edit"
         fallback="Edit"
-        data-test-id='translatedtext-4czz' />,
+        data-testid='translatedtext-4czz' />,
       key: REPORT_TABS.EDIT,
       icon: 'fa fa-edit',
       render: () => (
-        <TabContainer data-test-id='tabcontainer-m0r1'>
+        <TabContainer data-testid='tabcontainer-m0r1'>
           <SelectReportView />
         </TabContainer>
       ),
@@ -54,11 +54,11 @@ export const ReportsAdminView = () => {
       label: <TranslatedText
         stringId="general.action.create"
         fallback="Create"
-        data-test-id='translatedtext-v0ij' />,
+        data-testid='translatedtext-v0ij' />,
       key: REPORT_TABS.CREATE,
       icon: 'fa fa-plus',
       render: () => (
-        <TabContainer data-test-id='tabcontainer-qaqz'>
+        <TabContainer data-testid='tabcontainer-qaqz'>
           <CreateReportView />
         </TabContainer>
       ),
@@ -67,11 +67,11 @@ export const ReportsAdminView = () => {
       label: <TranslatedText
         stringId="general.action.export"
         fallback="Export"
-        data-test-id='translatedtext-ctm5' />,
+        data-testid='translatedtext-ctm5' />,
       key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
       render: () => (
-        <TabContainer data-test-id='tabcontainer-froq'>
+        <TabContainer data-testid='tabcontainer-froq'>
           <ExportReportView />
         </TabContainer>
       ),
@@ -80,11 +80,11 @@ export const ReportsAdminView = () => {
       label: <TranslatedText
         stringId="general.action.import"
         fallback="Import"
-        data-test-id='translatedtext-5xgl' />,
+        data-testid='translatedtext-5xgl' />,
       key: REPORT_TABS.IMPORT,
       icon: 'fa fa-file-import',
       render: () => (
-        <TabContainer data-test-id='tabcontainer-i8mu'>
+        <TabContainer data-testid='tabcontainer-i8mu'>
           <ImportReportView />
         </TabContainer>
       ),
@@ -97,14 +97,14 @@ export const ReportsAdminView = () => {
         title={<TranslatedText
           stringId="admin.reports.title"
           fallback="Reports"
-          data-test-id='translatedtext-vd0q' />}
-        data-test-id='topbar-v633' />
+          data-testid='translatedtext-vd0q' />}
+        data-testid='topbar-v633' />
       <StyledTabDisplay
         tabs={tabs}
         currentTab={currentTab}
         onTabSelect={setCurrentTab}
         scrollable={false}
-        data-test-id='styledtabdisplay-8ycv' />
+        data-testid='styledtabdisplay-8ycv' />
     </OuterContainer>
   );
 };

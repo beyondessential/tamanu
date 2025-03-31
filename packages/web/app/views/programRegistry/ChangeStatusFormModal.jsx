@@ -60,7 +60,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           <TranslatedText
             stringId="programRegistry.modal.changeStatus.title"
             fallback="Change status"
-            data-test-id='translatedtext-ym8z' />
+            data-testid='translatedtext-ym8z' />
         }
         open={open}
         onClose={onClose}
@@ -79,11 +79,11 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
                       <TranslatedText
                         stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
-                        data-test-id='translatedtext-udzr' />
+                        data-testid='translatedtext-udzr' />
                     }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
-                    data-test-id='field-iked' />
+                    data-testid='field-iked' />
                 </StyledFormGrid>
                 <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
                 <ConfirmCancelRow

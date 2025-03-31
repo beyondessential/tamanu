@@ -43,7 +43,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.tasks"
       fallback="tasks"
-      data-test-id='translatedtext-vsgn' />,
+      data-testid='translatedtext-vsgn' />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
     render: props => (
       <EncounterPaneWithPermissionCheck permissionNoun="Tasking">
@@ -56,7 +56,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.vitals"
       fallback="Vitals"
-      data-test-id='translatedtext-uaig' />,
+      data-testid='translatedtext-uaig' />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
     render: props => <VitalsPane {...props} />,
   },
@@ -64,7 +64,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.charts"
       fallback="Charts"
-      data-test-id='translatedtext-p793' />,
+      data-testid='translatedtext-p793' />,
     key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => (
       <ChartDataProvider>
@@ -77,7 +77,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.notes"
       fallback="Notes"
-      data-test-id='translatedtext-4s4c' />,
+      data-testid='translatedtext-4s4c' />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },
@@ -85,7 +85,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.procedures"
       fallback="Procedures"
-      data-test-id='translatedtext-nguj' />,
+      data-testid='translatedtext-nguj' />,
     key: ENCOUNTER_TAB_NAMES.PROCEDURES,
     render: props => <ProcedurePane {...props} />,
   },
@@ -93,7 +93,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.labs"
       fallback="Labs"
-      data-test-id='translatedtext-xtgg' />,
+      data-testid='translatedtext-xtgg' />,
     key: ENCOUNTER_TAB_NAMES.LABS,
     render: props => <LabsPane {...props} />,
   },
@@ -101,7 +101,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.imaging"
       fallback="Imaging"
-      data-test-id='translatedtext-rcxe' />,
+      data-testid='translatedtext-rcxe' />,
     key: ENCOUNTER_TAB_NAMES.IMAGING,
     render: props => <ImagingPane {...props} />,
   },
@@ -109,7 +109,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.medication"
       fallback="Medication"
-      data-test-id='translatedtext-jez2' />,
+      data-testid='translatedtext-jez2' />,
     key: ENCOUNTER_TAB_NAMES.MEDICATION,
     render: props => <EncounterMedicationPane {...props} />,
   },
@@ -117,7 +117,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.forms"
       fallback="Forms"
-      data-test-id='translatedtext-8dva' />,
+      data-testid='translatedtext-8dva' />,
     key: ENCOUNTER_TAB_NAMES.FORMS,
     render: props => <EncounterProgramsPane {...props} />,
   },
@@ -125,7 +125,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.documents"
       fallback="Documents"
-      data-test-id='translatedtext-p5za' />,
+      data-testid='translatedtext-p5za' />,
     key: ENCOUNTER_TAB_NAMES.DOCUMENTS,
     render: props => <DocumentsPane {...props} />,
   },
@@ -133,7 +133,7 @@ const TABS = [
     label: <TranslatedText
       stringId="encounter.tabs.invoicing"
       fallback="Invoicing"
-      data-test-id='translatedtext-61ph' />,
+      data-testid='translatedtext-61ph' />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => (
       <EncounterPaneWithPermissionCheck permissionNoun="Invoice">
@@ -151,28 +151,28 @@ function getHeaderText({ encounterType }) {
         <TranslatedText
           stringId="encounter.type.triage"
           fallback="Triage"
-          data-test-id='translatedtext-po8b' />
+          data-testid='translatedtext-po8b' />
       );
     case ENCOUNTER_TYPES.OBSERVATION:
       return (
         <TranslatedText
           stringId="encounter.type.observation"
           fallback="Active ED patient"
-          data-test-id='translatedtext-x24h' />
+          data-testid='translatedtext-x24h' />
       );
     case ENCOUNTER_TYPES.EMERGENCY:
       return (
         <TranslatedText
           stringId="encounter.type.emergency"
           fallback="Emergency short stay"
-          data-test-id='translatedtext-ocbf' />
+          data-testid='translatedtext-ocbf' />
       );
     case ENCOUNTER_TYPES.ADMISSION:
       return (
         <TranslatedText
           stringId="encounter.type.admission"
           fallback="Hospital admission"
-          data-test-id='translatedtext-9846' />
+          data-testid='translatedtext-9846' />
       );
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
@@ -181,7 +181,7 @@ function getHeaderText({ encounterType }) {
         <TranslatedText
           stringId="encounter.header.patientEncounter"
           fallback="Patient Encounter"
-          data-test-id='translatedtext-rvwz' />
+          data-testid='translatedtext-rvwz' />
       );
   }
 }
@@ -290,7 +290,7 @@ export const EncounterView = () => {
               fallback={encounter.location.facility.name}
               value={encounter.location.facility.id}
               category="facility"
-              data-test-id='translatedreferencedata-gy32' />
+              data-testid='translatedreferencedata-gy32' />
           )
         }
         encounter={encounter}
@@ -312,7 +312,7 @@ export const EncounterView = () => {
               fallback={patientBillingTypeData.name}
               value={patientBillingTypeData.id}
               category="patientBillingType"
-              data-test-id='translatedreferencedata-t9zb' />
+              data-testid='translatedreferencedata-t9zb' />
           )
         }
       />

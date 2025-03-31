@@ -24,13 +24,13 @@ export const LabRequestFormScreen1 = ({
           <TranslatedText
             stringId="lab.create.header"
             fallback="Creating a new lab request"
-            data-test-id='translatedtext-ux67' />
+            data-testid='translatedtext-ux67' />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
             stringId="lab.create.instruction"
             fallback="Please complete the details below and select the lab request type"
-            data-test-id='translatedtext-fojd' />
+            data-testid='translatedtext-fojd' />
         </BodyText>
       </div>
       <Field
@@ -45,45 +45,45 @@ export const LabRequestFormScreen1 = ({
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                  data-test-id='translatedtext-vfzb' />
+                  data-testid='translatedtext-vfzb' />
               ),
             }}
-            data-test-id='translatedtext-dsbd' />
+            data-testid='translatedtext-dsbd' />
         }
         required
         component={AutocompleteField}
         suggester={practitionerSuggester}
-        data-test-id='field-qjpc' />
+        data-testid='field-qjpc' />
       <Field
         name="requestedDate"
         label={
           <TranslatedText
             stringId="general.requestDateTime.label"
             fallback="Request date & time"
-            data-test-id='translatedtext-8u4g' />
+            data-testid='translatedtext-8u4g' />
         }
         required
         component={DateTimeField}
         saveDateAsString
-        data-test-id='field-liic' />
+        data-testid='field-liic' />
       <Field
         name="departmentId"
         label={<TranslatedText
           stringId="general.department.label"
           fallback="Department"
-          data-test-id='translatedtext-wmd1' />}
+          data-testid='translatedtext-wmd1' />}
         component={AutocompleteField}
         suggester={departmentSuggester}
-        data-test-id='field-6vce' />
+        data-testid='field-6vce' />
       <Field
         name="labTestPriorityId"
         label={<TranslatedText
           stringId="lab.priority.label"
           fallback="Priority"
-          data-test-id='translatedtext-k4j5' />}
+          data-testid='translatedtext-k4j5' />}
         component={SuggesterSelectField}
         endpoint="labTestPriority"
-        data-test-id='field-pupp' />
+        data-testid='field-pupp' />
       <FormSeparatorLine />
       <LabRequestFormTypeRadioField setFieldValue={setFieldValue} value={values.requestFormType} />
     </>

@@ -20,9 +20,9 @@ export const SurveyAnswerResult = ({ answer, type, sourceType }) => {
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-      return <DateDisplay date={answer} data-test-id='datedisplay-hjdn' />;
+      return <DateDisplay date={answer} data-testid='datedisplay-hjdn' />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
-      return <DateDisplay date={answer} data-test-id='datedisplay-ivhb' />;
+      return <DateDisplay date={answer} data-testid='datedisplay-ivhb' />;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>
@@ -30,7 +30,7 @@ export const SurveyAnswerResult = ({ answer, type, sourceType }) => {
             onClick={() => setSurveyLink(answer)}
             variant="contained"
             color="primary"
-            data-test-id='button-lqug'>
+            data-testid='button-lqug'>
             Show Form
           </Button>
           <SurveyResponseDetailsModal

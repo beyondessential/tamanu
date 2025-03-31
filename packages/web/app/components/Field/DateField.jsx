@@ -211,11 +211,11 @@ export const DateInput = ({
 
   const ContainerWithArrows = ({ children }) => (
     <Box display="flex" alignContent="center">
-      <DefaultIconButton onClick={() => onArrowChange(-1)} data-test-id='defaulticonbutton-0ye7'>
+      <DefaultIconButton onClick={() => onArrowChange(-1)} data-testid='defaulticonbutton-0ye7'>
         <KeyboardArrowLeftIcon />
       </DefaultIconButton>
       {children}
-      <DefaultIconButton onClick={() => onArrowChange(1)} data-test-id='defaulticonbutton-yhzg'>
+      <DefaultIconButton onClick={() => onArrowChange(1)} data-testid='defaulticonbutton-yhzg'>
         <KeyboardArrowRightIcon />
       </DefaultIconButton>
     </Box>

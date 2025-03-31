@@ -43,7 +43,7 @@ export const PrintModalButton = props => {
         title={<TranslatedText
           stringId="imaging.modal.print.title"
           fallback="Imaging Request"
-          data-test-id='translatedtext-ho4y' />}
+          data-testid='translatedtext-ho4y' />}
         open={isModalOpen}
         onClose={closeModal}
         width="md"
@@ -57,11 +57,11 @@ export const PrintModalButton = props => {
         variant="outlined"
         onClick={openModal}
         style={{ marginLeft: '0.5rem' }}
-        data-test-id='button-74o8'>
+        data-testid='button-74o8'>
         <TranslatedText
           stringId="imaging.action.print"
           fallback="Print request"
-          data-test-id='translatedtext-ytfj' />
+          data-testid='translatedtext-ytfj' />
       </Button>
     </>
   );

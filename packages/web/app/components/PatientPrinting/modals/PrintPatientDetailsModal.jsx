@@ -28,13 +28,13 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.idLabels"
         fallback="Multiple ID labels"
-        data-test-id='translatedtext-pazj' />
+        data-testid='translatedtext-pazj' />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.idLabels.caption"
         fallback="A4 sheet of multiple patient identification labels"
-        data-test-id='translatedtext-gu6i' />
+        data-testid='translatedtext-gu6i' />
     ),
     icon: MultilabelIdIcon,
     component: PatientStickerLabelPage,
@@ -43,12 +43,12 @@ const PRINT_OPTIONS = {
     label: <TranslatedText
       stringId="patientDetails.print.action.idCard"
       fallback="ID Card"
-      data-test-id='translatedtext-vzls' />,
+      data-testid='translatedtext-vzls' />,
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.idCard.caption"
         fallback="Patient identification card"
-        data-test-id='translatedtext-w76k' />
+        data-testid='translatedtext-w76k' />
     ),
     icon: IdCardIcon,
     component: PatientIDCardPage,
@@ -58,13 +58,13 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.covid19TestCertificate"
         fallback="Test certificate - COVID-19"
-        data-test-id='translatedtext-hh60' />
+        data-testid='translatedtext-hh60' />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.covid19TestCertificate.caption"
         fallback="Patient COVID-19 test certificate"
-        data-test-id='translatedtext-d596' />
+        data-testid='translatedtext-d596' />
     ),
     icon: TestCertificateCovid19Icon,
     component: CovidTestCertificateModal,
@@ -74,13 +74,13 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.covid19ClearanceCertificate"
         fallback="Clearance certificate - COVID-19"
-        data-test-id='translatedtext-7h5a' />
+        data-testid='translatedtext-7h5a' />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.covid19ClearanceCertificate.caption"
         fallback="Patient COVID-19 clearance certificate"
-        data-test-id='translatedtext-69kd' />
+        data-testid='translatedtext-69kd' />
     ),
     icon: ClearanceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
@@ -91,13 +91,13 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.birthNotification"
         fallback="Birth notification"
-        data-test-id='translatedtext-7uw8' />
+        data-testid='translatedtext-7uw8' />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.birthNotification.caption"
         fallback="Patient birth notification document"
-        data-test-id='translatedtext-gifi' />
+        data-testid='translatedtext-gifi' />
     ),
     icon: BirthNotificationIcon,
     component: BirthNotificationCertificateModal,
@@ -107,13 +107,13 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.internationalPatientSummary"
         fallback="International Patient Summary"
-        data-test-id='translatedtext-byqo' />
+        data-testid='translatedtext-byqo' />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.internationalPatientSummary.caption"
         fallback="Email International Patient Summary QR Code"
-        data-test-id='translatedtext-jo5g' />
+        data-testid='translatedtext-jo5g' />
     ),
     icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
@@ -369,7 +369,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
               <TranslatedText
                 stringId="patientDetails.print.idCard.modal.submitting.title"
                 fallback="Working"
-                data-test-id='translatedtext-dgmm' />
+                data-testid='translatedtext-dgmm' />
             }
             open
           >
@@ -377,7 +377,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
               <TranslatedText
                 stringId="patientDetails.print.idCard.modal.submitting.loading"
                 fallback="Preparing ID card..."
-                data-test-id='translatedtext-8cri' />
+                data-testid='translatedtext-8cri' />
             </div>
           </Modal>
         );
@@ -389,11 +389,11 @@ export const PrintPatientDetailsModal = ({ patient }) => {
 
   return (
     <>
-      <Button size="small" onClick={openModal} data-test-id='button-6rwj'>
+      <Button size="small" onClick={openModal} data-testid='button-6rwj'>
         <TranslatedText
           stringId="patient.detailsSidebar.action.printIdForms"
           fallback="ID forms"
-          data-test-id='translatedtext-nba3' />
+          data-testid='translatedtext-nba3' />
       </Button>
       {mainComponent}
     </>

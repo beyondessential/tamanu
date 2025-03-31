@@ -91,12 +91,12 @@ export const DashboardTaskPane = React.memo(() => {
 
   return (
     <TabPane>
-      <TopBar data-test-id='topbar-homz'>
+      <TopBar data-testid='topbar-homz'>
         <Heading4 whiteSpace="nowrap">
           <TranslatedText
             stringId="dashboard.tasks.upcomingTasks.title"
             fallback="Upcoming tasks"
-            data-test-id='translatedtext-j7pc' />
+            data-testid='translatedtext-j7pc' />
         </Heading4>
         <ActionRow>
           <FilterGrid>
@@ -108,13 +108,13 @@ export const DashboardTaskPane = React.memo(() => {
                 <TranslatedText
                   stringId="general.localisedField.locationId.label"
                   fallback="Location"
-                  data-test-id='translatedtext-6ryt' />
+                  data-testid='translatedtext-6ryt' />
               }
               locationGroupLabel={
                 <TranslatedText
                   stringId="general.localisedField.locationGroupId.label"
                   fallback="Area"
-                  data-test-id='translatedtext-qdqu' />
+                  data-testid='translatedtext-qdqu' />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
@@ -125,7 +125,7 @@ export const DashboardTaskPane = React.memo(() => {
                 <TranslatedText
                   stringId="dashboard.tasks.table.highPriorityOnly.label"
                   fallback="High priority only"
-                  data-test-id='translatedtext-8wlp' />
+                  data-testid='translatedtext-8wlp' />
               }
               value={clinicianDashboardTaskingTableFilter.highPriority}
               onChange={onHighPriorityOnlyChange}

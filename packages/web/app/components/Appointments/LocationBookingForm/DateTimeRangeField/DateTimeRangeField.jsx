@@ -43,7 +43,7 @@ export const DateTimeRangeField = ({
       datePickerLabel={<TranslatedText
         stringId="general.date.label"
         fallback="Date"
-        data-test-id='translatedtext-tn7h' />}
+        data-testid='translatedtext-tn7h' />}
       datePickerName="date"
       disabled={disabled}
       required={required}
@@ -51,7 +51,7 @@ export const DateTimeRangeField = ({
         <TranslatedText
           stringId="locationBooking.bookingTime.label"
           fallback="Booking time"
-          data-test-id='translatedtext-tafw' />
+          data-testid='translatedtext-tafw' />
       }
       {...props}
     />

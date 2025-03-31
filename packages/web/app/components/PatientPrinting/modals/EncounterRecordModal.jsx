@@ -161,12 +161,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter Record"
-        data-test-id='translatedtext-m79u' />
+        data-testid='translatedtext-m79u' />
     ) : (
       <TranslatedText
         stringId="patient.modal.print.encounterProgressRecord.title"
         fallback="Patient Encounter Progress Record"
-        data-test-id='translatedtext-8wm9' />
+        data-testid='translatedtext-8wm9' />
     ),
     color: Colors.white,
     open,
@@ -195,8 +195,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       // If this next bit ever shows up it means it's a bug - show some detail
       return (
         <Modal {...modalProps}>
-          <p data-test-id='p-7c5w'>An unexpected error occurred. Please contact your system administrator.</p>
-          <p data-test-id='p-n8z8'>Error details:</p>
+          <p data-testid='p-7c5w'>An unexpected error occurred. Please contact your system administrator.</p>
+          <p data-testid='p-n8z8'>Error details:</p>
           <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
           <ModalActionRow onConfirm={onClose} confirmText="Close" />
         </Modal>

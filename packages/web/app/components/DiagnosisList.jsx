@@ -44,12 +44,12 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
         <TranslatedText
           stringId="encounter.diagnosis.type.primary"
           fallback="P"
-          data-test-id='translatedtext-zbdd' />
+          data-testid='translatedtext-zbdd' />
       ) : (
         <TranslatedText
           stringId="encounter.diagnosis.type.secondary"
           fallback="S"
-          data-test-id='translatedtext-2czv' />
+          data-testid='translatedtext-2czv' />
       )}
     </Category>
     {diagnosis?.name && diagnosis?.id && (
@@ -58,7 +58,7 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
-          data-test-id='translatedreferencedata-k9uj' />
+          data-testid='translatedreferencedata-k9uj' />
       </DiagnosisName>
     )}
   </DiagnosisChip>

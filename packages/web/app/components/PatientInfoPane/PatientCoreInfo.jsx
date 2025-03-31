@@ -71,7 +71,7 @@ const CoreInfoValue = styled(Typography)`
 `;
 
 const CoreInfoCell = ({ label, children, testId }) => (
-  <CoreInfoCellContainer data-test-id={testId}>
+  <CoreInfoCellContainer data-testid={testId}>
     <CoreInfoLabel>{label}</CoreInfoLabel>
     <CoreInfoValue>{children}</CoreInfoValue>
   </CoreInfoCellContainer>
@@ -113,7 +113,7 @@ const HealthIdDisplay = ({ displayId }) => (
         <TranslatedText
           stringId="general.localisedField.displayId.label"
           fallback="National Health Number"
-          data-test-id='translatedtext-m2xi' />
+          data-testid='translatedtext-m2xi' />
       </HealthIdText>
       <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
     </HealthId>
@@ -132,12 +132,12 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           <TranslatedText
             stringId="patient.detailsSidebar.title"
             fallback="Patient details"
-            data-test-id='translatedtext-pyk2' />
+            data-testid='translatedtext-pyk2' />
         </NameHeader>
         <NameContainer>
           <div>
-            <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
-            <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+            <NameText data-testid="core-info-patient-first-name">{patient.firstName}</NameText>
+            <NameText data-testid="core-info-patient-last-name">{patient.lastName}</NameText>
           </div>
           <PatientInitialsIcon patient={patient} />
         </NameContainer>
@@ -147,7 +147,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           label={<TranslatedText
             stringId="general.localisedField.sex.label"
             fallback="Sex"
-            data-test-id='translatedtext-lxxa' />}
+            data-testid='translatedtext-lxxa' />}
           testId="core-info-patient-sex"
         >
           <TranslatedSex sex={patient.sex} />
@@ -157,11 +157,11 @@ export const CoreInfoDisplay = memo(({ patient }) => {
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-              data-test-id='translatedtext-6xrd' />
+              data-testid='translatedtext-6xrd' />
           }
           testId="core-info-patient-dob"
         >
-          <DateDisplay date={patient.dateOfBirth} data-test-id='datedisplay-5xlq' />
+          <DateDisplay date={patient.dateOfBirth} data-testid='datedisplay-5xlq' />
           <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>

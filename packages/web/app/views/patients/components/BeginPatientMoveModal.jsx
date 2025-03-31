@@ -61,7 +61,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
               <TranslatedText
                 stringId="encounter.modal.patientMove.validation.plannedLocation.path"
                 fallback="Planned location"
-                data-test-id='translatedtext-wzqm' />,
+                data-testid='translatedtext-wzqm' />,
             ),
         })}
         formType={FORM_TYPES.EDIT_FORM}
@@ -73,7 +73,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   name="plannedLocationId"
                   component={LocalisedLocationField}
                   required
-                  data-test-id='field-rqg1' />
+                  data-testid='field-rqg1' />
                 <LocationAvailabilityWarningMessage
                   locationId={values?.plannedLocationId}
                   style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
@@ -84,12 +84,12 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                     <TranslatedText
                       stringId="encounter.modal.patientMove.action.label"
                       fallback="Would you like to plan or finalise the patient move?"
-                      data-test-id='translatedtext-o2e2' />
+                      data-testid='translatedtext-o2e2' />
                   }
                   component={RadioField}
                   options={patientMoveActionOptions}
                   style={{ gridColumn: '1/-1' }}
-                  data-test-id='field-ymi3' />
+                  data-testid='field-ymi3' />
               </Container>
               <Text>
                 By selecting ‘Plan’ the new location will not be reflected in the patient encounter

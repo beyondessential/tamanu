@@ -87,10 +87,10 @@ const ImportForm = ({
         label={<TranslatedText
           stringId="general.selectFile.label"
           fallback="Select file"
-          data-test-id='translatedtext-jzyk' />}
+          data-testid='translatedtext-jzyk' />}
         name="file"
         required
-        data-test-id='field-tuvg' />
+        data-testid='field-tuvg' />
       {dataTypes && dataTypesSelectable && (
         <Field
           name="includedDataTypes"
@@ -98,11 +98,11 @@ const ImportForm = ({
             <TranslatedText
               stringId="admin.import.includedDataTypes.label"
               fallback="Select data types to import"
-              data-test-id='translatedtext-l8uz' />
+              data-testid='translatedtext-l8uz' />
           }
           component={ExpandedMultiSelectField}
           options={dataTypes.map(value => ({ value, label: startCase(value) }))}
-          data-test-id='field-6mip' />
+          data-testid='field-6mip' />
       )}
       <StyledButtonRow alignment={buttonRowAlignment}>
         <ImportButton
@@ -115,7 +115,7 @@ const ImportForm = ({
           <TranslatedText
             stringId="admin.import.action.testImport"
             fallback="Test import"
-            data-test-id='translatedtext-irmx' />
+            data-testid='translatedtext-irmx' />
         </ImportButton>
         <ImportButton
           disabled={!values.file}
@@ -124,7 +124,7 @@ const ImportForm = ({
           <TranslatedText
             stringId="general.action.import"
             fallback="Import"
-            data-test-id='translatedtext-xuc4' />
+            data-testid='translatedtext-xuc4' />
         </ImportButton>
       </StyledButtonRow>
     </ContentContainer>
@@ -138,22 +138,22 @@ function sumStat(stats, fields = ['created', 'updated', 'errored']) {
 const OutcomeHeader = ({ result }) => {
   let head;
   if (result.didntSendReason === 'validationFailed') {
-    head = <h3 data-test-id='h3-s6hs'>Please correct these validation issues and try again</h3>;
+    head = <h3 data-testid='h3-s6hs'>Please correct these validation issues and try again</h3>;
   } else if (result.didntSendReason === 'dryRun') {
-    head = <h3 data-test-id='h3-wrd1'>Test import finished successfully</h3>;
+    head = <h3 data-testid='h3-wrd1'>Test import finished successfully</h3>;
   } else if (result.didntSendReason) {
-    head = <h3 data-test-id='h3-36bv'>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
+    head = <h3 data-testid='h3-36bv'>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
   } else if (!result?.errors?.length) {
-    head = <h3 data-test-id='h3-gh5p'>Import successful!</h3>;
+    head = <h3 data-testid='h3-gh5p'>Import successful!</h3>;
   } else {
-    head = <h3 data-test-id='h3-ujl3'>Import failed - unknown server error</h3>;
+    head = <h3 data-testid='h3-ujl3'>Import failed - unknown server error</h3>;
   }
 
   return (
     <>
       {head}
       {result.stats && (
-        <p data-test-id='p-o67q'>
+        <p data-testid='p-o67q'>
           {`Time: ${result.duration?.toFixed(2) ?? 'unknown '}s — Records: ` +
             `${sumStat(result.stats, ['created'])} created, ` +
             `${sumStat(result.stats, ['updated'])} updated, ` +
@@ -174,11 +174,11 @@ const OutcomeDisplay = ({ result }) => {
     <div>
       <OutcomeHeader result={result} />
       <hr />
-      <h4 data-test-id='h4-53ik'>Summary</h4>
+      <h4 data-testid='h4-53ik'>Summary</h4>
       {result.stats && <ImportStatsDisplay stats={result.stats} />}
       {result?.errors?.length > 0 && (
         <>
-          <h4 data-test-id='h4-gr0i'>Errors</h4>
+          <h4 data-testid='h4-gr0i'>Errors</h4>
           <ImportErrorsTable errors={result?.errors} />
         </>
       )}
@@ -252,7 +252,7 @@ export const ImporterView = memo(
               .translatedLabel(<TranslatedText
               stringId="general.file.label"
               fallback="File"
-              data-test-id='translatedtext-7rx9' />),
+              data-testid='translatedtext-7rx9' />),
           })}
           initialValues={{
             includedDataTypes: initialDataTypes,

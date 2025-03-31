@@ -43,7 +43,7 @@ export const ProgramRegistrySidebarItem = ({
                 value={id}
                 fallback={name}
                 category="programRegistry"
-                data-test-id='translatedreferencedata-l5tf' />
+                data-testid='translatedreferencedata-l5tf' />
             }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}

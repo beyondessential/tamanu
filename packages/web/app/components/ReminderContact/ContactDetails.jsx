@@ -185,7 +185,7 @@ export const ContactDetails = ({
           <TranslatedText
             stringId="patient.details.reminderContacts.status.failed"
             fallback="Failed"
-            data-test-id='translatedtext-pdkv' />
+            data-testid='translatedtext-pdkv' />
         );
         break;
       case CONNECTION_STATUS.PENDING:
@@ -194,7 +194,7 @@ export const ContactDetails = ({
             stringId="patient.details.reminderContacts.status.pending"
             fallback=":method pending"
             replacements={{ method }}
-            data-test-id='translatedtext-t5s8' />
+            data-testid='translatedtext-t5s8' />
         );
         break;
       case CONNECTION_STATUS.SUCCESS:
@@ -202,7 +202,7 @@ export const ContactDetails = ({
           <TranslatedText
             stringId={`patient.details.reminderContacts.method.${method}`}
             fallback={method}
-            data-test-id='translatedtext-5ho9' />
+            data-testid='translatedtext-5ho9' />
         );
         break;
     }
@@ -216,7 +216,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contact"
           fallback="Contact"
-          data-test-id='translatedtext-05x9' />
+          data-testid='translatedtext-05x9' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, name }) => (
@@ -233,7 +233,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.relationship"
           fallback="Relationship"
-          data-test-id='translatedtext-tmrw' />
+          data-testid='translatedtext-tmrw' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, relationship }) => (
@@ -250,7 +250,7 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contactMethod"
           fallback="Contact method"
-          data-test-id='translatedtext-1mtn' />
+          data-testid='translatedtext-1mtn' />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, method }) =>
@@ -268,7 +268,7 @@ export const ContactDetails = ({
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
-                    data-test-id='translatedtext-x46u' />
+                    data-testid='translatedtext-x46u' />
                 </StyledTextButton>
               );
             },
@@ -288,7 +288,7 @@ export const ContactDetails = ({
                   <TranslatedText
                     stringId="general.action.retry"
                     fallback="Retry"
-                    data-test-id='translatedtext-jxn1' />
+                    data-testid='translatedtext-jxn1' />
                 </RowActionLink>
               ) : (
                 ''

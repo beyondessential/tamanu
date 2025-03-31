@@ -219,7 +219,7 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     <TranslatedText
       stringId="tasks.table.tooltip.completed"
       fallback="Completed"
-      data-test-id='translatedtext-twdz' />
+      data-testid='translatedtext-twdz' />
     <div>{completedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>{formatShortest(completedTime)} </span>
@@ -234,7 +234,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     <TranslatedText
       stringId="tasks.table.tooltip.notCompleted"
       fallback="Not completed"
-      data-test-id='translatedtext-ts0f' />
+      data-testid='translatedtext-ts0f' />
     <div>{notCompletedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
@@ -303,7 +303,7 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText
       stringId="encounter.tasks.table.once"
       fallback="Once"
-      data-test-id='translatedtext-02us' />
+      data-testid='translatedtext-02us' />
   );
 
 const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
@@ -325,12 +325,12 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.completed"
               fallback="Mark as complete"
-              data-test-id='translatedtext-jxle' />
+              data-testid='translatedtext-jxle' />
           }
         >
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}
-            data-test-id='iconbutton-xvts'>
+            data-testid='iconbutton-xvts'>
             <StyledCheckCircleIcon />
           </IconButton>
         </TableTooltip>
@@ -341,12 +341,12 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.notCompleted"
               fallback="Mark as not complete"
-              data-test-id='translatedtext-bku8' />
+              data-testid='translatedtext-bku8' />
           }
         >
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}
-            data-test-id='iconbutton-n9eo'>
+            data-testid='iconbutton-n9eo'>
             <StyledCancelIcon />
           </IconButton>
         </TableTooltip>
@@ -357,12 +357,12 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.toDo"
               fallback="Mark as to-do"
-              data-test-id='translatedtext-4b44' />
+              data-testid='translatedtext-4b44' />
           }
         >
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}
-            data-test-id='iconbutton-p8es'>
+            data-testid='iconbutton-p8es'>
             <StatusTodo />
           </IconButton>
         </TableTooltip>
@@ -373,12 +373,12 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.delete"
               fallback="Delete"
-              data-test-id='translatedtext-20jc' />
+              data-testid='translatedtext-20jc' />
           }
         >
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}
-            data-test-id='iconbutton-mx5o'>
+            data-testid='iconbutton-mx5o'>
             <StyledDeleteOutlineIcon />
           </IconButton>
         </TableTooltip>
@@ -437,7 +437,7 @@ const NoDataMessage = () => (
     <TranslatedText
       stringId="encounter.tasks.table.noData"
       fallback="No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient."
-      data-test-id='translatedtext-p5oz' />
+      data-testid='translatedtext-p5oz' />
   </NoDataContainer>
 );
 
@@ -500,7 +500,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       title: <TranslatedText
         stringId="encounter.tasks.table.column.task"
         fallback="Task"
-        data-test-id='translatedtext-0v1i' />,
+        data-testid='translatedtext-0v1i' />,
       maxWidth: 160,
       accessor: getTask,
     },
@@ -509,7 +509,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       title: <TranslatedText
         stringId="encounter.tasks.table.column.task"
         fallback="Due at"
-        data-test-id='translatedtext-u9e8' />,
+        data-testid='translatedtext-u9e8' />,
       accessor: getDueTime,
       maxWidth: 60,
     },
@@ -519,7 +519,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         <TranslatedText
           stringId="encounter.tasks.table.column.assignedTo"
           fallback="Assigned to"
-          data-test-id='translatedtext-q936' />
+          data-testid='translatedtext-q936' />
       ),
       maxWidth: 100,
       sortable: false,
@@ -531,7 +531,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         <TranslatedText
           stringId="encounter.tasks.table.column.frequency"
           fallback="Frequency"
-          data-test-id='translatedtext-g4wq' />
+          data-testid='translatedtext-g4wq' />
       ),
       maxWidth: 90,
       accessor: getFrequency,
@@ -542,7 +542,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       title: <TranslatedText
         stringId="encounter.tasks.table.column.notes"
         fallback="Notes"
-        data-test-id='translatedtext-4ukk' />,
+        data-testid='translatedtext-4ukk' />,
       accessor: (row) => (
         <NotesCell
           row={row}

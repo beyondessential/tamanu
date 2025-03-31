@@ -32,13 +32,13 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
       disabled={disabled}
       onClick={onClick}
       disableRipple
-      data-test-id='iconbutton-vhs7'>
+      data-testid='iconbutton-vhs7'>
       <DeleteOutlineIcon fontSize="small" />
       <Text>
         <TranslatedText
           stringId="encounter.vitals.action.deleteEntry"
           fallback="Delete entry"
-          data-test-id='translatedtext-ggze' />
+          data-testid='translatedtext-ggze' />
       </Text>
     </IconButton>
   </Box>
@@ -87,12 +87,12 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
           <TranslatedText
             stringId="encounter.vitals.editReason.label"
             fallback="Reason for change to record"
-            data-test-id='translatedtext-aijb' />
+            data-testid='translatedtext-aijb' />
           : {reasonForChangeLabel}
         </LogText>
       )}
       <LogTextSmall>
-        {userDisplayName} <DateDisplay date={date} showTime shortYear data-test-id='datedisplay-cu6i' />
+        {userDisplayName} <DateDisplay date={date} showTime shortYear data-testid='datedisplay-cu6i' />
       </LogTextSmall>
     </LogContainer>
   );
@@ -182,18 +182,18 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               <TranslatedText
                 stringId="encounter.vitals.editReason.label"
                 fallback="Reason for change to record"
-                data-test-id='translatedtext-fdj9' />
+                data-testid='translatedtext-fdj9' />
             }
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
-            data-test-id='field-5fcy' />
+            data-testid='field-5fcy' />
           <FormSeparatorLine />
           <OuterLabelFieldWrapper
             label={<TranslatedText
               stringId="encounter.vitals.history.label"
               fallback="History"
-              data-test-id='translatedtext-w289' />}
+              data-testid='translatedtext-w289' />}
             style={{ gridColumn: '1 / -1' }}
           >
             <Box
@@ -220,8 +220,8 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
             confirmText={<TranslatedText
               stringId="general.action.save"
               fallback="Save"
-              data-test-id='translatedtext-7lro' />}
-            data-test-id='formsubmitcancelrow-44cb' />
+              data-testid='translatedtext-7lro' />}
+            data-testid='formsubmitcancelrow-44cb' />
         </FormGrid>
       )}
     />

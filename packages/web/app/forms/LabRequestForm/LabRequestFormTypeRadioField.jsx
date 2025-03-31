@@ -14,12 +14,12 @@ const OPTIONS = {
     label: <TranslatedText
       stringId="lab.formType.option.individual.label"
       fallback="Individual"
-      data-test-id='translatedtext-bjs4' />,
+      data-testid='translatedtext-bjs4' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.individual.description"
         fallback="Select an individual or multiple individual tests"
-        data-test-id='translatedtext-bw6t' />
+        data-testid='translatedtext-bw6t' />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
@@ -27,12 +27,12 @@ const OPTIONS = {
     label: <TranslatedText
       stringId="lab.formType.option.panel.label"
       fallback="Panel"
-      data-test-id='translatedtext-fsax' />,
+      data-testid='translatedtext-fsax' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.panel.description"
         fallback="Select from a list of test panels"
-        data-test-id='translatedtext-wfc8' />
+        data-testid='translatedtext-wfc8' />
     ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
@@ -40,12 +40,12 @@ const OPTIONS = {
     label: <TranslatedText
       stringId="lab.formType.option.superset.label"
       fallback="Superset"
-      data-test-id='translatedtext-u0uh' />,
+      data-testid='translatedtext-u0uh' />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.superset.description"
         fallback="Select from a list of supersets"
-        data-test-id='translatedtext-ysmr' />
+        data-testid='translatedtext-ysmr' />
     ),
     value: LAB_REQUEST_FORM_TYPES.SUPERSET,
   },
@@ -113,7 +113,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
         label={<TranslatedText
           stringId="lab.formType.label"
           fallback="Select your request type"
-          data-test-id='translatedtext-mjrf' />}
+          data-testid='translatedtext-mjrf' />}
         required
       >
         {isLoading ? (
@@ -124,7 +124,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
             name="requestFormType"
             component={RadioField}
             options={options}
-            data-test-id='field-fqbm' />
+            data-testid='field-fqbm' />
         )}
       </OuterLabelFieldWrapper>
     </div>

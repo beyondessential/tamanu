@@ -29,17 +29,17 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         noteType={<TranslatedEnum
           value={note.noteType}
           enumValues={NOTE_TYPE_LABELS}
-          data-test-id='translatedenum-j0xm' />}
+          data-testid='translatedenum-j0xm' />}
         date={note.revisedBy?.date || note.date}
         dateLabel={<TranslatedText
           stringId="note.dateTime.label"
           fallback="Date & time"
-          data-test-id='translatedtext-phe4' />}
+          data-testid='translatedtext-phe4' />}
         writtenByLabel={
           <TranslatedText
             stringId="note.writtenBy.label"
             fallback="Written by (or on behalf of)"
-            data-test-id='translatedtext-4b6g' />
+            data-testid='translatedtext-4b6g' />
         }
         writtenBy={writtenBy}
       />
@@ -50,7 +50,7 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         confirmText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-test-id='translatedtext-ugx5' />}
+          data-testid='translatedtext-ugx5' />}
         onConfirm={onCancel}
       />
     </>

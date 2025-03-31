@@ -49,13 +49,13 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
         <TranslatedText
           stringId="patient.details.removeReminderContact.confirmation"
           fallback="Would you like to remove the below contact?"
-          data-test-id='translatedtext-3quu' />
+          data-testid='translatedtext-3quu' />
       </StyledHeading>
       <StyledSubHeading>
         <TranslatedText
           stringId="patient.details.removeReminderContact.description"
           fallback="You can add the contact again at any time."
-          data-test-id='translatedtext-04xv' />
+          data-testid='translatedtext-04xv' />
       </StyledSubHeading>
       <ContactDetails
         selectedContact={selectedContact}
@@ -75,7 +75,7 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
           ? <TranslatedText
             stringId="general.action.remove"
             fallback="Remove"
-            data-test-id='translatedtext-4rkh' />
+            data-testid='translatedtext-4rkh' />
           : <CircularProgress size={16} color="#fff" />
         }
       />

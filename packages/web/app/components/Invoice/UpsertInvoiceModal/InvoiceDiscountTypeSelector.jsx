@@ -53,19 +53,19 @@ export const InvoiceDiscountTypeSelector = ({
         <TranslatedText
           stringId="invoice.modal.selectDiscount.subtitle"
           fallback="Patient invoice discount"
-          data-test-id='translatedtext-sds2' />
+          data-testid='translatedtext-sds2' />
       </Heading3>
       <BodyText mb="36px" color="textTertiary">
         <TranslatedText
           stringId="invoice.modal.selectDiscount.description"
           fallback="Please select the patient discount type below, otherwise skip this step. You can add the discount again at a later time."
-          data-test-id='translatedtext-lcqu' />
+          data-testid='translatedtext-lcqu' />
       </BodyText>
       <Heading5 mb="12px" color={Colors.midText}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.label"
           fallback="Select your discount type"
-          data-test-id='translatedtext-6iv6' />
+          data-testid='translatedtext-6iv6' />
       </Heading5>
       <StyledRadioGroup name="use-radio-group" value={discountType} onChange={onChangeDiscountType}>
         <StyledFormControlLabel
@@ -77,18 +77,18 @@ export const InvoiceDiscountTypeSelector = ({
                 <TranslatedText
                   stringId="invoice.modal.selectDiscount.assessment.label"
                   fallback="Assessment"
-                  data-test-id='translatedtext-n0of' />
+                  data-testid='translatedtext-n0of' />
               }
               description={
                 <TranslatedText
                   stringId="invoice.modal.selectDiscount.assessment.subLabel"
                   fallback="Complete a patient discount assessment"
-                  data-test-id='translatedtext-klaf' />
+                  data-testid='translatedtext-klaf' />
               }
             />
           }
           control={<Radio color="primary" size="small" />}
-          data-test-id='styledformcontrollabel-6jyf' />
+          data-testid='styledformcontrollabel-6jyf' />
         <StyledFormControlLabel
           value={INVOICE_DISCOUNT_TYPES.MANUAL}
           labelPlacement="start"
@@ -98,32 +98,32 @@ export const InvoiceDiscountTypeSelector = ({
                 <TranslatedText
                   stringId="invoice.modal.selectDiscount.manual.label"
                   fallback="Manual"
-                  data-test-id='translatedtext-7k1t' />
+                  data-testid='translatedtext-7k1t' />
               }
               description={
                 <TranslatedText
                   stringId="invoice.modal.selectDiscount.manual.subLabel"
                   fallback="Set the patient discount manually"
-                  data-test-id='translatedtext-pmip' />
+                  data-testid='translatedtext-pmip' />
               }
             />
           }
           control={<Radio color="primary" size="small" />}
-          data-test-id='styledformcontrollabel-t7zh' />
+          data-testid='styledformcontrollabel-t7zh' />
       </StyledRadioGroup>
       <StyledDivider />
       <ConfirmCancelBackRow
         confirmText={<TranslatedText
           stringId="general.action.next"
           fallback="Next"
-          data-test-id='translatedtext-x8jr' />}
+          data-testid='translatedtext-x8jr' />}
         onConfirm={handleNext}
         onCancel={onClose}
         onBack={handleSkip}
         backButtonText={<TranslatedText
           stringId="general.action.skip"
           fallback="Skip"
-          data-test-id='translatedtext-h5zh' />}
+          data-testid='translatedtext-h5zh' />}
         confirmDisabled={!discountType}
         backDisabled={isSubmitting}
       />

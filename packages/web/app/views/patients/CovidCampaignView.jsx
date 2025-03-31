@@ -63,7 +63,7 @@ const PatientCovidCampaignTable = React.memo(({ onPatientSelect, ...props }) => 
       exportName="Covid Campaign"
       onRowClick={onPatientSelect}
       {...props}
-      data-test-id='datafetchingtable-ixq1' />
+      data-testid='datafetchingtable-ixq1' />
   );
 });
 
@@ -85,7 +85,7 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
         patient={patient}
         onClose={() => setModalOpen(false)}
       />
-      <TopBar title="COVID campaign" data-test-id='topbar-pj9f' />
+      <TopBar title="COVID campaign" data-testid='topbar-pj9f' />
       <ImmunisationSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientCovidCampaignTable

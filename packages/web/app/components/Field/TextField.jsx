@@ -113,7 +113,7 @@ export const TextInput = ({ value = '', label, enablePasting = false, ...props }
 };
 
 export const LimitedTextField = ({ limit = 255, ...props }) => (
-  <TextField {...props} inputProps={{ maxLength: limit }} data-test-id='textfield-c6xk' />
+  <TextField {...props} inputProps={{ maxLength: limit }} data-testid='textfield-c6xk' />
 );
 
 export const TextField = ({ field, ...props }) => (

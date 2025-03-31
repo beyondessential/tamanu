@@ -54,7 +54,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         title={<TranslatedText
           stringId="bedManagement.search.title"
           fallback="Search Locations"
-          data-test-id='translatedtext-5ro8' />}
+          data-testid='translatedtext-5ro8' />}
         onSearch={onSearch}
         initialValues={searchParameters}
       >
@@ -71,21 +71,21 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
                 <TranslatedText
                   stringId="bedManagement.search.handoverNotes.tooltip"
                   fallback="Select an 'Area' to create handover notes"
-                  data-test-id='translatedtext-fuzd' />
+                  data-testid='translatedtext-fuzd' />
               }
             >
               <span>
                 <TranslatedText
                   stringId="bedManagement.search.handoverNotes.button.label"
                   fallback="Handover notes"
-                  data-test-id='translatedtext-wlmo' />
+                  data-testid='translatedtext-wlmo' />
               </span>
             </ThemedTooltip>
           ) : (
             <TranslatedText
               stringId="bedManagement.search.handoverNotes.button.label"
               fallback="Handover notes"
-              data-test-id='translatedtext-nl3k' />
+              data-testid='translatedtext-nl3k' />
           )}
         </HandoverNotesButton>
 
@@ -95,18 +95,18 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           label={<TranslatedText
             stringId="general.localisedField.area.label"
             fallback="Area"
-            data-test-id='translatedtext-afkf' />}
+            data-testid='translatedtext-afkf' />}
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}
-          data-test-id='localisedfield-mg1v' />
+          data-testid='localisedfield-mg1v' />
         <LocalisedField
           name="status"
           label={
             <TranslatedText
               stringId="general.localisedField.status.label"
               fallback="Status"
-              data-test-id='translatedtext-mobi' />
+              data-testid='translatedtext-mobi' />
           }
           size="small"
           component={TranslatedSelectField}
@@ -115,7 +115,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             ...options,
           ]}
           enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
-          data-test-id='localisedfield-jyyv' />
+          data-testid='localisedfield-jyyv' />
       </CustomisableSearchBar>
       <HandoverNotesModal
         open={handoverNotesModalShown}

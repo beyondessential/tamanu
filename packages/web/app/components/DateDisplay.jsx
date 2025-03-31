@@ -150,7 +150,7 @@ export const MultilineDatetimeDisplay = React.memo(
         <DateDisplay
           date={date}
           showExplicitDate={showExplicitDate}
-          data-test-id='datedisplay-ocgk' />
+          data-testid='datedisplay-ocgk' />
         <TimeText>{formatTime(date)}</TimeText>
       </Box>
     );

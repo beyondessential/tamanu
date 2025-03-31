@@ -58,7 +58,7 @@ export function CarePlanNoteForm({
             <TranslatedText
               stringId="note.validation.content.path"
               fallback="Content"
-              data-test-id='translatedtext-y8xx' />,
+              data-testid='translatedtext-y8xx' />,
           ),
       })}
       formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
@@ -71,22 +71,22 @@ export function CarePlanNoteForm({
                 <TranslatedText
                   stringId="carePlan.noteOnBehalfOf.label"
                   fallback="On behalf of"
-                  data-test-id='translatedtext-6kqk' />
+                  data-testid='translatedtext-6kqk' />
               }
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              data-test-id='field-4nym' />
+              data-testid='field-4nym' />
             <Field
               name="date"
               label={
                 <TranslatedText
                   stringId="carePlan.noteDateRecorded.label"
                   fallback="Date Recorded"
-                  data-test-id='translatedtext-y4jp' />
+                  data-testid='translatedtext-y4jp' />
               }
               component={DateTimeField}
               saveDateAsString
-              data-test-id='field-jrnf' />
+              data-testid='field-jrnf' />
           </FormGrid>
           <FormGrid columns={1}>
             <Field
@@ -96,7 +96,7 @@ export function CarePlanNoteForm({
               required
               multiline
               minRows={4}
-              data-test-id='field-70rg' />
+              data-testid='field-70rg' />
           </FormGrid>
           <SubmitError>{submitError}</SubmitError>
           <FormSubmitCancelRow
@@ -106,15 +106,15 @@ export function CarePlanNoteForm({
                 <TranslatedText
                   stringId="general.action.save"
                   fallback="Save"
-                  data-test-id='translatedtext-be5b' />
+                  data-testid='translatedtext-be5b' />
               ) : (
                 <TranslatedText
                   stringId="general.action.addNote"
                   fallback="Add Note"
-                  data-test-id='translatedtext-y7sj' />
+                  data-testid='translatedtext-y7sj' />
               )
             }
-            data-test-id='formsubmitcancelrow-ssca' />
+            data-testid='formsubmitcancelrow-ssca' />
         </>
       )}
     />

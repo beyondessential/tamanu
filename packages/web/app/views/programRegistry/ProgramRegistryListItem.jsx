@@ -42,7 +42,7 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
               value={programRegistry?.id}
               fallback={programRegistry?.name}
               category="programRegistry"
-              data-test-id='translatedreferencedata-dl51' />
+              data-testid='translatedreferencedata-dl51' />
           </NameContainer>
         </RowContents>
         <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>
@@ -50,7 +50,7 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
             fallback={clinicalStatus?.name}
             value={clinicalStatus?.id}
             category="programRegistryClinicalStatus"
-            data-test-id='translatedreferencedata-p3ad' />
+            data-testid='translatedreferencedata-p3ad' />
         </NameContainer>
       </Spacer>
     </ListItem>

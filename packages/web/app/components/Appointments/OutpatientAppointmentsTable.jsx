@@ -274,18 +274,18 @@ const TableHeader = ({ title, patient }) => {
           <TranslatedText
             stringId="patient.appointments.table.viewPastAppointments"
             fallback="View past appointments"
-            data-test-id='translatedtext-yham' />
+            data-testid='translatedtext-yham' />
         </ViewPastBookingsButton>
         {canCreateAppointment && (
           <Button
             variant="outlined"
             color="primary"
             onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
-            data-test-id='button-r4l8'>
+            data-testid='button-r4l8'>
             <TranslatedText
               stringId="patient.appointments.table.bookAppointment"
               fallback="+ Book appointment"
-              data-test-id='translatedtext-fyd1' />
+              data-testid='translatedtext-fyd1' />
           </Button>
         )}
       </ActionRow>
@@ -335,7 +335,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       label: <TranslatedText
         stringId="general.action.cancel"
         fallback="Cancel"
-        data-test-id='translatedtext-g9p2' />,
+        data-testid='translatedtext-g9p2' />,
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -353,7 +353,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       title: <TranslatedText
         stringId="patient.appointments.table.column.date"
         fallback="Date"
-        data-test-id='translatedtext-gz4u' />,
+        data-testid='translatedtext-gz4u' />,
       accessor: getDate,
     },
     {
@@ -361,7 +361,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       title: <TranslatedText
         stringId="patient.appointments.table.column.area"
         fallback="Area"
-        data-test-id='translatedtext-ddy7' />,
+        data-testid='translatedtext-ddy7' />,
       accessor: ({ locationGroup }) => locationGroup?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={248} />,
     },
@@ -371,7 +371,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.clinician"
           fallback="Clinician"
-          data-test-id='translatedtext-xjd9' />
+          data-testid='translatedtext-xjd9' />
       ),
       accessor: ({ clinician }) => clinician?.displayName || '-',
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={139} />,
@@ -382,7 +382,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.appointmentType"
           fallback="Appointment type"
-          data-test-id='translatedtext-ih9r' />
+          data-testid='translatedtext-ih9r' />
       ),
       accessor: ({ appointmentType }) => appointmentType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={155} />,
@@ -399,7 +399,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
                 className="menu-container"
                 onMouseEnter={() => setSelectedAppointment(data)}
               >
-                <StyledMenuButton actions={actions} data-test-id='styledmenubutton-kgtz' />
+                <StyledMenuButton actions={actions} data-testid='styledmenubutton-kgtz' />
               </MenuContainer>
             ),
           },
@@ -419,7 +419,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
             <TranslatedText
               stringId="patient.appointments.table.noData"
               fallback="No outpatient appointments"
-              data-test-id='translatedtext-26zx' />
+              data-testid='translatedtext-26zx' />
           }
           patient={patient}
         />
@@ -440,7 +440,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.appointments.table.title"
                 fallback="Outpatient appointments"
-                data-test-id='translatedtext-quwj' />
+                data-testid='translatedtext-quwj' />
             }
             patient={patient}
           />

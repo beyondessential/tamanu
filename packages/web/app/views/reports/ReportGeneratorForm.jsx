@@ -81,7 +81,7 @@ const ReportIdField = ({ onValueChange, ...props }) => {
     },
     [onValueChange, field],
   );
-  return <AutocompleteField {...props} onChange={changeCallback} data-test-id='autocompletefield-djqw' />;
+  return <AutocompleteField {...props} onChange={changeCallback} data-testid='autocompletefield-djqw' />;
 };
 
 const buildParameterFieldValidation = ({ name, required }) => {
@@ -149,7 +149,7 @@ export const ReportGeneratorForm = () => {
       <TranslatedText
         stringId="report.generate.dateRange.label"
         fallback="Date range"
-        data-test-id='translatedtext-qv7t' />
+        data-testid='translatedtext-qv7t' />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings = true,
@@ -174,7 +174,7 @@ export const ReportGeneratorForm = () => {
             <TranslatedText
               stringId="report.generate.requestError.loadFailure"
               fallback="Unable to load available reports"
-              data-test-id='translatedtext-y5jf' />
+              data-testid='translatedtext-y5jf' />
           )} - ${error.message}`,
         );
       }
@@ -235,7 +235,7 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.message.request.success"
             fallback="Report successfully requested. You will receive an email soon."
-            data-test-id='translatedtext-ah0h' />,
+            data-testid='translatedtext-ah0h' />,
         );
       }
     } catch (e) {
@@ -244,7 +244,7 @@ export const ReportGeneratorForm = () => {
           stringId="reportGenerator.error.cantSubmitRequest"
           fallback="Unable to submit report request - :errorMessage"
           replacements={{ errorMessage: e.message }}
-          data-test-id='translatedtext-6gat' />,
+          data-testid='translatedtext-6gat' />,
       );
     }
   };
@@ -263,7 +263,7 @@ export const ReportGeneratorForm = () => {
         <TranslatedText
           stringId="report.generate.message.export.success"
           fallback="Report successfully exported"
-          data-test-id='translatedtext-6kh9' />,
+          data-testid='translatedtext-6kh9' />,
       );
     } catch (error) {
       setRequestError(`Unable to export report - ${error.message}`);
@@ -308,7 +308,7 @@ export const ReportGeneratorForm = () => {
               label={<TranslatedText
                 stringId="report.generate.report.label"
                 fallback="Report"
-                data-test-id='translatedtext-fvf0' />}
+                data-testid='translatedtext-fvf0' />}
               component={ReportIdField}
               options={reportOptions}
               required
@@ -317,7 +317,7 @@ export const ReportGeneratorForm = () => {
                 clearForm();
                 resetDownload();
               }}
-              data-test-id='field-rn03' />
+              data-testid='field-rn03' />
             <Field
               name="dataSource"
               label=" "
@@ -332,7 +332,7 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.thisFacility"
                       fallback="This facility"
-                      data-test-id='translatedtext-1d1g' />
+                      data-testid='translatedtext-1d1g' />
                   ),
                   value: REPORT_DATA_SOURCES.THIS_FACILITY,
                 },
@@ -341,14 +341,14 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.allFacilities"
                       fallback="All facilities"
-                      data-test-id='translatedtext-k9wt' />
+                      data-testid='translatedtext-k9wt' />
                   ),
                   value: REPORT_DATA_SOURCES.ALL_FACILITIES,
                 },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
-              data-test-id='field-4le9' />
+              data-testid='field-4le9' />
           </FormGrid>
           {reportsById[selectedReportId]?.notes && (
             <>
@@ -395,22 +395,22 @@ export const ReportGeneratorForm = () => {
                 <TranslatedText
                   stringId="report.generate.fromDate.label"
                   fallback="From date"
-                  data-test-id='translatedtext-2m13' />
+                  data-testid='translatedtext-2m13' />
               }
               onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
-              data-test-id='field-iij2' />
+              data-testid='field-iij2' />
             <Field
               name="toDate"
               label={<TranslatedText
                 stringId="report.generate.toDate.label"
                 fallback="To date"
-                data-test-id='translatedtext-rr3l' />}
+                data-testid='translatedtext-rr3l' />}
               onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
-              data-test-id='field-znhm' />
+              data-testid='field-znhm' />
           </FormGrid>
           {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
             <EmailInputContainer>
@@ -442,11 +442,11 @@ export const ReportGeneratorForm = () => {
           )}
           <Box display="flex" justifyContent="flex-end" gridGap="1em">
             {dataReadyForSaving ? (
-              <Button onClick={onDownload} startIcon={<GetAppIcon />} data-test-id='button-yh9r'>
+              <Button onClick={onDownload} startIcon={<GetAppIcon />} data-testid='button-yh9r'>
                 <TranslatedText
                   stringId="report.generate.action.download"
                   fallback="Download"
-                  data-test-id='translatedtext-tmhf' /> (
+                  data-testid='translatedtext-tmhf' /> (
                 {(
                   (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
                   1024
@@ -463,7 +463,7 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateXLSX"
                         fallback="Generate as .XLSX"
-                        data-test-id='translatedtext-19et' />
+                        data-testid='translatedtext-19et' />
                     ),
                     onClick: event => {
                       setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
@@ -475,7 +475,7 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateCSV"
                         fallback="Generate as .CSV"
-                        data-test-id='translatedtext-x6f2' />
+                        data-testid='translatedtext-x6f2' />
                     ),
                     onClick: event => {
                       setBookFormat(REPORT_EXPORT_FORMATS.CSV);

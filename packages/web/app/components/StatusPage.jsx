@@ -68,14 +68,14 @@ export const UnavailableStatusPage = () => {
           stringId="splash.unavailable.message"
           fallback=":brandName is currently unavailable"
           replacements={{ brandName }}
-          data-test-id='translatedtext-c4em' />
+          data-testid='translatedtext-c4em' />
       }
       description={
         <TranslatedText
           stringId="splash.unavailable.description"
           fallback=":brandName is currently unavailable. Please try again later or contact your system administrator for further information."
           replacements={{ brandName }}
-          data-test-id='translatedtext-26m1' />
+          data-testid='translatedtext-26m1' />
       }
     />
   );
@@ -112,7 +112,7 @@ export const LoadingStatusPage = () => {
             stringId="splash.loading.message"
             fallback=":brandName is loading"
             replacements={{ brandName }}
-            data-test-id='translatedtext-gr83' />
+            data-testid='translatedtext-gr83' />
         </AnimateEllipsis>
       }
       description={
@@ -120,7 +120,7 @@ export const LoadingStatusPage = () => {
           stringId="splash.loading.description"
           fallback=":brandName is currently loading. Please do not navigate away from this page."
           replacements={{ brandName }}
-          data-test-id='translatedtext-zieu' />
+          data-testid='translatedtext-zieu' />
       }
     />
   );
@@ -167,14 +167,14 @@ export const UnsupportedBrowserStatusPage = () => {
           stringId="splash.browser.message"
           fallback=":brandName is not available on your browser"
           replacements={{ brandName }}
-          data-test-id='translatedtext-9a8u' />
+          data-testid='translatedtext-9a8u' />
       }
       description={
         <TranslatedText
           stringId="splash.browser.description"
           fallback="Please contact your system administrator for further information on how to access :brandName using a Chrome or Edge browser."
           replacements={{ brandName }}
-          data-test-id='translatedtext-x5wp' />
+          data-testid='translatedtext-x5wp' />
       }
     />
   );
@@ -205,7 +205,7 @@ export const MobileStatusPage = ({ platformType }) => {
           stringId="splash.mobile.description"
           fallback=":brandName is not currently supported by mobile or tablet devices. Please access via a desktop computer or laptop."
           replacements={{ brandName }}
-          data-test-id='translatedtext-e1mm' />
+          data-testid='translatedtext-e1mm' />
       </ErrorDescription>
     </MobileContainer>
   );
@@ -225,7 +225,7 @@ export const SingleTabStatusPage = () => {
             stringId="splash.singleTab.message"
             fallback=":brandName can not be opened across multiple tabs."
             replacements={{ brandName }}
-            data-test-id='translatedtext-8hnj' />
+            data-testid='translatedtext-8hnj' />
         </SingleTabErrorMessage>
       }
       description={
@@ -233,7 +233,7 @@ export const SingleTabStatusPage = () => {
           stringId="splash.singleTab.description"
           fallback="Please continue working in the existing tab."
           replacements={{ brandName }}
-          data-test-id='translatedtext-tcgd' />
+          data-testid='translatedtext-tcgd' />
       }
     />
   );

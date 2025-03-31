@@ -56,7 +56,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
           label={<TranslatedText
             stringId="general.localisedField.sex.label"
             fallback="Sex"
-            data-test-id='translatedtext-aeay' />}
+            data-testid='translatedtext-aeay' />}
           value={<TranslatedSex sex={sex} />}
         />
         <InlineDetailsDisplay
@@ -64,9 +64,9 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-              data-test-id='translatedtext-2ji9' />
+              data-testid='translatedtext-2ji9' />
           }
-          value={<DateDisplay date={dateOfBirth} noTooltip data-test-id='datedisplay-1n0g' />}
+          value={<DateDisplay date={dateOfBirth} noTooltip data-testid='datedisplay-1n0g' />}
         />
       </PrimaryDetails>
       <InlineDetailsDisplay
@@ -74,7 +74,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
           <TranslatedText
             stringId="patient.details.reminderContacts.label"
             fallback="Contact"
-            data-test-id='translatedtext-cjq5' />
+            data-testid='translatedtext-cjq5' />
         }
         value={additionalData?.primaryContactNumber}
       />

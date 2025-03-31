@@ -72,16 +72,16 @@ export const VaccineNotGivenForm = ({
       label={<TranslatedText
         stringId="vaccine.notGivenReason.label"
         fallback="Reason"
-        data-test-id='translatedtext-nl0h' />}
+        data-testid='translatedtext-nl0h' />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
-      data-test-id='localisedfield-bn46' />
+      data-testid='localisedfield-bn46' />
 
     <VaccineDateField
       label={<TranslatedText
         stringId="vaccine.dateRecorded.label"
         fallback="Date recorded"
-        data-test-id='translatedtext-kf46' />}
+        data-testid='translatedtext-kf46' />}
       min={values?.patientData?.dateOfBirth}
       max={getCurrentDateString()}
       keepIncorrectValue
@@ -105,10 +105,10 @@ export const VaccineNotGivenForm = ({
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
                 casing="lower"
-                data-test-id='translatedtext-33za' />
+                data-testid='translatedtext-33za' />
             ),
           }}
-          data-test-id='translatedtext-6heq' />
+          data-testid='translatedtext-6heq' />
       }
     />
 

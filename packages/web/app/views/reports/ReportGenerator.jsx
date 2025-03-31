@@ -18,8 +18,8 @@ export const ReportGenerator = () => (
       title={<TranslatedText
         stringId="report.generate.title"
         fallback="Report generator"
-        data-test-id='translatedtext-c8eb' />}
-      data-test-id='topbar-94nd' />
+        data-testid='translatedtext-c8eb' />}
+      data-testid='topbar-94nd' />
     <ContentPane>
       <ContentContainer>
         <ReportGeneratorForm />

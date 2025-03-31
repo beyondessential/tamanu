@@ -31,7 +31,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="lab.modal.printMultiple.table.column.testId"
         fallback="Test ID"
-        data-test-id='translatedtext-dwvf' />
+        data-testid='translatedtext-dwvf' />
     ),
     sortable: false,
   },
@@ -40,16 +40,16 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="general.requestDate.label"
       fallback="Request date"
-      data-test-id='translatedtext-muy7' />,
+      data-testid='translatedtext-muy7' />,
     sortable: false,
-    accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} data-test-id='datedisplay-zlpj' />,
+    accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} data-testid='datedisplay-zlpj' />,
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
     title: <TranslatedText
       stringId="general.requestedBy.label"
       fallback="Requested by"
-      data-test-id='translatedtext-puwf' />,
+      data-testid='translatedtext-puwf' />,
     sortable: false,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },
@@ -59,7 +59,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="lab.modal.printMultiple.table.column.priority"
         fallback="Priority"
-        data-test-id='translatedtext-c8fv' />
+        data-testid='translatedtext-c8fv' />
     ),
     sortable: false,
     maxWidth: 70,
@@ -69,7 +69,7 @@ const COLUMNS = [
           fallback={priority.name}
           value={priority.id}
           category={priority.type}
-          data-test-id='translatedreferencedata-83r9' />
+          data-testid='translatedreferencedata-83r9' />
       ) : (
         ''
       ),
@@ -79,7 +79,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="lab.testCategory.label"
       fallback="Test category"
-      data-test-id='translatedtext-cp94' />,
+      data-testid='translatedtext-cp94' />,
     sortable: false,
     accessor: ({ category }) =>
       category ? (
@@ -87,7 +87,7 @@ const COLUMNS = [
           fallback={category.name}
           value={category.id}
           category={category.type}
-          data-test-id='translatedreferencedata-zujj' />
+          data-testid='translatedreferencedata-zujj' />
       ) : (
         ''
       ),
@@ -98,7 +98,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="lab.modal.printMultiple.table.column.status"
         fallback="Status"
-        data-test-id='translatedtext-cp0y' />
+        data-testid='translatedtext-cp0y' />
     ),
     sortable: false,
     accessor: getStatus,
@@ -144,7 +144,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
           <TranslatedText
             stringId="lab.modal.printMultiple.selectText"
             fallback="Select the lab requests you would like to print"
-            data-test-id='translatedtext-ljsy' />
+            data-testid='translatedtext-ljsy' />
         }
         headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
@@ -156,7 +156,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
           <TranslatedText
             stringId="lab.modal.printMultiple.table.noData"
             fallback="No lab requests found"
-            data-test-id='translatedtext-im2v' />
+            data-testid='translatedtext-im2v' />
         }
         allowExport={false}
       />
@@ -165,11 +165,11 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         cancelText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-test-id='translatedtext-3vdw' />}
+          data-testid='translatedtext-3vdw' />}
         confirmText={<TranslatedText
           stringId="general.action.print"
           fallback="Print"
-          data-test-id='translatedtext-xxlv' />}
+          data-testid='translatedtext-xxlv' />}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />

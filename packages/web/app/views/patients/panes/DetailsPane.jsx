@@ -18,13 +18,13 @@ const ForbiddenMessage = () => (
       <TranslatedText
         stringId="general.error.forbidden"
         fallback="Forbidden"
-        data-test-id='translatedtext-xywl' />
+        data-testid='translatedtext-xywl' />
     </Typography>
     <Typography variant="body2">
       <TranslatedText
         stringId="patient.detailsSidebar.error.forbiddenMessage"
         fallback="You do not have permission to read, create or write patient data."
-        data-test-id='translatedtext-4r2q' />
+        data-testid='translatedtext-4r2q' />
     </Typography>
   </ContentPane>
 );

@@ -18,19 +18,19 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
       <TranslatedText
         stringId="lab.testSelect.individual.subheading"
         fallback="Select tests"
-        data-test-id='translatedtext-yh49' />
+        data-testid='translatedtext-yh49' />
     ),
     instructions: (
       <>
         <TranslatedText
           stringId="lab.testSelect.individual.instructionLine1"
           fallback="Please select the test or tests you would like to request below and add any relevant notes."
-          data-test-id='translatedtext-jl1q' />
+          data-testid='translatedtext-jl1q' />
         {'\n'}
         <TranslatedText
           stringId="lab.testSelect.individual.instructionLine2"
           fallback="You can filter test by category using the field below."
-          data-test-id='translatedtext-ny1b' />
+          data-testid='translatedtext-ny1b' />
       </>
     ),
     selectableName: 'test', // TODO: Translate selectableName (requires refactoring in TestSelector.js)
@@ -41,19 +41,19 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
       <TranslatedText
         stringId="lab.testSelect.panel.subheading"
         fallback="Select panel"
-        data-test-id='translatedtext-9y5w' />
+        data-testid='translatedtext-9y5w' />
     ),
     instructions: (
       <TranslatedText
         stringId="lab.testSelect.panel.instruction"
         fallback="Please select the panel or panels you would like to request below and add any relevant notes."
-        data-test-id='translatedtext-wndv' />
+        data-testid='translatedtext-wndv' />
     ),
     label: (
       <TranslatedText
         stringId="lab.testSelect.panel.label"
         fallback="Select the test panel or panels"
-        data-test-id='translatedtext-wt9c' />
+        data-testid='translatedtext-wt9c' />
     ),
     selectableName: 'panel',
     searchFieldPlaceholder: {
@@ -67,19 +67,19 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
       <TranslatedText
         stringId="lab.testSelect.superSet.subheading"
         fallback="Select superset"
-        data-test-id='translatedtext-1hbt' />
+        data-testid='translatedtext-1hbt' />
     ),
     instructions: (
       <>
         <TranslatedText
           stringId="lab.testSelect.superset.instructionLine1"
           fallback="Please select the superset you would like to request below and add any relevant notes."
-          data-test-id='translatedtext-egcv' />
+          data-testid='translatedtext-egcv' />
         ,{'\n'}
         <TranslatedText
           stringId="lab.testSelect.superset.instructionLine2"
           fallback="You can also remove or add additional panels to your request."
-          data-test-id='translatedtext-620q' />
+          data-testid='translatedtext-620q' />
       </>
     ),
     selectableName: 'panel',
@@ -104,7 +104,7 @@ export const LabRequestFormScreen2 = props => {
         fallback={category.name}
         value={category.id}
         category={category.type}
-        data-test-id='translatedreferencedata-xhvb' />,
+        data-testid='translatedreferencedata-xhvb' />,
       ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
     }));
     onSelectionChange(grouped);
@@ -123,7 +123,7 @@ export const LabRequestFormScreen2 = props => {
           onChange={handleSelectionChange}
           required
           {...props}
-          data-test-id='field-l7rq' />
+          data-testid='field-l7rq' />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
@@ -131,11 +131,11 @@ export const LabRequestFormScreen2 = props => {
           label={<TranslatedText
             stringId="general.notes.label"
             fallback="Notes"
-            data-test-id='translatedtext-55zn' />}
+            data-testid='translatedtext-55zn' />}
           component={TextField}
           multiline
           minRows={3}
-          data-test-id='field-o1hl' />
+          data-testid='field-o1hl' />
       </div>
     </>
   );

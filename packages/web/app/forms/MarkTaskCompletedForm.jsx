@@ -54,33 +54,33 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
                 <TranslatedText
                   stringId="task.form.completedBy.label"
                   fallback="Completed by"
-                  data-test-id='translatedtext-6bot' />
+                  data-testid='translatedtext-6bot' />
               }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              data-test-id='field-u027' />
+              data-testid='field-u027' />
             <Field
               name="completedTime"
               label={
                 <TranslatedText
                   stringId="task.form.completedTime.label"
                   fallback="Completed date & time"
-                  data-test-id='translatedtext-wlxm' />
+                  data-testid='translatedtext-wlxm' />
               }
               required
               saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTimeString()}
-              data-test-id='field-dvdb' />
+              data-testid='field-dvdb' />
             <Field
               name="completedNote"
               label={<TranslatedText
                 stringId="general.notes.label"
                 fallback="Notes"
-                data-test-id='translatedtext-fjnd' />}
+                data-testid='translatedtext-fjnd' />}
               component={TextField}
-              data-test-id='field-1xpf' />
+              data-testid='field-1xpf' />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />
           <FormSubmitCancelRow
@@ -89,9 +89,9 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             confirmText={<TranslatedText
               stringId="general.action.confirm"
               fallback="Confirm"
-              data-test-id='translatedtext-jzzp' />}
+              data-testid='translatedtext-jzzp' />}
             confirmDisabled={isLoading}
-            data-test-id='formsubmitcancelrow-fcz5' />
+            data-testid='formsubmitcancelrow-fcz5' />
         </div>
       )}
       validationSchema={yup.object().shape({
@@ -102,7 +102,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             <TranslatedText
               stringId="task.form.completedBy.label"
               fallback="Completed by"
-              data-test-id='translatedtext-ljbq' />,
+              data-testid='translatedtext-ljbq' />,
           ),
         completedTime: yup
           .date()
@@ -111,7 +111,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             <TranslatedText
               stringId="task.form.completedTime.label"
               fallback="Completed date & time"
-              data-test-id='translatedtext-llx4' />,
+              data-testid='translatedtext-llx4' />,
           )
           .max(
             getCurrentDateTimeString(),

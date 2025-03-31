@@ -36,14 +36,14 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <TranslatedText
               stringId="general.localisedField.locationGroupId.label"
               fallback="Area"
-              data-test-id='translatedtext-97w1' />
+              data-testid='translatedtext-97w1' />
           }
           value={
             <TranslatedReferenceData
               fallback={location?.locationGroup?.name || locationGroup?.name}
               value={location?.locationGroup?.id || locationGroup?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION_GROUP}
-              data-test-id='translatedreferencedata-b6l2' />
+              data-testid='translatedreferencedata-b6l2' />
           }
         />
         <DetailDisplay
@@ -51,7 +51,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <TranslatedText
               stringId="general.localisedField.locationId.label"
               fallback="Location"
-              data-test-id='translatedtext-ybcz' />
+              data-testid='translatedtext-ybcz' />
           }
           value={
             <TranslatedReferenceData
@@ -59,14 +59,14 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               fallback={location?.name}
               placeholder={<>&mdash;</>}
               value={location?.id}
-              data-test-id='translatedreferencedata-nws1' />
+              data-testid='translatedreferencedata-nws1' />
           }
         />
         <DetailDisplay
           label={<TranslatedText
             stringId="general.date.label"
             fallback="Date"
-            data-test-id='translatedtext-0owj' />}
+            data-testid='translatedtext-0owj' />}
           value={formatDateTimeRange(startTime, endTime)}
         />
       </AppointmentDetailsColumnLeft>
@@ -75,20 +75,20 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           label={<TranslatedText
             stringId="general.patient.label"
             fallback="Patient"
-            data-test-id='translatedtext-qd5m' />}
+            data-testid='translatedtext-qd5m' />}
           value={<PatientNameDisplay patient={patient} />}
         />
         <DetailDisplay
           label={<TranslatedText
             stringId="scheduling.bookingType.label"
             fallback="Booking type"
-            data-test-id='translatedtext-ukwq' />}
+            data-testid='translatedtext-ukwq' />}
           value={
             <TranslatedReferenceData
               value={bookingType.id}
               fallback={bookingType.name}
               category="bookingType"
-              data-test-id='translatedreferencedata-wspd' />
+              data-testid='translatedreferencedata-wspd' />
           }
         />
         <DetailDisplay
@@ -96,7 +96,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-test-id='translatedtext-73ed' />
+              data-testid='translatedtext-73ed' />
           }
           value={clinician?.displayName}
         />
@@ -113,12 +113,12 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
       cancelText={<TranslatedText
         stringId="general.action.goBack"
         fallback="Go back"
-        data-test-id='translatedtext-3z1v' />}
+        data-testid='translatedtext-3z1v' />}
       confirmText={
         <TranslatedText
           stringId="scheduling.action.cancelBooking"
           fallback="Cancel booking"
-          data-test-id='translatedtext-rnor' />
+          data-testid='translatedtext-rnor' />
       }
     />
   </BottomModalContainer>
@@ -133,7 +133,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
           <TranslatedText
             stringId="scheduling.success.cancelBooking"
             fallback="Booking cancelled successfully"
-            data-test-id='translatedtext-7scs' />,
+            data-testid='translatedtext-7scs' />,
         );
         onClose();
       },
@@ -142,7 +142,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
           <TranslatedText
             stringId="scheduling.error.cancelBooking"
             fallback="Error cancelling booking"
-            data-test-id='translatedtext-32b1' />,
+            data-testid='translatedtext-32b1' />,
         );
       },
     },
@@ -154,7 +154,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
         <TranslatedText
           stringId="locationBooking.action.cancel"
           fallback="Cancel location booking"
-          data-test-id='translatedtext-c0jp' />
+          data-testid='translatedtext-c0jp' />
       }
       fixedBottomRow // Ensures that bottom modal content can place a border across entire modal
       bottomRowContent={
@@ -172,7 +172,7 @@ export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
         <TranslatedText
           stringId="locationBooking.modal.cancel.text"
           fallback="Are you sure you would like to cancel the below location booking?"
-          data-test-id='translatedtext-wybf' />
+          data-testid='translatedtext-wybf' />
         <AppointmentDetailsDisplay appointment={appointment} />
       </BodyContainer>
     </BaseModal>

@@ -25,19 +25,19 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
         noteType={<TranslatedEnum
           value={note.noteType}
           enumValues={NOTE_TYPE_LABELS}
-          data-test-id='translatedenum-v2xp' />}
+          data-testid='translatedenum-v2xp' />}
         date={note.date}
         dateLabel={
           <TranslatedText
             stringId="note.lastUpdatedAt.label"
             fallback="Last updated at date & time"
-            data-test-id='translatedtext-6glq' />
+            data-testid='translatedtext-6glq' />
         }
         writtenByLabel={
           <TranslatedText
             stringId="note.lastUpdatedBy.label"
             fallback="Last updated by (or on behalf of)"
-            data-test-id='translatedtext-81n8' />
+            data-testid='translatedtext-81n8' />
         }
         writtenBy={writtenBy}
       />
@@ -48,7 +48,7 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
         confirmText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-test-id='translatedtext-lss4' />}
+          data-testid='translatedtext-lss4' />}
         onConfirm={onCancel}
       />
     </>

@@ -71,7 +71,7 @@ export const MultiplePrescriptionPrintoutModal = ({
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
           fallback="Print prescriptions"
-          data-test-id='translatedtext-dwd8' />
+          data-testid='translatedtext-dwd8' />
       }
       width="md"
       open={open}

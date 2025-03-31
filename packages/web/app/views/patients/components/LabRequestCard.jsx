@@ -53,12 +53,12 @@ export const LabRequestCard = ({ labRequest, actions }) => {
     <Container>
       <Box display="flex" alignItems="center">
         <LabIcon src={labsIcon} />
-        <CardItem data-test-id='carditem-yvkf'>
+        <CardItem data-testid='carditem-yvkf'>
           <CardLabel>
             <TranslatedText
               stringId="lab.details.card.item.labTestId.label"
               fallback="Lab test ID"
-              data-test-id='translatedtext-plez' />
+              data-testid='translatedtext-plez' />
             :
           </CardLabel>
           <CardValue>{labRequest.displayId}</CardValue>
@@ -66,10 +66,10 @@ export const LabRequestCard = ({ labRequest, actions }) => {
             <TranslatedText
               stringId="general.requestDate.label"
               fallback="Request date"
-              data-test-id='translatedtext-38kb' />:
+              data-testid='translatedtext-38kb' />:
           </CardLabel>
           <CardValue>
-            <DateDisplay date={labRequest.requestedDate} data-test-id='datedisplay-ndld' />
+            <DateDisplay date={labRequest.requestedDate} data-testid='datedisplay-ndld' />
           </CardValue>
         </CardItem>
         <BorderSection>
@@ -83,10 +83,10 @@ export const LabRequestCard = ({ labRequest, actions }) => {
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                     casing="lower"
-                    data-test-id='translatedtext-zcww' />
+                    data-testid='translatedtext-zcww' />
                 ),
               }}
-              data-test-id='translatedtext-rtpw' />
+              data-testid='translatedtext-rtpw' />
             :
           </CardLabel>
           <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
@@ -94,7 +94,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
             <TranslatedText
               stringId="general.department.label"
               fallback="Department"
-              data-test-id='translatedtext-1vsr' />:
+              data-testid='translatedtext-1vsr' />:
           </CardLabel>
           <CardValue>
             {labRequest.department?.name && (
@@ -102,7 +102,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
                 fallback={labRequest.department.name}
                 value={labRequest.department.id}
                 category="department"
-                data-test-id='translatedreferencedata-63pp' />
+                data-testid='translatedreferencedata-63pp' />
             )}
           </CardValue>
         </BorderSection>

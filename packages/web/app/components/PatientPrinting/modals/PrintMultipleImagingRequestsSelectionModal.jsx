@@ -12,7 +12,7 @@ export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, on
         <TranslatedText
           stringId="imaging.modal.printMultiple.title"
           fallback="Print imaging request/s"
-          data-test-id='translatedtext-mq5g' />
+          data-testid='translatedtext-mq5g' />
       }
       width="md"
       open={open}

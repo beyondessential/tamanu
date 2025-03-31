@@ -45,14 +45,14 @@ export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, on
           <TranslatedText
             stringId="patient.details.reminderContacts.action.add"
             fallback="Add contact"
-            data-test-id='translatedtext-qepd' />
+            data-testid='translatedtext-qepd' />
         </StyledAddContactButton>
       )}
       <ModalCancelRow
         confirmText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-test-id='translatedtext-jbco' />}
+          data-testid='translatedtext-jbco' />}
         confirmColor="primary"
         onConfirm={onClose}
       />

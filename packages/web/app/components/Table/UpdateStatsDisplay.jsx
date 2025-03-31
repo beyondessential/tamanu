@@ -25,7 +25,7 @@ const StatsError = () => (
     <TranslatedText
       stringId="table.refreshSchedule.error"
       fallback="Error loading stats"
-      data-test-id='translatedtext-7wgi' />
+      data-testid='translatedtext-7wgi' />
   </ErrorText>
 );
 
@@ -70,14 +70,14 @@ export const UpdateStatsDisplay = ({
               stringId="table.refreshSchedule.lastUpdated"
               fallback="Last updated: :lastUpdated"
               replacements={{ lastUpdated }}
-              data-test-id='translatedtext-rl9t' />
+              data-testid='translatedtext-rl9t' />
           </SmallText>
           <SoftText>
             <TranslatedText
               stringId="table.refreshSchedule.schedule"
               fallback="Updated :schedule"
               replacements={{ schedule: parsedSchedule.toLowerCase() }}
-              data-test-id='translatedtext-ttt1' />
+              data-testid='translatedtext-ttt1' />
           </SoftText>
         </>
       )}

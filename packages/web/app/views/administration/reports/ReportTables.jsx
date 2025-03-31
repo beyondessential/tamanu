@@ -72,14 +72,14 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
           title: <TranslatedText
             stringId="admin.report.list.table.column.name"
             fallback="Name"
-            data-test-id='translatedtext-fouu' />,
+            data-testid='translatedtext-fouu' />,
           key: 'name',
         },
         {
           title: <TranslatedText
             stringId="general.lastUpdated.label"
             fallback="Last updated"
-            data-test-id='translatedtext-wa39' />,
+            data-testid='translatedtext-wa39' />,
           key: 'lastUpdated',
           accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
@@ -88,7 +88,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
             <TranslatedText
               stringId="admin.report.list.table.column.versionCount"
               fallback="Version count"
-              data-test-id='translatedtext-voan' />
+              data-testid='translatedtext-voan' />
           ),
           key: 'versionCount',
           numeric: true,
@@ -123,7 +123,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             <TranslatedText
               stringId="admin.report.list.table.column.versionNumber"
               fallback="Version"
-              data-test-id='translatedtext-i2cc' />
+              data-testid='translatedtext-i2cc' />
           ),
           key: 'versionNumber',
         },
@@ -132,7 +132,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             <TranslatedText
               stringId="admin.report.list.table.column.createdAt"
               fallback="Created time"
-              data-test-id='translatedtext-06fy' />
+              data-testid='translatedtext-06fy' />
           ),
           key: 'createdAt',
           accessor: ({ updatedAt }) => getDateTime(updatedAt),
@@ -142,7 +142,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             <TranslatedText
               stringId="admin.report.list.table.column.status"
               fallback="Status"
-              data-test-id='translatedtext-e5n7' />
+              data-testid='translatedtext-e5n7' />
           ),
           key: 'status',
           sortable: false,

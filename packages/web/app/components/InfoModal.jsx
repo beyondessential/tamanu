@@ -14,7 +14,7 @@ export const InfoModal = React.memo(({ children, width }) => {
 
   return (
     <>
-      <InfoButton onClick={() => setOpen(true)} data-test-id='infobutton-hrs8' />
+      <InfoButton onClick={() => setOpen(true)} data-testid='infobutton-hrs8' />
       <Modal open={isOpen} width={width} onClose={() => setOpen(false)}>
         {children}
       </Modal>

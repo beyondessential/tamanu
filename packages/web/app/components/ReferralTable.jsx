@@ -26,7 +26,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
     <TranslatedText
       stringId="general.fallback.notApplicable"
       fallback="N/A"
-      data-test-id='translatedtext-ez9t' />,
+      data-testid='translatedtext-ez9t' />,
   );
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 };
 
 const getDate = ({ surveyResponse: { submissionDate } }) => {
-  return <DateDisplay date={submissionDate} data-test-id='datedisplay-gz3c' />;
+  return <DateDisplay date={submissionDate} data-testid='datedisplay-gz3c' />;
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
@@ -74,7 +74,7 @@ const getStatus = ({ status }) => (
   <TranslatedEnum
     value={status}
     enumValues={REFERRAL_STATUS_LABELS}
-    data-test-id='translatedenum-ixxi' />
+    data-testid='translatedenum-ixxi' />
 );
 
 const MODAL_IDS = {
@@ -127,14 +127,14 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText
         stringId="general.action.print"
         fallback="Print"
-        data-test-id='translatedtext-a88k' />,
+        data-testid='translatedtext-a88k' />,
       action: () => handleChangeModalId(MODAL_IDS.PRINT),
     },
     {
       label: <TranslatedText
         stringId="patient.referral.action.admit"
         fallback="Admit"
-        data-test-id='translatedtext-aigr' />,
+        data-testid='translatedtext-aigr' />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
@@ -142,7 +142,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText
         stringId="patient.referral.action.complete"
         fallback="Complete"
-        data-test-id='translatedtext-yt1a' />,
+        data-testid='translatedtext-yt1a' />,
       action: onCompleteReferral,
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
@@ -150,7 +150,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText
         stringId="general.action.cancel"
         fallback="Cancel"
-        data-test-id='translatedtext-tlzp' />,
+        data-testid='translatedtext-tlzp' />,
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
     },
@@ -158,7 +158,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText
         stringId="general.action.delete"
         fallback="Delete"
-        data-test-id='translatedtext-7wxu' />,
+        data-testid='translatedtext-7wxu' />,
       action: () => handleChangeModalId(MODAL_IDS.DELETE),
       permissionCheck: () => {
         return ability?.can('delete', 'Referral');
@@ -169,7 +169,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText
         stringId="general.action.view"
         fallback="View"
-        data-test-id='translatedtext-ph9s' />,
+        data-testid='translatedtext-ph9s' />,
       permissionCheck: () => false, // always false, field no longer exists.
       action: onViewEncounter,
     },
@@ -184,7 +184,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <TranslatedText
           stringId="referral.table.column.referralDate"
           fallback="Referral date"
-          data-test-id='translatedtext-6db6' />
+          data-testid='translatedtext-6db6' />
       ),
       accessor: getDate,
     },
@@ -194,7 +194,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <TranslatedText
           stringId="referral.table.column.referralType"
           fallback="Referral type"
-          data-test-id='translatedtext-bm1j' />
+          data-testid='translatedtext-bm1j' />
       ),
       accessor: getReferralType,
     },
@@ -204,7 +204,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <TranslatedText
           stringId="referral.table.column.referralCompletedBy"
           fallback="Referral completed by"
-          data-test-id='translatedtext-6wes' />
+          data-testid='translatedtext-6wes' />
       ),
       accessor: getReferralBy,
     },
@@ -213,7 +213,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       title: <TranslatedText
         stringId="referral.table.column.status"
         fallback="Status"
-        data-test-id='translatedtext-lyo4' />,
+        data-testid='translatedtext-lyo4' />,
       accessor: getStatus,
     },
     {
@@ -227,7 +227,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         );
         return (
           <div onMouseEnter={() => setSelectedReferral(data)}>
-            <MenuButton actions={filteredActions} data-test-id='menubutton-u6ei' />
+            <MenuButton actions={filteredActions} data-testid='menubutton-u6ei' />
           </div>
         );
       },
@@ -255,28 +255,28 @@ export const ReferralTable = React.memo(({ patientId }) => {
             <TranslatedText
               stringId="referral.modal.cancel.title"
               fallback="Cancel referral"
-              data-test-id='translatedtext-pb1o' />
+              data-testid='translatedtext-pb1o' />
           }
           text={
             <TranslatedText
               stringId="referral.modal.cancel.warningText1"
               fallback="WARNING: This action is irreversible!"
-              data-test-id='translatedtext-ipuy' />
+              data-testid='translatedtext-ipuy' />
           }
           subText={
             <TranslatedText
               stringId="referral.modal.cancel.warningText2"
               fallback="Are you sure you want to cancel this referral?"
-              data-test-id='translatedtext-7we9' />
+              data-testid='translatedtext-7we9' />
           }
           cancelButtonText={<TranslatedText
             stringId="general.action.no"
             fallback="No"
-            data-test-id='translatedtext-jx9b' />}
+            data-testid='translatedtext-jx9b' />}
           confirmButtonText={<TranslatedText
             stringId="general.action.yes"
             fallback="Yes"
-            data-test-id='translatedtext-8ff5' />}
+            data-testid='translatedtext-8ff5' />}
           ConfirmButton={DeleteButton}
           onConfirm={onCancelReferral}
           onCancel={() => setModalOpen(false)}
@@ -308,12 +308,12 @@ export const ReferralTable = React.memo(({ patientId }) => {
           <TranslatedText
             stringId="referral.table.noData"
             fallback="No referrals found"
-            data-test-id='translatedtext-l0f2' />
+            data-testid='translatedtext-l0f2' />
         }
         onRowClick={onSelectReferral}
         allowExport={false}
         refreshCount={refreshCount}
-        data-test-id='datafetchingtable-6frb' />
+        data-testid='datafetchingtable-6frb' />
       {ActiveModal && (
         <ActiveModal
           open={modalOpen}

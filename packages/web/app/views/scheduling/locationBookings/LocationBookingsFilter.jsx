@@ -58,7 +58,7 @@ export const LocationBookingsFilter = () => {
                 'Search patient name or ID',
               )}
               style={{ width: '18.75rem' }}
-              data-test-id='field-9uot' />
+              data-testid='field-9uot' />
             <Field
               name="locationGroupIds"
               label={getTranslation('general.area.label', 'Area')}
@@ -67,21 +67,21 @@ export const LocationBookingsFilter = () => {
               onChange={e =>
                 updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
               }
-              data-test-id='field-7xji' />
+              data-testid='field-7xji' />
             <Field
               name="clinicianId"
               label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
               component={FilterField}
               endpoint="practitioner"
               onChange={e => updateUserPreferences({ ...filters, clinicianId: e.target.value })}
-              data-test-id='field-k3xo' />
+              data-testid='field-k3xo' />
             <Field
               name="bookingTypeId"
               label={getTranslation('general.type.label', 'Type')}
               component={FilterField}
               endpoint="bookingType"
               onChange={e => updateUserPreferences({ ...filters, bookingTypeId: e.target.value })}
-              data-test-id='field-vvlp' />
+              data-testid='field-vvlp' />
             <TextButton
               onClick={() => {
                 setValues(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
@@ -89,11 +89,11 @@ export const LocationBookingsFilter = () => {
                 updateUserPreferences(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
-              data-test-id='textbutton-kv4y'>
+              data-testid='textbutton-kv4y'>
               <TranslatedText
                 stringId="general.action.clear"
                 fallback="Clear"
-                data-test-id='translatedtext-nj0g' />
+                data-testid='translatedtext-nj0g' />
             </TextButton>
           </SearchBar>
           <FormListener />

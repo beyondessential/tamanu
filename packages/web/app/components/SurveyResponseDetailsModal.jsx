@@ -32,7 +32,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="surveyResponse.details.table.column.indicator"
         fallback="Indicator"
-        data-test-id='translatedtext-bkps' />
+        data-testid='translatedtext-bkps' />
     ),
     accessor: ({ name }) => name,
   },
@@ -41,7 +41,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="surveyResponse.details.table.column.value"
       fallback="Value"
-      data-test-id='translatedtext-24nv' />,
+      data-testid='translatedtext-24nv' />,
     accessor: ({ answer, sourceType, type }) => (
       <SurveyAnswerResult answer={answer} sourceType={sourceType} type={type} />
     ),
@@ -66,16 +66,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           <TranslatedText
             stringId="surveyResponse.modal.details.title"
             fallback="Form response"
-            data-test-id='translatedtext-j345' />
+            data-testid='translatedtext-j345' />
         }
         open={!!surveyResponseId}
         onClose={onClose}
       >
-        <h3 data-test-id='h3-4tr0'>
+        <h3 data-testid='h3-4tr0'>
           <TranslatedText
             stringId="surveyResponse.modal.details.error.fetchErrorMessage"
             fallback="Error fetching response details"
-            data-test-id='translatedtext-us73' />
+            data-testid='translatedtext-us73' />
         </h3>
         <pre>{error.stack}</pre>
       </Modal>
@@ -89,7 +89,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           <TranslatedText
             stringId="surveyResponse.modal.details.title"
             fallback="Form response"
-            data-test-id='translatedtext-2yrm' />
+            data-testid='translatedtext-2yrm' />
         }
         open={!!surveyResponseId}
         onClose={onClose}
@@ -97,7 +97,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         <TranslatedText
           stringId="general.table.loading"
           fallback="Loading..."
-          data-test-id='translatedtext-3eis' />
+          data-testid='translatedtext-3eis' />
       </Modal>
     );
   }
@@ -127,7 +127,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         <TranslatedText
           stringId="surveyResponse.modal.details.title"
           fallback="Form response"
-          data-test-id='translatedtext-8sxw' />
+          data-testid='translatedtext-8sxw' />
       }
       open={!!surveyResponseId}
       onClose={onClose}
@@ -143,7 +143,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           <TranslatedText
             stringId="general.action.print"
             fallback="Print"
-            data-test-id='translatedtext-fvt4' />
+            data-testid='translatedtext-fvt4' />
         </PrintButton>
       )}
       <TableContainer>
@@ -155,7 +155,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         confirmText={<TranslatedText
           stringId="general.action.close"
           fallback="Close"
-          data-test-id='translatedtext-7p2u' />}
+          data-testid='translatedtext-7p2u' />}
       />
     </Modal>
   );

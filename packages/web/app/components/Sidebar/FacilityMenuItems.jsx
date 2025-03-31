@@ -19,7 +19,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.dashboard"
       fallback="Dashboard"
-      data-test-id='translatedtext-4n3n' />,
+      data-testid='translatedtext-4n3n' />,
     path: '/dashboard',
     icon: dashboardIcon,
     ability: { action: 'read' },
@@ -29,7 +29,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.patients"
       fallback="Patients"
-      data-test-id='translatedtext-63wj' />,
+      data-testid='translatedtext-63wj' />,
     path: '/patients',
     icon: patientIcon,
     ability: { subject: 'patient' },
@@ -38,7 +38,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.patients.all"
           fallback="All patients"
-          data-test-id='translatedtext-mhe5' />,
+          data-testid='translatedtext-mhe5' />,
         color: Colors.blue,
         path: '/patients/all',
         key: 'patientsAll',
@@ -48,7 +48,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.patients.inpatients"
           fallback="Inpatients"
-          data-test-id='translatedtext-wye5' />,
+          data-testid='translatedtext-wye5' />,
         color: Colors.green,
         path: '/patients/inpatient',
         key: 'patientsInpatients',
@@ -59,7 +59,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.patients.emergency"
             fallback="Emergency patients"
-            data-test-id='translatedtext-iegr' />
+            data-testid='translatedtext-iegr' />
         ),
         color: Colors.orange,
         path: '/patients/emergency',
@@ -70,7 +70,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.patients.outpatients"
           fallback="Outpatients"
-          data-test-id='translatedtext-8u7f' />,
+          data-testid='translatedtext-8u7f' />,
         color: '#F9BA5B',
         path: '/patients/outpatient',
         key: 'patientsOutpatients',
@@ -83,7 +83,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.scheduling"
       fallback="Scheduling"
-      data-test-id='translatedtext-8qbd' />,
+      data-testid='translatedtext-8qbd' />,
     path: '/appointments',
     icon: scheduleIcon,
     ability: { subject: 'appointment' },
@@ -93,7 +93,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.scheduling.outpatientAppointments"
             fallback="Outpatient appointments"
-            data-test-id='translatedtext-v8ha' />
+            data-testid='translatedtext-v8ha' />
         ),
         path: '/appointments/outpatients',
         key: 'schedulingOutpatients',
@@ -106,7 +106,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.scheduling.locations"
             fallback="Location bookings"
-            data-test-id='translatedtext-gne8' />
+            data-testid='translatedtext-gne8' />
         ),
         ability: { action: 'read' },
       },
@@ -117,7 +117,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.medication"
       fallback="Medication"
-      data-test-id='translatedtext-e2jk' />,
+      data-testid='translatedtext-e2jk' />,
     path: '/medication-requests',
     icon: medicationIcon,
     ability: { subject: 'medication' },
@@ -126,7 +126,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.medication.requests"
           fallback="Requests"
-          data-test-id='translatedtext-sbes' />,
+          data-testid='translatedtext-sbes' />,
         path: '/medication-requests/all',
         key: 'medicationAll',
         ability: { action: 'read' },
@@ -138,7 +138,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.imaging"
       fallback="Imaging"
-      data-test-id='translatedtext-wxbl' />,
+      data-testid='translatedtext-wxbl' />,
     path: '/imaging-requests',
     icon: radiologyIcon,
     ability: { subject: 'imaging' },
@@ -147,7 +147,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.imaging.active"
           fallback="Active requests"
-          data-test-id='translatedtext-zlru' />,
+          data-testid='translatedtext-zlru' />,
         path: '/imaging-requests/active',
         key: 'imagingActive',
         ability: { action: 'read' },
@@ -156,7 +156,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.imaging.completed"
           fallback="Completed"
-          data-test-id='translatedtext-5oxv' />,
+          data-testid='translatedtext-5oxv' />,
         path: '/imaging-requests/completed',
         key: 'imagingCompleted',
         ability: { action: 'read' },
@@ -165,7 +165,7 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'labs',
-    label: <TranslatedText stringId="sidebar.labs" fallback="Labs" data-test-id='translatedtext-jhb2' />,
+    label: <TranslatedText stringId="sidebar.labs" fallback="Labs" data-testid='translatedtext-jhb2' />,
     path: '/lab-requests',
     icon: labsIcon,
     ability: { subject: 'lab' },
@@ -174,7 +174,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.labs.active"
           fallback="Active requests"
-          data-test-id='translatedtext-ej3k' />,
+          data-testid='translatedtext-ej3k' />,
         path: '/lab-requests/all',
         key: 'labsAll',
         ability: { action: 'read' },
@@ -183,7 +183,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.labs.published"
           fallback="Published"
-          data-test-id='translatedtext-sk0p' />,
+          data-testid='translatedtext-sk0p' />,
         path: '/lab-requests/published',
         key: 'labsPublished',
         ability: { action: 'read' },
@@ -195,7 +195,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.immunisations"
       fallback="Immunisation"
-      data-test-id='translatedtext-s0wl' />,
+      data-testid='translatedtext-s0wl' />,
     path: '/immunisations',
     icon: vaccineIcon,
     ability: { action: 'read' },
@@ -205,7 +205,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.immunisations.register"
             fallback="Immunisation register"
-            data-test-id='translatedtext-4iwo' />
+            data-testid='translatedtext-4iwo' />
         ),
         path: '/immunisations/all',
         key: 'immunisationsAll',
@@ -217,7 +217,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.programRegistry"
       fallback="Program Registry"
-      data-test-id='translatedtext-knky' />,
+      data-testid='translatedtext-knky' />,
     path: '/program-registry',
     icon: programsIcon,
     Component: ProgramRegistrySidebarItem,
@@ -229,7 +229,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.facilityAdmin"
       fallback="Facility admin"
-      data-test-id='translatedtext-msng' />,
+      data-testid='translatedtext-msng' />,
     path: '/facility-admin',
     ability: { action: 'read', subject: 'patient' },
     divider: true,
@@ -238,7 +238,7 @@ export const FACILITY_MENU_ITEMS = [
         label: <TranslatedText
           stringId="sidebar.facilityAdmin.reports"
           fallback="Reports"
-          data-test-id='translatedtext-dkp9' />,
+          data-testid='translatedtext-dkp9' />,
         key: 'reports',
         path: '/facility-admin/reports',
       },
@@ -247,7 +247,7 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.facilityAdmin.bedManagement"
             fallback="Bed management"
-            data-test-id='translatedtext-8i0n' />
+            data-testid='translatedtext-8i0n' />
         ),
         key: 'bedManagement',
         path: '/facility-admin/bed-management',

@@ -14,13 +14,13 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         <TranslatedText
           stringId="admin.settings.modal.unsavedChanges.title"
           fallback="Unsaved changes"
-          data-test-id='translatedtext-295p' />
+          data-testid='translatedtext-295p' />
       }
       subText={
         <TranslatedText
           stringId="admin.settings.modal.unsavedChanges.subtext"
           fallback="You have unsaved changes. Are you sure you would like to discard those changes?"
-          data-test-id='translatedtext-yf82' />
+          data-testid='translatedtext-yf82' />
       }
       open={open}
       onConfirm={() => {
@@ -30,7 +30,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         <TranslatedText
           stringId="general.action.discardChanges"
           fallback="Discard changes"
-          data-test-id='translatedtext-e9bq' />
+          data-testid='translatedtext-e9bq' />
       }
       onCancel={() => {
         handleClose(false);
@@ -38,7 +38,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
       cancelButtonText={<TranslatedText
         stringId="general.action.goBack"
         fallback="Go back"
-        data-test-id='translatedtext-vtfr' />}
+        data-testid='translatedtext-vtfr' />}
     />
   );
 };

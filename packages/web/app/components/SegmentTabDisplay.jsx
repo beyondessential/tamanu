@@ -71,7 +71,7 @@ export const SegmentTabDisplay = React.memo(
         <TabContainer
           scrollButtons={scrollable ? 'on' : 'off'}
           value={currentTabKey}
-          data-test-id='tabcontainer-6ggc'>
+          data-testid='tabcontainer-6ggc'>
           {buttons}
         </TabContainer>
         <div>{currentTabData.render({ ...tabProps })}</div>

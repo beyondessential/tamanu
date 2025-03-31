@@ -53,7 +53,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
         onChange={selectFile}
         accept={acceptString}
         style={{ display: 'none' }}
-        data-test-id='input-7sx5' />
+        data-testid='input-7sx5' />
       <OuterLabelFieldWrapper label={label} {...props}>
         <FieldButtonRow className={value ? 'has-value' : ''}>
           {value ? (
@@ -63,7 +63,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
                 <TranslatedText
                   stringId="chooseFile.button.changeSelection.label"
                   fallback="Change selection"
-                  data-test-id='translatedtext-oiyi' />
+                  data-testid='translatedtext-oiyi' />
               </ChangeSelectionButton>
             </>
           ) : (
@@ -72,22 +72,22 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
                 onClick={showFileDialog}
                 variant="outlined"
                 color="primary"
-                data-test-id='button-p25q'>
+                data-testid='button-p25q'>
                 <TranslatedText
                   stringId="chooseFile.button.label"
                   fallback="Choose file"
-                  data-test-id='translatedtext-6nfa' />
+                  data-testid='translatedtext-6nfa' />
               </Button>
               <HintText>
                 <TranslatedText
                   stringId="chooseFile.hint.max10Mb.label"
                   fallback="Max 10 MB"
-                  data-test-id='translatedtext-h8s9' />
+                  data-testid='translatedtext-h8s9' />
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
                   fallback="Supported file types"
-                  data-test-id='translatedtext-bqsm' />
+                  data-testid='translatedtext-bqsm' />
                 : {filters.map(filter => filter.name).join(', ')}
               </HintText>
             </>

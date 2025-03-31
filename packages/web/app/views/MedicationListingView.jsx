@@ -4,7 +4,7 @@ import { DataFetchingMedicationTable } from '../components/MedicationTable';
 
 export const MedicationListingView = React.memo(() => (
   <PageContainer>
-    <TopBar title="Medication requests" data-test-id='topbar-xdyr' />
+    <TopBar title="Medication requests" data-testid='topbar-xdyr' />
     <ContentPane>
       <DataFetchingMedicationTable />
     </ContentPane>

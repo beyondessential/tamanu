@@ -21,7 +21,7 @@ export const InvoiceStatus = ({ status }) => {
       <TranslatedEnum
         value={status}
         enumValues={INVOICE_STATUS_LABELS}
-        data-test-id='translatedenum-pb64' />
+        data-testid='translatedenum-pb64' />
     </StatusLabel>
   );
 };

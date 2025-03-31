@@ -333,7 +333,7 @@ class TableComponent extends React.Component {
       <TranslatedText
         stringId="general.table.loading"
         fallback="Loading..."
-        data-test-id='translatedtext-z0hv' />
+        data-testid='translatedtext-z0hv' />
     );
     if (errorMessage) return errorMessage;
     if (isEmpty || !data.length) return noDataMessage;
@@ -624,7 +624,7 @@ TableComponent.defaultProps = {
   noDataMessage: <TranslatedText
     stringId="general.table.noDataMessage"
     fallback="No data found"
-    data-test-id='translatedtext-9z6g' />,
+    data-testid='translatedtext-9z6g' />,
   count: 0,
   hideHeader: false,
   isLoading: false,

@@ -113,14 +113,14 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           <TranslatedText
             stringId="programRegistry.relatedConditions.label"
             fallback="Related conditions"
-            data-test-id='translatedtext-d3cd' />
+            data-testid='translatedtext-d3cd' />
         </Heading5>
         <ConditionalTooltip
           title={
             <TranslatedText
               stringId="programRegistry.conditions.patientInactive.tooltip"
               fallback="Patient must be active"
-              data-test-id='translatedtext-h8po' />
+              data-testid='translatedtext-h8po' />
           }
           visible={isRemoved}
         >
@@ -128,7 +128,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
             <TranslatedText
               stringId="programRegistry.conditions.addCondition.button"
               fallback="+ Add condition"
-              data-test-id='translatedtext-35oe' />
+              data-testid='translatedtext-35oe' />
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
@@ -145,7 +145,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
               style={{ padding: 0 }}
               onClick={() => setConditionToRemove(condition)}
               disabled={isRemoved}
-              data-test-id='iconbutton-64s3'>
+              data-testid='iconbutton-64s3'>
               <CloseIcon style={{ fontSize: '14px' }} />
             </IconButton>
           </ConditionalTooltip>

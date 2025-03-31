@@ -10,28 +10,28 @@ export const VersionInfo = ({ version }) => (
       label={<TranslatedText
         stringId="general.name.label"
         fallback="Name"
-        data-test-id='translatedtext-1g94' />}
+        data-testid='translatedtext-1g94' />}
       value={version.reportDefinition.name}
     />
     <InfoCardItem
       label={<TranslatedText
         stringId="admin.report.version.label"
         fallback="Version"
-        data-test-id='translatedtext-qdhv' />}
+        data-testid='translatedtext-qdhv' />}
       value={version.versionNumber}
     />
     <InfoCardItem
       label={<TranslatedText
         stringId="admin.report.reportId.label"
         fallback="Report ID"
-        data-test-id='translatedtext-uorq' />}
+        data-testid='translatedtext-uorq' />}
       value={version.reportDefinition.id}
     />
     <InfoCardItem
       label={<TranslatedText
         stringId="admin.report.created.label"
         fallback="Created"
-        data-test-id='translatedtext-5pps' />}
+        data-testid='translatedtext-5pps' />}
       value={`${DateDisplay.stringFormat(version.createdAt, formatShortest)} ${formatTime(
         version.createdAt,
       )}`}
@@ -40,7 +40,7 @@ export const VersionInfo = ({ version }) => (
       label={<TranslatedText
         stringId="admin.report.createdBy.label"
         fallback="Created by"
-        data-test-id='translatedtext-2jah' />}
+        data-testid='translatedtext-2jah' />}
       value={version.createdBy?.displayName}
     />
   </InfoCard>

@@ -57,38 +57,38 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
                 <TranslatedText
                   stringId="task.form.recordedBy.label"
                   fallback="Recorded by"
-                  data-test-id='translatedtext-vc0r' />
+                  data-testid='translatedtext-vc0r' />
               }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              data-test-id='field-wjkc' />
+              data-testid='field-wjkc' />
             <Field
               name="deletedTime"
               label={
                 <TranslatedText
                   stringId="task.form.recordTime.label"
                   fallback="Record date & time"
-                  data-test-id='translatedtext-qtib' />
+                  data-testid='translatedtext-qtib' />
               }
               required
               saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTimeString()}
-              data-test-id='field-crl3' />
+              data-testid='field-crl3' />
             <Field
               name="deletedReasonId"
               label={
                 <TranslatedText
                   stringId="task.form.reasonForDeletion.label"
                   fallback="Reason for deletion"
-                  data-test-id='translatedtext-umxw' />
+                  data-testid='translatedtext-umxw' />
               }
               component={AutocompleteField}
               suggester={taskDeletionReasonSuggester}
               allowCreatingCustomValue={canCreateReferenceData}
               filterer={({ value }) => value !== TASK_DELETE_BY_SYSTEM_REASON}
-              data-test-id='field-f2cj' />
+              data-testid='field-f2cj' />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />
           <FormSubmitCancelRow
@@ -97,8 +97,8 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             confirmText={<TranslatedText
               stringId="general.action.confirm"
               fallback="Confirm"
-              data-test-id='translatedtext-3de1' />}
-            data-test-id='formsubmitcancelrow-7elq' />
+              data-testid='translatedtext-3de1' />}
+            data-testid='formsubmitcancelrow-7elq' />
         </div>
       )}
       validationSchema={yup.object().shape({
@@ -109,7 +109,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             <TranslatedText
               stringId="task.form.recordedBy.label"
               fallback="Recorded by"
-              data-test-id='translatedtext-1k7u' />,
+              data-testid='translatedtext-1k7u' />,
           ),
         deletedTime: yup
           .date()
@@ -118,7 +118,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             <TranslatedText
               stringId="task.form.recordTime.label"
               fallback="Record date & time"
-              data-test-id='translatedtext-lld2' />,
+              data-testid='translatedtext-lld2' />,
           )
           .max(
             getCurrentDateTimeString(),

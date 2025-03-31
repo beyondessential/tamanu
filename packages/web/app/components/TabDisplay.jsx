@@ -64,7 +64,7 @@ export const TabDisplay = React.memo(
           variant={scrollable ? 'scrollable' : 'fixed'}
           scrollButtons={scrollable ? 'on' : 'off'}
           value={currentTab}
-          data-test-id='tabcontainer-92mg'>
+          data-testid='tabcontainer-92mg'>
           {buttons}
         </TabContainer>
         {currentTabData.render({ ...tabProps })}

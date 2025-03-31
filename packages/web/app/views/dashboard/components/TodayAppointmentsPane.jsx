@@ -132,14 +132,14 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.title"
             fallback="Today's appointments"
-            data-test-id='translatedtext-fru8' />
+            data-testid='translatedtext-fru8' />
         </Heading4>
         {!!appointments.length && (
           <ActionLink onClick={onViewAll}>
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.viewAll"
               fallback="View all..."
-              data-test-id='translatedtext-p9m8' />
+              data-testid='translatedtext-p9m8' />
           </ActionLink>
         )}
       </TitleContainer>
@@ -149,7 +149,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.noAppointments"
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
-              data-test-id='translatedtext-r5i7' />
+              data-testid='translatedtext-r5i7' />
             <Link
               href={`#/appointments/outpatients`}
               style={{ textDecoration: 'underline', display: 'block' }}
@@ -157,7 +157,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
               <TranslatedText
                 stringId="dashboard.appointments.todayAppointments.outpatientAppointments"
                 fallback="Outpatient appointments"
-                data-test-id='translatedtext-dmb9' />
+                data-testid='translatedtext-dmb9' />
             </Link>
           </Box>
         </NoDataContainer>
@@ -169,7 +169,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
                 <TranslatedText
                   stringId="dashboard.appointments.todayAppointments.seen"
                   fallback="Seen"
-                  data-test-id='translatedtext-61gi' />
+                  data-testid='translatedtext-61gi' />
                 <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
               </Box>
               <ProgressBar

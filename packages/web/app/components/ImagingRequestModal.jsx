@@ -33,7 +33,7 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
         <TranslatedText
           stringId="imaging.modal.create.title"
           fallback="New imaging request"
-          data-test-id='translatedtext-0b6e' />
+          data-testid='translatedtext-0b6e' />
       }
       open={open}
       onClose={onClose}

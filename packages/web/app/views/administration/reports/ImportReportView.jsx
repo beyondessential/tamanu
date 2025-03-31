@@ -49,7 +49,7 @@ const schema = yup.object().shape({
       <TranslatedText
         stringId="admin.report.import.reportName.label"
         fallback="Report name"
-        data-test-id='translatedtext-legr' />,
+        data-testid='translatedtext-legr' />,
     ),
   file: yup
     .string()
@@ -58,7 +58,7 @@ const schema = yup.object().shape({
       <TranslatedText
         stringId="admin.report.import.reportJson.label"
         fallback="Report JSON"
-        data-test-id='translatedtext-jvsa' />,
+        data-testid='translatedtext-jvsa' />,
     ),
 });
 
@@ -69,12 +69,12 @@ const ImportFeedback = ({ feedback }) => (
         <TranslatedText
           stringId="admin.report.import.dryRun.label"
           fallback="Dry run"
-          data-test-id='translatedtext-siby' />
+          data-testid='translatedtext-siby' />
       ) : (
         <TranslatedText
           stringId="admin.report.import.feedback.success"
           fallback="Successfully imported"
-          data-test-id='translatedtext-2qdr' />
+          data-testid='translatedtext-2qdr' />
       )}
     </Heading4>
     <BodyText mb={1}>
@@ -82,17 +82,17 @@ const ImportFeedback = ({ feedback }) => (
         <TranslatedText
           stringId="admin.report.import.feedback.createdNew"
           fallback="Created new"
-          data-test-id='translatedtext-j7po' />
+          data-testid='translatedtext-j7po' />
       ) : (
         <TranslatedText
           stringId="admin.report.import.feedback.updatedExisting"
           fallback="Updated existing"
-          data-test-id='translatedtext-78aw' />
+          data-testid='translatedtext-78aw' />
       )}{' '}
       <TranslatedText
         stringId="admin.report.import.feedback.definition"
         fallback="Definition"
-        data-test-id='translatedtext-9fnl' />:{' '}
+        data-testid='translatedtext-9fnl' />:{' '}
       <b>{feedback.name}</b>
     </BodyText>
     {feedback.reportDefinitionId && (
@@ -100,7 +100,7 @@ const ImportFeedback = ({ feedback }) => (
         <TranslatedText
           stringId="admin.report.import.feedback.reportId"
           fallback="Report id"
-          data-test-id='translatedtext-rdqg' />:{' '}
+          data-testid='translatedtext-rdqg' />:{' '}
         <b>{feedback.reportDefinitionId}</b>
       </BodyText>
     )}
@@ -108,7 +108,7 @@ const ImportFeedback = ({ feedback }) => (
       <TranslatedText
         stringId="admin.report.import.feedback.createdNewVersion"
         fallback="created new version"
-        data-test-id='translatedtext-o52t' />
+        data-testid='translatedtext-o52t' />
       : <b>{feedback.versionNumber}</b>
     </BodyText>
   </Alert>
@@ -131,11 +131,11 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
           label={<TranslatedText
             stringId="admin.report.reportName.label"
             fallback="Report name"
-            data-test-id='translatedtext-fhie' />}
+            data-testid='translatedtext-fhie' />}
           name="name"
           onChange={handleNameChange}
           component={TextField}
-          data-test-id='field-bkzr' />
+          data-testid='field-bkzr' />
         <Heading4>or</Heading4>
         <Field
           component={ReportSelectField}
@@ -143,39 +143,39 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
           label={<TranslatedText
             stringId="admin.report.import.report.label"
             fallback="Report"
-            data-test-id='translatedtext-4mob' />}
+            data-testid='translatedtext-4mob' />}
           name="reportDefinitionId"
           includeNameChangeEvent
           placeholder={getTranslation(
             'admin.report.import.report.placeholder',
             'Select a report definition',
           )}
-          data-test-id='field-94ks' />
+          data-testid='field-94ks' />
         <Field
           label={
             <TranslatedText
               stringId="admin.report.import.reportJson.label"
               fallback="Report JSON"
-              data-test-id='translatedtext-8za7' />
+              data-testid='translatedtext-8za7' />
           }
           name="file"
           component={StyledFileChooserField}
           filters={[{ name: 'JSON (.json)', extensions: ['json'] }]}
-          data-test-id='field-g3z7' />
+          data-testid='field-g3z7' />
         <Field
           label={<TranslatedText
             stringId="admin.report.import.dryRun.label"
             fallback="Dry run"
-            data-test-id='translatedtext-sbad' />}
+            data-testid='translatedtext-sbad' />}
           name="dryRun"
           component={CheckField}
-          data-test-id='field-wlrx' />
+          data-testid='field-wlrx' />
       </FormContainer>
-      <StyledButton type="submit" isSubmitting={isSubmitting} data-test-id='styledbutton-deon'>
+      <StyledButton type="submit" isSubmitting={isSubmitting} data-testid='styledbutton-deon'>
         <TranslatedText
           stringId="general.action.import"
           fallback="Import"
-          data-test-id='translatedtext-va2s' />
+          data-testid='translatedtext-va2s' />
       </StyledButton>
       {feedback && <ImportFeedback name={values.name} dryRun={values.dryRun} feedback={feedback} />}
     </InnerContainer>
@@ -206,7 +206,7 @@ export const ImportReportView = () => {
           stringId="admin.report.notification.importFailed"
           fallback={`Failed to import: ${err.message}`}
           replacements={{ message: err.message }}
-          data-test-id='translatedtext-0gqe' />
+          data-testid='translatedtext-0gqe' />
       );
     }
   };

@@ -78,7 +78,7 @@ export const EditReportView = () => {
           stringId="admin.report.notification.saveReportSuccess"
           fallback={`Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`}
           replacements={{ versionNumber: result.versionNumber, name: reportDefinition.name }}
-          data-test-id='translatedtext-i6f2' />
+          data-testid='translatedtext-i6f2' />
       );
       queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
@@ -89,18 +89,18 @@ export const EditReportView = () => {
           stringId="admin.report.notification.saveReportFailed"
           fallback={`Failed to save version: ${err.message}`}
           replacements={{ message: err.message }}
-          data-test-id='translatedtext-yk4x' />
+          data-testid='translatedtext-yk4x' />
       );
     }
   };
 
   return (
     <Container>
-      <StyledButton onClick={handleBack} data-test-id='styledbutton-o6uy'>
+      <StyledButton onClick={handleBack} data-testid='styledbutton-o6uy'>
         <TranslatedText
           stringId="general.action.back"
           fallback="Back"
-          data-test-id='translatedtext-xk5m' />
+          data-testid='translatedtext-xk5m' />
       </StyledButton>
       {isLoading ? (
         <Box mt={2}>

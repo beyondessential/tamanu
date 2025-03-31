@@ -24,7 +24,7 @@ export const ChangeDietModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="encounter.modal.changeDiet.title"
           fallback="Change diet"
-          data-test-id='translatedtext-3lua' />
+          data-testid='translatedtext-3lua' />
       }
       open={open}
       onClose={onClose}

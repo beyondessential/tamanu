@@ -95,18 +95,18 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <TranslatedText
           stringId="programRegistry.modal.removeProgram.title"
           fallback="Remove patient"
-          data-test-id='translatedtext-r5zd' />
+          data-testid='translatedtext-r5zd' />
       }
       open={open}
       onClose={onClose}
     >
       <WarningDiv>
-        <p data-test-id='p-96ih'>
+        <p data-testid='p-96ih'>
           <TranslatedText
             stringId="programRegistry.modal.removeProgram.body"
             fallback="Please confirm you would like to remove the patient from the below program registry. Once
           a patient is removed, you will not be able to update the status or complete program forms."
-            data-test-id='translatedtext-x6j2' />
+            data-testid='translatedtext-x6j2' />
         </p>
       </WarningDiv>
       <InfoDiv>
@@ -116,7 +116,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
               <TranslatedText
                 stringId="programRegistry.programRegistry.label"
                 fallback="Program registry"
-                data-test-id='translatedtext-41dk' />
+                data-testid='translatedtext-41dk' />
             </Label>
             <Value>
               <TranslatedReferenceData
@@ -124,7 +124,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
                 value={patientProgramRegistration.programRegistryId}
                 category="programRegistry"
                 placeholder="-"
-                data-test-id='translatedreferencedata-1zbs' />
+                data-testid='translatedreferencedata-1zbs' />
             </Value>
           </Info>
           <Info>
@@ -132,7 +132,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
               <TranslatedText
                 stringId="programRegistry.registeredBy.label"
                 fallback="Registered by"
-                data-test-id='translatedtext-3z6e' />
+                data-testid='translatedtext-3z6e' />
             </Label>
             <Value>{patientProgramRegistration?.clinician?.displayName || '-'}</Value>
           </Info>
@@ -141,7 +141,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
               <TranslatedText
                 stringId="programRegistry.clinicalStatus.label"
                 fallback="Status"
-                data-test-id='translatedtext-st03' />
+                data-testid='translatedtext-st03' />
             </Label>
             <Value>
               <TranslatedReferenceData
@@ -149,7 +149,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
                 value={patientProgramRegistration.clinicalStatus?.id}
                 category="programRegistryClinicalStatus"
                 placeholder="-"
-                data-test-id='translatedreferencedata-3x70' />
+                data-testid='translatedreferencedata-3x70' />
             </Value>
           </Info>
         </InfoColumn>
@@ -160,10 +160,10 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"
                 fallback="Date of registration"
-                data-test-id='translatedtext-njs4' />
+                data-testid='translatedtext-njs4' />
             </Label>
             <Value>
-              <DateDisplay date={patientProgramRegistration.date} data-test-id='datedisplay-kefg' />
+              <DateDisplay date={patientProgramRegistration.date} data-testid='datedisplay-kefg' />
             </Value>
           </Info>
           <Info>
@@ -171,7 +171,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
               <TranslatedText
                 stringId="programRegistry.registeringFacility.label"
                 fallback="Registering facility"
-                data-test-id='translatedtext-b957' />
+                data-testid='translatedtext-b957' />
             </Label>
             <Value>
               {(patientProgramRegistration.registeringFacility
@@ -181,7 +181,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
                       fallback={patientProgramRegistration.facility.name}
                       value={patientProgramRegistration.facility.id}
                       category="facility"
-                      data-test-id='translatedreferencedata-zouy' />
+                      data-testid='translatedreferencedata-zouy' />
                   )) || '-'}
             </Value>
           </Info>

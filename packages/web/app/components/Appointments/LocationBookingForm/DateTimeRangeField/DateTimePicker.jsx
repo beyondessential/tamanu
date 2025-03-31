@@ -26,12 +26,12 @@ const DateTimePicker = ({
   datePickerLabel = <TranslatedText
     stringId="general.date.label"
     fallback="Date"
-    data-test-id='translatedtext-jv7z' />,
+    data-testid='translatedtext-jv7z' />,
   datePickerName,
   timePickerLabel = <TranslatedText
     stringId="general.time.label"
     fallback="Time"
-    data-test-id='translatedtext-zblt' />,
+    data-testid='translatedtext-zblt' />,
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
@@ -92,12 +92,12 @@ const DateTimePicker = ({
               <TranslatedText
                 stringId="locationBooking.timePicker.locationNotAvailableWarning"
                 fallback="Location not available"
-                data-test-id='translatedtext-k4um' />
+                data-testid='translatedtext-k4um' />
             </ErrorSpan>
           )
         }
         saveDateAsString
-        data-test-id='field-sng6' />
+        data-testid='field-sng6' />
       <TimeSlotPicker
         date={isValidDate ? dateFieldValue : null}
         disabled={disabled || !isValidDate || hasConflict}
@@ -115,13 +115,13 @@ export const StartDateTimePicker = styled(DateTimePicker).attrs({
   datePickerLabel: <TranslatedText
     stringId="general.startDate.label"
     fallback="Start date"
-    data-test-id='translatedtext-g5s2' />,
+    data-testid='translatedtext-g5s2' />,
   datePickerName: 'startDate',
   timePickerLabel: (
     <TranslatedText
       stringId="general.bookingStartTime.label"
       fallback="Booking start time"
-      data-test-id='translatedtext-zrqm' />
+      data-testid='translatedtext-zrqm' />
   ),
   timePickerName: 'startTime',
   timePickerVariant: 'start',
@@ -131,13 +131,13 @@ export const EndDateTimePicker = styled(DateTimePicker).attrs({
   datePickerLabel: <TranslatedText
     stringId="general.endDate.label"
     fallback="End date"
-    data-test-id='translatedtext-dyyu' />,
+    data-testid='translatedtext-dyyu' />,
   datePickerName: 'endDate',
   timePickerLabel: (
     <TranslatedText
       stringId="general.bookingEndTime.label"
       fallback="Booking end time"
-      data-test-id='translatedtext-uv1d' />
+      data-testid='translatedtext-uv1d' />
   ),
   timePickerName: 'endTime',
   timePickerVariant: 'end',

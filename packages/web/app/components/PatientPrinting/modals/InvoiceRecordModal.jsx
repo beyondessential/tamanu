@@ -56,7 +56,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
       <TranslatedText
         stringId="invoice.modal.print.invoiceRecord.title"
         fallback="Invoice Record"
-        data-test-id='translatedtext-nrf6' />
+        data-testid='translatedtext-nrf6' />
     ),
     color: Colors.white,
     open,

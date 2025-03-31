@@ -241,7 +241,7 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
       <TranslatedText
         stringId="patient.bookings.table.viewPastBookings"
         fallback="View past bookings"
-        data-test-id='translatedtext-65em' />
+        data-testid='translatedtext-65em' />
     </ViewPastBookingsButton>
   </TableTitleContainer>
 );
@@ -322,7 +322,7 @@ export const LocationBookingsTable = ({ patient }) => {
       label: <TranslatedText
         stringId="general.action.cancel"
         fallback="Cancel"
-        data-test-id='translatedtext-rh9g' />,
+        data-testid='translatedtext-rh9g' />,
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -340,7 +340,7 @@ export const LocationBookingsTable = ({ patient }) => {
       title: <TranslatedText
         stringId="patient.bookings.table.column.date"
         fallback="Date"
-        data-test-id='translatedtext-pjbk' />,
+        data-testid='translatedtext-pjbk' />,
       accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
     },
     {
@@ -348,7 +348,7 @@ export const LocationBookingsTable = ({ patient }) => {
       title: <TranslatedText
         stringId="patient.bookings.table.column.area"
         fallback="Area"
-        data-test-id='translatedtext-nks6' />,
+        data-testid='translatedtext-nks6' />,
       accessor: ({ location }) => location?.locationGroup?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={243} />,
     },
@@ -358,7 +358,7 @@ export const LocationBookingsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.bookings.table.column.location"
           fallback="Location"
-          data-test-id='translatedtext-6tc7' />
+          data-testid='translatedtext-6tc7' />
       ),
       accessor: ({ location }) => location?.name,
       sortable: false,
@@ -370,7 +370,7 @@ export const LocationBookingsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.bookings.table.column.bookingType"
           fallback="Booking type"
-          data-test-id='translatedtext-arzq' />
+          data-testid='translatedtext-arzq' />
       ),
       accessor: ({ bookingType }) => bookingType?.name,
       CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
@@ -387,7 +387,7 @@ export const LocationBookingsTable = ({ patient }) => {
                 className="menu-container"
                 onMouseEnter={() => setSelectedAppointment(data)}
               >
-                <StyledMenuButton actions={actions} data-test-id='styledmenubutton-qu47' />
+                <StyledMenuButton actions={actions} data-testid='styledmenubutton-qu47' />
               </MenuContainer>
             ),
           },
@@ -407,7 +407,7 @@ export const LocationBookingsTable = ({ patient }) => {
             <TranslatedText
               stringId="patient.bookings.table.noData"
               fallback="No location bookings"
-              data-test-id='translatedtext-4b74' />
+              data-testid='translatedtext-4b74' />
           }
           openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
         />
@@ -434,7 +434,7 @@ export const LocationBookingsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.bookings.table.title"
                 fallback="Location bookings"
-                data-test-id='translatedtext-yy77' />
+                data-testid='translatedtext-yy77' />
             }
             openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
           />

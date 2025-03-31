@@ -16,7 +16,7 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
         stringId="general.fallback.unknown"
         fallback={enumFallback}
         {...restProps}
-        data-test-id='translatedtext-t890' />
+        data-testid='translatedtext-t890' />
     );
   }
 
@@ -27,7 +27,7 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
       stringId={stringId}
       fallback={fallback}
       {...restProps}
-      data-test-id='translatedtext-jmnd' />
+      data-testid='translatedtext-jmnd' />
   );
 };
 

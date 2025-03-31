@@ -48,21 +48,21 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         <TableButtonRow variant="small">
           <OutlinedButton
             onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
-            data-test-id='outlinedbutton-1a06'>
+            data-testid='outlinedbutton-1a06'>
             <TranslatedText
               stringId="document.action.openPatientLetter"
               fallback="Patient letter"
-              data-test-id='translatedtext-bq3g' />
+              data-testid='translatedtext-bq3g' />
           </OutlinedButton>
           <ButtonWithPermissionCheck
             verb="create"
             noun="DocumentMetadata"
             onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-            data-test-id='buttonwithpermissioncheck-dx04'>
+            data-testid='buttonwithpermissioncheck-dx04'>
             <TranslatedText
               stringId="document.action.addDocument"
               fallback="Add document"
-              data-test-id='translatedtext-ojz9' />
+              data-testid='translatedtext-ojz9' />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable

@@ -201,7 +201,7 @@ export const EditorView = memo(
                   <TranslatedText
                     stringId="admin.settings.category.label"
                     fallback="Select category"
-                    data-test-id='translatedtext-g4ty' />
+                    data-testid='translatedtext-g4ty' />
                 }
                 value={category}
                 onChange={handleChangeCategory}
@@ -214,7 +214,7 @@ export const EditorView = memo(
                       <TranslatedText
                         stringId="admin.settings.subCategory.label"
                         fallback="Select sub-category"
-                        data-test-id='translatedtext-2t47' />
+                        data-testid='translatedtext-2t47' />
                     }
                     placeholder=""
                     value={subCategory}
@@ -228,20 +228,20 @@ export const EditorView = memo(
               <OutlinedButton
                 onClick={() => resetForm()}
                 disabled={!dirty}
-                data-test-id='outlinedbutton-qky5'>
+                data-testid='outlinedbutton-qky5'>
                 <TranslatedText
                   stringId="admin.settings.action.clearChanges"
                   fallback="Clear changes"
-                  data-test-id='translatedtext-w9ze' />
+                  data-testid='translatedtext-w9ze' />
               </OutlinedButton>
               <Button
                 onClick={saveSettings}
                 disabled={!dirty || isSubmitting}
-                data-test-id='button-go9j'>
+                data-testid='button-go9j'>
                 <TranslatedText
                   stringId="admin.settings.action.saveChanges"
                   fallback="Save changes"
-                  data-test-id='translatedtext-rpt7' />
+                  data-testid='translatedtext-rpt7' />
               </Button>
             </ButtonGroup>
           </CategoryOptions>

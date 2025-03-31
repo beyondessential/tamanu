@@ -21,11 +21,11 @@ export const ParameterList = ({ children, onAdd }) => {
   return (
     <div>
       <div>{children}</div>
-      <TextButton color="primary" onClick={onAdd} data-test-id='textbutton-xf4m'>
+      <TextButton color="primary" onClick={onAdd} data-testid='textbutton-xf4m'>
         + {<TranslatedText
         stringId="general.action.add"
         fallback="Add"
-        data-test-id='translatedtext-vzs8' />}
+        data-testid='translatedtext-vzs8' />}
       </TextButton>
     </div>
   );

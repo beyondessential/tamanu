@@ -22,31 +22,31 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
       <TranslatedText
         stringId="program.modal.surveyResponse.complete"
         fallback="Survey complete"
-        data-test-id='translatedtext-bvlg' />
+        data-testid='translatedtext-bvlg' />
     </Typography>
     <Text>
       <TranslatedText
         stringId="program.modal.surveyResponse.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-        data-test-id='translatedtext-hewa' />
+        data-testid='translatedtext-hewa' />
     </Text>
     <div>
       <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack} data-test-id='outlinedbutton-xdaz'>
+        <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-xdaz'>
           <TranslatedText
             stringId="general.action.prev"
             fallback="Prev"
-            data-test-id='translatedtext-9trw' />
+            data-testid='translatedtext-9trw' />
         </OutlinedButton>
         <FormSubmitButton
           color="primary"
           variant="contained"
           onClick={onSurveyComplete}
-          data-test-id='formsubmitbutton-ti8n'>
+          data-testid='formsubmitbutton-ti8n'>
           <TranslatedText
             stringId="general.action.complete"
             fallback="Complete"
-            data-test-id='translatedtext-3qw2' />
+            data-testid='translatedtext-3qw2' />
         </FormSubmitButton>
       </StyledButtonRow>
     </div>

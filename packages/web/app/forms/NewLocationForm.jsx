@@ -16,10 +16,10 @@ export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
           label={<TranslatedText
             string="general.locationName.label"
             fallback="Location name"
-            data-test-id='translatedtext-4t8g' />}
+            data-testid='translatedtext-4t8g' />}
           component={TextField}
           required
-          data-test-id='field-q76n' />
+          data-testid='field-q76n' />
         <ModalFormActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     ),
@@ -39,7 +39,7 @@ export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
             <TranslatedText
               string="general.locationName.label"
               fallback="Location name"
-              data-test-id='translatedtext-kh7r' />,
+              data-testid='translatedtext-kh7r' />,
           ),
       })}
     />

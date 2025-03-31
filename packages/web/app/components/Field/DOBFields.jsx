@@ -31,10 +31,10 @@ export const DOBFields = ({ showExactBirth = true }) => (
           <TranslatedText
             stringId="general.localisedField.dateOfBirth.label.short"
             fallback="DOB"
-            data-test-id='translatedtext-ha3w' />
+            data-testid='translatedtext-ha3w' />
         }
         max={getCurrentDateString()}
-        data-test-id='field-8d6e' />
+        data-testid='field-8d6e' />
     )}
     <JoinedField
       name="dateOfBirthFrom"
@@ -44,7 +44,7 @@ export const DOBFields = ({ showExactBirth = true }) => (
         <TranslatedText
           stringId="general.localisedField.dateOfBirthFrom.label.short"
           fallback="DOB from"
-          data-test-id='translatedtext-06wf' />
+          data-testid='translatedtext-06wf' />
       }
       max={getCurrentDateString()}
     />
@@ -56,9 +56,9 @@ export const DOBFields = ({ showExactBirth = true }) => (
         <TranslatedText
           stringId="general.localisedField.dateOfBirthTo.label.short"
           fallback="DOB to"
-          data-test-id='translatedtext-uyrs' />
+          data-testid='translatedtext-uyrs' />
       }
       max={getCurrentDateString()}
-      data-test-id='field-531u' />
+      data-testid='field-531u' />
   </>
 );

@@ -11,7 +11,7 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 
-const getDate = ({ endTime }) => <DateDisplay date={endTime} data-test-id='datedisplay-u15f' />;
+const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid='datedisplay-u15f' />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
@@ -35,14 +35,14 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       label: <TranslatedText
         stringId="general.action.print"
         fallback="Print"
-        data-test-id='translatedtext-eqis' />,
+        data-testid='translatedtext-eqis' />,
       action: () => setPrintModalOpen(true),
     },
     {
       label: <TranslatedText
         stringId="general.action.delete"
         fallback="Delete"
-        data-test-id='translatedtext-y1nn' />,
+        data-testid='translatedtext-y1nn' />,
       action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
@@ -59,7 +59,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         <TranslatedText
           stringId="program.table.column.submittedDate"
           fallback="Date submitted"
-          data-test-id='translatedtext-wbor' />
+          data-testid='translatedtext-wbor' />
       ),
       accessor: getDate,
     },
@@ -68,7 +68,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       title: <TranslatedText
         stringId="program.table.column.submittedBy"
         fallback="Submitted by"
-        data-test-id='translatedtext-uy21' />,
+        data-testid='translatedtext-uy21' />,
       accessor: getSubmittedBy,
     },
     {
@@ -76,7 +76,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       title: <TranslatedText
         stringId="program.table.column.programName"
         fallback="Program"
-        data-test-id='translatedtext-ik9c' />,
+        data-testid='translatedtext-ik9c' />,
       accessor: getProgramName,
     },
     {
@@ -84,7 +84,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       title: <TranslatedText
         stringId="program.table.column.surveyName"
         fallback="Survey"
-        data-test-id='translatedtext-xiqa' />,
+        data-testid='translatedtext-xiqa' />,
       accessor: getSurveyName,
     },
     {
@@ -92,7 +92,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       title: <TranslatedText
         stringId="program.table.column.resultText"
         fallback="Results"
-        data-test-id='translatedtext-51xz' />,
+        data-testid='translatedtext-51xz' />,
       accessor: getResults,
     },
   ];
@@ -107,7 +107,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedResponse(data)}>
-          <MenuButton actions={actions} data-test-id='menubutton-d215' />
+          <MenuButton actions={actions} data-testid='menubutton-d215' />
         </div>
       ),
     });
@@ -139,12 +139,12 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
           <TranslatedText
             stringId="program.table.noData"
             fallback="No program responses found"
-            data-test-id='translatedtext-yluo' />
+            data-testid='translatedtext-yluo' />
         }
         onRowClick={onSelectResponse}
         elevated={false}
         refreshCount={refreshCount}
-        data-test-id='datafetchingtable-b3xl' />
+        data-testid='datafetchingtable-b3xl' />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}

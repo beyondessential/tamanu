@@ -21,9 +21,9 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.date"
             fallback="Date submitted"
-            data-test-id='translatedtext-j3gr' />
+            data-testid='translatedtext-j3gr' />
         ),
-        accessor: row => <DateDisplay date={row.endTime} data-test-id='datedisplay-pzpv' />,
+        accessor: row => <DateDisplay date={row.endTime} data-testid='datedisplay-pzpv' />,
         sortable: true,
       },
       {
@@ -32,7 +32,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.submittedBy"
             fallback="Submitted By"
-            data-test-id='translatedtext-wcqu' />
+            data-testid='translatedtext-wcqu' />
         ),
         accessor: row => row.submittedBy,
         sortable: false,
@@ -42,7 +42,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         title: <TranslatedText
           stringId="programRegistry.modal.formHistory.form"
           fallback="Form"
-          data-test-id='translatedtext-m1y1' />,
+          data-testid='translatedtext-m1y1' />,
         accessor: row => row.surveyName,
         sortable: false,
       },
@@ -52,7 +52,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.result"
             fallback="Result"
-            data-test-id='translatedtext-meh6' />
+            data-testid='translatedtext-meh6' />
         ),
         accessor: ({ resultText }) => <SurveyResultBadge resultText={resultText} />,
         sortable: false,
@@ -69,14 +69,14 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
                 label: <TranslatedText
                   stringId="general.action.print"
                   fallback="Print"
-                  data-test-id='translatedtext-3w7j' />,
+                  data-testid='translatedtext-3w7j' />,
                 action: () => {
                   setSelectedResponse(data);
                   setPrintModalOpen(true);
                 },
               },
             ]}
-            data-test-id='menubutton-1n2t' />
+            data-testid='menubutton-1n2t' />
         ),
         required: false,
       },
@@ -119,9 +119,9 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.noDataMessage"
             fallback="No Program registry responses found"
-            data-test-id='translatedtext-n98p' />
+            data-testid='translatedtext-n98p' />
         }
-        data-test-id='datafetchingtable-y0e1' />
+        data-testid='datafetchingtable-y0e1' />
     </>
   );
 };

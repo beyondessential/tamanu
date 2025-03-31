@@ -147,19 +147,19 @@ const DetailedDashboardItem = ({ api, facilityId }) => {
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsAvailable.label"
               fallback="No. of locations available"
-              data-test-id='translatedtext-91jl' />
+              data-testid='translatedtext-91jl' />
           </DetailedDashboardItemText>
           <DetailedDashboardItemText>
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsReserved.label"
               fallback="No. of locations reserved"
-              data-test-id='translatedtext-vs1w' />
+              data-testid='translatedtext-vs1w' />
           </DetailedDashboardItemText>
           <DetailedDashboardItemText>
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsOccupied.label"
               fallback="No. of locations occupied"
-              data-test-id='translatedtext-aoj5' />
+              data-testid='translatedtext-aoj5' />
           </DetailedDashboardItemText>
         </DetailedDashboardItemSection>
       </DetailedDashboardItemTextContainer>
@@ -240,15 +240,15 @@ export const BedManagement = () => {
         title={<TranslatedText
           stringId="bedManagement.title"
           fallback="Bed management"
-          data-test-id='translatedtext-xkkc' />}
+          data-testid='translatedtext-xkkc' />}
         subTitle={
           <TranslatedReferenceData
             fallback={facility?.name}
             value={facility?.id}
             category="facility"
-            data-test-id='translatedreferencedata-y65g' />
+            data-testid='translatedreferencedata-y65g' />
         }
-        data-test-id='topbar-nux4' />
+        data-testid='topbar-nux4' />
       <ContentPane>
         <DashboardContainer>
           <DashboardItemListContainer>
@@ -259,7 +259,7 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentPatients.label"
                   fallback="Total current\npatients"
-                  data-test-id='translatedtext-rwxt' />
+                  data-testid='translatedtext-rwxt' />
               }
             />
             <DashboardItem
@@ -270,7 +270,7 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentInpatients.label"
                   fallback="Current inpatient\nadmissions"
-                  data-test-id='translatedtext-k7io' />
+                  data-testid='translatedtext-k7io' />
               }
             />
             <DashboardItem
@@ -281,7 +281,7 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.averageStayDuration.label"
                   fallback="Average length of\nstay (last 30 days)"
-                  data-test-id='translatedtext-ansz' />
+                  data-testid='translatedtext-ansz' />
               }
             />
             <DashboardItem
@@ -292,7 +292,7 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentOccupancy.label"
                   fallback="Current\noccupancy"
-                  data-test-id='translatedtext-92ts' />
+                  data-testid='translatedtext-92ts' />
               }
             />
             <DashboardItem
@@ -303,7 +303,7 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.readmission.label"
                   fallback="Readmission in\nlast 30 days"
-                  data-test-id='translatedtext-utdl' />
+                  data-testid='translatedtext-utdl' />
               }
             />
           </DashboardItemListContainer>
@@ -321,7 +321,7 @@ export const BedManagement = () => {
             <TranslatedText
               stringId="bedManagement.table.noData"
               fallback="No locations found"
-              data-test-id='translatedtext-z0ih' />
+              data-testid='translatedtext-z0ih' />
           }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}

@@ -16,18 +16,18 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
           fallback={area.name}
           value={area.id}
           category={area.type}
-          data-test-id='translatedreferencedata-eoiz' />
+          data-testid='translatedreferencedata-eoiz' />
       </span>).join(', ')
       : imagingRequest?.areaNote;
-    return <p style={{ margin: '0' }} data-test-id='p-kvwd'>{areas}</p>;
+    return <p style={{ margin: '0' }} data-testid='p-kvwd'>{areas}</p>;
   }
   if (dataType === 'completedDate') {
     return (
-      <p style={{ margin: '0' }} data-test-id='p-ggu5'>
+      <p style={{ margin: '0' }} data-testid='p-ggu5'>
         {imagingRequest?.results[0]?.completedAt ? (
           <DateDisplay
             date={imagingRequest?.results[0]?.completedAt}
-            data-test-id='datedisplay-9tzj' />
+            data-testid='datedisplay-9tzj' />
         ) : (
           '--/--/----'
         )}

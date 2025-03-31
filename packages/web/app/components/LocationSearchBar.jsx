@@ -52,12 +52,12 @@ const renderSearchBar = ({ placeholder, submitForm }) => (
       component={TextField}
       placeholder={placeholder}
       name="name"
-      data-test-id='field-kerp' />
+      data-testid='field-kerp' />
     <FormSubmitButton
       color="primary"
       variant="contained"
       onClick={submitForm}
-      data-test-id='formsubmitbutton-nb9p'>
+      data-testid='formsubmitbutton-nb9p'>
       <PaddedSearchIcon />
       Search
     </FormSubmitButton>

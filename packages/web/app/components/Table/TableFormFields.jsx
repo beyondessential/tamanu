@@ -109,7 +109,7 @@ export const TableFormFields = React.memo(
         <TableContainer>
           <StyledFixedTable className={className} $pagination={pagination} {...props}>
             <StyledTableHead>
-              <TableRow data-test-id='tablerow-fy16'>
+              <TableRow data-testid='tablerow-fy16'>
                 {columns.map(({ key, title, width }) => (
                   <StyledTableHeaderCell key={key} width={width}>
                     {title}
@@ -120,19 +120,19 @@ export const TableFormFields = React.memo(
             <TableBody>
               {pageRows && pageRows.length > 0 ? (
                 pageRows.map((rowData, i) => (
-                  <TableRow key={rowData.id || i} data-test-id='tablerow-1ujb'>
+                  <TableRow key={rowData.id || i} data-testid='tablerow-1ujb'>
                     {columns.map(({ key, accessor }) => (
-                      <StyledTableDataCell key={key} data-test-id='styledtabledatacell-5fg8'>{accessor(rowData, i)}</StyledTableDataCell>
+                      <StyledTableDataCell key={key} data-testid='styledtabledatacell-5fg8'>{accessor(rowData, i)}</StyledTableDataCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
-                <TableRow data-test-id='tablerow-t2ja'>
+                <TableRow data-testid='tablerow-t2ja'>
                   <NoDataTableCell colSpan={columns.length}>
                     <TranslatedText
                       stringId="general.table.noData"
                       fallback="No data found"
-                      data-test-id='translatedtext-mrtn' />
+                      data-testid='translatedtext-mrtn' />
                   </NoDataTableCell>
                 </TableRow>
               )}

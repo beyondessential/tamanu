@@ -44,7 +44,7 @@ const GeolocateQuestion = ({ text, component, required }) => {
         <TranslatedText
           stringId="program.modal.surveyResponse.geolocateNotSupported"
           fallback="The Geolocate question type is not supported by Tamanu Desktop. Please complete the form on Tamanu Mobile if required."
-          data-test-id='translatedtext-iuam' />
+          data-testid='translatedtext-iuam' />
       </Typography>
     </Box>
   );

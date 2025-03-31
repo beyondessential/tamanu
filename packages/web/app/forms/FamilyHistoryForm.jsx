@@ -26,52 +26,52 @@ export const FamilyHistoryForm = ({
           label={<TranslatedText
             stringId="general.diagnosis.label"
             fallback="Diagnosis"
-            data-test-id='translatedtext-p009' />}
+            data-testid='translatedtext-p009' />}
           required
           component={AutocompleteField}
           suggester={diagnosisSuggester}
-          data-test-id='field-n5ak' />
+          data-testid='field-n5ak' />
         <Field
           name="recordedDate"
           label={<TranslatedText
             stringId="general.recordedDate.label"
             fallback="Date recorded"
-            data-test-id='translatedtext-smw3' />}
+            data-testid='translatedtext-smw3' />}
           required
           component={DateField}
           saveDateAsString
-          data-test-id='field-1i4v' />
+          data-testid='field-1i4v' />
         <Field
           name="relationship"
           label={
             <TranslatedText
               stringId="familyHistory.relations.label"
               fallback="Relation to patient"
-              data-test-id='translatedtext-nxt8' />
+              data-testid='translatedtext-nxt8' />
           }
           component={TextField}
-          data-test-id='field-ub1e' />
+          data-testid='field-ub1e' />
         <Field
           name="practitionerId"
           label={
             <TranslatedText
               stringId="general.localisedField.clinician.label.short"
               fallback="Clinician"
-              data-test-id='translatedtext-vux8' />
+              data-testid='translatedtext-vux8' />
           }
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          data-test-id='field-m9jg' />
+          data-testid='field-m9jg' />
         <Field
           name="note"
           label={<TranslatedText
             stringId="general.notes.label"
             fallback="Notes"
-            data-test-id='translatedtext-ksz0' />}
+            data-testid='translatedtext-ksz0' />}
           component={TextField}
           multiline
           minRows={2}
-          data-test-id='field-5993' />
+          data-testid='field-5993' />
         <FormSubmitCancelRow
           onConfirm={submitForm}
           onCancel={onCancel}
@@ -80,15 +80,15 @@ export const FamilyHistoryForm = ({
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-test-id='translatedtext-cv61' />
+                data-testid='translatedtext-cv61' />
             ) : (
               <TranslatedText
                 stringId="general.action.add"
                 fallback="Add"
-                data-test-id='translatedtext-s0sc' />
+                data-testid='translatedtext-s0sc' />
             )
           }
-          data-test-id='formsubmitcancelrow-17xq' />
+          data-testid='formsubmitcancelrow-17xq' />
       </FormGrid>
     )}
     initialValues={{
@@ -101,7 +101,7 @@ export const FamilyHistoryForm = ({
         <TranslatedText
           stringId="general.diagnosis.label"
           fallback="Diagnosis"
-          data-test-id='translatedtext-n4rt' />,
+          data-testid='translatedtext-n4rt' />,
       ),
       practitionerId: optionalForeignKey(),
       recordedDate: yup
@@ -111,7 +111,7 @@ export const FamilyHistoryForm = ({
           <TranslatedText
             stringId="general.recordedDate.label"
             fallback="Date recorded"
-            data-test-id='translatedtext-ycth' />,
+            data-testid='translatedtext-ycth' />,
         ),
     })}
   />

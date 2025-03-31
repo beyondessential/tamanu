@@ -34,7 +34,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       label: <TranslatedText
         stringId="general.localisedField.title.label"
         fallback="Title"
-        data-test-id='translatedtext-6i2v' />,
+        data-testid='translatedtext-6i2v' />,
     },
     maritalStatus: {
       component: TranslatedSelectField,
@@ -44,7 +44,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.maritalStatus.label"
           fallback="Marital status"
-          data-test-id='translatedtext-7fsl' />
+          data-testid='translatedtext-7fsl' />
       ),
     },
     bloodType: {
@@ -54,7 +54,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.bloodType.label"
           fallback="Blood type"
-          data-test-id='translatedtext-xtyz' />
+          data-testid='translatedtext-xtyz' />
       ),
     },
     placeOfBirth: {
@@ -63,7 +63,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.placeOfBirth.label"
           fallback="Birth location"
-          data-test-id='translatedtext-648h' />
+          data-testid='translatedtext-648h' />
       ),
     },
     countryOfBirthId: {
@@ -73,7 +73,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.countryOfBirthId.label"
           fallback="Country of birth"
-          data-test-id='translatedtext-kdl1' />
+          data-testid='translatedtext-kdl1' />
       ),
     },
     nationalityId: {
@@ -83,7 +83,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.nationalityId.label"
           fallback="Nationality"
-          data-test-id='translatedtext-hy5h' />
+          data-testid='translatedtext-hy5h' />
       ),
     },
     ethnicityId: {
@@ -93,7 +93,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.ethnicityId.label"
           fallback="Ethnicity"
-          data-test-id='translatedtext-06tk' />
+          data-testid='translatedtext-06tk' />
       ),
     },
     religionId: {
@@ -103,7 +103,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.religionId.label"
           fallback="Religion"
-          data-test-id='translatedtext-3si2' />
+          data-testid='translatedtext-3si2' />
       ),
     },
     educationalLevel: {
@@ -114,7 +114,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.educationalLevel.label"
           fallback="Educational attainment"
-          data-test-id='translatedtext-6j9w' />
+          data-testid='translatedtext-6j9w' />
       ),
     },
     occupationId: {
@@ -125,7 +125,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.occupationId.label"
           fallback="Occupation"
-          data-test-id='translatedtext-q6cf' />
+          data-testid='translatedtext-q6cf' />
       ),
     },
     socialMedia: {
@@ -136,7 +136,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.socialMedia.label"
           fallback="Social media"
-          data-test-id='translatedtext-jbsu' />
+          data-testid='translatedtext-jbsu' />
       ),
     },
     patientBillingTypeId: {
@@ -146,7 +146,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.patientBillingTypeId.label"
           fallback="Patient type"
-          data-test-id='translatedtext-9y03' />
+          data-testid='translatedtext-9y03' />
       ),
     },
     motherId: {
@@ -155,7 +155,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       label: <TranslatedText
         stringId="general.localisedField.motherId.label"
         fallback="Mother"
-        data-test-id='translatedtext-kaiy' />,
+        data-testid='translatedtext-kaiy' />,
     },
     fatherId: {
       component: AutocompleteField,
@@ -163,7 +163,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       label: <TranslatedText
         stringId="general.localisedField.fatherId.label"
         fallback="Father"
-        data-test-id='translatedtext-1vec' />,
+        data-testid='translatedtext-1vec' />,
     },
   };
 

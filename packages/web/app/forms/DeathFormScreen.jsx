@@ -70,17 +70,17 @@ export const DeathFormScreen = ({
       <Actions mt={4}>
         <Box>
           {showSaveAndClose && (
-            <OutlinedButton onClick={toggleSummary} data-test-id='outlinedbutton-zzom'>Save and close</OutlinedButton>
+            <OutlinedButton onClick={toggleSummary} data-testid='outlinedbutton-zzom'>Save and close</OutlinedButton>
           )}
-          {showBackButton && <OutlinedButton onClick={onStepBack} data-test-id='outlinedbutton-nrni'>Back</OutlinedButton>}
+          {showBackButton && <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-nrni'>Back</OutlinedButton>}
         </Box>
         <Box>
-          <OutlinedButton onClick={onCancel} data-test-id='outlinedbutton-buqy'>Cancel</OutlinedButton>
+          <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-buqy'>Cancel</OutlinedButton>
           <Button
             color="primary"
             variant="contained"
             onClick={onStepForward}
-            data-test-id='button-sjk6'>
+            data-testid='button-sjk6'>
             {isLast ? 'Submit' : 'Continue'}
           </Button>
         </Box>

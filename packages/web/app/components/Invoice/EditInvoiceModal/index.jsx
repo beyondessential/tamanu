@@ -120,7 +120,7 @@ export const EditInvoiceModal = ({
                 <TranslatedText
                   stringId="validation.required.inline"
                   fallback="*Required"
-                  data-test-id='translatedtext-00sp' />,
+                  data-testid='translatedtext-00sp' />,
               ),
             otherwise: yup.string(),
           }),
@@ -132,7 +132,7 @@ export const EditInvoiceModal = ({
                 <TranslatedText
                   stringId="validation.required.inline"
                   fallback="*Required"
-                  data-test-id='translatedtext-xlbq' />,
+                  data-testid='translatedtext-xlbq' />,
               ),
             otherwise: yup.string(),
           }),
@@ -144,7 +144,7 @@ export const EditInvoiceModal = ({
                 <TranslatedText
                   stringId="validation.required.inline"
                   fallback="*Required"
-                  data-test-id='translatedtext-ac49' />,
+                  data-testid='translatedtext-ac49' />,
               ),
             otherwise: yup.string(),
           }),
@@ -153,7 +153,7 @@ export const EditInvoiceModal = ({
             .required(<TranslatedText
             stringId="general.required"
             fallback="Required"
-            data-test-id='translatedtext-7d80' />),
+            data-testid='translatedtext-7d80' />),
           productPrice: yup.number().when(['productId'], {
             is: productId => !!productId,
             then: yup
@@ -161,7 +161,7 @@ export const EditInvoiceModal = ({
               .required(<TranslatedText
               stringId="general.required"
               fallback="Required"
-              data-test-id='translatedtext-5az7' />),
+              data-testid='translatedtext-5az7' />),
             otherwise: yup.number(),
           }),
         },
@@ -181,14 +181,14 @@ export const EditInvoiceModal = ({
             <TranslatedText
               stringId="invoice.modal.editInvoice.insurer.label"
               fallback="Insurer"
-              data-test-id='translatedtext-92kd' />,
+              data-testid='translatedtext-92kd' />,
           ),
         percentage: yup
           .number()
           .required(<TranslatedText
           stringId="general.required"
           fallback="Required"
-          data-test-id='translatedtext-y699' />),
+          data-testid='translatedtext-y699' />),
       }),
     ),
     totalInsurerPercentage: yup
@@ -198,7 +198,7 @@ export const EditInvoiceModal = ({
         <TranslatedText
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
-          data-test-id='translatedtext-b51a' />,
+          data-testid='translatedtext-b51a' />,
         function(_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
@@ -232,7 +232,7 @@ export const EditInvoiceModal = ({
               stringId="invoice.modal.view.title"
               fallback="Invoice number: :invoiceNumber"
               replacements={{ invoiceNumber: invoice.displayId }}
-              data-test-id='translatedtext-k0ic' />
+              data-testid='translatedtext-k0ic' />
             <StatusContainer>
               <InvoiceStatus status={invoice.status} />
             </StatusContainer>
@@ -248,7 +248,7 @@ export const EditInvoiceModal = ({
               <TranslatedText
                 stringId="general.action.print"
                 fallback="Print"
-                data-test-id='translatedtext-1hla' />
+                data-testid='translatedtext-1hla' />
             </PrintButton>
           )}
           {printModalOpen && (
@@ -271,11 +271,11 @@ export const EditInvoiceModal = ({
               marginBottom="-16px"
             >
               {finalisable && (
-                <Button onClick={handleFinaliseInvoice} data-test-id='button-3pji'>
+                <Button onClick={handleFinaliseInvoice} data-testid='button-3pji'>
                   <TranslatedText
                     stringId="invoice.modal.finaliseButton.label"
                     fallback="Finalise invoice"
-                    data-test-id='translatedtext-uufs' />
+                    data-testid='translatedtext-uufs' />
                 </Button>
               )}
               {(cancelable || deletable) && (
@@ -286,7 +286,7 @@ export const EditInvoiceModal = ({
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.cancelInvoice"
                           fallback="Cancel invoice"
-                          data-test-id='translatedtext-u61d' />
+                          data-testid='translatedtext-u61d' />
                       ),
                       onClick: handleCancelInvoice,
                       hidden: !cancelable,
@@ -296,7 +296,7 @@ export const EditInvoiceModal = ({
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.deleteInvoice"
                           fallback="Delete invoice"
-                          data-test-id='translatedtext-zd99' />
+                          data-testid='translatedtext-zd99' />
                       ),
                       onClick: handleDeleteInvoice,
                       hidden: !deletable,
@@ -352,7 +352,7 @@ export const EditInvoiceModal = ({
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.action.newRow"
                           fallback="Add new row"
-                          data-test-id='translatedtext-xcgl' />
+                          data-testid='translatedtext-xcgl' />
                       </LinkText>
                     )}
                     <ModalSection>
@@ -371,12 +371,12 @@ export const EditInvoiceModal = ({
                             <TranslatedText
                               stringId="general.action.save"
                               fallback="Save"
-                              data-test-id='translatedtext-9qzh' />
+                              data-testid='translatedtext-9qzh' />
                           ) : (
                             <TranslatedText
                               stringId="general.action.close"
                               fallback="Close"
-                              data-test-id='translatedtext-o1sj' />
+                              data-testid='translatedtext-o1sj' />
                           )
                         ) : (
                           <CircularProgress size={14} color={Colors.white} />
@@ -392,7 +392,7 @@ export const EditInvoiceModal = ({
                           opacity: 0.3;
                         }
                       `}
-                      data-test-id='formsubmitcancelrow-kcvt' />
+                      data-testid='formsubmitcancelrow-kcvt' />
                   </FormContainer>
                 );
               }}

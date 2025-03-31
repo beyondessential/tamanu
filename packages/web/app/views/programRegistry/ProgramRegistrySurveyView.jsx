@@ -56,11 +56,11 @@ export const ProgramRegistrySurveyView = () => {
 
   if (isError) {
     return (
-      <p data-test-id='p-pmgd'>
+      <p data-testid='p-pmgd'>
         <TranslatedText
           stringId="programRegistry.registryNotFoundMessage"
           fallback="Program registry not found."
-          data-test-id='translatedtext-v6ov' />
+          data-testid='translatedtext-v6ov' />
       </p>
     );
   }

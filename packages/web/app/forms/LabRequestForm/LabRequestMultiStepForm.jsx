@@ -47,10 +47,10 @@ export const LabRequestMultiStepForm = ({
               stringId="general.localisedField.clinician.label.short"
               fallback="Clinician"
               casing="lower"
-              data-test-id='translatedtext-ertn' />
+              data-testid='translatedtext-ertn' />
           ),
         }}
-        data-test-id='translatedtext-e77x' />,
+        data-testid='translatedtext-e77x' />,
     ),
     requestedDate: yup
       .date()
@@ -59,7 +59,7 @@ export const LabRequestMultiStepForm = ({
         <TranslatedText
           stringId="general.requestDate.label"
           fallback="Request date"
-          data-test-id='translatedtext-xtmn' />,
+          data-testid='translatedtext-xtmn' />,
       ),
     requestFormType: yup
       .string()
@@ -69,7 +69,7 @@ export const LabRequestMultiStepForm = ({
         <TranslatedText
           stringId="general.requestType.label"
           fallback="Request type"
-          data-test-id='translatedtext-qclc' />,
+          data-testid='translatedtext-qclc' />,
       ),
   });
 
@@ -120,7 +120,7 @@ export const LabRequestMultiStepForm = ({
                 <TranslatedText
                   stringId="lab.modal.recordSample.specimenType.label"
                   fallback="Specimen type"
-                  data-test-id='translatedtext-uksp' />,
+                  data-testid='translatedtext-uksp' />,
               ),
             otherwise: yup.string(),
           })
@@ -169,7 +169,7 @@ export const LabRequestMultiStepForm = ({
         submitButtonText={<TranslatedText
           stringId="general.action.finalise"
           fallback="Finalise"
-          data-test-id='translatedtext-6gbr' />}
+          data-testid='translatedtext-6gbr' />}
       >
         <LabRequestFormScreen3
           practitionerSuggester={practitionerSuggester}

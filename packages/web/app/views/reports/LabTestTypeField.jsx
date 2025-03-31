@@ -36,7 +36,7 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
       label={label ?? <TranslatedText
         stringId="lab.testType.label"
         fallback="Test type"
-        data-test-id='translatedtext-yubx' />}
+        data-testid='translatedtext-yubx' />}
       component={MultiselectField}
       required={required}
       options={data.map(type => ({
@@ -46,10 +46,10 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
             value={type.id}
             fallback={type.name}
             category="labTestType"
-            data-test-id='translatedreferencedata-ha0r' />
+            data-testid='translatedreferencedata-ha0r' />
         ),
         searchString: getTranslation(getReferenceDataStringId(type.id, 'labTestType'), type.name),
       }))}
-      data-test-id='field-07q7' />
+      data-testid='field-07q7' />
   );
 };

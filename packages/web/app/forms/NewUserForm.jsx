@@ -15,59 +15,59 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
         label={<TranslatedText
           stringId="user.emailAddress.label"
           fallback="Email address"
-          data-test-id='translatedtext-18r4' />}
+          data-testid='translatedtext-18r4' />}
         component={TextField}
         required
-        data-test-id='field-mvz2' />
+        data-testid='field-mvz2' />
       <Field
         name="displayName"
         label={<TranslatedText
           stringId="user.displayName.label"
           fallback="Display name"
-          data-test-id='translatedtext-8o5o' />}
+          data-testid='translatedtext-8o5o' />}
         component={TextField}
         required
-        data-test-id='field-wxmd' />
+        data-testid='field-wxmd' />
       <Field
         name="role"
         label={<TranslatedText
           stringId="user.role.label"
           fallback="Role ID"
-          data-test-id='translatedtext-lu58' />}
+          data-testid='translatedtext-lu58' />}
         component={TextField}
         required
-        data-test-id='field-swe1' />
+        data-testid='field-swe1' />
       <Field
         name="password"
         label={<TranslatedText
           stringId="login.password.label"
           fallback="Password"
-          data-test-id='translatedtext-b3p6' />}
+          data-testid='translatedtext-b3p6' />}
         type="password"
         component={TextField}
         required
-        data-test-id='field-5wsf' />
+        data-testid='field-5wsf' />
       <Field
         name="displayId"
         label={<TranslatedText
           stringId="user.displayId.label"
           fallback="Display ID"
-          data-test-id='translatedtext-ii07' />}
+          data-testid='translatedtext-ii07' />}
         component={TextField}
-        data-test-id='field-aoua' />
+        data-testid='field-aoua' />
       <Field
         name="phoneNumber"
         label={<TranslatedText
           stringId="user.phoneNumber.label"
           fallback="Phone number"
-          data-test-id='translatedtext-joeo' />}
+          data-testid='translatedtext-joeo' />}
         component={TextField}
-        data-test-id='field-0i1i' />
+        data-testid='field-0i1i' />
       <ModalFormActionRow
         confirmText={<TranslatedText
           stringId="general.action.confirm"
           fallback="confirm"
-          data-test-id='translatedtext-z0om' />}
+          data-testid='translatedtext-z0om' />}
         onConfirm={submitForm}
         onCancel={onCancel}
       />
@@ -88,7 +88,7 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
             <TranslatedText
               stringId="user.emailAddress.label"
               fallback="Email address"
-              data-test-id='translatedtext-87mv' />,
+              data-testid='translatedtext-87mv' />,
           ),
         displayName: yup
           .string()
@@ -97,7 +97,7 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
             <TranslatedText
               stringId="user.displayName.label"
               fallback="Display name"
-              data-test-id='translatedtext-ya5s' />,
+              data-testid='translatedtext-ya5s' />,
           ),
         password: yup
           .string()
@@ -105,28 +105,28 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
           .translatedLabel(<TranslatedText
           stringId="login.password.label"
           fallback="Password"
-          data-test-id='translatedtext-ecou' />),
+          data-testid='translatedtext-ecou' />),
         name: yup
           .string()
           .required()
           .translatedLabel(<TranslatedText
           stringId="user.name.label"
           fallback="Name"
-          data-test-id='translatedtext-oxfq' />),
+          data-testid='translatedtext-oxfq' />),
         role: yup
           .string()
           .required()
           .translatedLabel(<TranslatedText
           stringId="user.role.label"
           fallback="Role ID"
-          data-test-id='translatedtext-8fna' />),
+          data-testid='translatedtext-8fna' />),
         displayId: yup
           .string()
           .translatedLabel(
             <TranslatedText
               stringId="user.displayId.label"
               fallback="Display ID"
-              data-test-id='translatedtext-tfww' />,
+              data-testid='translatedtext-tfww' />,
           ),
         phoneNumber: yup
           .string()
@@ -134,7 +134,7 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
             <TranslatedText
               stringId="user.phoneNumber.label"
               fallback="Phone number"
-              data-test-id='translatedtext-2jvg' />,
+              data-testid='translatedtext-2jvg' />,
           ),
       })}
     />

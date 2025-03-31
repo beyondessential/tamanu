@@ -29,19 +29,19 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         noteType={<TranslatedEnum
           value={note.noteType}
           enumValues={NOTE_TYPE_LABELS}
-          data-test-id='translatedenum-dua1' />}
+          data-testid='translatedenum-dua1' />}
         date={note.revisedBy ? note.revisedBy.date : note.date}
         writtenByLabel={
           <TranslatedText
             stringId="note.writtenBy.label"
             fallback="Written by (or on behalf of)"
-            data-test-id='translatedtext-3s0b' />
+            data-testid='translatedtext-3s0b' />
         }
         writtenBy={writtenBy}
         dateLabel={<TranslatedText
           stringId="note.dateTime.label"
           fallback="Date & time"
-          data-test-id='translatedtext-c8be' />}
+          data-testid='translatedtext-c8be' />}
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
@@ -51,13 +51,13 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         confirmText={<TranslatedText
           stringId="general.action.save"
           fallback="Save"
-          data-test-id='translatedtext-ps84' />}
+          data-testid='translatedtext-ps84' />}
         cancelText={<TranslatedText
           stringId="general.action.cancel"
           fallback="Cancel"
-          data-test-id='translatedtext-g65y' />}
+          data-testid='translatedtext-g65y' />}
         onCancel={onCancel}
-        data-test-id='formsubmitcancelrow-hjhr' />
+        data-testid='formsubmitcancelrow-hjhr' />
     </>
   );
 };

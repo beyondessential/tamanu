@@ -11,9 +11,9 @@ export const VaccineCategoryField = ({ name = 'category', required, label }) => 
     label={label ?? <TranslatedText
       stringId="vaccine.category.label"
       fallback="Category"
-      data-test-id='translatedtext-f5at' />}
+      data-testid='translatedtext-f5at' />}
     component={TranslatedSelectField}
     required={required}
     enumValues={VACCINE_CATEGORY_LABELS}
-    data-test-id='field-zdwc' />
+    data-testid='field-zdwc' />
 );

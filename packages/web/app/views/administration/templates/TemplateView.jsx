@@ -76,8 +76,8 @@ export const TemplateView = () => {
         title={<TranslatedText
           stringId="admin.template.title"
           fallback="Templates"
-          data-test-id='translatedtext-k5as' />}
-        data-test-id='topbar-dpt2' />
+          data-testid='translatedtext-k5as' />}
+        data-testid='topbar-dpt2' />
       <ContentPane>
         <ContentContainer>
           <NewTemplateForm

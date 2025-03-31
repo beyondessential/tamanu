@@ -74,37 +74,37 @@ export const SampleDetailsField = ({
       key="category"
       stringId="lab.sampleDetail.table.column.category"
       fallback="Category"
-      data-test-id='translatedtext-i8bl' />,
+      data-testid='translatedtext-i8bl' />,
     <TranslatedText
       key="dateTimeCollected"
       stringId="lab.sampleDetail.table.column.collectionDateTime"
       fallback="Date & time collected"
-      data-test-id='translatedtext-itmg' />,
+      data-testid='translatedtext-itmg' />,
     <TranslatedText
       key="dateTimeCollected"
       stringId="lab.sampleDetail.table.column.collectedBy"
       fallback="Collected by"
-      data-test-id='translatedtext-kz0v' />,
+      data-testid='translatedtext-kz0v' />,
     <>
       <TranslatedText
         key="specimentType"
         stringId="lab.sampleDetail.table.column.specimenType"
         fallback="Specimen type"
-        data-test-id='translatedtext-3jsv' />
+        data-testid='translatedtext-3jsv' />
       {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
     </>,
     <TranslatedText
       key="site"
       stringId="lab.site.label"
       fallback="Site"
-      data-test-id='translatedtext-a44g' />,
+      data-testid='translatedtext-a44g' />,
   ];
   const WITH_PANELS_HEADERS = [
     <TranslatedText
       key="panel"
       stringId="lab.sampleDetail.table.column.panel"
       fallback="Panel"
-      data-test-id='translatedtext-y9s9' />,
+      data-testid='translatedtext-y9s9' />,
     ...HEADERS,
   ];
 
@@ -165,7 +165,7 @@ export const SampleDetailsField = ({
                   category="labTestPanel"
                   fallback={sample.panelName}
                   value={sample.panelId}
-                  data-test-id='translatedreferencedata-5jdb' />
+                  data-testid='translatedreferencedata-5jdb' />
               </Typography>
             </Cell>
           )}

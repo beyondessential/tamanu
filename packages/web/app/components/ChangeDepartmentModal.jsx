@@ -28,7 +28,7 @@ export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="patient.encounter.action.changeDepartment"
           fallback="Change department"
-          data-test-id='translatedtext-jeb0' />
+          data-testid='translatedtext-jeb0' />
       }
       open={open}
       onClose={onClose}

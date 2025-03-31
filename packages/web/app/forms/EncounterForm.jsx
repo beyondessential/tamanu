@@ -37,12 +37,12 @@ export const EncounterForm = React.memo(
         <TranslatedText
           stringId="patient.modal.checkIn.action.update"
           fallback="Update encounter"
-          data-test-id='translatedtext-ycij' />
+          data-testid='translatedtext-ycij' />
       ) : (
         <TranslatedText
           stringId="general.action.confirm"
           fallback="Confirm"
-          data-test-id='translatedtext-l4q0' />
+          data-testid='translatedtext-l4q0' />
       );
 
       return (
@@ -53,52 +53,52 @@ export const EncounterForm = React.memo(
               <TranslatedText
                 stringId="patient.modal.checkIn.encounterType.label"
                 fallback="Encounter type"
-                data-test-id='translatedtext-w1yu' />
+                data-testid='translatedtext-w1yu' />
             }
             disabled
             component={BaseSelectField}
             options={ENCOUNTER_OPTIONS}
-            data-test-id='field-2bbp' />
+            data-testid='field-2bbp' />
           <Field
             name="startDate"
             label={
               <TranslatedText
                 stringId="patient.modal.checkIn.checkInDate.label"
                 fallback="Check-in date"
-                data-test-id='translatedtext-pbfw' />
+                data-testid='translatedtext-pbfw' />
             }
             required
             min="1970-01-01T00:00"
             component={DateTimeField}
             saveDateAsString
-            data-test-id='field-7eot' />
+            data-testid='field-7eot' />
           <Field
             name="departmentId"
             label={<TranslatedText
               stringId="general.department.label"
               fallback="Department"
-              data-test-id='translatedtext-j8nk' />}
+              data-testid='translatedtext-j8nk' />}
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
-            data-test-id='field-ku59' />
+            data-testid='field-ku59' />
           <Field
             name="examinerId"
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
-                data-test-id='translatedtext-lnb4' />
+                data-testid='translatedtext-lnb4' />
             }
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
-            data-test-id='field-d4on' />
+            data-testid='field-d4on' />
           <Field
             name="locationId"
             component={LocalisedLocationField}
             required
-            data-test-id='field-to1b' />
+            data-testid='field-to1b' />
           <LocationAvailabilityWarningMessage
             locationId={values?.locationId}
             style={{
@@ -113,22 +113,22 @@ export const EncounterForm = React.memo(
               <TranslatedText
                 stringId="general.localisedField.referralSourceId.label"
                 fallback="Referral source"
-                data-test-id='translatedtext-pye7' />
+                data-testid='translatedtext-pye7' />
             }
             suggester={referralSourceSuggester}
             component={AutocompleteField}
-            data-test-id='localisedfield-lzhz' />
+            data-testid='localisedfield-lzhz' />
           <LocalisedField
             name="patientBillingTypeId"
             label={
               <TranslatedText
                 stringId="general.localisedField.patientBillingTypeId.label"
                 fallback="Patient type"
-                data-test-id='translatedtext-e68z' />
+                data-testid='translatedtext-e68z' />
             }
             endpoint="patientBillingType"
             component={SuggesterSelectField}
-            data-test-id='localisedfield-gyze' />
+            data-testid='localisedfield-gyze' />
           {isInpatient(encounterType) && (
             <LocalisedField
               name="dietIds"
@@ -136,13 +136,13 @@ export const EncounterForm = React.memo(
                 <TranslatedText
                   stringId="general.localisedField.dietId.label"
                   fallback="Diet"
-                  data-test-id='translatedtext-2yjz' />
+                  data-testid='translatedtext-2yjz' />
               }
               endpoint="diet"
               component={SuggesterSelectField}
               isMulti
               style={{ gridColumn: 'span 2' }}
-              data-test-id='localisedfield-xus0' />
+              data-testid='localisedfield-xus0' />
           )}
           <Field
             name="reasonForEncounter"
@@ -150,19 +150,19 @@ export const EncounterForm = React.memo(
               <TranslatedText
                 stringId="encounter.reasonForEncounter.label"
                 fallback="Reason for encounter"
-                data-test-id='translatedtext-ankr' />
+                data-testid='translatedtext-ankr' />
             }
             component={TextField}
             multiline
             minRows={2}
             style={{ gridColumn: 'span 2' }}
-            data-test-id='field-omxw' />
+            data-testid='field-omxw' />
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
             <FormSubmitButton
               variant="contained"
               onSubmit={submitForm}
               color="primary"
-              data-test-id='formsubmitbutton-qlz5'>
+              data-testid='formsubmitbutton-qlz5'>
               {buttonText}
             </FormSubmitButton>
           </div>
@@ -187,19 +187,19 @@ export const EncounterForm = React.memo(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-test-id='translatedtext-6o9b' />,
+              data-testid='translatedtext-6o9b' />,
           ),
           locationId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.localisedField.locationId.label"
               fallback="Location"
-              data-test-id='translatedtext-9tm2' />,
+              data-testid='translatedtext-9tm2' />,
           ),
           departmentId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.department.label"
               fallback="Department"
-              data-test-id='translatedtext-6joq' />,
+              data-testid='translatedtext-6joq' />,
           ),
           startDate: yup
             .date()
@@ -208,7 +208,7 @@ export const EncounterForm = React.memo(
               <TranslatedText
                 stringId="patient.modal.checkIn.checkInDate.label"
                 fallback="Check-in date"
-                data-test-id='translatedtext-iyod' />,
+                data-testid='translatedtext-iyod' />,
             ),
           encounterType: yup
             .string()
@@ -218,7 +218,7 @@ export const EncounterForm = React.memo(
               <TranslatedText
                 stringId="patient.modal.checkIn.encounterType.label"
                 fallback="Encounter type"
-                data-test-id='translatedtext-qoz0' />,
+                data-testid='translatedtext-qoz0' />,
             ),
           reasonForEncounter: yup
             .string()

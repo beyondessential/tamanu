@@ -71,7 +71,7 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
       label: <TranslatedText
         stringId="general.action.finalise"
         fallback="Finalise"
-        data-test-id='translatedtext-w9lc' />,
+        data-testid='translatedtext-w9lc' />,
       onClick: finalise,
     },
     {
@@ -79,7 +79,7 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
         <TranslatedText
           stringId="general.action.finaliseAndPrint"
           fallback="Finalise & print"
-          data-test-id='translatedtext-xh3w' />
+          data-testid='translatedtext-xh3w' />
       ),
       onClick: finaliseAndPrint,
     },
@@ -155,23 +155,23 @@ export const ImagingRequestForm = React.memo(
                   <TranslatedText
                     stringId="imaging.requestCode.label"
                     fallback="Imaging request code"
-                    data-test-id='translatedtext-9zsv' />
+                    data-testid='translatedtext-9zsv' />
                 }
                 disabled
                 component={TextField}
-                data-test-id='field-kw4e' />
+                data-testid='field-kw4e' />
               <Field
                 name="requestedDate"
                 label={
                   <TranslatedText
                     stringId="imaging.requestedDate.label"
                     fallback="Order date and time"
-                    data-test-id='translatedtext-5szb' />
+                    data-testid='translatedtext-5szb' />
                 }
                 required
                 component={DateTimeField}
                 saveDateAsString
-                data-test-id='field-1bpi' />
+                data-testid='field-1bpi' />
               <TextInput
                 label={
                   <TranslatedText
@@ -183,10 +183,10 @@ export const ImagingRequestForm = React.memo(
                           stringId="general.localisedField.clinician.label.short"
                           fallback="Clinician"
                           casing="lower"
-                          data-test-id='translatedtext-twop' />
+                          data-testid='translatedtext-twop' />
                       ),
                     }}
-                    data-test-id='translatedtext-hmre' />
+                    data-testid='translatedtext-hmre' />
                 }
                 disabled
                 value={examinerLabel}
@@ -203,15 +203,15 @@ export const ImagingRequestForm = React.memo(
                           stringId="general.localisedField.clinician.label.short"
                           fallback="Clinician"
                           casing="lower"
-                          data-test-id='translatedtext-azb6' />
+                          data-testid='translatedtext-azb6' />
                       ),
                     }}
-                    data-test-id='translatedtext-1bac' />
+                    data-testid='translatedtext-1bac' />
                 }
                 required
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
-                data-test-id='field-cnpp' />
+                data-testid='field-cnpp' />
               <div>
                 <ImagingPriorityField name="priority" />
               </div>
@@ -220,7 +220,7 @@ export const ImagingRequestForm = React.memo(
                 label={<TranslatedText
                   stringId="imaging.encounter.label"
                   fallback="Encounter"
-                  data-test-id='translatedtext-mrmr' />}
+                  data-testid='translatedtext-mrmr' />}
                 disabled
                 value={encounterLabel}
               />
@@ -230,7 +230,7 @@ export const ImagingRequestForm = React.memo(
                   <TranslatedText
                     stringId="imaging.imagingType.label"
                     fallback="Imaging request type"
-                    data-test-id='translatedtext-1t3g' />
+                    data-testid='translatedtext-1t3g' />
                 }
                 required
                 enumValues={IMAGING_TYPES}
@@ -249,7 +249,7 @@ export const ImagingRequestForm = React.memo(
                       };
                     });
                 }}
-                data-test-id='field-7yig' />
+                data-testid='field-7yig' />
               {imagingAreas.length > 0 ? (
                 <Field
                   options={imagingAreas
@@ -258,7 +258,7 @@ export const ImagingRequestForm = React.memo(
                         fallback={name}
                         value={id}
                         category={type}
-                        data-test-id='translatedreferencedata-h9ws' />,
+                        data-testid='translatedreferencedata-h9ws' />,
                       value: id,
                       searchString: getTranslation(getReferenceDataStringId(id, type), name),
                     }))
@@ -270,12 +270,12 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText
                       stringId="imaging.areas.label"
                       fallback="Areas to be imaged"
-                      data-test-id='translatedtext-uzo7' />
+                      data-testid='translatedtext-uzo7' />
                   }
                   component={MultiselectField}
                   prefix="imaging.property.area"
                   required
-                  data-test-id='field-4jun' />
+                  data-testid='field-4jun' />
               ) : (
                 <Field
                   name="areaNote"
@@ -283,32 +283,32 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText
                       stringId="imaging.imagingNote.label"
                       fallback="Areas to be imaged"
-                      data-test-id='translatedtext-q14i' />
+                      data-testid='translatedtext-q14i' />
                   }
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
                   required
-                  data-test-id='field-ltoj' />
+                  data-testid='field-ltoj' />
               )}
               <Field
                 name="note"
                 label={<TranslatedText
                   stringId="general.notes.label"
                   fallback="Notes"
-                  data-test-id='translatedtext-5mi6' />}
+                  data-testid='translatedtext-5mi6' />}
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
                 minRows={3}
-                data-test-id='field-0k2w' />
-              <ButtonRow data-test-id='buttonrow-rc6q'>
-                <FormCancelButton onClick={onCancel} data-test-id='formcancelbutton-gig5'>
+                data-testid='field-0k2w' />
+              <ButtonRow data-testid='buttonrow-rc6q'>
+                <FormCancelButton onClick={onCancel} data-testid='formcancelbutton-gig5'>
                   <TranslatedText
                     stringId="general.action.cancel"
                     fallback="Cancel"
-                    data-test-id='translatedtext-pk6h' />
+                    data-testid='translatedtext-pk6h' />
                 </FormCancelButton>
                 <FormSubmitActionDropdown
                   encounter={encounter}

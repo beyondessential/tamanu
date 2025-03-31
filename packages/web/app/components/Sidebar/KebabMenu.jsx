@@ -107,14 +107,14 @@ export const KebabMenu = () => {
           <TranslatedText
             stringId="general.language.change"
             fallback="Change language"
-            data-test-id='translatedtext-qiru' />
+            data-testid='translatedtext-qiru' />
         </KebabMenuItem>}
         <KebabMenuItem onClick={handleCloseKebabMenu}>
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
             <TranslatedText
               stringId="externalLink.supportCentre"
               fallback="Support centre"
-              data-test-id='translatedtext-06xg' />
+              data-testid='translatedtext-06xg' />
             <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
           </SupportDesktopLink>
         </KebabMenuItem>

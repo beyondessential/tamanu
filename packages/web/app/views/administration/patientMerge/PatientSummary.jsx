@@ -30,7 +30,7 @@ const IDFrame = styled.div`
 const IDDisplay = ({ patient, selectable, selected }) => (
   <IDFrame>
     <span title={patient.id}>{patient.displayId}</span>
-    {selectable && <input type="radio" checked={selected} data-test-id='input-xrh3' />}
+    {selectable && <input type="radio" checked={selected} data-testid='input-xrh3' />}
   </IDFrame>
 );
 
@@ -71,7 +71,7 @@ export const PatientSummary = ({
 }) => (
   <SummaryFrame onClick={onSelect} selected={selected}>
     <Header>
-      <h3 data-test-id='h3-j0yi'>{heading}</h3>
+      <h3 data-testid='h3-j0yi'>{heading}</h3>
       <IDDisplay patient={patient} selected={selected} selectable={onSelect} />
     </Header>
     <Columns>
@@ -81,28 +81,28 @@ export const PatientSummary = ({
             <TranslatedText
               stringId="general.localisedField.firstName.label"
               fallback="First name"
-              data-test-id='translatedtext-b7os' />
+              data-testid='translatedtext-b7os' />
           }
           value={patient.firstName}
-          data-test-id='labelledvalue-kyks' />
+          data-testid='labelledvalue-kyks' />
         <LabelledValue
           label={
             <TranslatedText
               stringId="general.localisedField.lastName.label"
               fallback="Last name"
-              data-test-id='translatedtext-j01y' />
+              data-testid='translatedtext-j01y' />
           }
           value={patient.lastName}
-          data-test-id='labelledvalue-nnhs' />
+          data-testid='labelledvalue-nnhs' />
         <LabelledValue
           label={
             <TranslatedText
               stringId="general.localisedField.culturalName.label"
               fallback="Cultural name"
-              data-test-id='translatedtext-ehvp' />
+              data-testid='translatedtext-ehvp' />
           }
           value={patient.culturalName}
-          data-test-id='labelledvalue-6yz7' />
+          data-testid='labelledvalue-6yz7' />
       </div>
       <div>
         <LabelledValue
@@ -110,32 +110,32 @@ export const PatientSummary = ({
             <TranslatedText
               stringId="general.localisedField.village.label"
               fallback="Village"
-              data-test-id='translatedtext-ee2i' />
+              data-testid='translatedtext-ee2i' />
           }
           value={patient.village
             && <TranslatedReferenceData
             fallback={patient.village.name}
             value={patient.village.id}
             category="village"
-            data-test-id='translatedreferencedata-w05t' />
+            data-testid='translatedreferencedata-w05t' />
           }
-          data-test-id='labelledvalue-2aif' />
+          data-testid='labelledvalue-2aif' />
         <LabelledValue
           label={<TranslatedText
             stringId="general.localisedField.sex.label"
             fallback="Sex"
-            data-test-id='translatedtext-8488' />}
+            data-testid='translatedtext-8488' />}
           value={SEX_VALUE_INDEX[patient.sex]?.label}
-          data-test-id='labelledvalue-dlc9' />
+          data-testid='labelledvalue-dlc9' />
         <LabelledValue
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label"
               fallback="Date of birth"
-              data-test-id='translatedtext-4wap' />
+              data-testid='translatedtext-4wap' />
           }
-          value={<DateDisplay date={patient.dateOfBirth} data-test-id='datedisplay-1f2z' />}
-          data-test-id='labelledvalue-898n' />
+          value={<DateDisplay date={patient.dateOfBirth} data-testid='datedisplay-1f2z' />}
+          data-testid='labelledvalue-898n' />
       </div>
     </Columns>
   </SummaryFrame>

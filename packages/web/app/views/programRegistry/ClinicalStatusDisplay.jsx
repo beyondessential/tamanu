@@ -13,7 +13,7 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
         <TranslatedText
           stringId="programRegistry.currentStatus.tooltip"
           fallback="Current status"
-          data-test-id='translatedtext-oxvo' />
+          data-testid='translatedtext-oxvo' />
       }
     >
       <TableCellTag $color={color} $position="initial">
@@ -25,9 +25,9 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
             <TranslatedText
               stringId="programRegistry.currentStatus.placeholder"
               fallback="n/a"
-              data-test-id='translatedtext-hywd' />
+              data-testid='translatedtext-hywd' />
           }
-          data-test-id='translatedreferencedata-0ct9' />
+          data-testid='translatedreferencedata-0ct9' />
       </TableCellTag>
     </ThemedTooltip>
   );

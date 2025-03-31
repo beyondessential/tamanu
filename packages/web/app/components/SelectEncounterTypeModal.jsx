@@ -53,7 +53,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
       title={<TranslatedText
         stringId="patient.modal.admit.title"
         fallback="Admit or check-in"
-        data-test-id='translatedtext-3l0v' />}
+        data-testid='translatedtext-3l0v' />}
       open={open}
       onClose={onClose}
     >

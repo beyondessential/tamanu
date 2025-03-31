@@ -28,7 +28,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         component={SelectField}
         label={name}
         options={fieldOptions}
-        data-test-id='field-9ark' />
+        data-testid='field-9ark' />
     );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
@@ -38,7 +38,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         component={TextField}
         label={name}
         enablePasting
-        data-test-id='field-3uz1' />
+        data-testid='field-3uz1' />
     );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
@@ -47,10 +47,10 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         name={fieldName}
         component={NumberField}
         label={name}
-        data-test-id='field-2eng' />
+        data-testid='field-2eng' />
     );
   }
-  return <p data-test-id='p-ay6n'>Unknown field type: {fieldType}</p>;
+  return <p data-testid='p-ay6n'>Unknown field type: {fieldType}</p>;
 };
 
 export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {

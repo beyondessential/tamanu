@@ -17,8 +17,8 @@ export const TriageListingView = () => (
       title={<TranslatedText
         stringId="patientList.triage.title"
         fallback="Emergency patients"
-        data-test-id='translatedtext-vxpu' />}
-      data-test-id='topbar-pjfu' />
+        data-testid='translatedtext-vxpu' />}
+      data-testid='topbar-pjfu' />
     <Section>
       <ContentPane>
         <TriageDashboard />

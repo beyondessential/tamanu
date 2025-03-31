@@ -25,6 +25,6 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
       suggester={suggester}
       disabled={!isFirstLevel && !parentId}
       {...fieldData}
-      data-test-id='localisedfield-6bk8' />
+      data-testid='localisedfield-6bk8' />
   );
 };

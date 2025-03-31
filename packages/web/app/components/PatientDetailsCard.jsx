@@ -61,27 +61,27 @@ export const PatientDetailsCard = ({ patient }) => (
         label={<TranslatedText
           stringId="general.patientId.label"
           fallback="Patient ID"
-          data-test-id='translatedtext-c5od' />}
+          data-testid='translatedtext-c5od' />}
         value={patient?.displayId}
-        data-test-id='carditem-zi6t' />
+        data-testid='carditem-zi6t' />
       <CardItem
         label={
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-test-id='translatedtext-zzat' />
+            data-testid='translatedtext-zzat' />
         }
         value={patient?.firstName}
-        data-test-id='carditem-yvpq' />
+        data-testid='carditem-yvpq' />
       <CardItem
         label={
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-test-id='translatedtext-mind' />
+            data-testid='translatedtext-mind' />
         }
         value={patient?.lastName}
-        data-test-id='carditem-qmr3' />
+        data-testid='carditem-qmr3' />
     </Column>
     <Column>
       <CardItem
@@ -89,17 +89,17 @@ export const PatientDetailsCard = ({ patient }) => (
           <TranslatedText
             stringId="patient.detail.card.dateOfBirth.label.short"
             fallback="DOB"
-            data-test-id='translatedtext-cwnq' />
+            data-testid='translatedtext-cwnq' />
         }
-        value={<DateDisplay date={patient?.dateOfBirth} data-test-id='datedisplay-6uur' />}
-        data-test-id='carditem-pz38' />
+        value={<DateDisplay date={patient?.dateOfBirth} data-testid='datedisplay-6uur' />}
+        data-testid='carditem-pz38' />
       <CardItem
         label={<TranslatedText
           stringId="general.localisedField.sex.label"
           fallback="Sex"
-          data-test-id='translatedtext-lbs8' />}
+          data-testid='translatedtext-lbs8' />}
         value={SEX_VALUE_INDEX[patient?.sex]?.label}
-        data-test-id='carditem-atol' />
+        data-testid='carditem-atol' />
     </Column>
   </Card>
 );

@@ -79,7 +79,7 @@ const FormFields = () => {
           'scheduling.filter.placeholder.patientNameOrId',
           'Search patient name or ID',
         )}
-        data-test-id='field-54ah' />
+        data-testid='field-54ah' />
       {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
         <Field
           component={FilterField}
@@ -89,7 +89,7 @@ const FormFields = () => {
           onChange={e =>
             updateFilterUserPreferences({ ...filters, locationGroupId: e.target.value })
           }
-          data-test-id='field-76ve' />
+          data-testid='field-76ve' />
       )}
       {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
         <Field
@@ -98,7 +98,7 @@ const FormFields = () => {
           label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
           name="clinicianId"
           onChange={e => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
-          data-test-id='field-pxx8' />
+          data-testid='field-pxx8' />
       )}
       <Field
         component={FilterField}
@@ -108,7 +108,7 @@ const FormFields = () => {
         onChange={e =>
           updateFilterUserPreferences({ ...filters, appointmentTypeId: e.target.value })
         }
-        data-test-id='field-m7rt' />
+        data-testid='field-m7rt' />
       <ResetButton
         onClick={() => {
           setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
@@ -120,7 +120,7 @@ const FormFields = () => {
         <TranslatedText
           stringId="general.action.clear"
           fallback="Clear"
-          data-test-id='translatedtext-cr4r' />
+          data-testid='translatedtext-cr4r' />
       </ResetButton>
       <FormListener />
     </Fieldset>

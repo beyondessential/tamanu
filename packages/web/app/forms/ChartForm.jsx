@@ -65,10 +65,10 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
               confirmText={<TranslatedText
                 stringId="general.action.record"
                 fallback="Record"
-                data-test-id='translatedtext-is78' />}
+                data-testid='translatedtext-is78' />}
               onConfirm={submitForm}
               onCancel={onClose}
-              data-test-id='formsubmitcancelrow-fu17' />
+              data-testid='formsubmitcancelrow-fu17' />
           }
         />
         </>

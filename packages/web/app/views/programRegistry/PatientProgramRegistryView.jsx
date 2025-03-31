@@ -65,11 +65,11 @@ export const PatientProgramRegistryView = () => {
 
   if (isError) {
     return (
-      <p data-test-id='p-j7je'>
+      <p data-testid='p-j7je'>
         <TranslatedText
           stringId="programRegistry.registryNotFoundMessage"
           fallback="Program registry not found."
-          data-test-id='translatedtext-x5a0' />
+          data-testid='translatedtext-x5a0' />
       </p>
     );
   }
@@ -83,12 +83,12 @@ export const PatientProgramRegistryView = () => {
     <>
       <PatientNavigation patientRoutes={patientRoutes} />
       <ViewHeader>
-        <h1 data-test-id='h1-tb2j'>
+        <h1 data-testid='h1-tb2j'>
           <TranslatedReferenceData
             fallback={data.programRegistry.name}
             value={data.programRegistry.id}
             category="programRegistry"
-            data-test-id='translatedreferencedata-xgtf' />
+            data-testid='translatedreferencedata-xgtf' />
         </h1>
         <RegistrationStatusIndicator
           style={{ height: '10px', width: '10px' }}

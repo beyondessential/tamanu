@@ -31,7 +31,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
           disabled={!value}
           variant="contained"
           color="primary"
-          data-test-id='button-xlv2'>
+          data-testid='button-xlv2'>
           {buttonText}
         </Button>
       </StyledButtonRow>

@@ -26,11 +26,11 @@ export const PatientCarePlanForm = ({
           label={<TranslatedText
             stringId="carePlan.plan.label"
             fallback="Care plan"
-            data-test-id='translatedtext-o14f' />}
+            data-testid='translatedtext-o14f' />}
           component={AutocompleteField}
           suggester={carePlanSuggester}
           required
-          data-test-id='field-rjun' />
+          data-testid='field-rjun' />
         <FormGrid columns={2}>
           <Field
             name="date"
@@ -38,34 +38,34 @@ export const PatientCarePlanForm = ({
               <TranslatedText
                 stringId="general.recordedDate.label"
                 fallback="Date recorded"
-                data-test-id='translatedtext-chdx' />
+                data-testid='translatedtext-chdx' />
             }
             component={DateTimeField}
             saveDateAsString
-            data-test-id='field-nsdf' />
+            data-testid='field-nsdf' />
           <Field
             name="examinerId"
             label={
               <TranslatedText
                 stringId="general.localisedField.clinician.label.short"
                 fallback="Clinician"
-                data-test-id='translatedtext-ttyy' />
+                data-testid='translatedtext-ttyy' />
             }
             component={AutocompleteField}
             suggester={practitionerSuggester}
-            data-test-id='field-8lmn' />
+            data-testid='field-8lmn' />
         </FormGrid>
         <Field
           name="content"
           label={<TranslatedText
             stringId="carePlan.content.label"
             fallback="Main care plan"
-            data-test-id='translatedtext-b4xm' />}
+            data-testid='translatedtext-b4xm' />}
           required
           component={TextField}
           multiline
           minRows={6}
-          data-test-id='field-tb9e' />
+          data-testid='field-tb9e' />
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
@@ -74,15 +74,15 @@ export const PatientCarePlanForm = ({
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-test-id='translatedtext-qfuk' />
+                data-testid='translatedtext-qfuk' />
             ) : (
               <TranslatedText
                 stringId="general.action.add"
                 fallback="Add"
-                data-test-id='translatedtext-2y76' />
+                data-testid='translatedtext-2y76' />
             )
           }
-          data-test-id='formsubmitcancelrow-kuty' />
+          data-testid='formsubmitcancelrow-kuty' />
       </FormGrid>
     )}
     initialValues={{
@@ -95,7 +95,7 @@ export const PatientCarePlanForm = ({
         <TranslatedText
           stringId="carePlan.plan.label"
           fallback="Care plan"
-          data-test-id='translatedtext-bmg9' />,
+          data-testid='translatedtext-bmg9' />,
       ),
       date: yup.date(),
       examinerId: yup.string(),

@@ -138,7 +138,7 @@ export const InfoPaneList = ({
   return (
     <>
       {isIssuesPane && <PatientAlert alerts={warnings} />}
-      <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
+      <TitleContainer data-testid={`info-pane-${kebabCase(title)}`}>
         <TitleText>{title}</TitleText>
         {!readonly && (
           <AddButton

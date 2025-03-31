@@ -61,7 +61,7 @@ export const AppointmentForm = props => {
           .translatedLabel(<TranslatedText
           stringId="general.patient.label"
           fallback="Patient"
-          data-test-id='translatedtext-fbvn' />),
+          data-testid='translatedtext-fbvn' />),
         appointmentTypeId: yup
           .string()
           .required()
@@ -69,7 +69,7 @@ export const AppointmentForm = props => {
             <TranslatedText
               stringId="appointment.appointmentType.label"
               fallback="Appointment type"
-              data-test-id='translatedtext-iudy' />,
+              data-testid='translatedtext-iudy' />,
           ),
         startTime: yup
           .string()
@@ -78,7 +78,7 @@ export const AppointmentForm = props => {
             <TranslatedText
               stringId="general.startTime.label"
               fallback="Start time"
-              data-test-id='translatedtext-vrac' />,
+              data-testid='translatedtext-vrac' />,
           ),
         clinicianId: yup
           .string()
@@ -87,7 +87,7 @@ export const AppointmentForm = props => {
             <TranslatedText
               stringId="general.localisedField.clinician.label.short"
               fallback="Clinician"
-              data-test-id='translatedtext-d1py' />,
+              data-testid='translatedtext-d1py' />,
           ),
         locationGroupId: yup
           .string()
@@ -95,7 +95,7 @@ export const AppointmentForm = props => {
           .translatedLabel(<TranslatedText
           stringId="general.area.label"
           fallback="Area"
-          data-test-id='translatedtext-d65e' />)
+          data-testid='translatedtext-d65e' />)
           .nullable(),
       })}
       render={({ submitForm }) => (
@@ -105,25 +105,25 @@ export const AppointmentForm = props => {
               label={<TranslatedText
                 stringId="general.patient.label"
                 fallback="Patient"
-                data-test-id='translatedtext-icu9' />}
+                data-testid='translatedtext-icu9' />}
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
               required
-              data-test-id='field-5wi2' />
+              data-testid='field-5wi2' />
             <FormSeparatorLine />
             <Field
               label={
                 <TranslatedText
                   stringId="appointment.appointmentType.label"
                   fallback="Appointment type"
-                  data-test-id='translatedtext-kcgr' />
+                  data-testid='translatedtext-kcgr' />
               }
               name="appointmentTypeId"
               component={AutocompleteField}
               suggester={appointmentTypeSuggester}
               required
-              data-test-id='field-mlck' />
+              data-testid='field-mlck' />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
@@ -131,44 +131,44 @@ export const AppointmentForm = props => {
                 label={<TranslatedText
                   stringId="general.startTime.label"
                   fallback="Start time"
-                  data-test-id='translatedtext-c6e4' />}
+                  data-testid='translatedtext-c6e4' />}
                 name="startTime"
                 component={DateTimeField}
                 saveDateAsString
                 required
-                data-test-id='field-703y' />
+                data-testid='field-703y' />
               <Field
                 label={<TranslatedText
                   stringId="general.endTime.label"
                   fallback="End time"
-                  data-test-id='translatedtext-90lh' />}
+                  data-testid='translatedtext-90lh' />}
                 name="endTime"
                 saveDateAsString
                 component={DateTimeField}
-                data-test-id='field-ui4n' />
+                data-testid='field-ui4n' />
               <Field
                 label={
                   <TranslatedText
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
-                    data-test-id='translatedtext-bm79' />
+                    data-testid='translatedtext-bm79' />
                 }
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
                 required
-                data-test-id='field-voj9' />
+                data-testid='field-voj9' />
               <Field
                 label={<TranslatedText
                   stringId="general.area.label"
                   fallback="Area"
-                  data-test-id='translatedtext-wlyu' />}
+                  data-testid='translatedtext-wlyu' />}
                 name="locationGroupId"
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
                 required
                 autofill
-                data-test-id='field-lpyf' />
+                data-testid='field-lpyf' />
               <FormSeparatorLine />
               <FormSubmitCancelRow
                 onCancel={onCancel}
@@ -178,15 +178,15 @@ export const AppointmentForm = props => {
                     <TranslatedText
                       stringId="scheduling.newAppointment.action.updateAppointment"
                       fallback="Update appointment"
-                      data-test-id='translatedtext-io8r' />
+                      data-testid='translatedtext-io8r' />
                   ) : (
                     <TranslatedText
                       stringId="scheduling.newAppointment.action.scheduleAppointment"
                       fallback="Schedule appointment"
-                      data-test-id='translatedtext-ex57' />
+                      data-testid='translatedtext-ex57' />
                   )
                 }
-                data-test-id='formsubmitcancelrow-hpx4' />
+                data-testid='formsubmitcancelrow-hpx4' />
             </FormGrid>
           </div>
         </>

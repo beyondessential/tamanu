@@ -15,11 +15,11 @@ export const ImagingPriorityField = ({ name = 'priority', required }) => {
       label={<TranslatedText
         stringId="imaging.priority.label"
         fallback="Priority"
-        data-test-id='translatedtext-dt0a' />}
+        data-testid='translatedtext-dt0a' />}
       component={SelectField}
       options={imagingPriorities}
       required={required}
       prefix="imaging.property.priority"
-      data-test-id='field-njoi' />
+      data-testid='field-njoi' />
   );
 };

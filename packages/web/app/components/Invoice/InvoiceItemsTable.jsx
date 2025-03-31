@@ -51,7 +51,7 @@ const getInvoiceItemDetails = row => {
       <TranslatedText
         stringId="invoice.table.details.nonDiscountable"
         fallback="Non-discountable"
-        data-test-id='translatedtext-soer' />
+        data-testid='translatedtext-soer' />
       {')'}
     </>
   );
@@ -63,9 +63,9 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="general.date.label"
       fallback="Date"
-      data-test-id='translatedtext-c0gy' />,
+      data-testid='translatedtext-c0gy' />,
     sortable: false,
-    accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-test-id='datedisplay-oqq8' />,
+    accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-oqq8' />,
     TitleCellComponent: StyledTitleCell,
   },
   {
@@ -73,7 +73,7 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="invoice.table.column.details"
       fallback="Details"
-      data-test-id='translatedtext-5kbg' />,
+      data-testid='translatedtext-5kbg' />,
     sortable: false,
     accessor: getInvoiceItemDetails,
     TitleCellComponent: StyledTitleCell,
@@ -83,7 +83,7 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="invoice.table.column.code"
       fallback="Code"
-      data-test-id='translatedtext-64xy' />,
+      data-testid='translatedtext-64xy' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
@@ -92,7 +92,7 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="invoice.table.column.quantity"
       fallback="Quantity"
-      data-test-id='translatedtext-opva' />,
+      data-testid='translatedtext-opva' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
@@ -101,7 +101,7 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="invoice.table.column.orderedBy"
       fallback="Ordered by"
-      data-test-id='translatedtext-amlq' />,
+      data-testid='translatedtext-amlq' />,
     sortable: false,
     accessor: ({ orderedByUser }) => orderedByUser?.displayName,
     TitleCellComponent: StyledTitleCell,
@@ -111,7 +111,7 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText
       stringId="invoice.table.column.price"
       fallback="Price"
-      data-test-id='translatedtext-qbco' />,
+      data-testid='translatedtext-qbco' />,
     sortable: false,
     accessor: getPrice,
     TitleCellComponent: StyledTitleCell,
@@ -127,7 +127,7 @@ export const InvoiceItemsTable = ({ invoice }) => {
         <TranslatedText
           stringId="invoice.invoiceItemsTable.noData"
           fallback="No invoice items found"
-          data-test-id='translatedtext-9dbw' />
+          data-testid='translatedtext-9dbw' />
       }
       allowExport={false}
       elevated={false}
@@ -141,6 +141,6 @@ export const InvoiceItemsTable = ({ invoice }) => {
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
       data={invoice.items}
-      data-test-id='datafetchingtable-srcl' />
+      data-testid='datafetchingtable-srcl' />
   );
 };

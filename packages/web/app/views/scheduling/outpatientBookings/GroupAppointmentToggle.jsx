@@ -89,19 +89,19 @@ export const GroupByAppointmentToggle = props => {
       <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
       <ToggleButton
         aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}
-        data-test-id='togglebutton-khjq'>
+        data-testid='togglebutton-khjq'>
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.area"
           fallback="Area"
-          data-test-id='translatedtext-9iue' />
+          data-testid='translatedtext-9iue' />
       </ToggleButton>
       <ToggleButton
         aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}
-        data-test-id='togglebutton-2j2s'>
+        data-testid='togglebutton-2j2s'>
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.clinicians"
           fallback="Clinicians"
-          data-test-id='translatedtext-29zq' />
+          data-testid='translatedtext-29zq' />
       </ToggleButton>
     </Wrapper>
   );

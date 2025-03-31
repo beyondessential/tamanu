@@ -89,7 +89,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
             <TranslatedText
               stringId="patient.details.addReminderContact.label.contactName"
               fallback="Contact name"
-              data-test-id='translatedtext-hiom' />,
+              data-testid='translatedtext-hiom' />,
           ),
         reminderContactRelationship: yup
           .string()
@@ -98,7 +98,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
             <TranslatedText
               stringId="patient.details.addReminderContact.label.relationship"
               fallback="Relationship"
-              data-test-id='translatedtext-3n7t' />,
+              data-testid='translatedtext-3n7t' />,
           ),
       })}
       render={({ submitForm }) => {
@@ -108,7 +108,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
               <TranslatedText
                 stringId="patient.details.addReminderContact.heading"
                 fallback="Please provide details below to add a new contact."
-                data-test-id='translatedtext-7fa8' />
+                data-testid='translatedtext-7fa8' />
             </FormHeading>
             <FormSubHeading
               dangerouslySetInnerHTML={{
@@ -127,14 +127,14 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   <TranslatedText
                     stringId="patient.details.addReminderContact.label.contactName"
                     fallback="Contact name"
-                    data-test-id='translatedtext-2y5h' />
+                    data-testid='translatedtext-2y5h' />
                 }
                 placeholder={getTranslation(
                   'patient.details.addReminderContact.placeholder.contactName',
                   'Contact Name',
                 )}
                 required
-                data-test-id='localisedfield-0kku' />
+                data-testid='localisedfield-0kku' />
 
               <LocalisedField
                 name="reminderContactRelationship"
@@ -144,20 +144,20 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   <TranslatedText
                     stringId="patient.details.addReminderContact.label.relationship"
                     fallback="Relationship"
-                    data-test-id='translatedtext-hfpq' />
+                    data-testid='translatedtext-hfpq' />
                 }
                 placeholder={getTranslation(
                   'patient.details.addReminderContact.placeholder.select',
                   'Select',
                 )}
                 required
-                data-test-id='localisedfield-211j' />
+                data-testid='localisedfield-211j' />
             </StyledFormContainer>
             <FormFooterText>
               <TranslatedText
                 stringId="patient.details.addReminderContact.qrCodeInstruction"
                 fallback="Connect using the QR code on the following screen."
-                data-test-id='translatedtext-rogh' />
+                data-testid='translatedtext-rogh' />
             </FormFooterText>
             <StyledFullWidthContainer>
               <StyledDivider />
@@ -170,7 +170,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 <TranslatedText
                   stringId="patient.details.addReminderContact.action.confirm"
                   fallback="Confirm & connect"
-                  data-test-id='translatedtext-poam' />
+                  data-testid='translatedtext-poam' />
               }
             />
           </>

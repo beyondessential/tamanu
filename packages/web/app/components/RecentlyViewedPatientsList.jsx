@@ -191,8 +191,8 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
           <TranslatedText
             stringId="general.dateOfBirth.label"
             fallback="DOB"
-            data-test-id='translatedtext-ib52' />
-          : <DateDisplay date={patient.dateOfBirth} shortYear data-test-id='datedisplay-h1u4' />
+            data-testid='translatedtext-ib52' />
+          : <DateDisplay date={patient.dateOfBirth} shortYear data-testid='datedisplay-h1u4' />
         </CardText>
       </CardComponentContent>
     </CardComponent>
@@ -240,7 +240,7 @@ export const RecentlyViewedPatientsList = ({
               <TranslatedText
                 stringId="patientList.recentlyViewed.title"
                 fallback="Recently viewed"
-                data-test-id='translatedtext-9nke' />
+                data-testid='translatedtext-9nke' />
             </SectionLabel>
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </>
@@ -253,7 +253,7 @@ export const RecentlyViewedPatientsList = ({
               <TranslatedText
                 stringId="patientList.recentlyViewed.title"
                 fallback="Recently viewed"
-                data-test-id='translatedtext-sdpu' />
+                data-testid='translatedtext-sdpu' />
             </SectionTitle>
           )}
           {pageIndex > 0 ? (

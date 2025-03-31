@@ -130,7 +130,7 @@ const useTranslationMutation = () => {
           <TranslatedText
             stringId="admin.translation.notification.translationsSaved"
             fallback="Translations saved"
-            data-test-id='translatedtext-b9ag' />
+            data-testid='translatedtext-b9ag' />
           {newStringIds ? (
             <>
               {', '}
@@ -138,7 +138,7 @@ const useTranslationMutation = () => {
                 stringId="admin.translation.notification.newStringIdCreated"
                 fallback={`Created ${newStringIds} new translated string entries`}
                 replacements={{ newStringIds }}
-                data-test-id='translatedtext-muod' />
+                data-testid='translatedtext-muod' />
             </>
           ) : (
             ''
@@ -152,7 +152,7 @@ const useTranslationMutation = () => {
         stringId="admin.translation.notification.savingFailed"
         fallback={`Error saving translations: ${err.message}`}
         replacements={{ message: err.message }}
-        data-test-id='translatedtext-hsdg' />;
+        data-testid='translatedtext-hsdg' />;
     },
   });
 };
@@ -198,7 +198,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
             <TranslatedText
               stringId="admin.translation.table.column.translationId"
               fallback="Translation ID"
-              data-test-id='translatedtext-5tjk' />
+              data-testid='translatedtext-5tjk' />
           </Box>
         ),
         accessor: ({ stringId }) => {
@@ -213,13 +213,13 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                         <TranslatedText
                           stringId="admin.translation.table.languageName.toolTip"
                           fallback="Language name is a reserved translation ID used for displaying language in selector"
-                          data-test-id='translatedtext-mvuw' />
+                          data-testid='translatedtext-mvuw' />
                       )}
                       {stringId === 'countryCode' && (
                         <TranslatedText
                           stringId="admin.translation.table.countryCode.toolTip"
                           fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
-                          data-test-id='translatedtext-0zfz' />
+                          data-testid='translatedtext-0zfz' />
                       )}
                     </>
                   }
@@ -269,7 +269,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
             label={<TranslatedText
               stringId="general.action.search"
               fallback="Search"
-              data-test-id='translatedtext-a546' />}
+              data-testid='translatedtext-a546' />}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
@@ -281,18 +281,18 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
               <TranslatedText
                 stringId="admin.translation.showReferenceData"
                 fallback="Show reference data"
-                data-test-id='translatedtext-4xp8' />
+                data-testid='translatedtext-4xp8' />
             }
           />
         </SearchArea>
         <Button
           disabled={isSaving || !dirty}
           onClick={handleSave}
-          data-test-id='button-iso3'>
+          data-testid='button-iso3'>
           <TranslatedText
             stringId="general.action.saveChanges"
             fallback="Save changes"
-            data-test-id='translatedtext-ny7t' />
+            data-testid='translatedtext-ny7t' />
         </Button>
       </Box>
       <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
@@ -331,7 +331,7 @@ export const TranslationForm = () => {
           <TranslatedText
             stringId="admin.translation.error.loadTranslations"
             fallback="Error: Could not load translations:"
-            data-test-id='translatedtext-jsc6' />
+            data-testid='translatedtext-jsc6' />
         }
         error={error}
       />

@@ -45,19 +45,19 @@ const BaseSummaryScreen = ({
       <OutlinedButton
         onClick={onStepBack || undefined}
         disabled={!onStepBack}
-        data-test-id='outlinedbutton-bngm'>
+        data-testid='outlinedbutton-bngm'>
         <TranslatedText
           stringId="general.action.back"
           fallback="Back"
-          data-test-id='translatedtext-3nyc' />
+          data-testid='translatedtext-3nyc' />
       </OutlinedButton>
       <Box>
-        <OutlinedButton onClick={onCancel} data-test-id='outlinedbutton-k4kj'>Cancel</OutlinedButton>
+        <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-k4kj'>Cancel</OutlinedButton>
         <Button
           color="primary"
           variant="contained"
           onClick={onContinue}
-          data-test-id='button-2xtd'>
+          data-testid='button-2xtd'>
           {continueButtonText}
         </Button>
       </Box>
@@ -71,26 +71,26 @@ export const SummaryScreenOne = ({ onStepBack, submitForm, onCancel }) => (
       <TranslatedText
         stringId="death.summary.autoDischargedAndLocked.text"
         fallback="Patient will be auto-discharged and locked"
-        data-test-id='translatedtext-wn0t' />
+        data-testid='translatedtext-wn0t' />
     }
     text={
       <>
         <TranslatedText
           stringId="death.summary.warning1.text"
           fallback="If this patient has an active encounter they will be auto-discharged. Please ensure that all encounter details are up-to-date and correct before proceeding."
-          data-test-id='translatedtext-jxpe' />
+          data-testid='translatedtext-jxpe' />
         <br />
         <br />
         <TranslatedText
           stringId="death.summary.save.text"
           fallback='The record of this patient’s death will be saved but not finalised. Please return at a later time or date to enter the complete cause of death details and finalise.'
-          data-test-id='translatedtext-ymy0' />
+          data-testid='translatedtext-ymy0' />
       </>
     }
     continueButtonText={<TranslatedText
       stringId="general.action.confirm"
       fallback="Confirm"
-      data-test-id='translatedtext-9dol' />}
+      data-testid='translatedtext-9dol' />}
     onStepBack={onStepBack}
     onContinue={submitForm}
     onCancel={onCancel}
@@ -103,19 +103,19 @@ export const SummaryScreenTwo = ({ onStepBack, submitForm, onCancel }) => (
       <TranslatedText
         stringId="death.summary.confirmDeathRecord.text"
         fallback="Confirm death record"
-        data-test-id='translatedtext-fpbv' />
+        data-testid='translatedtext-fpbv' />
     }
     text={
       <TranslatedText
         stringId="death.summary.warning2.text"
         fallback="This action is irreversible. This should only be done under the direction of the responsible clinician. Do you wish to record the death of this patient?"
-        data-test-id='translatedtext-8x8y' />
+        data-testid='translatedtext-8x8y' />
     }
     continueButtonText={
       <TranslatedText
         stringId="death.action.recordDeath"
         fallback="Record death"
-        data-test-id='translatedtext-3b7a' />
+        data-testid='translatedtext-3b7a' />
     }
     onStepBack={onStepBack}
     onContinue={submitForm}
@@ -129,27 +129,27 @@ export const SummaryScreenThree = ({ onStepBack, submitForm, onCancel }) => (
       <TranslatedText
         stringId="death.summary.confirmDeathRecord.text"
         fallback="Confirm death record"
-        data-test-id='translatedtext-fexb' />
+        data-testid='translatedtext-fexb' />
     }
     text={
       <>
         <TranslatedText
           stringId="death.summary.warning1.text"
           fallback="If this patient has an active encounter they will be auto-discharged. Please ensure that all encounter details are up-to-date and correct before proceeding."
-          data-test-id='translatedtext-9daj' />
+          data-testid='translatedtext-9daj' />
         <br />
         <br />
         <TranslatedText
           stringId="death.summary.warning2.text"
           fallback="This action is irreversible. This should only be done under the direction of the responsible clinician. Do you wish to record the death of this patient?"
-          data-test-id='translatedtext-q507' />
+          data-testid='translatedtext-q507' />
       </>
     }
     continueButtonText={
       <TranslatedText
         stringId="death.action.recordDeath"
         fallback="Record death"
-        data-test-id='translatedtext-na9x' />
+        data-testid='translatedtext-na9x' />
     }
     onStepBack={onStepBack}
     onContinue={submitForm}

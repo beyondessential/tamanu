@@ -46,7 +46,7 @@ const tabs = [
     label: <TranslatedText
       stringId="admin.settings.tab.editor.title"
       fallback="Editor"
-      data-test-id='translatedtext-1ap8' />,
+      data-testid='translatedtext-1ap8' />,
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
     render: props => {
@@ -54,7 +54,7 @@ const tabs = [
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
-        <TabContainer data-test-id='tabcontainer-opna'>
+        <TabContainer data-testid='tabcontainer-opna'>
           <ScopeSelectorFields {...props} />
           {shouldShowEditor && <EditorView {...props} />}
         </TabContainer>
@@ -65,11 +65,11 @@ const tabs = [
     label: <TranslatedText
       stringId="admin.settings.tab.jsonEditor.title"
       fallback="JSON editor"
-      data-test-id='translatedtext-tv1l' />,
+      data-testid='translatedtext-tv1l' />,
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
-      <TabContainer data-test-id='tabcontainer-ggyi'>
+      <TabContainer data-testid='tabcontainer-ggyi'>
         <ScopeSelectorFields {...props} />
         <JSONEditorView {...props} />
       </TabContainer>
@@ -119,7 +119,7 @@ export const SettingsView = () => {
       title={<TranslatedText
         stringId="admin.settings.title"
         fallback="Settings"
-        data-test-id='translatedtext-pa0x' />}
+        data-testid='translatedtext-pa0x' />}
     >
       {settingsFetchError ? (
         <ErrorMessage error={settingsFetchError} />
@@ -221,7 +221,7 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
-        data-test-id='styledtabdisplay-pbea' />
+        data-testid='styledtabdisplay-pbea' />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}

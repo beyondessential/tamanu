@@ -67,7 +67,7 @@ const getRowTooltipText = updatedByUser =>
       <TranslatedText
         stringId="invoice.table.tooltip.recordedBy"
         fallback="Recorded by"
-        data-test-id='translatedtext-3ls0' />
+        data-testid='translatedtext-3ls0' />
       <div>{updatedByUser.displayName}</div>
     </TooltipContainer>
   ) : null;
@@ -111,16 +111,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
       title: <TranslatedText
         stringId="general.date.label"
         fallback="Date"
-        data-test-id='translatedtext-vpek' />,
+        data-testid='translatedtext-vpek' />,
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} data-test-id='datedisplay-gv0b' />,
+      accessor: ({ date }) => <DateDisplay date={date} data-testid='datedisplay-gv0b' />,
     },
     {
       key: 'methodName',
       title: <TranslatedText
         stringId="invoice.table.payment.column.method"
         fallback="Method"
-        data-test-id='translatedtext-0pux' />,
+        data-testid='translatedtext-0pux' />,
       sortable: false,
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
@@ -132,7 +132,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
               <TranslatedText
                 stringId="invoice.table.payment.column.chequeNumber"
                 fallback="Chq no."
-                data-test-id='translatedtext-oo3s' />
+                data-testid='translatedtext-oo3s' />
             ),
             sortable: false,
             accessor: prop => (
@@ -146,7 +146,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       title: <TranslatedText
         stringId="invoice.table.payment.column.amount"
         fallback="Amount"
-        data-test-id='translatedtext-9ehy' />,
+        data-testid='translatedtext-9ehy' />,
       sortable: false,
       accessor: ({ amount }) => formatDisplayPrice(amount),
     },
@@ -156,7 +156,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         <TranslatedText
           stringId="invoice.table.payment.column.receiptNumber"
           fallback="Receipt number"
-          data-test-id='translatedtext-9tcx' />
+          data-testid='translatedtext-9tcx' />
       ),
       sortable: false,
     },
@@ -230,7 +230,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           <TranslatedText
             stringId="invoice.modal.payment.patientPayments"
             fallback="Patient payments"
-            data-test-id='translatedtext-1ii6' />
+            data-testid='translatedtext-1ii6' />
         </Heading4>
         <Heading4 sx={{ margin: '15px 0 15px 0' }}>
           <TranslatedText
@@ -239,7 +239,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
             replacements={{
               remainingBalance: formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance)),
             }}
-            data-test-id='translatedtext-nkmm' />
+            data-testid='translatedtext-nkmm' />
         </Heading4>
       </Title>
       <Table

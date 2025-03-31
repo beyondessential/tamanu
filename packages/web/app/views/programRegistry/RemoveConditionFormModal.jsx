@@ -47,7 +47,7 @@ export const RemoveConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.action.removeCondition.success"
           fallback="Related condition removed successfully'"
-          data-test-id='translatedtext-838e' />,
+          data-testid='translatedtext-838e' />,
       );
       queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
       onSubmit();
@@ -57,7 +57,7 @@ export const RemoveConditionFormModal = ({
           stringId="programRegistry.action.removeCondition.error"
           fallback="Failed to remove related condition with error: :errorMessage"
           replacements={{ errorMessage: e.message }}
-          data-test-id='translatedtext-xqi5' />,
+          data-testid='translatedtext-xqi5' />,
       );
     }
   };
@@ -70,7 +70,7 @@ export const RemoveConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.modal.removeCondition.title"
           fallback="Remove related condition"
-          data-test-id='translatedtext-qiq8' />
+          data-testid='translatedtext-qiq8' />
       }
       open={open}
       onClose={onCancel}
@@ -85,7 +85,7 @@ export const RemoveConditionFormModal = ({
               programRegistryCondition?.name,
             ),
           }}
-          data-test-id='translatedtext-5k3d' />
+          data-testid='translatedtext-5k3d' />
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />

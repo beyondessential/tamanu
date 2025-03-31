@@ -84,7 +84,7 @@ export const VaccineForm = ({
                 fallback={vaccine.label}
                 value={vaccine.id}
                 category="scheduledVaccine"
-                data-test-id='translatedreferencedata-hbd9' />
+                data-testid='translatedreferencedata-hbd9' />
             ),
             value: vaccine.label,
             schedules: vaccine.schedules,
@@ -106,7 +106,7 @@ export const VaccineForm = ({
         title={<TranslatedText
           stringId="vaccine.loadError"
           fallback="Cannot load vaccine form"
-          data-test-id='translatedtext-t0fx' />}
+          data-testid='translatedtext-t0fx' />}
         errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
@@ -125,7 +125,7 @@ export const VaccineForm = ({
         <TranslatedText
           stringId="vaccine.minDateError"
           fallback="Date cannot be prior to patient date of birth"
-          data-test-id='translatedtext-ckqt' />,
+          data-testid='translatedtext-ckqt' />,
         (value, context) => {
           if (!value) return true;
           const minDate = parse(
@@ -145,7 +145,7 @@ export const VaccineForm = ({
         <TranslatedText
           stringId="vaccine.maxDateError"
           fallback="Date cannot be in the future"
-          data-test-id='translatedtext-wt45' />,
+          data-testid='translatedtext-wt45' />,
         value => {
           if (!value) return true;
           const maxDate = new Date();

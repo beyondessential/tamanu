@@ -67,7 +67,7 @@ export const WrittenByField = ({
     <TranslatedText
       stringId="note.writtenBy.label"
       fallback="Written by (or on behalf of)"
-      data-test-id='translatedtext-4a93' />
+      data-testid='translatedtext-4a93' />
   ),
   required,
   disabled,
@@ -82,7 +82,7 @@ export const WrittenByField = ({
       component={AutocompleteField}
       suggester={practitionerSuggester}
       disabled={disabled}
-      data-test-id='field-rmxj' />
+      data-testid='field-rmxj' />
   );
 };
 
@@ -95,12 +95,12 @@ export const NoteDateTimeField = ({ required, disabled }) => {
       label={<TranslatedText
         stringId="note.dateTime.label"
         fallback="Date & time"
-        data-test-id='translatedtext-cwox' />}
+        data-testid='translatedtext-cwox' />}
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
-      data-test-id='field-h9ax' />
+      data-testid='field-h9ax' />
   );
 };
 
@@ -108,7 +108,7 @@ export const NoteContentField = ({
   label = <TranslatedText
     stringId="note.edit.label"
     fallback="Edit note"
-    data-test-id='translatedtext-ukcc' />,
+    data-testid='translatedtext-ukcc' />,
   onChange,
 }) => (
   <Field
@@ -119,7 +119,7 @@ export const NoteContentField = ({
     multiline
     onChange={onChange}
     minRows={18}
-    data-test-id='field-qjpe' />
+    data-testid='field-qjpe' />
 );
 
 export const NoteInfoSection = ({
@@ -142,7 +142,7 @@ export const NoteInfoSection = ({
       label={<TranslatedText
         stringId="note.noteType.label"
         fallback="Note type"
-        data-test-id='translatedtext-ci2m' />}
+        data-testid='translatedtext-ci2m' />}
       value={noteType}
       borderHeight={50}
     />
@@ -158,7 +158,7 @@ export const NoteInfoSection = ({
         numberOfColumns={numberOfColumns}
         fontSize={14}
         label={dateLabel}
-        value={<DateDisplay date={date} showTime data-test-id='datedisplay-stan' />}
+        value={<DateDisplay date={date} showTime data-testid='datedisplay-stan' />}
         borderHeight={50}
       />
     )}
@@ -171,7 +171,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     label={<TranslatedText
       stringId="note.type.label"
       fallback="Type"
-      data-test-id='translatedtext-7kzs' />}
+      data-testid='translatedtext-7kzs' />}
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
@@ -188,7 +188,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     onChange={onChange}
-    data-test-id='field-de81' />
+    data-testid='field-de81' />
 );
 
 export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
@@ -202,12 +202,12 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
       label={<TranslatedText
         stringId="note.template.label"
         fallback="Template"
-        data-test-id='translatedtext-cw7t' />}
+        data-testid='translatedtext-cw7t' />}
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
       disabled={!noteType}
-      data-test-id='field-1l6o' />
+      data-testid='field-1l6o' />
   );
 };
 

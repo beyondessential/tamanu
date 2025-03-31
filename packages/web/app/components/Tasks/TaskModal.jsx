@@ -10,7 +10,7 @@ export const TaskModal = ({ open, onClose, refreshTaskTable }) => {
       title={<TranslatedText
         stringId="addTask.modal.title"
         fallback="Add task"
-        data-test-id='translatedtext-tf6m' />}
+        data-testid='translatedtext-tf6m' />}
       open={open}
       onClose={onClose}
     >

@@ -53,7 +53,7 @@ const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText
     stringId="scheduling.appointments.title"
     fallback="Appointments"
-    data-test-id='translatedtext-bywj' />,
+    data-testid='translatedtext-bywj' />,
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
@@ -204,12 +204,12 @@ export const OutpatientAppointmentsView = () => {
           <GroupByToggle />
           <OutpatientAppointmentsFilter />
           {canCreateAppointment && (
-            <Button onClick={handleCreateAppointment} data-test-id='button-p1b3'>
+            <Button onClick={handleCreateAppointment} data-testid='button-p1b3'>
               <AddIcon aria-hidden />{' '}
               <TranslatedText
                 stringId="scheduling.action.bookAppointment"
                 fallback="Book appointment"
-                data-test-id='translatedtext-svat' />
+                data-testid='translatedtext-svat' />
             </Button>
           )}
         </AppointmentTopBar>

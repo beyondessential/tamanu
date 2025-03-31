@@ -96,7 +96,7 @@ export const LanguageSelector = () => {
         label={<TranslatedText
           stringId="login.languageSelector.label"
           fallback="Language"
-          data-test-id='translatedtext-bbk9' />}
+          data-testid='translatedtext-bbk9' />}
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}

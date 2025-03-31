@@ -34,7 +34,7 @@ const IntervalText = ({ interval, frequency }) => {
       enumValues={REPEAT_FREQUENCY_LABELS}
       value={frequency}
       casing='sentence'
-      data-test-id='translatedenum-pyy1' />
+      data-testid='translatedenum-pyy1' />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onNthWeekdayText"
@@ -43,7 +43,7 @@ const IntervalText = ({ interval, frequency }) => {
         interval,
         frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
       }}
-      data-test-id='translatedtext-pfu1' />
+      data-testid='translatedtext-pfu1' />
   );
 };
 
@@ -55,7 +55,7 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
       replacements={{
         weekday,
       }}
-      data-test-id='translatedtext-4evt' />
+      data-testid='translatedtext-4evt' />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onWeekDayText"
@@ -63,7 +63,7 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
       replacements={{
         weekday,
       }}
-      data-test-id='translatedtext-ud8t' />
+      data-testid='translatedtext-ud8t' />
   );
 
 const FrequencyText = ({ frequency, interval, startTimeDate }) => {
@@ -79,7 +79,7 @@ const FrequencyText = ({ frequency, interval, startTimeDate }) => {
         nth: ordinalText,
         weekday,
       }}
-      data-test-id='translatedtext-oeti' />
+      data-testid='translatedtext-oeti' />
   );
 };
 
@@ -89,7 +89,7 @@ export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, int
       <TranslatedText
         stringId="outpatientAppointment.repeating.repeatsOnText"
         fallback="Repeats on:"
-        data-test-id='translatedtext-7b7n' />{' '}
+        data-testid='translatedtext-7b7n' />{' '}
       <IntervalText frequency={frequency} interval={interval} />{' '}
       <FrequencyText frequency={frequency} interval={interval} startTimeDate={startTimeDate} />
     </>
@@ -97,5 +97,5 @@ export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, int
     <TranslatedText
       stringId="outpatientAppointment.repeating.error.invalidInterval"
       fallback="Invalid interval"
-      data-test-id='translatedtext-g764' />
+      data-testid='translatedtext-g764' />
   );

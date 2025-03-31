@@ -87,55 +87,55 @@ const PatientInfo = ({ patient }) => {
         </PatientName>
         <TextDisplayIdLabel>{displayId}</TextDisplayIdLabel>
       </PatientNameRow>
-      <table data-test-id='table-5uya'>
+      <table data-testid='table-5uya'>
         <tbody>
-          <tr data-test-id='tr-2mwo'>
+          <tr data-testid='tr-2mwo'>
             <PatientInfoLabel>
               <TranslatedText
                 stringId="general.sex.label"
                 fallback="Sex"
-                data-test-id='translatedtext-bgqx' />
+                data-testid='translatedtext-bgqx' />
             </PatientInfoLabel>
             <PatientInfoValue>
               <TranslatedSex sex={sex} />
             </PatientInfoValue>
           </tr>
-          <tr data-test-id='tr-5a4z'>
+          <tr data-testid='tr-5a4z'>
             <PatientInfoLabel>
               <TranslatedText
                 stringId="general.dateOfBirth.label"
                 fallback="Date of Birth"
-                data-test-id='translatedtext-03qa' />
+                data-testid='translatedtext-03qa' />
             </PatientInfoLabel>
             <PatientInfoValue>
-              <DateDisplay date={dateOfBirth} data-test-id='datedisplay-0ion' />
+              <DateDisplay date={dateOfBirth} data-testid='datedisplay-0ion' />
             </PatientInfoValue>
           </tr>
           {additionalData && additionalData.primaryContactNumber && (
-            <tr data-test-id='tr-5i1i'>
+            <tr data-testid='tr-5i1i'>
               <PatientInfoLabel>
                 <TranslatedText
                   stringId="general.contactNumber.label"
                   fallback="Contact Number"
-                  data-test-id='translatedtext-cf2x' />
+                  data-testid='translatedtext-cf2x' />
               </PatientInfoLabel>
               <PatientInfoValue>{additionalData.primaryContactNumber}</PatientInfoValue>
             </tr>
           )}
           {village && (
-            <tr data-test-id='tr-um6c'>
+            <tr data-testid='tr-um6c'>
               <PatientInfoLabel>
                 <TranslatedText
                   stringId="general.village.label"
                   fallback="Village"
-                  data-test-id='translatedtext-5fp4' />
+                  data-testid='translatedtext-5fp4' />
               </PatientInfoLabel>
               <PatientInfoValue>
                 <TranslatedReferenceData
                   fallback={village.name}
                   value={village.id}
                   category="village"
-                  data-test-id='translatedreferencedata-54dy' />
+                  data-testid='translatedreferencedata-54dy' />
               </PatientInfoValue>
             </tr>
           )}
@@ -172,7 +172,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.title"
           fallback="Cancel Appointment"
-          data-test-id='translatedtext-zeqy' />
+          data-testid='translatedtext-zeqy' />
       }
       onClose={onClose}
       open={open}
@@ -181,7 +181,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.heading"
           fallback="Are you sure you want to cancel this appointment?"
-          data-test-id='translatedtext-ay7m' />
+          data-testid='translatedtext-ay7m' />
       </Heading>
       <Details>
         {
@@ -189,18 +189,18 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
             stringId="scheduling.modal.cancelAppointment.detailsText"
             fallback=":appointmentType appointment for"
             replacements={{ appointmentType: appointmentType.name }}
-            data-test-id='translatedtext-74nu' />
+            data-testid='translatedtext-74nu' />
         }{' '}
         <PatientNameDisplay patient={patient} />
         {' - '}
         <AppointmentTime {...appointment} />
       </Details>
       <Row>
-        <DeleteButton onClick={onConfirm} data-test-id='deletebutton-acql'>
+        <DeleteButton onClick={onConfirm} data-testid='deletebutton-acql'>
           <TranslatedText
             stringId="scheduling.modal.cancelAppointment.action.cancel"
             fallback="Yes, Cancel"
-            data-test-id='translatedtext-k7pp' />
+            data-testid='translatedtext-k7pp' />
         </DeleteButton>
       </Row>
     </Modal>
@@ -309,20 +309,20 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
                 <TranslatedText
                   stringId="general.type.label"
                   fallback="Type"
-                  data-test-id='translatedtext-qywm' />
+                  data-testid='translatedtext-qywm' />
               </Heading>
               <TranslatedReferenceData
                 value={appointmentType.id}
                 fallback={appointmentType.name}
                 category="appointmentType"
-                data-test-id='translatedreferencedata-zen5' />
+                data-testid='translatedreferencedata-zen5' />
             </>
           )}
           <Heading>
             <TranslatedText
               stringId="general.time.label"
               fallback="Time"
-              data-test-id='translatedtext-lxw2' />
+              data-testid='translatedtext-lxw2' />
           </Heading>
           <div>
             <AppointmentTime {...appointment} />
@@ -333,7 +333,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <TranslatedText
               stringId="scheduling.appointmentDetail.select.status.label"
               fallback="Select Status"
-              data-test-id='translatedtext-ev63' />
+              data-testid='translatedtext-ev63' />
           }
           options={APPOINTMENT_STATUS_OPTIONS}
           value={statusOption}
@@ -387,7 +387,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
             fallback="Clinician"
-            data-test-id='translatedtext-af60' />
+            data-testid='translatedtext-af60' />
         </Heading>
         {clinician.displayName}
       </Section>
@@ -397,23 +397,23 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <TranslatedText
             stringId="general.area.label"
             fallback="Area"
-            data-test-id='translatedtext-nioy' />
+            data-testid='translatedtext-nioy' />
         </Heading>
         <TranslatedReferenceData
           fallback={locationGroup.name}
           value={locationGroup.id}
           category="locationGroup"
-          data-test-id='translatedreferencedata-7gdf' />
+          data-testid='translatedreferencedata-7gdf' />
       </Section>
       <Button
         variant="outlined"
         color="primary"
         onClick={onOpenAppointmentModal}
-        data-test-id='button-kq8l'>
+        data-testid='button-kq8l'>
         <TranslatedText
           stringId="scheduling.appointmentDetail.action.reschedule"
           fallback="Reschedule"
-          data-test-id='translatedtext-tx97' />
+          data-testid='translatedtext-tx97' />
       </Button>
       {!currentEncounter &&
         !currentEncounterError &&
@@ -424,12 +424,12 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             variant="text"
             color="primary"
             onClick={onOpenEncounterModal}
-            data-test-id='button-pf81'>
+            data-testid='button-pf81'>
             <u>
               <TranslatedText
                 stringId="scheduling.action.admitOrCheckIn"
                 fallback="Admit or check-in"
-                data-test-id='translatedtext-worp' />
+                data-testid='translatedtext-worp' />
             </u>
           </Button>
         )}
@@ -479,7 +479,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
               <TranslatedText
                 stringId="scheduling.modal.cancelAppointment.error.unableToCancel"
                 fallback="Unable to cancel appointment. Please try again."
-                data-test-id='translatedtext-sxxq' />,
+                data-testid='translatedtext-sxxq' />,
             );
           }
           setCancelConfirmed(false);

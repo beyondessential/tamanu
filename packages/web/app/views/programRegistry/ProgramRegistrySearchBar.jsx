@@ -62,44 +62,44 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             label={<TranslatedText
               stringId="general.localisedField.sex.label"
               fallback="Sex"
-              data-test-id='translatedtext-w28c' />}
+              data-testid='translatedtext-w28c' />}
             component={BaseSelectField}
             options={sexOptions}
             size="small"
-            data-test-id='localisedfield-i4wd' />
+            data-testid='localisedfield-i4wd' />
           <Field
             name="registeringFacilityId"
             label={
               <TranslatedText
                 stringId="programRegistry.registeringFacility.label"
                 fallback="Registering facility"
-                data-test-id='translatedtext-ryfg' />
+                data-testid='translatedtext-ryfg' />
             }
             component={AutocompleteField}
             suggester={facilitySuggester}
-            data-test-id='field-v1p0' />
+            data-testid='field-v1p0' />
           <Field
             label={
               <TranslatedText
                 stringId="general.localisedField.division.label"
                 fallback="Division"
-                data-test-id='translatedtext-y134' />
+                data-testid='translatedtext-y134' />
             }
             name="divisionId"
             component={AutocompleteField}
             suggester={divisionSuggester}
-            data-test-id='field-jdtj' />
+            data-testid='field-jdtj' />
           <Field
             label={
               <TranslatedText
                 stringId="general.localisedField.subdivision.label"
                 fallback="Subdivision"
-                data-test-id='translatedtext-1bg9' />
+                data-testid='translatedtext-1bg9' />
             }
             name="subdivisionId"
             component={AutocompleteField}
             suggester={subdivisionSuggester}
-            data-test-id='field-f6tf' />
+            data-testid='field-f6tf' />
           <div
             style={{
               display: 'flex',
@@ -115,10 +115,10 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
                   <TranslatedText
                     stringId="programRegistry.searchBar.includeRemovedPatients.label"
                     fallback="Include removed patients"
-                    data-test-id='translatedtext-ko6t' />
+                    data-testid='translatedtext-ko6t' />
                 }
                 component={CheckField}
-                data-test-id='field-0r8s' />
+                data-testid='field-0r8s' />
             </FacilityCheckbox>
             <FacilityCheckbox marginTop="15px">
               <Field
@@ -127,10 +127,10 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
                   <TranslatedText
                     stringId="patientList.table.includeDeceasedCheckbox.label"
                     fallback="Include deceased patients"
-                    data-test-id='translatedtext-cnut' />
+                    data-testid='translatedtext-cnut' />
                 }
                 component={CheckField}
-                data-test-id='field-b9t2' />
+                data-testid='field-b9t2' />
             </FacilityCheckbox>
           </div>
         </>
@@ -142,60 +142,60 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           <TranslatedText
             stringId="general.localisedField.displayId.label.short"
             fallback="NHN"
-            data-test-id='translatedtext-rl70' />
+            data-testid='translatedtext-rl70' />
         }
         component={SearchField}
-        data-test-id='localisedfield-2hww' />
+        data-testid='localisedfield-2hww' />
       <LocalisedField
         name="firstName"
         label={
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-test-id='translatedtext-vnrr' />
+            data-testid='translatedtext-vnrr' />
         }
         component={SearchField}
-        data-test-id='localisedfield-1x10' />
+        data-testid='localisedfield-1x10' />
       <LocalisedField
         name="lastName"
         label={
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-test-id='translatedtext-zn5c' />
+            data-testid='translatedtext-zn5c' />
         }
         component={SearchField}
-        data-test-id='localisedfield-pi0a' />
+        data-testid='localisedfield-pi0a' />
       <LocalisedField
         name="dateOfBirth"
         label={
           <TranslatedText
             stringId="general.localisedField.dateOfBirth.label.short"
             fallback="DOB"
-            data-test-id='translatedtext-ohj3' />
+            data-testid='translatedtext-ohj3' />
         }
         saveDateAsString
         component={DateField}
         max={getCurrentDateString()}
-        data-test-id='localisedfield-3lnf' />
+        data-testid='localisedfield-3lnf' />
       <Spacer />
       <Field
         label={
           <TranslatedText
             stringId="programRegistry.homeVillage.label"
             fallback="Home village"
-            data-test-id='translatedtext-5lo5' />
+            data-testid='translatedtext-5lo5' />
         }
         name="homeVillage"
         component={AutocompleteField}
         suggester={villageSuggester}
-        data-test-id='field-3wws' />
+        data-testid='field-3wws' />
       <Field
         label={
           <TranslatedText
             stringId="programRegistry.currentlyIn.label"
             fallback="Currently in"
-            data-test-id='translatedtext-o1rg' />
+            data-testid='translatedtext-o1rg' />
         }
         name="currentlyIn"
         component={AutocompleteField}
@@ -204,27 +204,27 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             ? villageSuggester
             : facilitySuggester
         }
-        data-test-id='field-5ezr' />
+        data-testid='field-5ezr' />
       <Field
         label={
           <TranslatedText
             stringId="programRegistry.relatedCondition.label"
             fallback="Related condition"
-            data-test-id='translatedtext-nh9y' />
+            data-testid='translatedtext-nh9y' />
         }
         name="programRegistryCondition"
         component={MultiAutocompleteField}
         suggester={programRegistryConditionSuggester}
-        data-test-id='field-qp8h' />
+        data-testid='field-qp8h' />
       <Field
         label={<TranslatedText
           stringId="programRegistry.clinicalStatus.label"
           fallback="Status"
-          data-test-id='translatedtext-pif1' />}
+          data-testid='translatedtext-pif1' />}
         name="clinicalStatus"
         component={MultiAutocompleteField}
         suggester={programRegistryStatusSuggester}
-        data-test-id='field-iarj' />
+        data-testid='field-iarj' />
     </CustomisableSearchBar>
   );
 };
