@@ -38,7 +38,7 @@ export class CertificateNotification extends Model {
 
         // Note that if this changes to bidirectional, the SendCertificateNotification task
         // will need to be updated / limited to handle only new publishes!
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
       },
     );
   }
