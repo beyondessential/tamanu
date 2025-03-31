@@ -31,7 +31,7 @@ export const NoteItemList = ({
           editable={currentUserId === noteItem.authorId}
           onEditNoteItem={onEditNoteItem}
           lastNoteItemRef={index === noteItems.length - 1 ? lastNoteItemRef : undefined}
-          data-testid={`noteitem-${index}`} />
+          data-testid={`noteitem-wp2x-${index}`} />
       ))}
     </StyledBox>
   );

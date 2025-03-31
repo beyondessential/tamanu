@@ -49,14 +49,14 @@ export const TabDisplay = React.memo(
           <Icon
             className={icon}
             color={currentTabData.key === key ? Colors.primary : Colors.softText}
-            data-testid={`icon-${key}`} />
+            data-testid={`icon-r0ru-${key}`} />
         }
         style={{ minWidth: 'auto' }}
         label={label}
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
-        data-testid={`styledtab-${key}`} />
+        data-testid={`styledtab-yhha-${key}`} />
     ));
     return (
       <TabBar className={className} data-testid='tabbar-bg0b'>

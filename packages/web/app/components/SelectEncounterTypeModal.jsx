@@ -49,7 +49,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
         value={value}
         image={image}
         onClick={() => onSelectEncounterType(value)}
-        data-testid='encounteroptionbutton-6ubf' />
+        data-testid={`encounteroptionbutton-6ubf-${value}`} />
     ));
 
   return (

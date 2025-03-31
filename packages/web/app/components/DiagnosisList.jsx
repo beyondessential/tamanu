@@ -71,7 +71,7 @@ export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
         key={d.id}
         {...d}
         onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
-        data-testid={`diagnosisitem-${index}`} />
+        data-testid={`diagnosisitem-037x-${index}`} />
     ))}
   </DiagnosisListContainer>
 ));

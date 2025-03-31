@@ -64,7 +64,7 @@ export const SegmentTabDisplay = React.memo(
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
-        data-testid='styledtab-gibh' />
+        data-testid={`styledtab-gibh-${key}`} />
     ));
     return (
       <TabBar className={className} data-testid='tabbar-a9vw'>

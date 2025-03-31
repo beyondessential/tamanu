@@ -107,15 +107,15 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
   return childNoteItems.map((noteItem, index) => (
     <div key={noteItem.id}>
-      <StyledNoteItemLogMetadata data-testid={`noteitemlogmetadata-${index}`}>
+      <StyledNoteItemLogMetadata data-testid={`noteitemlogmetadata-fvac-${index}`}>
         {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
         {noteItem.onBehalfOf?.displayName ? (
           <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
         ) : null}
-        <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-${index}`} />
+        <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-5hu9${index}`} />
       </StyledNoteItemLogMetadata>
 
-      <StyledNoteItemLogContent data-testid={`noteitemlogcontent-${index}`}>{noteItem.content}</StyledNoteItemLogContent>
+      <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>{noteItem.content}</StyledNoteItemLogContent>
       <br />
     </div>
   ));
