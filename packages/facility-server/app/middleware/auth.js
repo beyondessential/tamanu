@@ -205,7 +205,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user);
+  const token = await buildToken(user, req.facilityId);
   res.send({ token });
 }
 
