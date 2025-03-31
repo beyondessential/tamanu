@@ -127,7 +127,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     component={AutocompleteField}
                     suggester={insurerSuggester}
                     size="small"
-                    data-testid='field-6jf7' />
+                    data-testid={`field-6jf7-${index}`} />
                   <Field
                     name={`insurers.${index}.percentage`}
                     component={StyledNumberField}
@@ -135,21 +135,21 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     max={100}
                     onInput={preventInvalid}
                     required
-                    data-testid='field-v5p9' />
-                  <Box marginTop="11px" data-testid='box-mtns'>%</Box>
+                    data-testid={`field-v5p9-${index}`} />
+                  <Box marginTop="11px" data-testid={`box-mtns-${index}`}>%</Box>
                 </Box>
                 <Box
                   marginTop="11px"
                   display="flex"
                   justifyContent="flex-end"
-                  data-testid='box-mrtu'>
+                  data-testid={`box-mrtu-${index}`}>
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
                   <RemoveInsurerButton
                     onClick={() => formArrayMethods.remove(index)}
-                    data-testid='removeinsurerbutton-7h8t'>
-                    <CloseIcon data-testid='closeicon-am8c' />
+                    data-testid={`removeinsurerbutton-7h8t-${index}`}>
+                    <CloseIcon />
                   </RemoveInsurerButton>
                 </Box>
               </Box>

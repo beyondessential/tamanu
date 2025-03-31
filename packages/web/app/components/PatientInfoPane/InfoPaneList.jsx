@@ -160,16 +160,16 @@ export const InfoPaneList = ({
             const name = getName(item);
             if (behavior === 'collapse') {
               return (
-                <React.Fragment key={id} data-testid='fragment-wg0p'>
+                <React.Fragment key={id}>
                   <Collapse in={editKey !== id} data-testid='collapse-dhai'>
                     {ListItemComponent ? (
                       <ListItemComponent
                         item={item}
                         handleRowClick={handleRowClick}
                         ListItem={ListItem}
-                        data-testid={`listitemcomponent-${index}`} />
+                        data-testid={`listitemcomponent-5xs4-${index}`} />
                     ) : (
-                      <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-${index}`}>{name}</ListItem>
+                      <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-adip-${index}`}>{name}</ListItem>
                     )}
                   </Collapse>
                   <Collapse in={editKey === id} data-testid='collapse-0a33'>
@@ -193,9 +193,9 @@ export const InfoPaneList = ({
                     item={item}
                     handleRowClick={handleRowClick}
                     ListItem={ListItem}
-                    data-testid={`listitemcomponent-${index}`} />
+                    data-testid={`listitemcomponent-p5xe-${index}`} />
                 ) : (
-                  <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-${index}`}>{name}</ListItem>
+                  <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-fx30${index}`}>{name}</ListItem>
                 )}
                 <FormModal
                   width="md"

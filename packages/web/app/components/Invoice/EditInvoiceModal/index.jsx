@@ -348,7 +348,7 @@ export const EditInvoiceModal = ({
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
                           editable={editable && canWriteInvoice}
-                          data-testid='invoiceitemrow-ri5o' />
+                          data-testid={`invoiceitemrow-ri5o-${index}`} />
                       ))}
                     </Box>
                     {editable && canWriteInvoice && (

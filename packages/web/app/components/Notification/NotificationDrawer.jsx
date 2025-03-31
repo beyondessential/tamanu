@@ -261,8 +261,8 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
             </UnreadTitle>
           )}
           <NotificationList data-testid='notificationlist-xmfz'>
-            {unreadNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} data-testid='card-2yld' />
+            {unreadNotifications.map((notification, index) => (
+              <Card notification={notification} key={notification.id} data-testid={`card-2yld-${index}`} />
             ))}
           </NotificationList>
           {!!readNotifications.length && (
@@ -275,8 +275,8 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
             </ReadTitle>
           )}
           <NotificationList data-testid='notificationlist-wek6'>
-            {readNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} data-testid='card-trcn' />
+            {readNotifications.map((notification, index) => (
+              <Card notification={notification} key={notification.id} data-testid={`card-trcn-${index}`} />
             ))}
           </NotificationList>
         </>

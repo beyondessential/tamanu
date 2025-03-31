@@ -97,7 +97,7 @@ export const TimeWithUnitInput = ({
           data-testid='mainfield-r4oz' />
         <Select select onChange={onUnitChange} value={unit} data-testid='select-f39x'>
           {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
-            <MenuItem key={option.unit} value={option.unit} data-testid='menuitem-aqjx'>
+            <MenuItem key={option.unit} value={option.unit} data-testid={`menuitem-aqjx-${option.unit}`}>
               {option.unit}
             </MenuItem>
           ))}

@@ -174,14 +174,14 @@ export const SearchMultiSelectInput = ({
                 <StyledMenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
-                  data-testid='styledmenuitem-8ebf'>
+                  data-testid={`styledmenuitem-8ebf-${option.value}`}>
                   <Checkbox
                     checked={value.includes(option.value)}
-                    icon={<CheckboxIconUnchecked width={15} height={15} data-testid='checkboxiconunchecked-aqdj' />}
-                    checkedIcon={<CheckboxIconChecked width={15} height={15} data-testid='checkboxiconchecked-1zsb' />}
+                    icon={<CheckboxIconUnchecked width={15} height={15} data-testid={`checkboxiconunchecked-aqdj-${option.value}`} />}
+                    checkedIcon={<CheckboxIconChecked width={15} height={15} data-testid={`checkboxiconchecked-1zsb-${option.value}`} />}
                     sx={{ padding: 0 }}
-                    data-testid='checkbox-hyuw' />
-                  <ListItemText primary={option.label} data-testid='listitemtext-pqs6' />
+                    data-testid={`checkbox-hyuw-${option.value}`} />
+                  <ListItemText primary={option.label} data-testid={`listitemtext-pqs6-${option.value}`} />
                 </StyledMenuItem>
               ))
           ) : (
