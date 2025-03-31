@@ -2,13 +2,13 @@
 import config from 'config';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
-  CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_SYNC_PULL_KEY,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/database/sync';
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
+  FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+} from '@tamanu/constants/facts';
 
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -66,8 +66,8 @@ describe('FacilitySyncManager edge cases', () => {
     syncManager.__testSpyEnabled = true;
 
     // set current sync tick
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, currentSyncTick);
-    await ctx.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, currentSyncTick);
+    await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, LAST_SUCCESSFUL_SYNC_PUSH);
 
     const [facilityId] = selectFacilityIds(config);
     // create a record that will be committed before the sync starts, so safely gets the current
@@ -99,7 +99,7 @@ describe('FacilitySyncManager edge cases', () => {
     await syncPromise;
 
     // check that the sync tick has been updated
-    const updatedSyncTick = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+    const updatedSyncTick = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
     expect(updatedSyncTick).toBe(newSyncTick);
 
     // check that both patient records have the old sync tick
@@ -191,9 +191,9 @@ describe('FacilitySyncManager edge cases', () => {
       jest.resetModules();
 
       await models.Encounter.truncate({ force: true, cascade: true });
-      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
-      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
-      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PULL);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, LAST_SUCCESSFUL_SYNC_PUSH);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, LAST_SUCCESSFUL_SYNC_PULL);
     });
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {

@@ -130,7 +130,7 @@ export async function initDatabase(dbOptions) {
     makeEveryModelParanoid = true,
     saltRounds = null,
     alwaysCreateConnection = true,
-    primaryKeyDefault = Sequelize.UUIDV4,
+    primaryKeyDefault = Sequelize.fn('gen_random_uuid'),
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
 

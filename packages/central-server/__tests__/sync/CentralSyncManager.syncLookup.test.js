@@ -1,6 +1,6 @@
 import waitForExpect from 'wait-for-expect';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   SYNC_DIRECTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
@@ -8,6 +8,8 @@ import {
   REPORT_DB_SCHEMAS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
@@ -16,8 +18,6 @@ import {
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
-  CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY
 } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
@@ -597,7 +597,7 @@ describe('Sync Lookup data', () => {
     ({ models } = ctx.store);
     centralSyncManager = new CentralSyncManager(ctx);
 
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
 
     await prepareData();
     await centralSyncManager.updateLookupTable();
@@ -620,8 +620,8 @@ describe('Sync Lookup data', () => {
       patientId: patient.id,
       facilityId: facility.id,
     });
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
-    await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
+    await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, -1);
     await models.SyncDeviceTick.truncate({ force: true });
 
     jest.resetModules();
@@ -662,7 +662,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const syncLookupRecord = syncLookupData.find(
-        d => d.dataValues.recordType === model.tableName,
+        (d) => d.dataValues.recordType === model.tableName,
       );
 
       if (!syncLookupRecord) {
@@ -695,7 +695,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        r => r.recordType === model.tableName,
+        (r) => r.recordType === model.tableName,
       );
 
       if (!outgoingSnapshotRecord) {
@@ -755,7 +755,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(nonPatientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        r => r.recordType === model.tableName,
+        (r) => r.recordType === model.tableName,
       );
 
       if (outgoingSnapshotRecord) {
@@ -767,7 +767,7 @@ describe('Sync Lookup data', () => {
   });
 
   it('Populates updated_at_sync_tick with ticks from actual tables when first build sync_lookup table', async () => {
-    await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1); // -1 means first build
+    await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, -1); // -1 means first build
 
     await centralSyncManager.updateLookupTable();
 
@@ -786,8 +786,8 @@ describe('Sync Lookup data', () => {
 
   it('Populates updated_at_sync_tick with the current tick when incrementally update the sync_lookup table', async () => {
     const CURRENT_SYNC_TICK = 7;
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
-    await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, 1);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
+    await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, 1);
 
     await patient.update({ firstName: 'Test Patient 2' });
     await models.Patient.create(fake(models.Patient));
@@ -884,7 +884,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
       });
 
       it('Does not snapshot settings linked to a facility other than the current facility', async () => {
@@ -933,7 +933,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).not.toBeDefined();
+        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).not.toBeDefined();
       });
 
       it('Snapshots settings with global scope', async () => {
@@ -981,7 +981,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
       });
     });
   });
@@ -1041,7 +1041,9 @@ describe('Sync Lookup data', () => {
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
 
-    expect(outgoingSnapshotRecords.find(r => r.recordId === patientFacility.id)).not.toBeDefined();
+    expect(
+      outgoingSnapshotRecords.find((r) => r.recordId === patientFacility.id),
+    ).not.toBeDefined();
   });
 
   describe('syncAllLabRequest', () => {
@@ -1156,7 +1158,7 @@ describe('Sync Lookup data', () => {
 
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          d => d.dataValues.recordType === model.tableName,
+          (d) => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
@@ -1180,23 +1182,23 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'encounters')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'encounters')
+        .map((r) => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_requests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_requests')
+        .map((r) => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_attachments')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_request_attachments')
+        .map((r) => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_logs')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_request_logs')
+        .map((r) => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_tests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_tests')
+        .map((r) => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_test_panel_requests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_test_panel_requests')
+        .map((r) => r.recordId);
 
       expect(labEncounterIds.sort()).toEqual([encounter1.id, encounter2.id].sort());
       expect(labRequestIds.sort()).toEqual([labRequest1.id, labRequest2.id].sort());
@@ -1242,7 +1244,7 @@ describe('Sync Lookup data', () => {
       const syncLookupData = await models.SyncLookup.findAll({});
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          d => d.dataValues.recordType === model.tableName,
+          (d) => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
@@ -1266,23 +1268,23 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'encounters')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'encounters')
+        .map((r) => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_requests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_requests')
+        .map((r) => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_attachments')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_request_attachments')
+        .map((r) => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_logs')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_request_logs')
+        .map((r) => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_tests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_tests')
+        .map((r) => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_test_panel_requests')
-        .map(r => r.recordId);
+        .filter((r) => r.recordType === 'lab_test_panel_requests')
+        .map((r) => r.recordId);
 
       expect(labEncounterIds).toEqual([encounter1.id]);
       expect(labRequestIds).toEqual([labRequest1.id]);
@@ -1336,14 +1338,14 @@ describe('Sync Lookup data', () => {
   });
 
   describe('avoidRepull', () => {
-    const snapshotOutgoingRecordsForFacility = async avoidRepull => {
+    const snapshotOutgoingRecordsForFacility = async (avoidRepull) => {
       const deviceId = 'facility-a';
-      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
 
       // Set new sync time so that it does not match the SyncDeviceTick record
       // in order to have it included in the snapshot.
-      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 5);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 5);
       const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
 
       await models.SyncDeviceTick.create({
@@ -1415,10 +1417,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(true);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        r => r.recordId === pushedPatientFromCurrentFacility.id,
+        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        r => r.recordId === patientFromAnotherFacility.id,
+        (r) => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).not.toBeDefined();
@@ -1432,10 +1434,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(false);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        r => r.recordId === pushedPatientFromCurrentFacility.id,
+        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        r => r.recordId === patientFromAnotherFacility.id,
+        (r) => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
@@ -1539,7 +1541,7 @@ describe('Sync Lookup data', () => {
       encounter.patientId = patient2.id;
 
       const newTick = 10;
-      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newTick);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, newTick);
 
       await encounter.save();
 

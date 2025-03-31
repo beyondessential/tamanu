@@ -2,7 +2,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';

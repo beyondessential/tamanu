@@ -1,4 +1,4 @@
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
   getTablesWithNoMergeCoverage,
   mergePatient,
@@ -10,6 +10,7 @@ import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { PatientMergeMaintainer } from '../../dist/tasks/PatientMergeMaintainer';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('Patient merge', () => {
   let ctx;
@@ -691,7 +692,7 @@ describe('Patient merge', () => {
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
       expect(updatedFieldValues.length).toEqual(3);
-      updatedFieldValues.forEach(fieldValue => {
+      updatedFieldValues.forEach((fieldValue) => {
         expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
       });
     });
@@ -742,7 +743,7 @@ describe('Patient merge', () => {
 
       const postPatientFacilities = await PatientFacility.findAll({});
       expect(postPatientFacilities.length).toEqual(3);
-      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
+      expect(postPatientFacilities.map((p) => p.facilityId).sort()).toEqual(
         [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
       );
     });
@@ -843,7 +844,7 @@ describe('Patient merge', () => {
       });
 
       // increment sync tick so the reconciler knows how to merge the records
-      await LocalSystemFact.incrementValue('currentSyncTick');
+      await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
 
       // create second record
       const mergePad = await PatientAdditionalData.create({

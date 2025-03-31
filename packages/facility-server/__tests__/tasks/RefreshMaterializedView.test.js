@@ -1,7 +1,7 @@
 import config from 'config';
 import { createTestContext } from '../utilities';
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';

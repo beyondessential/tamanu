@@ -48,26 +48,27 @@ translationRouter.put(
       if (existing) return [await existing.update({ text }), false];
       return [await TranslatedString.create({ stringId, language, text }), true];
     };
-    await sequelize.transaction(async () => {
+    const results = await sequelize.transaction(async () => {
       // Convert FE representation of translation data (grouped by stringId with keys for each languages text)
       // to upsertable entries.
-      const results = await Promise.all(
+      return Promise.all(
         Object.entries(body).flatMap(([stringId, languages]) =>
           Object.entries(languages).map(([language, text]) =>
             upsertTranslation({ stringId, language, text }),
           ),
         ),
       );
-
-      const newlyCreated = results
-        .filter(result => result[1])
-        .map(result => result[0].get({ plain: true }));
-
-      if (newlyCreated.length) {
-        res.status(201).send({ data: newlyCreated });
-        return;
-      }
-      res.send({ ok: 'ok' });
     });
+
+    const newlyCreated = results
+      .filter((result) => result[1])
+      .map((result) => result[0].get({ plain: true }));
+
+    if (newlyCreated.length) {
+      res.status(201).send({ data: newlyCreated });
+      return;
+    }
+
+    res.send({ ok: 'ok' });
   }),
 );

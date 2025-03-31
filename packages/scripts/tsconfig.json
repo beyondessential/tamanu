@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
+    "removeComments": false,
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "strict": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "verbatimModuleSyntax": false
+  },
+  "extends": "../../common.tsconfig.json",
+  "include": ["src/**/*.ts", "src/**/*.js"]
+}
