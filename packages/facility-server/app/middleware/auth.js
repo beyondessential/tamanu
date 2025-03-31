@@ -262,8 +262,6 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
-    console.log('token', await decodeToken(token));
-
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
