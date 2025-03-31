@@ -29,6 +29,11 @@ export class MedicationAdministrationRecord extends Model {
   }
 
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
+    // Skip generation if required properties are missing
+    if (!prescription.startDate || !prescription.idealTimes || prescription.idealTimes.length === 0) {
+      return;
+    }
+
     const upcomingRecordsShouldBeGeneratedTimeFrame =
       config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
 
