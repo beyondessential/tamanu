@@ -143,7 +143,7 @@ export const RadioInput = ({
           {...props}
           data-testid='styledradiogroup-13do'>
           {options.map(option => (
-            <Fragment key={option.value} data-testid='fragment-gsb2'>
+            <Fragment key={option.value}>
               {option.leftOptionalElement ?? null}
               <ControlLabel
                 key={option.value}
@@ -159,14 +159,14 @@ export const RadioInput = ({
                         }
                       : {})}
                     disabled={option.disabled}
-                    data-testid='radio-il3t' />
+                    data-testid={`radio-il3t-${option.value}`} />
                 }
                 label={
                   option.description ? (
                     <LabelWithDescription
                       label={option.label}
                       description={option.description}
-                      data-testid='labelwithdescription-cizd' />
+                      data-testid={`labelwithdescription-cizd-${option.value}`} />
                   ) : (
                     option.label
                   )
@@ -185,7 +185,7 @@ export const RadioInput = ({
                       }
                     : DEFAULT_LABEL_THEME
                 }
-                data-testid='controllabel-kkx2' />
+                data-testid={`controllabel-kkx2-${option.value}`} />
             </Fragment>
           ))}
         </StyledRadioGroup>

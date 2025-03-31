@@ -70,14 +70,14 @@ export const ExpandedMultiSelectField = ({
             const { value, label: optionLabel } = option;
 
             return (
-              <MultiSelectItem key={value} data-testid='multiselectitem-emn6'>
+              <MultiSelectItem key={value} data-testid={`multiselectitem-emn6-${value}`}>
                 <CheckInput
                   name={value}
                   key={value}
                   label={optionLabel}
                   value={currentList.includes(value)}
                   onChange={toggle}
-                  data-testid='checkinput-67l8' />
+                  data-testid={`checkinput-67l8-${value}`} />
               </MultiSelectItem>
             );
           })}

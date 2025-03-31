@@ -57,12 +57,12 @@ export const ArrayField = ({
                   setFields(currentFields => currentFields.filter(x => x.id !== id));
                   remove(index);
                 }}
-                data-testid='removebutton-qmfs'>
-                <RemoveCircleOutline data-testid='removecircleoutline-65ov' />
+                data-testid={`removebutton-qmfs-${index}`}>
+                <RemoveCircleOutline data-testid={`removecircleoutline-65ov-${index}`} />
               </RemoveButton>
             );
 
-            return <React.Fragment key={id} data-testid='fragment-ie51'>{renderField(index, DeleteButton)}</React.Fragment>;
+            return <React.Fragment key={id} data-testid={`fragment-ie51-${index}`}>{renderField(index, DeleteButton)}</React.Fragment>;
           })}
 
           {/* Render the button to add another field below the array of fields */}

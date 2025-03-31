@@ -468,7 +468,7 @@ export const TimeSlotPicker = ({
                 selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={id}
-                data-testid='timeslottoggle-9o5k' />
+                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(timeSlot.end)}`} />
             );
           })
         )}

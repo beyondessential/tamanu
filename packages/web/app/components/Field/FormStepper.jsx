@@ -52,12 +52,12 @@ export const FormStepper = ({ screenIndex, handleStep, screenReactElements }) =>
     connector={null}
     data-testid='styledstepper-6u8v'>
     {screenReactElements.map(({ key }, index) => (
-      <StyledStep key={key} data-testid='styledstep-pr7d'>
+      <StyledStep key={key} data-testid={`styledstep-pr7d-${index}`}>
         <StyledStepButton
           onClick={handleStep(index)}
           icon={null}
           $isActive={screenIndex >= index}
-          data-testid='styledstepbutton-nucr' />
+          data-testid={`styledstepbutton-nucr-${index}`} />
       </StyledStep>
     ))}
   </StyledStepper>

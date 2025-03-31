@@ -34,7 +34,7 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
             isFirstLevel={index === 0}
             parentId={parentId}
             fieldData={fieldData}
-            data-testid='hierarchyfielditem-ybp2' />
+            data-testid={`hierarchyfielditem-ybp2-${type}`} />
         );
       })}
     </Container>

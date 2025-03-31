@@ -22,10 +22,10 @@ const FormErrors = ({ errors }) => {
   const allErrors = flattenObject(errors);
 
   return Object.entries(allErrors).map(
-    ([name, error]) =>
+    ([name, error], index) =>
       error && (
-        <Typography key={name} variant="subtitle2" data-testid='typography-vmhk'>
-          <ErrorMessage error={error} data-testid='errormessage-sjd4' />
+        <Typography key={name} variant="subtitle2" data-testid={`typography-vmhk-${index}`}>
+          <ErrorMessage error={error} data-testid={`errormessage-sjd4-${index}`} />
         </Typography>
       ),
   );
