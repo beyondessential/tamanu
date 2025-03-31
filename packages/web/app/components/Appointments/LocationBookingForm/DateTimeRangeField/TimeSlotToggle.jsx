@@ -221,9 +221,9 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
 export const PlaceholderTimeSlotToggles = memo(() => {
   const { isPending, slots } = useBookingSlots(startOfToday());
   if (isPending) return <SkeletonTimeSlotToggles data-testid='skeletontimeslottoggles-9a22' />;
-  return slots?.map((slot, index) => <TimeSlotToggle
+  return slots?.map((slot) => <TimeSlotToggle
     disabled
     key={idOfTimeSlot(slot)}
     timeSlot={slot}
-    data-testid={`timeslottoggle-${index}`} />);
+    data-testid={`timeslottoggle-${idOfTimeSlot(slot)}`} />);
 });
