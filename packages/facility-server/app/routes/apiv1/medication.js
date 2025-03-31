@@ -35,7 +35,7 @@ medication.post(
       );
     }
 
-    if (!data.isOngoing && data.durationValue && data.durationUnit) {
+    if (data.durationValue && data.durationUnit) {
       data.endDate = add(new Date(data.startDate), {
         [data.durationUnit]: data.durationValue,
       });
@@ -44,6 +44,7 @@ medication.post(
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
     await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+  
     res.send(prescription.forResponse());
   }),
 );

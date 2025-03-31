@@ -77,18 +77,21 @@ export default defineConfig({
       port: 3000,
       reuseExistingServer: !process.env.CI,
       timeout: 240 * 1000,
+      stdout: 'pipe',
     },
     {
       command: 'npm run start-dev --workspace=@tamanu/facility-server',
       port: 4000,
       reuseExistingServer: !process.env.CI,
       timeout: 240 * 1000,
+      stdout: 'pipe',
     },
     {
       command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
       port: 5173,
       reuseExistingServer: !process.env.CI,
       timeout: 240 * 1000,
+      stdout: 'pipe',
     },
   ],
 });

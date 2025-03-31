@@ -1,9 +1,10 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('medication_administration_records', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
       allowNull: false,
       primaryKey: true,
     },
@@ -23,21 +24,15 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
-    reason_not_given_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      references: {
-        model: 'reference_data',
-        key: 'id',
-      },
-    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     deleted_at: {
       type: DataTypes.DATE,
