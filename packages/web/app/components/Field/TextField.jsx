@@ -111,8 +111,7 @@ export const TextInput = ({ value = '', label, enablePasting = false, ...props }
         value={value}
         variant="outlined"
         onPaste={onPaste}
-        {...rest}
-        data-testid='styledtextfield-6maz' />
+        {...rest}/>
     </OuterLabelFieldWrapper>
   );
 };

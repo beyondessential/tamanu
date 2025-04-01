@@ -57,7 +57,7 @@ export const SearchField = props => {
       value={searchValue}
       onChange={onChange}
       onClear={clearSearch}
-      data-testid='searchinput-cjfz' />
+ />
   );
 };
 
@@ -87,6 +87,6 @@ export const SearchInput = props => {
       }
       value={value}
       onChange={onChange}
-      data-testid='styledtextinput-vpd8' />
+     />
   );
 };

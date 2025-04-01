@@ -131,8 +131,7 @@ export const SearchMultiSelectInput = ({
         $open={Boolean(anchorEl)}
         variant="outlined"
         onClick={handleOpen}
-        {...props}
-        data-testid={`styledinputbutton-wskp-${name}`}>
+        {...props}>
         {label} {value.length > 0 ? `(${value.length})` : ''}
       </StyledInputButton>
       <StyledMenu
@@ -233,5 +232,5 @@ export const SuggesterSearchMultiSelectField = ({
     options,
   };
 
-  return <SearchMultiSelectInput {...baseProps} {...props} data-testid='searchmultiselectinput-z9c6' />;
+  return <SearchMultiSelectInput {...baseProps} {...props} />;
 };

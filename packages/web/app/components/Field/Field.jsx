@@ -52,7 +52,7 @@ export const Field = formikConnect(
         helperText={message}
         name={name}
         onChange={combinedOnChange}
-        data-testid='formikfield-19wp' />
+      />
     );
   },
 );

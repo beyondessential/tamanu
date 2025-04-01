@@ -7,6 +7,6 @@ export const FilterField = props => {
     <SuggesterSearchMultiSelectField
       startIcon={<FilterIcon data-testid='filtericon-0wgb' />}
       {...props}
-      data-testid='suggestersearchmultiselectfield-tljg' />
+ />
   );
 };
