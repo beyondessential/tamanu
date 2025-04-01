@@ -269,16 +269,16 @@ const Row = React.memo(
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
-            data-test-class={`table-column-${key}`}
-            data-testid={`styledtablecell-2gyy-${key}`}>
-            <ErrorBoundary ErrorComponent={CellError} data-testid={`errorboundary-vajt-${key}`}>
+            data-test-class={`table-column-${rowIndex}-${key}`}
+            data-testid={`styledtablecell-2gyy-${rowIndex}-${key}`}>
+            <ErrorBoundary ErrorComponent={CellError} data-testid={`errorboundary-vajt-${rowIndex}-${key}`}>
               {CellComponent ? (
-                <CellComponent value={displayValue} data={data} data-testid={`cellcomponent-pz8j-${key}`} />
+                <CellComponent value={displayValue} data={data} data-testid={`cellcomponent-pz8j-${rowIndex}-${key}`} />
               ) : (
                 <DisplayValue
                   maxWidth={maxWidth}
                   displayValue={displayValue}
-                  data-testid={`displayvalue-ds9w-${key}`} />
+                  data-testid={`displayvalue-ds9w-${rowIndex}-${key}`} />
               )}
             </ErrorBoundary>
           </StyledTableCell>

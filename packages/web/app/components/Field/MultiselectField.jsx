@@ -139,7 +139,7 @@ export const MultiselectInput = ({
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
     return (
-      <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-icpi'>
+      <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
           value={valueText}
           variant="outlined"
@@ -153,8 +153,7 @@ export const MultiselectInput = ({
               </Icon>
             ),
           }}
-          {...props}
-          data-testid='styledtextfield-0amg' />
+          {...props} />
       </OuterLabelFieldWrapper>
     );
   }
@@ -163,9 +162,8 @@ export const MultiselectInput = ({
     <OuterLabelFieldWrapper
       label={label}
       {...props}
-      ref={inputRef}
-      data-testid='outerlabelfieldwrapper-ui01'>
-      <StyledFormControl {...props} data-testid='styledformcontrol-lc84'>
+      ref={inputRef}>
+      <StyledFormControl {...props}>
         <StyledSelect
           value={selected}
           isMulti
@@ -188,8 +186,7 @@ export const MultiselectInput = ({
             DropdownIndicator: SelectDropdownIndicator,
             MultiValueRemove: SelectMultiValueRemove,
           }}
-          {...props}
-          data-testid='styledselect-usf8' />
+          {...props} />
         {helperText && <FormHelperText data-testid='formhelpertext-s80c'>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>

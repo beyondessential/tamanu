@@ -56,9 +56,9 @@ export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(({ children, required, label, infoTooltip, style, className, size }, ref) => (
     <div style={style} className={className} ref={ref}>
       {label && (
-        <OuterLabel className="label-field" size={size} data-testid='outerlabel-5g8s'>
+        <OuterLabel className="label-field" size={size}>
           {label}
-          {required && <OuterLabelRequired data-testid='outerlabelrequired-bywb'>*</OuterLabelRequired>}
+          {required && <OuterLabelRequired>*</OuterLabelRequired>}
         </OuterLabel>
       )}
       {infoTooltip && (
@@ -69,8 +69,7 @@ export const OuterLabelFieldWrapper = React.memo(
           data-testid='styledtooltip-pmvq'>
           <Icon
             className="fa fa-info-circle"
-            color={Colors.softText}
-            data-testid='icon-gd4a' />
+            color={Colors.softText} />
         </StyledTooltip>
       )}
       {children}
