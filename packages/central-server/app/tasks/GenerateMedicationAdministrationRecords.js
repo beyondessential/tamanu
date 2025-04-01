@@ -33,10 +33,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
     const baseQueryOptions = {
       where: {
         endDate: { [Op.gt]: getCurrentDateTimeString() },
-        [Op.or]: [
-          { discontinuedDate: { [Op.gt]: getCurrentDateTimeString() } },
-          { discontinuedDate: null },
-        ],
+        discontinuedDate: { [Op.is]: null },
       },
     };
 

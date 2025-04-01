@@ -100,8 +100,8 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
   if (administeredAt) {
     return new Date(endDate) < new Date(administeredAt);
   }
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return new Date(endDate) < startDate;
+  const currentEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(endDate) < currentEndDate;
 };
 
 export const MarStatus = ({
