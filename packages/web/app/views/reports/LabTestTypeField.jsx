@@ -46,7 +46,7 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
             value={type.id}
             fallback={type.name}
             category="labTestType"
-            data-testid='translatedreferencedata-8hnu' />
+            data-testid={`translatedreferencedata-8hnu-${type.code}`} />
         ),
         searchString: getTranslation(getReferenceDataStringId(type.id, 'labTestType'), type.name),
       }))}

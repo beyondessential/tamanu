@@ -383,7 +383,7 @@ export const ReportGeneratorForm = () => {
                       parameters={parameters}
                       onChange={() => resetDownload()}
                       {...restOfProps}
-                      data-testid='parameterfield-g4og' />
+                      data-testid={`parameterfield-g4og-${name || parameterField}`} />
                   );
                 })}
               </FormGrid>

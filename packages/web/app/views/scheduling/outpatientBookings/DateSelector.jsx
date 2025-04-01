@@ -218,7 +218,8 @@ export const DateSelector = ({ value, onChange }) => {
               selected={isSameDay(date, value)}
               onClick={() => handleChange(date)}
               key={`day-button-${date.getTime()}`}
-              data-testid='daybutton-ppdz' />
+              // TODO: TEST THIS ONE ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
+              data-testid={`daybutton-ppdz-${format(date, 'yyyy-MM-dd')}`} />
           ))}
         </DaysWrapper>
         <StepperButton onClick={handleIncrement} data-testid='stepperbutton-3zzm'>

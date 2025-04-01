@@ -30,7 +30,7 @@ export const ProgramRegistrySidebarItem = ({
     <PrimarySidebarItem
       {...{ icon, label, children, selected, highlighted, onClick, divider, retracted, path }}
       data-testid='primarysidebaritem-kx7z'>
-      {programRegistries.data.map(({ id, name }) => {
+      {programRegistries.data.map(({ id, name }, index) => {
         const secondaryPath = `${path}/${id}?name=${name}`;
         return !retracted ? (
           <SecondarySidebarItem
@@ -43,11 +43,11 @@ export const ProgramRegistrySidebarItem = ({
                 value={id}
                 fallback={name}
                 category="programRegistry"
-                data-testid='translatedreferencedata-2dpm' />
+                data-testid={`translatedreferencedata-2dpm-${index}`} />
             }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}
-            data-testid='secondarysidebaritem-3uo3' />
+            data-testid={`secondarysidebaritem-3uo3-${index}`} />
         ) : null;
       })}
     </PrimarySidebarItem>

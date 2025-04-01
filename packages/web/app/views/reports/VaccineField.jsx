@@ -49,7 +49,7 @@ export const VaccineField = ({ name = 'vaccine', required, label, parameterValue
               fallback={vaccine.label}
               value={vaccine.id}
               category="scheduledVaccine"
-              data-testid='translatedreferencedata-sbfj' />
+              data-testid={`translatedreferencedata-sbfj-${vaccine.code}`} />
           ),
           value: vaccine.label,
         }))}

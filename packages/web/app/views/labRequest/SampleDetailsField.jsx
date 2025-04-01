@@ -239,8 +239,8 @@ export const SampleDetailsField = ({
 
   return (
     <Container hasPanels={hasPanels} data-testid='container-qasv'>
-      {headers.map(columnName => (
-        <HeaderCell key={`header-${columnName}`} data-testid='headercell-vhy0'>{columnName}</HeaderCell>
+      {headers.map((columnName, index) => (
+        <HeaderCell key={`header-${index}`} data-testid={`headercell-vhy0-${index}`}>{columnName}</HeaderCell>
       ))}
       {initialSamples.map(request => {
         return renderSampleDetails(request);

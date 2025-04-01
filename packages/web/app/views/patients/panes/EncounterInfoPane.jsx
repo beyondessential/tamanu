@@ -82,7 +82,7 @@ const getDiet = ({ diets }) => {
             category="diet"
             fallback={diet.name}
             value={diet.id}
-            data-testid='translatedreferencedata-g2vp' />
+            data-testid={`translatedreferencedata-g2vp-${diet.code}`} />
         </>
       ))}
     </DietCardValue>

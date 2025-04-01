@@ -181,12 +181,12 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
                 data-testid='progressbar-cva4' />
             </StyledProgressBarContainer>
             <AppointmentListContainer data-testid='appointmentlistcontainer-v5hv'>
-              {appointments.map(appointment => (
+              {appointments.map((appointment, index) => (
                 <StyledAppointmentTile
                   key={appointment.id}
                   appointment={appointment}
                   allowViewDetail={false}
-                  data-testid='styledappointmenttile-8yd8' />
+                  data-testid={`styledappointmenttile-8yd8-${index}`} />
               ))}
             </AppointmentListContainer>
           </StyledContentContainer>

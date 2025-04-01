@@ -105,7 +105,7 @@ export const PrimarySidebarItem = ({
         selected={selected}
         $highlighted={highlighted}
         $retracted={retracted}
-        data-testid={`primarylistitem-${dataTestIdSuffix}`}>
+        data-testid={`primarylistitem${dataTestIdSuffix}`}>
         <SidebarPrimaryIcon
           src={icon || administrationIcon}
           $centered={retracted}

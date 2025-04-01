@@ -277,11 +277,11 @@ export const TodayBookingsPane = ({ showTasks }) => {
       ) : (
         <>
           <StyledTimeline length={appointments.length} data-testid='styledtimeline-j8uu'>
-            {appointments.map(appointment => (
+            {appointments.map((appointment, index) => (
               <BookingsTimelineItem
                 key={appointment.id}
                 appointment={appointment}
-                data-testid='bookingstimelineitem-kl6a' />
+                data-testid={`bookingstimelineitem-kl6a-${index}`} />
             ))}
           </StyledTimeline>
           <Footer data-testid='footer-02ym' />

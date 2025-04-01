@@ -181,8 +181,8 @@ export const PatientLabTestsTable = React.memo(
       ...stickyColumns,
       ...allDates
         .sort((a, b) => b.localeCompare(a))
-        .map((date) => ({
-          title: <DateHeadCell value={date} data-testid='dateheadcell-qvnq' />,
+        .map((date, index) => ({
+          title: <DateHeadCell value={date} data-testid={`dateheadcell-qvnq-${index}`} />,
           sortable: false,
           key: date,
           accessor: (row) => {
@@ -190,17 +190,17 @@ export const PatientLabTestsTable = React.memo(
             const cellData = row.results[date];
             if (cellData) {
               return (
-                <StyledButton onClick={() => openModal(cellData.id)} data-testid='styledbutton-d5us'>
+                <StyledButton onClick={() => openModal(cellData.id)} data-testid={`styledbutton-d5us-${index}`}>
                   <RangeValidatedCell
                     value={cellData.result}
                     config={{ unit: row.unit, rounding: null }}
                     validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-                    data-testid='rangevalidatedcell-ebuf' />
+                    data-testid={`rangevalidatedcell-ebuf-${index}`} />
                 </StyledButton>
               );
             }
 
-            return <StyledButton disabled data-testid='styledbutton-l8dl'>&mdash;</StyledButton>;
+            return <StyledButton disabled data-testid={`styledbutton-l8dl-${index}`}>&mdash;</StyledButton>;
           },
           exportOverrides: {
             title: `${getTitle(date)}`,

@@ -21,7 +21,7 @@ export const MergeResultModal = ({ result, onClose }) => {
       </p>
       <ul>
         {Object.entries(updates).map(([modelName, count]) => (
-          <li key={modelName}>
+          <li data-testid={`li-pp3g-${modelName}`} key={modelName}>
             <span>{`${modelName}: `}</span>
             <strong>{count}</strong>
           </li>

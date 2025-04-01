@@ -38,7 +38,7 @@ export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick
     selected={isCurrent}
     onClick={onClick}
     data-test-class="secondary-sidebar-item"
-    data-testid={`secondarylistitem-${dataTestIdSuffix}`}>
+    data-testid={`secondarylistitem${dataTestIdSuffix}`}>
     {color && <Dot $color={color} />}
     <SecondaryItemText disableTypography primary={label} data-testid={`secondaryitemtext-${dataTestIdSuffix}`} />
   </SecondaryListItem>

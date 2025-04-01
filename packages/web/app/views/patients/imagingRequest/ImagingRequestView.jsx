@@ -279,8 +279,8 @@ const ImagingResultsSection = ({ results }) => {
   return (
     <>
       <h3>Results</h3>
-      {results?.map(result => (
-        <ImagingResultRow key={result.id} result={result} data-testid='imagingresultrow-ih51' />
+      {results?.map((result, index) => (
+        <ImagingResultRow key={result.id} result={result} data-testid={`imagingresultrow-ih51-${index}`} />
       ))}
     </>
   );

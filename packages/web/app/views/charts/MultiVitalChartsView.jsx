@@ -31,8 +31,8 @@ export const MultiVitalChartsView = () => {
 
         return (
           <div key={chartKey}>
-            <Divider style={{ marginRight: 0 }} data-testid='divider-1j3f' />
-            <TitleContainer data-testid='titlecontainer-0v6s'>
+            <Divider style={{ marginRight: 0 }} data-testid={`divider-1j3f-${chartKey}`} />
+            <TitleContainer data-testid={`titlecontainer-0v6s-${chartKey}`}>
               <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
             </TitleContainer>
             <VitalChartComponent
@@ -40,7 +40,7 @@ export const MultiVitalChartsView = () => {
               dateRange={dateRange}
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
-              data-testid='vitalchartcomponent-hrwb' />
+              data-testid={`vitalchartcomponent-hrwb-${chartKey}`} />
           </div>
         );
       })}

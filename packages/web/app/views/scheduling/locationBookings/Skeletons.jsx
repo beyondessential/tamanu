@@ -22,13 +22,13 @@ const SkeletonBodyCell = styled(Skeleton).attrs({
 `;
 
 const SkeletonRow = ({ colCount }) => (
-  <CalendarGrid.Row data-testid='row-ehpg'>
+  <CalendarGrid.Row data-testid={`row-ehpg-${colCount}`}>
     <SkeletonRowHeaderCell data-testid='skeletonrowheadercell-mts6' />
     {Array.from({ length: colCount }).map((_, i) => (
-      <SkeletonBodyCell key={i} data-testid='skeletonbodycell-uelj' />
+      <SkeletonBodyCell key={i} data-testid={`skeletonbodycell-uelj-${i}`} />
     ))}
   </CalendarGrid.Row>
 );
 
 export const SkeletonRows = ({ colCount }) =>
-  Array.from({ length: 7 }).map((_, i) => <SkeletonRow colCount={colCount} key={i} data-testid='skeletonrow-xti8' />);
+  Array.from({ length: 7 }).map((_, i) => <SkeletonRow colCount={colCount} key={i} />);

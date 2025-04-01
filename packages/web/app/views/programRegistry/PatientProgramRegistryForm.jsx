@@ -195,7 +195,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                         fallback={condition.name}
                         value={condition.id}
                         category="prCondition"
-                        data-testid='translatedreferencedata-lrzc' />
+                        data-testid={`translatedreferencedata-lrzc-${condition.code}`} />
                     ),
                     value: condition.id,
                     searchString: getTranslation(

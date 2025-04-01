@@ -229,7 +229,7 @@ export const OutpatientBookingCalendar = ({
               category="locationGroup"
               value={cell.id}
               fallback={cell.name}
-              data-testid='translatedreferencedata-5vst' />
+              data-testid={`translatedreferencedata-5vst-${cell.code}`} />
           ) : (
             cell.displayName
           );
@@ -240,7 +240,7 @@ export const OutpatientBookingCalendar = ({
               count={appointments?.length || 0}
               data-testid='headcell-9w0q' />
             <AppointmentColumnWrapper data-testid='appointmentcolumnwrapper-yxim'>
-              {appointments.map(a => (
+              {appointments.map((a, index) => (
                 <AppointmentTile
                   key={a.id}
                   appointment={a}
@@ -254,7 +254,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.newAppointment"
                                 fallback="New appointment"
-                                data-testid='translatedtext-fn6p' />
+                                data-testid={`translatedtext-fn6p-${index}`} />
                             ),
                             action: () => onCreateFromExisting(a),
                           },
@@ -263,7 +263,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.emailAppointment"
                                 fallback="Email appointment"
-                                data-testid='translatedtext-1xgj' />
+                                data-testid={`translatedtext-1xgj-${index}`} />
                             ),
                             action: () =>
                               setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
@@ -271,7 +271,7 @@ export const OutpatientBookingCalendar = ({
                         ]
                       : []
                   }
-                  data-testid='appointmenttile-51fd' />
+                  data-testid={`appointmenttile-51fd-${index}`} />
               ))}
             </AppointmentColumnWrapper>
           </ColumnWrapper>

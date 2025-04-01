@@ -138,7 +138,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
             dim={!isSameMonth(d, monthOf)}
             id={id}
             key={d.valueOf()}
-            data-testid='dayheadercell-abp0' />
+            data-testid={`dayheadercell-abp0-${d.valueOf()}`} />
         );
       })}
     </CarouselGrid.HeaderRow>

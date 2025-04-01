@@ -34,7 +34,7 @@ export const BookingsCell = ({
       $selected={isSelected}
       $clickable={canCreateBooking}
       data-testid='cell-dp5l'>
-      {appointments?.map(a => (
+      {appointments?.map((a, index) => (
         <AppointmentTile
           appointment={a}
           className="appointment-tile"
@@ -42,7 +42,7 @@ export const BookingsCell = ({
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}
-          data-testid='appointmenttile-b6vn' />
+          data-testid={`appointmenttile-b6vn-${index}`} />
       ))}
     </CarouselGrid.Cell>
   );
@@ -80,7 +80,7 @@ export const BookingsRow = ({
           location={location}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
-          data-testid='bookingscell-5t8x' />
+          data-testid={`bookingscell-5t8x-${d.valueOf()}`} />
       ))}
     </CarouselGrid.Row>
   );
@@ -106,6 +106,6 @@ export const LocationBookingsCalendarBody = ({
       location={location}
       openBookingForm={openBookingForm}
       openCancelModal={openCancelModal}
-      data-testid='bookingsrow-t3ka' />
+      data-testid={`bookingsrow-t3ka-${location.code}`} />
   ));
 };

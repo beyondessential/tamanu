@@ -135,24 +135,24 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
-      {sortedData.map(condition => (
-        <ConditionContainer key={condition.id} data-testid='conditioncontainer-ka0k'>
+      {sortedData.map((condition, index) => (
+        <ConditionContainer key={condition.id} data-testid={`conditioncontainer-ka0k-${index}`}>
           <ConditionalTooltip
             title={condition.translatedName}
             visible={condition.translatedName?.length > 30}
-            data-testid='conditionaltooltip-9k0h'>
-            <ClippedConditionName data-testid='clippedconditionname-z0wi'>{condition.translatedName}</ClippedConditionName>
+            data-testid={`conditionaltooltip-9k0h-${index}`}>
+            <ClippedConditionName data-testid={`clippedconditionname-z0wi-${index}`}>{condition.translatedName}</ClippedConditionName>
           </ConditionalTooltip>
           <ConditionalTooltip
             title="Patient must be active"
             visible={isRemoved}
-            data-testid='conditionaltooltip-lakj'>
+            data-testid={`conditionaltooltip-lakj-${index}`}>
             <IconButton
               style={{ padding: 0 }}
               onClick={() => setConditionToRemove(condition)}
               disabled={isRemoved}
-              data-testid='iconbutton-ft2o'>
-              <CloseIcon style={{ fontSize: '14px' }} data-testid='closeicon-qm8f' />
+              data-testid={`iconbutton-ft2o-${index}`}>
+              <CloseIcon style={{ fontSize: '14px' }} data-testid={`closeicon-qm8f-${index}`} />
             </IconButton>
           </ConditionalTooltip>
         </ConditionContainer>

@@ -284,7 +284,7 @@ export const TestSelectorInput = ({
                         }
                         fallback={selectable.name}
                         value={selectable.id}
-                        data-testid='translatedreferencedata-zkjo' />
+                        data-testid={`translatedreferencedata-zkjo-${selectable.code}`} />
                     }
                     name={selectable.id}
                     category={
@@ -293,12 +293,12 @@ export const TestSelectorInput = ({
                           fallback={selectable.category.name}
                           value={selectable.category.id}
                           category={selectable.category.type}
-                          data-testid='translatedreferencedata-gqmt' />
+                          data-testid={`translatedreferencedata-gqmt-${selectable.code}`} />
                       )
                     }
                     checked={isSelected(selectable)}
                     onChange={handleSelect}
-                    data-testid='selectabletestitem-sfbf' />
+                    data-testid={`selectabletestitem-sfbf-${selectable.code}`} />
                 ))
               ) : (
                 <BodyText data-testid='bodytext-7zxj'>No {selectableName}s found.</BodyText>
@@ -333,7 +333,7 @@ export const TestSelectorInput = ({
                       }
                       fallback={option.name}
                       value={option.id}
-                      data-testid='translatedreferencedata-lv0m' />
+                      data-testid={`translatedreferencedata-lv0m-${option.code}`} />
                   }
                   name={option.id}
                   category={
@@ -342,11 +342,11 @@ export const TestSelectorInput = ({
                         fallback={option.category.name}
                         value={option.category.id}
                         category={option.category.type}
-                        data-testid='translatedreferencedata-x0k0' />
+                        data-testid={`translatedreferencedata-x0k0-${option.code}`} />
                     )
                   }
                   onRemove={handleSelect}
-                  data-testid='testitem-wkzy' />
+                  data-testid={`testitem-wkzy-${option.code}`} />
               );
             })}
           </SelectorTable>
