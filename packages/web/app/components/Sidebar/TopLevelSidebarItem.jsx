@@ -63,14 +63,16 @@ export const TopLevelSidebarItem = ({
   onClick,
   divider,
   retracted,
-}) => (
+}) => {
+  const testIdSuffix = path.split('/').pop();
+  (
   <>
-    {divider && <ListDivider data-testid='listdivider-19k7' />}
+    {divider && <ListDivider data-testid={`listdivider-19k7-${testIdSuffix}`} />}
     <StyledTooltip
       title={retracted ? label : ''}
       placement="top-end"
       arrow
-      data-testid='styledtooltip-85bn'>
+      data-testid={`styledtooltip-85bn-${testIdSuffix}`}>
       <TopLevelListItem
         button
         to={path}
@@ -78,14 +80,15 @@ export const TopLevelSidebarItem = ({
         selected={isCurrent}
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
-        data-testid='toplevellistitem-a957'>
-        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} data-testid='sidebartoplevelicon-hioy' />}
+        data-testid={`toplevellistitem-a957-${testIdSuffix}`}>
+        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} data-testid={`sidebartoplevelicon-hioy-${testIdSuffix}`} />}
         <TopLevelItemText
           disableTypography
           primary={label}
           $invisible={retracted}
-          data-testid='toplevelitemtext-52i5' />
+          data-testid={`toplevelitemtext-52i5-${testIdSuffix}`} />
       </TopLevelListItem>
     </StyledTooltip>
   </>
 );
+}
