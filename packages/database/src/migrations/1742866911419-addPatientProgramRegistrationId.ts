@@ -122,17 +122,28 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_program_registration_conditions', 'patient_id', {
     type: DataTypes.STRING,
     allowNull: true,
-    references: {
-      model: 'patients',
-      key: 'id',
-    },
   });
   await query.addColumn('patient_program_registration_conditions', 'program_registry_id', {
     type: DataTypes.STRING,
     allowNull: true,
+  });
+
+  await query.addConstraint('patient_program_registration_conditions', {
+    type: 'foreign key',
+    name: 'patient_program_registration_conditions_patient_id_fkey',
+    fields: ['patient_id'],
     references: {
-      model: 'program_registries',
-      key: 'id',
+      table: 'patients',
+      field: 'id',
+    },
+  });
+  await query.addConstraint('patient_program_registration_conditions', {
+    type: 'foreign key',
+    name: 'patient_program_registration_conditions_program_registry_id_fkey',
+    fields: ['program_registry_id'],
+    references: {
+      table: 'program_registries',
+      field: 'id',
     },
   });
 
