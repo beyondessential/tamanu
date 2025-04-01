@@ -57,30 +57,28 @@ patientProgramRegistration.post(
 
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async () => {
-      return Promise.all([
-        models.PatientProgramRegistration.create({
-          patientId,
-          programRegistryId,
-          ...registrationData,
-        }),
-        models.PatientProgramRegistrationCondition.bulkCreate(
-          conditions
-            .filter((condition) => condition.conditionId)
-            .map((condition) => ({
-              patientId,
-              programRegistryId,
-              clinicianId: registrationData.clinicianId,
-              date: registrationData.date,
-              programRegistryConditionId: condition.conditionId,
-              conditionCategory: condition.category,
-            })),
-        ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
-          patientId,
-          facilityId: registeringFacilityId,
-        }),
-      ]);
+      const newRegistration = models.PatientProgramRegistration.create({
+        patientId,
+        programRegistryId,
+        ...registrationData,
+      });
+      const newConditionsRecords = models.PatientProgramRegistrationCondition.bulkCreate(
+        conditions
+          .filter((condition) => condition.conditionId)
+          .map((condition) => ({
+            patientProgramRegistrationId: newRegistration.id,
+            clinicianId: registrationData.clinicianId,
+            date: registrationData.date,
+            programRegistryConditionId: condition.conditionId,
+            conditionCategory: condition.category,
+          })),
+      );
+      // as a side effect, mark for sync in the current facility
+      await models.PatientFacility.upsert({
+        patientId,
+        facilityId: registeringFacilityId,
+      });
+      return [newRegistration, newConditionsRecords];
     });
 
     // Convert Sequelize model to use a custom object as response
@@ -112,12 +110,9 @@ patientProgramRegistration.put(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    const { patientId, programRegistryId } = existingRegistration;
-
     const conditionsData = conditions.map((condition) => ({
       id: condition.id,
-      patientId,
-      programRegistryId,
+      patientProgramRegistrationId: existingRegistration.id,
       clinicianId: registrationData.clinicianId,
       date: condition.date,
       programRegistryConditionId: condition.conditionId,
