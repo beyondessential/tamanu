@@ -29,6 +29,7 @@ export class MedicationAdministrationRecord extends Model {
   }
 
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
+    console.log('prescription', prescription);
     if (!prescription.frequency || !prescription.startDate) {
       return;
     }
