@@ -51,7 +51,7 @@ export const AutocompleteModalScreen = ({
   const { callback, suggester } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedOptions, setDisplayedOptions] = useState([]);
-  const { language } = useTranslation();
+  const { language, getTranslation } = useTranslation();
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -72,7 +72,7 @@ export const AutocompleteModalScreen = ({
   return (
     <View style={styles.container}>
       <Autocomplete
-        placeholder="Search..."
+        placeholder={getTranslation('general.placeholder.search...', 'Search...')}
         placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}

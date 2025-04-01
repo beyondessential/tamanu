@@ -12,6 +12,7 @@ import {
   INJECTION_SITE_VALUES,
   TASK_FREQUENCY_ACCEPTED_UNITS,
   TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -368,8 +369,13 @@ export const UserFacility = yup.object().shape({
 });
 
 export const InvoiceProduct = yup.object().shape({
+  id: yup.string().required(),
   name: yup.string().required(),
-  price: yup.number().required(),
+  price: yup.number().when('id', {
+    is: (id) => id && id.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT),
+    then: yup.number().optional(),
+    otherwise: yup.number().required(),
+  }),
   discountable: yup.boolean().required(),
   visibilityStatus,
 });

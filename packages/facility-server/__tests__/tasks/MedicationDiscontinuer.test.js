@@ -1,3 +1,4 @@
+import { FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import {
   createDummyEncounter,
   createDummyPrescription,
@@ -48,7 +49,7 @@ describe('Encounter', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
 
     await models.LocalSystemFact.set(
-      'facilityIds',
+      FACT_FACILITY_IDS,
       JSON.stringify(['test-facility-id-for-discontinuer']),
     );
 

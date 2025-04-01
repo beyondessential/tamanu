@@ -69,6 +69,12 @@ export async function up(query: QueryInterface) {
     allowNull: true,
   });
 
+  await query.changeColumn('prescriptions', 'quantity', {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+  });
+
   await query.renameColumn('prescriptions', 'note', 'notes');
 }
 
@@ -86,6 +92,10 @@ export async function down(query: QueryInterface) {
   await query.removeColumn('prescriptions', 'ideal_times');
   await query.removeColumn('prescriptions', 'pharmacy_notes');
   await query.removeColumn('prescriptions', 'display_pharmacy_notes_in_mar');
-
+  await query.changeColumn('prescriptions', 'quantity', {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  });
   await query.renameColumn('prescriptions', 'notes', 'note');
 }

@@ -106,7 +106,16 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
 
   return (
     <Modal
-      title={`Activate ${patientProgramRegistration.programRegistry.name}`}
+      title={
+        <>
+          <TranslatedText stringId="programRegistry.activate.title" fallback="Activate" />{' '}
+          <TranslatedReferenceData
+            fallback={patientProgramRegistration.programRegistry.name}
+            value={patientProgramRegistration.programRegistry.id}
+            category="programRegistry"
+          />
+        </>
+      }
       open={open}
       width="md"
       onClose={onClose}
@@ -124,7 +133,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.date.label"
+                        stringId="programRegistry.registrationDate.label"
                         fallback="Date of registration"
                       />
                     }
@@ -136,7 +145,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="clinicianId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="programRegistry.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
@@ -150,7 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeringFacility.label"
+                        stringId="programRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -160,7 +169,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                   />
                   <Field
                     name="clinicalStatusId"
-                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                    label={
+                      <TranslatedText
+                        stringId="programRegistry.clinicalStatus.label"
+                        fallback="Status"
+                      />
+                    }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />
@@ -175,7 +189,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="conditionIds"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.relatedConditions.label"
+                        stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
@@ -186,12 +200,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         <TranslatedReferenceData
                           fallback={condition.name}
                           value={condition.id}
-                          category="condition"
+                          category="prCondition"
                         />
                       ),
                       value: condition.id,
                       searchString: getTranslation(
-                        getReferenceDataStringId(condition.id, 'condition'),
+                        getReferenceDataStringId(condition.id, 'prCondition'),
                         condition.name,
                       ),
                     }))}
@@ -210,7 +224,6 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                 style={{ paddingLeft: '32px', paddingRight: '32px' }}
                 onCancel={onClose}
                 onConfirm={submitForm}
-                confirmText="Confirm"
               />
             </div>
           );
@@ -225,31 +238,13 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={yup.object().shape({
           clinicalStatusId: optionalForeignKey().nullable(),
-          date: yup
-            .date()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.date.label"
-                fallback="Date of registration"
-              />,
-            ),
-          clinicianId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
-                fallback="Registered by"
-              />,
-            ),
-          registeringFacilityId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="patientProgramRegistry.registeringFacility.label"
-                fallback="Registering facility"
-              />,
-            ),
+          date: yup.date().required(getTranslation('validation.required.inline', '*Required')),
+          clinicianId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
+          registeringFacilityId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
         })}
       />
     </Modal>

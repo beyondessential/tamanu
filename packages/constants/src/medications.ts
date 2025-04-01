@@ -69,8 +69,8 @@ export const DRUG_UNITS = {
 
 export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
 
-export const DRUG_UNIT_LABELS = Object.entries(DRUG_UNITS).reduce((prev, curr) => {
-  prev[curr[1]] = curr[1];
+export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce((prev, curr) => {
+  prev[curr] = curr;
   return prev;
 }, {} as any);
 
@@ -207,7 +207,7 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 };
 
-const MEDICATION_DURATION_UNITS = {
+const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',
@@ -215,10 +215,15 @@ const MEDICATION_DURATION_UNITS = {
 };
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS]: 'Hours',
-  [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
-  [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
-  [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
+  [MEDICATION_DURATION_UNITS.HOURS!]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS!]: 'Days',
+  [MEDICATION_DURATION_UNITS.WEEKS!]: 'Weeks',
+  [MEDICATION_DURATION_UNITS.MONTHS!]: 'Months',
+};
+
+export const MEDICATION_PAUSE_DURATION_UNITS_LABELS = {
+  [MEDICATION_DURATION_UNITS.HOURS!]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS!]: 'Days',
 };
 
 export const ADMINISTRATION_STATUS = {
@@ -240,5 +245,5 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '16:00', endTime: '18:00' },
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
-  { startTime: '22:00', endTime: '00:00', periodLabel: 'night' },
+  { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ];

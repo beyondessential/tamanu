@@ -159,7 +159,12 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     overrideContentPadding
     ListItemComponent={ProgramRegistryListItem}
     behavior="modal"
-    itemTitle="Add program registry"
+    itemTitle={
+      <TranslatedText
+        stringId="programRegistry.modal.addProgramRegistry.title"
+        fallback="Add program registry"
+      />
+    }
     getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
   />
 ));

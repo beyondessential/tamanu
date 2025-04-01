@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany, In } from 'typeorm';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -86,12 +86,11 @@ export class Patient extends BaseModel implements IPatient {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
 
-    const list = await this.getRepository().findByIds(patientIds);
+    const list = await this.getRepository().find({ where: { id: In(patientIds) } });
 
     return (
       patientIds
         // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-        // (typeorm findByIds doesn't guarantee return order)
         .map((storedId) => list.find(({ id }) => id === storedId))
         // filter removes patients who couldn't be found (which occurs when a patient was deleted)
         .filter((patient) => !!patient)

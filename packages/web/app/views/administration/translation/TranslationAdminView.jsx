@@ -49,8 +49,8 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
     >
       <ContentText>
         <TranslatedText
-          stringId="admin.translation.importOrOverwriteModalMessage"
-          fallback="Would you like to import new defaults or overwrite existing translations?"
+          stringId="admin.translation.overwriteOrImportNewRowsModalMessage"
+          fallback="Would you like to overwrite existing translations or import new rows only?"
         />
       </ContentText>
       <ModalActionRow>
@@ -59,13 +59,13 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
             <TranslatedText stringId="general.action.back" fallback="Back" />
           </OutlinedButton>
           <div>
-            <OutlinedButton onClick={onConfirm}>
+            <OutlinedButton onClick={e => onConfirm(e, { skipExisting: true })}>
               <TranslatedText
-                stringId="admin.translation.importNewDefaults"
-                fallback="Import new defaults"
+                stringId="admin.translation.importNewRowsOnly"
+                fallback="Import new rows only"
               />
             </OutlinedButton>
-            <StyledConfirmButton onClick={e => onConfirm(e, { overwrite: true })}>
+            <StyledConfirmButton onClick={onConfirm}>
               <TranslatedText
                 stringId="admin.translation.overwriteExisting"
                 fallback="Overwrite existing translations"

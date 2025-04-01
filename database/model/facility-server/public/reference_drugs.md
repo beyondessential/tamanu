@@ -1,1 +1,0 @@
-../../central-server/public/reference_drugs.md

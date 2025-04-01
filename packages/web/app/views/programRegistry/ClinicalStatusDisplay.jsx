@@ -1,15 +1,30 @@
 import React from 'react';
 import { STATUS_COLOR } from '@tamanu/constants';
-import { TableCellTag } from '../../components';
+import { TableCellTag, TranslatedText, TranslatedReferenceData } from '../../components';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
   if (!clinicalStatus) return <></>;
   const color = STATUS_COLOR[clinicalStatus.color];
   return (
-    <ThemedTooltip visible title="Current status">
+    <ThemedTooltip
+      visible
+      title={
+        <TranslatedText
+          stringId="programRegistry.currentStatus.tooltip"
+          fallback="Current status"
+        />
+      }
+    >
       <TableCellTag $color={color} $position="initial">
-        {clinicalStatus.name || 'n/a'}
+        <TranslatedReferenceData
+          fallback={clinicalStatus?.name}
+          value={clinicalStatus?.id}
+          category="programRegistryClinicalStatus"
+          placeholder={
+            <TranslatedText stringId="programRegistry.currentStatus.placeholder" fallback="n/a" />
+          }
+        />
       </TableCellTag>
     </ThemedTooltip>
   );

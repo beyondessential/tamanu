@@ -9,10 +9,10 @@ jest.mock('./buildFromSyncRecord', () => {
     }),
   };
 });
-// Mock dependencies like `model.findByIds`
-const findByIds = jest.fn();
+// Mock dependencies like `model.find`
+const find = jest.fn();
 const getModel = jest.fn(() => ({
-  findByIds,
+  find,
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
 }));
 const Model = getModel() as any;
@@ -22,7 +22,7 @@ const generateExistingRecord = (id, data = {}) => ({
   ...data,
 });
 const mockExistingRecords = records => {
-  findByIds.mockImplementation(() => records);
+  find.mockImplementation(() => records);
 };
 
 describe('saveChangesForModel', () => {

@@ -37,9 +37,11 @@ export * from './Vitals';
 export * from './Procedure';
 
 export * from './EncounterDiagnosis';
-export * from './EncounterPrescription';
 export * from './Prescription';
 export * from './PatientOngoingPrescription';
+export * from './EncounterPrescription';
+export * from './EncounterPausePrescription';
+export * from './EncounterPausePrescriptionHistory';
 
 export * from './EncounterDiet';
 export * from './LabRequest';
@@ -135,3 +137,4 @@ export * from './DebugLog';
 export * from './SyncDeviceTick';
 
 export * from './ReferenceDrug';
+export * from './MedicationAdministrationRecord';

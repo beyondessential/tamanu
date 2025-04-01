@@ -88,7 +88,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="programRegistryId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.programRegistry.label"
+                      stringId="programRegistry.programRegistry.label"
                       fallback="Program registry"
                     />
                   }
@@ -103,12 +103,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     }
                   }}
                 />
-
                 <Field
                   name="date"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.date.label"
+                      stringId="programRegistry.registrationDate.label"
                       fallback="Date of registration"
                     />
                   }
@@ -122,7 +121,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="clinicianId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeredBy.label"
+                      stringId="programRegistry.registeredBy.label"
                       fallback="Registered by"
                     />
                   }
@@ -135,7 +134,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeringFacility.label"
+                      stringId="programRegistry.registeringFacility.label"
                       fallback="Registering facility"
                     />
                   }
@@ -147,9 +146,19 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
-                  disabledTooltipText="Select a program registry to set the status"
+                  disabledTooltipText={
+                    <TranslatedText
+                      stringId="programRegistry.registryForm.clinicalStatus.disabledTooltip"
+                      fallback="Select a program registry to set the status"
+                    />
+                  }
                   name="clinicalStatusId"
-                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.clinicalStatus.label"
+                      fallback="Status"
+                    />
+                  }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
@@ -157,14 +166,22 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 />
                 <FieldWithTooltip
                   disabledTooltipText={
-                    !conditions
-                      ? 'Select a program registry to add related conditions'
-                      : 'No conditions have been configured for this program registry'
+                    !conditions ? (
+                      <TranslatedText
+                        stringId="programRegistry.registryForm.relatedConditions.disabledTooltip"
+                        fallback="Select a program registry to add related conditions"
+                      />
+                    ) : (
+                      <TranslatedText
+                        stringId="programRegistry.registryForm.relatedConditions.noConditionsTooltip"
+                        fallback="No conditions have been configured for this program registry"
+                      />
+                    )
                   }
                   name="conditionIds"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.relatedConditions.label"
+                      stringId="programRegistry.relatedConditions.label"
                       fallback="Related conditions"
                     />
                   }
@@ -175,12 +192,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       <TranslatedReferenceData
                         fallback={condition.name}
                         value={condition.id}
-                        category="condition"
+                        category="prCondition"
                       />
                     ),
                     value: condition.id,
                     searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'condition'),
+                      getReferenceDataStringId(condition.id, 'prCondition'),
                       condition.name,
                     ),
                   }))}
@@ -214,21 +231,18 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.programRegistry.label"
+            stringId="programRegistry.programRegistry.label"
             fallback="Program registry"
           />,
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
         clinicianId: foreignKey().translatedLabel(
-          <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
-            fallback="Registered by"
-          />,
+          <TranslatedText stringId="programRegistry.registeredBy.label" fallback="Registered by" />,
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
+            stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
           />,
         ),

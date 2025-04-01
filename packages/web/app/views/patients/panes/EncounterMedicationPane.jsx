@@ -4,9 +4,9 @@ import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { MedicationModal } from '../../../components/MedicationModal';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
-import { EncounterMedicationTable } from '../../../components/MedicationTable';
+import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
 import { Button, ButtonWithPermissionCheck, TextButton } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

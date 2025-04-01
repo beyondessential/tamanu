@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, type CreateOptions } from 'sequelize';
 import { SYNC_DIRECTIONS, NOTIFICATION_TYPES, NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
@@ -84,8 +84,10 @@ export class Notification extends Model {
   static async pushNotification(
     type: (typeof NOTIFICATION_TYPE_VALUES)[number],
     metadata: Record<string, any>,
+    options?: CreateOptions<any>,
   ) {
     try {
+      const additionalMetadata: Record<string, any> = {};
       const { models } = this.sequelize;
 
       let patientId;
@@ -94,13 +96,23 @@ export class Notification extends Model {
         case NOTIFICATION_TYPES.IMAGING_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter?.patientId;
+          patientId = encounter!.patientId;
           break;
         }
         case NOTIFICATION_TYPES.LAB_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter?.patientId;
+          patientId = encounter!.patientId;
+          break;
+        }
+        case NOTIFICATION_TYPES.PHARMACY_NOTE: {
+          userId = metadata.prescriberId;
+          const encounterPrescription = await models.EncounterPrescription.findOne({
+            where: { prescriptionId: metadata.id },
+            include: ['encounter'],
+          });
+          patientId = encounterPrescription!.encounter!.patientId;
+          additionalMetadata.encounterId = encounterPrescription!.encounterId;
           break;
         }
         default:
@@ -111,13 +123,16 @@ export class Notification extends Model {
         return;
       }
 
-      await this.create({
-        type,
-        metadata,
-        userId,
-        patientId,
-        createdTime: getCurrentDateTimeString(),
-      });
+      await this.create(
+        {
+          type,
+          metadata: { ...metadata, ...additionalMetadata },
+          userId,
+          patientId,
+          createdTime: getCurrentDateTimeString(),
+        },
+        options,
+      );
     } catch (error) {
       log.error('Error pushing notification', error);
     }
