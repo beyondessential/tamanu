@@ -14,40 +14,46 @@ interface Registration {
 
 async function populateRegistrationIds(query: QueryInterface): Promise<void> {
   // Get all conditions
-  const conditions = await query.sequelize.query<Condition>(`
+  const conditions = await query.sequelize.query<Condition>(
+    `
     SELECT id, patient_id, program_registry_id
     FROM patient_program_registration_conditions;
-  `, { type: QueryTypes.SELECT });
+  `,
+    { type: QueryTypes.SELECT },
+  );
 
   for (const condition of conditions) {
     // First try to get the most recent registration
-    const registrations = await query.sequelize.query<Registration>(`
+    const registrations = await query.sequelize.query<Registration>(
+      `
       SELECT id, created_at, is_most_recent
       FROM patient_program_registrations
       WHERE patient_id = :patientId
       AND program_registry_id = :programRegistryId
       ORDER BY date DESC;
-    `, {
-      replacements: {
-        patientId: condition.patient_id,
-        programRegistryId: condition.program_registry_id
+    `,
+      {
+        replacements: {
+          patientId: condition.patient_id,
+          programRegistryId: condition.program_registry_id,
+        },
+        type: QueryTypes.SELECT,
       },
-      type: QueryTypes.SELECT
-    });
+    );
 
     if (registrations.length === 0) {
       console.log(
         `No registration found for condition ${condition.id} ` +
-        `(patient: ${condition.patient_id}, program: ${condition.program_registry_id})`
+          `(patient: ${condition.patient_id}, program: ${condition.program_registry_id})`,
       );
       continue;
     }
 
     // Get the registration ID to use
     let registrationId: string;
-    
+
     // First check for most recent flag
-    const mostRecent = registrations.find(r => r.is_most_recent);
+    const mostRecent = registrations.find((r) => r.is_most_recent);
     if (mostRecent) {
       registrationId = mostRecent.id;
     } else {
@@ -56,16 +62,19 @@ async function populateRegistrationIds(query: QueryInterface): Promise<void> {
     }
 
     // Update the condition with the registration ID
-    await query.sequelize.query(`
+    await query.sequelize.query(
+      `
       UPDATE patient_program_registration_conditions
       SET patient_program_registration_id = :registrationId
       WHERE id = :conditionId
-    `, {
-      replacements: {
-        registrationId,
-        conditionId: condition.id
-      }
-    });
+    `,
+      {
+        replacements: {
+          registrationId,
+          conditionId: condition.id,
+        },
+      },
+    );
   }
 }
 
@@ -113,10 +122,18 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_program_registration_conditions', 'patient_id', {
     type: DataTypes.STRING,
     allowNull: true,
+    references: {
+      model: 'patients',
+      key: 'id',
+    },
   });
   await query.addColumn('patient_program_registration_conditions', 'program_registry_id', {
     type: DataTypes.STRING,
     allowNull: true,
+    references: {
+      model: 'program_registries',
+      key: 'id',
+    },
   });
 
   // Copy data back from patient_program_registrations
