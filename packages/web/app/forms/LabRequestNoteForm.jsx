@@ -121,11 +121,11 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       <Box flex="1" ml={1} data-testid='box-7r5l'>
         <List data-testid='list-19gk'>
           {isSuccess &&
-            notes.data?.map(note => (
-              <ListItem key={`${note.id}`} data-testid='listitem-bd73'>
+            notes.data?.map((note, index) => (
+              <ListItem key={note.id} data-testid={`listitem-bd73-${index}`}>
                 {note.content}
-                <Caption data-testid='caption-gjgp'>
-                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-testid='datedisplay-ju3f' />
+                <Caption data-testid={`caption-gjgp-${index}`}>
+                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-testid={`datedisplay-ju3f-${index}`} />
                 </Caption>
               </ListItem>
             ))}

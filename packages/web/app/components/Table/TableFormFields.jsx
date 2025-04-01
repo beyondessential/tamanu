@@ -115,7 +115,7 @@ export const TableFormFields = React.memo(
             <StyledTableHead data-testid='styledtablehead-86fw'>
               <TableRow data-testid='tablerow-xx17'>
                 {columns.map(({ key, title, width }) => (
-                  <StyledTableHeaderCell key={key} width={width} data-testid='styledtableheadercell-wvus'>
+                  <StyledTableHeaderCell key={key} width={width} data-testid={`styledtableheadercell-wvus-${key}`}>
                     {title}
                   </StyledTableHeaderCell>
                 ))}
@@ -124,9 +124,9 @@ export const TableFormFields = React.memo(
             <TableBody data-testid='tablebody-l659'>
               {pageRows && pageRows.length > 0 ? (
                 pageRows.map((rowData, i) => (
-                  <TableRow key={rowData.id || i} data-testid='tablerow-r1a3'>
+                  <TableRow key={rowData.id || i} data-testid={`tablerow-r1a3-${i}`}>
                     {columns.map(({ key, accessor }) => (
-                      <StyledTableDataCell key={key} data-testid='styledtabledatacell-bsji'>{accessor(rowData, i)}</StyledTableDataCell>
+                      <StyledTableDataCell key={key} data-testid={`styledtabledatacell-bsji-${i}-${key}`}>{accessor(rowData, i)}</StyledTableDataCell>
                     ))}
                   </TableRow>
                 ))

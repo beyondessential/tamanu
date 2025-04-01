@@ -271,15 +271,15 @@ const Row = React.memo(
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${key}`}
-            data-testid='styledtablecell-2gyy'>
-            <ErrorBoundary ErrorComponent={CellError} data-testid='errorboundary-vajt'>
+            data-testid={`styledtablecell-2gyy-${key}`}>
+            <ErrorBoundary ErrorComponent={CellError} data-testid={`errorboundary-vajt-${key}`}>
               {CellComponent ? (
-                <CellComponent value={displayValue} data={data} data-testid='cellcomponent-pz8j' />
+                <CellComponent value={displayValue} data={data} data-testid={`cellcomponent-pz8j-${key}`} />
               ) : (
                 <DisplayValue
                   maxWidth={maxWidth}
                   displayValue={displayValue}
-                  data-testid='displayvalue-ds9w' />
+                  data-testid={`displayvalue-ds9w-${key}`} />
               )}
             </ErrorBoundary>
           </StyledTableCell>
@@ -406,7 +406,7 @@ class TableComponent extends React.Component {
 
     return columns.map(
       ({ key, title, numeric, titleAccessor, sortable = true, tooltip, TitleCellComponent }) => (
-        <HeaderContainer key={key} numeric={numeric} data-testid='headercontainer-6mxd'>
+        <HeaderContainer key={key} numeric={numeric} data-testid={`headercontainer-6mxd-${key}`}>
           {getContent({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent })}
         </HeaderContainer>
       ),
@@ -469,7 +469,7 @@ class TableComponent extends React.Component {
                 onMouseEnter={onMouseEnterRow}
                 onMouseLeave={onMouseLeaveRow}
                 getRowTooltip={getRowTooltip}
-                data-testid='row-1kia' />
+                data-testid={`row-1kia-${rowIndex}`} />
             );
           })}
         {isLoadingMore && (

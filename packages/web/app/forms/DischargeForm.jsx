@@ -174,7 +174,7 @@ const ProcedureList = React.memo(({ procedures }) => (
             fallback={procedureType.name}
             value={procedureType.id}
             category={procedureType.type}
-            data-testid='translatedreferencedata-yta7' />
+            data-testid={`translatedreferencedata-yta7-${procedureType.code}`} />
         </li>
       ))
     ) : (

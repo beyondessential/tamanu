@@ -253,12 +253,12 @@ export const ImagingRequestForm = React.memo(
               {imagingAreas.length > 0 ? (
                 <Field
                   options={imagingAreas
-                    .map(({ id, name, type }) => ({
+                    .map(({ id, name, type, code }) => ({
                       label: <TranslatedReferenceData
                         fallback={name}
                         value={id}
                         category={type}
-                        data-testid='translatedreferencedata-50bn' />,
+                        data-testid={`translatedreferencedata-50bn-${code}`} />,
                       value: id,
                       searchString: getTranslation(getReferenceDataStringId(id, type), name),
                     }))

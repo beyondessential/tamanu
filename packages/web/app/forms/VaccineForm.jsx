@@ -84,7 +84,7 @@ export const VaccineForm = ({
                 fallback={vaccine.label}
                 value={vaccine.id}
                 category="scheduledVaccine"
-                data-testid='translatedreferencedata-e94b' />
+                data-testid={`translatedreferencedata-e94b-${vaccine.code}`} />
             ),
             value: vaccine.label,
             schedules: vaccine.schedules,

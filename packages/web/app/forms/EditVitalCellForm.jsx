@@ -207,13 +207,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               border="1px solid #dedede"
               borderRadius="3px"
               data-testid='box-mzpp'>
-              {dataPoint.historyLogs.map(log => (
+              {dataPoint.historyLogs.map((log, index) => (
                 <HistoryLog
                   key={log.date}
                   vitalLabel={vitalLabel}
                   vitalEditReasons={vitalEditReasons}
                   logData={log}
-                  data-testid='historylog-obnm' />
+                  data-testid={`historylog-obnm-${index}`} />
               ))}
             </Box>
           </OuterLabelFieldWrapper>
