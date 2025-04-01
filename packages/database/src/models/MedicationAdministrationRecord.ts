@@ -82,7 +82,8 @@ export class MedicationAdministrationRecord extends Model {
         if (
           administrationDate < new Date(prescription.startDate) ||
           administrationDate > endDate ||
-          administrationDate <= lastStartDate
+          administrationDate <= lastStartDate ||
+          prescription.discontinuedDate && administrationDate >= new Date(prescription.discontinuedDate)
         ) {
           continue;
         }
