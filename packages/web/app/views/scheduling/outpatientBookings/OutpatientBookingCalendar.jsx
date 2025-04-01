@@ -221,7 +221,7 @@ export const OutpatientBookingCalendar = ({
       overflow="auto"
       flex={1}
       data-testid='box-8llp'>
-      {headData?.map(cell => {
+      {headData?.map((cell, cellIndex) => {
         const appointments = cellData[cell.id];
         const title =
           groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP ? (
@@ -240,7 +240,7 @@ export const OutpatientBookingCalendar = ({
               count={appointments?.length || 0}
               data-testid='headcell-9w0q' />
             <AppointmentColumnWrapper data-testid='appointmentcolumnwrapper-yxim'>
-              {appointments.map((a, index) => (
+              {appointments.map((a, appointmentIndex) => (
                 <AppointmentTile
                   key={a.id}
                   appointment={a}
@@ -254,7 +254,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.newAppointment"
                                 fallback="New appointment"
-                                data-testid={`translatedtext-fn6p-${index}`} />
+                                data-testid={`translatedtext-fn6p-${cellIndex}-${appointmentIndex}`} />
                             ),
                             action: () => onCreateFromExisting(a),
                           },
@@ -263,7 +263,7 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.emailAppointment"
                                 fallback="Email appointment"
-                                data-testid={`translatedtext-1xgj-${index}`} />
+                                data-testid={`translatedtext-1xgj-${cellIndex}-${appointmentIndex}`} />
                             ),
                             action: () =>
                               setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
@@ -271,7 +271,7 @@ export const OutpatientBookingCalendar = ({
                         ]
                       : []
                   }
-                  data-testid={`appointmenttile-51fd-${index}`} />
+                  testIdPrefix={`${cellIndex}-${appointmentIndex}`} />
               ))}
             </AppointmentColumnWrapper>
           </ColumnWrapper>

@@ -88,6 +88,7 @@ export const AppointmentTile = ({
   onEdit,
   onCancel,
   actions,
+  testIdPrefix,
   allowViewDetail = true,
   ...props
 }) => {
@@ -127,25 +128,25 @@ export const AppointmentTile = ({
 
   return (
     <>
-      <ThemedTooltip title={tileText} data-testid='themedtooltip-xoyb'>
+      <ThemedTooltip title={tileText} data-testid={`themedtooltip-xoyb-${testIdPrefix}`}>
         <Tile
           $color={APPOINTMENT_STATUS_COLORS[status]}
           $selected={open}
           ref={ref}
           onClick={() => allowViewDetail && setOpen(true)}
           {...props}
-          data-testid='tile-owfj'>
+          data-testid={`tile-owfj-${testIdPrefix}`}>
           <Label
             $strikethrough={status === APPOINTMENT_STATUSES.NO_SHOW}
-            data-testid='label-u6qm'>{tileText}</Label>
-          <IconGroup data-testid='icongroup-78rn'>
+            data-testid={`label-u6qm-${testIdPrefix}`}>{tileText}</Label>
+          <IconGroup data-testid={`icongroup-78rn-${testIdPrefix}`}>
             {isHighPriority && (
               <HighPriorityIcon
                 aria-label="High priority"
                 aria-hidden={undefined}
                 htmlColor={Colors.alert}
                 style={{ fontSize: 15 }}
-                data-testid='highpriorityicon-c3ug' />
+                data-testid={`highpriorityicon-c3ug-${testIdPrefix}`} />
             )}
             {isOvernightLocationBooking && (
               <OvernightIcon
@@ -153,13 +154,13 @@ export const AppointmentTile = ({
                 aria-hidden={undefined}
                 htmlColor={Colors.primary}
                 style={{ fontSize: 15 }}
-                data-testid='overnighticon-wbfe' />
+                data-testid={`overnighticon-wbfe-${testIdPrefix}`} />
             )}
             <StatusIndicator
               appointmentStatus={status}
               width={15}
               height={15}
-              data-testid='statusindicator-4cq0' />
+              data-testid={`statusindicator-4cq0-${testIdPrefix}`} />
           </IconGroup>
         </Tile>
       </ThemedTooltip>
@@ -174,7 +175,7 @@ export const AppointmentTile = ({
         actions={actions}
         // px conversions of height / width from CarouselComponents
         preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
-        data-testid='appointmentdetailpopper-b4ww' />
+        data-testid={`appointmentdetailpopper-b4ww-${testIdPrefix}`} />
     </>
   );
 };

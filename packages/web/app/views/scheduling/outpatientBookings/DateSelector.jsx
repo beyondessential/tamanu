@@ -136,11 +136,10 @@ const DayButton = ({ date, selected, onClick }) => {
       onClick={onClick}
       $selected={selected}
       $isToday={isToday(date)}
-      data-testid='daywrapper-2vbq'>
+      data-testid={`daywrapper-2vbq-${format(date, 'EEEEE')}-${date.getDate()}`}>
       <WeekdayText
         $isWeekend={isWeekendDay}
-        $selected={selected}
-        data-testid='weekdaytext-no67'>
+        $selected={selected}>
         {format(date, 'EEEEE')}
       </WeekdayText>
       <DateText
@@ -217,9 +216,7 @@ export const DateSelector = ({ value, onChange }) => {
               date={date}
               selected={isSameDay(date, value)}
               onClick={() => handleChange(date)}
-              key={`day-button-${date.getTime()}`}
-              // TODO: TEST THIS ONE ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
-              data-testid={`daybutton-ppdz-${format(date, 'yyyy-MM-dd')}`} />
+              key={`day-button-${date.getTime()}`}/>
           ))}
         </DaysWrapper>
         <StepperButton onClick={handleIncrement} data-testid='stepperbutton-3zzm'>
