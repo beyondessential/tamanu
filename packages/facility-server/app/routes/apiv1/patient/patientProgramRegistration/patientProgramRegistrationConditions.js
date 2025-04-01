@@ -6,17 +6,17 @@ import { NotFoundError } from '@tamanu/shared/errors';
 export const patientProgramRegistrationConditions = express.Router();
 
 patientProgramRegistrationConditions.put(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
+  '/programRegistrationCondition/:id',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
-    const { conditionId } = params;
+    const { id } = params;
 
     req.checkPermission('read', 'PatientProgramRegistrationCondition');
     req.checkPermission('write', 'PatientProgramRegistrationCondition');
 
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
-        id: conditionId,
+        id,
       },
     });
     if (!existingCondition) {

@@ -57,11 +57,14 @@ patientProgramRegistration.post(
 
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
-      const newRegistration = await models.PatientProgramRegistration.create({
-        patientId,
-        programRegistryId,
-        ...registrationData,
-      }, { transaction });
+      const newRegistration = await models.PatientProgramRegistration.create(
+        {
+          patientId,
+          programRegistryId,
+          ...registrationData,
+        },
+        { transaction },
+      );
 
       const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
         conditions
@@ -73,13 +76,16 @@ patientProgramRegistration.post(
             programRegistryConditionId: condition.conditionId,
             conditionCategory: condition.category,
           })),
-        { transaction }
+        { transaction },
       );
 
-      await models.PatientFacility.upsert({
-        patientId,
-        facilityId: registeringFacilityId,
-      }, { transaction });
+      await models.PatientFacility.upsert(
+        {
+          patientId,
+          facilityId: registeringFacilityId,
+        },
+        { transaction },
+      );
 
       return [newRegistration, newConditions];
     });
@@ -125,7 +131,7 @@ patientProgramRegistration.put(
 
     const [registration] = await db.transaction(async () => {
       return Promise.all([
-        existingRegistration.update(body),
+        existingRegistration.update(registrationData),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
           updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),
