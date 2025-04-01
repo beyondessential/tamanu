@@ -56,13 +56,14 @@ patientProgramRegistration.post(
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditionsRecords] = await db.transaction(async () => {
-      const newRegistration = models.PatientProgramRegistration.create({
+    const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
+      const newRegistration = await models.PatientProgramRegistration.create({
         patientId,
         programRegistryId,
         ...registrationData,
-      });
-      const newConditionsRecords = models.PatientProgramRegistrationCondition.bulkCreate(
+      }, { transaction });
+
+      const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
         conditions
           .filter((condition) => condition.conditionId)
           .map((condition) => ({
@@ -72,13 +73,15 @@ patientProgramRegistration.post(
             programRegistryConditionId: condition.conditionId,
             conditionCategory: condition.category,
           })),
+        { transaction }
       );
-      // as a side effect, mark for sync in the current facility
+
       await models.PatientFacility.upsert({
         patientId,
         facilityId: registeringFacilityId,
-      });
-      return [newRegistration, newConditionsRecords];
+      }, { transaction });
+
+      return [newRegistration, newConditions];
     });
 
     // Convert Sequelize model to use a custom object as response
