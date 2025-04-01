@@ -160,7 +160,7 @@ const SectionTitle = styled.div`
 
 const PATIENTS_PER_PAGE = 6;
 
-const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
+const Card = ({ patient, handleClick, patientPerPage, isDashboard, index }) => {
   const isPatientDeceased = Boolean(patient.dateOfDeath);
 
   return (
@@ -168,12 +168,12 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
       onClick={() => handleClick(patient.id)}
       patientPerPage={patientPerPage}
       $isDashboard={isDashboard}
-      data-testid='cardcomponent-gqky'>
+      data-testid={`cardcomponent-j39j-${index}`}>
       <PatientStatusIndicator
         $encounterType={patient.encounter_type}
         $isPatientDeceased={isPatientDeceased}
-        data-testid='patientstatusindicator-a5ir' />
-      <CardComponentContent data-testid='cardcomponentcontent-wwqt'>
+        data-testid={`patientstatusindicator-a5ir-${index}`} />
+      <CardComponentContent data-testid={`cardcomponentcontent-${index}`}>
         <ThemedTooltip
           title={`${patient.firstName || ''} ${patient.lastName || ''}`}
           data-testid='themedtooltip-i98w'>
@@ -181,20 +181,20 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard }) => {
             $encounterType={patient.encounter_type}
             $isPatientDeceased={isPatientDeceased}
             $isDashboard={isDashboard}
-            data-testid='cardtitle-qqhk'>
+            data-testid={`cardtitle-qqhk-${index}`}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>
-        <CardText $isDashboard={isDashboard} data-testid='cardtext-iro1'>{patient.displayId}</CardText>
-        <CapitalizedCardText $isDashboard={isDashboard} data-testid='capitalizedcardtext-zu58'>
-          <TranslatedSex sex={patient.sex} data-testid='translatedsex-zkco' />
+        <CardText $isDashboard={isDashboard} data-testid={`cardtext-iro1-${index}`}>{patient.displayId}</CardText>
+        <CapitalizedCardText $isDashboard={isDashboard} data-testid={`capitalizedcardtext-zu58-${index}`}>
+          <TranslatedSex sex={patient.sex} data-testid={`translatedsex-zkco-${index}`} />
         </CapitalizedCardText>
-        <CardText $isDashboard={isDashboard} data-testid='cardtext-i2bu'>
+          <CardText $isDashboard={isDashboard} data-testid={`cardtext-i2bu-${index}`}>
           <TranslatedText
             stringId="general.dateOfBirth.label"
             fallback="DOB"
-            data-testid='translatedtext-7ljq' />
-          : <DateDisplay date={patient.dateOfBirth} shortYear data-testid='datedisplay-tw5s' />
+            data-testid={`translatedtext-7ljq-${index}`} />
+          : <DateDisplay date={patient.dateOfBirth} shortYear data-testid={`datedisplay-tw5s-${index}`} />
         </CardText>
       </CardComponentContent>
     </CardComponent>
@@ -277,7 +277,7 @@ export const RecentlyViewedPatientsList = ({
                   handleClick={cardOnClick}
                   isDashboard={isDashboard}
                   patientPerPage={patientPerPage}
-                  data-testid={`card-m3ff-${index}`} />
+                  index={index} />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (
