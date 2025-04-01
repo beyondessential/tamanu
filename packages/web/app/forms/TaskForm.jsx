@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, Divider } from '@material-ui/core';
@@ -11,10 +11,7 @@ import {
   REFERENCE_TYPES,
   TASK_FREQUENCY_UNIT_LABELS,
   TASK_DURATION_UNIT_LABELS,
-  TASK_DURATION_UNIT,
 } from '@tamanu/constants';
-import { addMilliseconds } from 'date-fns';
-import ms from 'ms';
 
 import {
   AutocompleteField,
@@ -41,7 +38,6 @@ import { useCreateTasks } from '../api/mutations/useTaskMutation';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
-import { getEndDate } from '../utils/dateTime';
 import { ConditionalTooltip } from '../components/Tooltip';
 
 const NestedFormGrid = styled.div`
@@ -80,18 +76,6 @@ const InvisibleTitle = styled.div`
   opacity: 0;
 `;
 
-const getTaskEndDate = (startTime, frequencyValue, frequencyUnit, durationValue, durationUnit) => {
-  if (!frequencyValue || !frequencyUnit || !durationValue || !durationUnit) {
-    return null;
-  }
-  if (durationUnit !== TASK_DURATION_UNIT.OCCURRENCES) {
-    return getEndDate(startTime, durationValue, durationUnit);
-  }
-  const frequencyMs = ms(`${frequencyValue} ${frequencyUnit}`);
-  const endTime = addMilliseconds(new Date(startTime), frequencyMs * (durationValue - 1));
-  return endTime;
-};
-
 export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
@@ -127,10 +111,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
     const startTimeString = startTime.substring(0, startTime.length - 2) + '00';
 
-    const endTime = toDateTimeString(
-      getTaskEndDate(startTime, frequencyValue, frequencyUnit, durationValue, durationUnit),
-    );
-
     if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
       payload = {
         ...other,
@@ -139,10 +119,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
           {
             name: selectedTask.label,
             highPriority: !!highPriority,
-            ...(frequencyValue && { frequencyValue }),
-            ...(frequencyUnit && { frequencyUnit }),
+            ...(frequencyValue &&
+              frequencyUnit && { frequencyValue: Number(frequencyValue), frequencyUnit }),
             ...(durationValue && durationUnit && { durationValue, durationUnit }),
-            ...(endTime && { endTime }),
             designationIds:
               typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
           },
@@ -152,13 +131,15 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
     } else if (selectedTask.type === REFERENCE_TYPES.TASK_SET) {
       const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
         name,
-        ...(taskTemplate.frequencyValue && { frequencyValue: Number(taskTemplate.frequencyValue) }),
-        frequencyUnit: taskTemplate.frequencyUnit,
+        ...(taskTemplate.frequencyValue &&
+          taskTemplate.frequencyUnit && {
+            frequencyValue: Number(taskTemplate.frequencyValue),
+            frequencyUnit: taskTemplate.frequencyUnit,
+          }),
         highPriority: !!taskTemplate.highPriority,
         designationIds: taskTemplate.designations.map(item => item.designationId),
         startTime: startTimeString,
         ...(durationValue && durationUnit && { durationValue, durationUnit }),
-        ...(endTime && { endTime }),
       }));
 
       payload = {
@@ -279,12 +260,24 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     min={0}
                     component={NumberField}
                     onInput={preventInvalidNumber}
+                    onChange={e => {
+                      if (!e.target.value) {
+                        setFieldValue('durationValue', '');
+                        setFieldValue('durationUnit', '');
+                      }
+                    }}
                   />
                   <Field
                     name="frequencyUnit"
                     label={<InvisibleTitle>.</InvisibleTitle>}
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
+                    onChange={e => {
+                      if (!e.target.value) {
+                        setFieldValue('durationValue', '');
+                        setFieldValue('durationUnit', '');
+                      }
+                    }}
                   />
                 </NestedFormGrid>
                 <ConditionalTooltip
@@ -299,7 +292,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       },
                     },
                   }}
-                  visible={!values.frequencyUnit}
+                  visible={!values.frequencyUnit || !values.frequencyValue}
                   title={
                     <Box fontWeight={400} maxWidth={155}>
                       <TranslatedText
@@ -316,14 +309,14 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       min={0}
                       component={NumberField}
                       onInput={preventInvalidNumber}
-                      disabled={!values.frequencyUnit}
+                      disabled={!values.frequencyUnit || !values.frequencyValue}
                     />
                     <Field
                       name="durationUnit"
                       label={<InvisibleTitle>.</InvisibleTitle>}
                       component={TranslatedSelectField}
                       enumValues={TASK_DURATION_UNIT_LABELS}
-                      disabled={!values.frequencyUnit}
+                      disabled={!values.frequencyUnit || !values.frequencyValue}
                     />
                   </NestedFormGrid>
                 </ConditionalTooltip>
@@ -369,62 +362,50 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         );
       }}
       formType={FORM_TYPES.CREATE_FORM}
-      validationSchema={yup
-        .object()
-        .shape(
-          {
-            taskId: foreignKey().required(
-              getTranslation('validation.required.inline', '*Required'),
+      validationSchema={yup.object().shape(
+        {
+          taskId: foreignKey().required(getTranslation('validation.required.inline', '*Required')),
+          startTime: yup
+            .date()
+            .required(getTranslation('validation.required.inline', '*Required'))
+            .min(
+              new Date(new Date().setHours(0, 0, 0, 0)),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
-            startTime: yup
-              .date()
-              .required(getTranslation('validation.required.inline', '*Required'))
-              .min(
-                new Date(new Date().setHours(0, 0, 0, 0)),
-                getTranslation(
-                  'general.validation.date.cannotInPast',
-                  'Date cannot be in the past',
-                ),
-              ),
-            requestedByUserId: foreignKey().required(
-              getTranslation('validation.required.inline', '*Required'),
+          requestedByUserId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
+          requestTime: yup
+            .date()
+            .required(getTranslation('validation.required.inline', '*Required'))
+            .min(
+              new Date(new Date().setHours(0, 0, 0, 0)),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
-            requestTime: yup
-              .date()
-              .required(getTranslation('validation.required.inline', '*Required'))
-              .min(
-                new Date(new Date().setHours(0, 0, 0, 0)),
-                getTranslation(
-                  'general.validation.date.cannotInPast',
-                  'Date cannot be in the past',
-                ),
-              ),
-            note: yup.string(),
-            highPriority: yup.boolean(),
-            frequencyValue: yup.number().when('frequencyUnit', {
-              is: unit => !!unit,
-              then: yup
-                .number()
-                .required(getTranslation('validation.required.inline', '*Required')),
-            }),
-            frequencyUnit: yup.string().when('frequencyValue', {
-              is: value => !!value,
-              then: yup
-                .string()
-                .required(getTranslation('validation.required.inline', '*Required')),
-            }),
-            durationValue: yup.number(),
-            durationUnit: yup.string(),
-          },
-          ['frequencyValue', 'frequencyUnit'],
-        )
-        .test('duration', getTranslation('validation.required.inline', '*Required'), function(
-          values,
-        ) {
-          const { durationValue, durationUnit } = values;
-          // If either one is provided, both must be provided
-          return (!!durationValue && !!durationUnit) || (!durationValue && !durationUnit);
-        })}
+          note: yup.string(),
+          highPriority: yup.boolean(),
+          frequencyValue: yup.number().when('frequencyUnit', {
+            is: unit => !!unit,
+            then: yup
+              .number()
+              .positive(
+                getTranslation('general.validation.number.positive', 'Number must be positive'),
+              )
+              .required(getTranslation('validation.required.inline', '*Required')),
+          }),
+          frequencyUnit: yup.string().when('frequencyValue', {
+            is: value => !!value,
+            then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
+          }),
+          durationValue: yup
+            .number()
+            .positive(
+              getTranslation('general.validation.number.positive', 'Number must be positive'),
+            ),
+          durationUnit: yup.string(),
+        },
+        ['frequencyValue', 'frequencyUnit'],
+      )}
       initialValues={{
         startTime: getCurrentDateTimeString(),
         requestTime: getCurrentDateTimeString(),

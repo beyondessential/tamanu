@@ -114,7 +114,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     const { Task } = this.models;
 
     const toProcess = await Task.count({
-      endTime: { [Op.or]: [null, { [Op.lt]: getCurrentDateTimeString() }] },
+      endTime: null,
       frequencyValue: { [Op.not]: null },
       frequencyUnit: { [Op.not]: null },
       parentTaskId: null,
@@ -140,7 +140,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     for (let i = 0; i < batchCount; i++) {
       const tasks = await Task.findAll({
         where: {
-          endTime: { [Op.or]: [null, { [Op.lt]: getCurrentDateTimeString() }] },
+          endTime: null,
           frequencyValue: { [Op.not]: null },
           frequencyUnit: { [Op.not]: null },
           parentTaskId: null,

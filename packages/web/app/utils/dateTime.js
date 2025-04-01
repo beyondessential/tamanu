@@ -1,4 +1,4 @@
-import { add, isSameDay, parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 
 import { getDateDisplay } from '../components';
 export { getDateDisplay } from '../components';
@@ -25,10 +25,4 @@ export const formatDateTimeRange = (start, end) => {
   return `${formattedStart} – ${formattedEnd}`;
   //                        ^ en dash
   //                       ^ nonbreaking space
-};
-
-export const getEndDate = (startDate, durationValue, durationUnit) => {
-  const parsedStartDate = parseISO(startDate);
-  const duration = parseInt(durationValue, 10);
-  return add(parsedStartDate, { [durationUnit]: duration });
 };
