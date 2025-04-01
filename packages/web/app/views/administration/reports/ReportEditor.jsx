@@ -176,7 +176,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
                       onDelete={onParamsDelete}
                       setFieldValue={setFieldValue}
                       {...rest}
-                      data-testid='parameteritem-j7u4' />
+                      data-testid={`parameteritem-j7u4-${parameterIndex}`} />
                   );
                 })}
               </ParameterList>

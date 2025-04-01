@@ -66,7 +66,7 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
                 key={f.definitionId}
                 definition={f}
                 value={fieldValues ? fieldValues[f.definitionId] : ''}
-                data-testid='patientfield-6i02' />
+                data-testid={`patientfield-6i02-${f.definitionId}`} />
             ))}
           </StyledFormGrid>
         </Fragment>

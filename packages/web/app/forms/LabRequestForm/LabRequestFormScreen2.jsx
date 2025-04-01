@@ -104,7 +104,7 @@ export const LabRequestFormScreen2 = props => {
         fallback={category.name}
         value={category.id}
         category={category.type}
-        data-testid='translatedreferencedata-obh3' />,
+        data-testid={`translatedreferencedata-obh3-${category.code}`} />,
       ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
     }));
     onSelectionChange(grouped);

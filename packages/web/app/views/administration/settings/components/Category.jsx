@@ -109,19 +109,20 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
         data-testid='categorytitle-0pic' />
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
+        const testIdSuffix = newPath.replace(/\./g, '-');
         const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
-          <SettingLine key={newPath} data-testid='settingline-55rw'>
+          <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
               disabled={disabled}
               path={newPath}
               name={name}
               description={description}
-              data-testid='settingname-g0r7' />
+              data-testid={`settingname-g0r7-${testIdSuffix}`} />
             <SettingInput
               typeSchema={type}
               value={getSettingValue(newPath)}
@@ -130,7 +131,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
-              data-testid='settinginput-2wuw' />
+              data-testid={`settinginput-2wuw-${testIdSuffix}`} />
           </SettingLine>
         ) : (
           <Category
@@ -140,7 +141,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
             handleChangeSetting={handleChangeSetting}
-            data-testid='category-9y74' />
+            data-testid={`category-9y74-${testIdSuffix}`} />
         );
       })}
     </Wrapper>

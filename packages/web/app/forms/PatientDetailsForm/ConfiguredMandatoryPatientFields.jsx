@@ -13,7 +13,7 @@ export const ConfiguredMandatoryPatientFields = (props) => {
           key={field.name}
           enablePasting
           {...field}
-          data-testid='localisedfield-0jtf' />
+          data-testid={`localisedfield-0jtf-${field.name}`} />
       ))}
     </>
   ) : null;
