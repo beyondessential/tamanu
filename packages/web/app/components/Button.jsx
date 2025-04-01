@@ -35,7 +35,7 @@ export const ButtonBase = props => {
 const StyledButton = styled(({ ...props }) => {
   delete props.functionallyDisabled;
   delete props.confirmStyle;
-  return <MuiButton {...props} data-testid='muibutton-0765' />;
+  return <MuiButton {...props} />;
 })`
   font-weight: 500;
   font-size: 14px;
@@ -102,8 +102,7 @@ const BaseButton = ({
       disabled={disabled || !hasPermission}
       type={type}
       functionallyDisabled={functionallyDisabled}
-      {...(buttonComponent && { component: buttonComponent })}
-      data-testid='styledbutton-h5fq'>
+      {...(buttonComponent && { component: buttonComponent })}>
       {displayLock && <Lock data-testid='lock-zz2l' />}
       {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} data-testid='styledcircularprogress-4end' />}
       {!showLoadingIndicator && children}
@@ -117,7 +116,7 @@ export const Button = ({ isSubmitting = false, ...props }) => (
     functionallyDisabled={isSubmitting}
     showLoadingIndicator={isSubmitting}
     {...props}
-    data-testid='basebutton-3f3c' />
+ />
 );
 
 BaseButton.propTypes = {
@@ -220,8 +219,7 @@ export const TextButton = ({ children, ...props }) => (
   <StyledTextButton
     variant="text"
     color="primary"
-    {...props}
-    data-testid='styledtextbutton-15yi'>
+    {...props}>
     {children}
   </StyledTextButton>
 );
