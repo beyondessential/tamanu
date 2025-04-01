@@ -189,7 +189,7 @@ const InactiveSortIcon = styled(ActiveSortIcon)`
 `;
 
 const HeaderContainer = React.memo(({ children, numeric }) => (
-  <StyledTableCell align={numeric ? 'right' : 'left'} data-testid='styledtablecell-wi24'>{children}</StyledTableCell>
+  <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
 const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
@@ -199,8 +199,7 @@ const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMo
     $rowStyle={rowStyle}
     $lazyLoading={lazyLoading}
     onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-    data-testid='styledtablerow-qtli'>
+    onMouseLeave={onMouseLeave}>
     {children}
   </StyledTableRow>
 );
@@ -219,7 +218,7 @@ const RowTooltip = ({ title, children }) => (
         },
       },
     }}
-    data-testid='themedtooltip-j6a6'>
+  >
     {children}
   </ThemedTooltip>
 );
@@ -379,7 +378,7 @@ class TableComponent extends React.Component {
         : title;
 
       const titleCellComponent = TitleCellComponent ? (
-        <TitleCellComponent value={displayTitle} data-testid='titlecellcomponent-si8a' />
+        <TitleCellComponent value={displayTitle} data-testid={`titlecellcomponent-si8a-${key}`} />
       ) : null;
 
       const defaultHeaderElement = sortable ? (
@@ -388,17 +387,17 @@ class TableComponent extends React.Component {
           direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
-          data-testid='tablesortlabel-0qxx'>
+          data-testid={`tablesortlabel-0qxx-${key}`}>
           {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle ?? key}</span>
+        <span data-testid={`tablelabel-0eff-${key}`}>{displayTitle ?? key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
 
       return tooltip ? (
-        <ThemedTooltip title={tooltip} data-testid='themedtooltip-fnr7'>{headerElement}</ThemedTooltip>
+        <ThemedTooltip title={tooltip} data-testid={`themedtooltip-fnr7-${key}`}>{headerElement}</ThemedTooltip>
       ) : (
         headerElement
       );
@@ -469,7 +468,7 @@ class TableComponent extends React.Component {
                 onMouseEnter={onMouseEnterRow}
                 onMouseLeave={onMouseLeaveRow}
                 getRowTooltip={getRowTooltip}
-                data-testid={`row-1kia-${rowIndex}`} />
+                data-testid='row-1kia' />
             );
           })}
         {isLoadingMore && (
@@ -573,7 +572,7 @@ class TableComponent extends React.Component {
               $isBodyScrollable={isBodyScrollable}
               $headStyle={headStyle}
               data-testid='styledtablehead-ays3'>
-              <StyledTableRow $lazyLoading={lazyLoading} data-testid='styledtablerow-g107'>{this.renderHeaders()}</StyledTableRow>
+              <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
           <StyledTableBody

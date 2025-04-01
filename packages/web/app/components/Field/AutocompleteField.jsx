@@ -408,7 +408,7 @@ export class AutocompleteInput extends Component {
           value={value}
           disabled={disabled}
           {...other}
-          data-testid='styledtextfield-7a3b' />
+       />
       </OuterLabelFieldWrapper>
     );
   };

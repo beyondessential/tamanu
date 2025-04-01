@@ -151,8 +151,8 @@ export const Paginator = React.memo(
             MenuProps={{ classes: { paper: classes.selectMenu } }}
             disabled={!isDataInTable}
             data-testid='styledselectfield-lunn'>
-            {rowsPerPageOptions.map((option) => (
-              <StyledMenuItem key={option} value={option} data-testid={`styledmenuitem-fkrw-${option}`}>
+            {rowsPerPageOptions.map(option => (
+              <StyledMenuItem key={option} value={option} data-testid={`styledmenuitem-fkrw-${option.value}`}>
                 {option}
               </StyledMenuItem>
             ))}
@@ -170,7 +170,7 @@ export const Paginator = React.memo(
                     {...item}
                     disabled={selectedPageNumber === 1 || !isDataInTable}
                     component={PreviousButton}
-                    data-testid='paginationitem-hcui' />
+                    data-testid={`paginationitem-hcui`} />
                 );
               }
               if (item.type === 'next') {
@@ -179,7 +179,7 @@ export const Paginator = React.memo(
                     {...item}
                     disabled={selectedPageNumber === numberOfPages || !isDataInTable}
                     component={NextButton}
-                    data-testid='paginationitem-d791' />
+                    data-testid={`paginationitem-d791`} />
                 );
               }
 
@@ -212,7 +212,7 @@ export const Paginator = React.memo(
                   <PaginationItem
                     {...item}
                     selected={item.page === selectedPageNumber}
-                    data-testid='paginationitem-c5vg' />
+                    data-testid={`paginationitem-c5vg`} />
                 );
               }
               // If the item falls out of the defined range and is not the first or last page, show an ellipses
