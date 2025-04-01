@@ -65,24 +65,25 @@ const FooterContainer = styled.div`
   }
 `;
 
-export const StatisticsCard = React.memo(({ value, percentageIncrease, title, color, Footer }) => (
-  <Container data-testid='container-qbh0'>
-    <Header background={color} data-testid='header-2rlj'>{title}</Header>
-    <Body data-testid='body-loon'>
-      <Content data-testid='content-3lke'>
-        <ValueText color={color} data-testid='valuetext-0dus'>{value}</ValueText>
-        <PercentageText percentage={percentageIncrease} data-testid='percentagetext-9baf'>
-          {percentageIncrease > 0 ? <ArrowUpward data-testid='arrowupward-rou4' /> : <ArrowDownward data-testid='arrowdownward-qnez' />}
+export const StatisticsCard = React.memo(({ value, level, percentageIncrease, title, color, Footer }) => (
+  <Container data-testid={`container-qbh0-${level}`}>
+    <Header background={color} data-testid={`header-2rlj-${level}`}>{title}</Header>
+    <Body data-testid={`body-loon-${level}`}>
+      <Content data-testid={`content-3lke-${level}`}>
+        <ValueText color={color} data-testid={`valuetext-0dus-${level}`}>{value}</ValueText>
+        <PercentageText percentage={percentageIncrease} data-testid={`percentagetext-9baf-${level}`}>
+          {percentageIncrease > 0 ? <ArrowUpward data-testid={`arrowupward-rou4-${level}`} /> : <ArrowDownward data-testid={`arrowdownward-qnez-${level}`} />}
           <span>{Math.abs(percentageIncrease)}%</span>
         </PercentageText>
       </Content>
-      {Footer && <FooterContainer data-testid='footercontainer-pozz'>{Footer}</FooterContainer>}
+      {Footer && <FooterContainer data-testid={`footercontainer-pozz-${level}`}>{Footer}</FooterContainer>}
     </Body>
   </Container>
 ));
 
 StatisticsCard.propTypes = {
   title: PropTypes.node.isRequired,
+  level: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
   Footer: PropTypes.node,
