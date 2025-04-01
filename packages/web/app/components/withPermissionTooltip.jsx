@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 export const withPermissionTooltip = Component => {
   const WrappedComponent = ({ hasPermission, ...props }) => {
     if (hasPermission) {
-      return <Component {...props} hasPermission={hasPermission} data-testid='component-ru2y' />;
+      return <Component {...props} hasPermission={hasPermission} />;
     }
 
     return (
@@ -17,7 +17,7 @@ export const withPermissionTooltip = Component => {
           save us from having to modify every component passed to this HOC.
         */}
         <div>
-          <Component {...props} hasPermission={hasPermission} data-testid='component-8kea' />
+          <Component {...props} hasPermission={hasPermission} />
         </div>
       </Tooltip>
     );

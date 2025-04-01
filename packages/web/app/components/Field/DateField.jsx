@@ -192,7 +192,7 @@ export const DateInput = ({
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
-      data-testid='customicontextinput-g2ny' />
+     />
   );
 
   const remountingDateField = (
@@ -203,8 +203,7 @@ export const DateInput = ({
         inputProps,
       }}
       style={{ color: Colors.softText }}
-      {...props}
-      data-testid='customicontextinput-yaeu' />
+      {...props} />
   );
 
   const activeDateField = isRemounting ? remountingDateField : normalDateField;
@@ -224,7 +223,7 @@ export const DateInput = ({
   return arrows ? <ContainerWithArrows data-testid='containerwitharrows-nuzt'>{activeDateField}</ContainerWithArrows> : activeDateField;
 };
 
-export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} data-testid='dateinput-ds9f' />;
+export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
 export const DateTimeInput = props => (
   <DateInput
@@ -232,7 +231,7 @@ export const DateTimeInput = props => (
     format="yyyy-MM-dd'T'HH:mm"
     max="9999-12-31T00:00"
     {...props}
-    data-testid='dateinput-vvte' />
+/>
 );
 
 export const DateField = ({ field, ...props }) => (
@@ -240,8 +239,7 @@ export const DateField = ({ field, ...props }) => (
     name={field.name}
     value={field.value}
     onChange={field.onChange}
-    {...props}
-    data-testid='dateinput-ycu9' />
+    {...props}/>
 );
 
 export const TimeField = ({ field, ...props }) => (
@@ -249,8 +247,7 @@ export const TimeField = ({ field, ...props }) => (
     name={field.name}
     value={field.value}
     onChange={field.onChange}
-    {...props}
-    data-testid='timeinput-z4o8' />
+    {...props}/>
 );
 
 export const DateTimeField = ({ field, ...props }) => (
@@ -259,7 +256,7 @@ export const DateTimeField = ({ field, ...props }) => (
     value={field.value}
     onChange={field.onChange}
     {...props}
-    data-testid='datetimeinput-r974' />
+ />
 );
 
 DateInput.propTypes = {

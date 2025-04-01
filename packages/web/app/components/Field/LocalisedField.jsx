@@ -45,7 +45,7 @@ export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props 
       name={name}
       required={required}
       {...props}
-      data-testid='field-b6x0' />
+   />
   );
 };
 
