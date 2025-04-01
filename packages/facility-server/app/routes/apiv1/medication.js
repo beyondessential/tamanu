@@ -9,7 +9,7 @@ import {
   simpleGet,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { add, isAfter } from 'date-fns';
 
 export const medication = express.Router();
@@ -37,6 +37,11 @@ medication.post(
       data.endDate = add(new Date(data.startDate), {
         [data.durationUnit]: data.durationValue,
       });
+    }
+
+    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+      data.durationValue = null;
+      data.durationUnit = null;
     }
 
     const prescription = await Prescription.create(data);

@@ -12,7 +12,7 @@ export class Prescription extends Model {
   declare doseAmount: number;
   declare units: string;
   declare frequency: string;
-  declare idealTimes: string[];
+  declare idealTimes?: string[];
   declare route: string;
   declare date: string;
   declare startDate: string;

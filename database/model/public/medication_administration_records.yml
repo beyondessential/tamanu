@@ -9,7 +9,7 @@ sources:
         tags: []
         columns:
           - name: id
-            data_type: uuid
+            data_type: character varying(255)
             description: "{{ doc('generic__id') }} in medication_administration_records."
             data_tests:
               - unique

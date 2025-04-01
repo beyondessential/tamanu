@@ -195,7 +195,6 @@ encounterRelations.get(
           where: { id: params.id },
           attributes: ['id'],
         },
-        'medicationAdministrationRecords',
         {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
@@ -244,7 +243,7 @@ encounterRelations.get(
           },
           {
             [Op.or]: [
-              { endDate: { [Op.is]: null } }, 
+              { endDate: { [Op.is]: null } },
               { endDate: { [Op.gte]: startOfMarDate } }
             ]
           }
