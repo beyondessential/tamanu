@@ -23,7 +23,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
 import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
-import { usePausePrescriptionQuery } from '../../api/queries/usePrescriptionQuery';
+import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 
