@@ -32,12 +32,12 @@ export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={
       props.disabled ? (
-        <StyledIcon className="fas fa-square" data-testid='styledicon-9a3u' />
+        <StyledIcon className="fas fa-square" />
       ) : (
-        <StyledIcon className="far fa-square" data-testid='styledicon-b7uq' />
+        <StyledIcon className="far fa-square" />
       )
     }
-    checkedIcon={<StyledIcon className="far fa-check-square" data-testid='styledicon-toem' />}
+    checkedIcon={<StyledIcon className="far fa-check-square" />}
     indeterminateIcon={<StyledIcon className="far fa-minus-square" data-testid='styledicon-5cen'></StyledIcon>}
     {...props}
     checked={Boolean(value)}
@@ -57,8 +57,7 @@ export const CheckInput = React.memo(
     <FormControl
       style={style}
       className={className}
-      error={error}
-      data-testid='formcontrol-156l'>
+      error={error}>
       <FormControlLabel
         control={<ControlCheck value={value} {...props} data-testid='controlcheck-ppji' />}
         style={style}
