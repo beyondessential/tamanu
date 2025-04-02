@@ -161,7 +161,7 @@ export const MarStatus = ({
   marInfo,
   medication,
 }) => {
-  const { administeredAt, status, reasonNotGiven, id: marId } = marInfo || {};
+  const { administeredAt, status, reasonNotGiven, doses } = marInfo || {};
   const {
     doseAmount,
     isPrn,
@@ -323,6 +323,21 @@ export const MarStatus = ({
               <div>{reasonNotGiven?.name}</div>
             </>
           );
+        case ADMINISTRATION_STATUS.GIVEN: {
+          const firstDose = doses?.[0];
+          return (
+            <Box maxWidth={73}>
+              <TranslatedText
+                stringId="medication.mar.givenAt.tooltip"
+                fallback=":doses given at :time"
+                replacements={{
+                  doses: `${firstDose?.doseAmount} ${units}`,
+                  time: format(new Date(firstDose?.givenTime), 'hh:mma').toLowerCase(),
+                }}
+              />
+            </Box>
+          );
+        }
         default:
           if (isDisabled) {
             return (
@@ -399,11 +414,10 @@ export const MarStatus = ({
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={handleClose}
-        marId={marId}
-        administeredAt={
-          administeredAt ? administeredAt : getDateFromTimeString(timeSlot.startTime, selectedDate)
-        }
-        prescriptionId={prescriptionId}
+        timeSlot={timeSlot}
+        selectedDate={selectedDate}
+        marInfo={marInfo}
+        medication={medication}
       />
       <WarningModal
         modal={showWarningModal}

@@ -128,6 +128,10 @@ export class MedicationAdministrationRecord extends Model {
       foreignKey: 'reasonNotGivenId',
       as: 'reasonNotGiven',
     });
+    this.hasMany(models.MedicationAdministrationRecordDose, {
+      foreignKey: 'medicationAdministrationRecordId',
+      as: 'doses',
+    });
   }
 
   static buildSyncFilter() {
