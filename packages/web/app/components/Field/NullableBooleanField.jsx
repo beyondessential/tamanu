@@ -94,7 +94,7 @@ export const NullableBooleanInput = React.memo(
         label={
           <div>
             {label}
-            {required && <RequiredLabel data-testid='requiredlabel-kbim'>*</RequiredLabel>}
+            {required && <RequiredLabel>*</RequiredLabel>}
           </div>
         }
         data-testid='controllabel-q0hy' />
