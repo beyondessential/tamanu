@@ -2,15 +2,6 @@
 Table of conditions related to patients in a program registration.
 {% enddocs %}
 
-{% docs patient_program_registration_conditions__patient_id %}
-Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
-{% enddocs %}
-
-{% docs patient_program_registration_conditions__program_registry_id %}
-Reference to the [Program Registry](#!/source/source.tamanu.tamanu.program_registries)
-of the condition.
-{% enddocs %}
-
 {% docs patient_program_registration_conditions__program_registry_condition_id %}
 Reference to the [Program Registry Condition](#!/source/source.tamanu.tamanu.program_registry_conditions).
 {% enddocs %}
@@ -33,4 +24,8 @@ Optional field for recording the reason for changing the condition.
 
 {% docs patient_program_registration_conditions__condition %}
 
+{% enddocs %}
+
+{% docs patient_program_registration_conditions__patient_program_registration_id %}
+TODO
 {% enddocs %}

@@ -107,7 +107,7 @@ export const PatientProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
           <Grid>
             <ProgramRegistryStatusHistory />
-            <ConditionSection />
+            <ConditionSection registrationId={data?.id} />
           </Grid>
         </MainSection>
         <Row>

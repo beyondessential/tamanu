@@ -26,7 +26,6 @@ export const simpleUpdateModels = [
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
   'PatientProgramRegistration',
-  'PatientProgramRegistrationCondition',
   'PatientContact',
   'IPSRequest',
   'Notification',
@@ -82,7 +81,7 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = field => field.references?.model === 'patients';
+const fieldReferencesPatient = (field) => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
@@ -276,9 +275,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
     patientId: keepPatientId,
     facilityId,
   }));

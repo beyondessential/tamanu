@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ConfirmCancelRow,
   DateDisplay,
@@ -11,9 +9,8 @@ import {
   TranslatedText,
 } from '../../components';
 import { Colors } from '../../constants';
-import { useApi } from '../../api';
 import { TranslatedReferenceData } from '../../components/Translation';
-import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -65,24 +62,15 @@ const Value = styled.div`
 `;
 
 export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
+  const { patientId, id } = patientProgramRegistration;
+  const { mutateAsync } = useUpdateProgramRegistryMutation(patientId, id);
 
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
-    const { patientId, ...rest } = patientProgramRegistration;
-    delete rest.id;
-    delete rest.date;
-
-    await api.post(`patient/${patientId}/programRegistration`, {
-      ...rest,
+    await mutateAsync({
       registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-      date: getCurrentDateTimeString(),
     });
-
-    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-    queryClient.invalidateQueries(['patient', patientId]);
     onClose();
   };
 

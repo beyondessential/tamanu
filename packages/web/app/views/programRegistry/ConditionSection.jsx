@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
@@ -93,13 +92,11 @@ const ConditionComponent = ({ condition, onClick }) => {
   );
 };
 
-export const ConditionSection = () => {
+export const ConditionSection = ({ registrationId }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  const { patientId, programRegistryId } = useParams();
   const [selectedConditionId, setSelectedConditionId] = useState(null);
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
-    patientId,
-    programRegistryId,
+    registrationId,
   );
 
   if (isLoading) {
