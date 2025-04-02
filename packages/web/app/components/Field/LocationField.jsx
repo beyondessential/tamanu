@@ -140,8 +140,7 @@ export const LocationInput = React.memo(
           className={className}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
-          size={size}
-          data-testid='locationautocompleteinput-6e7h' />
+          size={size} />
       </>
     );
   },

@@ -252,8 +252,7 @@ export const MultiAutocompleteInput = ({
           onInputChange={handleInputChange}
           fetchCurrentOption={suggester.fetchCurrentOption}
           isDisabled={disabled}
-          {...props}
-          data-testid='styledselect-bfc5' />
+          {...props} />
         {helperText && <FormHelperText data-testid='formhelpertext-5maz'>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
@@ -265,6 +264,5 @@ export const MultiAutocompleteField = ({ field, ...props }) => (
     value={field.value}
     name={field.name}
     onChange={field.onChange}
-    {...props}
-    data-testid='multiautocompleteinput-3hj6' />
+    {...props} />
 );
