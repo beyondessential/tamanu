@@ -13,6 +13,8 @@ import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
 import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
+import { usePausesPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
+import { useEncounter } from '../../contexts/Encounter';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -28,7 +30,7 @@ const StatusContainer = styled.div`
   margin-bottom: -1px;
   margin-right: -1px;
   ${p =>
-    (p.isDiscontinued || p.isEnd) &&
+    (p.isDiscontinued || p.isEnd || p.isPaused) &&
     `background-image: linear-gradient(${Colors.outline} 1px, transparent 1px);
     background-size: 100% 5px;
     background-position: 0 2.5px;`}
@@ -83,6 +85,15 @@ const SelectedOverlay = styled.div`
   border: 1px solid ${Colors.primary};
 `;
 
+const DiscontinuedDivider = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background-color: ${Colors.midText};
+`;
+
 const getIsMissed = (timeSlot, selectedDate) => {
   const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return new Date() > endDate;
@@ -104,6 +115,41 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
   return new Date(endDate) < currentEndDate;
 };
 
+const getIsPaused = (pauseRecords, administeredAt, timeSlot, selectedDate) => {
+  if (!pauseRecords?.length) return false;
+
+  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+
+  return pauseRecords.some(pauseRecord => {
+    const pauseStartDate = new Date(pauseRecord.pauseStartDate);
+    const pauseEndDate = new Date(pauseRecord.pauseEndDate);
+
+    if (administeredAt) {
+      const administeredAtDate = new Date(administeredAt);
+      return pauseStartDate <= administeredAtDate && pauseEndDate >= administeredAtDate;
+    }
+
+    return pauseStartDate <= endDate && pauseEndDate >= startDate;
+  });
+};
+
+const getIsPausedThenDiscontinued = (
+  pauseRecords,
+  discontinuedDate,
+  administeredAt,
+  timeSlot,
+  selectedDate,
+) => {
+  const isPaused = getIsPaused(pauseRecords, administeredAt, timeSlot, selectedDate);
+  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
+  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+
+  return (
+    isPaused && isDiscontinued && new Date(discontinuedDate).getTime() - startDate.getTime() > 0
+  );
+};
+
 export const MarStatus = ({
   isAlert = false,
   isEdited = false,
@@ -113,7 +159,13 @@ export const MarStatus = ({
   medication,
 }) => {
   const { administeredAt, status } = marInfo || {};
-  const { doseAmount, isPrn, units, discontinuedDate, endDate } = medication || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId } =
+    medication || {};
+
+  const { encounter } = useEncounter();
+  const { data: pauseRecords } = usePausesPrescriptionQuery(prescriptionId, encounter?.id, {
+    marDate: selectedDate,
+  });
 
   const [isSelected, setIsSelected] = useState(false);
   const containerRef = useRef(null);
@@ -121,6 +173,14 @@ export const MarStatus = ({
   const isFuture = getIsFuture(!!administeredAt, timeSlot, selectedDate);
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
+  const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued(
+    pauseRecords?.data,
+    discontinuedDate,
+    administeredAt,
+    timeSlot,
+    selectedDate,
+  );
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -202,26 +262,38 @@ export const MarStatus = ({
         </Box>
       );
     }
-    if (!administeredAt) return;
-    if (isFuture) {
-      return (
-        <Box maxWidth={73}>
-          <TranslatedText
-            stringId="medication.mar.future.tooltip"
-            fallback="Cannot record future dose. Due at :dueAt."
-            replacements={{
-              dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
-            }}
-          />
-        </Box>
-      );
-    }
-    if (isMissed) {
+    if (administeredAt) {
+      if (isFuture) {
+        return (
+          <Box maxWidth={73}>
+            <TranslatedText
+              stringId="medication.mar.future.tooltip"
+              fallback="Cannot record future dose. Due at :dueAt."
+              replacements={{
+                dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
+              }}
+            />
+          </Box>
+        );
+      }
+      if (isMissed) {
+        return (
+          <Box maxWidth={69}>
+            <TranslatedText
+              stringId="medication.mar.missed.tooltip"
+              fallback="Missed. Due at :dueAt"
+              replacements={{
+                dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+              }}
+            />
+          </Box>
+        );
+      }
       return (
         <Box maxWidth={69}>
           <TranslatedText
-            stringId="medication.mar.missed.tooltip"
-            fallback="Missed. Due at :dueAt"
+            stringId="medication.mar.dueAt.tooltip"
+            fallback="Due at :dueAt"
             replacements={{
               dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
             }}
@@ -229,22 +301,22 @@ export const MarStatus = ({
         </Box>
       );
     }
-    return (
-      <Box maxWidth={69}>
-        <TranslatedText
-          stringId="medication.mar.dueAt.tooltip"
-          fallback="Due at :dueAt"
-          replacements={{
-            dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
-          }}
-        />
-      </Box>
-    );
+    if (isPaused) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationPaused.tooltip"
+            fallback="Medication paused"
+          />
+        </Box>
+      );
+    }
+    return null;
   };
 
   return (
     <ConditionalTooltip
-      visible={isDiscontinued || isEnd || administeredAt}
+      visible={getTooltipText()}
       title={<Box fontWeight={400}>{getTooltipText()}</Box>}
     >
       <StatusContainer
@@ -253,7 +325,9 @@ export const MarStatus = ({
         isFuture={isFuture}
         isDiscontinued={isDiscontinued}
         isEnd={isEnd}
+        isPaused={isPaused}
       >
+        {isPausedThenDiscontinued && <DiscontinuedDivider />}
         {administeredAt && !isDiscontinued && renderStatus()}
         <SelectedOverlay isSelected={isSelected} isFuture={isFuture} />
       </StatusContainer>
