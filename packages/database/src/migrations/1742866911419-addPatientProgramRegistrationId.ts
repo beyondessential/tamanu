@@ -136,6 +136,8 @@ export async function down(query: QueryInterface): Promise<void> {
       table: 'patients',
       field: 'id',
     },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
   await query.addConstraint('patient_program_registration_conditions', {
     type: 'foreign key',
@@ -145,6 +147,8 @@ export async function down(query: QueryInterface): Promise<void> {
       table: 'program_registries',
       field: 'id',
     },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
 
   // Copy data back from patient_program_registrations
