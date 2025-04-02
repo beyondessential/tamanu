@@ -1,0 +1,12 @@
+{
+    "facilityLogin": {
+        "validUser": {
+            "username": "adminict@tamanu.io",
+            "password": "admin"
+        },
+        "invalidUser": {
+            "username": "admin@tamanu.io",
+            "password": "1234"
+        }
+    }
+} 
