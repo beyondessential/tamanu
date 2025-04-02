@@ -1,18 +1,18 @@
-import { Box } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { format, isSameDay } from 'date-fns';
-import { getTimeSlotFromDate, getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import {
+  getDateFromTimeString,
+  findAdministrationTimeSlotFromIdealTime,
+} from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
 
 import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../../components';
+import { TranslatedText } from '../..';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
-import { MarStatus } from '../../../components/Medication/MarStatus';
-import { getDose, getTranslatedFrequency } from '../../../utils/medications';
-import { useTranslation } from '../../../contexts/Translation';
+import { MarTableRow } from './MarTableRow';
 
 const MEDICATION_CELL_WIDTH = 48;
 
@@ -107,14 +107,6 @@ const EmptyMessage = styled.div`
   grid-column: 1 / -1;
 `;
 
-const MedicationCellContainer = styled.div`
-  padding: 8px 12px;
-  font-size: 14px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  ${props => props.discontinued && `text-decoration: line-through;`}
-`;
-
 const MedicationGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(50px, 1fr) repeat(12, ${MEDICATION_CELL_WIDTH}px);
@@ -131,66 +123,8 @@ const CurrentTimeOverlay = styled.div`
   pointer-events: none;
 `;
 
-const mapRecordsToWindows = medicationAdministrationRecords => {
-  // Create an array of 12 nulls (one for each 2-hour window)
-  const result = Array(12).fill(null);
-
-  // Process each medication administration record
-  medicationAdministrationRecords.forEach(record => {
-    const hour = new Date(record.administeredAt).getHours();
-    // Calculate which window this time belongs to (0-11)
-    const windowIndex = Math.floor(hour / 2);
-    result[windowIndex] = record;
-  });
-
-  return result;
-};
-
 const formatTime = time => {
   return format(time, 'ha').toLowerCase();
-};
-
-const MedicationCell = ({ medication, selectedDate }) => {
-  const {
-    medication: medicationRef,
-    frequency,
-    route,
-    notes,
-    discontinued,
-    medicationAdministrationRecords,
-  } = medication;
-  const { getTranslation, getEnumTranslation } = useTranslation();
-
-  return (
-    <>
-      <MedicationCellContainer discontinued={discontinued}>
-        <Box fontWeight={500}>
-          <TranslatedReferenceData
-            fallback={medicationRef.name}
-            value={medicationRef.id}
-            category={medicationRef.type}
-          />
-        </Box>
-        <Box>
-          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(frequency, getTranslation)},{' '}
-          {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
-        </Box>
-        <Box color={Colors.midText}>{notes}</Box>
-      </MedicationCellContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
-        return (
-          <MarStatus
-            key={record?.id || index}
-            selectedDate={selectedDate}
-            timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
-            medication={medication}
-            marInfo={record}
-          />
-        );
-      })}
-    </>
-  );
 };
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
@@ -212,10 +146,10 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
 
-  const medications = (
-    useEncounterMedicationQuery(encounter?.id, { marDate: toDateString(selectedDate) }).data
-      ?.data || []
-  ).sort((a, b) => {
+  const { data: medicationsData } = useEncounterMedicationQuery(encounter?.id, {
+    marDate: toDateString(selectedDate),
+  });
+  const medications = (medicationsData?.data || []).sort((a, b) => {
     if (a.discontinued === b.discontinued) {
       return 0;
     }
@@ -228,7 +162,11 @@ export const MarTable = ({ selectedDate }) => {
     <Container>
       {isSameDay(selectedDate, new Date()) && (
         <CurrentTimeOverlay
-          $index={MEDICATION_ADMINISTRATION_TIME_SLOTS.indexOf(getTimeSlotFromDate())}
+          $index={
+            findAdministrationTimeSlotFromIdealTime(
+              `${format(new Date(), 'HH')}:${format(new Date(), 'mm')}`,
+            ).index
+          }
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
         />
       )}
@@ -258,7 +196,7 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {scheduledMedications.length ? (
               scheduledMedications.map(medication => (
-                <MedicationCell
+                <MarTableRow
                   key={medication?.id}
                   medication={medication}
                   selectedDate={selectedDate}
@@ -285,7 +223,7 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {prnMedications.length ? (
               prnMedications.map(medication => (
-                <MedicationCell
+                <MarTableRow
                   key={medication?.id}
                   medication={medication}
                   selectedDate={selectedDate}

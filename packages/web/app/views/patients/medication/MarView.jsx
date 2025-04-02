@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { MarHeader } from './MarHeader';
-import { MarTable } from './MarTable';
+import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
+import { MarTable } from '../../../components/Medication/Mar/MarTable';
 import { Colors } from '../../../constants';
 
 const MarContainer = styled.div`

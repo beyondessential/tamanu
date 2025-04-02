@@ -8,9 +8,13 @@ import {
   permissionCheckingRouter,
   simpleGet,
 } from '@tamanu/shared/utils/crudHelpers';
-import { InvalidOperationError, NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
-import { add, isAfter } from 'date-fns';
+import { InvalidOperationError, ResourceConflictError, NotFoundError } from '@tamanu/shared/errors';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+} from '@tamanu/constants';
+import { add, format, isAfter } from 'date-fns';
+import { Op } from 'sequelize';
 
 export const medication = express.Router();
 
@@ -21,7 +25,7 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { encounterId, ...data } = req.body;
-    const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
+    const { Prescription, EncounterPrescription } = models;
     req.checkPermission('create', 'Prescription');
 
     const existingPrescription = await Prescription.findByPk(req.body.id, {
@@ -33,15 +37,19 @@ medication.post(
       );
     }
 
-    if (!data.isOngoing && data.durationValue && data.durationUnit) {
+    if (data.durationValue && data.durationUnit) {
       data.endDate = add(new Date(data.startDate), {
         [data.durationUnit]: data.durationValue,
       });
     }
 
+    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+      data.durationValue = null;
+      data.durationUnit = null;
+    }
+
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
     res.send(prescription.forResponse());
   }),
 );
@@ -318,6 +326,75 @@ medication.get(
 
     // Return active pause record
     res.send({ pauseRecord: pauseData.forResponse() });
+  }),
+);
+
+const getPausesQuerySchema = z
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+    marDate: z
+      .string()
+      .optional()
+      .refine((val) => !val || !isNaN(new Date(val).getTime()), {
+        message: 'marDate must be a valid date string',
+      }),
+  })
+  .strip();
+medication.get(
+  '/:id/pauses',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Prescription, EncounterPrescription, EncounterPausePrescription } = models;
+
+    // Validate query params against the schema
+    const { encounterId, marDate } = await getPausesQuerySchema.parseAsync(req.query);
+
+    req.checkPermission('read', 'Prescription');
+
+    // Find the prescription
+    const prescription = await Prescription.findByPk(params.id);
+    if (!prescription) {
+      throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    // Find the encounter prescription link
+    const encounterPrescription = await EncounterPrescription.findOne({
+      where: {
+        prescriptionId: params.id,
+        encounterId,
+      },
+    });
+
+    if (!encounterPrescription) {
+      throw new InvalidOperationError(`Prescription is not associated with the provided encounter`);
+    }
+
+    // Build where clause
+    const whereClause = {
+      encounterPrescriptionId: encounterPrescription.id,
+    };
+
+    // If marDate is provided, filter for pauses that are active on that date
+    if (marDate) {
+      const startOfMarDate = format(new Date(marDate), 'yyyy-MM-dd 00:00:00');
+      const endOfMarDate = format(new Date(marDate), 'yyyy-MM-dd 23:59:59');
+      whereClause[Op.and] = [
+        { pauseStartDate: { [Op.lte]: endOfMarDate } },
+        { pauseEndDate: { [Op.gte]: startOfMarDate } },
+      ];
+    }
+
+    // Get all pause records for this encounter prescription with filters
+    const pauseRecords = await EncounterPausePrescription.findAll({
+      where: whereClause,
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Return pause records
+    res.send({
+      count: pauseRecords.length,
+      data: pauseRecords.map((record) => record.forResponse()),
+    });
   }),
 );
 
