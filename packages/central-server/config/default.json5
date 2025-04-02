@@ -271,8 +271,8 @@
       "schedule": "* * * * *",
     },
     "medicationDiscontinuer": {
-      // every day at 1 AM
-      "schedule": "0 1 * * *",
+      // every hour
+      "schedule": "0 * * * *",
     },
   },
   "integrations": {
