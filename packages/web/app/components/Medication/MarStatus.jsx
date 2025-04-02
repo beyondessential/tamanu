@@ -13,7 +13,7 @@ import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
 import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
-import { usePauseHistoryPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
+import { usePausesPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
 
 const StatusContainer = styled.div`
@@ -147,7 +147,7 @@ export const MarStatus = ({
     medication || {};
 
   const { encounter } = useEncounter();
-  const { data: pauseRecords } = usePauseHistoryPrescriptionQuery(prescriptionId, encounter?.id, {
+  const { data: pauseRecords } = usePausesPrescriptionQuery(prescriptionId, encounter?.id, {
     marDate: selectedDate,
   });
 
@@ -159,7 +159,6 @@ export const MarStatus = ({
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
   const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
   const isPausedAndDiscontinued = isPaused && isDiscontinued;
-  console.log('isPausedAndDiscontinued', isPausedAndDiscontinued);
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
