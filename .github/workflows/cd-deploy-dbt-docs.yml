@@ -7,6 +7,14 @@ on:
       - main
       - release/*
 
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -27,8 +35,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 'latest'
-          cache: 'pip'
+          python-version: '3.11'
 
       - name: Install Python dependencies
         run: |
@@ -47,8 +54,31 @@ jobs:
 
       - run: npm ci
 
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+
+      - name: Build
+        run: |
+          npm run build-shared
+          npm run --workspace @tamanu/central-server build
+
+      - name: Configure Tamanu
+        run: |
+          echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+
+      - name: Run Migrations
+        run: |
+          npm run --workspace @tamanu/central-server start migrate up
+
       - name: Generate DBT docs
-        run: npm run dbt-generate-docs
+        run: |
+          pip3 install dbt-core dbt-postgres
+          npm run dbt-generate-docs
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
