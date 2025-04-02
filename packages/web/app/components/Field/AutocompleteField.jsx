@@ -539,6 +539,5 @@ export const AutocompleteField = ({ field, ...props }) => (
     name={field.name}
     value={field.value || ''}
     onChange={field.onChange}
-    {...props}
-    data-testid='autocompleteinput-fezv' />
+    {...props} />
 );

@@ -52,7 +52,7 @@ export const ExpandedMultiSelectField = ({
   );
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-9352'>
+    <OuterLabelFieldWrapper label={label} {...props}>
       <ScrollingContainer data-testid='scrollingcontainer-3esm'>
         <MultiSelectItem key="select_all" data-testid='multiselectitem-2l13'>
           <CheckInput

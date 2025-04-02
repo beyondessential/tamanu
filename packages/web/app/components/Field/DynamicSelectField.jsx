@@ -22,13 +22,11 @@ export const DynamicSelectField = ({ field, options, suggester, ...props }) => {
       suggester={suggester}
       options={selectOptions}
       {...props}
-      {...field}
-      data-testid='autocompleteinput-rgoa' />
+      {...field} />
   ) : (
     <SelectInput
       options={selectOptions}
       {...props}
-      {...field}
-      data-testid='selectinput-0zt3' />
+      {...field}/>
   );
 };
