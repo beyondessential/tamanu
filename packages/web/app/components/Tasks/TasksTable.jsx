@@ -310,7 +310,7 @@ const getFrequency = (task, isEncounterDischarged) => {
 
       switch (durationUnit) {
         case TASK_DURATION_UNIT.OCCURRENCES:
-          endDate = addMilliseconds(endDate, frequency * durationValue);
+          endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
           break;
         default: {
           const duration = ms(`${durationValue} ${durationUnit}`);

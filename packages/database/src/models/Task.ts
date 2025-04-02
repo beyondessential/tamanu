@@ -299,7 +299,10 @@ export class Task extends Model {
       if (durationValue && durationUnit) {
         switch (durationUnit) {
           case TASK_DURATION_UNIT.OCCURRENCES:
-            endDate = addMilliseconds(new Date(task.dueTime), frequency * durationValue).getTime();
+            endDate = addMilliseconds(
+              new Date(task.dueTime),
+              frequency * (durationValue - 1),
+            ).getTime();
             break;
           default: {
             const duration = ms(`${durationValue} ${durationUnit}`);
