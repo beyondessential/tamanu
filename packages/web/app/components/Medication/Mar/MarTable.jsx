@@ -146,10 +146,10 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
 
-  const medications = (
-    useEncounterMedicationQuery(encounter?.id, { marDate: toDateString(selectedDate) }).data
-      ?.data || []
-  ).sort((a, b) => {
+  const { data: medicationsData } = useEncounterMedicationQuery(encounter?.id, {
+    marDate: toDateString(selectedDate),
+  });
+  const medications = (medicationsData?.data || []).sort((a, b) => {
     if (a.discontinued === b.discontinued) {
       return 0;
     }
@@ -196,7 +196,11 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {scheduledMedications.length ? (
               scheduledMedications.map(medication => (
-                <MarTableRow key={medication?.id} medication={medication} selectedDate={selectedDate} />
+                <MarTableRow
+                  key={medication?.id}
+                  medication={medication}
+                  selectedDate={selectedDate}
+                />
               ))
             ) : (
               <EmptyMessage>
@@ -219,7 +223,11 @@ export const MarTable = ({ selectedDate }) => {
           <MedicationGrid>
             {prnMedications.length ? (
               prnMedications.map(medication => (
-                <MarTableRow key={medication?.id} medication={medication} selectedDate={selectedDate} />
+                <MarTableRow
+                  key={medication?.id}
+                  medication={medication}
+                  selectedDate={selectedDate}
+                />
               ))
             ) : (
               <EmptyMessage>

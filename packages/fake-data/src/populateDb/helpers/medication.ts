@@ -25,26 +25,30 @@ export const createMedication = async ({
       medicationId: referenceDataId,
     }),
   );
-  await EncounterPrescription.create(
+  
+  const encounterPrescription = await EncounterPrescription.create(
     fake(EncounterPrescription, {
       encounterId,
       prescriptionId: prescription.id,
     }),
   );
+  
   await PatientOngoingPrescription.create(
     fake(PatientOngoingPrescription, {
       patientId: patientId,
       prescriptionId: prescription.id,
     }),
   );
+  
   await EncounterPausePrescription.create(
     fake(EncounterPausePrescription, {
-      encounterPrescriptionId: prescription.id,
+      encounterPrescriptionId: encounterPrescription.id,
     }),
   );
+  
   await EncounterPausePrescriptionHistory.create(
     fake(EncounterPausePrescriptionHistory, {
-      encounterPrescriptionId: prescription.id,
+      encounterPrescriptionId: encounterPrescription.id,
     }),
   );
   await MedicationAdministrationRecord.create(

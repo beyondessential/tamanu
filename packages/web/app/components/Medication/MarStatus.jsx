@@ -11,11 +11,13 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
+import { getDose } from '../../utils/medications';
+import { useTranslation } from '../../contexts/Translation';
+import { usePausesPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
+import { useEncounter } from '../../contexts/Encounter';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
-import { getDose } from '../../utils/medications';
-import { useTranslation } from '../../contexts/Translation';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -31,7 +33,7 @@ const StatusContainer = styled.div`
   margin-bottom: -1px;
   margin-right: -1px;
   ${p =>
-    (p.isDiscontinued || p.isEnd) &&
+    (p.isDiscontinued || p.isEnd || p.isPaused) &&
     `background-image: linear-gradient(${Colors.outline} 1px, transparent 1px);
     background-size: 100% 5px;
     background-position: 0 2.5px;`}
@@ -86,14 +88,18 @@ const SelectedOverlay = styled.div`
   border: 1px solid ${Colors.primary};
 `;
 
+const DiscontinuedDivider = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background-color: ${Colors.midText};
+`;
+
 const getIsPast = (timeSlot, selectedDate) => {
   const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return new Date() > endDate;
-};
-
-const getIsFuture = (timeSlot, selectedDate) => {
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return startDate > new Date();
 };
 
 const getIsDisabled = (hasRecord, timeSlot, selectedDate) => {
@@ -108,8 +114,43 @@ const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
   if (administeredAt) {
     return new Date(endDate) < new Date(administeredAt);
   }
+  const currentEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(endDate) < currentEndDate;
+};
+
+const getIsPaused = (pauseRecords, administeredAt, timeSlot, selectedDate) => {
+  if (!pauseRecords?.length) return false;
+
   const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return new Date(endDate) < startDate;
+  const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+
+  return pauseRecords.some(pauseRecord => {
+    const pauseStartDate = new Date(pauseRecord.pauseStartDate);
+    const pauseEndDate = new Date(pauseRecord.pauseEndDate);
+
+    if (administeredAt) {
+      const administeredAtDate = new Date(administeredAt);
+      return pauseStartDate <= administeredAtDate && pauseEndDate >= administeredAtDate;
+    }
+
+    return pauseStartDate <= endDate && pauseEndDate >= startDate;
+  });
+};
+
+const getIsPausedThenDiscontinued = (
+  pauseRecords,
+  discontinuedDate,
+  administeredAt,
+  timeSlot,
+  selectedDate,
+) => {
+  const isPaused = getIsPaused(pauseRecords, administeredAt, timeSlot, selectedDate);
+  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
+  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+
+  return (
+    isPaused && isDiscontinued && new Date(discontinuedDate).getTime() - startDate.getTime() > 0
+  );
 };
 
 export const MarStatus = ({
@@ -121,7 +162,20 @@ export const MarStatus = ({
   medication,
 }) => {
   const { administeredAt, status, reasonNotGiven, id: marId } = marInfo || {};
-  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId } = medication || {};
+  const {
+    doseAmount,
+    isPrn,
+    units,
+    discontinuedDate,
+    endDate,
+    id: prescriptionId,
+    isVariableDose,
+  } = medication || {};
+
+  const { encounter } = useEncounter();
+  const { data: pauseRecords } = usePausesPrescriptionQuery(prescriptionId, encounter?.id, {
+    marDate: selectedDate,
+  });
 
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -129,13 +183,18 @@ export const MarStatus = ({
   const [selectedElement, setSelectedElement] = useState(null);
 
   const containerRef = useRef(null);
-
   const isPast = getIsPast(timeSlot, selectedDate);
-  const isFuture = getIsFuture(timeSlot, selectedDate);
-
   const isDisabled = getIsDisabled(!!administeredAt, timeSlot, selectedDate);
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
+  const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued(
+    pauseRecords?.data,
+    discontinuedDate,
+    administeredAt,
+    timeSlot,
+    selectedDate,
+  );
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -164,7 +223,7 @@ export const MarStatus = ({
       setShowWarningModal(MAR_WARNING_MODAL.PAST);
       return;
     }
-    if (isFuture) {
+    if (isDisabled) {
       setSelectedElement(event.currentTarget);
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
@@ -181,6 +240,13 @@ export const MarStatus = ({
   const handleClose = () => {
     setAnchorEl(null);
     setIsSelected(false);
+  };
+
+  const handleConfirm = () => {
+    setShowWarningModal('');
+    if (selectedElement) {
+      handleStatusPopperOpen({ currentTarget: selectedElement });
+    }
   };
 
   const renderStatus = () => {
@@ -213,6 +279,13 @@ export const MarStatus = ({
           );
         }
         if (!units) return null;
+        if (isVariableDose) {
+          return (
+            <DoseInfo>
+              <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
+            </DoseInfo>
+          );
+        }
         return (
           <DoseInfo>
             {getDose({ doseAmount, units, isPrn }, getTranslation, getEnumTranslation)}
@@ -241,68 +314,72 @@ export const MarStatus = ({
         </Box>
       );
     }
-    if (!administeredAt) return;
-
-    switch (status) {
-      case ADMINISTRATION_STATUS.NOT_GIVEN:
-        return (
-          <>
-            <TranslatedText stringId="medication.mar.notGiven.tooltip" fallback="Not given." />
-            <div>{reasonNotGiven?.name}</div>
-          </>
-        );
-      default:
-        if (isDisabled) {
+    if (administeredAt) {
+      switch (status) {
+        case ADMINISTRATION_STATUS.NOT_GIVEN:
           return (
-            <Box maxWidth={73}>
-              <TranslatedText
-                stringId="medication.mar.future.tooltip"
-                fallback="Cannot record future dose. Due at :dueAt."
-                replacements={{
-                  dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
-                }}
-              />
-            </Box>
+            <>
+              <TranslatedText stringId="medication.mar.notGiven.tooltip" fallback="Not given." />
+              <div>{reasonNotGiven?.name}</div>
+            </>
           );
-        }
-        if (isPast) {
+        default:
+          if (isDisabled) {
+            return (
+              <Box maxWidth={73}>
+                <TranslatedText
+                  stringId="medication.mar.future.tooltip"
+                  fallback="Cannot record future dose. Due at :dueAt."
+                  replacements={{
+                    dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
+                  }}
+                />
+              </Box>
+            );
+          }
+          if (isPast) {
+            return (
+              <Box maxWidth={69}>
+                <TranslatedText
+                  stringId="medication.mar.missed.tooltip"
+                  fallback="Missed. Due at :dueAt"
+                  replacements={{
+                    dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+                  }}
+                />
+              </Box>
+            );
+          }
           return (
             <Box maxWidth={69}>
               <TranslatedText
-                stringId="medication.mar.missed.tooltip"
-                fallback="Missed. Due at :dueAt"
+                stringId="medication.mar.dueAt.tooltip"
+                fallback="Due at :dueAt"
                 replacements={{
                   dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
                 }}
               />
             </Box>
           );
-        }
-        return (
-          <Box maxWidth={69}>
-            <TranslatedText
-              stringId="medication.mar.dueAt.tooltip"
-              fallback="Due at :dueAt"
-              replacements={{
-                dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
-              }}
-            />
-          </Box>
-        );
+      }
     }
-  };
-
-  const handleConfirm = () => {
-    setShowWarningModal('');
-    if (selectedElement) {
-      handleStatusPopperOpen({ currentTarget: selectedElement });
+    if (isPaused) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationPaused.tooltip"
+            fallback="Medication paused"
+          />
+        </Box>
+      );
     }
+    return null;
   };
 
   return (
     <>
       <ConditionalTooltip
-        visible={isDiscontinued || isEnd || administeredAt}
+        visible={getTooltipText()}
         title={<Box fontWeight={400}>{getTooltipText()}</Box>}
       >
         <StatusContainer
@@ -311,12 +388,13 @@ export const MarStatus = ({
           isDisabled={isDisabled}
           isDiscontinued={isDiscontinued}
           isEnd={isEnd}
+          isPaused={isPaused}
         >
+          {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {administeredAt && !isDiscontinued && renderStatus()}
           <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled} />
         </StatusContainer>
       </ConditionalTooltip>
-
       <StatusPopper
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}

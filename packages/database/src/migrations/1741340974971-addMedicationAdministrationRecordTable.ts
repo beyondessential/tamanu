@@ -24,14 +24,6 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
-    reason_not_given_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      references: {
-        model: 'reference_data',
-        key: 'id',
-      },
-    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
