@@ -16,7 +16,11 @@ import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
 } from '@tamanu/shared/utils/medication';
-import { formatShort, getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  formatShort,
+  getCurrentDateString,
+  getCurrentDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { addDays, format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 
@@ -695,14 +699,26 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               required
             />
             <FormGrid nested>
-              <Field
-                name="durationValue"
-                label={<TranslatedText stringId="medication.duration.label" fallback="Duration" />}
-                component={NumberField}
-                min={0}
-                onInput={preventInvalidNumber}
-                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
-              />
+              <StyledConditionalTooltip
+                visible={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                title={
+                  <TranslatedText
+                    stringId="medication.duration.tooltip"
+                    fallback="Duration is not supported by the selected frequency"
+                  />
+                }
+              >
+                <Field
+                  name="durationValue"
+                  label={
+                    <TranslatedText stringId="medication.duration.label" fallback="Duration" />
+                  }
+                  component={NumberField}
+                  min={0}
+                  onInput={preventInvalidNumber}
+                  disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                />
+              </StyledConditionalTooltip>
               <Field
                 name="durationUnit"
                 label={<Box sx={{ opacity: 0 }}>.</Box>}
