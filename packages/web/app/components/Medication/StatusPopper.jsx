@@ -73,6 +73,11 @@ export const StatusPopper = ({
   };
   const { encounter } = useEncounter();
 
+  const handleClose = () => {
+    setShowReasonScreen(false);
+    onClose();
+  };
+
   const handleReasonSelect = async reasonNotGivenId => {
     await updateMar({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
@@ -84,11 +89,11 @@ export const StatusPopper = ({
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
 
     setShowReasonScreen(false);
-    onClose();
+    handleClose();
   };
 
   const handleGivenClick = () => {
-    onClose();
+    handleClose();
   };
 
   const reasonsNotGiven = useSuggestionsQuery('reasonNotGiven');
@@ -143,7 +148,7 @@ export const StatusPopper = ({
       {({ TransitionProps }) => (
         <Fade {...TransitionProps} timeout={250}>
           <div>
-            <ClickAwayListener onClickAway={onClose}>
+            <ClickAwayListener onClickAway={handleClose}>
               <StyledPaper>{getContent()}</StyledPaper>
             </ClickAwayListener>
           </div>
