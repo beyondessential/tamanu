@@ -108,8 +108,7 @@ export const NullableBooleanField = React.memo(({ field, ...props }) => (
     name={field.name}
     value={field.value}
     onChange={field.onChange}
-    {...props}
-    data-testid='nullablebooleaninput-fyc2' />
+    {...props} />
 ));
 
 NullableBooleanInput.propTypes = {
