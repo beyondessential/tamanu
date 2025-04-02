@@ -269,7 +269,11 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
-    }
+    },
+    "medicationDiscontinuer": {
+      // every day at 1 AM
+      "schedule": "*/30 * * * * *",
+    },
   },
   "integrations": {
     "fijiVrs": {
