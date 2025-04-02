@@ -134,6 +134,22 @@ const getIsPaused = (pauseRecords, administeredAt, timeSlot, selectedDate) => {
   });
 };
 
+const getIsPausedThenDiscontinued = (
+  pauseRecords,
+  discontinuedDate,
+  administeredAt,
+  timeSlot,
+  selectedDate,
+) => {
+  const isPaused = getIsPaused(pauseRecords, administeredAt, timeSlot, selectedDate);
+  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
+  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+
+  return (
+    isPaused && isDiscontinued && new Date(discontinuedDate).getTime() - startDate.getTime() > 0
+  );
+};
+
 export const MarStatus = ({
   isAlert = false,
   isEdited = false,
@@ -158,7 +174,13 @@ export const MarStatus = ({
   const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
   const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
   const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
-  const isPausedAndDiscontinued = isPaused && isDiscontinued;
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued(
+    pauseRecords?.data,
+    discontinuedDate,
+    administeredAt,
+    timeSlot,
+    selectedDate,
+  );
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -305,7 +327,7 @@ export const MarStatus = ({
         isEnd={isEnd}
         isPaused={isPaused}
       >
-        {isPausedAndDiscontinued && <DiscontinuedDivider />}
+        {isPausedThenDiscontinued && <DiscontinuedDivider />}
         {administeredAt && !isDiscontinued && renderStatus()}
         <SelectedOverlay isSelected={isSelected} isFuture={isFuture} />
       </StatusContainer>
