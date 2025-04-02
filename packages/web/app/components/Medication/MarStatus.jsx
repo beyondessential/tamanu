@@ -331,7 +331,7 @@ export const MarStatus = ({
                 stringId="medication.mar.givenAt.tooltip"
                 fallback=":doses given at :time"
                 replacements={{
-                  doses: `${firstDose?.doseAmount}${units}`,
+                  doses: `${firstDose?.doseAmount} ${units}`,
                   time: format(new Date(firstDose?.givenTime), 'hh:mma').toLowerCase(),
                 }}
               />
