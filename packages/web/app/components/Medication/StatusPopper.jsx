@@ -397,6 +397,12 @@ export const StatusPopper = ({
 
   const { encounter } = useEncounter();
 
+  const handleClose = () => {
+    setShowReasonScreen(false);
+    setShowGivenScreen(false);
+    onClose();
+  };
+
   const handleReasonSelect = async reasonNotGivenId => {
     await updateMar({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
@@ -406,7 +412,7 @@ export const StatusPopper = ({
     });
 
     setShowReasonScreen(false);
-    onClose();
+    handleClose();
   };
 
   const handleGivenClick = () => {
@@ -452,7 +458,7 @@ export const StatusPopper = ({
       {({ TransitionProps }) => (
         <Fade {...TransitionProps} timeout={250}>
           <div>
-            <ClickAwayListener onClickAway={onClose}>
+            <ClickAwayListener onClickAway={handleClose}>
               <StyledPaper>{getContent()}</StyledPaper>
             </ClickAwayListener>
           </div>
