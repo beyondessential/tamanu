@@ -148,4 +148,7 @@
     "upcomingTasksTimeFrame": 8, // hours,
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
 }

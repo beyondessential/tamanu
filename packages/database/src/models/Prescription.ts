@@ -12,7 +12,7 @@ export class Prescription extends Model {
   declare doseAmount: number;
   declare units: string;
   declare frequency: string;
-  declare idealTimes: string[];
+  declare idealTimes?: string[];
   declare route: string;
   declare date: string;
   declare startDate: string;
@@ -80,6 +80,11 @@ export class Prescription extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
+          afterCreate: async (prescription: Prescription) => {
+            await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+              prescription,
+            );
+          },
           afterUpdate: async (prescription: Prescription, options) => {
             if (prescription.changed('pharmacyNotes')) {
               await models.Notification.pushNotification(
@@ -124,6 +129,10 @@ export class Prescription extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
       as: 'medication',
+    });
+    this.hasMany(models.MedicationAdministrationRecord, {
+      foreignKey: 'prescriptionId',
+      as: 'medicationAdministrationRecords',
     });
   }
 

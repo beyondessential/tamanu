@@ -24,7 +24,7 @@ export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslatio
 export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
   const frequency = synonyms[index];
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
-}
+};
 
 export const getTranslatedFrequency = (frequency, getTranslation) => {
   return getTranslation(`medication.frequency.${camelCase(frequency)}.label`, frequency);
