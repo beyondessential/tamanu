@@ -41,14 +41,6 @@ async function populateRegistrationIds(query: QueryInterface): Promise<void> {
       },
     );
 
-    if (registrations.length === 0) {
-      console.log(
-        `No registration found for condition ${condition.id} ` +
-          `(patient: ${condition.patient_id}, program: ${condition.program_registry_id})`,
-      );
-      continue;
-    }
-
     // Get the registration ID to use
     let registrationId: string;
 
