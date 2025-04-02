@@ -62,7 +62,9 @@ export const simpleGet = (modelName, options = {}) =>
     const { auditAccess = false } = options;
     const { models, params, query } = req;
 
-    if (auditAccess) {
+    const object = await findRouteObject(req, modelName);
+
+    if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
         params,
@@ -71,7 +73,6 @@ export const simpleGet = (modelName, options = {}) =>
       });
     }
 
-    const object = await findRouteObject(req, modelName);
     res.send(object);
   });
 
@@ -87,7 +88,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     });
     if (!object) throw new NotFoundError();
 
-    if (auditAccess) {
+    if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
         params,
