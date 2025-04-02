@@ -159,7 +159,7 @@ export const MarStatus = ({
   medication,
 }) => {
   const { administeredAt, status } = marInfo || {};
-  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId } =
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId, isVariableDose } =
     medication || {};
 
   const { encounter } = useEncounter();
@@ -234,6 +234,13 @@ export const MarStatus = ({
           );
         }
         if (!units) return null;
+        if (isVariableDose) {
+          return (
+            <DoseInfo>
+              <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
+            </DoseInfo>
+          );
+        }
         return (
           <DoseInfo>
             {getDose({ doseAmount, units, isPrn }, getTranslation, getEnumTranslation)}
