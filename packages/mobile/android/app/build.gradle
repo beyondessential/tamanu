@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
 
 import com.android.build.OutputFile
 import groovy.json.JsonSlurper
@@ -105,8 +106,6 @@ def getAppVersion() {
 def (major, minor, patch) = getAppVersion().tokenize('.')
 
 android {
-    ndkVersion rootProject.ext.ndkVersion
-
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "com.tamanuapp"
@@ -117,6 +116,20 @@ android {
         versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
         versionName getAppVersion()
         multiDexEnabled true
+    }
+
+
+       compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     splits {
@@ -173,9 +186,21 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
+        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
+        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
+    }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.kotlinVersion}"
+
 
     implementation project(':react-native-config')
 
@@ -195,4 +220,3 @@ dependencies {
     }
 }
 
-apply from: file("../../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

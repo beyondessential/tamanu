@@ -6,6 +6,7 @@
  */
 
 const path = require('path');
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
 const { FileStore } = require('metro-cache');
 
@@ -14,7 +15,9 @@ const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
 
-module.exports = {
+const config = getDefaultConfig(__dirname);
+
+module.exports = mergeConfig(config, {
   projectRoot: path.resolve(__dirname, '.'),
 
   watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
@@ -45,4 +48,4 @@ module.exports = {
       root: path.join(__dirname, 'metro-cache'),
     }),
   ],
-};
+});
