@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
-import { DRUG_ROUTE_LABELS, MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_LABELS,
+  MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+} from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -463,7 +467,10 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         <TranslatedText stringId="medication.details.resume" fallback="Resume" />
                       </OutlinedButton>
                     ) : (
-                      <OutlinedButton onClick={() => setOpenPauseModal(true)}>
+                      <OutlinedButton
+                        onClick={() => setOpenPauseModal(true)}
+                        disabled={medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                      >
                         <TranslatedText stringId="medication.details.pause" fallback="Pause" />
                       </OutlinedButton>
                     )}
