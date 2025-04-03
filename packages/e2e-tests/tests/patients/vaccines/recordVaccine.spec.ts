@@ -1,47 +1,8 @@
 import { test } from '@playwright/test';
 
 test('Record a vaccine', async ({ page }) => {
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'apiToken',
-    )?.value,
-  );
-
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'availableFacilities',
-    )?.value,
-  );
-
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'facilityId',
-    )?.value,
-  );
-
   // Navigate to the home
-  await page.goto('/#/');
-
-  // timeout for 10 seconds
-  await page.waitForTimeout(10000);
-
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'apiToken',
-    )?.value,
-  );
-
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'availableFacilities',
-    )?.value,
-  );
-
-  console.log(
-    (await page.context().storageState()).origins[0].localStorage.find(
-      (item) => item.name === 'facilityId',
-    )?.value,
-  );
+  await page.goto('/');
 
   await page.waitForURL('**/#/dashboard');
 
