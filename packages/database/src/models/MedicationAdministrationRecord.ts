@@ -1,10 +1,11 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op, type Transaction } from 'sequelize';
 import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { addDays, addHours, endOfDay, isValid, startOfDay } from 'date-fns';
 import config from 'config';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
+import type { Encounter } from './Encounter';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -112,6 +113,35 @@ export class MedicationAdministrationRecord extends Model {
           break;
       }
     }
+  }
+
+  static async onEncounterDischarged(encounter: Encounter, transaction?: Transaction) {
+    const { models } = this.sequelize;
+    const encounterId = encounter.id;
+    const endTime = encounter.endDate;
+
+    const encounterPrescriptions = await models.EncounterPrescription.findAll({
+      where: {
+        encounterId,
+      },
+      attributes: ['prescriptionId'],
+      transaction,
+    });
+
+    await models.MedicationAdministrationRecord.destroy({
+      where: {
+        administeredAt: {
+          [Op.gte]: endTime,
+        },
+        prescriptionId: {
+          [Op.in]: encounterPrescriptions.map(
+            (encounterPrescription) => encounterPrescription.prescriptionId,
+          ),
+        },
+        status: null,
+      },
+      transaction,
+    });
   }
 
   static getListReferenceAssociations() {
