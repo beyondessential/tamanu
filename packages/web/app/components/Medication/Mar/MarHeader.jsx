@@ -79,6 +79,17 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
               stringId="medication.mar.encounterStartDate"
             />
           }
+          PopperProps={{
+            modifiers: {
+              flip: {
+                enabled: false,
+              },
+              offset: {
+                enabled: true,
+                offset: '0, -15',
+              },
+            },
+          }}
         >
           <StepperButton onClick={goToPreviousDay} disabled={isPreviousDayDisabled}>
             <ChevronLeft />
