@@ -20,8 +20,6 @@ const setPatientProgramRegistrationsForFullResync = async (
 
 export class addPatientProgramRegistrationId1743640327000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('...1');
-
     // Remove old columns
     const tableObject = await queryRunner.getTable('patient_program_registration_conditions');
     const patientIdForeignKey = tableObject.foreignKeys.find(
@@ -42,16 +40,11 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
         programRegistryIdForeignKey,
       );
     }
-    console.log('...2');
-
     await queryRunner.dropColumn('patient_program_registration_conditions', 'patientId');
     await queryRunner.dropColumn('patient_program_registration_conditions', 'programRegistryId');
 
-    console.log('...3');
-
+    // Fully resync the patient_program_registration_conditions table so as not to repeat the complex logic from central server migration
     await setPatientProgramRegistrationsForFullResync(queryRunner);
-
-    console.log('...4');
 
     // Add patientProgramRegistrationId column
     await queryRunner.addColumn(
@@ -63,26 +56,15 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
       }),
     );
 
-    console.log('...5');
-
-    console.log('TableColumn', TableColumn);
-    console.log('TableForeignKey', TableForeignKey);
-
-    try {
-      // Add foreign key constraint
-      await queryRunner.createForeignKey(
-        'patient_program_registration_conditions',
-        new TableForeignKey({
-          columnNames: ['patientProgramRegistrationId'],
-          referencedColumnNames: ['id'],
-          referencedTableName: 'patient_program_registrations',
-        }),
-      );
-    } catch (error) {
-      console.error('Error creating foreign key:', error);
-    }
-
-    console.log('...6');
+    // Add foreign key constraint
+    await queryRunner.createForeignKey(
+      'patient_program_registration_conditions',
+      new TableForeignKey({
+        columnNames: ['patientProgramRegistrationId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'patient_program_registrations',
+      }),
+    );
   }
 
   async down(): Promise<void> {
