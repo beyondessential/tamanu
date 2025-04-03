@@ -22,7 +22,7 @@ test('Record a vaccine', async ({ page }) => {
 
   await firstRow.click();
 
-  await page.waitForURL('**/#/patients/*');
+  await page.waitForURL('**/#/patients/all/*');
 
   // Click on the vaccines tab
   await page.getByRole('button', { name: 'Vaccines' }).click();

@@ -202,12 +202,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user } = req;
+  const { user, facilityId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user);
+  const token = await buildToken(user, facilityId);
   res.send({ token });
 }
 
@@ -278,6 +278,7 @@ export const authMiddleware = async (req, res, next) => {
       () => next(),
     );
   } catch (e) {
+    console.log('e', e)
     next(e);
   }
 };
