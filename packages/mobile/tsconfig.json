@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
+    "module": "NodeNext",
     "isolatedModules": false,
     "baseUrl": ".",
     "paths": {
@@ -16,7 +17,7 @@
       "/interfaces/*": ["App/ui/interfaces/*"],
       "/helpers/*": ["App/ui/helpers/*"],
       "/types/*": ["App/types/*"],
-      "/navigation/*": ["App/ui/navigation/*"],      
+      "/navigation/*": ["App/ui/navigation/*"],
       "/containers/*":["App/ui/containers/*"],
       "/contexts/*":["App/ui/contexts/*"],
       "/store/*": ["App/ui/store/*"],
