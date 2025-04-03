@@ -46,7 +46,7 @@ export const PatientProgramRegistryUpdateModal = ({
         patientProgramRegistration={patientProgramRegistration}
         onSubmit={submit}
         FormActions={({ isDirty }) => (
-          <ModalFormActionRow confirmDisabled={!isDirty || isSubmitting} />
+          <ModalFormActionRow confirmDisabled={!isDirty || isSubmitting} onCancel={onClose} />
         )}
         onClose={onClose}
       >
