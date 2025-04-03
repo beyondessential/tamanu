@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableForeignKey } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableForeignKey, TableColumn } from 'typeorm';
 
 const setPatientProgramRegistrationsForFullResync = async (
   queryRunner: QueryRunner,
@@ -54,19 +54,22 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
     console.log('...4');
 
     // Add patientProgramRegistrationId column
-    await queryRunner.addColumn('patient_program_registration_conditions', {
-      name: 'patientProgramRegistrationId',
-      type: 'TEXT',
-      isNullable: false,
-    });
+    await queryRunner.addColumn(
+      'patient_program_registration_conditions',
+      new TableColumn({
+        name: 'patientProgramRegistrationId',
+        type: 'TEXT',
+        isNullable: false,
+      }),
+    );
 
     console.log('...5');
 
-    const registrationForeignKey = tableObject.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('patientProgramRegistrationId') !== -1,
-    );
-    // Add foreign key constraint
-    if (!registrationForeignKey) {
+    console.log('TableColumn', TableColumn);
+    console.log('TableForeignKey', TableForeignKey);
+
+    try {
+      // Add foreign key constraint
       await queryRunner.createForeignKey(
         'patient_program_registration_conditions',
         new TableForeignKey({
@@ -75,6 +78,8 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
           referencedTableName: 'patient_program_registrations',
         }),
       );
+    } catch (error) {
+      console.error('Error creating foreign key:', error);
     }
 
     console.log('...6');
