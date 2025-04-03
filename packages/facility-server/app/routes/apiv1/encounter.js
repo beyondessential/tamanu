@@ -735,7 +735,7 @@ encounterRelations.get(
       ],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
-      include: Task.getFullReferenceAssociations(),
+      include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
     const results = queryResults.map((x) => x.forResponse());
 
