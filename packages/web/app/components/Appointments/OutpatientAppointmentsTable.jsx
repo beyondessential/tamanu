@@ -254,7 +254,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title, patient }) => {
+const TableHeader = ({ title, patient, hasPastAppointments }) => {
   const { ability } = useAuth();
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -270,16 +270,18 @@ const TableHeader = ({ title, patient }) => {
         {title}
       </Box>
       <ActionRow data-testid='actionrow-1l1y'>
-        <ViewPastBookingsButton
-          component={'span'}
-          onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr="6px"
-          data-testid='viewpastbookingsbutton-3n25'>
-          <TranslatedText
-            stringId="patient.appointments.table.viewPastAppointments"
-            fallback="View past appointments"
-            data-testid='translatedtext-vw2l' />
-        </ViewPastBookingsButton>
+        {hasPastAppointments && (
+          <ViewPastBookingsButton
+            component={'span'}
+            onClick={() => setIsViewPastBookingsModalOpen(true)}
+            mr="6px"
+            data-testid='viewpastbookingsbutton-3n25'>
+            <TranslatedText
+              stringId="patient.appointments.table.viewPastAppointments"
+              fallback="View past appointments"
+              data-testid='translatedtext-vw2l' />
+          </ViewPastBookingsButton>
+        )}
         {canCreateAppointment && (
           <Button
             variant="outlined"
@@ -311,13 +313,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const allAppointments =
-    useOutpatientAppointmentsQuery({
-      all: true,
-      patientId: patient?.id,
-      after: '1970-01-01 00:00',
-    }).data?.data ?? [];
+  // Query to check if there are past appointments
+  const pastAppointmentsQuery = useOutpatientAppointmentsQuery({
+    patientId: patient?.id,
+    before: getCurrentDateTimeString(),
+    after: '1970-01-01 00:00',
+    rowsPerPage: 1,
+  });
+  
+  const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
 
+  // Query for future appointments
   const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
@@ -411,10 +417,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       : []),
   ];
 
-  if (!allAppointments.length) {
-    return null;
-  }
-
   if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer data-testid='nodatacontainer-zxmc'>
@@ -427,6 +429,8 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
           }
           patient={patient}
           data-testid='tableheader-sd66' />
+          hasPastAppointments={hasPastAppointments}
+        />
       </NoDataContainer>
     );
   }
@@ -448,6 +452,8 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
             }
             patient={patient}
             data-testid='tableheader-kfdu' />
+            hasPastAppointments={hasPastAppointments}
+          />
         }
         onClickRow={handleRowClick}
         orderBy={orderBy}

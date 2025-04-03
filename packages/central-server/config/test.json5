@@ -63,6 +63,8 @@
         "holterMonitor": { "label": "Holter Monitor" },
         "echocardiogram": { "label": "Echocardiogram" },
         "mammogram": { "label": "Mammogram" },
+        "mammogramScreen": { "label": "Mammogram Screening" },
+        "mammogramDiag": { "label": "Mammogram Diagnostic" },
         "endoscopy": { "label": "Endoscopy" },
         "fluroscopy": { "label": "Fluroscopy" },
         "angiogram": { "label": "Angiogram" },

@@ -6,7 +6,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
-import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { TranslatedText } from '../../components';
 
@@ -53,13 +53,7 @@ export const ProgramRegistryStatusHistory = ({
           fallback="Status"
           data-testid='translatedtext-j9xr' />,
         sortable: false,
-        accessor: row => {
-          return (
-            <ClinicalStatusDisplay
-              clinicalStatus={row.clinicalStatus}
-              data-testid='clinicalstatusdisplay-cr0g' />
-          );
-        },
+        CellComponent: ClinicalStatusCell,
       },
       {
         key: 'clinicianId',

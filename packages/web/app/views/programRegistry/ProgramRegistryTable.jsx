@@ -4,21 +4,23 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
+import { useTranslation } from '../../contexts/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const { getTranslation } = useTranslation();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
@@ -105,10 +107,13 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         ),
         sortable: false,
         accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
-            : '';
-          return conditionsText;
+          return conditions
+            ?.map(condition => {
+              const { id, name } = condition;
+              return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+            })
+            .sort((a, b) => b.localeCompare(a))
+            .join(', ');
         },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
@@ -149,13 +154,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           stringId="programRegistry.clinicalStatus.label"
           fallback="Status"
           data-testid='translatedtext-f3lm' />,
-        accessor: row => {
-          return (
-            <ClinicalStatusDisplay
-              clinicalStatus={row.clinicalStatus}
-              data-testid='clinicalstatusdisplay-kuu6' />
-          );
-        },
+        CellComponent: ClinicalStatusCell,
         maxWidth: 200,
       },
       {

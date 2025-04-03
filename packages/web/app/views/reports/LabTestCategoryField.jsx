@@ -17,7 +17,7 @@ export const LabTestCategoryField = ({
       fallback="Test category"
       data-testid='translatedtext-s7gi' />}
     component={SuggesterSelectField}
-    endpoint="labTestCategory"
+    endpoint="nonSensitiveLabTestCategory"
     required={required}
     data-testid='field-ahpl' />
 );

@@ -4,9 +4,9 @@ import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { differenceInHours, parseISO } from 'date-fns';
+import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import {
@@ -21,6 +21,8 @@ import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
+import ms from 'ms';
+import { useEncounter } from '../../contexts/Encounter';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -52,7 +54,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      ${(p) => (p.$canDoAction ? `width: 15px;` : '')}
+      ${p => (p.$canDoAction ? `width: 15px;` : '')}
     }
   }
   .MuiTableCell-body {
@@ -67,14 +69,14 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
     }
     &:nth-child(2) {
-      ${(p) => (p.$canDoAction ? `padding-left: 0px;` : '')}
+      ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     transition: all 250ms;
     &:hover {
-      box-shadow: ${(props) =>
+      box-shadow: ${props =>
         props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
     position: relative;
@@ -244,7 +246,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
   </StatusTooltip>
 );
 
-const getStatus = (row) => {
+const getStatus = row => {
   const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
@@ -283,7 +285,7 @@ const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
   if (!designations?.length) return '-';
 
-  const designationNames = designations.map((assigned) => assigned.name);
+  const designationNames = designations.map(assigned => assigned.name);
 
   if (!isOverflowing) {
     return <OverflowedBox ref={ref} data-testid='overflowedbox-f6me'>{designationNames.join(', ')}</OverflowedBox>;
@@ -296,17 +298,67 @@ const AssignedToCell = ({ designations }) => {
   );
 };
 
-const getFrequency = ({ frequencyValue, frequencyUnit }) =>
-  frequencyValue && frequencyUnit ? (
-    `${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`
-  ) : (
-    <TranslatedText
-      stringId="encounter.tasks.table.once"
-      fallback="Once"
-      data-testid='translatedtext-1ei1' />
-  );
+const getFrequency = (task, isEncounterDischarged) => {
+  const { frequencyValue, frequencyUnit, durationValue, durationUnit, parentTask } = task;
+  const isRepeatingTask = frequencyValue && frequencyUnit;
 
-const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+  const getDurationTooltip = () => {
+    // If no duration is set, task is ongoing
+    if (!durationValue || !durationUnit) {
+      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
+    }
+
+    // Calculate end date based on due time, frequency and duration
+    try {
+      const firstTask = parentTask || task;
+      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+      let endDate = new Date(firstTask.dueTime);
+
+      switch (durationUnit) {
+        case TASK_DURATION_UNIT.OCCURRENCES:
+          endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
+          break;
+        default: {
+          const duration = ms(`${durationValue} ${durationUnit}`);
+          endDate = addMilliseconds(endDate, duration);
+          let maxDate = new Date(firstTask.dueTime);
+          while (maxDate <= endDate) {
+            maxDate = addMilliseconds(maxDate, frequency);
+          }
+          endDate = subMilliseconds(maxDate, frequency);
+          break;
+        }
+      }
+
+      return (
+        <TranslatedText
+          stringId="encounter.tasks.table.duration.endDate"
+          fallback={`Ends at :time on :date`}
+          replacements={{
+            time: formatTime(endDate)
+              .toLowerCase()
+              .replaceAll(' ', ''),
+            date: formatShortest(endDate),
+          }}
+        />
+      );
+    } catch (error) {
+      console.error('Error calculating task end date:', error);
+      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
+    }
+  };
+
+  if (isRepeatingTask) {
+    return (
+      <TableTooltip title={isEncounterDischarged ? '' : getDurationTooltip()}>
+        <span>{`${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`}</span>
+      </TableTooltip>
+    );
+  }
+
+  return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
+};
+const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
@@ -446,6 +498,7 @@ const NoDataMessage = () => (
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
   const { ability } = useAuth();
+  const { encounter } = useEncounter();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
   const canDoAction = canWrite || canDelete;
@@ -475,11 +528,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return selectedStatus && status !== selectedStatus;
     },
-    getIsTitleDisabled: (selectedKeys) => {
-      const uniqueStatuses = new Set(data.map((item) => item.status));
+    getIsTitleDisabled: selectedKeys => {
+      const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: (selectedKeys) => (row) => {
+    getRowsFilterer: selectedKeys => row => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
@@ -489,7 +542,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     resetSelection();
   }, [searchParameters, refreshCount, resetSelection]);
 
-  const selectedRowIds = useMemo(() => selectedRows.map((row) => row.id), [selectedRows]);
+  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -537,7 +590,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           data-testid='translatedtext-nr0u' />
       ),
       maxWidth: 90,
-      accessor: getFrequency,
+      accessor: task => getFrequency(task, !!encounter?.endDate),
       sortable: false,
     },
     {
@@ -561,11 +614,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     () =>
       selectedTask?.id
         ? selectedTask?.frequencyValue && selectedTask?.frequencyUnit
-        : selectedRows.some((row) => row.frequencyValue && row.frequencyUnit),
+        : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
 
-  const handleMouseEnterRow = (data) => {
+  const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
 
