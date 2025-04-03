@@ -130,7 +130,7 @@ export class MedicationAdministrationRecord extends Model {
     await models.MedicationAdministrationRecord.destroy({
       where: {
         administeredAt: {
-          [Op.gte]: encounter.endDate,
+          [Op.gt]: encounter.endDate,
         },
         prescriptionId: {
           [Op.in]: encounterPrescriptions.map(
