@@ -178,7 +178,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, after } = query;
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');
 
@@ -213,12 +213,41 @@ encounterRelations.get(
       ],
     };
 
-    if (after) {
+    // Add medicationAdministrationRecords with condition for same day
+    if (marDate) {
+      const startOfMarDate = `${marDate} 00:00:00`;
+      const endOfMarDate = `${marDate} 23:59:59`;
+      baseQueryOptions.include.push({
+        model: models.MedicationAdministrationRecord,
+        as: 'medicationAdministrationRecords',
+        where: {
+          administeredAt: {
+            [Op.gte]: startOfMarDate,
+            [Op.lt]: endOfMarDate,
+          },
+        },
+        required: false,
+      });
+
       baseQueryOptions.where = {
         ...baseQueryOptions.where,
         startDate: {
-          [Op.lte]: new Date(after),
+          [Op.lte]: endOfMarDate,
         },
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { discontinuedDate: { [Op.is]: null } },
+              { discontinuedDate: { [Op.gte]: startOfMarDate } },
+            ]
+          },
+          {
+            [Op.or]: [
+              { endDate: { [Op.is]: null } },
+              { endDate: { [Op.gte]: startOfMarDate } }
+            ]
+          }
+        ]
       };
     }
 
@@ -238,6 +267,7 @@ encounterRelations.get(
     res.send({ count, data });
   }),
 );
+
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',
