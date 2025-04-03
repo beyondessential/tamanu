@@ -118,7 +118,6 @@ export class MedicationAdministrationRecord extends Model {
   static async onEncounterDischarged(encounter: Encounter, transaction?: Transaction) {
     const { models } = this.sequelize;
     const encounterId = encounter.id;
-    const endTime = encounter.endDate;
 
     const encounterPrescriptions = await models.EncounterPrescription.findAll({
       where: {
@@ -131,7 +130,7 @@ export class MedicationAdministrationRecord extends Model {
     await models.MedicationAdministrationRecord.destroy({
       where: {
         administeredAt: {
-          [Op.gte]: endTime,
+          [Op.gte]: encounter.endDate,
         },
         prescriptionId: {
           [Op.in]: encounterPrescriptions.map(
