@@ -3,7 +3,7 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedReferenceData } from '../..';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
@@ -41,6 +41,8 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     notes,
     discontinued,
     medicationAdministrationRecords,
+    pharmacyNotes,
+    displayPharmacyNotesInMar,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -59,7 +61,18 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
-        <Box color={Colors.midText}>{notes}</Box>
+        <Box color={Colors.midText}>
+          <span>{notes}</span>
+          {displayPharmacyNotesInMar && pharmacyNotes && (
+            <span>
+              {notes && ', '}
+              <TranslatedText
+                stringId="medication.mar.pharmacyNotes"
+                fallback="Pharmacy note"
+              />: {pharmacyNotes}
+            </span>
+          )}
+        </Box>
       </MarRowContainer>
       {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
         return (
