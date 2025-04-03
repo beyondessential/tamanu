@@ -9,7 +9,10 @@ import {
   simpleGet,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+} from '@tamanu/constants';
 import { add, isAfter } from 'date-fns';
 
 export const medication = express.Router();
@@ -149,6 +152,12 @@ medication.post(
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+      throw new InvalidOperationError(
+        `Medication with frequency ${ADMINISTRATION_FREQUENCIES.IMMEDIATELY} cannot be paused`,
+      );
     }
 
     // Find the encounter prescription link

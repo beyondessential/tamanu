@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_LABELS,
+  MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+} from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -26,6 +30,7 @@ import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
+import { singularize } from '../../utils';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -202,6 +207,7 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
       open
       title={<TranslatedText stringId="medication.details.title" fallback="Medication details" />}
       onClose={onClose}
+      isClosable
     >
       <Form
         onSubmit={onSubmit}
@@ -273,10 +279,14 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         />
                       </MidText>
                       <DarkestText mt={0.5}>
-                        {`${pauseData.pauseDuration} ${getTranslation(
-                          'medication.duration.unit',
-                          `${pauseData.pauseTimeUnit.slice(0, -1)}(s)`,
-                        )}`}{' '}
+                        {pauseData.pauseDuration}{' '}
+                        {singularize(
+                          getEnumTranslation(
+                            MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+                            pauseData.pauseTimeUnit,
+                          ),
+                          pauseData.pauseDuration,
+                        ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
                         {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(
                           pauseData.pauseEndDate,
@@ -457,7 +467,10 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         <TranslatedText stringId="medication.details.resume" fallback="Resume" />
                       </OutlinedButton>
                     ) : (
-                      <OutlinedButton onClick={() => setOpenPauseModal(true)}>
+                      <OutlinedButton
+                        onClick={() => setOpenPauseModal(true)}
+                        disabled={medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                      >
                         <TranslatedText stringId="medication.details.pause" fallback="Pause" />
                       </OutlinedButton>
                     )}
