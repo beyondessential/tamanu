@@ -23,7 +23,10 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
@@ -55,13 +58,13 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         },
       });
 
-      return statuses.map(status => {
+      return statuses.map((status) => {
         const translatedName = getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
         );
         return {
-            ...status,
+          ...status,
           translatedName,
         };
       });
@@ -84,10 +87,9 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       for (const condition of formData.conditions) {
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
-          programRegistry: programRegistry.id,
-          patient: selectedPatient.id,
           programRegistryCondition: condition.value,
           clinician: formData.clinicianId,
+          patientProgramRegistration: newPpr.id,
         });
       }
     }
@@ -192,7 +194,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({
+                        label: x.translatedName,
+                        value: x.id,
+                      })) || []
                     }
                   />
                 </StyledView>
@@ -206,20 +211,16 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
-                    modalTitle={
-                      getTranslation('programRegistry.conditions.label', 'Conditions')
-                    }
+                    modalTitle={getTranslation('programRegistry.conditions.label', 'Conditions')}
                     suggester={conditionSuggester}
                     placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     name="conditions"
                     value={values.conditions}
-                    searchPlaceholder={
-                      getTranslation(
-                        'programRegistry.search.conditions',
-                        'Search conditions...',
-                      )
-                    }
+                    searchPlaceholder={getTranslation(
+                      'programRegistry.search.conditions',
+                      'Search conditions...',
+                    )}
                   />
                 </StyledView>
                 <Button

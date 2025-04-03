@@ -61,14 +61,14 @@ export class PatientProgramRegistrationCondition
   @RelationId(({ deletionClinician }) => deletionClinician)
   deletionClinicianId?: ID;
 
-  static async findForRegistryAndPatient(programRegistryId: string, patientId: string) {
+  static async findForRegistryAndPatient(patientProgramRegistrationId: string) {
     const conditionsRepository = this.getRepository();
-    const conditions = await conditionsRepository
+    return conditionsRepository
       .createQueryBuilder('condition')
-      .where('condition.programRegistryId = :programRegistryId', { programRegistryId })
-      .andWhere('condition.patientId = :patientId', { patientId })
+      .where('condition.patientProgramRegistrationId = :patientProgramRegistrationId', {
+        patientProgramRegistrationId,
+      })
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
-    return conditions;
   }
 }
