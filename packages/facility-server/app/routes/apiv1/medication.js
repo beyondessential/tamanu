@@ -7,6 +7,8 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
   simpleGet,
+  simplePost,
+  simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
@@ -50,7 +52,6 @@ medication.post(
 
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-
     res.send(prescription.forResponse());
   }),
 );
@@ -455,6 +456,9 @@ medication.get(
     });
   }),
 );
+
+medication.put('/mar/:id', simplePut('MedicationAdministrationRecord'));
+medication.post('/mar', simplePost('MedicationAdministrationRecord'));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>
