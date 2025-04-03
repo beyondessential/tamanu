@@ -66,6 +66,7 @@ export const sortInDependencyOrder = async (
   models: Partial<typeof MODELS_MAP>,
 ): Promise<ArrayOfModels> => {
   const dependencyMap = await getDependencyMap(models);
+  console.log('dependencyMap', dependencyMap);
   const sorted = [];
   const stillToSort = { ...models };
 
