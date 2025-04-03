@@ -247,7 +247,7 @@ encounterRelations.get(
             ],
           },
           {
-            [Op.or]: [{ endDate: { [Op.is]: null } }, { endDate: { [Op.gte]: startOfMarDate } }],
+            [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: startOfMarDate } }],
           },
         ],
       };
