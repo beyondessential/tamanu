@@ -1,6 +1,5 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -10,7 +9,8 @@ import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForDirection,
+  getModelsForPush,
+  getModelsForPull,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
@@ -19,6 +19,7 @@ import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -121,7 +122,10 @@ export class FacilitySyncManager {
     const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 
-    log.info('FacilitySyncManager.attemptStart', { reason: JSON.stringify(this.reason), startTime });
+    log.info('FacilitySyncManager.attemptStart', {
+      reason: JSON.stringify(this.reason),
+      startTime,
+    });
 
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
@@ -187,11 +191,8 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the central server
     const pushSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
-    const outgoingChanges = await snapshotOutgoingChanges(
-      this.sequelize,
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-      pushSince,
-    );
+    const modelsForPush = getModelsForPush(this.models);
+    const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
     if (outgoingChanges.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
         totalPushing: outgoingChanges.length,
@@ -200,6 +201,7 @@ export class FacilitySyncManager {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
+      await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
@@ -224,7 +226,7 @@ export class FacilitySyncManager {
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
-        Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+        Object.values(getModelsForPull(this.models)),
         sessionId,
       );
     }
@@ -232,11 +234,7 @@ export class FacilitySyncManager {
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
-        await saveIncomingChanges(
-          this.sequelize,
-          getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          sessionId,
-        );
+        await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
       }
 
       // update the last successful sync in the same save transaction - if updating the cursor fails,
