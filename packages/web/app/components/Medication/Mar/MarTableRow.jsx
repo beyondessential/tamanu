@@ -7,6 +7,7 @@ import { TranslatedEnum, TranslatedReferenceData } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
+import { findAdministrationTimeSlotFromIdealTime } from '@tamanu/shared/utils/medication';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -14,9 +15,10 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
-    const hour = new Date(record.administeredAt).getHours();
-    // Calculate which window this time belongs to (0-11)
-    const windowIndex = Math.floor(hour / 2);
+    const administeredAt = new Date(record.administeredAt);
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(
+      `${administeredAt.getHours()}:${administeredAt.getMinutes()}`,
+    ).index;
     result[windowIndex] = record;
   });
 

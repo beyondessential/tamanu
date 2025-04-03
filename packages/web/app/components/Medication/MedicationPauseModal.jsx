@@ -45,32 +45,30 @@ const StyledFormActions = styled(Box)`
   gap: 16px;
 `;
 
+const ExtendBeyondEndDateError = styled(Box)`
+  color: ${Colors.alert};
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 500;
+  grid-column: 1 / -1;
+  margin: -12px 2px 0;
+`;
+
 const validationSchema = yup.object().shape({
   pauseDuration: yup
     .number()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
-    .positive(<TranslatedText stringId="validation.positive" fallback="*Must be positive" />)
-    .test(
-      'pauseDurationValidation',
-      <TranslatedText
-        stringId="medication.pauseModal.pauseDurationValidation"
-        fallback="Cannot extend beyond medication end date"
-      />,
-      (value, context) => {
-        const medication = context.parent.medication;
-        const endDate = medication.endDate;
-
-        if (!value || !endDate || !context.parent.pauseTimeUnit) return true;
-
-        return isBefore(
-          add(new Date(), { [context.parent.pauseTimeUnit]: value }),
-          new Date(endDate),
-        );
-      },
-    ),
+    .positive(<TranslatedText stringId="validation.positive" fallback="*Must be positive" />),
   pauseTimeUnit: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
+  extendBeyondEndDate: yup.mixed().test('extendBeyondEndDate', (_, context) => {
+    const { medication, pauseDuration, pauseTimeUnit } = context.parent;
+    const endDate = medication.endDate;
+
+    if (!pauseDuration || !pauseTimeUnit || !endDate) return true;
+    return isBefore(add(new Date(), { [pauseTimeUnit]: pauseDuration }), new Date(endDate));
+  }),
 });
 
 export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
@@ -99,7 +97,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
           encounterId: encounter.id,
         }}
         validationSchema={validationSchema}
-        render={({ submitForm }) => (
+        render={({ submitForm, errors }) => (
           <>
             <Box px={1} pt={2.75} pb={5}>
               <DarkText>
@@ -135,6 +133,14 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                       }),
                     )}
                   />
+                  {errors.extendBeyondEndDate && (
+                    <ExtendBeyondEndDateError>
+                      <TranslatedText
+                        stringId="medication.pauseModal.pauseValidation"
+                        fallback="Cannot extend beyond medication end date"
+                      />
+                    </ExtendBeyondEndDateError>
+                  )}
                 </FormGrid>
                 <Field
                   name="notes"

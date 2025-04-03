@@ -161,6 +161,12 @@ medication.post(
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
 
+    if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+      throw new InvalidOperationError(
+        `Medication with frequency ${ADMINISTRATION_FREQUENCIES.IMMEDIATELY} cannot be paused`,
+      );
+    }
+
     // Find the encounter prescription link
     const encounterPrescription = await EncounterPrescription.findOne({
       where: {

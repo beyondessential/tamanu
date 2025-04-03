@@ -101,7 +101,7 @@ const getMedicationName = (
           {singularize(
             getEnumTranslation(MEDICATION_PAUSE_DURATION_UNITS_LABELS, pauseData.pauseTimeUnit),
             pauseData.pauseDuration,
-          )}{' '}
+          ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
           {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
         </Box>

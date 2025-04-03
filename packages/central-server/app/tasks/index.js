@@ -27,6 +27,7 @@ import { SyncLookupRefresher } from './SyncLookupRefresher';
 import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
+import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -51,6 +52,7 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingTasks,
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
+    MedicationDiscontinuer,
     SendStatusToMetaServer,
   ];
 
