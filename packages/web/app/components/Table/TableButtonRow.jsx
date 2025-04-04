@@ -14,7 +14,10 @@ const Row = styled.div`
 `;
 
 export const TableButtonRow = ({ children, variant, justifyContent }) => (
-  <Row $variant={variant} $justifyContent={justifyContent}>
+  <Row
+    $variant={variant}
+    $justifyContent={justifyContent}
+    data-testid='row-v55c'>
     {children}
   </Row>
 );

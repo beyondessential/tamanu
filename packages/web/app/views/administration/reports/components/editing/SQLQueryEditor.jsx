@@ -131,7 +131,7 @@ export const SQLQueryEditor = props => {
           className: 'error-marker',
         },
       ]}
-    />
+      data-testid='aceeditor-c6e7' />
   );
 };
 

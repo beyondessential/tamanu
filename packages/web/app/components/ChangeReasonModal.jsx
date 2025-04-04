@@ -24,16 +24,16 @@ export const ChangeReasonModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="encounter.modal.changeReason.title"
           fallback="Change reason for encounter"
-        />
+          data-testid='translatedtext-etir' />
       }
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-wd9u'>
       <ChangeReasonForm
         onSubmit={onSubmit}
         onCancel={onClose}
         reasonForEncounter={encounter.reasonForEncounter}
-      />
+        data-testid='changereasonform-dkkr' />
     </FormModal>
   );
 });

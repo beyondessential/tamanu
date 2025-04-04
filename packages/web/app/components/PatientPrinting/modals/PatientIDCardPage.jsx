@@ -23,15 +23,18 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
       width="md"
       printable
       onPrint={() => printPDF('patient-card-printout')}
-    >
-      <PDFLoader isLoading={!imageData} id="patient-card-printout">
+      data-testid='modal-cqpt'>
+      <PDFLoader
+        isLoading={!imageData}
+        id="patient-card-printout"
+        data-testid='pdfloader-2rsf'>
         <IDCardPrintout
           cardDimensions={cardDimensions}
           patientImageData={imageData}
           measures={measures}
           patient={patient}
           getTranslation={getTranslation}
-        />
+          data-testid='idcardprintout-gj3h' />
       </PDFLoader>
     </Modal>
   );

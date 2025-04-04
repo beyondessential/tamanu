@@ -182,11 +182,14 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
       render={({ submitForm, setFieldValue, values }) => {
         return (
           <div>
-            <FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
+            <FormGrid data-testid='formgrid-6mdj'>
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-xzvu'>
                 <Field
                   name="taskId"
-                  label={<TranslatedText stringId="encounter.task.task.label" fallback="Task" />}
+                  label={<TranslatedText
+                    stringId="encounter.task.task.label"
+                    fallback="Task"
+                    data-testid='translatedtext-5mtn' />}
                   component={AutocompleteField}
                   suggester={combinedTaskSuggester}
                   multiSection
@@ -195,71 +198,87 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   required
                   onChange={e => handleTaskChange(e, { setFieldValue })}
-                />
+                  data-testid='field-hp09' />
                 <Field
                   name="startTime"
                   label={
                     <TranslatedText
                       stringId="encounter.task.startTime.label"
                       fallback="Start date & time"
-                    />
+                      data-testid='translatedtext-as4z' />
                   }
                   saveDateAsString
                   required
                   component={DateTimeField}
                   min={getCurrentDateTimeString().slice(0, -3)}
-                />
+                  data-testid='field-om46' />
               </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-qmek'>
                 <Field
                   name="requestedByUserId"
                   label={
                     <TranslatedText
                       stringId="encounter.task.requestedBy.label"
                       fallback="Requested by"
-                    />
+                      data-testid='translatedtext-qqag' />
                   }
                   required
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
-                />
+                  data-testid='field-xhot' />
                 <Field
                   name="requestTime"
                   label={
                     <TranslatedText
                       stringId="encounter.task.requestTime.label"
                       fallback="Request date & time"
-                    />
+                      data-testid='translatedtext-342j' />
                   }
                   saveDateAsString
                   required
                   component={DateTimeField}
-                />
+                  data-testid='field-yduo' />
               </FormGrid>
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+                label={<TranslatedText
+                  stringId="general.notes.label"
+                  fallback="Notes"
+                  data-testid='translatedtext-h0ro' />}
                 component={TextField}
                 multiline
                 minRows={4}
                 style={{ gridColumn: 'span 2' }}
-              />
+                data-testid='field-e475' />
             </FormGrid>
-            {selectedTask?.value && <Divider style={{ margin: '20px 0 20px 0' }} />}
+            {selectedTask?.value && <Divider style={{ margin: '20px 0 20px 0' }} data-testid='divider-ce3j' />}
             {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
-              <FormGrid style={{ gridColumn: 'span 2' }}>
-                <NestedFormGrid>
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid='formgrid-2sm7'>
+                <Field
+                  name="designationIds"
+                  label={
+                    <TranslatedText
+                      stringId="general.localisedField.assignedTo.label"
+                      fallback="Assigned to"
+                      data-testid='translatedtext-1kdb' />
+                  }
+                  component={SuggesterSelectField}
+                  endpoint="designation"
+                  isMulti
+                  data-testid='field-npey' />
+                <NestedFormGrid data-testid='nestedformgrid-0y7w'>
                   <Field
                     name="frequencyValue"
                     label={
                       <TranslatedText
                         stringId="task.frequency.label"
                         fallback="Frequency (if repeating task)"
-                      />
+                        data-testid='translatedtext-o2sl' />
                     }
                     min={0}
                     component={NumberField}
                     onInput={preventInvalidNumber}
+                    data-testid='field-7vdy' />
                     onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
@@ -269,9 +288,10 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   />
                   <Field
                     name="frequencyUnit"
-                    label={<InvisibleTitle>.</InvisibleTitle>}
+                    label={<InvisibleTitle data-testid='invisibletitle-ioaf'>.</InvisibleTitle>}
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
+                    data-testid='field-tadr' />
                     onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
@@ -336,28 +356,30 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   name="highPriority"
                   label={
                     <span>
-                      <StyledPriorityHighIcon />
+                      <StyledPriorityHighIcon data-testid='styledpriorityhighicon-cntl' />
                       <TranslatedText
                         stringId="encounter.task.highPriority.label"
                         fallback="High priority task"
-                      />
+                        data-testid='translatedtext-fyjp' />
                     </span>
                   }
                   component={CheckField}
-                />
+                  data-testid='styledcheckfield-qicr' />
               </FormGrid>
             )}
             {selectedTask.type === REFERENCE_TYPES.TASK_SET && (
-              <TaskSetTable tasks={selectedTask.children} />
+              <TaskSetTable tasks={selectedTask.children} data-testid='tasksettable-oltp' />
             )}
-
-            <Divider style={{ margin: '28px -32px 20px -32px' }} />
+            <Divider style={{ margin: '28px -32px 20px -32px' }} data-testid='divider-s2ki' />
             <FormSubmitCancelRow
               onCancel={onClose}
               onConfirm={submitForm}
-              confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+              confirmText={<TranslatedText
+                stringId="general.action.confirm"
+                fallback="Confirm"
+                data-testid='translatedtext-fdxl' />}
               confirmDisabled={isCreatingTasks}
-            />
+              data-testid='formsubmitcancelrow-jcmz' />
           </div>
         );
       }}
@@ -411,6 +433,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         requestTime: getCurrentDateTimeString(),
         requestedByUserId: currentUser?.id,
       }}
-    />
+      data-testid='form-gy7l' />
   );
 });

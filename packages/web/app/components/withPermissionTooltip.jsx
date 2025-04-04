@@ -9,7 +9,9 @@ export const withPermissionTooltip = Component => {
     }
 
     return (
-      <Tooltip title="You do not have permission to complete this action.">
+      <Tooltip
+        title="You do not have permission to complete this action."
+        data-testid='tooltip-zl30'>
         {/*
           Tooltip needs a ref to its children, using an outer div will
           save us from having to modify every component passed to this HOC.

@@ -27,7 +27,7 @@ export const LoadingIndicator = React.memo(({ backgroundColor, opacity, height, 
     height={height}
     width={width}
     opacity={opacity}
-  >
-    <CircularProgress size={size || '5rem'} />
+    data-testid='loadingiconcontainer-v3bb'>
+    <CircularProgress size={size || '5rem'} data-testid='circularprogress-gchq' />
   </LoadingIconContainer>
 ));

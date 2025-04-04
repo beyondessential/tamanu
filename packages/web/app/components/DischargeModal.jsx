@@ -92,7 +92,12 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <FormModal title={title} open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal
+      title={title}
+      open={open}
+      onClose={onClose}
+      cornerExitButton={false}
+      data-testid='formmodal-ti1m'>
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
@@ -100,7 +105,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         dispositionSuggester={dispositionSuggester}
-      />
+        data-testid='dischargeform-xolc' />
     </FormModal>
   );
 });

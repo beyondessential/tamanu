@@ -48,7 +48,7 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.action.createEncounter.success"
             fallback="Encounter successfully started"
-          />,
+            data-testid='translatedtext-21ut' />,
         );
       },
       onError: () =>
@@ -56,7 +56,7 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.action.createEncounter.error"
             fallback="Couldn’t start encounter"
-          />,
+            data-testid='translatedtext-b7r8' />,
         ),
     },
   );
@@ -70,15 +70,18 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.tooltip.alreadyAdmitted"
             fallback="Patient already admitted"
-          />
+            data-testid='translatedtext-qqhh' />
         }
         visible={!!encounter}
-      >
-        <StyledButton onClick={openModal} disabled={!!encounter || isUpdatingAppointment}>
+        data-testid='styledconditionaltooltip-eltp'>
+        <StyledButton
+          onClick={openModal}
+          disabled={!!encounter || isUpdatingAppointment}
+          data-testid='styledbutton-hcp0'>
           <TranslatedText
             stringId="scheduling.action.admitOrCheckIn"
             fallback="Admit or check in"
-          />
+            data-testid='translatedtext-j8hi' />
         </StyledButton>
       </StyledConditionalTooltip>
       <EncounterModal
@@ -93,7 +96,7 @@ export const CheckInButton = ({ appointment }) => {
         noRedirectOnSubmit
         patient={appointment?.patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
-      />
+        data-testid='encountermodal-guyo' />
     </>
   );
 };

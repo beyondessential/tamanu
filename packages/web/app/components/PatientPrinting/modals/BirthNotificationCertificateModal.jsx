@@ -137,8 +137,11 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('birth-notification')}
-    >
-      <PDFLoader isLoading={isLoading} id="birth-notification">
+      data-testid='modal-itxf'>
+      <PDFLoader
+        isLoading={isLoading}
+        id="birth-notification"
+        data-testid='pdfloader-1cur'>
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}
@@ -148,7 +151,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           getLocalisation={getLocalisation}
           language={storedLanguage}
           translations={translations}
-        />
+          data-testid='birthnotificationcertificate-mwfw' />
       </PDFLoader>
     </Modal>
   );

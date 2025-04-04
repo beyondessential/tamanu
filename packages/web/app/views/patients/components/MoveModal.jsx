@@ -18,11 +18,14 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   return (
     <FormModal
       title={
-        <TranslatedText stringId="patient.encounter.action.movePatient" fallback="Move patient" />
+        <TranslatedText
+          stringId="patient.encounter.action.movePatient"
+          fallback="Move patient"
+          data-testid='translatedtext-o1ut' />
       }
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-httn'>
       <Form
         initialValues={{
           // Used in creation of associated notes
@@ -31,7 +34,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={submit}
         render={({ submitForm }) => (
-          <FormGrid columns={1}>
+          <FormGrid columns={1} data-testid='formgrid-wyqp'>
             <Field
               name="locationId"
               component={LocalisedLocationField}
@@ -39,14 +42,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 <TranslatedText
                   stringId="patient.encounter.movePatient.location.label"
                   fallback="New location"
-                />
+                  data-testid='translatedtext-35a6' />
               }
               required
-            />
-            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onClose} />
+              data-testid='field-tykg' />
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              onCancel={onClose}
+              data-testid='formsubmitcancelrow-35ou' />
           </FormGrid>
         )}
-      />
+        data-testid='form-0lgu' />
     </FormModal>
   );
 });

@@ -14,7 +14,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
 
   return (
-    <TabPane>
+    <TabPane data-testid='tabpane-u787'>
       <MedicationModal
         open={createMedicationModalOpen}
         encounterId={encounter.id}
@@ -23,13 +23,13 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           setCreateMedicationModalOpen(false);
           await loadEncounter(encounter.id);
         }}
-      />
+        data-testid='medicationmodal-s2hv' />
       <PrintMultipleMedicationSelectionModal
         encounter={encounter}
         open={printMedicationModalOpen}
         onClose={() => setPrintMedicationModalOpen(false)}
-      />
-      <TableButtonRow variant="small">
+        data-testid='printmultiplemedicationselectionmodal-1zpq' />
+      <TableButtonRow variant="small" data-testid='tablebuttonrow-dl51'>
         <ButtonWithPermissionCheck
           onClick={() => setPrintMedicationModalOpen(true)}
           disabled={readonly}
@@ -37,22 +37,25 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           noun="EncounterMedication"
           variant="outlined"
           color="primary"
-        >
-          <TranslatedText stringId="general.action.print" fallback="Print" />
+          data-testid='buttonwithpermissioncheck-hbja'>
+          <TranslatedText
+            stringId="general.action.print"
+            fallback="Print"
+            data-testid='translatedtext-1vxa' />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setCreateMedicationModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterMedication"
-        >
+          data-testid='buttonwithpermissioncheck-cagj'>
           <TranslatedText
             stringId="medication.action.newPrescription"
             fallback="New prescription"
-          />
+            data-testid='translatedtext-pikt' />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <EncounterMedicationTable encounterId={encounter.id} />
+      <EncounterMedicationTable encounterId={encounter.id} data-testid='encountermedicationtable-gs0p' />
     </TabPane>
   );
 });

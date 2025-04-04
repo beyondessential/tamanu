@@ -20,5 +20,12 @@ export const TimeWithFixedDateField = ({ field, date, ...props }) => {
       : null;
     field.onChange({ target: { value: newValue, name: field.name } });
   };
-  return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;
+  return (
+    <TimeInput
+      name={field.name}
+      value={field.value}
+      {...props}
+      onChange={handleChange}
+      data-testid='timeinput-vbul' />
+  );
 };

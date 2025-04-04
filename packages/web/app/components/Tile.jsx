@@ -44,13 +44,16 @@ const Main = styled.div`
 `;
 
 export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...props }) => (
-  <Container {...props}>
-    <Header>
-      <Icon color="primary" />
-      {actions && !isReadOnly && <MenuButton actions={actions} iconDirection="horizontal" />}
+  <Container {...props} data-testid='container-uk3i'>
+    <Header data-testid='header-7mhd'>
+      <Icon color="primary" data-testid='icon-34xt' />
+      {actions && !isReadOnly && <MenuButton
+        actions={actions}
+        iconDirection="horizontal"
+        data-testid='menubutton-cvj1' />}
     </Header>
-    <Text>{text}</Text>
-    <Main>{main}</Main>
+    <Text data-testid='text-u1af'>{text}</Text>
+    <Main data-testid='main-vs6r'>{main}</Main>
   </Container>
 ));
 
@@ -97,8 +100,8 @@ const OverflowContainer = styled.div`
 `;
 
 export const TileTooltip = React.memo(({ text, ...props }) => (
-  <Tooltip title={text} placement="top" {...props}>
-    <OverflowContainer>{text}</OverflowContainer>
+  <Tooltip title={text} placement="top" {...props} data-testid='tooltip-qkyg'>
+    <OverflowContainer data-testid='overflowcontainer-0mhi'>{text}</OverflowContainer>
   </Tooltip>
 ));
 

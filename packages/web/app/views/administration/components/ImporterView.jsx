@@ -25,7 +25,7 @@ const ContentRow = styled.div`
   justify-content: space-between;
 `;
 
-const ContentColumn = props => <FormGrid columns={1} {...props} />;
+const ContentColumn = props => <FormGrid columns={1} {...props} data-testid='formgrid-9c0n' />;
 
 const StyledButtonRow = styled(ButtonRow)`
   ${p => (p.alignment === 'right' ? `width: 50%` : '')};
@@ -38,13 +38,17 @@ const ERROR_COLUMNS = [
   {
     key: 'error',
     title: 'Message',
-    accessor: data => <ColorText color="red">{data.message}</ColorText>,
+    accessor: data => <ColorText color="red" data-testid='colortext-xmxk'>{data.message}</ColorText>,
     sortable: false,
   },
 ];
 
 const ImportErrorsTable = ({ errors }) => (
-  <Table columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} />
+  <Table
+    columns={ERROR_COLUMNS}
+    noDataMessage="All good!"
+    data={errors}
+    data-testid='table-gzgr' />
 );
 
 const STATS_COLUMNS = [
@@ -55,7 +59,7 @@ const STATS_COLUMNS = [
     key: 'errored',
     title: 'Errored',
     accessor: ({ errored }) => (
-      <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>
+      <ColorText color={errored > 0 ? 'red' : 'green'} data-testid='colortext-u8it'>{errored}</ColorText>
     ),
     sortable: false,
   },
@@ -67,7 +71,7 @@ const ImportStatsDisplay = ({ stats }) => (
     columns={STATS_COLUMNS}
     noDataMessage="Nothing there"
     data={Object.entries(stats).map(([key, data]) => ({ key, ...data }))}
-  />
+    data-testid='table-5r1y' />
 );
 
 const ImportForm = ({
@@ -80,14 +84,17 @@ const ImportForm = ({
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
   const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
   return (
-    <ContentContainer>
+    <ContentContainer data-testid='contentcontainer-2r6k'>
       <Field
         component={FileChooserField}
         filters={[FILTER_EXCEL]}
-        label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
+        label={<TranslatedText
+          stringId="general.selectFile.label"
+          fallback="Select file"
+          data-testid='translatedtext-3ola' />}
         name="file"
         required
-      />
+        data-testid='field-s1qp' />
       {dataTypes && dataTypesSelectable && (
         <Field
           name="includedDataTypes"
@@ -95,27 +102,33 @@ const ImportForm = ({
             <TranslatedText
               stringId="admin.import.includedDataTypes.label"
               fallback="Select data types to import"
-            />
+              data-testid='translatedtext-rnwc' />
           }
           component={ExpandedMultiSelectField}
           options={dataTypes.map(value => ({ value, label: startCase(value) }))}
-        />
+          data-testid='field-3a98' />
       )}
-      <StyledButtonRow alignment={buttonRowAlignment}>
+      <StyledButtonRow alignment={buttonRowAlignment} data-testid='styledbuttonrow-tgi2'>
         <ImportButton
           variant="outlined"
           onSubmit={(event, extraFormData) => {
             submitForm(event, { dryRun: true, ...extraFormData });
           }}
           disabled={!values.file}
-        >
-          <TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />
+          data-testid='importbutton-52k1'>
+          <TranslatedText
+            stringId="admin.import.action.testImport"
+            fallback="Test import"
+            data-testid='translatedtext-pxbf' />
         </ImportButton>
         <ImportButton
           disabled={!values.file}
           onSubmit={(event, extraFormData) => submitForm(event, extraFormData)}
-        >
-          <TranslatedText stringId="general.action.import" fallback="Import" />
+          data-testid='importbutton-o5nh'>
+          <TranslatedText
+            stringId="general.action.import"
+            fallback="Import"
+            data-testid='translatedtext-7esu' />
         </ImportButton>
       </StyledButtonRow>
     </ContentContainer>
@@ -163,14 +176,14 @@ const OutcomeDisplay = ({ result }) => {
 
   return (
     <div>
-      <OutcomeHeader result={result} />
+      <OutcomeHeader result={result} data-testid='outcomeheader-sa5i' />
       <hr />
       <h4>Summary</h4>
-      {result.stats && <ImportStatsDisplay stats={result.stats} />}
+      {result.stats && <ImportStatsDisplay stats={result.stats} data-testid='importstatsdisplay-8zpt' />}
       {result?.errors?.length > 0 && (
         <>
           <h4>Errors</h4>
-          <ImportErrorsTable errors={result?.errors} />
+          <ImportErrorsTable errors={result?.errors} data-testid='importerrorstable-wyj8' />
         </>
       )}
     </div>
@@ -216,7 +229,7 @@ export const ImporterView = memo(
           dataTypesSelectable={dataTypesSelectable}
           ImportButton={ImportButton}
           {...props}
-        />
+          data-testid='importform-ynzi' />
       ),
       [dataTypes, dataTypesSelectable, ImportButton],
     );
@@ -240,14 +253,17 @@ export const ImporterView = memo(
             file: yup
               .string()
               .required()
-              .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
+              .translatedLabel(<TranslatedText
+              stringId="general.file.label"
+              fallback="File"
+              data-testid='translatedtext-600w' />),
           })}
           initialValues={{
             includedDataTypes: initialDataTypes,
           }}
           render={renderForm}
-        />
-        <OutcomeDisplay result={result} />
+          data-testid='form-ezfx' />
+        <OutcomeDisplay result={result} data-testid='outcomedisplay-587u' />
       </>
     );
   },

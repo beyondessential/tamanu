@@ -38,11 +38,11 @@ export const CheckControl = React.memo(({ value, ...props }) => (
       )
     }
     checkedIcon={<StyledIcon className="far fa-check-square" />}
-    indeterminateIcon={<StyledIcon className="far fa-minus-square"></StyledIcon>}
+    indeterminateIcon={<StyledIcon className="far fa-minus-square" data-testid='styledicon-5cen'></StyledIcon>}
     {...props}
     checked={Boolean(value)}
     value="true"
-  />
+    data-testid='checkbox-zsg5' />
 ));
 
 const ControlCheck = styled(CheckControl)`
@@ -54,20 +54,28 @@ const ControlCheck = styled(CheckControl)`
 
 export const CheckInput = React.memo(
   ({ label, value, className, style, error, helperText, ...props }) => (
-    <FormControl style={style} className={className} error={error}>
+    <FormControl
+      style={style}
+      className={className}
+      error={error}>
       <FormControlLabel
-        control={<ControlCheck value={value} {...props} />}
+        control={<ControlCheck value={value} {...props} data-testid='controlcheck-ppji' />}
         style={style}
         label={label}
         $color={error ? Colors.alert : null}
-      />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+        data-testid='formcontrollabel-tzii' />
+      {helperText && <FormHelperText data-testid='formhelpertext-2d0o'>{helperText}</FormHelperText>}
     </FormControl>
   ),
 );
 
 export const CheckField = React.memo(({ field, ...props }) => (
-  <CheckInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <CheckInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid='checkinput-x2e3' />
 ));
 
 CheckInput.propTypes = {

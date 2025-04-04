@@ -35,10 +35,10 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 
   return (
     // Notice that ClickAwayListener only accepts one child element.
-    <ClickAwayListener onClickAway={handleOnClose}>
+    <ClickAwayListener onClickAway={handleOnClose} data-testid='clickawaylistener-j6m2'>
       <div>
-        <GreyOutlinedButton onClick={handleClick}>
-          <FilterListIcon color="primary" />
+        <GreyOutlinedButton onClick={handleClick} data-testid='greyoutlinedbutton-a2al'>
+          <FilterListIcon color="primary" data-testid='filterlisticon-ansb' />
           Filter
         </GreyOutlinedButton>
 
@@ -54,12 +54,12 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
             vertical: 'top',
             horizontal: 'right',
           }}
-        >
+          data-testid='popover-5s9v'>
           <ExpandedMultiSelectField
             selectAllOptionLabel={<small>Select All</small>}
             options={optionsWithSmallLabel}
             field={field}
-          />
+            data-testid='expandedmultiselectfield-rekh' />
         </Popover>
       </div>
     </ClickAwayListener>
@@ -107,5 +107,10 @@ export const VitalMultiChartFilter = () => {
     onChange: handleChange,
   };
 
-  return <DumbVitalMultiChartFilter options={filterOptions} field={field} />;
+  return (
+    <DumbVitalMultiChartFilter
+      options={filterOptions}
+      field={field}
+      data-testid='dumbvitalmultichartfilter-8e0t' />
+  );
 };

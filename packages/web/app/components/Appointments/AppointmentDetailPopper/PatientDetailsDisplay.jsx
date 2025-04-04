@@ -49,30 +49,36 @@ const PatientId = styled('p')`
 export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
   const { displayId, sex, dateOfBirth } = patient;
   return (
-    <Header onClick={onClick} tabIndex={0}>
-      <H2>{getPatientNameAsString(patient)}</H2>
-      <PrimaryDetails>
+    <Header onClick={onClick} tabIndex={0} data-testid='header-p2x8'>
+      <H2 data-testid='h2-9n82'>{getPatientNameAsString(patient)}</H2>
+      <PrimaryDetails data-testid='primarydetails-5tdg'>
         <InlineDetailsDisplay
-          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-          value={<TranslatedSex sex={sex} />}
-        />
+          label={<TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid='translatedtext-6z93' />}
+          value={<TranslatedSex sex={sex} data-testid='translatedsex-zizq' />}
+          data-testid='inlinedetailsdisplay-pqhz' />
         <InlineDetailsDisplay
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-            />
+              data-testid='translatedtext-5omy' />
           }
-          value={<DateDisplay date={dateOfBirth} noTooltip />}
-        />
+          value={<DateDisplay date={dateOfBirth} noTooltip data-testid='datedisplay-qnx5' />}
+          data-testid='inlinedetailsdisplay-320k' />
       </PrimaryDetails>
       <InlineDetailsDisplay
         label={
-          <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
+          <TranslatedText
+            stringId="patient.details.reminderContacts.label"
+            fallback="Contact"
+            data-testid='translatedtext-9cmr' />
         }
         value={additionalData?.primaryContactNumber}
-      />
-      <PatientId>{displayId}</PatientId>
+        data-testid='inlinedetailsdisplay-yceg' />
+      <PatientId data-testid='patientid-xol3'>{displayId}</PatientId>
     </Header>
   );
 };

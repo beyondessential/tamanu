@@ -30,10 +30,13 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
 
   return (
     <FormModal
-      title={<TranslatedText stringId="death.modal.title" fallback="Record patient death" />}
+      title={<TranslatedText
+        stringId="death.modal.title"
+        fallback="Record patient death"
+        data-testid='translatedtext-anoc' />}
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-301r'>
       <DeathForm
         onSubmit={recordPatientDeath}
         onCancel={onClose}
@@ -42,7 +45,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
         diagnosisSuggester={diagnosisSuggester}
         practitionerSuggester={practitionerSuggester}
         facilitySuggester={facilitySuggester}
-      />
+        data-testid='deathform-4faj' />
     </FormModal>
   );
 });

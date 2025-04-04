@@ -27,10 +27,13 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   }, [field.name, answer]);
 
   return (
-    <Container>
+    <Container data-testid='container-xmfz'>
       <div>{label}</div>
       <div>
-        <SurveyAnswerResult answer={surveyResponseAnswer} type={answer?.ProgramDataElement?.type} />
+        <SurveyAnswerResult
+          answer={surveyResponseAnswer}
+          type={answer?.ProgramDataElement?.type}
+          data-testid='surveyanswerresult-m2ey' />
       </div>
     </Container>
   );

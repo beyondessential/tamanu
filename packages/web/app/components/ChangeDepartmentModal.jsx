@@ -28,16 +28,16 @@ export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="patient.encounter.action.changeDepartment"
           fallback="Change department"
-        />
+          data-testid='translatedtext-3xnf' />
       }
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-foxm'>
       <ChangeDepartmentForm
         onSubmit={onSubmit}
         onCancel={onClose}
         departmentSuggester={departmentSuggester}
-      />
+        data-testid='changedepartmentform-uznq' />
     </FormModal>
   );
 });

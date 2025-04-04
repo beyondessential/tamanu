@@ -52,13 +52,13 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         <TranslatedText
           stringId="locationBooking.cancelWarningModal.title"
           fallback="Cancel booking modification"
-        />
+          data-testid='translatedtext-wlb9' />
       }
       subText={
         <TranslatedText
           stringId="locationBooking.cancelWarningModal.subtext"
           fallback="Are you sure you would like to cancel modifying the booking?"
-        />
+          data-testid='translatedtext-u1o4' />
       }
       open={open}
       onConfirm={() => {
@@ -68,18 +68,18 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         <TranslatedText
           stringId="locationBooking.cancelWarningModal.cancelButton"
           fallback="Back to editing"
-        />
+          data-testid='translatedtext-loz1' />
       }
       confirmButtonText={
         <TranslatedText
           stringId="locationBooking.cancelWarningModal.cancelModification"
           fallback="Cancel modification"
-        />
+          data-testid='translatedtext-jg0h' />
       }
       onCancel={() => {
         handleClose(false);
       }}
-    />
+      data-testid='confirmmodal-jx4v' />
   );
 };
 
@@ -88,12 +88,12 @@ const SuccessMessage = ({ isEdit = false }) =>
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyModified"
       fallback="Booking successfully modified"
-    />
+      data-testid='translatedtext-z8jo' />
   ) : (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyCreated"
       fallback="Booking successfully created"
-    />
+      data-testid='translatedtext-icwl' />
   );
 
 const ErrorMessage = ({ isEdit = false, error }) => {
@@ -102,13 +102,13 @@ const ErrorMessage = ({ isEdit = false, error }) => {
       stringId="locationBooking.notification.edit.error"
       fallback="Failed to edit booking with error: :error"
       replacements={{ error: error.message }}
-    />
+      data-testid='translatedtext-85ei' />
   ) : (
     <TranslatedText
       stringId="locationBooking.notification.create.error"
       fallback="Failed to create booking with error: :error"
       replacements={{ error: error.message }}
-    />
+      data-testid='translatedtext-0s83' />
   );
 };
 
@@ -133,17 +133,17 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { mutateAsync: mutateBooking } = useLocationBookingMutation(
     { isEdit },
     {
-      onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} />),
+      onSuccess: () => notifySuccess(<SuccessMessage isEdit={isEdit} data-testid='successmessage-7twp' />),
       onError: error => {
         if (error.message === 409) {
           notifyError(
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
-            />,
+              data-testid='translatedtext-xfb0' />,
           );
         } else {
-          notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
+          notifyError(<ErrorMessage isEdit={isEdit} error={error} data-testid='errormessage-3jmy' />);
         }
       },
     },
@@ -237,9 +237,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             <TranslatedText
               stringId="locationBooking.form.edit.heading"
               fallback="Modify booking"
-            />
+              data-testid='translatedtext-gykj' />
           ) : (
-            <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+            <TranslatedText
+              stringId="locationBooking.form.new.heading"
+              fallback="Book location"
+              data-testid='translatedtext-nugq' />
           )
         }
         description={
@@ -247,16 +250,16 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             <TranslatedText
               stringId="locationBooking.form.edit.description"
               fallback="Modify the selected booking below."
-            />
+              data-testid='translatedtext-o9mp' />
           ) : (
             <TranslatedText
               stringId="locationBooking.form.new.description"
               fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
-            />
+              data-testid='translatedtext-p4qw' />
           )
         }
-      >
-        <FormGrid nested columns={1}>
+        data-testid='drawer-au2a'>
+        <FormGrid nested columns={1} data-testid='formgrid-71fd'>
           <Field
             enableLocationStatus={false}
             name="locationId"
@@ -268,26 +271,36 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             }}
             error={errors.locationId}
             locationGroupSuggesterType="bookableLocationGroup"
-          />
+            data-testid='field-lmrx' />
           <Field
             name="overnight"
             label={
-              <OvernightStayLabel>
-                <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
-                <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
+              <OvernightStayLabel data-testid='overnightstaylabel-fska'>
+                <TranslatedText
+                  stringId="location.overnightStay.label"
+                  fallback="Overnight stay"
+                  data-testid='translatedtext-9koo' />
+                <OvernightIcon
+                  aria-hidden
+                  htmlColor={Colors.primary}
+                  style={{ fontSize: 18 }}
+                  data-testid='overnighticon-mjii' />
               </OvernightStayLabel>
             }
             component={CheckField}
             onChange={() => resetFields(['endDate', 'endTime'])}
-          />
+            data-testid='field-kwns' />
           <DateTimeRangeField
             onChangeStartDate={() => resetFields(['startTime'])}
             required
             separate={values.overnight}
-          />
+            data-testid='datetimerangefield-7m5q' />
           <Field
             component={AutocompleteField}
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            label={<TranslatedText
+              stringId="general.form.patient.label"
+              fallback="Patient"
+              data-testid='translatedtext-mym5' />}
             name="patientId"
             placeholder={getTranslation(
               'general.patient.search.placeholder',
@@ -295,23 +308,29 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             )}
             required
             suggester={patientSuggester}
-          />
+            data-testid='field-uglc' />
           <Field
             name="bookingTypeId"
             label={
-              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+              <TranslatedText
+                stringId="location.form.bookingType.label"
+                fallback="Booking type"
+                data-testid='translatedtext-ohii' />
             }
             component={DynamicSelectField}
             suggester={bookingTypeSuggester}
             required
-          />
+            data-testid='field-hmsi' />
           <Field
             name="clinicianId"
-            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            label={<TranslatedText
+              stringId="general.form.clinician.label"
+              fallback="Clinician"
+              data-testid='translatedtext-i94f' />}
             component={AutocompleteField}
             suggester={clinicianSuggester}
-          />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} />
+            data-testid='field-j6o6' />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid='formsubmitcancelrow-bj5z' />
         </FormGrid>
       </Drawer>
     );
@@ -329,12 +348,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         validationSchema={validationSchema}
         style={formStyles}
         validateOnChange
-      />
+        data-testid='form-rwgy' />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-      />
+        data-testid='warningmodal-v53z' />
     </>
   );
 };

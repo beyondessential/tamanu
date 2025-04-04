@@ -45,28 +45,26 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
 
   return (
     <>
-      <StyledHeading>
+      <StyledHeading data-testid='styledheading-ffp8'>
         <TranslatedText
           stringId="patient.details.removeReminderContact.confirmation"
           fallback="Would you like to remove the below contact?"
-        />
+          data-testid='translatedtext-lg2y' />
       </StyledHeading>
-      <StyledSubHeading>
+      <StyledSubHeading data-testid='styledsubheading-m0c6'>
         <TranslatedText
           stringId="patient.details.removeReminderContact.description"
           fallback="You can add the contact again at any time."
-        />
+          data-testid='translatedtext-fbqb' />
       </StyledSubHeading>
-
-      <ContactDetails 
-        selectedContact={selectedContact} 
-        isRemoveModal 
-        pendingContacts={pendingContacts} 
-        successContactIds={successContactIds}  
-      />
-
-      <StyledFullWidthContainer>
-        <StyledDivider />
+      <ContactDetails
+        selectedContact={selectedContact}
+        isRemoveModal
+        pendingContacts={pendingContacts}
+        successContactIds={successContactIds}
+        data-testid='contactdetails-lsll' />
+      <StyledFullWidthContainer data-testid='styledfullwidthcontainer-i1t0'>
+        <StyledDivider data-testid='styleddivider-yv34' />
       </StyledFullWidthContainer>
       <FormConfirmCancelBackRow
         onBack={onBack}
@@ -74,10 +72,13 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
         onCancel={onClose}
         confirmText={
           !isDeleting
-          ? <TranslatedText stringId="general.action.remove" fallback="Remove" />
-          : <CircularProgress size={16} color="#fff" />
+          ? <TranslatedText
+            stringId="general.action.remove"
+            fallback="Remove"
+            data-testid='translatedtext-o1p3' />
+          : <CircularProgress size={16} color="#fff" data-testid='circularprogress-9m64' />
         }
-      />
+        data-testid='formconfirmcancelbackrow-2d10' />
     </>
   );
 };

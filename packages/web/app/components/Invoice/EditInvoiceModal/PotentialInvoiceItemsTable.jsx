@@ -126,47 +126,73 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
     {
       key: 'orderDate',
-      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-      accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
+      title: <TranslatedText
+        stringId="general.date.label"
+        fallback="Date"
+        data-testid='translatedtext-k54b' />,
+      accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-bayh' />,
     },
     {
       key: 'productCode',
-      title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.code"
+        fallback="Code"
+        data-testid='translatedtext-3vkg' />,
       accessor: ({ productCode }) => productCode,
     },
     {
       key: 'productType',
-      title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.category"
+        fallback="Category"
+        data-testid='translatedtext-bls8' />,
       accessor: ({ productType }) => (
-        <TranslatedEnum value={productType} enumValues={INVOICE_ITEMS_CATEGORY_LABELS} />
+        <TranslatedEnum
+          value={productType}
+          enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
+          data-testid='translatedenum-q8kr' />
       ),
     },
     {
       key: 'productPrice',
-      title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+      title: <TranslatedText
+        stringId="invoice.table.column.price"
+        fallback="Price"
+        data-testid='translatedtext-vkvh' />,
       accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
       key: '',
       sortable: false,
       accessor: row => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
-          <TranslatedText stringId="general.action.add" fallback="Add" />
+        <SingleAddButton
+          variant="outlined"
+          onClick={() => handleAddPotentialInvoiceItems([row])}
+          data-testid='singleaddbutton-sh7m'>
+          <TranslatedText
+            stringId="general.action.add"
+            fallback="Add"
+            data-testid='translatedtext-yvbk' />
         </SingleAddButton>
       ),
     },
   ];
 
   return (
-    <Container>
-      <PaneHeader>
+    <Container data-testid='container-iidv'>
+      <PaneHeader data-testid='paneheader-x4uj'>
         <TranslatedText
           stringId="invoice.modal.potentialItems.title"
           fallback="Patient items to be added"
-        />
+          data-testid='translatedtext-hxbk' />
         {!isEmptyPotentialInvoiceItems && (
-          <BulkAddButton onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}>
-            <TranslatedText stringId="general.action.addAll" fallback="Add all" />
+          <BulkAddButton
+            onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}
+            data-testid='bulkaddbutton-ziik'>
+            <TranslatedText
+              stringId="general.action.addAll"
+              fallback="Add all"
+              data-testid='translatedtext-ziuk' />
           </BulkAddButton>
         )}
       </PaneHeader>
@@ -177,7 +203,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           <TranslatedText
             stringId="invoice.modal.potentialInvoices.table.noData"
             fallback="No patient items to be added"
-          />
+            data-testid='translatedtext-46l9' />
         }
         allowExport={false}
         rowStyle={potentialInvoiceItemRowStyle}
@@ -196,7 +222,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         onChangeOrderBy={onChangeOrderBy}
         customSort={wrappedCustomSort}
         rowIdKey="sourceId"
-      />
+        data-testid='styleddatafetchingtable-5cty' />
     </Container>
   );
 };

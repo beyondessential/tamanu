@@ -53,8 +53,8 @@ export const ExpandedMultiSelectField = ({
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <ScrollingContainer>
-        <MultiSelectItem key="select_all">
+      <ScrollingContainer data-testid='scrollingcontainer-3esm'>
+        <MultiSelectItem key="select_all" data-testid='multiselectitem-2l13'>
           <CheckInput
             label={selectAllOptionLabel}
             value={currentList.length === options.length}
@@ -63,21 +63,21 @@ export const ExpandedMultiSelectField = ({
               const newList = checked ? options.map(option => option.value) : [];
               onChange({ target: { name: fieldName, value: newList } });
             }}
-          />
+            data-testid='checkinput-21pv' />
         </MultiSelectItem>
-        <OptionsContainer>
+        <OptionsContainer data-testid='optionscontainer-zwx2'>
           {options.map(option => {
             const { value, label: optionLabel } = option;
 
             return (
-              <MultiSelectItem key={value}>
+              <MultiSelectItem key={value} data-testid={`multiselectitem-emn6-${value}`}>
                 <CheckInput
                   name={value}
                   key={value}
                   label={optionLabel}
                   value={currentList.includes(value)}
                   onChange={toggle}
-                />
+                  data-testid={`checkinput-67l8-${value}`} />
               </MultiSelectItem>
             );
           })}

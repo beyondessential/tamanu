@@ -23,11 +23,19 @@ export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...
 
   return (
     <FormModal
-      title={<TranslatedText stringId="diagnosis.modal.title" fallback="Diagnosis" />}
+      title={<TranslatedText
+        stringId="diagnosis.modal.title"
+        fallback="Diagnosis"
+        data-testid='translatedtext-o76o' />}
       open={!!diagnosis}
       onClose={onClose}
-    >
-      <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={onSaveDiagnosis} {...props} />
+      data-testid='formmodal-kov5'>
+      <DiagnosisForm
+        onCancel={onClose}
+        diagnosis={diagnosis}
+        onSave={onSaveDiagnosis}
+        {...props}
+        data-testid='diagnosisform-1rdr' />
     </FormModal>
   );
 });

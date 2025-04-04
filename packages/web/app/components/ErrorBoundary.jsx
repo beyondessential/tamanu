@@ -26,15 +26,15 @@ export const ErrorView = React.memo(({ error }) => {
   }, [reduxState]);
 
   return (
-    <ContentPane>
+    <ContentPane data-testid='contentpane-3cof'>
       <h2>Oops!</h2>
       <p>The application encountered an error when trying to display this information.</p>
       <p>The message of the error is:</p>
-      <DebugInfo onClick={logError}>{error.message}</DebugInfo>
+      <DebugInfo onClick={logError} data-testid='debuginfo-4a5k'>{error.message}</DebugInfo>
       <p>The stack of the error are:</p>
-      <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
+      <DebugInfo onClick={logError} data-testid='debuginfo-dnuz'>{error.stack}</DebugInfo>
       <p>The contents of the application state are:</p>
-      <DebugInfo onClick={logState}>{JSON.stringify({ reduxState }, null, 2)}</DebugInfo>
+      <DebugInfo onClick={logState} data-testid='debuginfo-w6d2'>{JSON.stringify({ reduxState }, null, 2)}</DebugInfo>
     </ContentPane>
   );
 });
@@ -63,7 +63,7 @@ export class ErrorBoundary extends React.PureComponent {
     const { ErrorComponent = ErrorView, children } = this.props;
     const { error } = this.state;
     if (error) {
-      return <ErrorComponent error={error} />;
+      return <ErrorComponent error={error} data-testid='errorcomponent-puxl' />;
     }
 
     return children || null;

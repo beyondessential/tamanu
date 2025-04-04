@@ -51,7 +51,7 @@ export const ProgramRegistrySurveyView = () => {
   };
 
   if (isLoading || additionalDataLoading || patientProgramRegistrationLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid='loadingindicator-z681' />;
   }
 
   if (isError) {
@@ -60,7 +60,7 @@ export const ProgramRegistrySurveyView = () => {
         <TranslatedText
           stringId="programRegistry.registryNotFoundMessage"
           fallback="Program registry not found."
-        />
+          data-testid='translatedtext-pkuz' />
       </p>
     );
   }
@@ -76,6 +76,6 @@ export const ProgramRegistrySurveyView = () => {
       patientAdditionalData={additionalData}
       patientProgramRegistration={patientProgramRegistration}
       currentUser={currentUser}
-    />
+      data-testid='surveyview-kuhc' />
   );
 };

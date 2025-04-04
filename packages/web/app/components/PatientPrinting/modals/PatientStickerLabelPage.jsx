@@ -15,9 +15,9 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('patient-label-printout')}
-    >
-      <PDFLoader id="patient-label-printout">
-        <IDLabelPrintout patient={patient} measures={measures} />
+      data-testid='modal-ncnz'>
+      <PDFLoader id="patient-label-printout" data-testid='pdfloader-di0q'>
+        <IDLabelPrintout patient={patient} measures={measures} data-testid='idlabelprintout-m146' />
       </PDFLoader>
     </Modal>
   );

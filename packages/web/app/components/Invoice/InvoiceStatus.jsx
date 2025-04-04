@@ -17,8 +17,11 @@ const StatusLabel = styled.div`
 
 export const InvoiceStatus = ({ status }) => {
   return (
-    <StatusLabel $color={INVOICE_STATUS_COLORS[status]}>
-      <TranslatedEnum value={status} enumValues={INVOICE_STATUS_LABELS} />
+    <StatusLabel $color={INVOICE_STATUS_COLORS[status]} data-testid='statuslabel-yazt'>
+      <TranslatedEnum
+        value={status}
+        enumValues={INVOICE_STATUS_LABELS}
+        data-testid='translatedenum-yj4u' />
     </StatusLabel>
   );
 };

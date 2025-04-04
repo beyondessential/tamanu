@@ -21,13 +21,13 @@ const PrintModalInternals = ({ imagingRequest }) => {
     );
   }
 
-  if (encounterQuery.isFetching) return <LoadingIndicator />;
+  if (encounterQuery.isFetching) return <LoadingIndicator data-testid='loadingindicator-907d' />;
 
   return (
     <MultipleImagingRequestsWrapper
       imagingRequests={[imagingRequest]}
       encounter={encounterQuery.data}
-    />
+      data-testid='multipleimagingrequestswrapper-sx1m' />
   );
 };
 
@@ -40,18 +40,28 @@ export const PrintModalButton = props => {
   return (
     <>
       <Modal
-        title={<TranslatedText stringId="imaging.modal.print.title" fallback="Imaging Request" />}
+        title={<TranslatedText
+          stringId="imaging.modal.print.title"
+          fallback="Imaging Request"
+          data-testid='translatedtext-pw7b' />}
         open={isModalOpen}
         onClose={closeModal}
         width="md"
         color={Colors.white}
         printable
         onPrint={() => printPDF('imaging-request-printout')}
-      >
-        <PrintModalInternals {...props} />
+        data-testid='modal-tdx7'>
+        <PrintModalInternals {...props} data-testid='printmodalinternals-z572' />
       </Modal>
-      <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
-        <TranslatedText stringId="imaging.action.print" fallback="Print request" />
+      <Button
+        variant="outlined"
+        onClick={openModal}
+        style={{ marginLeft: '0.5rem' }}
+        data-testid='button-x89u'>
+        <TranslatedText
+          stringId="imaging.action.print"
+          fallback="Print request"
+          data-testid='translatedtext-6jhk' />
       </Button>
     </>
   );

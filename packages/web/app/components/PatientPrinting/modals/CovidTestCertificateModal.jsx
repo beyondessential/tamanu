@@ -55,9 +55,9 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('test-certificate')}
-      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
-    >
-      <PDFLoader isLoading={isLoading} id="test-certificate">
+      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} data-testid='emailbutton-16lj' />}
+      data-testid='modal-4kfs'>
+      <PDFLoader isLoading={isLoading} id="test-certificate" data-testid='pdfloader-xaua'>
         <CovidLabCertificate
           patient={patientData}
           labs={labTestsResponse?.data}
@@ -68,7 +68,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.test}
-        />
+          data-testid='covidlabcertificate-203o' />
       </PDFLoader>
     </Modal>
   );

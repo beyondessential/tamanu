@@ -17,7 +17,16 @@ export const PatientBarcode = ({
   barWidth = 1,
   barHeight = 35,
 }) => (
-  <BarcodeFrame width={width} height={height} margin={margin}>
-    <Barcode value={patient.displayId} width={barWidth} height={barHeight} margin={0} />
+  <BarcodeFrame
+    width={width}
+    height={height}
+    margin={margin}
+    data-testid='barcodeframe-vgcy'>
+    <Barcode
+      value={patient.displayId}
+      width={barWidth}
+      height={barHeight}
+      margin={0}
+      data-testid='barcode-bzcy' />
   </BarcodeFrame>
 );

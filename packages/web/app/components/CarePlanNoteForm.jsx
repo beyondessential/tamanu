@@ -55,34 +55,40 @@ export function CarePlanNoteForm({
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
+            <TranslatedText
+              stringId="note.validation.content.path"
+              fallback="Content"
+              data-testid='translatedtext-ht1b' />,
           ),
       })}
       formType={note ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       render={() => (
         <>
-          <FormGrid columns={2}>
+          <FormGrid columns={2} data-testid='formgrid-fndf'>
             <Field
               name="onBehalfOfId"
               label={
-                <TranslatedText stringId="carePlan.noteOnBehalfOf.label" fallback="On behalf of" />
+                <TranslatedText
+                  stringId="carePlan.noteOnBehalfOf.label"
+                  fallback="On behalf of"
+                  data-testid='translatedtext-dyao' />
               }
               component={AutocompleteField}
               suggester={practitionerSuggester}
-            />
+              data-testid='field-hh8q' />
             <Field
               name="date"
               label={
                 <TranslatedText
                   stringId="carePlan.noteDateRecorded.label"
                   fallback="Date Recorded"
-                />
+                  data-testid='translatedtext-7ylt' />
               }
               component={DateTimeField}
               saveDateAsString
-            />
+              data-testid='field-qouz' />
           </FormGrid>
-          <FormGrid columns={1}>
+          <FormGrid columns={1} data-testid='formgrid-fw7y'>
             <Field
               name="content"
               placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
@@ -90,21 +96,27 @@ export function CarePlanNoteForm({
               required
               multiline
               minRows={4}
-            />
+              data-testid='field-e8ln' />
           </FormGrid>
-          <SubmitError>{submitError}</SubmitError>
+          <SubmitError data-testid='submiterror-89ce'>{submitError}</SubmitError>
           <FormSubmitCancelRow
             onCancel={note ? onCancel : null}
             confirmText={
               note ? (
-                <TranslatedText stringId="general.action.save" fallback="Save" />
+                <TranslatedText
+                  stringId="general.action.save"
+                  fallback="Save"
+                  data-testid='translatedtext-6uku' />
               ) : (
-                <TranslatedText stringId="general.action.addNote" fallback="Add Note" />
+                <TranslatedText
+                  stringId="general.action.addNote"
+                  fallback="Add Note"
+                  data-testid='translatedtext-97gm' />
               )
             }
-          />
+            data-testid='formsubmitcancelrow-2egx' />
         </>
       )}
-    />
+      data-testid='form-e8ca' />
   );
 }

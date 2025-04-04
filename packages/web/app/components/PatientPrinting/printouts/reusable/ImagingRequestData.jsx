@@ -9,13 +9,14 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
   const imagingRequest = imagingRequestQuery.data;
   if (dataType === 'areas') {
     const areas = imagingRequest?.areas?.length
-      ? imagingRequest?.areas.map(area => <span
+      ? imagingRequest?.areas.map((area, index) => <span
         key={area.id}
       >
         <TranslatedReferenceData
           fallback={area.name}
           value={area.id}
-          category={area.type} />
+          category={area.type}
+          data-testid={`translatedreferencedata-v05q-${index}`} />
       </span>).join(', ')
       : imagingRequest?.areaNote;
     return <p style={{ margin: '0' }}>{areas}</p>;
@@ -24,7 +25,9 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
     return (
       <p style={{ margin: '0' }}>
         {imagingRequest?.results[0]?.completedAt ? (
-          <DateDisplay date={imagingRequest?.results[0]?.completedAt} />
+          <DateDisplay
+            date={imagingRequest?.results[0]?.completedAt}
+            data-testid='datedisplay-igrk' />
         ) : (
           '--/--/----'
         )}

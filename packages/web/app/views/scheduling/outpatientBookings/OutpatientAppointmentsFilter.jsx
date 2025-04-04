@@ -71,7 +71,7 @@ const FormFields = () => {
   }, [groupBy, setFieldValue]);
 
   return (
-    <Fieldset>
+    <Fieldset data-testid='fieldset-gbat'>
       <Field
         component={SearchField}
         name="patientNameOrId"
@@ -79,7 +79,7 @@ const FormFields = () => {
           'scheduling.filter.placeholder.patientNameOrId',
           'Search patient name or ID',
         )}
-      />
+        data-testid='field-keyw' />
       {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
         <Field
           component={FilterField}
@@ -89,7 +89,7 @@ const FormFields = () => {
           onChange={e =>
             updateFilterUserPreferences({ ...filters, locationGroupId: e.target.value })
           }
-        />
+          data-testid='field-fqlx' />
       )}
       {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
         <Field
@@ -98,7 +98,7 @@ const FormFields = () => {
           label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
           name="clinicianId"
           onChange={e => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
-        />
+          data-testid='field-0uvt' />
       )}
       <Field
         component={FilterField}
@@ -108,7 +108,7 @@ const FormFields = () => {
         onChange={e =>
           updateFilterUserPreferences({ ...filters, appointmentTypeId: e.target.value })
         }
-      />
+        data-testid='field-0jh8' />
       <ResetButton
         onClick={() => {
           setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
@@ -116,10 +116,13 @@ const FormFields = () => {
           updateFilterUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
         }}
         type="reset"
-      >
-        <TranslatedText stringId="general.action.clear" fallback="Clear" />
+        data-testid='resetbutton-aw9o'>
+        <TranslatedText
+          stringId="general.action.clear"
+          fallback="Clear"
+          data-testid='translatedtext-1ml9' />
       </ResetButton>
-      <FormListener />
+      <FormListener data-testid='formlistener-eeyr' />
     </Fieldset>
   );
 };
@@ -131,8 +134,8 @@ export const OutpatientAppointmentsFilter = props => {
       enableReinitialize
       initialValues={filters}
       onSubmit={async () => {}}
-      render={() => <FormFields />}
+      render={() => <FormFields data-testid='formfields-485s' />}
       {...props}
-    />
+      data-testid='form-eoaj' />
   );
 };

@@ -32,7 +32,7 @@ export const LabRequestsTable = React.memo(
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-            />
+              data-testid='translatedtext-n6rk' />
           ),
           accessor: getPatientDisplayId,
         },
@@ -94,7 +94,7 @@ export const LabRequestsTable = React.memo(
           order: 'desc',
           orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',
         }}
-      />
+        data-testid='searchtablewithpermissioncheck-yyx3' />
     );
   },
 );

@@ -116,54 +116,84 @@ const LoginFormComponent = ({
   };
 
   return (
-    <FormGrid columns={1}>
+    <FormGrid columns={1} data-testid='formgrid-jpyq'>
       <div>
-        <LoginHeading>
+        <LoginHeading data-testid='loginheading-uupy'>
           {rememberEmail ? (
-            <TranslatedText stringId="login.heading.welcomeBack" fallback="Welcome back" />
+            <TranslatedText
+              stringId="login.heading.welcomeBack"
+              fallback="Welcome back"
+              data-testid='translatedtext-8aef' />
           ) : (
-            <TranslatedText stringId="login.heading.login" fallback="Log in" />
+            <TranslatedText
+              stringId="login.heading.login"
+              fallback="Log in"
+              data-testid='translatedtext-zknz' />
           )}
         </LoginHeading>
-        <LoginSubtext>
-          <TranslatedText stringId="login.subTitle" fallback="Enter your details below to log in" />
+        <LoginSubtext data-testid='loginsubtext-wf66'>
+          <TranslatedText
+            stringId="login.subTitle"
+            fallback="Enter your details below to log in"
+            data-testid='translatedtext-hwc1' />
         </LoginSubtext>
-        {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
+        {!!genericMessage && <FormSubtext data-testid='formsubtext-ppw6'>{genericMessage}</FormSubtext>}
       </div>
       <StyledField
         name="email"
         type="email"
-        label={<TranslatedText stringId="login.email.label" fallback="Email" />}
+        label={<TranslatedText
+          stringId="login.email.label"
+          fallback="Email"
+          data-testid='translatedtext-ga68' />}
         required
         component={TextField}
         placeholder={getTranslation('login.email.placeholder', 'Enter your email address')}
         onChange={() => removeValidation()}
         autoComplete="off"
         enablePasting
-      />
+        data-testid='styledfield-dwnl' />
       <div>
         <StyledField
           name="password"
-          label={<TranslatedText stringId="login.password.label" fallback="Password" />}
+          label={<TranslatedText
+            stringId="login.password.label"
+            fallback="Password"
+            data-testid='translatedtext-7902' />}
           type="password"
           required
           component={TextField}
           placeholder={getTranslation('login.password.placeholder', 'Enter your password')}
           onChange={() => removeValidation()}
           autoComplete="off"
-        />
-        <RememberMeRow>
+          data-testid='styledfield-a9k6' />
+        <RememberMeRow data-testid='remembermerow-feiu'>
           <StyledCheckboxField
             name="rememberMe"
-            label={<TranslatedText stringId="login.rememberMe.label" fallback="Remember me" />}
+            label={<TranslatedText
+              stringId="login.rememberMe.label"
+              fallback="Remember me"
+              data-testid='translatedtext-vwl7' />}
             component={CheckField}
-          />
+            data-testid='styledcheckboxfield-jnlv' />
         </RememberMeRow>
       </div>
-      <LoginButton text={<TranslatedText stringId="login.login.label" fallback="Log in" />} />
-      <LanguageSelector />
-      <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
-        <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot your password?" />
+      <LoginButton
+        text={<TranslatedText
+          stringId="login.login.label"
+          fallback="Log in"
+          data-testid='translatedtext-zt8g' />}
+        data-testid='loginbutton-gx21' />
+      <LanguageSelector data-testid='languageselector-9z0j' />
+      <ForgotPasswordButton
+        onClick={onNavToResetPassword}
+        color="default"
+        variant="text"
+        data-testid='forgotpasswordbutton-mbnb'>
+        <TranslatedText
+          stringId="login.forgotPassword.label"
+          fallback="Forgot your password?"
+          data-testid='translatedtext-427q' />
       </ForgotPasswordButton>
     </FormGrid>
   );
@@ -189,7 +219,7 @@ export const LoginForm = React.memo(
         onNavToResetPassword={onNavToResetPassword}
         setFieldError={setFieldError}
         rememberEmail={rememberEmail}
-      />
+        data-testid='loginformcomponent-g9rh' />
     );
 
     return (
@@ -211,10 +241,13 @@ export const LoginForm = React.memo(
             .string()
             .required()
             .translatedLabel(
-              <TranslatedText stringId="login.password.label" fallback="Password" />,
+              <TranslatedText
+                stringId="login.password.label"
+                fallback="Password"
+                data-testid='translatedtext-bmya' />,
             ),
         })}
-      />
+        data-testid='form-n5by' />
     );
   },
 );

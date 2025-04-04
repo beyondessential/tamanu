@@ -14,8 +14,12 @@ export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
     [api, endpoint, onCancel],
   );
   return (
-    <FormModal title={title} open={open} onClose={onCancel}>
-      <Form formType={FORM_TYPES.CREATE_FORM} onSubmit={onSubmit} onCancel={onCancel} />
+    <FormModal title={title} open={open} onClose={onCancel} data-testid='formmodal-t9up'>
+      <Form
+        formType={FORM_TYPES.CREATE_FORM}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        data-testid='form-3g87' />
     </FormModal>
   );
 };

@@ -19,11 +19,11 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
     noDataBackgroundColor={Colors.background}
     isLoading={isLoading}
     noDataMessage={
-      <Box color={Colors.primary} fontWeight={500}>
+      <Box color={Colors.primary} fontWeight={500} data-testid='box-k3rm'>
         {noDataMessage}
       </Box>
     }
-  />
+    data-testid='table-zmbt' />
 );
 
 export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
@@ -57,14 +57,14 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
   // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
   if (selectedSurveyId && isLoading) {
     return (
-      <Box mt={2}>
-        <LoadingIndicator height="400px" />
+      <Box mt={2} data-testid='box-zgmh'>
+        <LoadingIndicator height="400px" data-testid='loadingindicator-i4u9' />
       </Box>
     );
   }
 
   if (data.length === 0) {
-    return <EmptyChartsTable noDataMessage={noDataMessage} />;
+    return <EmptyChartsTable noDataMessage={noDataMessage} data-testid='emptychartstable-w6z7' />;
   }
 
   return (
@@ -75,7 +75,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
         onClose={() => {
           setOpenEditModal(false);
         }}
-      />
+        data-testid='editvitalcellmodal-2jqx' />
       <DynamicColumnTable
         columns={columns}
         data={data}
@@ -84,7 +84,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
         count={data.length}
         allowExport
         showFooterLegend={showFooterLegend}
-      />
+        data-testid='dynamiccolumntable-ddeu' />
     </>
   );
 });

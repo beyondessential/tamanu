@@ -71,9 +71,9 @@ const CoreInfoValue = styled(Typography)`
 `;
 
 const CoreInfoCell = ({ label, children, testId }) => (
-  <CoreInfoCellContainer data-test-id={testId}>
-    <CoreInfoLabel>{label}</CoreInfoLabel>
-    <CoreInfoValue>{children}</CoreInfoValue>
+  <CoreInfoCellContainer data-test-id={testId} data-testid='coreinfocellcontainer-miwt'>
+    <CoreInfoLabel data-testid='coreinfolabel-isbb'>{label}</CoreInfoLabel>
+    <CoreInfoValue data-testid='coreinfovalue-ycil'>{children}</CoreInfoValue>
   </CoreInfoCellContainer>
 );
 
@@ -107,15 +107,15 @@ const AgeDisplay = styled.span`
 `;
 
 const HealthIdDisplay = ({ displayId }) => (
-  <HealthIdContainer>
-    <HealthId>
-      <HealthIdText>
+  <HealthIdContainer data-testid='healthidcontainer-gdlx'>
+    <HealthId data-testid='healthid-6qrz'>
+      <HealthIdText data-testid='healthidtext-v925'>
         <TranslatedText
           stringId="general.localisedField.displayId.label"
           fallback="National Health Number"
-        />
+          data-testid='translatedtext-spb3' />
       </HealthIdText>
-      <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
+      <HealthIdText data-test-class="display-id-label" data-testid='healthidtext-fqvn'>{displayId}</HealthIdText>
     </HealthId>
   </HealthIdContainer>
 );
@@ -127,39 +127,47 @@ export const CoreInfoDisplay = memo(({ patient }) => {
 
   return (
     <>
-      <PatientButton onClick={() => navigateToPatient(patient.id)}>
-        <NameHeader>
-          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient details" />
+      <PatientButton
+        onClick={() => navigateToPatient(patient.id)}
+        data-testid='patientbutton-7qal'>
+        <NameHeader data-testid='nameheader-edn1'>
+          <TranslatedText
+            stringId="patient.detailsSidebar.title"
+            fallback="Patient details"
+            data-testid='translatedtext-gzkw' />
         </NameHeader>
-        <NameContainer>
+        <NameContainer data-testid='namecontainer-047h'>
           <div>
-            <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
-            <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+            <NameText data-test-id="core-info-patient-first-name" data-testid='nametext-ns8a'>{patient.firstName}</NameText>
+            <NameText data-test-id="core-info-patient-last-name" data-testid='nametext-ttwn'>{patient.lastName}</NameText>
           </div>
-          <PatientInitialsIcon patient={patient} />
+          <PatientInitialsIcon patient={patient} data-testid='patientinitialsicon-wt16' />
         </NameContainer>
       </PatientButton>
-      <CoreInfoSection>
+      <CoreInfoSection data-testid='coreinfosection-ri8t'>
         <CoreInfoCell
-          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          label={<TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid='translatedtext-0qjl' />}
           testId="core-info-patient-sex"
-        >
-          <TranslatedSex sex={patient.sex} />
+          data-testid='coreinfocell-ztu4'>
+          <TranslatedSex sex={patient.sex} data-testid='translatedsex-buqq' />
         </CoreInfoCell>
         <CoreInfoCell
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
-            />
+              data-testid='translatedtext-rn4m' />
           }
           testId="core-info-patient-dob"
-        >
-          <DateDisplay date={patient.dateOfBirth} />
-          <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
+          data-testid='coreinfocell-0opr'>
+          <DateDisplay date={patient.dateOfBirth} data-testid='datedisplay-ez8y' />
+          <AgeDisplay data-testid='agedisplay-gpl9'>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
-      <HealthIdDisplay displayId={patient.displayId} />
+      <HealthIdDisplay displayId={patient.displayId} data-testid='healthiddisplay-su8y' />
     </>
   );
 });
