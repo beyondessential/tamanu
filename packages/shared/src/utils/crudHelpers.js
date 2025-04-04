@@ -62,7 +62,9 @@ export const simpleGet = (modelName, options = {}) =>
     const { auditAccess = false } = options;
     const { models, params, query } = req;
 
-    if (auditAccess) {
+    const object = await findRouteObject(req, modelName);
+
+    if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
         params,
@@ -71,7 +73,6 @@ export const simpleGet = (modelName, options = {}) =>
       });
     }
 
-    const object = await findRouteObject(req, modelName);
     res.send(object);
   });
 
@@ -79,13 +80,21 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const model = models[modelName];
-    const { additionalFilters = {} } = options;
+    const { additionalFilters = {}, auditAccess = false } = options;
     req.checkPermission('read', modelName);
     const object = await model.findOne({
       where: { [foreignKey]: params.id, ...additionalFilters },
       include: model.getFullReferenceAssociations(),
     });
     if (!object) throw new NotFoundError();
+
+    if (auditAccess && object) {
+      await req.audit.access({
+        recordId: object.id,
+        params,
+        model: models[modelName],
+      });
+    }
 
     res.send(transform ? transform(object) : object);
   });
