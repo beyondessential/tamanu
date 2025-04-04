@@ -188,7 +188,7 @@ encounterRelations.get(
       order: orderBy
         ? [
             [...orderBy.split('.'), order.toUpperCase()],
-            ['date', order.toUpperCase()],
+            ['date', 'ASC'],
           ]
         : undefined,
       include: [
