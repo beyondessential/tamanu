@@ -11,9 +11,12 @@ test('Record a vaccine', async ({ page }) => {
 
   // Locate the patient table
   const patientTable = await page.getByRole('table');
+  const loadingCell = await page.getByRole('cell', { name: 'Loading...' });
+
 
   // Await the table to load
   await patientTable.waitFor();
+  await loadingCell.waitFor({ state: 'detached' });
 
   // Get the first row of the table and click
   const firstRow = await patientTable.locator('tbody tr').first();
@@ -25,11 +28,11 @@ test('Record a vaccine', async ({ page }) => {
   await page.waitForURL('**/#/patients/all/*');
 
 
-  const loader = await page.getByTestId('patient-view-loading');
+  const loader = await page.locator('.sc-hHOBiw');
   await loader.waitFor({ state: 'detached' });
 
   // Click on the vaccines tab
-  await page.getByRole('button', { name: 'Vaccines' }).click();
+  await page.getByRole('tab', { name: ' Vaccines' }).click();
 
   // Click on record vaccine button
   await page.getByRole('button', { name: 'Record vaccine' }).click();
