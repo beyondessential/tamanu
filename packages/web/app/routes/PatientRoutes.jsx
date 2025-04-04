@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom';
+import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -25,6 +25,8 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
+import { MarView } from '../views/patients/medication/MarView';
+import { Colors } from '../constants';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -91,6 +93,13 @@ export const usePatientRoutes = () => {
               ),
             },
             {
+              path: `${PATIENT_PATHS.MAR}/view`,
+              component: MarView,
+              title: (
+                <TranslatedText stringId="encounter.mar.title" fallback="Medication Admin Record" />
+              ),
+            },
+            {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
               title: 'New Form',
@@ -138,6 +147,7 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 
 const PatientPane = styled.div`
   overflow: auto;
+  background-color: ${p => p.$backgroundColor};
 `;
 
 const PATIENT_PANE_WIDTH = '650px';
@@ -149,6 +159,8 @@ const PatientPaneInner = styled.div`
 
 export const PatientRoutes = React.memo(() => {
   const patientRoutes = usePatientRoutes();
+  const location = useLocation();
+  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
@@ -156,7 +168,7 @@ export const PatientRoutes = React.memo(() => {
       <PatientInfoPane />
       {/* Using contain:size along with overflow: auto here allows sticky navigation section
       to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <PatientPane>
+      <PatientPane $backgroundColor={backgroundColor}>
         <PatientPaneInner>
           {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
            that they have access to the programRegistryId url param */}
