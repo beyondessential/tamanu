@@ -68,36 +68,29 @@ jobs:
           api: /artifacts/${{ steps.currentv.outputs.current_version }}/translations/any
           arg: --data-binary 'https://translations.ops.tamanu.io/v${{ steps.currentv.outputs.current_version }}.csv'
 
-    - name: Post to meta
-      continue-on-error: true
-      uses: ./.github/actions/meta-api
-      with:
-        url: ${{ vars.META_URL }}
-        crt: ${{ secrets.META_CERT }}
-        key: ${{ secrets.META_KEY }}
-        api: /artifacts/${{ steps.currentv.outputs.current_version }}/translations/any
-        arg: --data-binary 'https://translations.ops.tamanu.io/v${{ steps.currentv.outputs.current_version }}.csv'
+      - name: Post to meta
+        continue-on-error: true
+        uses: ./.github/actions/meta-api
+        with:
+          url: ${{ vars.META_URL }}
+          crt: ${{ secrets.META_CERT }}
+          key: ${{ secrets.META_KEY }}
+          api: /artifacts/${{ steps.currentv.outputs.current_version }}/translations/any
+          arg: --data-binary 'https://translations.ops.tamanu.io/v${{ steps.currentv.outputs.current_version }}.csv'
 
-    - name: get closest previous version
-      id: previousv
-      run: |
-        set -euxo pipefail
-        git fetch --tags --force
-        git tag --list \
-          | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
-          | cut -c2- \
-          | sort --version-sort \
-          | grep -B 1 ${{steps.currentv.outputs.current_version}} \
-          | head -n 1 \
-          | sed 's/^/previous_version=/' \
-          | tee -a $GITHUB_OUTPUT
-
-    - name: Download previous versions translations from s3
-      continue-on-error: true
-      env:
-        pversion: ${{ steps.previousv.outputs.previous_version }}
-      run: |
-        aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
+      - name: get closest previous version
+        id: previousv
+        run: |
+          set -euxo pipefail
+          git fetch --tags --force
+          git tag --list \
+            | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
+            | cut -c2- \
+            | sort --version-sort \
+            | grep -B 1 ${{steps.currentv.outputs.current_version}} \
+            | head -n 1 \
+            | sed 's/^/previous_version=/' \
+            | tee -a $GITHUB_OUTPUT
 
       - name: Download previous versions translations from s3
         continue-on-error: true
@@ -106,18 +99,25 @@ jobs:
         run: |
           aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
 
-    - name: Diff translations
-      run: |
-        cat <<EOF | tee RELEASE_NOTES.md
-        ## Translation Changes
-        *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
-        ```diff
-        $(git diff --no-index previous-translations.csv current-translations.csv || true)
-        ```
-        EOF
+      - name: Download previous versions translations from s3
+        continue-on-error: true
+        env:
+          pversion: ${{ steps.previousv.outputs.previous_version }}
+        run: |
+          aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
 
-    - uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ github.ref_name }}
-        append_body: true
-        body_path: RELEASE_NOTES.md
+      - name: Diff translations
+        run: |
+          cat <<EOF | tee RELEASE_NOTES.md
+          ## Translation Changes
+          *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
+          ```diff
+          $(git diff --no-index previous-translations.csv current-translations.csv || true)
+          ```
+          EOF
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          append_body: true
+          body_path: RELEASE_NOTES.md
