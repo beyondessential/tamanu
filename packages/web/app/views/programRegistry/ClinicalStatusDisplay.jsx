@@ -29,3 +29,7 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
     </ThemedTooltip>
   );
 };
+
+export const ClinicalStatusCell = ({ data }) => {
+  return <ClinicalStatusDisplay clinicalStatus={data.clinicalStatus} />;
+};

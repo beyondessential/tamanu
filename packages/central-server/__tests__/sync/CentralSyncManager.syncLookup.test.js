@@ -2,7 +2,6 @@ import waitForExpect from 'wait-for-expect';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
-  SYNC_DIRECTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
   REPORT_DB_SCHEMAS,
@@ -13,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
-  getModelsForDirection,
+  getModelsForPull,
   findSyncSnapshotRecords,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
@@ -643,7 +642,7 @@ describe('Sync Lookup data', () => {
 
     const since = -1;
     const patientCount = 1;
-    const outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const outgoingModels = getModelsForPull(models);
     await snapshotOutgoingChanges(
       ctx.store,
       outgoingModels,
@@ -716,7 +715,7 @@ describe('Sync Lookup data', () => {
   });
 
   it('Does not snapshot non patient linked records when it is a full snapshot for marked for sync patients', async () => {
-    const outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const outgoingModels = getModelsForPull(models);
 
     const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
       ctx.store.sequelize,

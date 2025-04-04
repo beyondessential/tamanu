@@ -479,7 +479,12 @@ describe('ProgramRegistry', () => {
       expect(body.count).toEqual(1);
       expect(body.data.length).toEqual(1);
       expect(body.data).toMatchObject([
-        { conditions: expect.arrayContaining([decoyCondition.name, relevantCondition.name]) },
+        {
+          conditions: expect.arrayContaining([
+            { id: decoyCondition.id, name: decoyCondition.name },
+            { id: relevantCondition.id, name: relevantCondition.name },
+          ]),
+        },
       ]);
     });
 
