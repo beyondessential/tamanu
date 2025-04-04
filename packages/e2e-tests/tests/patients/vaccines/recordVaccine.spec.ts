@@ -24,6 +24,10 @@ test('Record a vaccine', async ({ page }) => {
 
   await page.waitForURL('**/#/patients/all/*');
 
+
+  const loader = await page.getByTestId('patient-view-loading');
+  await loader.waitFor({ state: 'detached' });
+
   // Click on the vaccines tab
   await page.getByRole('button', { name: 'Vaccines' }).click();
 
