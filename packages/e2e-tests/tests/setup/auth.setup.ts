@@ -7,5 +7,7 @@ setup('authenticate', async ({ page }) => {
   await page.getByRole('button', { name: 'Log in' }).click();
   await page.waitForURL('**/#/dashboard');
 
+  await page.waitForTimeout(1000);
+
   await page.context().storageState({ path: '.auth/user.json' });
 });
