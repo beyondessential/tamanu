@@ -5,6 +5,7 @@ import {
   checkMandatory,
   getComponentForQuestionType,
   getConfigObject,
+  getHelperText,
   getTooltip,
   mapOptionsToValues,
 } from '../../utils';
@@ -86,11 +87,11 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
-  const required = checkMandatory(validationCriteriaObject?.mandatory, {
+  const required = checkMandatory(type, validationCriteriaObject?.mandatory, {
     encounterType: encounterType || encounter?.encounterType,
   });
   const tooltip = getTooltip(type, configObject, getTranslation);
-
+  const helperText = getHelperText(type, detail, getTranslation);
   if (!FieldComponent) {
     return <Text>{text}</Text>;
   }
@@ -106,7 +107,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       name={id}
       options={options}
       config={configObject}
-      helperText={detail}
+      helperText={helperText}
       required={required}
       disabled={disabled}
     />
