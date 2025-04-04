@@ -24,7 +24,7 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central.main.internal.tamanu.io",
+    "host": "https://central.main.cd.tamanu.app",
     "email": "",
     "password": "",
     "timeout": 10000,
