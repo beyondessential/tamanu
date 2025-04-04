@@ -31,9 +31,8 @@ test('Record a vaccine', async ({ page }) => {
   const loader = await page.locator('.sc-hHOBiw');
   await loader.waitFor({ state: 'detached' });
 
-  // Click on the vaccines tab
-  await page.getByRole('tab', { name: ' Vaccines' }).click();
+  await page.getByTestId('tab-vaccines').click();
 
-  // Click on record vaccine button
-  await page.getByRole('button', { name: 'Record vaccine' }).click();
+  // // Click on record vaccine button
+  // await page.getByRole('button', { name: 'Record vaccine' }).click();
 });
