@@ -1,9 +1,11 @@
 import React from 'react';
-import { AutocompleteField, TextField } from '../../../../../components';
+import { AutocompleteField, HierarchyFields, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { useFilterPatientFields } from '../../../useFilterPatientFields';
 
 export const GenericLocationFields = ({ filterByMandatory }) => {
   const subdivisionSuggester = useSuggester('subdivision');
@@ -84,10 +86,50 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
       ),
     },
   };
+
+  const CURRENT_LOCATION_HIERARCHY_FIELDS = {
+    divisionId: {
+      referenceType: REFERENCE_TYPES.DIVISION,
+      label: (
+        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Province" />
+      ),
+    },
+    subdivisionId: {
+      referenceType: REFERENCE_TYPES.SUBDIVISION,
+      label: (
+        <TranslatedText stringId="general.localisedField.subdivisionId.label" fallback="District" />
+      ),
+    },
+    settlementId: {
+      referenceType: REFERENCE_TYPES.SETTLEMENT,
+      label: (
+        <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />
+      ),
+    },
+    villageId: {
+      referenceType: REFERENCE_TYPES.VILLAGE,
+      label: (
+        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+      ),
+    },
+  };
+
+  const { fieldsToShow: locationHierarchyFieldsToShow } = useFilterPatientFields({
+    fields: CURRENT_LOCATION_HIERARCHY_FIELDS,
+    filterByMandatory,
+  });
+
   return (
-    <ConfiguredMandatoryPatientFields
-      fields={LOCATION_FIELDS}
-      filterByMandatory={filterByMandatory}
-    />
+    <>
+      <HierarchyFields
+        relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
+        leafNodeType={REFERENCE_TYPES.VILLAGE}
+        fields={locationHierarchyFieldsToShow}
+      />
+      <ConfiguredMandatoryPatientFields
+        fields={LOCATION_FIELDS}
+        filterByMandatory={filterByMandatory}
+      />
+    </>
   );
 };
