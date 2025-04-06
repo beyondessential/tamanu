@@ -11,7 +11,7 @@ import { useSettings } from '../../../../../contexts/Settings';
 export const GenericLocationFields = ({ filterByMandatory }) => {
   const { getSetting } = useSettings();
 
-  const isUsingHierarchyLogic = true;
+  const isUsingHierarchyLogic = getSetting('features.useLocationHierarchy');
 
   const subdivisionSuggester = useSuggester('subdivision');
   const divisionSuggester = useSuggester('division');
