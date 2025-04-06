@@ -37,6 +37,7 @@ export const GenericPrimaryDetailsLayout = ({
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
+  const isUsingHierarchyLogic = true;
 
   return (
     <>
@@ -106,15 +107,21 @@ export const GenericPrimaryDetailsLayout = ({
           required
           saveDateAsString
         />
-        <LocalisedField
-          name="villageId"
-          label={
-            <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
-          }
-          component={AutocompleteField}
-          suggester={villageSuggester}
-          required={isRequiredPatientData('villageId')}
-        />
+
+        {!isUsingHierarchyLogic && (
+          <LocalisedField
+            name="villageId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.villageId.label"
+                fallback="Village"
+              />
+            }
+            component={AutocompleteField}
+            suggester={villageSuggester}
+            required={isRequiredPatientData('villageId')}
+          />
+        )}
         <LocalisedField
           name="sex"
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
