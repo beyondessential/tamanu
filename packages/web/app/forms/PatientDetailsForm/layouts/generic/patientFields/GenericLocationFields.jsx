@@ -6,8 +6,13 @@ import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
+import { useSettings } from '../../../../../contexts/Settings';
 
 export const GenericLocationFields = ({ filterByMandatory }) => {
+  const { getSetting } = useSettings();
+
+  const isUsingHierarchyLogic = true;
+
   const subdivisionSuggester = useSuggester('subdivision');
   const divisionSuggester = useSuggester('division');
   const settlementSuggester = useSuggester('settlement');
@@ -22,23 +27,30 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />
       ),
     },
-    subdivisionId: {
-      component: AutocompleteField,
-      suggester: subdivisionSuggester,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.subdivisionId.label"
-          fallback="Sub division"
-        />
-      ),
-    },
-    divisionId: {
-      component: AutocompleteField,
-      suggester: divisionSuggester,
-      label: (
-        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
-      ),
-    },
+    ...(isUsingHierarchyLogic
+      ? {}
+      : {
+          subdivisionId: {
+            component: AutocompleteField,
+            suggester: subdivisionSuggester,
+            label: (
+              <TranslatedText
+                stringId="general.localisedField.subdivisionId.label"
+                fallback="Sub division"
+              />
+            ),
+          },
+          divisionId: {
+            component: AutocompleteField,
+            suggester: divisionSuggester,
+            label: (
+              <TranslatedText
+                stringId="general.localisedField.divisionId.label"
+                fallback="Division"
+              />
+            ),
+          },
+        }),
     countryId: {
       component: AutocompleteField,
       suggester: countrySuggester,
@@ -46,16 +58,20 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />
       ),
     },
-    settlementId: {
-      component: AutocompleteField,
-      suggester: settlementSuggester,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.settlementId.label"
-          fallback="Settlement"
-        />
-      ),
-    },
+    ...(isUsingHierarchyLogic
+      ? {}
+      : {
+          settlementId: {
+            component: AutocompleteField,
+            suggester: settlementSuggester,
+            label: (
+              <TranslatedText
+                stringId="general.localisedField.settlementId.label"
+                fallback="Settlement"
+              />
+            ),
+          },
+        }),
     medicalAreaId: {
       component: AutocompleteField,
       suggester: medicalAreaSuggester,
@@ -91,19 +107,25 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
     divisionId: {
       referenceType: REFERENCE_TYPES.DIVISION,
       label: (
-        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Province" />
+        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
       ),
     },
     subdivisionId: {
       referenceType: REFERENCE_TYPES.SUBDIVISION,
       label: (
-        <TranslatedText stringId="general.localisedField.subdivisionId.label" fallback="District" />
+        <TranslatedText
+          stringId="general.localisedField.subdivisionId.label"
+          fallback="Sub division"
+        />
       ),
     },
     settlementId: {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
       label: (
-        <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />
+        <TranslatedText
+          stringId="general.localisedField.settlementId.label"
+          fallback="Settlement"
+        />
       ),
     },
     villageId: {
@@ -121,11 +143,13 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
 
   return (
     <>
-      <HierarchyFields
-        relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
-        leafNodeType={REFERENCE_TYPES.VILLAGE}
-        fields={locationHierarchyFieldsToShow}
-      />
+      {isUsingHierarchyLogic && (
+        <HierarchyFields
+          relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
+          leafNodeType={REFERENCE_TYPES.VILLAGE}
+          fields={locationHierarchyFieldsToShow}
+        />
+      )}
       <ConfiguredMandatoryPatientFields
         fields={LOCATION_FIELDS}
         filterByMandatory={filterByMandatory}
