@@ -1,13 +1,6 @@
-import { test as setup } from '@playwright/test';
+import { test as setup } from '../../fixtures/baseFixture';
 
-setup('authenticate', async ({ page }) => {
-  await page.goto('/');
-  await page.getByPlaceholder('Enter your email address').fill(process.env.TEST_EMAIL!);
-  await page.getByPlaceholder('Enter your password').fill(process.env.TEST_PASSWORD!);
-  await page.getByRole('button', { name: 'Log in' }).click();
-  await page.waitForURL('**/#/dashboard');
-
-  await page.waitForTimeout(1000);
-
-  await page.context().storageState({ path: '.auth/user.json' });
+setup('authenticate', async ({ loginPage }) => {
+  await loginPage.goto();
+  await loginPage.login(process.env.TEST_EMAIL, process.env.TEST_PASSWORD);
 });

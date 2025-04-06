@@ -1,17 +1,24 @@
+import { Locator, Page } from '@playwright/test';
+
 import { BasePage } from './BasePage';
+import { routes } from '../config/routes';
 
 export class LoginPage extends BasePage {
-  constructor(page) {
-    super(page);
+  readonly loginButton: Locator;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+
+  constructor(page: Page) {
+    super(page, routes.login);
+    this.loginButton = page.getByTestId('loginbutton-gx21');
+    this.emailInput = page.getByTestId('styledfield-dwnl').locator('input');
+    this.passwordInput = page.getByTestId('styledfield-a9k6').locator('input');
   }
 
-  async login(username, password) {
-    await this.page.fill('input[name="username"]', username);
-    await this.page.fill('input[name="password"]', password);
-    await this.page.click('button[type="submit"]');
-  }
-
-  async logout() {
-    await this.page.click('button#logout');
+  async login(email, password) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+    await this.page.waitForURL(routes.dashboard);
   }
 }
