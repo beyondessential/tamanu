@@ -6,7 +6,6 @@
     "path": "",
     "consoleLevel": "http",
     "color": true,
-    "enableAuditLog": false,
     "timeless": false,
   },
   "honeycomb": {
