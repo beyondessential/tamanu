@@ -60,23 +60,30 @@ export const userMiddleware = ({ secret }) =>
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
+    const auditSettings = {
+      accesses: { enabled: true },
+      changes: { enabled: true },
+    };
+
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: async ({ recordId, params, model }) =>
-        req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        }),
+      access: auditSettings.accesses.enabled
+        ? async ({ recordId, params, model }) =>
+            req.models.AccessLog.create({
+              userId,
+              recordId,
+              recordType: model.name,
+              sessionId,
+              isMobile: false,
+              frontEndContext: params,
+              backEndContext: { endpoint: req.originalUrl },
+              loggedAt: new Date(),
+              facilityId: null,
+              deviceId: req.deviceId || 'unknown-device',
+              version,
+            })
+        : () => null,
     };
 
     const spanAttributes = user
