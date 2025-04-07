@@ -22,6 +22,12 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { HierarchyFields } from '../../HierarchyFields';
+import { screenPercentageToDP } from '~/ui/helpers/screen';
+import { Orientation } from '~/ui/helpers/screen';
+import { theme } from '~/ui/styled/theme';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { StyledText } from '~/ui/styled/common';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -92,11 +98,30 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
       required={required}
     />
   );
 };
+
+const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
+  if (isEdit) {
+    return <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />;
+  }
+
+  return (
+    <StyledView>
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP(2.4, Orientation.Height)}
+        fontWeight={500}
+        marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
+      >
+        <TranslatedText stringId={'patient.details.subheading.currentAddress'} fallback={'Current address'} />
+      </StyledText>
+      <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
+    </StyledView>
+  );
 
 function getComponentForField(
   fieldName: string,
@@ -113,6 +138,9 @@ function getComponentForField(
   }
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
+  }
+  if (Object.values(CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS).includes(fieldName)) {
+    return HierarchyField;
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
@@ -146,7 +174,7 @@ export const PatientAdditionalDataFields = ({
   );
 
   if (isCustomSection)
-    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 

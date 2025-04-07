@@ -19,7 +19,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
       isCustomSection,
       customSectionFields,
       customPatientFieldValues,
-      sectionKey
+      sectionKey,
     ) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData, {
         patientName: joinNames(patient),
@@ -29,7 +29,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
         isCustomSection,
         customSectionFields,
         customPatientFieldValues,
-        sectionKey
+        sectionKey,
       });
     },
     [navigation, patient],
@@ -38,6 +38,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
+      {/* Any required additional data fields are added here */}
       <AdditionalInfo
         patient={patient}
         onEdit={editPatientAdditionalData}
