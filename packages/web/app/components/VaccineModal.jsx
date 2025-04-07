@@ -94,6 +94,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
       open={open}
       onClose={onClose}
       width="md"
+      data-testid="modal-record-vaccine"
     >
       <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </FormModal>

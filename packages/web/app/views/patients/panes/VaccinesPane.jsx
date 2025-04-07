@@ -133,6 +133,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             noun="PatientVaccine"
             onClick={() => setIsAdministerModalOpen(true)}
             disabled={readonly}
+            data-testid="buttonwithpermissioncheck-zmgl"
           >
             <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
           </ButtonWithPermissionCheck>
