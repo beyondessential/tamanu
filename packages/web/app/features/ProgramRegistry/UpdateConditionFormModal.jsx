@@ -32,7 +32,7 @@ const useUpdateConditionMutation = (patientProgramRegistrationId, conditionId) =
 
   return useMutation(
     data => {
-      return api.put(`patient/programRegistrationCondition/${conditionId}`, data);
+      return api.put(`patient/programRegistration/condition/${conditionId}`, data);
     },
     {
       onSuccess: () => {

@@ -101,11 +101,11 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.put(
-  '/programRegistration/:programRegistrationId',
+  '/programRegistration/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'PatientProgramRegistration');
     const { db, models, params, body } = req;
-    const { programRegistrationId } = params;
+    const { id } = params;
     const { conditions = [], ...registrationData } = body;
     const { PatientProgramRegistration } = models;
 
@@ -113,7 +113,7 @@ patientProgramRegistration.put(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');

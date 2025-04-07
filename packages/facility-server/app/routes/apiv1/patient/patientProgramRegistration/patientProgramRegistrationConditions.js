@@ -6,7 +6,7 @@ import { NotFoundError } from '@tamanu/shared/errors';
 export const patientProgramRegistrationConditions = express.Router();
 
 patientProgramRegistrationConditions.put(
-  '/programRegistrationCondition/:id',
+  '/condition/:id',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
     const { id } = params;
@@ -28,7 +28,7 @@ patientProgramRegistrationConditions.put(
 );
 
 patientProgramRegistrationConditions.get(
-  '/programRegistration/:programRegistrationId/condition',
+  '/:programRegistrationId/condition',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { programRegistrationId } = params;
