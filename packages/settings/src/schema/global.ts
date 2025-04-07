@@ -256,7 +256,7 @@ export const globalSettings = {
           // TODO: Feels like it should be somewhere else
           description: 'Use location hierarchy in patient details',
           type: yup.boolean(),
-          defaultValue: true,
+          defaultValue: false,
         },
       },
     },
