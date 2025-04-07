@@ -23,11 +23,12 @@ import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/gene
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { HierarchyFields } from '../../HierarchyFields';
-import { screenPercentageToDP } from '~/ui/helpers/screen';
-import { Orientation } from '~/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
+import { ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -104,9 +105,9 @@ const getCustomFieldComponent = (
   );
 };
 
-const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
+const AddressHierarchyField = ({ isEdit }): ReactElement => {
   if (isEdit) {
-    return <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />;
+    return <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />;
   }
 
   return (
@@ -117,11 +118,15 @@ const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
         fontWeight={500}
         marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
       >
-        <TranslatedText stringId={'patient.details.subheading.currentAddress'} fallback={'Current address'} />
+        <TranslatedText
+          stringId={'patient.details.subheading.currentAddress'}
+          fallback={'Current address'}
+        />
       </StyledText>
-      <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
+      <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />
     </StyledView>
   );
+};
 
 function getComponentForField(
   fieldName: string,
@@ -139,8 +144,8 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
-  if (Object.values(CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS).includes(fieldName)) {
-    return HierarchyField;
+  if (fieldName === ADDITIONAL_DATA_FIELDS.VILLAGE_ID) {
+    return AddressHierarchyField;
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);

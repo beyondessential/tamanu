@@ -34,14 +34,16 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     [PATIENT_DATA_FIELDS.SEX, getGender(patient.sex)],
     [PATIENT_DATA_FIELDS.DATE_OF_BIRTH, formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     [PATIENT_DATA_FIELDS.EMAIL, patient.email],
-    !isUsingHierarchyLogic && [
-      PATIENT_DATA_FIELDS.VILLAGE_ID,
-      <TranslatedReferenceData
-        fallback={patient.village?.name ?? ''}
-        value={patient.village?.id}
-        category="village"
-      />,
-    ],
+    ...(isUsingHierarchyLogic
+      ? []
+      : [
+          PATIENT_DATA_FIELDS.VILLAGE_ID,
+          <TranslatedReferenceData
+            fallback={patient.village?.name ?? ''}
+            value={patient.village?.id}
+            category="village"
+          />,
+        ]),
   ];
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
