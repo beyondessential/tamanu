@@ -41,7 +41,7 @@ export const labels = {
     />
   ),
   [ADDITIONAL_DATA_FIELDS.PASSPORT]: (
-    <TranslatedText stringId="general.localisedField.passport.label" fallback="Passport" />
+    <TranslatedText stringId="general.localisedField.passport.label.short" fallback="Passport" />
   ),
   [ADDITIONAL_DATA_FIELDS.PRIMARY_CONTACT_NUMBER]: (
     <TranslatedText
@@ -113,7 +113,7 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.socialMedia.label" fallback="Social media" />
   ),
   [ADDITIONAL_DATA_FIELDS.PATIENT_BILLING_TYPE_ID]: (
-    <TranslatedText stringId="general.localisedField.patientBillingTypeId.label" fallback="Type" />
+    <TranslatedText stringId="general.localisedField.patientBillingTypeId.label.short" fallback="Type" />
   ),
   [ADDITIONAL_DATA_FIELDS.STREET_VILLAGE]: (
     <TranslatedText
