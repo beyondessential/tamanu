@@ -8,17 +8,26 @@ export const ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS = [
   {
     name: ADDITIONAL_DATA_FIELDS.DIVISION_ID,
     referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+    label: (
+      <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
+    ),
   },
   {
     name: ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
     referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+    label: (
+      <TranslatedText
+        stringId="general.localisedField.subdivisionId.label"
+        fallback="Sub division"
+      />
+    ),
   },
   {
     name: ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
     referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+    label: (
+      <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Settlement" />
+    ),
   },
   {
     name: PATIENT_DATA_FIELDS.VILLAGE_ID,
@@ -65,7 +74,10 @@ const GENERIC_ADDITIONAL_DATA_FIELDS = {
   ],
   OTHER_WITH_HIERARCHY: [
     PATIENT_DATA_FIELDS.VILLAGE_ID,
+    ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+    ADDITIONAL_DATA_FIELDS.DIVISION_ID,
     ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
+    ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
     ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
     ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
   ],
@@ -111,5 +123,15 @@ export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: GENERIC_ADDITIONAL_DATA_FIELDS.OTHER,
+  },
+  {
+    sectionKey: 'otherWithHierarchy',
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.otherWithHierarchy"
+        fallback="Other information with hierarchy"
+      />
+    ),
+    fields: GENERIC_ADDITIONAL_DATA_FIELDS.OTHER_WITH_HIERARCHY,
   },
 ];
