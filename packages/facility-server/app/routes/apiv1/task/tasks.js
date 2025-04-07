@@ -20,10 +20,7 @@ export { taskRoutes as tasks };
  * Only tasks in TODO & NON_COMPLETED status can be marked as completed
  */
 const taskCompletionInputSchema = z.object({
-  taskIds: z
-    .string()
-    .array()
-    .min(1),
+  taskIds: z.string().array().min(1),
   completedByUserId: z.string(),
   completedTime: datetimeCustomValidation,
   completedNote: z.string().optional(),
@@ -61,10 +58,7 @@ taskRoutes.post(
  * Only tasks in TODO & COMPLETED status can be marked as not completed
  */
 const taskNonCompletionInputSchema = z.object({
-  taskIds: z
-    .string()
-    .array()
-    .min(1),
+  taskIds: z.string().array().min(1),
   notCompletedByUserId: z.string(),
   notCompletedTime: datetimeCustomValidation,
   notCompletedReasonId: z.string().optional(),
@@ -114,10 +108,7 @@ taskRoutes.put(
  * Only allow to delete task with TODO status
  */
 const taskDeletionInputSchema = z.object({
-  taskIds: z
-    .string()
-    .array()
-    .min(1),
+  taskIds: z.string().array().min(1),
   deletedByUserId: z.string(),
   deletedTime: datetimeCustomValidation,
   deletedReasonId: z.string().optional(),
@@ -209,13 +200,10 @@ taskRoutes.delete(
  * - Delete the selected task
  */
 const taskTodoInputSchema = z.object({
-  taskIds: z
-    .string()
-    .array()
-    .min(1),
+  taskIds: z.string().array().min(1),
   todoByUserId: z.string(),
   todoTime: datetimeCustomValidation.refine(
-    datetime => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
+    (datetime) => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
     'Task is older than 48 hours',
   ),
   todoNote: z.string().optional(),
@@ -250,7 +238,7 @@ taskRoutes.put(
     if (!tasks?.length) throw new NotFoundError('No tasks not found');
 
     const allowedStatuses = [TASK_STATUSES.COMPLETED, TASK_STATUSES.NON_COMPLETED];
-    if (!tasks.every(task => allowedStatuses.includes(task.status)))
+    if (!tasks.every((task) => allowedStatuses.includes(task.status)))
       throw new ForbiddenError(`Task is not in ${allowedStatuses.join(', ')} status`);
 
     const updateParentIdList = [];
@@ -269,7 +257,7 @@ taskRoutes.put(
           deletedAt: null,
         });
         await req.models.TaskDesignation.bulkCreate(
-          task.dataValues.designations.map(designation => ({
+          task.dataValues.designations.map((designation) => ({
             designationId: designation.id,
             taskId: newId,
           })),
@@ -307,10 +295,9 @@ const tasksCreationSchema = z.object({
       name: z.string(),
       frequencyValue: z.number().optional(),
       frequencyUnit: z.string().optional(),
-      designationIds: z
-        .string()
-        .array()
-        .optional(),
+      durationValue: z.number().optional(),
+      durationUnit: z.string().optional(),
+      designationIds: z.string().array().optional(),
       highPriority: z.boolean(),
     })
     .array(),
@@ -319,20 +306,14 @@ taskRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Tasking');
-    const {
-      startTime,
-      requestedByUserId,
-      requestTime,
-      encounterId,
-      note,
-      tasks,
-    } = await tasksCreationSchema.parseAsync(req.body);
+    const { startTime, requestedByUserId, requestTime, encounterId, note, tasks } =
+      await tasksCreationSchema.parseAsync(req.body);
     const { models, db } = req;
     const { Task, TaskDesignation } = models;
 
     await db.transaction(async () => {
-      const tasksData = tasks.map(task => {
-        const designations = task.designationIds.map(designation => ({
+      const tasksData = tasks.map((task) => {
+        const designations = task.designationIds.map((designation) => ({
           id: designation,
         }));
 
@@ -350,8 +331,8 @@ taskRoutes.post(
 
       const createdTasks = await Task.bulkCreate(tasksData);
 
-      const taskDesignationAssociations = tasksData.flatMap(task => {
-        return task.designations.map(designation => ({
+      const taskDesignationAssociations = tasksData.flatMap((task) => {
+        return task.designations.map((designation) => ({
           taskId: task.id,
           designationId: designation.id,
         }));
@@ -359,7 +340,7 @@ taskRoutes.post(
 
       await TaskDesignation.bulkCreate(taskDesignationAssociations);
 
-      const hasRepeatedTasks = tasksData.some(task => task.frequencyValue && task.frequencyUnit);
+      const hasRepeatedTasks = tasksData.some((task) => task.frequencyValue && task.frequencyUnit);
       if (hasRepeatedTasks) {
         await Task.generateRepeatingTasks(tasksData);
       }

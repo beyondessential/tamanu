@@ -1,12 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -25,9 +30,6 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:5173',
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
@@ -70,25 +72,37 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'npm run start-dev --workspace=@tamanu/central-server',
-      port: 3000,
-      reuseExistingServer: !process.env.CI,
-      timeout: 240 * 1000,
-    },
-    {
-      command: 'npm run start-dev --workspace=@tamanu/facility-server',
-      port: 4000,
-      reuseExistingServer: !process.env.CI,
-      timeout: 240 * 1000,
-    },
-    {
-      command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
-      port: 5173,
-      reuseExistingServer: !process.env.CI,
-      timeout: 240 * 1000,
-    },
-  ],
+  /* Automatically run your local servers and frontends before starting the tests if running tests against local environment */
+  ...(process.env.LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS === 'true' ? {
+    webServer: [
+      {
+        command: 'npm run start-dev --workspace=@tamanu/central-server',
+        port: 3000,
+        reuseExistingServer: !process.env.CI,
+        timeout: 240 * 1000,
+        stdout: 'pipe',
+      },
+      {
+        command: 'npm run start-dev --workspace=@tamanu/facility-server',
+        port: 4000,
+        reuseExistingServer: !process.env.CI,
+        timeout: 240 * 1000,
+        stdout: 'pipe',
+      },
+      {
+        command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
+        port: 5173,
+        reuseExistingServer: !process.env.CI,
+        timeout: 240 * 1000,
+        stdout: 'pipe',
+      },
+      {
+        command: 'npm run admin-start-dev --workspace @tamanu/web-frontend',
+        port: 5174,
+        reuseExistingServer: !process.env.CI,
+        timeout: 240 * 1000,
+        stdout: 'pipe',
+      },
+    ],
+  } : {}),
 });

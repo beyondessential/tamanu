@@ -25,8 +25,6 @@ export const simpleUpdateModels = [
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
-  'PatientProgramRegistration',
-  'PatientProgramRegistrationCondition',
   'PatientContact',
   'IPSRequest',
   'Notification',
@@ -38,6 +36,8 @@ export const simpleUpdateModels = [
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
+  'PatientProgramRegistration',
+  'PatientProgramRegistrationCondition',
   'PatientBirthData',
   'PatientDeathData',
   'Note',
@@ -217,6 +217,62 @@ export async function mergePatientDeathData(models, keepPatientId, unwantedPatie
   return results;
 }
 
+export async function mergePatientProgramRegistrations(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedRegistrations = await models.PatientProgramRegistration.findAll({
+    where: { patientId: unwantedPatientId },
+  });
+
+  if (!existingUnwantedRegistrations.length) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const unwantedRegistration of existingUnwantedRegistrations) {
+    // Move to keep patient and reset isMostRecent to false
+    await unwantedRegistration.update({
+      patientId: keepPatientId,
+      isMostRecent: false,
+    });
+
+    // Soft delete the registration
+    await unwantedRegistration.destroy();
+    results.push(unwantedRegistration);
+  }
+
+  return results;
+}
+
+export async function mergePatientProgramRegistrationConditions(
+  models,
+  keepPatientId,
+  unwantedPatientId,
+) {
+  const existingUnwantedRegistrationConditions =
+    await models.PatientProgramRegistrationCondition.findAll({
+      where: { patientId: unwantedPatientId },
+    });
+
+  if (!existingUnwantedRegistrationConditions.length) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const unwantedCondition of existingUnwantedRegistrationConditions) {
+    // Move to keep patient
+    await unwantedCondition.update({
+      patientId: keepPatientId,
+    });
+
+    // Soft delete the registration
+    await unwantedCondition.destroy();
+    results.push(unwantedCondition);
+  }
+
+  return results;
+}
+
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: unwantedPatientId },
@@ -377,6 +433,22 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     );
     if (fieldValueUpdates.length > 0) {
       updates.PatientFieldValue = fieldValueUpdates.length;
+    }
+
+    const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (patientProgramRegistrationUpdates.length > 0) {
+      updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
+    }
+
+    const patientProgramRegistrationConditionUpdates =
+      await mergePatientProgramRegistrationConditions(models, keepPatientId, unwantedPatientId);
+    if (patientProgramRegistrationConditionUpdates.length > 0) {
+      updates.PatientProgramRegistrationCondition =
+        patientProgramRegistrationConditionUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

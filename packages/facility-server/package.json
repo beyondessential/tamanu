@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/facility-server",
-  "version": "2.29.0",
+  "version": "2.30.0",
   "private": true,
   "description": "Facility server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -79,6 +79,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "umzug": "^2.3.0",
+    "undici": "^7.5.0",
     "uuid": "^11.0.3",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",

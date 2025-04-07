@@ -344,7 +344,7 @@ jobs:
     name: Package test Android for ${{ matrix.name }}
     uses: ./.github/workflows/cd-package-android.yml
     with:
-      server: central.${{ matrix.name }}.internal.tamanu.io
+      server: central.${{ matrix.name }}.cd.tamanu.app
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
     secrets:

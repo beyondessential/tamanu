@@ -13,7 +13,8 @@ import {
   countSyncSnapshotRecords,
   createSnapshotTable,
   findSyncSnapshotRecords,
-  getModelsForDirection,
+  getModelsForPull,
+  getModelsForPush,
   getSyncTicksOfPendingEdits,
   insertSnapshotRecords,
   removeEchoedChanges,
@@ -280,7 +281,7 @@ export class CentralSyncManager {
         const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
 
         await updateLookupTable(
-          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          getModelsForPull(this.store.models),
           previouslyUpToTick,
           this.constructor.config,
           syncLookupTick,
@@ -446,7 +447,7 @@ export class CentralSyncManager {
         // regular changes
         await snapshotOutgoingChanges(
           this.store,
-          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          getModelsForPull(modelsToInclude),
           since,
           patientFacilitiesCount,
           incrementalSyncPatientsTable,
@@ -462,7 +463,7 @@ export class CentralSyncManager {
           const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
           await snapshotOutgoingChanges(
             this.store,
-            getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            getModelsForPull(modelsForFullResync),
             -1,
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
@@ -575,7 +576,7 @@ export class CentralSyncManager {
 
     const modelsToInclude = tablesToInclude
       ? filterModelsFromName(models, tablesToInclude)
-      : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+      : getModelsForPush(models);
 
     try {
       // commit the changes to the db
