@@ -277,6 +277,7 @@ programRegistry.get(
         patient.id AS "patient.id",
         --
         -- Details for the table
+        mrr.id as "id",
         patient.id AS "patient_id",
         patient.display_id AS "patient.display_id",
         patient.first_name AS "patient.first_name",
