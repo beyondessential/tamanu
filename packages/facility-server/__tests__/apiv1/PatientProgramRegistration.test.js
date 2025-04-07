@@ -542,7 +542,7 @@ describe('PatientProgramRegistration', () => {
   });
 
   describe('Conditions', () => {
-    describe('PUT patient/programRegistrationCondition/:id', () => {
+    describe('PUT patient/programRegistration/condition/:id', () => {
       let patient;
       let programRegistry;
       let programRegistryCondition;
@@ -589,7 +589,7 @@ describe('PatientProgramRegistration', () => {
       it('Updates a condition', async () => {
         const result = await app
           .put(
-            `/api/patient/programRegistrationCondition/${patientProgramRegistrationCondition.id}`,
+            `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}`,
           )
           .send({
             conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
@@ -611,7 +611,7 @@ describe('PatientProgramRegistration', () => {
       it('Errors if condition not found', async () => {
         const result = await app
           .put(
-            `/api/patient/programRegistrationCondition/${patientProgramRegistrationCondition.id}/50e7046b-81c3-4c16-90e9-111111111111`,
+            `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}/50e7046b-81c3-4c16-90e9-111111111111`,
           )
           .send({
             conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
