@@ -24,15 +24,20 @@ export class RecordVaccineModal extends BasePatientModal {
   async recordRandomVaccine() {
     await this.categoryRadioGroup.getByRole('radio').first().check();
     await this.vaccineSelectField.click();
-    await this.page.keyboard.down('Tab');
-    const scheduleFirstOption = await this.scheduleRadioGroup
-      .getByRole('radio', { disabled: false })
-      .first();
-    if (await scheduleFirstOption.isEnabled()) {
-      await scheduleFirstOption.check();
-    }
+    await this.page.keyboard.down('Tab'); // One way of selecting an option from our select fields
+    await this.selectScheduleOption();
     await this.consentCheckbox.check();
     await this.confirmButton.click();
+  }
+
+  async selectScheduleOption(option?: string) {
+    const scheduleOption = option
+      ? this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false })
+      : this.scheduleRadioGroup.getByRole('radio', { disabled: false }).first();
+
+    if (await scheduleOption.isEnabled()) {
+      await scheduleOption.check();
+    }
   }
 
   async waitForModalToClose() {
