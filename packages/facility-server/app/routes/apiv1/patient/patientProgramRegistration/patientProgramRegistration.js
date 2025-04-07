@@ -170,7 +170,11 @@ const getStatusChangeRecords = (allRecords) =>
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
     const { patientId, programRegistryId } = params;
     const { PatientProgramRegistration } = models;
 
@@ -225,6 +229,13 @@ patientProgramRegistration.get(
             removedBy: recentDeactivationRecord.clinician,
           }
         : {};
+
+    await req.audit.access({
+      recordId: registration.id,
+      params,
+      model: PatientProgramRegistration,
+      facilityId,
+    });
 
     res.send({
       ...registration,

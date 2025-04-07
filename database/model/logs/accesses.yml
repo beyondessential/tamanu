@@ -1,0 +1,82 @@
+version: 2
+sources:
+  - name: logs__tamanu
+    schema: logs
+    description: "{{ doc('logs__generic__schema') }}"
+    tables:
+      - name: accesses
+        description: '{{ doc("logs__table__accesses") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('logs__accesses__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__created_at') }}"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__updated_at') }}"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__deleted_at') }}"
+          - name: user_id
+            data_type: text
+            description: "{{ doc('logs__accesses__user_id') }}"
+            data_tests:
+              - not_null
+          - name: record_id
+            data_type: text
+            description: "{{ doc('logs__accesses__record_id') }}"
+            data_tests:
+              - not_null
+          - name: record_type
+            data_type: text
+            description: "{{ doc('logs__accesses__record_type') }}"
+            data_tests:
+              - not_null
+          - name: facility_id
+            data_type: text
+            description: "{{ doc('logs__accesses__facility_id') }}"
+          - name: session_id
+            data_type: text
+            description: "{{ doc('logs__accesses__session_id') }}"
+            data_tests:
+              - not_null
+          - name: device_id
+            data_type: text
+            description: "{{ doc('logs__accesses__device_id') }}"
+            data_tests:
+              - not_null
+          - name: logged_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__accesses__logged_at') }}"
+            data_tests:
+              - not_null
+          - name: front_end_context
+            data_type: jsonb
+            description: "{{ doc('logs__accesses__front_end_context') }}"
+            data_tests:
+              - not_null
+          - name: back_end_context
+            data_type: jsonb
+            description: "{{ doc('logs__accesses__back_end_context') }}"
+            data_tests:
+              - not_null
+          - name: is_mobile
+            data_type: boolean
+            description: "{{ doc('logs__accesses__is_mobile') }}"
+            data_tests:
+              - not_null
+          - name: version
+            data_type: text
+            description: "{{ doc('logs__accesses__version') }}"
+            data_tests:
+              - not_null
