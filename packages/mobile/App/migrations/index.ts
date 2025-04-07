@@ -61,6 +61,7 @@ import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './173408005
 import { addIsSensitiveColumnToLabTestTypes1738620786000 } from './1738620786000-addIsSensitiveColumnToLabTestTypes';
 import { addPatientProgramRegistrationConditionCategoryColumn1739395962000 } from './1739395962000-addPatientProgramRegistrationConditionCategoryColumn';
 import { addPatientProgramRegistrationReasonForChange1740342611000 } from './1740342611000-addPatientProgramRegistrationReasonForChange';
+import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-addPatientProgramRegistrationId';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -125,4 +126,5 @@ export const migrationList = [
   addIsSensitiveColumnToLabTestTypes1738620786000,
   addPatientProgramRegistrationConditionCategoryColumn1739395962000,
   addPatientProgramRegistrationReasonForChange1740342611000,
+  addPatientProgramRegistrationId1743640327000,
 ];
