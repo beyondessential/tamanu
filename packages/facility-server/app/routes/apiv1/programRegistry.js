@@ -192,14 +192,14 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, array_agg(prc."name") condition_list, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_record_list
+          SELECT patient_program_registration_id,  array_agg(prc."name") condition_list, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_record_list
           FROM patient_program_registration_conditions pprc
-            JOIN program_registry_conditions prc
-              ON pprc.program_registry_condition_id = prc.id
-          WHERE pprc.program_registry_id = :programRegistryId
+          JOIN program_registry_conditions prc ON pprc.program_registry_condition_id = prc.id
+          JOIN patient_program_registrations ppr ON ppr.id = pprc.patient_program_registration_id
+          WHERE ppr.program_registry_id = :programRegistryId
           AND pprc.deleted_at IS NULL
           AND pprc.condition_category NOT IN (:excludedCategories)
-          GROUP BY patient_id
+          GROUP BY patient_program_registration_id
         )
     `;
     const from = `
@@ -215,7 +215,7 @@ programRegistry.get(
         LEFT JOIN facilities registering_facility
           ON mrr.registering_facility_id = registering_facility.id
         LEFT JOIN conditions
-          ON conditions.patient_id = mrr.patient_id
+          ON conditions.patient_program_registration_id = mrr.id
         LEFT JOIN program_registry_clinical_statuses status
           ON mrr.clinical_status_id = status.id
         LEFT JOIN program_registries program_registry
@@ -277,6 +277,7 @@ programRegistry.get(
         patient.id AS "patient.id",
         --
         -- Details for the table
+        mrr.id as "id",
         patient.id AS "patient_id",
         patient.display_id AS "patient.display_id",
         patient.first_name AS "patient.first_name",

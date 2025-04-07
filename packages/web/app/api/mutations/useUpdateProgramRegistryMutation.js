@@ -14,6 +14,7 @@ export const useUpdateProgramRegistryMutation = (patientId, registrationId) => {
       onSuccess: () => {
         queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
         queryClient.invalidateQueries(['patient', patientId]);
+        queryClient.invalidateQueries(['patient', 'programRegistration', registrationId]);
       },
     },
   );

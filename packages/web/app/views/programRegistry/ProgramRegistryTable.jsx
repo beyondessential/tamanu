@@ -212,6 +212,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   return (
     <>
       <SearchTable
+        rowIdKey="patientId"
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
@@ -231,7 +232,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           orderBy: 'displayId',
         }}
       />
-
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
         <PatientProgramRegistryUpdateModal
           patientProgramRegistration={openModal?.data}
@@ -242,7 +242,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Activate' && (
         <PatientProgramRegistryActivateModal
           patientProgramRegistration={openModal?.data}
@@ -253,7 +252,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Remove' && (
         <RemoveProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
@@ -264,7 +262,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Delete' && (
         <DeleteProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}

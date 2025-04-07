@@ -521,7 +521,7 @@ patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
-patientRoute.use(patientProgramRegistrationConditions);
+patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 
 export { patientRoute as patient };

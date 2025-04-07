@@ -56,31 +56,38 @@ patientProgramRegistration.post(
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditionsRecords] = await db.transaction(async () => {
-      return Promise.all([
-        models.PatientProgramRegistration.create({
+    const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
+      const newRegistration = await models.PatientProgramRegistration.create(
+        {
           patientId,
           programRegistryId,
           ...registrationData,
-        }),
-        models.PatientProgramRegistrationCondition.bulkCreate(
-          conditions
-            .filter((condition) => condition.conditionId)
-            .map((condition) => ({
-              patientId,
-              programRegistryId,
-              clinicianId: registrationData.clinicianId,
-              date: registrationData.date,
-              programRegistryConditionId: condition.conditionId,
-              conditionCategory: condition.category,
-            })),
-        ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
+        },
+        { transaction },
+      );
+
+      const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
+        conditions
+          .filter((condition) => condition.conditionId)
+          .map((condition) => ({
+            patientProgramRegistrationId: newRegistration.id,
+            clinicianId: registrationData.clinicianId,
+            date: registrationData.date,
+            programRegistryConditionId: condition.conditionId,
+            conditionCategory: condition.category,
+          })),
+        { transaction },
+      );
+
+      await models.PatientFacility.upsert(
+        {
           patientId,
           facilityId: registeringFacilityId,
-        }),
-      ]);
+        },
+        { transaction },
+      );
+
+      return [newRegistration, newConditions];
     });
 
     // Convert Sequelize model to use a custom object as response
@@ -94,11 +101,11 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.put(
-  '/programRegistration/:programRegistrationId',
+  '/programRegistration/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'PatientProgramRegistration');
     const { db, models, params, body } = req;
-    const { programRegistrationId } = params;
+    const { id } = params;
     const { conditions = [], ...registrationData } = body;
     const { PatientProgramRegistration } = models;
 
@@ -106,18 +113,15 @@ patientProgramRegistration.put(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    const { patientId, programRegistryId } = existingRegistration;
-
     const conditionsData = conditions.map((condition) => ({
       id: condition.id,
-      patientId,
-      programRegistryId,
+      patientProgramRegistrationId: existingRegistration.id,
       clinicianId: registrationData.clinicianId,
       date: condition.date,
       programRegistryConditionId: condition.conditionId,
@@ -127,7 +131,7 @@ patientProgramRegistration.put(
 
     const [registration] = await db.transaction(async () => {
       return Promise.all([
-        existingRegistration.update(body),
+        existingRegistration.update(registrationData),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
           updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),

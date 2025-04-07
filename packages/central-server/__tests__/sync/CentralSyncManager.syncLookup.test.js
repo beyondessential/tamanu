@@ -439,7 +439,7 @@ describe('Sync Lookup data', () => {
         programRegistryId: programRegistry.id,
       }),
     );
-    await PatientProgramRegistration.create(
+    const registration = await PatientProgramRegistration.create(
       fake(PatientProgramRegistration, {
         clinicianId: examiner.id,
         patientId: patient.id,
@@ -448,8 +448,7 @@ describe('Sync Lookup data', () => {
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: patient.id,
-        programRegistryId: programRegistry.id,
+        patientProgramRegistrationId: registration.id,
       }),
     );
     await PatientAllergy.create(
