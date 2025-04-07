@@ -127,3 +127,5 @@ export const test = base.extend<BaseFixtures>({
     await use(new OutpatientAppointmentsPage(page));
   },
 });
+
+export { expect } from '@playwright/test';
