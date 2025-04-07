@@ -65,10 +65,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>
-      models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
-        patientProgramRegistration.programRegistryId,
-        patientProgramRegistration.patientId,
-      ),
+      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistration.id),
     [patientProgramRegistration],
   );
   return (
@@ -85,10 +82,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       />
       <DataRow
         label={
-          <TranslatedText
-            stringId="programRegistry.registeredBy.label"
-            fallback="Registered by"
-          />
+          <TranslatedText stringId="programRegistry.registeredBy.label" fallback="Registered by" />
         }
         value={patientProgramRegistration?.clinician?.displayName}
       />
@@ -108,12 +102,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         }
       />
       <DataRow
-        label={
-          <TranslatedText
-            stringId="programRegistry.clinicalStatus.label"
-            fallback="Status"
-          />
-        }
+        label={<TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />}
         value={
           <TranslatedReferenceData
             fallback={patientProgramRegistration.clinicalStatus?.name}
@@ -124,12 +113,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         }
       />
       <DataRow
-        label={
-          <TranslatedText
-            stringId="programRegistry.conditions.label"
-            fallback="Conditions"
-          />
-        }
+        label={<TranslatedText stringId="programRegistry.conditions.label" fallback="Conditions" />}
         value={
           Array.isArray(pprCondition) && pprCondition.length > 0
             ? pprCondition.map(({ programRegistryCondition }) => (
