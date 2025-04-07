@@ -1,38 +1,24 @@
-import { test } from '@playwright/test';
+import { test, expect } from '../../../fixtures/baseFixture';
+import { routes, wildcardToRegex } from '../../../config/routes';
 
-test('Record a vaccine', async ({ page }) => {
-  // Navigate to the home
-  await page.goto('/');
+test('Record a vaccine', async ({ allPatientsPage, patientDetailsPage }) => {
+  await allPatientsPage.goto();
+  await allPatientsPage.clickOnFirstRow();
 
-  await page.waitForURL('**/#/dashboard');
+  // Patient details page should load
+  await expect(patientDetailsPage.page).toHaveURL(wildcardToRegex(routes.patients.patientDetails));
 
-  // Navigate to the all patients page
-  await page.goto('/#/patients/all');
+  // Click on the vaccines tab
+  const vaccinePane = await patientDetailsPage.navigateToVaccineTab();
 
-  // Locate the patient table
-  const patientTable = await page.getByRole('table');
-  const loadingCell = await page.getByRole('cell', { name: 'Loading...' });
+  // Store current recorded vaccines count
+  const recordedVaccinesCount = await vaccinePane.getRecordedVaccineCount();
 
+  // Record vaccine
+  const recordVaccineModal = await vaccinePane.clickRecordVaccineButton();
+  await recordVaccineModal.recordRandomVaccine();
+  await recordVaccineModal.waitForModalToClose();
 
-  // Await the table to load
-  await patientTable.waitFor();
-  await loadingCell.waitFor({ state: 'detached' });
-
-  // Get the first row of the table and click
-  const firstRow = await patientTable.locator('tbody tr').first();
-
-  await firstRow.waitFor();
-
-  await firstRow.click();
-
-  await page.waitForURL('**/#/patients/all/*');
-
-
-  const loader = await page.locator('.sc-hHOBiw');
-  await loader.waitFor({ state: 'detached' });
-
-  await page.getByTestId('tab-vaccines').click();
-
-  // // Click on record vaccine button
-  // await page.getByRole('button', { name: 'Record vaccine' }).click();
+  const newRecordedVaccinesCount = await vaccinePane.getRecordedVaccineCount();
+  expect(newRecordedVaccinesCount).toBe(recordedVaccinesCount + 1);
 });
