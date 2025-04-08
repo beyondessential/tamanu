@@ -16,6 +16,8 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Field, Form, NumberField } from '../Field';
 import { TimePickerField } from '../Field/TimePickerField';
+import { MAR_WARNING_MODAL } from '../../constants/medication';
+import { WarningModal } from './WarningModal';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -217,7 +219,7 @@ const GivenScreen = ({
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
-
+  const [showWarningModal, setShowWarningModal] = useState(null);
   // Measure the DoseContainer width when component mounts
   useLayoutEffect(() => {
     if (doseInputRef.current) {
@@ -242,6 +244,11 @@ const GivenScreen = ({
 
   const handleSubmit = async data => {
     const { timeGiven, doseAmount } = data;
+    if (doseAmount !== prescriptionDoseAmount && !showWarningModal) {
+      setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+      return;
+    }
+
     const givenTime = set(new Date(selectedDate), {
       hours: timeGiven.getHours(),
       minutes: timeGiven.getMinutes(),
@@ -251,67 +258,81 @@ const GivenScreen = ({
     await updateMar({
       administeredAt,
       dose: {
-          doseAmount,
-          givenTime,
-        },
+        doseAmount,
+        givenTime,
+      },
       prescriptionId,
     });
   };
 
   return (
     <Form
-      enableReinitialize
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ setFieldValue, values, submitForm, errors }) => (
-        <FormContainer $width={containerWidth}>
-          <DoseContainer>
-            <DoseButton onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}>
-              <RemoveCircleOutlineIcon />
-            </DoseButton>
-            <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
-              <Field name="doseAmount" component={NumberField} min={0.25} />
-              <InputSuffix>{units}</InputSuffix>
-            </StyledNumberFieldWrapper>
-            <DoseButton onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}>
-              <AddCircleOutlineIcon />
-            </DoseButton>
-          </DoseContainer>
-
-          <TimeGivenTitle>
-            <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
-            <RequiredMark>*</RequiredMark>
-          </TimeGivenTitle>
-          <StyledTimePicker
-            name="timeGiven"
-            onChange={value => {
-              setFieldValue('timeGiven', value);
-            }}
-            component={TimePickerField}
-            format="hh:mmaa"
-            timeSteps={{ minutes: 1 }}
-            error={errors.timeGiven}
-            slotProps={{
-              textField: {
-                readOnly: true,
-                InputProps: {
-                  placeholder: '--:-- --',
-                },
-                error: errors.timeGiven,
-              },
-              digitalClockSectionItem: {
-                sx: { fontSize: '14px' },
-              },
+        <>
+          <WarningModal
+            modal={showWarningModal}
+            onClose={() => setShowWarningModal(null)}
+            onConfirm={() => {
+              setShowWarningModal(null);
+              handleSubmit(values);
             }}
           />
-          {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+          <FormContainer $width={containerWidth}>
+            <DoseContainer>
+              <DoseButton onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}>
+                <RemoveCircleOutlineIcon />
+              </DoseButton>
+              <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
+                <Field name="doseAmount" component={NumberField} min={0.25} />
+                <InputSuffix>{units}</InputSuffix>
+              </StyledNumberFieldWrapper>
+              <DoseButton onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}>
+                <AddCircleOutlineIcon />
+              </DoseButton>
+            </DoseContainer>
 
-          <div>
-            <ConfirmButton onClick={submitForm} variant="outlined" size="small">
-              <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-            </ConfirmButton>
-          </div>
-        </FormContainer>
+            <TimeGivenTitle>
+              <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
+              <RequiredMark>*</RequiredMark>
+            </TimeGivenTitle>
+            <StyledTimePicker
+              name="timeGiven"
+              onChange={value => {
+                setFieldValue('timeGiven', value);
+              }}
+              component={TimePickerField}
+              format="hh:mmaa"
+              timeSteps={{ minutes: 1 }}
+              error={errors.timeGiven}
+              slotProps={{
+                textField: {
+                  readOnly: true,
+                  InputProps: {
+                    placeholder: '--:-- --',
+                  },
+                  error: errors.timeGiven,
+                },
+                digitalClockSectionItem: {
+                  sx: { fontSize: '14px' },
+                },
+              }}
+            />
+            {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+
+            <div>
+              <ConfirmButton
+                onClick={submitForm}
+                variant="outlined"
+                size="small"
+                disabled={!values.doseAmount}
+              >
+                <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+              </ConfirmButton>
+            </div>
+          </FormContainer>
+        </>
       )}
       initialValues={{
         doseAmount: Number(prescriptionDoseAmount) || 0.25,
