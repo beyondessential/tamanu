@@ -505,7 +505,7 @@ describe('PatientProgramRegistration', () => {
     });
 
     it('fetches the full detail of the latest registration', async () => {
-      const { patient, registry, updates, registration } = await populate();
+      const { patient, registry, updates } = await populate();
 
       const result = await app.get(`/api/patient/${patient.id}/programRegistration/${registry.id}`);
       expect(result).toHaveSucceeded();
