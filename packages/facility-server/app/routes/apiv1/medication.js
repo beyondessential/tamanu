@@ -52,6 +52,7 @@ medication.post(
 
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
+
     res.send(prescription.forResponse());
   }),
 );
@@ -160,6 +161,12 @@ medication.post(
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+      throw new InvalidOperationError(
+        `Medication with frequency ${ADMINISTRATION_FREQUENCIES.IMMEDIATELY} cannot be paused`,
+      );
     }
 
     // Find the encounter prescription link

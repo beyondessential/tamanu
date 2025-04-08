@@ -1,11 +1,7 @@
 import { addDays, subDays, format, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@material-ui/icons';
-import {
-  ButtonWithPermissionCheck,
-  Heading3,
-  TranslatedText,
-} from '../..';
+import { ButtonWithPermissionCheck, Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
@@ -57,7 +53,9 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   };
 
   const isPreviousDayDisabled = isSameDay(selectedDate, new Date(encounter.startDate));
-  const isNextDayHidden = isSameDay(addDays(new Date(), 2), selectedDate);
+  const isNextDayHidden =
+    isSameDay(addDays(new Date(), 2), selectedDate) ||
+    isSameDay(new Date(encounter.endDate), selectedDate);
 
   return (
     <Wrapper>
@@ -81,6 +79,17 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
               stringId="medication.mar.encounterStartDate"
             />
           }
+          PopperProps={{
+            modifiers: {
+              flip: {
+                enabled: false,
+              },
+              offset: {
+                enabled: true,
+                offset: '0, -15',
+              },
+            },
+          }}
         >
           <StepperButton onClick={goToPreviousDay} disabled={isPreviousDayDisabled}>
             <ChevronLeft />
@@ -94,7 +103,11 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
         )}
       </DateSelectWrapper>
       <ButtonWrapper>
-        <ButtonWithPermissionCheck onClick={() => setCreateMedicationModalOpen(true)} verb="create" noun="Prescription">
+        <ButtonWithPermissionCheck
+          onClick={() => setCreateMedicationModalOpen(true)}
+          verb="create"
+          noun="Prescription"
+        >
           <TranslatedText
             stringId="medication.action.newPrescription"
             fallback="New prescription"

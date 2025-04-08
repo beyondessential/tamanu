@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { format, isSameDay } from 'date-fns';
@@ -42,6 +42,7 @@ const HeaderRow = styled.div`
 
 const ScrollableContent = styled.div`
   overflow-y: auto;
+  overflow-x: hidden;
   ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
 `;
 
@@ -65,7 +66,7 @@ const TimeSlotHeaderContainer = styled.div`
   align-items: center;
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
-  ${props => props.isCurrentTimeSlot && `background: #EBF0F5; color: ${Colors.primary};`}
+  ${props => props.isCurrentTimeSlot ? `background: #EBF0F5; color: ${Colors.primary};` : `color: ${Colors.midText};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -73,7 +74,6 @@ const TimeSlotText = styled.div`
   font-size: 12px;
   transform: rotate(-90deg);
   white-space: nowrap;
-  color: ${Colors.midText};
 `;
 
 const TimeSlotLabel = styled.div`
@@ -89,7 +89,6 @@ const SubHeader = styled.div`
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
   border-bottom: 1px solid ${Colors.outline};
-  margin-top: -1px;
   grid-column: 1 / -1;
   position: sticky;
   top: 0;
@@ -109,6 +108,7 @@ const EmptyMessage = styled.div`
 
 const MedicationGrid = styled.div`
   display: grid;
+  margin-top: -1px;
   grid-template-columns: minmax(50px, 1fr) repeat(12, ${MEDICATION_CELL_WIDTH}px);
 `;
 
@@ -116,7 +116,7 @@ const CurrentTimeOverlay = styled.div`
   position: absolute;
   top: 0;
   width: ${MEDICATION_CELL_WIDTH - 1}px;
-  height: 100%;
+  height: ${p => p.$height || '100%'};
   z-index: 11;
   right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH}px;
   border: 1px solid ${Colors.primary};
@@ -145,6 +145,11 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
+  const scheduledSectionRef = useRef(null);
+  const scheduledHeaderRef = useRef(null);
+  const prnSectionRef = useRef(null);
+  const prnHeaderRef = useRef(null);
+  const [overlayHeight, setOverlayHeight] = useState('100%');
 
   const { data: medicationsData } = useEncounterMedicationQuery(encounter?.id, {
     marDate: toDateString(selectedDate),
@@ -158,6 +163,61 @@ export const MarTable = ({ selectedDate }) => {
   const prnMedications = medications.filter(medication => medication.isPrn);
   const scheduledMedications = medications.filter(medication => !medication.isPrn);
 
+  // Determine overlay height based on medication content
+  const getOverlayHeight = () => {
+    if (prnMedications.length > 0) {
+      setOverlayHeight('100%');
+      return;
+    }
+    if (scheduledMedications.length > 0) {
+      const scheduledSectionHeight = scheduledSectionRef?.current?.offsetHeight || 0;
+      setOverlayHeight('calc(105px + ' + scheduledSectionHeight + 'px)');
+      return;
+    }
+    setOverlayHeight('105px');
+  };
+
+  useLayoutEffect(() => {
+    getOverlayHeight();
+  }, [prnMedications.length, scheduledMedications.length, selectedDate]);
+
+  useLayoutEffect(() => {
+    // Don't proceed if any required refs are missing
+    if (!scheduledHeaderRef.current || !prnHeaderRef.current) return;
+
+    const scheduledHeader = scheduledHeaderRef.current;
+    const prnHeader = prnHeaderRef.current;
+
+    // Common observer configuration
+    const observerOptions = { 
+      threshold: 0, 
+      rootMargin: '-105px 0px 0px 0px' 
+    };
+
+    // Helper function to create consistent observers
+    const createHeaderObserver = headerElement => {
+      return new IntersectionObserver(([entry]) => {
+        headerElement.style.position = entry.isIntersecting 
+          ? 'sticky' 
+          : (entry.boundingClientRect.top < 105 ? 'static' : headerElement.style.position);
+      }, observerOptions);
+    };
+
+    // Create observers for both section headers
+    const scheduledObserver = createHeaderObserver(scheduledHeader);
+    const prnObserver = createHeaderObserver(prnHeader);
+
+    // Start observing sections if they exist
+    if (scheduledSectionRef.current) scheduledObserver.observe(scheduledSectionRef.current);
+    if (prnSectionRef.current) prnObserver.observe(prnSectionRef.current);
+
+    // Clean up observers when component unmounts
+    return () => {
+      scheduledObserver.disconnect();
+      prnObserver.disconnect();
+    };
+  }, []);
+
   return (
     <Container>
       {isSameDay(selectedDate, new Date()) && (
@@ -168,6 +228,7 @@ export const MarTable = ({ selectedDate }) => {
             ).index
           }
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
+          $height={overlayHeight}
         />
       )}
       <HeaderRow columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
@@ -186,58 +247,62 @@ export const MarTable = ({ selectedDate }) => {
         ))}
       </HeaderRow>
       <MedicationContainer>
-        <ScrollableContent $flexShrink={!scheduledMedications.length ? 0 : null}>
-          <SubHeader>
-            <TranslatedText
-              fallback="Scheduled medication"
-              stringId="medication.mar.scheduledMedication.label"
-            />
-          </SubHeader>
-          <MedicationGrid>
-            {scheduledMedications.length ? (
-              scheduledMedications.map(medication => (
-                <MarTableRow
-                  key={medication?.id}
-                  medication={medication}
-                  selectedDate={selectedDate}
-                />
-              ))
-            ) : (
-              <EmptyMessage>
-                <TranslatedText
-                  fallback="No scheduled medication to display"
-                  stringId="medication.mar.noScheduledMedication.label"
-                />
-              </EmptyMessage>
-            )}
-          </MedicationGrid>
-        </ScrollableContent>
-        {/* PRN medications section */}
-        <ScrollableContent $flexShrink={!prnMedications.length ? 0 : null}>
-          <SubHeader>
-            <TranslatedText
-              fallback="PRN medication"
-              stringId="medication.mar.prnMedication.label"
-            />
-          </SubHeader>
-          <MedicationGrid>
-            {prnMedications.length ? (
-              prnMedications.map(medication => (
-                <MarTableRow
-                  key={medication?.id}
-                  medication={medication}
-                  selectedDate={selectedDate}
-                />
-              ))
-            ) : (
-              <EmptyMessage>
-                <TranslatedText
-                  fallback="No PRN medication to display"
-                  stringId="medication.mar.noPrnMedication.label"
-                />
-              </EmptyMessage>
-            )}
-          </MedicationGrid>
+        <ScrollableContent>
+          {/* Scheduled medications section */}
+          <div ref={scheduledSectionRef}>
+            <SubHeader ref={scheduledHeaderRef}>
+              <TranslatedText
+                fallback="Scheduled medication"
+                stringId="medication.mar.scheduledMedication.label"
+              />
+            </SubHeader>
+            <MedicationGrid>
+              {scheduledMedications.length ? (
+                scheduledMedications.map(medication => (
+                  <MarTableRow
+                    key={medication?.id}
+                    medication={medication}
+                    selectedDate={selectedDate}
+                  />
+                ))
+              ) : (
+                <EmptyMessage>
+                  <TranslatedText
+                    fallback="No scheduled medication to display"
+                    stringId="medication.mar.noScheduledMedication.label"
+                  />
+                </EmptyMessage>
+              )}
+            </MedicationGrid>
+          </div>
+
+          {/* PRN medications section */}
+          <div ref={prnSectionRef}>
+            <SubHeader ref={prnHeaderRef}>
+              <TranslatedText
+                fallback="PRN medication"
+                stringId="medication.mar.prnMedication.label"
+              />
+            </SubHeader>
+            <MedicationGrid>
+              {prnMedications.length ? (
+                prnMedications.map(medication => (
+                  <MarTableRow
+                    key={medication?.id}
+                    medication={medication}
+                    selectedDate={selectedDate}
+                  />
+                ))
+              ) : (
+                <EmptyMessage>
+                  <TranslatedText
+                    fallback="No PRN medication to display"
+                    stringId="medication.mar.noPrnMedication.label"
+                  />
+                </EmptyMessage>
+              )}
+            </MedicationGrid>
+          </div>
         </ScrollableContent>
       </MedicationContainer>
     </Container>

@@ -51,9 +51,4 @@ export const createMedication = async ({
       encounterPrescriptionId: encounterPrescription.id,
     }),
   );
-  await MedicationAdministrationRecord.create(
-    fake(MedicationAdministrationRecord, {
-      prescriptionId: prescription.id,
-    }),
-  );
 };

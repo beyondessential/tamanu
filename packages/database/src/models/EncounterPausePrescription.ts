@@ -6,7 +6,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import type { InitOptions, Models } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterPatientIdSelect } from '../sync';
 
 export class EncounterPausePrescription extends Model {
@@ -33,15 +33,13 @@ export class EncounterPausePrescription extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        pauseStartDate: {
-          type: DataTypes.DATETIMESTRING,
+        pauseStartDate: dateTimeType('pauseStartDate', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
-        },
-        pauseEndDate: {
-          type: DataTypes.DATETIMESTRING,
+        }),
+        pauseEndDate: dateTimeType('pauseEndDate', {
           allowNull: false,
-        },
+        }),
         notes: {
           type: DataTypes.TEXT,
           allowNull: true,

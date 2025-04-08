@@ -185,7 +185,12 @@ encounterRelations.get(
     const associations = Prescription.getListReferenceAssociations() || [];
 
     const baseQueryOptions = {
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      order: orderBy
+        ? [
+            [...orderBy.split('.'), order.toUpperCase()],
+            ['date', 'ASC'],
+          ]
+        : undefined,
       include: [
         ...associations,
         {
@@ -244,15 +249,12 @@ encounterRelations.get(
             [Op.or]: [
               { discontinuedDate: { [Op.is]: null } },
               { discontinuedDate: { [Op.gte]: startOfMarDate } },
-            ]
+            ],
           },
           {
-            [Op.or]: [
-              { endDate: { [Op.is]: null } },
-              { endDate: { [Op.gte]: startOfMarDate } }
-            ]
-          }
-        ]
+            [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: startOfMarDate } }],
+          },
+        ],
       };
     }
 
@@ -740,7 +742,7 @@ encounterRelations.get(
       ],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
-      include: Task.getFullReferenceAssociations(),
+      include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
     const results = queryResults.map((x) => x.forResponse());
 
