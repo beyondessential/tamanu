@@ -11,7 +11,7 @@ import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { Button } from '../Button';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { useNotGivenMarMutation } from '../../api/mutations/useMarMutation';
+import { useGivenMarMutation, useNotGivenMarMutation } from '../../api/mutations/useMarMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Field, Form, NumberField } from '../Field';
@@ -225,7 +225,7 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
+  const { mutateAsync: updateMar } = useGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       onClose();
@@ -249,14 +249,11 @@ const GivenScreen = ({
     });
     const administeredAt = getDateFromTimeString(timeSlot.startTime, selectedDate);
     await updateMar({
-      status: ADMINISTRATION_STATUS.GIVEN,
       administeredAt,
-      doses: [
-        {
+      dose: {
           doseAmount,
           givenTime,
         },
-      ],
       prescriptionId,
     });
   };

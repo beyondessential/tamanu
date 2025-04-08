@@ -326,6 +326,9 @@ export const MarStatus = ({
           );
         case ADMINISTRATION_STATUS.GIVEN: {
           const firstDose = doses?.[0];
+          if (!firstDose) return null;
+          console.log('firstDose', firstDose);
+          console.log('doses', doses);
           return (
             <Box maxWidth={73}>
               <TranslatedText
