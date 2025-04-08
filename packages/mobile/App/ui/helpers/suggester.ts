@@ -137,7 +137,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       data = replaceDataLabelsWithTranslations({ data, translations });
 
-      const formattedData = this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);
+      const formattedData = this.filter
+        ? data.filter(this.filter).map(this.formatter)
+        : data.map(this.formatter);
+
       if (this.lastUpdatedAt < requestedAt) {
         this.cachedData = formattedData;
         this.lastUpdatedAt = requestedAt;
