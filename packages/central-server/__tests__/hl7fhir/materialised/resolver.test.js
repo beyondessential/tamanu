@@ -219,6 +219,25 @@ describe(`FHIR reference resolution`, () => {
       expect(mat.lastUpdated.toISOString()).toEqual(previousLastUpdated);
     });
 
+    it('if an error occurs when resolving a reference, the resourceId should be thrown', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+        }),
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+      await ir.update({ imagingType: 'banana' }); // Set invalid imaging type to trigger error when resolving
+
+      await expect(FhirServiceRequest.resolveUpstreams()).rejects.toThrow(
+        `ServiceRequest/${mat.id}`,
+      );
+    });
+
     describe('FHIR API', () => {
       it('will throw an exception if the resource does not resolve within the given timeout', async () => {
         // arrange
